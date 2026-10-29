@@ -3,6 +3,11 @@
 
 #include <string>
 #include <map>
+#include <functional>
+#include <optional>
+#include <string_view>
+#include <memory>
+#include <vector>
 
 /************************************************************************/
 /* The strings output from this class are always UTF-8 format!!!		*/
@@ -11,8 +16,10 @@
 class CTabFile
 {
 public:
-	CTabFile();
-	~CTabFile();
+    CTabFile() = default;
+    ~CTabFile() = default;
+    CTabFile(const CTabFile&) = delete;
+    CTabFile& operator=(const CTabFile&) = delete;
 
 	BOOL Init(const char* pcszFileName, INT32 nSkipLine);
 	BOOL UnInit(void);
@@ -23,25 +30,28 @@ public:
 
     BOOL ReadData(INT32 nCol, INT32 nRow, INT32& rnValue);
 	BOOL ReadData(const char* pcszColName, int nRow, INT32& rnValue);
+    BOOL ReadData(std::string_view columnName, INT32 nRow, INT32& rnValue);
     BOOL ReadData(INT32 nCol, INT32 nRow, char* pszValue, INT32 nSize);
     BOOL ReadData(const char* pcszColName, int nRow, char* pszValue, INT32 nSize);
+    BOOL ReadData(std::string_view columnName, INT32 nRow, char* pszValue, INT32 nSize);
 
     UINT32 GetCRC(void);
 
 private:
-    const char* GetData(INT32 nCol, INT32 nRow);
-    const char* GetData(const char* pcszColName, INT32 nRow);
+    const char* GetData(INT32 nCol, INT32 nRow) const;
+    const char* GetValueData(INT32 nCol, INT32 nRow) const;
+    std::optional<INT32> FindColumn(std::string_view name) const;
 
 private:
-	char*			m_pData;
-	size_t			m_uSize;
-	INT32           m_nSkipLine;
-	INT32			m_nRowCount;
-	INT32			m_nColCount;
-	INT32*			m_pOffsetTable;
-    UINT32          m_dwCRC32;
+    std::unique_ptr<char[]> m_pData;
+    size_t m_uSize = 0;
+    INT32 m_nSkipLine = 0;
+    INT32 m_nRowCount = 0;
+    INT32 m_nColCount = 0;
+    std::vector<INT32> m_pOffsetTable;
+    UINT32 m_dwCRC32 = 0;
 
-	typedef std::map<std::string, int, std::less<std::string> > MAP_NAME_2_COL;
+	using MAP_NAME_2_COL = std::map<std::string, int, std::less<>>;
 	MAP_NAME_2_COL	m_mapName2Col;
 };
 

@@ -3,7 +3,7 @@
 
 #define COLUMN_COUNT    (6)
 
-char* g_pszTestCase[][COLUMN_COUNT + 1] = 
+const char* g_pszTestCase[][COLUMN_COUNT + 1] =
 {
     {"Field1",  "Field2",   "Field3",   "Field4",   "Field5",   "Field6",   "\r\n"},
     {"01",      "02",       "03",       "04",       "05",       "06",       "\n"},
@@ -13,7 +13,7 @@ char* g_pszTestCase[][COLUMN_COUNT + 1] =
     {"  ",      "  ",       "  ",       "  ",       "  ",       "  ",       "\n"},
 };
 
-char* g_pszTestResult[][COLUMN_COUNT + 1] = 
+const char* g_pszTestResult[][COLUMN_COUNT + 1] =
 {
     {"Field1",  "Field2",   "Field3",   "Field4",   "Field5",   "Field6",   "\r\n"},
     {"01",      "02",       "03",       "04",       "05",       "06",       "\n"},
