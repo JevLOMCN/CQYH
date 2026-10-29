@@ -2071,7 +2071,7 @@ INT32 g_nC2SMessageSize[] = {
 };
 
 #if !SHIPPING_PC_GAME
-char* g_szS2CMessageName[] = {
+const char* g_szS2CMessageName[] = {
     "undefined s2c message",
     "b2c_query_gate_ack",
     "undefined s2c message",
@@ -3098,7 +3098,7 @@ char* g_szS2CMessageName[] = {
     "undefined s2c message",
 };
 
-char* g_szC2SMessageName[] = {
+const char* g_szC2SMessageName[] = {
     "undefined c2s message",
     "undefined c2s message",
     "undefined c2s message",
