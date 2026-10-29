@@ -4,7 +4,11 @@
 #include "process_error.h"
 #include "linux_map.h"
 #include <typeinfo>
-#include <stdlib.h> // for linux malloc in template
+#include <array>
+#include <cstdint>
+#include <limits>
+#include <memory>
+#include <vector>
 #include <psapi.h>
 
 #ifdef WIN32
@@ -22,6 +26,8 @@ class CIDObjectPool
 public:
     CIDObjectPool();
     ~CIDObjectPool();
+    CIDObjectPool(const CIDObjectPool&) = delete;
+    CIDObjectPool& operator=(const CIDObjectPool&) = delete;
 
     BOOL Init(INT32 nInitSize);
     BOOL UnInit(void);
@@ -44,7 +50,7 @@ public:
 
 private:
     INT32			m_nSize;
-    LM_MAP_NODE<N>*	m_pDataMapRoot[HASH_TABLE_SIZE];
+    std::array<LM_MAP_NODE<N>*, HASH_TABLE_SIZE> m_pDataMapRoot;
     LM_MAP_NODE<N>	m_FreeListHead;
     INT32			m_nFreeListSize;
 	INT32			m_nObjSize;
@@ -57,13 +63,39 @@ private:
 #endif  // _DEBUG_FENCE
     };
 
+    struct PayloadDeleter
+    {
+        std::size_t count = 0;
+        void operator()(T_NODE* data) const noexcept
+        {
+            // The original ID pool destroyed payloads in ascending slot order.
+            std::destroy_n(data, count);
+            std::allocator<T_NODE>{}.deallocate(data, count);
+        }
+    };
+    using PayloadOwner = std::unique_ptr<T_NODE[], PayloadDeleter>;
+
+    static PayloadOwner _AllocatePayloads(std::size_t count)
+    {
+        std::allocator<T_NODE> allocator;
+        auto* storage = allocator.allocate(count);
+        try { std::uninitialized_default_construct_n(storage, count); }
+        catch (...)
+        {
+            allocator.deallocate(storage, count);
+            throw;
+        }
+        return PayloadOwner(storage, PayloadDeleter{count});
+    }
+
     struct CHUNK_NODE
     {
-        LM_MAP_NODE<N>*	pDataNode;
-        T_NODE*         pTNode;
-        INT32			nSize;
-        CHUNK_NODE*		pNext;
-    }				m_ChunkListHead;
+        std::unique_ptr<LM_MAP_NODE<N>[]> pDataNode;
+        PayloadOwner pTNode;
+        INT32 nSize;
+    };
+    // Moving an owner never moves its indexed nodes or payload objects.
+    std::vector<CHUNK_NODE> m_chunks;
 
     BOOL _CreateChunk(INT32 nSize);
     LM_MAP_NODE<N>* _GetDataNode(T* pData);
@@ -75,9 +107,8 @@ CIDObjectPool<T, N>::CIDObjectPool()
 {
     m_nSize = 0;
     m_nFreeListSize = 0;
-    memset(m_pDataMapRoot, NULL, sizeof(m_pDataMapRoot));
+    m_pDataMapRoot.fill(nullptr);
     memset(&m_FreeListHead, 0, sizeof(m_FreeListHead));
-    memset(&m_ChunkListHead, 0, sizeof(m_ChunkListHead));
 	m_nObjSize = 0;
 }
 
@@ -90,190 +121,99 @@ CIDObjectPool<T, N>::~CIDObjectPool()
 template<class T, class N>
 BOOL CIDObjectPool<T, N>::_CreateChunk(INT32 nSize)
 {
-    LM_MAP_NODE<N>* pNewChunk = NULL;
-    CHUNK_NODE* pNewChunkNode = NULL;
-    LM_MAP_NODE<N>* pNode = NULL;
-
-    LOG_PROCESS_ERROR(nSize > 0);
-
-    // alloc memory
-    pNewChunk = (LM_MAP_NODE<N>*)malloc((sizeof(LM_MAP_NODE<N>) + sizeof(T_NODE)) * nSize);
-    LOG_PROCESS_ERROR(pNewChunk);
-    LOG_PROCESS_ERROR(((INT64)pNewChunk & 3) == 0);       // check 4 bytes aligned
-	LOG_PROCESS_ERROR(sizeof(T) % 4 == 0);
-
-    pNewChunkNode = new CHUNK_NODE;
-    LOG_PROCESS_ERROR(pNewChunkNode);
-
-    // link chunk list
-    pNewChunkNode->pDataNode = pNewChunk;
-    pNewChunkNode->pTNode = (T_NODE*)(pNewChunk + nSize);
-    pNewChunkNode->nSize = nSize;
-    pNewChunkNode->pNext = m_ChunkListHead.pNext;
-    m_ChunkListHead.pNext = pNewChunkNode;
-
-    // call constructor
-    for (int nIndex = 0; nIndex < nSize; nIndex++)
+    if (nSize <= 0 || nSize > (std::numeric_limits<INT32>::max)() - m_nSize)
+        return FALSE;
+    // The intrusive tree stores color bits in the low two address bits.
+    static_assert(sizeof(LM_MAP_NODE<N>) % 4 == 0);
+    try
     {
-        T_NODE* pTNode = pNewChunkNode->pTNode + nIndex;
-
+        CHUNK_NODE chunk{
+            std::make_unique_for_overwrite<LM_MAP_NODE<N>[]>(nSize),
+            _AllocatePayloads(nSize), nSize};
+        auto* nodes = chunk.pDataNode.get();
+        // Constructed arrays roll back automatically if payload construction or
+        // vector growth throws. Separate arrays honor T's alignment requirements.
 #ifdef _DEBUG_FENCE
-        pTNode->qwFence = FENCE_NUMBER;
-#endif  // _DEBUG_FENCE
-
-#ifdef new
-#define REPLACEMENT_NEW new
-#undef new
-        REPLACEMENT_NEW (&pTNode->Data) T;
-#define new _DEBUG_NEW
-#undef REPLACEMENT_NEW
-#else
-        new (&pTNode->Data) T;
-#endif  // new
+        for (INT32 index = 0; index < nSize; ++index)
+            chunk.pTNode[index].qwFence = FENCE_NUMBER;
+#endif
+        m_chunks.push_back(std::move(chunk));
+        for (INT32 index = 0; index < nSize; ++index)
+        {
+            nodes[index].pNext = index + 1 < nSize ? nodes + index + 1 : m_FreeListHead.pNext;
+            nodes[index].pLeft = reinterpret_cast<LM_MAP_NODE<N>*>(MAGIC_FREE_TAG);
+        }
+        m_FreeListHead.pNext = nodes;
+        m_nSize += nSize;
+        m_nFreeListSize += nSize;
+        return TRUE;
     }
-
-    // put into free list
-    pNode = pNewChunk;
-    for (int nIndex = 1; nIndex < nSize; nIndex++)
+    catch (...)
     {
-        LM_MAP_NODE<N>* pNextNode = pNewChunk + nIndex;
-        pNode->pNext = pNextNode;
-        pNode->pLeft = (LM_MAP_NODE<N>*)MAGIC_FREE_TAG;
-        pNode = pNextNode;
+        ERR("ID object pool chunk allocation or construction failed");
+        return FALSE;
     }
-    pNode->pNext = m_FreeListHead.pNext;
-    pNode->pLeft = (LM_MAP_NODE<N>*)MAGIC_FREE_TAG;
-    m_FreeListHead.pNext = pNewChunk;
-
-    m_nSize += nSize;
-    m_nFreeListSize += nSize;
-
-    return TRUE;
-Exit0:
-    if (pNewChunk)
-    {
-        free(pNewChunk);
-    }
-    if (pNewChunkNode)
-        SAFE_DELETE(pNewChunkNode);
-
-    return FALSE;
 }
 
 template<class T, class N>
 LM_MAP_NODE<N>* CIDObjectPool<T, N>::_GetDataNode(T* pData)
 {
-    T_NODE* pTNode = (T_NODE*)pData;
-    CHUNK_NODE* pChunkNode = m_ChunkListHead.pNext;
-    while (pChunkNode)
+    if (!pData)
+        return nullptr;
+    const auto address = reinterpret_cast<std::uintptr_t>(pData);
+    for (auto it = m_chunks.rbegin(); it != m_chunks.rend(); ++it)
     {
-        ptrdiff_t nOffset = pTNode - pChunkNode->pTNode;
-        if (nOffset >= 0 && nOffset < pChunkNode->nSize)
+        const auto base = reinterpret_cast<std::uintptr_t>(&it->pTNode[0].Data);
+        if (address >= base)
         {
-            return pChunkNode->pDataNode + nOffset;
+            const auto offset = address - base;
+            if (offset % sizeof(T_NODE) == 0 && offset / sizeof(T_NODE) < static_cast<std::size_t>(it->nSize))
+                return it->pDataNode.get() + offset / sizeof(T_NODE);
         }
-        pChunkNode = pChunkNode->pNext;
     }
-
-    return NULL;
+    return nullptr;
 }
 
 template<class T, class N>
 T* CIDObjectPool<T, N>::_GetData(LM_MAP_NODE<N>* pDataNode)
 {
-    CHUNK_NODE* pChunkNode = m_ChunkListHead.pNext;
-    while (pChunkNode)
+    if (!pDataNode)
+        return nullptr;
+    const auto address = reinterpret_cast<std::uintptr_t>(pDataNode);
+    for (auto it = m_chunks.rbegin(); it != m_chunks.rend(); ++it)
     {
-        ptrdiff_t nOffset = pDataNode - pChunkNode->pDataNode;
-        if (nOffset >= 0 && nOffset < pChunkNode->nSize)
+        const auto base = reinterpret_cast<std::uintptr_t>(it->pDataNode.get());
+        if (address >= base)
         {
-            return (T*)(pChunkNode->pTNode + nOffset);
+            const auto offset = address - base;
+            if (offset % sizeof(LM_MAP_NODE<N>) == 0 && offset / sizeof(LM_MAP_NODE<N>) < static_cast<std::size_t>(it->nSize))
+                return &it->pTNode[offset / sizeof(LM_MAP_NODE<N>)].Data;
         }
-        pChunkNode = pChunkNode->pNext;
     }
-
-    return NULL;
+    return nullptr;
 }
 
 template<class T, class N>
 BOOL CIDObjectPool<T, N>::Init(INT32 nInitSize)
 {
-    INT32 nRetCode = 0;
-	HANDLE hHeap = NULL;
-	//PROCESS_HEAP_ENTRY Entry;
-	INT64 llOldMemorySize = 0;
-	INT64 llNewMemorySize = 0;
-	INT32 nOldCount = 0;
-	INT32 nNewCount = 0;
-
-	//hHeap = GetProcessHeap();
-	//LOG_PROCESS_ERROR(hHeap);
-
-	//nRetCode = HeapLock(hHeap);
-	//LOG_PROCESS_ERROR(nRetCode);
-
-	//Entry.lpData = NULL;
-	//while (HeapWalk(GetProcessHeap(), &Entry))
-	//	if (Entry.wFlags & PROCESS_HEAP_ENTRY_BUSY)
-	//		llOldMemorySize += Entry.cbData + Entry.cbOverhead;
-
-    nRetCode = _CreateChunk(nInitSize);
-    LOG_PROCESS_ERROR(nRetCode);
-
-	//Entry.lpData = NULL;
-	//while (HeapWalk(GetProcessHeap(), &Entry))
-	//	if (Entry.wFlags & PROCESS_HEAP_ENTRY_BUSY)
-	//		llNewMemorySize += Entry.cbData + Entry.cbOverhead;
-
-	//nRetCode = HeapUnlock(hHeap);
-	//LOG_CHECK_ERROR(nRetCode);
-
-	//m_nObjSize = (INT32)((llNewMemorySize - llOldMemorySize) / nInitSize);
-	m_nObjSize = sizeof(T);
-
+    if (!m_chunks.empty() || !_CreateChunk(nInitSize))
+        return FALSE;
+    m_nObjSize = sizeof(T);
     return TRUE;
-Exit0:
-	if (hHeap)
-		HeapUnlock(hHeap);
-
-    return FALSE;
 }
 
 template<class T, class N>
 BOOL CIDObjectPool<T, N>::UnInit(void)
 {
-    CHUNK_NODE* pChunkNode = NULL;
-
-    // Check memory leak
     LOG_CHECK_ERROR(m_nFreeListSize == m_nSize);
-
-    pChunkNode = m_ChunkListHead.pNext;
-    while (pChunkNode)
-    {
-        CHUNK_NODE* pNextChunk = pChunkNode->pNext;
-
-        // call destructor
-        for (int nIndex = 0; nIndex < pChunkNode->nSize; nIndex++)
-        {
-            T_NODE* pTNode = pChunkNode->pTNode + nIndex;
-#ifdef _DEBUG_FENCE
-            LOG_CHECK_ERROR_BREAK(pTNode->qwFence);
-#endif //_DEBUG_FENCE
-
-            (&pTNode->Data)->T::~T();
-        }
-
-        free(pChunkNode->pDataNode);
-        SAFE_DELETE(pChunkNode);
-        pChunkNode = pNextChunk;
-    }
-
+    CheckFence();
+    // Match the former newest-chunk-first teardown order.
+    while (!m_chunks.empty())
+        m_chunks.pop_back();
     m_nSize = 0;
     m_nFreeListSize = 0;
-    memset(m_pDataMapRoot, NULL, sizeof(m_pDataMapRoot));
-    m_FreeListHead.pNext = NULL;
-    m_ChunkListHead.pNext = NULL;
-
+    m_pDataMapRoot.fill(nullptr);
+    m_FreeListHead.pNext = nullptr;
     return TRUE;
 }
 
@@ -300,7 +240,7 @@ T* CIDObjectPool<T, N>::New(N ID)
 
     // insert into map
     pDataNode->ID = ID;
-    nRetCode = LM_Insert(pDataNode, m_pDataMapRoot + (ID % HASH_TABLE_SIZE));
+    nRetCode = LM_Insert(pDataNode, m_pDataMapRoot.data() + (ID % HASH_TABLE_SIZE));
     LOG_PROCESS_ERROR(nRetCode);
 
     return _GetData(pDataNode);
@@ -328,7 +268,7 @@ BOOL CIDObjectPool<T, N>::Delete(T* pObject)
 	LOG_PROCESS_ERROR(pDataNode->pLeft != (LM_MAP_NODE<N>*)MAGIC_FREE_TAG);
 
     // remove from map
-    LM_Erase(pDataNode, m_pDataMapRoot + (pDataNode->ID % HASH_TABLE_SIZE));
+    LM_Erase(pDataNode, m_pDataMapRoot.data() + (pDataNode->ID % HASH_TABLE_SIZE));
 
     // put into free list
     pDataNode->pNext = m_FreeListHead.pNext;
@@ -425,15 +365,9 @@ template<class T, class N>
 void CIDObjectPool<T, N>::CheckFence(void)
 {
 #ifdef _DEBUG_FENCE
-    CHUNK_NODE* pChunkNode = m_ChunkListHead.pNext;
-    while (pChunkNode)
-    {
-        for (INT32 nIndex = 0; nIndex < pChunkNode->nSize; nIndex++)
-        {
-            LOG_CHECK_ERROR_BREAK(pChunkNode->pTNode[nIndex].qwFence == FENCE_NUMBER);
-        }
-        pChunkNode = pChunkNode->pNext;
-    }
+    for (const auto& chunk : m_chunks)
+        for (INT32 index = 0; index < chunk.nSize; ++index)
+            LOG_CHECK_ERROR_BREAK(chunk.pTNode[index].qwFence == FENCE_NUMBER);
 #endif
     return;
 }

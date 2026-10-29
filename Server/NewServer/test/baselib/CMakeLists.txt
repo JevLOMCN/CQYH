@@ -71,6 +71,19 @@ foreach(variant IN ITEMS server)
     add_test(NAME baselib_concurrency_${variant} COMMAND ${concurrency_target})
     set_tests_properties(baselib_concurrency_${variant} PROPERTIES TIMEOUT 60)
 
+    set(shared_target test_shared_memory_${variant})
+    add_executable(${shared_target} test_shared_memory.cpp
+        "${source_dir}/share_mem.cpp" "${source_dir}/share_mem_io.cpp")
+    cqyh_target_defaults(${shared_target})
+    cqyh_use_async_exceptions(${shared_target})
+    target_include_directories(${shared_target} PRIVATE
+        "${source_dir}" "${CQYH_SERVER_DIR}/NewServer/inc"
+        "${CQYH_SERVER_DIR}/NewServer/inc/baselib")
+    target_compile_definitions(${shared_target} PRIVATE NOMINMAX)
+    target_link_libraries(${shared_target} PRIVATE baselib fusion cqyh::syslibs)
+    cqyh_copy_runtime_dlls(${shared_target})
+    add_test(NAME shared_memory_${variant} COMMAND ${shared_target})
+    set_tests_properties(shared_memory_${variant} PROPERTIES TIMEOUT 120)
 endforeach()
 
 add_executable(test_baselib_numbers test_baselib_numbers.cpp)
@@ -140,6 +153,15 @@ target_link_libraries(test_simple_net_lifecycle PRIVATE baselib fusion cqyh::sys
 cqyh_copy_runtime_dlls(test_simple_net_lifecycle)
 add_test(NAME simple_net_lifecycle COMMAND test_simple_net_lifecycle)
 set_tests_properties(simple_net_lifecycle PROPERTIES TIMEOUT 30)
+
+add_executable(test_baselib_pools test_baselib_pools.cpp)
+cqyh_target_defaults(test_baselib_pools)
+target_include_directories(test_baselib_pools PRIVATE "${CQYH_SERVER_DIR}/NewServer/inc/baselib")
+target_compile_definitions(test_baselib_pools PRIVATE NOMINMAX)
+target_link_libraries(test_baselib_pools PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_baselib_pools)
+add_test(NAME baselib_pools COMMAND test_baselib_pools)
+set_tests_properties(baselib_pools PROPERTIES TIMEOUT 30)
 
 if(WIN32)
     add_executable(test_utf8_owners test_utf8_owners.cpp ../../src/baselib/utf8.cpp)
