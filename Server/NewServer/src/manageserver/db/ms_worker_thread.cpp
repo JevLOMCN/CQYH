@@ -4,37 +4,45 @@
 #include "time_ex.h"
 #include "error_def.h"
 #include "manageserver.h"
+#include <limits>
 
 
 CMSWorkerThread::CMSWorkerThread()
 {
-    m_mysql = NULL;
+    m_mysql = cqyh::MysqlPtr{};
     m_bServerOK = FALSE;
     m_setting = NULL;
 }
 
 CMSWorkerThread::~CMSWorkerThread()
 {
-
+    UnInit();
 }
 
 BOOL CMSWorkerThread::Init(UINT32 dwResultCount, const DBSetting* dbsetting)
 {
+    if (m_mysql || m_bstart)
+    {
+        LOG_CHECK_ERROR(!m_mysql && !m_bstart);
+        return FALSE;
+    }
     BOOL bRet = FALSE;
     MYSQL* res_mysql = NULL;
 
+    LOG_PROCESS_ERROR(dwResultCount > 0 && dwResultCount <= (std::numeric_limits<UINT32>::max)() / 10);
     bRet = m_requests.Init(dwResultCount * 10);
     LOG_PROCESS_ERROR(bRet);
 
     bRet = m_results.Init(dwResultCount);
     LOG_PROCESS_ERROR(bRet);
 
-    m_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_mysql);
+    m_mysql = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(m_mysql.get());
 
     m_setting = dbsetting;
+    LOG_PROCESS_ERROR(m_setting);
     res_mysql = mysql_real_connect(
-        m_mysql,
+        m_mysql.get(),
         m_setting->szServerAddr,
         m_setting->szLoginName,
         m_setting->szPassword,
@@ -46,7 +54,7 @@ BOOL CMSWorkerThread::Init(UINT32 dwResultCount, const DBSetting* dbsetting)
 
     if (strlen(m_setting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(m_mysql, m_setting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(m_mysql.get(), m_setting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
@@ -55,11 +63,17 @@ BOOL CMSWorkerThread::Init(UINT32 dwResultCount, const DBSetting* dbsetting)
     return TRUE;
 
 Exit0:
+    UnInit();
     return FALSE;
 }
 
 BOOL CMSWorkerThread::UnInit()
 {
+    Wait();
+    while (auto* request = static_cast<DB_OPERATION_REQUEST*>(m_requests.Pop()))
+        delete request;
+    while (auto* result = static_cast<DB_OPERATION_RESULT*>(m_results.Pop()))
+        delete result;
     BOOL bRet = FALSE;
 
     bRet = m_requests.UnInit();
@@ -68,6 +82,8 @@ BOOL CMSWorkerThread::UnInit()
     bRet = m_results.UnInit();
     LOG_CHECK_ERROR(bRet);
 
+    m_mysql = cqyh::MysqlPtr{};
+    m_setting = nullptr;
     m_bServerOK = FALSE;
     return TRUE;
 
@@ -80,11 +96,12 @@ BOOL CMSWorkerThread::ReInit()
 
     INF("DB Failure, Reconnecting...");
 
-    MYSQL* new_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(new_mysql);
+    auto new_mysql = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(m_setting);
+    LOG_PROCESS_ERROR(new_mysql.get());
 
     res_mysql = mysql_real_connect(
-        new_mysql,
+        new_mysql.get(),
         m_setting->szServerAddr,
         m_setting->szLoginName,
         m_setting->szPassword,
@@ -96,12 +113,11 @@ BOOL CMSWorkerThread::ReInit()
 
     if (strlen(m_setting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(new_mysql, m_setting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(new_mysql.get(), m_setting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    mysql_close(m_mysql);
-    m_mysql = new_mysql;
+    m_mysql = std::move(new_mysql);
 
     INF("DB Reconnection Succeeded!!!");
     m_bServerOK = TRUE;
@@ -120,6 +136,12 @@ DB_OPERATION_RESULT* CMSWorkerThread::GetResult()
 
 void CMSWorkerThread::ThrdProc()
 {
+    cqyh::MysqlThreadContext clientThread;
+    if (!clientThread)
+    {
+        LOG_CHECK_ERROR(clientThread);
+        return;
+    }
     BOOL bRet = FALSE;
 
     for (; m_bstart; )
@@ -146,7 +168,7 @@ void CMSWorkerThread::ThrdProc()
             delete req;
         }
 
-        Sleep(8);
+        WaitForStop(std::chrono::milliseconds(8));
     }
 }
 

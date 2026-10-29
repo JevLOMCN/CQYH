@@ -1,8 +1,12 @@
 #ifndef nameserver_h__
 #define nameserver_h__
 
+#include <map>
+#include <set>
+#include <string>
+
 #include "thread.h"
-#include "mysql.h"
+#include "mysql_owner.h"
 #include "circle_list.h"
 #include "object_pool.h"
 
@@ -94,7 +98,7 @@ protected:
 private:
 	static CNameServer ms_Instance;
 
-	MYSQL* m_sql;
+	cqyh::MysqlPtr m_sql;
 
 	CCircleList m_DBTaskList;
 	CCircleList m_ResutList;
@@ -108,7 +112,7 @@ private:
 	typedef std::set<std::string> TLockNameSet;
 	TLockNameSet m_LockNameSet[ntTotal];
 
-	BOOL m_bDBReady;
+	std::atomic<bool> m_bDBReady{false};
 };
 
 

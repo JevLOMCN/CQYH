@@ -18,7 +18,7 @@
 
 
 CDBItemLogWithGuid::CDBItemLogWithGuid() :
-m_stmt(NULL),
+m_stmt(nullptr),
 m_llGuid(0)
 {
     memset(&m_bind_param, 0, sizeof(m_bind_param));
@@ -32,26 +32,29 @@ CDBItemLogWithGuid::~CDBItemLogWithGuid()
 
 BOOL CDBItemLogWithGuid::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LOAD_ITEM_LOG_GUID, (unsigned long)strlen(LOAD_ITEM_LOG_GUID));
+    nRet = mysql_stmt_prepare(prepared.get(), LOAD_ITEM_LOG_GUID, (unsigned long)strlen(LOAD_ITEM_LOG_GUID));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 1);
 
     memset(&m_bind_param, 0, sizeof(m_bind_param));
     m_bind_param.buffer_type = MYSQL_TYPE_LONGLONG;
     m_bind_param.buffer = &m_llGuid;
-    nRet = mysql_stmt_bind_param(m_stmt, &m_bind_param);
+    nRet = mysql_stmt_bind_param(prepared.get(), &m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 Exit0:
     return FALSE;
@@ -59,14 +62,7 @@ Exit0:
 
 BOOL CDBItemLogWithGuid::UnInit()
 {
-    if (m_stmt)
-    {
-        bool bRet = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-        return 0 == bRet;
-    }
-    else
-        return TRUE;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBItemLogWithGuid::DoLoadItemLog(UINT64 llGuid, DB_OP_LOG_ITEM_RESULT *res)
@@ -76,7 +72,7 @@ BOOL CDBItemLogWithGuid::DoLoadItemLog(UINT64 llGuid, DB_OP_LOG_ITEM_RESULT *res
 
     m_llGuid = llGuid;
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(0 == nRet);
 
     memset(m_bind_result, 0, sizeof(m_bind_result));
@@ -113,11 +109,11 @@ BOOL CDBItemLogWithGuid::DoLoadItemLog(UINT64 llGuid, DB_OP_LOG_ITEM_RESULT *res
     m_bind_result[9].buffer = data.szReason;
     m_bind_result[9].buffer_length = sizeof(data.szReason);
 
-    nRet = mysql_stmt_bind_result(m_stmt, m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), m_bind_result);
     LOG_PROCESS_ERROR(0 == nRet);
 
     res->listItemLogData.clear();
-    while (mysql_stmt_fetch(m_stmt) == 0)
+    while (mysql_stmt_fetch(m_stmt.get()) == 0)
     {
         res->listItemLogData.push_back(data);
         memset(&data, 0, sizeof(data));
@@ -130,7 +126,7 @@ Exit0:
 
 
 CDBItemLogWithTempID::CDBItemLogWithTempID() :
-m_stmt(NULL),
+m_stmt(nullptr),
 m_dwTemplateID(0)
 {
     memset(&m_bind_param, 0, sizeof(m_bind_param));
@@ -144,26 +140,29 @@ CDBItemLogWithTempID::~CDBItemLogWithTempID()
 
 BOOL CDBItemLogWithTempID::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LOAD_ITEM_LOG_TEMP_ID, (unsigned long)strlen(LOAD_ITEM_LOG_TEMP_ID));
+    nRet = mysql_stmt_prepare(prepared.get(), LOAD_ITEM_LOG_TEMP_ID, (unsigned long)strlen(LOAD_ITEM_LOG_TEMP_ID));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 1);
 
     memset(&m_bind_param, 0, sizeof(m_bind_param));
     m_bind_param.buffer_type = MYSQL_TYPE_LONG;
     m_bind_param.buffer = &m_dwTemplateID;
-    nRet = mysql_stmt_bind_param(m_stmt, &m_bind_param);
+    nRet = mysql_stmt_bind_param(prepared.get(), &m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 Exit0:
     return FALSE;
@@ -171,14 +170,7 @@ Exit0:
 
 BOOL CDBItemLogWithTempID::UnInit()
 {
-    if (m_stmt)
-    {
-        bool bRet = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-        return 0 == bRet;
-    }
-    else
-        return TRUE;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBItemLogWithTempID::DoLoadItemLog(UINT32 dwTemplateID, DB_OP_LOG_ITEM_RESULT *res)
@@ -188,7 +180,7 @@ BOOL CDBItemLogWithTempID::DoLoadItemLog(UINT32 dwTemplateID, DB_OP_LOG_ITEM_RES
 
     m_dwTemplateID = dwTemplateID;
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(0 == nRet);
 
     memset(m_bind_result, 0, sizeof(m_bind_result));
@@ -225,11 +217,11 @@ BOOL CDBItemLogWithTempID::DoLoadItemLog(UINT32 dwTemplateID, DB_OP_LOG_ITEM_RES
     m_bind_result[9].buffer = data.szReason;
     m_bind_result[9].buffer_length = sizeof(data.szReason);
 
-    nRet = mysql_stmt_bind_result(m_stmt, m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), m_bind_result);
     LOG_PROCESS_ERROR(0 == nRet);
 
     res->listItemLogData.clear();
-    while (mysql_stmt_fetch(m_stmt) == 0)
+    while (mysql_stmt_fetch(m_stmt.get()) == 0)
     {
         res->listItemLogData.push_back(data);
         memset(&data, 0, sizeof(data));
@@ -242,7 +234,7 @@ Exit0:
 
 
 CDBItemLogWithRoleGuid::CDBItemLogWithRoleGuid() :
-m_stmt(NULL),
+m_stmt(nullptr),
 m_llGuid(0),
 m_dwRoleID(0)
 {
@@ -257,18 +249,20 @@ CDBItemLogWithRoleGuid::~CDBItemLogWithRoleGuid()
 
 BOOL CDBItemLogWithRoleGuid::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LOAD_ITEM_LOG_ROLE_GUID, (unsigned long)strlen(LOAD_ITEM_LOG_ROLE_GUID));
+    nRet = mysql_stmt_prepare(prepared.get(), LOAD_ITEM_LOG_ROLE_GUID, (unsigned long)strlen(LOAD_ITEM_LOG_ROLE_GUID));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 3);
 
     memset(m_bind_param, 0, sizeof(m_bind_param));
@@ -280,9 +274,10 @@ BOOL CDBItemLogWithRoleGuid::Init(MYSQL* mysql)
     m_bind_param[2].buffer_type = MYSQL_TYPE_LONGLONG;
     m_bind_param[2].buffer = &m_llGuid;
 
-    nRet = mysql_stmt_bind_param(m_stmt, m_bind_param);
+    nRet = mysql_stmt_bind_param(prepared.get(), m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 Exit0:
     return FALSE;
@@ -290,14 +285,7 @@ Exit0:
 
 BOOL CDBItemLogWithRoleGuid::UnInit()
 {
-    if (m_stmt)
-    {
-        bool bRet = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-        return 0 == bRet;
-    }
-    else
-        return TRUE;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBItemLogWithRoleGuid::DoLoadItemLog(UINT32 dwRoleID, UINT64 llGuid, DB_OP_LOG_ITEM_RESULT *res)
@@ -308,7 +296,7 @@ BOOL CDBItemLogWithRoleGuid::DoLoadItemLog(UINT32 dwRoleID, UINT64 llGuid, DB_OP
     m_dwRoleID = dwRoleID;
     m_llGuid = llGuid;
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(0 == nRet);
 
     memset(m_bind_result, 0, sizeof(m_bind_result));
@@ -345,11 +333,11 @@ BOOL CDBItemLogWithRoleGuid::DoLoadItemLog(UINT32 dwRoleID, UINT64 llGuid, DB_OP
     m_bind_result[9].buffer = data.szReason;
     m_bind_result[9].buffer_length = sizeof(data.szReason);
 
-    nRet = mysql_stmt_bind_result(m_stmt, m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), m_bind_result);
     LOG_PROCESS_ERROR(0 == nRet);
 
     res->listItemLogData.clear();
-    while (mysql_stmt_fetch(m_stmt) == 0)
+    while (mysql_stmt_fetch(m_stmt.get()) == 0)
     {
         res->listItemLogData.push_back(data);
         memset(&data, 0, sizeof(data));
@@ -362,7 +350,7 @@ Exit0:
 
 
 CDBItemLogWithRoleTempID::CDBItemLogWithRoleTempID() :
-m_stmt(NULL),
+m_stmt(nullptr),
 m_dwTemplateID(0),
 m_dwRoleID(0)
 {
@@ -377,18 +365,20 @@ CDBItemLogWithRoleTempID::~CDBItemLogWithRoleTempID()
 
 BOOL CDBItemLogWithRoleTempID::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LOAD_ITEM_LOG_ROLE_TEMP_ID, (unsigned long)strlen(LOAD_ITEM_LOG_ROLE_TEMP_ID));
+    nRet = mysql_stmt_prepare(prepared.get(), LOAD_ITEM_LOG_ROLE_TEMP_ID, (unsigned long)strlen(LOAD_ITEM_LOG_ROLE_TEMP_ID));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 3);
 
     memset(m_bind_param, 0, sizeof(m_bind_param));
@@ -400,9 +390,10 @@ BOOL CDBItemLogWithRoleTempID::Init(MYSQL* mysql)
     m_bind_param[2].buffer_type = MYSQL_TYPE_LONG;
     m_bind_param[2].buffer = &m_dwTemplateID;
 
-    nRet = mysql_stmt_bind_param(m_stmt, m_bind_param);
+    nRet = mysql_stmt_bind_param(prepared.get(), m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 Exit0:
     return FALSE;
@@ -410,14 +401,7 @@ Exit0:
 
 BOOL CDBItemLogWithRoleTempID::UnInit()
 {
-    if (m_stmt)
-    {
-        bool bRet = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-        return 0 == bRet;
-    }
-    else
-        return TRUE;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBItemLogWithRoleTempID::DoLoadItemLog(UINT32 dwRoleID, UINT32 dwTemplateID, DB_OP_LOG_ITEM_RESULT *res)
@@ -428,7 +412,7 @@ BOOL CDBItemLogWithRoleTempID::DoLoadItemLog(UINT32 dwRoleID, UINT32 dwTemplateI
     m_dwTemplateID = dwTemplateID;
     m_dwRoleID = dwRoleID;
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(0 == nRet);
 
     memset(m_bind_result, 0, sizeof(m_bind_result));
@@ -465,11 +449,11 @@ BOOL CDBItemLogWithRoleTempID::DoLoadItemLog(UINT32 dwRoleID, UINT32 dwTemplateI
     m_bind_result[9].buffer = data.szReason;
     m_bind_result[9].buffer_length = sizeof(data.szReason);
 
-    nRet = mysql_stmt_bind_result(m_stmt, m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), m_bind_result);
     LOG_PROCESS_ERROR(0 == nRet);
 
     res->listItemLogData.clear();
-    while (mysql_stmt_fetch(m_stmt) == 0)
+    while (mysql_stmt_fetch(m_stmt.get()) == 0)
     {
         res->listItemLogData.push_back(data);
         memset(&data, 0, sizeof(data));
@@ -485,7 +469,7 @@ Exit0:
 
 
 CDBItemLogWithRole::CDBItemLogWithRole() :
-m_stmt(NULL),
+m_stmt(nullptr),
 m_dwRoleID(0)
 {
     memset(m_bind_param, 0, sizeof(m_bind_param));
@@ -499,18 +483,20 @@ CDBItemLogWithRole::~CDBItemLogWithRole()
 
 BOOL CDBItemLogWithRole::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LOAD_ITEM_LOG_ROLE, (unsigned long)strlen(LOAD_ITEM_LOG_ROLE));
+    nRet = mysql_stmt_prepare(prepared.get(), LOAD_ITEM_LOG_ROLE, (unsigned long)strlen(LOAD_ITEM_LOG_ROLE));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 2);
 
     memset(m_bind_param, 0, sizeof(m_bind_param));
@@ -520,9 +506,10 @@ BOOL CDBItemLogWithRole::Init(MYSQL* mysql)
     m_bind_param[1].buffer_type = MYSQL_TYPE_LONG;
     m_bind_param[1].buffer = &m_dwRoleID;
 
-    nRet = mysql_stmt_bind_param(m_stmt, m_bind_param);
+    nRet = mysql_stmt_bind_param(prepared.get(), m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 Exit0:
     return FALSE;
@@ -530,14 +517,7 @@ Exit0:
 
 BOOL CDBItemLogWithRole::UnInit()
 {
-    if (m_stmt)
-    {
-        bool bRet = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-        return 0 == bRet;
-    }
-    else
-        return TRUE;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBItemLogWithRole::DoLoadItemLog(UINT32 dwRoleID, DB_OP_LOG_ITEM_RESULT *res)
@@ -547,7 +527,7 @@ BOOL CDBItemLogWithRole::DoLoadItemLog(UINT32 dwRoleID, DB_OP_LOG_ITEM_RESULT *r
 
     m_dwRoleID = dwRoleID;
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(0 == nRet);
 
     memset(m_bind_result, 0, sizeof(m_bind_result));
@@ -584,11 +564,11 @@ BOOL CDBItemLogWithRole::DoLoadItemLog(UINT32 dwRoleID, DB_OP_LOG_ITEM_RESULT *r
     m_bind_result[9].buffer = data.szReason;
     m_bind_result[9].buffer_length = sizeof(data.szReason);
 
-    nRet = mysql_stmt_bind_result(m_stmt, m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), m_bind_result);
     LOG_PROCESS_ERROR(0 == nRet);
 
     res->listItemLogData.clear();
-    while (mysql_stmt_fetch(m_stmt) == 0)
+    while (mysql_stmt_fetch(m_stmt.get()) == 0)
     {
         res->listItemLogData.push_back(data);
         memset(&data, 0, sizeof(data));

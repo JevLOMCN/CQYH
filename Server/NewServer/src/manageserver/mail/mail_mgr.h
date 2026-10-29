@@ -39,7 +39,7 @@ private:
         char* szMailSubject, char* szMailContent, UINT8 byAttachType, UINT32 dwAttachBufferLen, char* AttachBuffer);
     BOOL _ProcessMail(MailInfo* pMailData);
     static BOOL _ProcessLockedAttach(std::list<void*>& rResult, void* pUserData);
-    static BOOL _OnMailAttachLocked(std::list<void*>& rResult, void* pUserData);
+    static BOOL _OnMailAttachLocked(std::list<void*>& rResult, UINT32 mailID, UINT32 receiverID, UINT32 mailTime);
     BOOL _AddMailSql(UINT8 byGroupID, MailInfo* pMailData);
 
     UINT32 _GetMailID(INT32 nGroupID);

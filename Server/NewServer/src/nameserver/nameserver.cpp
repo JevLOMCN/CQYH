@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "nameserver.h"
+#include "worker_queue.h"
 #include "ns_message_handler.h"
 
 #include "dump.h"
@@ -12,6 +13,7 @@
 #include "statis_info.h"
 
 #include "role_db_def.h"
+#include "mysql_owner.h"
 
 const char* g_szTableName[ntTotal] =
 {
@@ -35,17 +37,28 @@ CNameServer& CNameServer::GetInstance(void)
 
 CNameServer::CNameServer(void)
 {
-    m_sql = NULL;
+    m_sql = cqyh::MysqlPtr{};
     m_bDBReady = FALSE;
 }
 
 CNameServer::~CNameServer(void)
 {
-
+    UnInit();
 }
 
 void CNameServer::ThrdProc(void)
 {
+    cqyh::MysqlThreadContext clientThread;
+    if (!clientThread)
+    {
+        LOG_CHECK_ERROR(clientThread);
+        return;
+    }
+    struct ClearConnection
+    {
+        cqyh::MysqlPtr& connection;
+        ~ClearConnection() { connection = cqyh::MysqlPtr{}; }
+    } clear{m_sql};
     INT32 nRetCode = 0;
     UINT32 dwLastPingTime = (UINT32)time(NULL);
 
@@ -53,6 +66,7 @@ void CNameServer::ThrdProc(void)
 
     while (m_bstart)
     {
+        UINT32 dwNow = 0;
         //WRN("ThrdProc 222");
 
         if (!m_bDBReady)
@@ -64,16 +78,16 @@ void CNameServer::ThrdProc(void)
                 goto LOOP_ERROR;
 
             WRN("ThrdProc 444");
-            InterlockedExchange((unsigned long*)&m_bDBReady, TRUE);
+            m_bDBReady.store(true);
             WRN("ThrdProc 555");
         }
 
         //WRN("ThrdProc 666");
-        UINT32 dwNow = (UINT32)time(NULL);
+        dwNow = (UINT32)time(NULL);
 
         if (dwNow - dwLastPingTime >= 10)
         {
-            nRetCode = mysql_ping(m_sql);
+            nRetCode = mysql_ping(m_sql.get());
             LOG_CHECK_ERROR(nRetCode == 0);
 
             dwLastPingTime = dwNow;
@@ -82,11 +96,11 @@ void CNameServer::ThrdProc(void)
         _ThrdWork();
 
 
-        Sleep(1);
+        WaitForStop(std::chrono::milliseconds(1));
         continue;
 
     LOOP_ERROR:
-        Sleep(1000);
+        WaitForStop(std::chrono::seconds(1));
     }
 
     return;
@@ -94,6 +108,8 @@ void CNameServer::ThrdProc(void)
 
 void CNameServer::_ThrdWork(void)
 {
+    cqyh::MysqlResultPtr result;
+    MYSQL_ROW row = nullptr;
     if (m_DBTaskList.IsEmpty())
         return;
 
@@ -102,19 +118,18 @@ void CNameServer::_ThrdWork(void)
     UINT32 dwRetID = 0;
     INT32 nRetCode = 0;
 
-    LOG_PROCESS_ERROR(m_sql);
+    LOG_PROCESS_ERROR(m_sql.get());
 
-    pQuery = (DBQueryData*)m_DBTaskList.Pop();
+    pQuery = (DBQueryData*)m_DBTaskList.Check();
     LOG_PROCESS_ERROR(pQuery);
-    LOG_PROCESS_ERROR(pQuery->eType > ntInvalid && pQuery->eType < ntTotal);
-
     pQuery->nErrCode = errNsNameDBSysErr;
+    LOG_PROCESS_ERROR(pQuery->eType > ntInvalid && pQuery->eType < ntTotal);
 
     // Default code
     //sprintf(szSql, "insert into %s (name) values ('%s');", g_szTableName[pQuery->eType], pQuery->szName);
-    //nRetCode = mysql_query(m_sql, szSql);
+    //nRetCode = mysql_query(m_sql.get(), szSql);
     //LOG_PROCESS_ERROR(nRetCode == 0);
-    //dwRetID = mysql_insert_id(m_sql);
+    //dwRetID = mysql_insert_id(m_sql.get());
     //LOG_PROCESS_ERROR(dwRetID > 0);
 
     // Custom added code
@@ -135,15 +150,15 @@ void CNameServer::_ThrdWork(void)
     }
 
     // Execute the SQL statement
-    nRetCode = mysql_query(m_sql, szSql);
+    nRetCode = mysql_query(m_sql.get(), szSql);
     LOG_PROCESS_ERROR(nRetCode == 0);
 
     // Get the result set
-    MYSQL_RES* result = mysql_store_result(m_sql);
+    result.reset(mysql_store_result(m_sql.get()));
     LOG_PROCESS_ERROR(result);
 
     // Read the result
-    MYSQL_ROW row = mysql_fetch_row(result);
+    row = mysql_fetch_row(result.get());
     LOG_PROCESS_ERROR(row);
 
     // If the table already contains data, get the value directly
@@ -160,15 +175,15 @@ void CNameServer::_ThrdWork(void)
         sprintf(szSqlTotalRows, "SELECT COUNT(*) AS TotalRows FROM %s;", g_szTableName[pQuery->eType]);
 
         // Execute the SQL statement
-        nRetCode = mysql_query(m_sql, szSqlTotalRows);
+        nRetCode = mysql_query(m_sql.get(), szSqlTotalRows);
         LOG_PROCESS_ERROR(nRetCode == 0);
 
         // Get the result set
-        MYSQL_RES* resultTotalRows = mysql_store_result(m_sql);
+        cqyh::MysqlResultPtr resultTotalRows(mysql_store_result(m_sql.get()));
         LOG_PROCESS_ERROR(resultTotalRows);
 
         // Read the result
-        MYSQL_ROW rowTotalRows = mysql_fetch_row(resultTotalRows);
+        MYSQL_ROW rowTotalRows = mysql_fetch_row(resultTotalRows.get());
         LOG_PROCESS_ERROR(rowTotalRows);
 
         // If the table is empty, this is the first record
@@ -178,13 +193,11 @@ void CNameServer::_ThrdWork(void)
         }
 
         // Release the result set
-        mysql_free_result(resultTotalRows);
-        resultTotalRows = NULL;
+        resultTotalRows.reset();
     }
 
     // Release the result set
-    mysql_free_result(result);
-    result = NULL;
+    result.reset();
 
     pQuery->nErrCode = errNsSuccess;
 
@@ -196,42 +209,46 @@ void CNameServer::_ThrdWork(void)
         pQuery->dwNewID = MakeObjectID(otGuild, dwRetID);
 
 Exit0:
+    result.reset();
     if (!pQuery)
     {
         LOG_CHECK_ERROR(FALSE);
         return;
     }
 
-    nRetCode = m_ResutList.Push(pQuery);
-    LOG_CHECK_ERROR(nRetCode);
-
     if (pQuery->nErrCode == errNsNameDBSysErr)
     {
-        WRN("DB Execute Error, table: %s, name: %s", g_szTableName[pQuery->eType], pQuery->szName);
+        if (pQuery->eType > ntInvalid && pQuery->eType < ntTotal)
+            WRN("DB Execute Error, table: %s, name: %s", g_szTableName[pQuery->eType], pQuery->szName);
+        else
+            WRN("DB Execute Error, invalid name type %d", pQuery->eType);
 
-        if (m_sql)
+        if (m_sql.get())
         {
-            WRN("mysql error info: %s", mysql_error(m_sql));
-            mysql_close(m_sql);
+            WRN("mysql error info: %s", mysql_error(m_sql.get()));
         }
 
-        m_sql = NULL;
+        m_sql = cqyh::MysqlPtr{};
 
-        InterlockedExchange((unsigned long*)&m_bDBReady, FALSE);
+        m_bDBReady.store(false);
     }
+    // No query access after publication: the main thread may recycle it immediately.
+    if (cqyh::PublishUntilStopped(m_ResutList, pQuery, *this))
+        m_DBTaskList.Pop();
+
 }
 
 
 BOOL CNameServer::_TryCreateDB(void)
 {
     INT32 nRetCode = 0;
-    MYSQL* sql = NULL;
+    cqyh::MysqlPtr sql;
     MYSQL* conn_sql = NULL;
 
-    sql = mysql_init(NULL);
+    sql = cqyh::MakeMysql();
     LOG_PROCESS_ERROR(sql);
 
-    conn_sql = mysql_real_connect(sql, g_NSConfig.db_config.ip, g_NSConfig.db_config.account,
+    conn_sql = mysql_real_connect(sql.get(), g_NSConfig.db_config.ip, g_NSConfig.db_config.account,
         g_NSConfig.db_config.password, NULL, g_NSConfig.db_config.port, NULL, 0);
 
     WRN("_TryCreateDB - g_NSConfig.db_config.db_name %s", g_NSConfig.db_config.db_name);
@@ -241,30 +258,34 @@ BOOL CNameServer::_TryCreateDB(void)
     WRN("_TryCreateDB - g_NSConfig.db_config.port %d", g_NSConfig.db_config.port);
 
     WRN("_TryCreateDB - 000");
-    if (!_ExistDB(sql, g_NSConfig.db_config.db_name))
+    LOG_PROCESS_ERROR(conn_sql);
+    if (!_ExistDB(sql.get(), g_NSConfig.db_config.db_name))
     {
         WRN("_TryCreateDB - 222");
         char db_sql[128] = { 0 };
 
         snprintf(db_sql, sizeof(db_sql) - 1, "CREATE DATABASE %s;", g_NSConfig.db_config.db_name);
 
-        nRetCode = mysql_query(sql, db_sql);
+        nRetCode = mysql_query(sql.get(), db_sql);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    mysql_close(sql);
+    sql.reset();
 
     WRN("_TryCreateDB - 333");
 
     return TRUE;
 Exit0:
-    if (sql)
-        mysql_close(sql);
     return FALSE;
 }
 
 BOOL CNameServer::Init(void)
 {
+    if (m_sql || m_bstart)
+    {
+        LOG_CHECK_ERROR(!m_sql && !m_bstart);
+        return FALSE;
+    }
     INT32 nRetCode = 0;
     MYSQL* ret_sql = NULL;
 
@@ -295,14 +316,20 @@ BOOL CNameServer::Init(void)
     return TRUE;
 Exit0:
     WRN("555 CNameServer::Init - nRetCode %d", nRetCode);
-    CRI("mysql error : %s", mysql_error(m_sql));
+    if (m_sql)
+        CRI("mysql error : %s", mysql_error(m_sql.get()));
     UnInit();
     return FALSE;
 }
 
 void CNameServer::UnInit(void)
 {
-    Terminate();
+    Wait();
+
+    while (auto* query = static_cast<DBQueryData*>(m_DBTaskList.Pop()))
+        m_DBQueryPool.Delete(query);
+    while (auto* query = static_cast<DBQueryData*>(m_ResutList.Pop()))
+        m_DBQueryPool.Delete(query);
 
     m_DBTaskList.UnInit();
     m_ResutList.UnInit();
@@ -310,20 +337,17 @@ void CNameServer::UnInit(void)
     m_DBQueryPool.UnInit();
     //	m_DBResultPool.UnInit();
 
-    if (m_sql)
-        mysql_close(m_sql);
-
-    m_sql = NULL;
+    m_sql = cqyh::MysqlPtr{};
 }
 
 BOOL CNameServer::_LoadData(void)
 {
     INT32 nRetCode = 0;
 
-    MYSQL_RES* result = NULL;
+    cqyh::MysqlResultPtr result;
     MYSQL_ROW row = NULL;
 
-    LOG_PROCESS_ERROR(m_sql);
+    LOG_PROCESS_ERROR(m_sql.get());
 
     for (INT32 i = ntBegin; i < ntTotal; i++)
     {
@@ -333,7 +357,7 @@ BOOL CNameServer::_LoadData(void)
 
     for (INT32 i = ntBegin; i < ntTotal; i++)
     {
-        nRetCode = mysql_query(m_sql, g_szCreateTable[i]);
+        nRetCode = mysql_query(m_sql.get(), g_szCreateTable[i]);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
@@ -355,13 +379,13 @@ BOOL CNameServer::_LoadData(void)
                 break;
         }
 
-        nRetCode = mysql_query(m_sql, szSql);
+        nRetCode = mysql_query(m_sql.get(), szSql);
         LOG_PROCESS_ERROR(nRetCode == 0);
 
-        result = mysql_store_result(m_sql);
+        result.reset(mysql_store_result(m_sql.get()));
         LOG_PROCESS_ERROR(result);
 
-        while (row = mysql_fetch_row(result))
+        while (row = mysql_fetch_row(result.get()))
         {
             UINT32 id = (UINT32)atoi(row[0]);
             char* name = row[1];
@@ -372,8 +396,7 @@ BOOL CNameServer::_LoadData(void)
 
         DBG("----- CNameServer::_LoadData ----- LoadDataCount %d", m_NameMap->size());
 
-        mysql_free_result(result);
-        result = NULL;
+        result.reset();
     }
 
     return TRUE;
@@ -388,7 +411,7 @@ INT32 CNameServer::AddNewData(INT32 eType, INT32 nSessionID, UINT32 dwCliSession
     INT32 nRetCode = 0;
     DBQueryData* pNewQuery = NULL;
 
-    LOG_PROCESS_ERROR_RET_CODE(m_bDBReady, errNsNameDBSysErr);
+    LOG_PROCESS_ERROR_RET_CODE(m_bDBReady && m_bstart.load() && IsRunning(), errNsNameDBSysErr);
 
     LOG_PROCESS_ERROR(eType > ntInvalid && eType < ntTotal);
     LOG_PROCESS_ERROR(strlen(szName) > 0);
@@ -465,19 +488,16 @@ BOOL CNameServer::_ExistDB(MYSQL* mysql, const char* dbname)
 {
     WRN("_ExistDB - 111");
     BOOL found = FALSE;
-    MYSQL_RES* mysql_result = mysql_list_dbs(mysql, dbname);
+    cqyh::MysqlResultPtr mysql_result(mysql_list_dbs(mysql, dbname));
 
     LOG_PROCESS_ERROR(mysql_result);
 
-    while (mysql_fetch_row(mysql_result))
+    while (mysql_fetch_row(mysql_result.get()))
     {
         found = TRUE;
     }
 
 Exit0:
-    if (mysql_result)
-        mysql_free_result(mysql_result);
-
     return found;
 }
 
@@ -486,16 +506,12 @@ BOOL CNameServer::_ThrdInitDB(void)
     INT32 nRetCode = 0;
     MYSQL* ret_sql = NULL;
 
-    if (m_sql)
-    {
-        mysql_close(m_sql);
-        m_sql = NULL;
-    }
+    m_sql = cqyh::MysqlPtr{};
 
-    m_sql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_sql);
+    m_sql = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(m_sql.get());
 
-    ret_sql = mysql_real_connect(m_sql, g_NSConfig.db_config.ip, g_NSConfig.db_config.account,
+    ret_sql = mysql_real_connect(m_sql.get(), g_NSConfig.db_config.ip, g_NSConfig.db_config.account,
         g_NSConfig.db_config.password, g_NSConfig.db_config.db_name, g_NSConfig.db_config.port, NULL, 0);
 
     WRN("_ThrdInitDB - g_NSConfig.db_config.db_name %s", g_NSConfig.db_config.db_name);
@@ -510,7 +526,7 @@ BOOL CNameServer::_ThrdInitDB(void)
     if (strlen(g_NSConfig.db_config.charset) > 0)
     {
         WRN("_ThrdInitDB - 111");
-        nRetCode = mysql_set_character_set(m_sql, g_NSConfig.db_config.charset);
+        nRetCode = mysql_set_character_set(m_sql.get(), g_NSConfig.db_config.charset);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
@@ -524,10 +540,7 @@ BOOL CNameServer::_ThrdInitDB(void)
     return TRUE;
 Exit0:
 
-    if (m_sql)
-        mysql_close(m_sql);
-
-    m_sql = NULL;
+    m_sql = cqyh::MysqlPtr{};
 
     return FALSE;
 }

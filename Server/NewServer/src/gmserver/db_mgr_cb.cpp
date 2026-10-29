@@ -842,10 +842,8 @@ BOOL CB_DBPreQueryRoleID(std::list<void*>& rResult, void* pUserData)
         nRecords++;
     }
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -888,10 +886,8 @@ BOOL CB_DBQueryRoleID(std::list<void*>& rResult, void* pUserData)
 
     INF("Query Role ID Finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -931,10 +927,8 @@ BOOL CB_DBQueryGuildID(std::list<void*>& rResult, void* pUserData)
 
     DBG("select guild id finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -984,10 +978,8 @@ BOOL CB_DBQueryGMForbid(std::list<void*>& rResult, void* pUserData)
 
     DBG("select guild id finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1107,7 +1099,6 @@ BOOL CB_DBSelectMailID(std::list<void*>& rResult, void* pUserData)
 
     INF("SELECT Mail ID Finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
     //delete (UINT32*)pUserData;
@@ -1190,7 +1181,6 @@ BOOL CB_DBLoadRole(std::list<void*>& rResult, void* pUserData)
 
     DBG("load role data finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
     if (pCmd && pRoleCmd->poRole)
@@ -1199,7 +1189,6 @@ Exit0:
         pRoleCmd->poRole = NULL;
     }
         
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1259,10 +1248,8 @@ BOOL CB_DBLoadMail(std::list<void*>& rResult, void* pUserData)
 
     DBG("load mail finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1344,7 +1331,6 @@ BOOL CB_DBRoleExeCmd(std::list<void*>& rResult, void* pUserData)
     pRoleExeCmd->nResult = errSuccess;
     INF("Role[%u] Exe GM Cmd Success. %u records ", pRoleExeCmd->dwRoleID);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
     if (pRoleExeCmd)
@@ -1353,7 +1339,6 @@ Exit0:
         pRoleExeCmd->nResult = nRetCode;
     }
 
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1391,10 +1376,8 @@ BOOL CB_DBCheckRoleFreeze(std::list<void*>& rResult, void* pUserData)
 
     DBG("select check role freeze finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1430,10 +1413,8 @@ BOOL CB_DBQueryNameToID(std::list<void*>& rResult, void* pUserData)
 
     DBG("Query Name To ID Finished. records ");
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1513,12 +1494,10 @@ BOOL CB_DBQueryExchangeLog(std::list<void*>& rResult, void* pUserData)
     INF("Query Exchange price finished. records %d", nRecords);
 
     delete[] pBuffer;
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
     if (pBuffer)
         delete[] pBuffer;
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1596,12 +1575,10 @@ BOOL CB_DBQueryExchangeHistory(std::list<void*>& rResult, void* pUserData)
     INF("Query Exchange history finished. records %d", nRecords);
 
     delete[] pBuffer;
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
     if (pBuffer)
         delete[] pBuffer;
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1645,10 +1622,8 @@ BOOL CB_DBQuerySysExchangeOrderInfo(std::list<void*>& rResult, void* pUserData)
 
     DBG("Query system exchange order info Finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1723,10 +1698,8 @@ BOOL CB_DBQuerySysExchangeLogInfo(std::list<void*>& rResult, void* pUserData)
 
     DBG("Query system exchange log info Finished. %u records ", nRecords);
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1803,10 +1776,8 @@ BOOL CB_DBQueryLogRoleLogin(std::list<void*>& rResult, void* pUserData)
     pCmdLog->eCmdState = GM_LS_QUERY_LOG_ACK;
     pCmdLog->nResult = errSuccess;
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1879,10 +1850,8 @@ BOOL CB_DBQueryLogRoleLogout(std::list<void*>& rResult, void* pUserData)
     pCmdLog->eCmdState = GM_LS_QUERY_LOG_ACK;
     pCmdLog->nResult = errSuccess;
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -1998,10 +1967,8 @@ BOOL CB_DBQueryLogItem(std::list<void*>& rResult, void* pUserData)
     pCmdLog->eCmdState = GM_LS_QUERY_LOG_ACK;
     pCmdLog->nResult = errSuccess;
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -2093,10 +2060,8 @@ BOOL CB_DBQueryLogMoney(std::list<void*>& rResult, void* pUserData)
     pCmdLog->eCmdState = GM_LS_QUERY_LOG_ACK;
     pCmdLog->nResult = errSuccess;
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 
@@ -2182,10 +2147,8 @@ BOOL CB_DBQueryLogQuest(std::list<void*>& rResult, void* pUserData)
     pCmdLog->eCmdState = GM_LS_QUERY_LOG_ACK;
     pCmdLog->nResult = errSuccess;
 
-    delete (UINT32*)pUserData;
     return TRUE;
 Exit0:
-    delete (UINT32*)pUserData;
     return FALSE;
 }
 

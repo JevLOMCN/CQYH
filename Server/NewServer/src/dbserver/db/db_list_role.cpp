@@ -8,7 +8,7 @@
 
 CDBListRole::CDBListRole()
 {
-    m_stmt = NULL;
+    m_stmt = nullptr;
     memset(m_bind_param, 0, sizeof(m_bind_param));
     memset(m_bind_result, 0, sizeof(m_bind_result));
 }
@@ -20,20 +20,23 @@ CDBListRole::~CDBListRole()
 
 BOOL CDBListRole::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LIST_ROLE, (unsigned long)strlen(LIST_ROLE));
+    nRet = mysql_stmt_prepare(prepared.get(), LIST_ROLE, (unsigned long)strlen(LIST_ROLE));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 2);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 
 Exit0:
@@ -42,13 +45,7 @@ Exit0:
 
 BOOL CDBListRole::UnInit()
 {
-    bool res = 0;
-    if (m_stmt)
-    {
-        res = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-    }
-    return res == 0;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBListRole::DoListRole(CDBUser* dbuser)
@@ -74,10 +71,10 @@ BOOL CDBListRole::DoListRole(CDBUser* dbuser)
     m_bind_param[1].buffer_type = MYSQL_TYPE_TINY;
     m_bind_param[1].buffer = &byGroupID;
 
-    nRet = mysql_stmt_bind_param(m_stmt, m_bind_param);
+    nRet = mysql_stmt_bind_param(m_stmt.get(), m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(nRet == 0);
 
     memset(&m_bind_result, 0, sizeof(m_bind_result));
@@ -93,10 +90,10 @@ BOOL CDBListRole::DoListRole(CDBUser* dbuser)
     m_bind_result[2].buffer_type = MYSQL_TYPE_LONG;
     m_bind_result[2].buffer = &deletetime;
 
-    nRet = mysql_stmt_bind_result(m_stmt, m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), m_bind_result);
     LOG_PROCESS_ERROR(nRet == 0);
 
-    while ((nRet = mysql_stmt_fetch(m_stmt)) != MYSQL_NO_DATA)
+    while ((nRet = mysql_stmt_fetch(m_stmt.get())) != MYSQL_NO_DATA)
     {
         if (nRet == 0 && dbuser->m_byRoleCount < MAX_ROLE_PER_USER)
         {
@@ -119,6 +116,6 @@ BOOL CDBListRole::DoListRole(CDBUser* dbuser)
     return TRUE;
 
 Exit0:
-    //DBG("%d, %s", mysql_stmt_errno(m_stmt), mysql_stmt_error(m_stmt));
+    //DBG("%d, %s", mysql_stmt_errno(m_stmt.get()), mysql_stmt_error(m_stmt.get()));
     return FALSE;
 }

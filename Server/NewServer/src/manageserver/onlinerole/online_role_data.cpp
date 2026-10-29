@@ -12,7 +12,7 @@
 #include "db/ms_sql_stmt_list.h"
 
 
-BOOL LoadFriends(std::list<void*>& rResult, void* pUserData)
+BOOL LoadFriends(std::list<void*>& rResult, UINT32 roleID, UINT32 clientSessionID)
 {
     INT32       nRetCode = 0;
     MS_ONLINE_ROLE_DATA     *pOnlineRoleData = NULL;
@@ -26,8 +26,10 @@ BOOL LoadFriends(std::list<void*>& rResult, void* pUserData)
     };
 #pragma pack(pop)
 
-    LOG_PROCESS_ERROR(pUserData);
-    pOnlineRoleData = (MS_ONLINE_ROLE_DATA *)pUserData;
+    pOnlineRoleData = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(roleID);
+    // Ignore a result for a session that ended while its query was in flight.
+    if (!pOnlineRoleData || pOnlineRoleData->dwCliSessionID != clientSessionID)
+        return TRUE;
 
     for (std::list<void*>::iterator it = rResult.begin(); it != rResult.end(); ++it)
     {
@@ -94,7 +96,7 @@ void MS_ONLINE_ROLE_DATA::BroadCastInfoChange()
     }
 }
 
-BOOL OnSelectShopLog(std::list<void*>& rResult, void* pUserData)
+BOOL OnSelectShopLog(std::list<void*>& rResult, UINT32 roleID)
 {
 #pragma pack(push, 1)
     struct LOAD_RESULT
@@ -106,7 +108,7 @@ BOOL OnSelectShopLog(std::list<void*>& rResult, void* pUserData)
     };
 #pragma pack(pop)
 
-    MS_ONLINE_ROLE_DATA* online_role = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID((UINT32)pUserData);
+    MS_ONLINE_ROLE_DATA* online_role = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(roleID);
     if (online_role)
     {
         MS_ONLINE_ROLE_DATA::ShopLog shoplog;
@@ -135,7 +137,9 @@ void MS_ONLINE_ROLE_DATA::SendShopLog()
         CMessageHandler::GetInstance().DoClientRealMoneyShopLog(this);
     else
     {
-        INT32 nRetCode = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlSelectShopLog, OnSelectShopLog, (void*)pRoleData->dwRoleID, "d", pRoleData->dwRoleID);
+        INT32 nRetCode = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmtOwned(msqlSelectShopLog,
+            [roleID = pRoleData->dwRoleID](std::list<void*>& rows, void*) { return OnSelectShopLog(rows, roleID); },
+            "d", pRoleData->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
     }
 }

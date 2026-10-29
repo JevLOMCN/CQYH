@@ -1,7 +1,10 @@
 #ifndef _PREP_STMT_H_
 #define _PREP_STMT_H_
 
-#include "mysql.h"
+#include "mysql_owner.h"
+
+
+
 
 class CPrepStmt
 {
@@ -11,12 +14,11 @@ public:
     BOOL UnInit();
     BOOL BindResult(MYSQL_BIND* pResults);
     INT32 Fetch();
-    MYSQL_STMT* GetStmt() const { return stmt; }
+    MYSQL_STMT* GetStmt() const { return stmt.get(); }
 
 private:
-    MYSQL* mysql;
-    MYSQL_STMT* stmt;
-    char* query;
+    cqyh::MysqlPtr mysql;
+    cqyh::MysqlStmtPtr stmt;
 };
 
 #endif // _PREP_STMT_H_

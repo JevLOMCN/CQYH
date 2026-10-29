@@ -7,7 +7,7 @@
 
 CDBLoadRole::CDBLoadRole()
 {
-    m_stmt = NULL;
+    m_stmt = nullptr;
     m_dwRoleID = 0;
     memset(&m_bind_param, 0, sizeof(m_bind_param));
     memset(&m_bind_result, 0, sizeof(m_bind_result));
@@ -20,26 +20,29 @@ CDBLoadRole::~CDBLoadRole()
 
 BOOL CDBLoadRole::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, LOAD_ROLE, (unsigned long)strlen(LOAD_ROLE));
+    nRet = mysql_stmt_prepare(prepared.get(), LOAD_ROLE, (unsigned long)strlen(LOAD_ROLE));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 1);
 
     memset(&m_bind_param, 0, sizeof(m_bind_param));
     m_bind_param.buffer_type = MYSQL_TYPE_LONG;
     m_bind_param.buffer = &m_dwRoleID;
-    nRet = mysql_stmt_bind_param(m_stmt, &m_bind_param);
+    nRet = mysql_stmt_bind_param(prepared.get(), &m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 
 Exit0:
@@ -48,13 +51,7 @@ Exit0:
 
 BOOL CDBLoadRole::UnInit()
 {
-    bool res = 0;
-    if (m_stmt)
-    {
-        res = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-    }
-    return res == 0;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBLoadRole::DoLoadRole(char* buf, UINT32 bufsize, UINT32& outsize)
@@ -66,7 +63,7 @@ BOOL CDBLoadRole::DoLoadRole(char* buf, UINT32 bufsize, UINT32& outsize)
 
     LOG_PROCESS_ERROR(buf);
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     LOG_PROCESS_ERROR(nRet == 0);
 
     memset(&m_bind_result, 0, sizeof(m_bind_result));
@@ -74,10 +71,10 @@ BOOL CDBLoadRole::DoLoadRole(char* buf, UINT32 bufsize, UINT32& outsize)
     m_bind_result.buffer = zipped_role_data;
     m_bind_result.buffer_length = zipped_role_data_len;
     m_bind_result.length = &zipped_role_data_len;
-    nRet = mysql_stmt_bind_result(m_stmt, &m_bind_result);
+    nRet = mysql_stmt_bind_result(m_stmt.get(), &m_bind_result);
     LOG_PROCESS_ERROR(nRet == 0);
 
-    nRet = mysql_stmt_fetch(m_stmt);
+    nRet = mysql_stmt_fetch(m_stmt.get());
     LOG_PROCESS_ERROR(nRet == 0);
 
     nRet = uncompress((unsigned char*)buf, &out_len, zipped_role_data, zipped_role_data_len);
@@ -91,7 +88,7 @@ BOOL CDBLoadRole::DoLoadRole(char* buf, UINT32 bufsize, UINT32& outsize)
 
     {
         INT32 nMoreDataCount = 0;
-        while(mysql_stmt_fetch(m_stmt) == 0)
+        while(mysql_stmt_fetch(m_stmt.get()) == 0)
             nMoreDataCount++;
         LOG_PROCESS_ERROR(nMoreDataCount == 0);
     }
@@ -102,6 +99,6 @@ BOOL CDBLoadRole::DoLoadRole(char* buf, UINT32 bufsize, UINT32& outsize)
     return TRUE;
 
 Exit0:
-    DBG("%d, %s", mysql_stmt_errno(m_stmt), mysql_stmt_error(m_stmt));
+    DBG("%d, %s", mysql_stmt_errno(m_stmt.get()), mysql_stmt_error(m_stmt.get()));
     return FALSE;
 }

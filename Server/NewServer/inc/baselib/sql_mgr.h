@@ -5,6 +5,7 @@
 #include "circle_list.h"
 #include "base_list.h"
 #include "sql_stmt.h"
+#include "mysql_owner.h"
 
 #define MAX_SQL_STMT_PARAM_COUNT    (256)
 #define MAX_SQL_STMT_RESULT_COUNT   (32)
@@ -57,6 +58,8 @@ struct SQL_THREAD_PARAM
     INT32       nIndex;
 };
 
+struct SqlWorkerResources;
+
 class CSqlMgr
 {
 public:
@@ -72,6 +75,8 @@ public:
 
     BOOL AsyncExecSqlStmt(INT32 nSqlStmtID, SQL_STMT_CALLBACK_FUNC pCallbackFunc, void* pUserData, const char* pcszFormat, ...);
     BOOL SyncExecSqlStmt(INT32 nSqlStmtID, SQL_STMT_CALLBACK_FUNC pCallbackFunc, void* pUserData, const char* pcszFormat, ...);
+    BOOL AsyncExecSqlStmtOwned(INT32 nSqlStmtID, SQL_STMT_CALLBACK callback, const char* pcszFormat, ...);
+    BOOL SyncExecSqlStmtOwned(INT32 nSqlStmtID, SQL_STMT_CALLBACK callback, const char* pcszFormat, ...);
 
     const SQL_STMT_DATA* GetSqlStmtData(INT32 nSqlStmtID);
 	inline BOOL IsCompleted(void);
@@ -80,14 +85,20 @@ private:
     BOOL _ParseSqlStmt(SQL_STMT_DATA* pSqlStmtData);
     CSqlStmt* _NewSqlStmt(INT32 nSqlStmtID);
     BOOL _DelSqlStmt(CSqlStmt* pSqlStmt);
-    CSqlStmt* _ExecSqlStmt(INT32 nSqlStmtID, SQL_STMT_CALLBACK_FUNC pCallbackFunc, void* pUserData, const char* pcszFormat, va_list valist);
+    CSqlStmt* _ExecSqlStmt(INT32 nSqlStmtID, SQL_STMT_CALLBACK callback, void* pUserData, const char* pcszFormat, va_list valist);
+    BOOL _WaitSqlStmt(CSqlStmt* statement);
+    BOOL _CompleteSqlStmt(CSqlStmt* statement);
+    CSqlStmt* _TakeCompleted(INT32 threadIndex);
+    bool _PublishCompleted(INT32 threadIndex, CSqlStmt* statement);
     static THREAD_DECLARE(_WorkerThread)(void * pParam);
+    static THREAD_DECLARE(_WorkerLoop)(CSqlMgr* manager, INT32 threadIndex, SqlWorkerResources& resources);
 
 private:
     //static CSqlMgr  ms_Instance;
 
-    SQL_STMT_DATA*  m_pSqlStmtList;
+    std::unique_ptr<SQL_STMT_DATA[]> m_pSqlStmtList;
     INT32           m_nSqlStmtCount;
+    cqyh::MysqlLibraryLease m_library;
 
     char            m_szServerAddr[MAX_PATH];
     char            m_szUserName[MAX_PATH];
@@ -98,12 +109,12 @@ private:
 
     INT32           m_nThreadCount;
     CThread         m_Thread[MAX_DB_WORKER_THREAD_COUNT];
-    BOOL            m_bStopThread;
+    std::atomic<bool> m_bStopThread{false};
     CCircleList     m_PushList[MAX_DB_WORKER_THREAD_COUNT];
     CCircleList     m_PopList[MAX_DB_WORKER_THREAD_COUNT];
     INT32           m_nThreadIndex;
 
-    CBaseList*      m_pSqlStmtPool;
+    std::unique_ptr<CBaseList[]> m_pSqlStmtPool;
 	INT32			m_nNewSqlStmtCount;
 	INT32			m_nDelSqlStmtCount;
 };

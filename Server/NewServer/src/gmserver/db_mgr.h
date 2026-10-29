@@ -43,12 +43,11 @@ public:
     DBSetting   *GetDBSetting();
     DBSetting   *GetSlaverDBSetting();
 
-    MYSQL*      GetMysql( );
-    MYSQL*      GetSlaverMysql();
-    BOOL        FreeMysql(MYSQL* mysql);
+    cqyh::MysqlPtr GetMysql( );
+    cqyh::MysqlPtr GetSlaverMysql();
 
-    MYSQL*      GetLogMysql( );
-    MYSQL*      GetSlaverLogMysql();
+    cqyh::MysqlPtr GetLogMysql( );
+    cqyh::MysqlPtr GetSlaverLogMysql();
 
 
     BOOL        PreQueryRoleID(CMD_DATA_BASE *pCmd);
@@ -93,8 +92,6 @@ private:
     DBSetting   m_DBLogData;
     DBSetting   m_SlaverDBData;
 
-    MYSQL       *m_mysql;
-    MYSQL       *m_SlaverMysql;
 
     CSqlMgr     m_MasterSqlMgr;
     CSqlMgr     m_SlaverSqlMgr;
@@ -113,6 +110,7 @@ BOOL ExeLuaGMCmd(CMD_ROLE_EXE_GM_CMD *pCmd);
 
 
 
+// Query callbacks borrow both rows and user data from their owning SQL statement.
 BOOL CB_DBPreQueryRoleID(std::list<void*>& rResult, void* pUserData);
 BOOL CB_DBQueryRoleID(std::list<void*>& rResult, void* pUserData);
 BOOL CB_DBQueryGuildID(std::list<void*>& rResult, void* pUserData);

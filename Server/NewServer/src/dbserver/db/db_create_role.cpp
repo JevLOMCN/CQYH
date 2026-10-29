@@ -12,7 +12,7 @@
 
 CDBCreateRole::CDBCreateRole()
 {
-    m_stmt = NULL;
+    m_stmt = nullptr;
     memset(m_bind_param, 0, sizeof(m_bind_param));
     memset(m_bind_result, 0, sizeof(m_bind_result));
 }
@@ -24,20 +24,23 @@ CDBCreateRole::~CDBCreateRole()
 
 BOOL CDBCreateRole::Init(MYSQL* mysql)
 {
+    cqyh::MysqlStmtPtr prepared;
     INT32 nRet = 0;
     UINT32 param_count = 0;
 
     LOG_PROCESS_ERROR(mysql);
+    LOG_PROCESS_ERROR(!m_stmt);
 
-    m_stmt = mysql_stmt_init(mysql);
-    LOG_PROCESS_ERROR(m_stmt);
+    prepared.reset(mysql_stmt_init(mysql));
+    LOG_PROCESS_ERROR(prepared.get());
 
-    nRet = mysql_stmt_prepare(m_stmt, CREATE_ROLE, (unsigned long)strlen(CREATE_ROLE));
+    nRet = mysql_stmt_prepare(prepared.get(), CREATE_ROLE, (unsigned long)strlen(CREATE_ROLE));
     LOG_PROCESS_ERROR(nRet == 0);
 
-    param_count = mysql_stmt_param_count(m_stmt);
+    param_count = mysql_stmt_param_count(prepared.get());
     LOG_PROCESS_ERROR(param_count == 6);
 
+    m_stmt = std::move(prepared);
     return TRUE;
 
 Exit0:
@@ -46,13 +49,7 @@ Exit0:
 
 BOOL CDBCreateRole::UnInit()
 {
-    bool res = 0;
-    if (m_stmt)
-    {
-        res = mysql_stmt_close(m_stmt);
-        m_stmt = NULL;
-    }
-    return res == 0;
+    return cqyh::CloseMysqlStatement(m_stmt);
 }
 
 BOOL CDBCreateRole::DoCreateRole(UINT8 byGroupID, UINT32 roleid, char* rolename, char* username,
@@ -106,10 +103,10 @@ BOOL CDBCreateRole::DoCreateRole(UINT8 byGroupID, UINT32 roleid, char* rolename,
     m_bind_param[5].buffer_length = zipped_role_data_len;
     m_bind_param[5].length = &zipped_role_data_len;
 
-    nRet = mysql_stmt_bind_param(m_stmt, m_bind_param);
+    nRet = mysql_stmt_bind_param(m_stmt.get(), m_bind_param);
     LOG_PROCESS_ERROR(nRet == 0);
 
-    nRet = mysql_stmt_execute(m_stmt);
+    nRet = mysql_stmt_execute(m_stmt.get());
     if (nRet != 0)
         return FALSE;
 
@@ -121,6 +118,6 @@ BOOL CDBCreateRole::DoCreateRole(UINT8 byGroupID, UINT32 roleid, char* rolename,
     return TRUE;
 
 Exit0:
-    DBG("%d, %s", mysql_stmt_errno(m_stmt), mysql_stmt_error(m_stmt));
+    DBG("%d, %s", mysql_stmt_errno(m_stmt.get()), mysql_stmt_error(m_stmt.get()));
     return FALSE;
 }

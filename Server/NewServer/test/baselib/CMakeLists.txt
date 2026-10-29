@@ -79,6 +79,37 @@ target_include_directories(test_baselib_numbers PRIVATE "${CQYH_SERVER_DIR}/NewS
 add_test(NAME baselib_numbers COMMAND test_baselib_numbers)
 set_tests_properties(baselib_numbers PROPERTIES TIMEOUT 15)
 
+# Exercise the production manager with a link-time C API fake; no database service.
+add_executable(test_baselib_sql_resources
+    test_baselib_sql_resources.cpp fake_mysql_client.cpp)
+cqyh_target_defaults(test_baselib_sql_resources)
+target_include_directories(test_baselib_sql_resources PRIVATE
+    "${CQYH_SERVER_DIR}/NewServer/inc/baselib")
+target_compile_definitions(test_baselib_sql_resources PRIVATE NOMINMAX)
+target_link_libraries(test_baselib_sql_resources PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_baselib_sql_resources)
+add_test(NAME baselib_sql_resources COMMAND test_baselib_sql_resources)
+set_tests_properties(baselib_sql_resources PROPERTIES TIMEOUT 90)
+
+add_executable(test_mysql_handles test_mysql_handles.cpp fake_mysql_client.cpp
+    ../../src/dbserver/db/db_create_role.cpp
+    ../../src/dbserver/db/db_delete_role.cpp
+    ../../src/dbserver/db/db_update_role_delete_time.cpp
+    ../../src/dbserver/db/db_list_role.cpp
+    ../../src/dbserver/db/db_load_role.cpp
+    ../../src/dbserver/db/db_save_role.cpp
+    ../../src/gmserver/gm_db_operation.cpp
+    ../../src/gmserver/prep_stmt.cpp)
+cqyh_target_defaults(test_mysql_handles)
+get_target_property(handle_db_includes dbserver INCLUDE_DIRECTORIES)
+get_target_property(handle_gm_includes gmserver INCLUDE_DIRECTORIES)
+target_include_directories(test_mysql_handles PRIVATE ${handle_db_includes} ${handle_gm_includes})
+target_compile_definitions(test_mysql_handles PRIVATE NOMINMAX)
+target_link_libraries(test_mysql_handles PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_mysql_handles)
+add_test(NAME mysql_handles COMMAND test_mysql_handles)
+set_tests_properties(mysql_handles PROPERTIES TIMEOUT 30)
+
 add_executable(test_dump_lifecycle test_dump_lifecycle.cpp ../../src/baselib/dump.cpp)
 cqyh_target_defaults(test_dump_lifecycle)
 cqyh_use_async_exceptions(test_dump_lifecycle)

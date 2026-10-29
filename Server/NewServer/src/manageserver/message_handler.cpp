@@ -2726,11 +2726,12 @@ Exit0:
 
 void CMessageHandler::OnGMRegisterAck(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    SGMSession  * pSession{};
     INT32       nRetCode = 0;
     GM2M_REGISTER_ACK   *pMsg = (GM2M_REGISTER_ACK*)pPacketBuffer;
     LOG_PROCESS_ERROR(pMsg);
 
-    SGMSession  *pSession = (SGMSession*)pSocketSession->GetUserData();
+    pSession = (SGMSession*)pSocketSession->GetUserData();
     LOG_PROCESS_ERROR(pSession);
 
     pSession->bRegistered = TRUE;
@@ -4220,7 +4221,10 @@ BOOL CMessageHandler::_DoLoginSyncInfo(MS_ONLINE_ROLE_DATA* pstRoleData)
     LOG_CHECK_ERROR(nRetCode);
 
     //load friends info
-    nRetCode = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(mysqlSelectFriend, LoadFriends, (void*)pstRoleData, "udud", pstRoleData->pRoleData->dwRoleID, pstRoleData->pRoleData->dwRoleID);
+    nRetCode = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmtOwned(mysqlSelectFriend,
+        [roleID = pstRoleData->pRoleData->dwRoleID, sessionID = pstRoleData->dwCliSessionID]
+        (std::list<void*>& rows, void*) { return LoadFriends(rows, roleID, sessionID); },
+        "udud", pstRoleData->pRoleData->dwRoleID, pstRoleData->pRoleData->dwRoleID);
     LOG_CHECK_ERROR(nRetCode);
 
     //// load master
@@ -4932,6 +4936,7 @@ Exit0:
 
 void CMessageHandler::OnMMRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+	SMMSession* pMMSession{};
 	INT32 nRetCode = 0;
 	MM2M_REGISTER* pMsg = (MM2M_REGISTER*)pPacketBuffer;
 
@@ -4939,7 +4944,7 @@ void CMessageHandler::OnMMRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, 
 	SMMSession& rMMSession = CMSSessionMgr::GetInstance().GetMMSession();
 	LOG_PROCESS_ERROR(rMMSession.pSocketSession == pSocketSession);
 
-	SMMSession* pMMSession = (SMMSession*)pSocketSession->GetUserData();
+	pMMSession = (SMMSession*)pSocketSession->GetUserData();
 	LOG_PROCESS_ERROR(pMMSession);
 	LOG_PROCESS_ERROR(pMMSession->pSocketSession == pSocketSession);
 	LOG_PROCESS_ERROR(CMSSessionMgr::GetInstance().GetServerState() != sgsClosing);

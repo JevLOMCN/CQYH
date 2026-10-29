@@ -14,6 +14,7 @@
 #include "error_def.h"
 #include "db_mgr.h"
 #include "gm_role_mgr.h"
+#include <limits>
 
 
 CGMQueryThread::CGMQueryThread()
@@ -28,7 +29,14 @@ CGMQueryThread::~CGMQueryThread()
 
 BOOL CGMQueryThread::Init(UINT32 dwResultCount)
 {
+    if (m_bServerOK || m_bstart)
+    {
+        LOG_CHECK_ERROR(!m_bServerOK && !m_bstart);
+        return FALSE;
+    }
     INT32 nRetCode = 0;
+
+    LOG_PROCESS_ERROR(dwResultCount > 0 && dwResultCount <= (std::numeric_limits<UINT32>::max)() / 10);
 
     nRetCode = m_requests.Init(dwResultCount * 10);
     LOG_PROCESS_ERROR(nRetCode);
@@ -39,11 +47,20 @@ BOOL CGMQueryThread::Init(UINT32 dwResultCount)
     m_bServerOK = TRUE;
     return TRUE;
 Exit0:
+    UnInit();
     return FALSE;
 }
 
 BOOL CGMQueryThread::UnInit()
 {
+    Wait();
+    while (auto* request = static_cast<DB_OPERATION_REQUEST*>(m_requests.Pop()))
+        delete request;
+    while (auto* result = static_cast<DB_OPERATION_RESULT*>(m_results.Pop()))
+        delete result;
+    m_requests.UnInit();
+    m_results.UnInit();
+    m_bServerOK = FALSE;
     return TRUE;
 }
 
@@ -161,6 +178,12 @@ DB_OPERATION_RESULT* CGMQueryThread::GetResult()
 
 void CGMQueryThread::ThrdProc()
 {
+    cqyh::MysqlThreadContext clientThread;
+    if (!clientThread)
+    {
+        LOG_CHECK_ERROR(clientThread);
+        return;
+    }
     BOOL nRetCode = FALSE;
 
     for (; m_bstart; )
@@ -173,16 +196,16 @@ void CGMQueryThread::ThrdProc()
             if (!m_bServerOK)
                 break;
 
-            DB_OPERATION_REQUEST* req = (DB_OPERATION_REQUEST*)m_requests.Pop();
+            const std::unique_ptr<DB_OPERATION_REQUEST> req(static_cast<DB_OPERATION_REQUEST*>(m_requests.Pop()));
             if (req == NULL)
                 break;
 
             //if (NULL == req->pCmd)
                 //break;
 
-            MYSQL   *pMysql = CDBMgr::GetInstance().GetMysql();
+            auto pMysql = CDBMgr::GetInstance().GetMysql();
             LOG_CHECK_ERROR(pMysql);
-            MYSQL   *pLogMysql = CDBMgr::GetInstance().GetLogMysql();
+            auto pLogMysql = CDBMgr::GetInstance().GetLogMysql();
             LOG_CHECK_ERROR(pLogMysql);
             if (NULL == pMysql || NULL == pLogMysql)
                 continue;
@@ -382,16 +405,11 @@ void CGMQueryThread::ThrdProc()
             //    LOG_CHECK_ERROR(FALSE);
             //}
 
-            delete req;
 
-            nRetCode = CDBMgr::GetInstance().FreeMysql(pMysql);
-            LOG_CHECK_ERROR(nRetCode);
 
-            nRetCode = CDBMgr::GetInstance().FreeMysql(pLogMysql);
-            LOG_CHECK_ERROR(nRetCode);
         }
 
-        Sleep(16);
+        WaitForStop(std::chrono::milliseconds(16));
     }
 }
 
