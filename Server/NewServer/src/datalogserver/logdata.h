@@ -31,7 +31,7 @@ private:
 
 private:
 	CThread         m_Thread[dlmtTotal];
-	BOOL            m_bStopThread;
+	std::atomic<bool> m_bStopThread{false};
 	CCircleList     m_PushList[dlmtTotal];
 };
 

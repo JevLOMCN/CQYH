@@ -6,60 +6,49 @@
 #include "role_data.h"
 #include "onlinerole/online_role_data_mgr.h"
 #include "message_handler.h"
+#include <cstdio>
+#include <memory>
 
 int func_callbk(const char* szUserID, const char* szRoleID, int iOnlineMinutes, int iOfflineMinutes);
 void func_switch(int iNeedFCM);
 void func_Querycallback(const char* szUserID, const char* szRoleID, int istate, int iOnlineMinutes, int iOfflineMinutes);
 
+CFcmMgr::CFcmMgr() = default;
+CFcmMgr::~CFcmMgr() { UnInit(); }
+
 BOOL CFcmMgr::Init()
 {
-    bool bRes;
-    BOOL bRet;
-
+    if (m_poFCM || m_callback_list.IsInitialized())
+    {
+        LOG_CHECK_ERROR(!m_poFCM && !m_callback_list.IsInitialized());
+        return FALSE;
+    }
     LOG_PROCESS_ERROR(g_ServerConfig.MS.bFcmEnable);
-
+    LOG_PROCESS_ERROR(g_ServerConfig.MS.nFcmCallbackCount > 0);
+    LOG_PROCESS_ERROR(m_callback_list.InitSlots(g_ServerConfig.MS.nFcmCallbackCount));
     INF("Starting FCM...");
-
-    m_poFCM = CreateSDKInstance();
+    m_poFCM.reset(CreateSDKInstance());
     LOG_PROCESS_ERROR(m_poFCM);
-
-    bRes = m_poFCM->initFCMSDK(FCM_APPID, g_ServerConfig.Common.nAreaID, 0, func_callbk, func_switch, func_Querycallback);
-    LOG_PROCESS_ERROR(bRes);
-
-    bRet = m_callback_pool.Init(g_ServerConfig.MS.nFcmCallbackCount);
-    LOG_PROCESS_ERROR(bRet);
-
-    bRet = m_callback_list.Init(g_ServerConfig.MS.nFcmCallbackCount);
-    LOG_PROCESS_ERROR(bRet);
-
+    // The queue is ready before initFCMSDK can synchronously deliver a callback.
+    LOG_PROCESS_ERROR(m_poFCM->initFCMSDK(FCM_APPID, g_ServerConfig.Common.nAreaID,
+                                       0, func_callbk, func_switch, func_Querycallback));
     return TRUE;
-
 Exit0:
+    UnInit();
     return FALSE;
 }
 
 BOOL CFcmMgr::UnInit()
 {
-    BOOL bRet;
-
-    LOG_PROCESS_ERROR(g_ServerConfig.MS.bFcmEnable);
-
-    bRet = m_callback_pool.UnInit();
-    LOG_PROCESS_ERROR(bRet);
-
-    bRet = m_callback_list.UnInit();
-    LOG_PROCESS_ERROR(bRet);
-
+    m_callback_list.Close();
+    m_poFCM.reset();
+    m_callback_list.UnInit();
     return TRUE;
-
-Exit0:
-    return FALSE;
 }
 
 BOOL CFcmMgr::MainLoop()
 {
-    FCM_CALLBACK* cb = (FCM_CALLBACK*)m_callback_list.Pop();
-    while (cb)
+    while (auto cb = m_callback_list.Pop())
     {
         MS_USER* user = CUserMgr::GetInstance().FindUserByUserName(cb->szUserName);
         if (user && !user->bAdult)
@@ -83,8 +72,7 @@ BOOL CFcmMgr::MainLoop()
             }
         }
 
-        m_callback_pool.Delete(cb);
-        cb = (FCM_CALLBACK*)m_callback_list.Pop();
+
     }
 
     return TRUE;
@@ -129,32 +117,34 @@ Exit0:
     return;
 }
 
-BOOL CFcmMgr::PushCallback(const char* szUserID, INT32 nOnlineMinutes, INT32 nOfflineMinutes)
+BOOL CFcmMgr::PushCallback(const char* user, INT32 online, INT32 offline) try
 {
-    BOOL bRet;
-
-    FCM_CALLBACK* cb = m_callback_pool.New();
-    LOG_PROCESS_ERROR(cb);
-
-    strxcpy(cb->szUserName, szUserID, USER_NAME_LEN);
-    cb->nOnlineMinutes = nOnlineMinutes;
-    cb->nOfflineMinutes = nOfflineMinutes;
-
-    bRet = m_callback_list.Push(cb);
-    LOG_PROCESS_ERROR(bRet);
-
-    return TRUE;
-
-Exit0:
+    if (!user)
+        return FALSE;
+    auto record = std::make_unique<FCM_CALLBACK>();
+    strxcpy(record->szUserName, user, USER_NAME_LEN);
+    record->nOnlineMinutes = online;
+    record->nOfflineMinutes = offline;
+    const auto accepted = m_callback_list.Push(std::move(record));
+    LOG_CHECK_ERROR(accepted);
+    return accepted;
+}
+catch (...)
+{
+    std::fputs("FCM callback allocation failed\n", stderr);
     return FALSE;
 }
 
-BOOL CFcmMgr::PopCallback(FCM_CALLBACK& cb)
+BOOL CFcmMgr::PopCallback(FCM_CALLBACK& callback)
 {
+    auto record = m_callback_list.Pop();
+    if (!record)
+        return FALSE;
+    callback = *record;
     return TRUE;
 }
 
-int func_callbk(const char* szUserID, const char* szRoleID, int iOnlineMinutes, int iOfflineMinutes)
+int func_callbk(const char* szUserID, const char* szRoleID, int iOnlineMinutes, int iOfflineMinutes) try
 {
     BOOL bRet = CFcmMgr::GetInstance().PushCallback(szUserID, iOnlineMinutes, iOfflineMinutes);
     LOG_PROCESS_ERROR(bRet);
@@ -163,17 +153,32 @@ Exit0:
     DBG("func_callbk: %s, %d, %d", szUserID, iOnlineMinutes, iOfflineMinutes);
     return 0;
 }
+catch (...)
+{
+    std::fputs("FCM state callback failed\n", stderr);
+    return 0;
+}
 
-void func_switch(int iNeedFCM)
+
+void func_switch(int iNeedFCM) try
 {
     DBG("func_switch: %d", iNeedFCM);
 }
+catch (...)
+{
+    std::fputs("FCM switch callback failed\n", stderr);
+}
 
-void func_Querycallback(const char* szUserID, const char* szRoleID, int istate, int iOnlineMinutes, int iOfflineMinutes)
+
+void func_Querycallback(const char* szUserID, const char* szRoleID, int istate, int iOnlineMinutes, int iOfflineMinutes) try
 {
     BOOL bRet = CFcmMgr::GetInstance().PushCallback(szUserID, iOnlineMinutes, iOfflineMinutes);
     LOG_PROCESS_ERROR(bRet);
 
 Exit0:
     DBG("func_Querycallback: %s, %d, %d", szUserID, iOnlineMinutes, iOfflineMinutes);
+}
+catch (...)
+{
+    std::fputs("FCM query callback failed\n", stderr);
 }

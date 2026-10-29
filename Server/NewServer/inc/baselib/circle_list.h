@@ -1,67 +1,63 @@
 #ifndef _CIRCLE_LIST_H_
 #define _CIRCLE_LIST_H_
 
-// This circle list is thread-safe for SISO
+#include <atomic>
+#include <vector>
+
+// Process-local single-producer/single-consumer queue of borrowed pointers.
+// One slot is reserved, retaining the legacy capacity of Init(size) - 1.
+// Init/UnInit require both participants to have stopped. Check/Pop are consumer-only.
 class CCircleList
 {
 public:
-    CCircleList();
-    ~CCircleList();
+    CCircleList() = default;
+    ~CCircleList() = default;
+    CCircleList(const CCircleList&) = delete;
+    CCircleList& operator=(const CCircleList&) = delete;
 
-    BOOL Init(UINT32 dwSize);
-    BOOL UnInit(void);
+    BOOL Init(UINT32 size);
+    BOOL UnInit();
 
-	inline BOOL Push(void* pData);
-	inline void* Pop(void);
-	inline void* Check(void);
-	inline BOOL IsEmpty(void);
+    BOOL Push(void* data)
+    {
+        if (m_data.empty())
+            return FALSE;
+        const auto rear = m_rear.load(std::memory_order_relaxed);
+        const auto next = (rear + 1) % m_data.size();
+        if (next == m_head.load(std::memory_order_acquire))
+            return FALSE;
+        m_data[rear] = data;
+        m_rear.store(next, std::memory_order_release);
+        return TRUE;
+    }
+
+    void* Pop()
+    {
+        const auto head = m_head.load(std::memory_order_relaxed);
+        if (head == m_rear.load(std::memory_order_acquire))
+            return nullptr;
+        auto* data = m_data[head];
+        m_head.store((head + 1) % m_data.size(), std::memory_order_release);
+        return data;
+    }
+
+    void* Check()
+    {
+        const auto head = m_head.load(std::memory_order_relaxed);
+        if (head == m_rear.load(std::memory_order_acquire))
+            return nullptr;
+        return m_data[head];
+    }
+
+    BOOL IsEmpty() const
+    {
+        return m_head.load(std::memory_order_acquire) == m_rear.load(std::memory_order_acquire);
+    }
 
 private:
-    UINT32  m_dwSize;
-    UINT32  m_dwHead;
-    UINT32  m_dwRear;
-    void**  m_ppData;
+    std::vector<void*> m_data;
+    std::atomic<std::size_t> m_head{0};
+    std::atomic<std::size_t> m_rear{0};
 };
 
-inline BOOL CCircleList::Push(void* pData)
-{
-	PROCESS_ERROR(m_dwSize > 0);
-	PROCESS_ERROR((m_dwRear + 1) % m_dwSize != m_dwHead);
-
-	PROCESS_ERROR(m_ppData);
-	m_ppData[m_dwRear] = pData;
-	m_dwRear = (m_dwRear + 1) % m_dwSize;
-
-	return TRUE;
-Exit0:
-	return FALSE;
-}
-
-inline void* CCircleList::Pop(void)
-{
-	void* pResult = NULL;
-
-	PROCESS_ERROR(m_dwRear != m_dwHead);
-
-	pResult = m_ppData[m_dwHead];
-	m_dwHead = (m_dwHead + 1) % m_dwSize;
-
-Exit0:
-	return pResult;
-}
-
-inline void* CCircleList::Check(void)
-{
-	PROCESS_ERROR(m_dwRear != m_dwHead);
-
-	return m_ppData[m_dwHead];
-Exit0:
-	return NULL;
-}
-
-inline BOOL CCircleList::IsEmpty(void)
-{
-	return m_dwHead == m_dwRear;
-}
-
-#endif  // _CIRCLE_LIST_H_
+#endif // _CIRCLE_LIST_H_

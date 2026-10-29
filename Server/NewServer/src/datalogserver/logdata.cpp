@@ -55,6 +55,9 @@ BOOL CLogData::UnInit()
 	{
 		m_Thread[nIndex].Wait();
 
+		while (auto* pending = static_cast<char*>(m_PushList[nIndex].Pop()))
+            delete[] pending;
+
 		nRetCode = m_PushList[nIndex].UnInit();
 		LOG_CHECK_ERROR(nRetCode);
 	}
@@ -88,7 +91,11 @@ THREAD_DECLARE(CLogData::_WorkerThread)(void* pParam)
 	LARGE_INTEGER liFileSize = { 0 };
 	DWORD dwWriteSize = 0;
 	
-	LOG_PROCESS_ERROR(nModuleIndex >= 0 && nModuleIndex < dlmtTotal);
+	if (nModuleIndex < 0 || nModuleIndex >= dlmtTotal)
+	{
+		LOG_CHECK_ERROR(nModuleIndex >= 0 && nModuleIndex < dlmtTotal);
+		return 0;
+	}
 
     INF("module %d log thread started", nModuleIndex);
 	while (!ms_Instance.m_bStopThread)
@@ -164,7 +171,7 @@ THREAD_DECLARE(CLogData::_WorkerThread)(void* pParam)
 		}
 		else
 		{
-			Sleep(16);
+			ms_Instance.m_Thread[nModuleIndex].WaitForStop(std::chrono::milliseconds(16));
 		}
 
 		continue;
@@ -184,8 +191,10 @@ THREAD_DECLARE(CLogData::_WorkerThread)(void* pParam)
 void CLogData::_CreateHeader(HANDLE hFile, INT32 nModuleIndex)
 {
 	INT32 nRetCode = 0;
+	INT32 nSize = 0;
+	DWORD dwWriteSize = 0;
 
-	static char* s_szContent[dlmtTotal] = 
+	static constexpr const char* s_szContent[dlmtTotal] =
 	{
 		// dlmtItem
 		"Time\tAreaID\tGroupID\tRoleID\tActionType\tGuid\tTemplateID\tItemCount\tReason\tUserDefinedID\r\n",
@@ -361,8 +370,7 @@ void CLogData::_CreateHeader(HANDLE hFile, INT32 nModuleIndex)
 	LOG_PROCESS_ERROR(hFile != INVALID_HANDLE_VALUE);
 	LOG_PROCESS_ERROR(nModuleIndex >= 0 && nModuleIndex < dlmtTotal);
 
-	INT32 nSize = strlen(s_szContent[nModuleIndex]);
-	DWORD dwWriteSize = 0;
+	nSize = strlen(s_szContent[nModuleIndex]);
 	nRetCode = WriteFile(hFile, s_szContent[nModuleIndex], nSize, &dwWriteSize, NULL);
 	LOG_PROCESS_ERROR(nRetCode && dwWriteSize == nSize);
 

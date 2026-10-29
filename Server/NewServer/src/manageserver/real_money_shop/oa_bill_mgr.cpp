@@ -5,6 +5,8 @@
 #include "client/user.h"
 #include "client/usermgr.h"
 #include <time.h>
+#include <cstdio>
+#include <memory>
 #include "role_data_mgr.h"
 #include "onlinerole/online_role_data_mgr.h"
 #include "real_money_shop.h"
@@ -22,17 +24,23 @@ COABillMgr::COABillMgr()
 
 BOOL COABillMgr::Init()
 {
+    if (m_poOABill || m_ResultList.IsInitialized())
+    {
+        LOG_CHECK_ERROR(!m_poOABill && !m_ResultList.IsInitialized());
+        return FALSE;
+    }
     INT32 nRetCode = 0;
     char szOAConfigFullPath[256];
 
     nRetCode = m_RequestPool.Init(g_ServerConfig.MS.nOABillingRequestCount);
     LOG_PROCESS_ERROR(nRetCode);
 
-    nRetCode = m_ResultList.Init(g_ServerConfig.MS.nOABillingResultCount);
+    LOG_PROCESS_ERROR(g_ServerConfig.MS.nOABillingResultCount > 0);
+    nRetCode = m_ResultList.InitSlots(g_ServerConfig.MS.nOABillingResultCount);
     LOG_PROCESS_ERROR(nRetCode);
 
     LOG_PROCESS_ERROR(m_poOABill == NULL);
-    m_poOABill = sdoCreateCommonHandler();
+    m_poOABill.reset(sdoCreateCommonHandler());
     LOG_PROCESS_ERROR(m_poOABill);
 
     snprintf(szOAConfigFullPath, 256, "manageserver\\%s", g_ServerConfig.MS.szConfigFile);
@@ -53,31 +61,20 @@ Exit0:
 
 BOOL COABillMgr::UnInit()
 {
-    m_RequestPool.UnInit();
-
-    while (!m_ResultList.IsEmpty())
-    {
-        SOAResult* qr = (SOAResult*)m_ResultList.Pop();
-        delete qr;
-    }
+    m_ResultList.Close();
+    const auto stopped = cqyh::StopAndRelease(m_poOABill);
+    LOG_CHECK_ERROR(stopped);
     m_ResultList.UnInit();
-
-    if (m_poOABill)
-    {
-        m_poOABill->Uninitialize();
-        m_poOABill->Release();
-        m_poOABill = NULL;
-    }
-
+    m_RequestPool.UnInit();
     return TRUE;
 }
 
 BOOL COABillMgr::MainLoop()
 {
-    while (!m_ResultList.IsEmpty())
+    while (auto result = m_ResultList.Pop())
     {
         SOARequest* req = NULL;
-        SOAResult* res = (SOAResult*)m_ResultList.Pop();
+        SOAResult* res = result.get();
         LOG_PROCESS_ERROR(res);
 
         req = m_RequestPool.Find(res->dwRpcId);
@@ -1189,13 +1186,14 @@ void COABillMgr::OnBuyTime_Test(CHAR* szRoleName, SOAResult res, BOOL bAuto)
 
 void COABillMgr::OnCallBack(SOAResult* res)
 {
-    INT32 nRetCode = m_ResultList.Push(res);
+    const auto nRetCode = m_ResultList.Push(std::unique_ptr<SOAResult>(res));
     LOG_CHECK_ERROR(nRetCode);
 }
 
-int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, int nResult, const ISDOCommonMsg* pResponse)
+int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, int nResult, const ISDOCommonMsg* pResponse) try
 {
-    SOAResult* res = NULL;
+    std::unique_ptr<SOAResult> owned;
+    SOAResult* res = nullptr;
     ISDOCommonMsg* pMsg = NULL;
     char* msg_name = NULL;
 
@@ -1215,9 +1213,10 @@ int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, i
         strncmp(msg_name, "billingservice.timebilling", 100) == 0 ||
         strncmp(msg_name, "billingservice.consigntransfer", 100) == 0)
     {
-        res = new SOAResult;
+        owned = std::make_unique<SOAResult>();
+        res = owned.get();
         LOG_PROCESS_ERROR(res);
-        memset(res, 0, sizeof(SOAResult));
+
 
         res->dwRpcId = dwRpcId;
         res->nResult = nResult;
@@ -1249,13 +1248,14 @@ int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, i
             }
         }
 
-        COABillMgr::GetInstance().OnCallBack(res);
+        COABillMgr::GetInstance().OnCallBack(owned.release());
     }
     else if (strncmp(msg_name, "billingservice.currencyexchange", 100) == 0)
     {
-        res = new SOAResult;
+        owned = std::make_unique<SOAResult>();
+        res = owned.get();
         LOG_PROCESS_ERROR(res);
-        memset(res, 0, sizeof(SOAResult));
+
 
         res->dwRpcId = dwRpcId;
         res->nResult = nResult;
@@ -1268,7 +1268,8 @@ int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, i
             LOG_PROCESS_ERROR(szTempString1);
             pMsg->GetValue("balanceToInfo", &szTempString2);
             LOG_PROCESS_ERROR(szTempString2);
-            sprintf(res->szBalanceInfo, "%s#%s", szTempString1, szTempString2);
+            snprintf(res->szBalanceInfo, sizeof(res->szBalanceInfo), "%s#%s", szTempString1, szTempString2);
+            res->szBalanceInfo[sizeof(res->szBalanceInfo) - 1] = 0;
 
             DBG("%s Success, RpcID:%u, BalanceInfo:%s", msg_name, dwRpcId, res->szBalanceInfo);
         }
@@ -1283,7 +1284,7 @@ int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, i
             }
         }
 
-        COABillMgr::GetInstance().OnCallBack(res);
+        COABillMgr::GetInstance().OnCallBack(owned.release());
     }
     else
     {
@@ -1294,15 +1295,20 @@ int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, i
     return 0;
 
 Exit0:
-    if (res)
-        delete res;
+    return 0;
+}
+catch (...)
+{
+    std::fputs("Billing callback failed\n", stderr);
     return 0;
 }
 
-int SNDACALLBACK NotifyCallback(EMsgDirection eMsgType, unsigned int dwRpcId, int nResult, const ISDOCommonMsg* pResponse)
+int SNDACALLBACK NotifyCallback(EMsgDirection eMsgType, unsigned int dwRpcId, int nResult, const ISDOCommonMsg* pResponse) try
 {
     ISDOCommonMsg* pMsg = NULL;
-    ISDOCommonMsg* pResMsg = NULL;
+    const auto releaseMessage = [](ISDOCommonMsg* value) { value->Release(); };
+    std::unique_ptr<ISDOCommonMsg, decltype(releaseMessage)> reply;
+    ISDOCommonMsg* pResMsg = nullptr;
     char* szUniqueID = NULL;
 
     LOG_PROCESS_ERROR(pResponse);
@@ -1335,12 +1341,19 @@ int SNDACALLBACK NotifyCallback(EMsgDirection eMsgType, unsigned int dwRpcId, in
 
     // Acknowledge the notification
     pMsg->GetValue("uniqueId", &szUniqueID);
-    pResMsg = sdoCreateMsg(E_RESPONSE, pMsg->GetMsgName());
+    reply.reset(sdoCreateMsg(E_RESPONSE, pMsg->GetMsgName()));
+    pResMsg = reply.get();
+    LOG_PROCESS_ERROR(pResMsg);
     pResMsg->SetValue("resultCode", 0);
     pResMsg->SetValue("uniqueId", szUniqueID);
-    COABillMgr::GetInstance().GetHandler()->ASyncSendMsg(pResMsg, dwRpcId);
-    pResMsg->Release();
+    if (auto* handler = COABillMgr::GetInstance().GetHandler())
+        handler->ASyncSendMsg(pResMsg, dwRpcId);
 
 Exit0:
+    return 0;
+}
+catch (...)
+{
+    std::fputs("Billing notification callback failed\n", stderr);
     return 0;
 }

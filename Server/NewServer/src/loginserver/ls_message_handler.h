@@ -40,12 +40,12 @@ public:
     /************************************************************************/
     // To GT
     BOOL DoGTRegisterAck(UINT32 dwGTSession);
-    BOOL DoGTLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode, CHAR* szOASessionID, CHAR* szUserName, CHAR* szPGT, UINT8 bAdult, UINT16 wInfoLen, BYTE* abyInfo);
+    BOOL DoGTLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode, const CHAR* szOASessionID, const CHAR* szUserName, const CHAR* szPGT, UINT8 bAdult, UINT16 wInfoLen, const BYTE* abyInfo);
 
 	/************************************************************************/
 	// To MG
 	BOOL DoMGRegisterAck(UINT32 dwMGSession);
-	BOOL DoMGLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode, CHAR* szOASessionID, CHAR* szUserName, CHAR* szPGT, UINT8 bAdult, UINT16 wInfoLen, BYTE* abyInfo);
+	BOOL DoMGLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode, const CHAR* szOASessionID, const CHAR* szUserName, const CHAR* szPGT, UINT8 bAdult, UINT16 wInfoLen, const BYTE* abyInfo);
 
 private:
     /************************************************************************/

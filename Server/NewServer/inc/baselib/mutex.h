@@ -1,29 +1,24 @@
 #ifndef _MUTEX_H_
 #define _MUTEX_H_
 
-#if !(defined(WIN32) || defined(WIN64))
-#include <pthread.h>
-#endif
+#include <mutex>
 
+// Preserve CRITICAL_SECTION's recursive behavior: a custom log sink may log again.
 class CMutex
 {
 public:
-    CMutex();
-    ~CMutex();
+    CMutex() = default;
+    ~CMutex() = default;
+    CMutex(const CMutex&) = delete;
+    CMutex& operator=(const CMutex&) = delete;
 
-    void Lock();
-    void Unlock();
-private:
-    //  no value sematics, therefore private and not implemented.
-    CMutex (const CMutex&);
-    CMutex& operator= (const CMutex&);
+    void lock() { m_mutex.lock(); }
+    void unlock() { m_mutex.unlock(); }
+    void Lock() { lock(); }
+    void Unlock() { unlock(); }
 
 private:
-#if (defined(WIN32) || defined(WIN64))
-    CRITICAL_SECTION m_mutexId;
-#else
-    mutable pthread_mutex_t m_mutexId;
-#endif
+    std::recursive_mutex m_mutex;
 };
 
-#endif  // _MUTEX_H_
+#endif // _MUTEX_H_

@@ -639,6 +639,33 @@ static void TestShutdownWithLiveSessions()
     CHECK(server.alloc.m_nOutstanding == 0, "server leaked %d", server.alloc.m_nOutstanding.load());
 }
 
+static void TestRestartSameNet()
+{
+    Scenario("restart the same transport object and reject duplicate initialization");
+    Node server(3), client;
+    CHECK(server.net != nullptr && client.net != nullptr, "create transports");
+    if (!server.net || !client.net)
+        return;
+    CHECK(!server.net->Init(&server.alloc, &server.handler, &server.param), "duplicate initialization is rejected");
+    CHECK(server.net->UnInit(), "stop the initial worker set");
+    CHECK(server.net->Init(&server.alloc, &server.handler, &server.param), "restart the stopped io_context");
+    UINT16 port = 0;
+    auto* acceptor = ListenSomewhere(server.net, port);
+    CHECK(acceptor != nullptr, "listen after restart");
+    if (!acceptor)
+        return;
+    int accepted = 0, connected = 0;
+    server.handler.onAccepted = [&](ISocketAcceptor*, ISocketSession*) { ++accepted; };
+    client.handler.onConnected = [&](ISocketSession*) { ++connected; };
+    CHECK(client.net->Connect(Loopback(), port) != nullptr, "connect to restarted transport");
+    CHECK(PumpUntil({server.net, client.net}, [&] { return accepted == 1 && connected == 1; }),
+          "restarted workers deliver connection callbacks");
+    server.net->DestroyAcceptor(acceptor);
+    server.Stop();
+    client.Stop();
+    CHECK(server.alloc.m_nOutstanding == 0 && client.alloc.m_nOutstanding == 0, "restart/shutdown returns owned packets");
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 int main()
 {
@@ -656,6 +683,7 @@ int main()
     TestConnectFailure();
     TestManyClients();
     TestShutdownWithLiveSessions();
+    TestRestartSameNet();
 
     std::printf("\n%d checks, %d failed, %.1fs\n", g_nChecks, g_nFailed, duration<double>(steady_clock::now() - t0).count());
     std::fflush(stdout);

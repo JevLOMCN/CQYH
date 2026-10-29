@@ -2,6 +2,8 @@
 #include "oa_auth_mgr.h"
 #include "server_config.h"
 #include "ls_message_handler.h"
+#include <cstdio>
+#include <memory>
 
 COAAuthMgr COAAuthMgr::ms_Instance;
 
@@ -19,16 +21,22 @@ COAAuthMgr::~COAAuthMgr()
 
 BOOL COAAuthMgr::Init(VOID)
 {
+    if (m_poOAAuth || m_lstAuthorizedUser.IsInitialized())
+    {
+        LOG_CHECK_ERROR(!m_poOAAuth && !m_lstAuthorizedUser.IsInitialized());
+        return FALSE;
+    }
     INT32 nRetCode = 0;
 	char szOAConfigFullPath[256];
 
 	nRetCode = m_AuthingUserPool.Init(g_ServerConfig.LS.nInitAuthCount);
 	LOG_PROCESS_ERROR(nRetCode);
 
-	nRetCode = m_lstAuthorizedUser.Init(g_ServerConfig.LS.nTotalAuthingCount);
+	LOG_PROCESS_ERROR(g_ServerConfig.LS.nTotalAuthingCount > 0);
+	nRetCode = m_lstAuthorizedUser.InitSlots(g_ServerConfig.LS.nTotalAuthingCount);
 	LOG_PROCESS_ERROR(nRetCode);
 
-	m_poOAAuth = sdoCreateCommonHandler();
+	m_poOAAuth.reset(sdoCreateCommonHandler());
 	LOG_PROCESS_ERROR(m_poOAAuth);
 	
 	snprintf(szOAConfigFullPath, 256, "loginserver\\%s", g_ServerConfig.LS.szConfigFile);
@@ -48,29 +56,13 @@ Exit0:
 
 BOOL COAAuthMgr::UnInit(VOID)
 {
-    INT32 nRetCode = 0;
-
-	while(!m_lstAuthorizedUser.IsEmpty())
-	{
-		SOAAuthorizedUser* poAutherUser = (SOAAuthorizedUser*)m_lstAuthorizedUser.Pop();
-		if(poAutherUser)
-			SAFE_DELETE(poAutherUser);
-	}
-
-	nRetCode = m_lstAuthorizedUser.UnInit();
-	LOG_CHECK_ERROR(nRetCode);
-
-	nRetCode = m_AuthingUserPool.UnInit();
-	LOG_CHECK_ERROR(nRetCode);
-
-	if(m_poOAAuth)
-	{
-		m_poOAAuth->Uninitialize();
-		m_poOAAuth->Release();
-		m_poOAAuth = NULL;
-	}
-	
-	return TRUE;
+    m_lstAuthorizedUser.Close();
+    const auto stopped = cqyh::StopAndRelease(m_poOAAuth);
+    LOG_CHECK_ERROR(stopped);
+    m_lstAuthorizedUser.UnInit();
+    const auto result = m_AuthingUserPool.UnInit();
+    LOG_CHECK_ERROR(result);
+    return TRUE;
 }
 
 COAAuthMgr& COAAuthMgr::GetInstance(VOID)
@@ -82,12 +74,11 @@ BOOL COAAuthMgr::MainLoop()
 {	
 	INT32 nRetCode = 0;
 	SOAAuthingUser* pstAuthingUser = NULL;
-	SOAAuthorizedUser* pstAuthorizedUser = NULL;
-	while(!m_lstAuthorizedUser.IsEmpty())
+	while (auto authorized = m_lstAuthorizedUser.Pop())
 	{
 		INT32 nError = errLoginAuthFailed;
 
-		pstAuthorizedUser = (SOAAuthorizedUser*)m_lstAuthorizedUser.Pop();
+		auto* pstAuthorizedUser = authorized.get();
 		LOG_PROCESS_ERROR(pstAuthorizedUser);
 		
 		pstAuthingUser = m_AuthingUserPool.Find(pstAuthorizedUser->dwRpcID);
@@ -165,23 +156,18 @@ Exit0:
 	return FALSE;
 }
 
-VOID COAAuthMgr::OnAuthorized(SOAAuthorizedUser* pstAuthorizedUser)
+VOID COAAuthMgr::OnAuthorized(SOAAuthorizedUser* record)
 {
-	INT32 nRetCode = 0;
-	LOG_PROCESS_ERROR(pstAuthorizedUser);
-
-	nRetCode = m_lstAuthorizedUser.Push((VOID*)pstAuthorizedUser);
-	LOG_PROCESS_ERROR(nRetCode);
-
-Exit0:
-	return ;
+    const auto accepted = m_lstAuthorizedUser.Push(std::unique_ptr<SOAAuthorizedUser>(record));
+    LOG_CHECK_ERROR(accepted);
 }
 
 #define dbg_auth_str(a) pAuthUser->GetValue(a, &pszMsg); DBG("%s: %s", a, pszMsg);
 #define dbg_auth_int(a) pAuthUser->GetValue(a, &debug_int); DBG("%s: %d", a, debug_int);
-int SNDACALLBACK AuthorizeCallback(EMsgDirection eMsgType, unsigned int dwRpcID, int nResult, const ISDOCommonMsg* pResponse)
+int SNDACALLBACK AuthorizeCallback(EMsgDirection eMsgType, unsigned int dwRpcID, int nResult, const ISDOCommonMsg* pResponse) try
 {
-	SOAAuthorizedUser* pstAuthorizedUser = NULL;
+	std::unique_ptr<SOAAuthorizedUser> owned;
+    SOAAuthorizedUser* pstAuthorizedUser = nullptr;
 	char* pszMsg = NULL;
 	ISDOCommonMsg* pAuthUser = NULL;
 	
@@ -190,10 +176,11 @@ int SNDACALLBACK AuthorizeCallback(EMsgDirection eMsgType, unsigned int dwRpcID,
 	pAuthUser = (ISDOCommonMsg*)pResponse;
 	LOG_PROCESS_ERROR(pAuthUser);
 
-	pstAuthorizedUser = new SOAAuthorizedUser;
+	owned = std::make_unique<SOAAuthorizedUser>();
+    pstAuthorizedUser = owned.get();
 	LOG_PROCESS_ERROR(pstAuthorizedUser);
 
-    memset(pstAuthorizedUser, 0, sizeof(SOAAuthorizedUser));
+
 
 	pstAuthorizedUser->dwRpcID = dwRpcID;
 	pstAuthorizedUser->nError = nResult;
@@ -226,8 +213,13 @@ int SNDACALLBACK AuthorizeCallback(EMsgDirection eMsgType, unsigned int dwRpcID,
         pszMsg = NULL;
     }
 
-	COAAuthMgr::GetInstance().OnAuthorized(pstAuthorizedUser);
+	COAAuthMgr::GetInstance().OnAuthorized(owned.release());
 
 Exit0:
 	return 0;
+}
+catch (...)
+{
+    std::fputs("Authentication callback failed\n", stderr);
+    return 0;
 }

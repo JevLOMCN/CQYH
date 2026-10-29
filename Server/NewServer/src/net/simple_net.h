@@ -3,6 +3,7 @@
 
 #include "base_list.h"
 #include "circle_list.h"
+#include "callback_queue.h"
 #include "free_object_pool.h"
 #include "net.h"
 #include "thread.h"
@@ -300,11 +301,12 @@ namespace SimpleNet
         CFreeObjectPool<CSocketSession> m_oSessionPool;
         CFreeObjectPool<CSocketAcceptor> m_oAcceptorPool;
         
-        CCircleList m_MsgListToWork;
-        CCircleList m_MsgListToMain;
+        // Owned control events may be queued in both directions at once.
+        cqyh::CallbackQueue<SSessionMsg> m_MsgListToWork;
+        cqyh::CallbackQueue<SSessionMsg> m_MsgListToMain;
 
         wfd_set m_ConnetedSet;
-        BOOL m_bThreadRuning;
+        std::atomic<bool> m_bThreadRuning{false};
         CThread oNetThread;
         PFThrdProc m_ThrdProc;
 

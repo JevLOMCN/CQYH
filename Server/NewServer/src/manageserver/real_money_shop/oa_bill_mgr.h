@@ -3,7 +3,8 @@
 
 #include "SdoBase.h"
 #include "string_def.h"
-#include "circle_list.h"
+#include "callback_queue.h"
+#include "release_owner.h"
 #include "id_object_pool.h"
 
 struct MS_USER;
@@ -116,6 +117,7 @@ public:
         return ms_Instance;   
     }
 
+    ~COABillMgr() { UnInit(); }
     BOOL Init();
     BOOL UnInit();
     BOOL MainLoop();
@@ -139,15 +141,14 @@ public:
 
     void OnCallBack(SOAResult* res);
 
-    ISDOCommonHandler* GetHandler() { return m_poOABill; }
+    ISDOCommonHandler* GetHandler() { return m_poOABill.get(); }
 
 private:
     COABillMgr();
 
-    ISDOCommonHandler* m_poOABill;
-
     CIDObjectPool<SOARequest, UINT32> m_RequestPool;
-    CCircleList m_ResultList;
+    cqyh::CallbackQueue<SOAResult> m_ResultList;
+    cqyh::ReleasePtr<ISDOCommonHandler> m_poOABill;
 };
 
 #endif // _OA_BILL_MGR_H

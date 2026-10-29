@@ -1,86 +1,54 @@
 #ifndef _INTERLOCK_SLIST_H_
 #define _INTERLOCK_SLIST_H_
 
-#include "cas.h"
+#include <mutex>
 
+// Keep this layout: nodes also occur inside packet pools and mapped role data.
 struct STACK_NODE
 {
     STACK_NODE* pNext;
     void*       pData;
 };
 
+// Process-local synchronization over borrowed, stable nodes. Push/Pop allocate
+// nothing and accept full-width pointers. Init/UnInit require stopped users.
 class CFreeStack
 {
 public:
-    CFreeStack();
+    CFreeStack() = default;
     ~CFreeStack();
+    CFreeStack(const CFreeStack&) = delete;
+    CFreeStack& operator=(const CFreeStack&) = delete;
 
-    BOOL Init(void);
-    BOOL UnInit(void);
-
-	inline void Push(STACK_NODE* pNode);
-	inline STACK_NODE* Pop(void);
+    BOOL Init();
+    BOOL UnInit();
+    void Push(STACK_NODE* node);
+    STACK_NODE* Pop();
 
 private:
-    union STACK_HEAD
-    {
-        STACK_NODE*     pHead;
-        struct  
-        {
-            unsigned    Reserved1 : 32;
-            unsigned    Reserved2 : 16;
-            unsigned    uIndex    : 16;
-        };
-        INT64           Int;
-    };
-    volatile STACK_HEAD  m_StackHead;
+    std::mutex m_mutex;
+    STACK_NODE* m_head = nullptr;
 };
 
-inline void CFreeStack::Push(STACK_NODE* pNode)
+inline void CFreeStack::Push(STACK_NODE* node)
 {
-	INT64 llRetCode;
-	volatile STACK_HEAD OldHead;
-	volatile STACK_HEAD NewHead;
-
-	LOG_PROCESS_ERROR(pNode);
-
-	do
-	{
-		NewHead.Int = OldHead.Int = m_StackHead.Int;
-
-		pNode->pNext = (STACK_NODE*)OldHead.pHead;
-		NewHead.pHead = pNode;
-		NewHead.uIndex = OldHead.uIndex + 1;
-
-		llRetCode = _CAS(&m_StackHead.Int, NewHead.Int, OldHead.Int);
-	} while (llRetCode != OldHead.Int);
-
-Exit0:
-	return;
+    if (!node)
+    {
+        LOG_CHECK_ERROR(node);
+        return;
+    }
+    std::scoped_lock lock(m_mutex);
+    node->pNext = m_head;
+    m_head = node;
 }
 
-inline STACK_NODE* CFreeStack::Pop(void)
+inline STACK_NODE* CFreeStack::Pop()
 {
-	STACK_NODE* pResult = NULL;
-	INT64 llRetCode = 0;
-	volatile STACK_HEAD OldHead;
-	volatile STACK_HEAD NewHead;
-
-	do
-	{
-		NewHead.Int = OldHead.Int = m_StackHead.Int;
-
-		pResult = (STACK_NODE*)(OldHead.Int & 0xFFFFFFFFFFFF);
-		PROCESS_ERROR(pResult);
-
-		NewHead.pHead = pResult->pNext;
-		NewHead.uIndex = OldHead.uIndex + 1;
-
-		llRetCode = _CAS(&m_StackHead.Int, NewHead.Int, OldHead.Int);
-	} while (llRetCode != OldHead.Int);
-
-Exit0:
-	return pResult;
+    std::scoped_lock lock(m_mutex);
+    auto* node = m_head;
+    if (node)
+        m_head = node->pNext;
+    return node;
 }
 
-#endif  // _INTERLOCK_SLIST_H_
+#endif // _INTERLOCK_SLIST_H_
