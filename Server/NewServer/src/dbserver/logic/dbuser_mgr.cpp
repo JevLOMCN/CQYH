@@ -66,11 +66,12 @@ Exit0:
 
 BOOL CDBUserMgr::DelFromUserNameMap(CDBUser* dbuser)
 {
+    INT32 nGroupID = 0;
     USERNAMEMAP_ITR itr;
 
     LOG_PROCESS_ERROR(dbuser->m_szUserName);
 
-    INT32 nGroupID = dbuser->m_nServerGroup;
+    nGroupID = dbuser->m_nServerGroup;
     LOG_PROCESS_ERROR(nGroupID < MAX_SERVER_GROUP_COUNT);
 
     itr = m_usernamemap[nGroupID].find(dbuser->m_szUserName);

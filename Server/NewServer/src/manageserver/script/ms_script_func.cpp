@@ -325,11 +325,12 @@ Exit0:
 
 int lua_kick_role(lua_State* L)
 {
+	MS_ONLINE_ROLE_DATA* pOnlineRoleData{};
 	INT32 nRetCode = 0;
 	const char* pcszRoleName = lua_tostring(L, 1);
 	LOG_PROCESS_ERROR(pcszRoleName);
 
-	MS_ONLINE_ROLE_DATA* pOnlineRoleData = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByName(pcszRoleName);
+	pOnlineRoleData = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByName(pcszRoleName);
 	LOG_PROCESS_ERROR(pOnlineRoleData);
 
 	KICK_USER(pOnlineRoleData->dwCliSessionID, ktImmediately);
@@ -574,13 +575,14 @@ Exit0:
 
 int lua_arrest_role(lua_State* L)
 {
+	INT32 nDuration{};
 	INT32 nRetCode = 0;
 	MS_ONLINE_ROLE_DATA* pOnlineRoleData = NULL;
 
 	const char* pcszRoleName = lua_tostring(L, 1);
 	LOG_PROCESS_ERROR(pcszRoleName);
 
-	INT32 nDuration = lua_tonumber(L, 2) * GAME_FPS;
+	nDuration = lua_tonumber(L, 2) * GAME_FPS;
 
 	pOnlineRoleData = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByName(pcszRoleName);
 	LOG_PROCESS_ERROR(pOnlineRoleData && pOnlineRoleData->pRoleData);
@@ -597,6 +599,7 @@ Exit0:
 
 int lua_create_guild(lua_State* L)
 {
+    const char* pcszAnnounce{};
     INT32 nRetCode = 0;
     MS_ONLINE_ROLE_DATA* pOnlineRole = NULL;
 
@@ -605,7 +608,7 @@ int lua_create_guild(lua_State* L)
     const char* pcszGuildName = lua_tostring(L, 2);
     LOG_PROCESS_ERROR(pcszGuildName);
 
-    const char* pcszAnnounce = lua_tostring(L, 3);
+    pcszAnnounce = lua_tostring(L, 3);
     LOG_PROCESS_ERROR(pcszAnnounce);
 
     pOnlineRole = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(dwRoleID);

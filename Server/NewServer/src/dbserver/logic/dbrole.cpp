@@ -262,14 +262,16 @@ Exit0:
 
 ROLE_DB_BASE_DATA* CDBRole::RefreshBaseData()
 {
+    ROLE_DB_DATA* pRoleData = nullptr;
+    ROLE_DB_BASE_DATA* pBaseData = nullptr;
+    INT32 rolepos = 0;
     LOG_PROCESS_ERROR(m_dbuser);
     LOG_PROCESS_ERROR(m_pCurMem);
-    ROLE_DB_DATA* pRoleData = (ROLE_DB_DATA*)m_pCurMem->RoleData;
-    ROLE_DB_BASE_DATA* pBaseData = (ROLE_DB_BASE_DATA*)(pRoleData->RoleData + pRoleData->BlockTable[rbtBase].dwStartOffset);
+    pRoleData = (ROLE_DB_DATA*)m_pCurMem->RoleData;
+    pBaseData = (ROLE_DB_BASE_DATA*)(pRoleData->RoleData + pRoleData->BlockTable[rbtBase].dwStartOffset);
 
     pBaseData->dwDeleteTime = m_dwDeleteTime;
 
-    INT32 rolepos = 0;
     for (; rolepos < MAX_ROLE_PER_USER; rolepos++)
     {
         if (m_dbuser->m_pDBRole[rolepos] == this)

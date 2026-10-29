@@ -124,17 +124,11 @@ INT32 CKillNpcQuest::Complete(INT32 nQuestID, INT32 nIndex)
 	pcQuestData = CDataManager<KILL_NPC_QUEST_DATA>::GetInstance().GetData(nQuestID);
 	LOG_PROCESS_ERROR(pcQuestData);
 
-	if (pcQuestData->nRewardExp > 0)
-	{
-		m_poOwner->AddExp(pcQuestData->nRewardExp[nIndex], FALSE, TRUE);
-	}
-
-	if (pcQuestData->nAchievementPts > 0)
-	{
-		nRetCode = m_poOwner->GetItemBag()->AddMoney(MONEYTYPE_ACHIEVEMENTPTS, 
-			pcQuestData->nAchievementPts[nIndex], MONEYLOG_ACHIEVEMENT_REWARD, 0);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
+	// Keep dispatching both reward fields; their handlers validate zero amounts.
+	m_poOwner->AddExp(pcQuestData->nRewardExp[nIndex], FALSE, TRUE);
+	nRetCode = m_poOwner->GetItemBag()->AddMoney(MONEYTYPE_ACHIEVEMENTPTS,
+		pcQuestData->nAchievementPts[nIndex], MONEYLOG_ACHIEVEMENT_REWARD, 0);
+	LOG_PROCESS_ERROR(nRetCode);
 
 #ifndef _ROBOT
 	nRetCode = CCliMessageHandler::GetInstance().DoCompleteKillNpcQuest(m_poOwner, nQuestID, nIndex);

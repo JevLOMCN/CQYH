@@ -29,9 +29,6 @@ INT32 ModifierChar_A(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32 n
     CCharacter* poChar = static_cast<CCharacter*>(poTarget);
     LOG_PROCESS_ERROR(poChar);
 
-    CAttrList& oAttrList = poChar->GetAttrList();
-    INT32 nAttr = 0;
-
     nParam1 = abs(nParam1);
 
     LOG_PROCESS_ERROR(nParam1 > catDefault && nParam1 < catTotal);
@@ -39,7 +36,7 @@ INT32 ModifierChar_A(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32 n
     if (nParam1 == catWalkSpeed || nParam1 == catRunSpeed)
         nParam2 = CONVERT_SPEED(nParam2);
 
-    oAttrList.AddAttrA(poChar, nParam1, nParam2);
+    poChar->GetAttrList().AddAttrA(poChar, nParam1, nParam2);
 
     return mrcTrue;
 Exit1:
@@ -55,14 +52,11 @@ INT32 ModifierChar_B(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32 n
     CCharacter* poChar = static_cast<CCharacter*>(poTarget);
     LOG_PROCESS_ERROR(poChar);
 
-    CAttrList& oAttrList = poChar->GetAttrList();
-    INT32 nAttr = 0;
-
     nParam1 = abs(nParam1);
 
     LOG_PROCESS_ERROR(nParam1 > catDefault && nParam1 < catTotal);
 
-    oAttrList.AddAttrB(poChar, nParam1, nParam2);
+    poChar->GetAttrList().AddAttrB(poChar, nParam1, nParam2);
 
     return mrcTrue;
 Exit1:
@@ -81,8 +75,6 @@ INT32 ModifierChar_003(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32
     CCharacter* poChar = static_cast<CCharacter*>(poTarget);
     LOG_PROCESS_ERROR(poChar);
 
-    CAttrList& oAttrList = poChar->GetAttrList();
-
     poAura = poChar->GetPendingAura();
     LOG_PROCESS_ERROR(poAura);
 
@@ -94,7 +86,7 @@ INT32 ModifierChar_003(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32
     else
         nAddValue = -poAura->GetEffectPct();
 
-    oAttrList.AddAttrB(poChar, nParam1, nAddValue);
+    poChar->GetAttrList().AddAttrB(poChar, nParam1, nAddValue);
 
     return mrcTrue;
 Exit1:
@@ -112,8 +104,6 @@ INT32 ModifierChar_004(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32
     CCharacter* poChar = static_cast<CCharacter*>(poTarget);
     LOG_PROCESS_ERROR(poChar);
 
-    CAttrList& oAttrList = poChar->GetAttrList();
-
     poAura = poChar->GetPendingAura();
     LOG_PROCESS_ERROR(poAura);
 
@@ -128,7 +118,7 @@ INT32 ModifierChar_004(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32
     if (nParam1 == catWalkSpeed || nParam1 == catRunSpeed)
         nAddValue = CONVERT_SPEED(nAddValue);
 
-    oAttrList.AddAttrA(poChar, nParam1, nAddValue);
+    poChar->GetAttrList().AddAttrA(poChar, nParam1, nAddValue);
 
     return mrcTrue;
 Exit1:

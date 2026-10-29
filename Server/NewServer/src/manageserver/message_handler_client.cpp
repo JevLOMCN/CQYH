@@ -2386,13 +2386,14 @@ Exit0:
 
 BOOL CMessageHandler::DoClientQueryLineAck(UINT32 dwClientSessionID, UINT32 dwSceneTempID, UINT32 dwLineCount, UINT32* plstLineID)
 {
+    M2C_QUERY_LINE_ACK* pMsg{};
     INT32 nRetCode = 0;
     INT32 nSize = sizeof(M2C_QUERY_LINE_ACK) + dwLineCount * sizeof(LINE_SCENE_DATA);
     const SCENE_DATA* pcSceneData = NULL;
 
     LOG_PROCESS_ERROR(dwLineCount < MAX_LINE_SCENE_NUMBER);
 
-    M2C_QUERY_LINE_ACK* pMsg = (M2C_QUERY_LINE_ACK*)m_pPacketAllocator->Alloc(nSize);
+    pMsg = (M2C_QUERY_LINE_ACK*)m_pPacketAllocator->Alloc(nSize);
     LOG_PROCESS_ERROR(pMsg);
 
     pcSceneData = CDataManager<SCENE_DATA>::GetInstance().GetData(dwSceneTempID);
@@ -3967,6 +3968,7 @@ void CMessageHandler::OnClientAuctionListMyBuying(PACKET_BUFFER* pPacketBuffer, 
 
 void CMessageHandler::OnClientAuctionPayLeftMoney(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, MS_ONLINE_ROLE_DATA* pstOnlineRole)
 {
+    UINT32 dwCurTime{};
     // At balance payment, the current player is the final bidder and the deposit has already been deducted
     INT32 nRetCode = 0;
     Auction* auction = NULL;
@@ -3986,7 +3988,7 @@ void CMessageHandler::OnClientAuctionPayLeftMoney(PACKET_BUFFER* pPacketBuffer, 
     }
     LOG_PROCESS_ERROR(auction);
 
-    UINT32 dwCurTime = CManageServer::GetInstance().GetGameTime();
+    dwCurTime = CManageServer::GetInstance().GetGameTime();
 
     // After expiry, the auction is complete: use the order price and charge the difference after the deposit
     if (auction->m_dwFinishTime <= dwCurTime)

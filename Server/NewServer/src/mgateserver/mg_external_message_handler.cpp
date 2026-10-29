@@ -209,13 +209,14 @@ CMGExternalMessageHandler& CMGExternalMessageHandler::GetInstance(void)
 
 BOOL CMGExternalMessageHandler::Send(UINT32 dwSessionID, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
 {
+	UINT32 msgID{};
 	INT32 nRetCode = 0;
 
 	MG_CLIENT_SESSION* pSession = CMGSessionMgr::GetInstance().FindClientSession(dwSessionID);
 	PROCESS_ERROR(pSession);
 	LOG_PROCESS_ERROR(pSession->pSocketSession);
 
-	UINT32 msgID = ((MESSAGE_HEADER*)(pPacketBuffer + nOffset))->wMsg;
+	msgID = ((MESSAGE_HEADER*)(pPacketBuffer + nOffset))->wMsg;
 
 	if (msgID >= ExternalMessage::max_message_count)
 	{

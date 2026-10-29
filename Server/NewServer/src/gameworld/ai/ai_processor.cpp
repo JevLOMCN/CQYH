@@ -101,16 +101,18 @@ CAIProcessor::~CAIProcessor()
 BOOL CAIProcessor::Init(CCharacter* poOwner, INT32 nAIID )
 {
 	INT32 nRetCode = 0;
+	const NEW_AI_DATA* pAIData = nullptr;
+    const AI_TEMPLATE* pAITemplate = nullptr;
 
 	LOG_PROCESS_ERROR(poOwner);
 
 	m_poOwner = poOwner;
 	m_nAIID = nAIID;
 
-	const NEW_AI_DATA* pAIData = CDataManager<NEW_AI_DATA>::GetInstance().GetData(nAIID);
+	pAIData = CDataManager<NEW_AI_DATA>::GetInstance().GetData(nAIID);
 	LOG_PROCESS_ERROR(pAIData);
 
-    const AI_TEMPLATE* pAITemplate = CAIManager::GetInstance().GetTemplate(nAIID);
+    pAITemplate = CAIManager::GetInstance().GetTemplate(nAIID);
     LOG_PROCESS_ERROR(pAITemplate);
 
 	memset(&m_ScanNearby, 0, sizeof(m_ScanNearby));

@@ -134,6 +134,8 @@ BOOL CDBServer::UnInit(void)
 
     if (m_threads)
     {
+        for (UINT32 i = 0; i < m_dwThreadCount; ++i)
+            m_threads[i].RequestStop();
         for (UINT32 i=0; i<m_dwThreadCount; i++)
         {
             m_threads[i].Wait();
@@ -362,7 +364,7 @@ BOOL _InitServer(void)
 
 		gethostname(szHostName, 256);
 
-		char* szDeveloperList[] = {
+		static constexpr const char* szDeveloperList[] = {
 			"sh-zhujianqiu-d",
 			"sh-lixj01-d",
 			"sh-wubin02-d",

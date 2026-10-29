@@ -1,16 +1,26 @@
 <Project>
-  <!-- Imported automatically by MSBuild (after the project) for every project under Server\. -->
+  <!-- Imported automatically by MSBuild after each project under Server\. -->
+  <PropertyGroup>
+    <CQYHDefaultLanguageStandard>stdcpplatest</CQYHDefaultLanguageStandard>
+    <!-- Keep the historical default for separately built third-party projects. -->
+    <CQYHDefaultLanguageStandard Condition="$([System.String]::Copy('$(MSBuildProjectDirectory)').StartsWith('$(MSBuildThisFileDirectory)NewServer\3rd'))">stdcpp17</CQYHDefaultLanguageStandard>
+  </PropertyGroup>
 
-  <!--
-    Source and execution character sets.
-
-    Sources are UTF-8. Keep the legacy GBK execution character set so narrow string literals
-    continue to use the same bytes regardless of the Windows system language.
-  -->
+  <!-- Read UTF-8 sources while preserving GBK narrow string literals. -->
   <ItemDefinitionGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj'">
     <ClCompile>
       <AdditionalOptions>%(AdditionalOptions) /source-charset:utf-8 /execution-charset:gbk /bigobj</AdditionalOptions>
-      <LanguageStandard Condition="'$(LanguageStandard)' == ''">stdcpp17</LanguageStandard>
+      <!-- A late default must not overwrite CMake's per-target language standard. -->
+      <LanguageStandard Condition="('%(ClCompile.LanguageStandard)' == '' or '%(ClCompile.LanguageStandard)' == 'Default') and '$(LanguageStandard)' == ''">$(CQYHDefaultLanguageStandard)</LanguageStandard>
+      <LanguageStandard Condition="'$(LanguageStandard)' != ''">$(LanguageStandard)</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Standalone legacy projects keep compatibility mode until separately migrated.
+       CMake supplies explicit strict-conformance metadata, which this default preserves. -->
+  <ItemDefinitionGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj' and '$(CQYHDefaultLanguageStandard)' == 'stdcpplatest'">
+    <ClCompile>
+      <ConformanceMode Condition="'%(ClCompile.ConformanceMode)' == '' or '%(ClCompile.ConformanceMode)' == 'Default'">false</ConformanceMode>
     </ClCompile>
   </ItemDefinitionGroup>
 </Project>

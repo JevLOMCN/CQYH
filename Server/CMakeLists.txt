@@ -54,9 +54,8 @@ if(CQYH_BUILD_TESTS)
     endif()
 endif()
 
-# nameserver is not part of the Visual Studio solution (universe.sln) and does not compile as it stands
-# (nameserver.h uses std::map/std::set<std::string> without including <string>), so it is opt-in.
-option(CQYH_BUILD_NAMESERVER "Build nameserver (not in universe.sln; currently does not compile)" OFF)
+# nameserver was not part of the original universe.sln, so it remains opt-in.
+option(CQYH_BUILD_NAMESERVER "Build nameserver (not in the original universe.sln)" OFF)
 if(CQYH_BUILD_NAMESERVER)
     add_subdirectory(NewServer/src/nameserver)
 endif()

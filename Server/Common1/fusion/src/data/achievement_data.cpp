@@ -58,6 +58,8 @@ BOOL ACHIEVEMENT_DATA::ReadLine(INT32& rnID, const char*& rpcszName, ACHIEVEMENT
 
 BOOL HANDBOOK_DATA::ReadLine(INT32& rnID, const char*& rpcszName, HANDBOOK_DATA* pData, CTabFile* pTabConfig, INT32 nRow)
 {
+	INT32 i = 0;
+	char* p = pData->szValue;
 	READ_START();
 
 	memset(pData->szValue, 0, sizeof(pData->szValue));
@@ -67,9 +69,6 @@ BOOL HANDBOOK_DATA::ReadLine(INT32& rnID, const char*& rpcszName, HANDBOOK_DATA*
 	READ_INT_EXPR("HandbookType", nHandbookType);
 
 	READ_STR("ID", szValue);
-
-	INT32 i = 0;
-	char* p = pData->szValue;
 
 	if (p[strlen(pData->szValue)] != ',')
 		p[strlen(pData->szValue)] = ',';

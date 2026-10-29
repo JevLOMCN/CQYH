@@ -8,18 +8,20 @@ using namespace InternalMessage;
 
 void CMessageHandler::OnBSRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    SBSSession* pBSSession{};
+	B2M_REGISTER* pMsg{};
 	INT32 nRetCode = 0;
 
     //check
     SBSSession& rBSSession = CMSSessionMgr::GetInstance().GetBSSession();
     LOG_PROCESS_ERROR( rBSSession.pSocketSession == pSocketSession );
 
-    SBSSession* pBSSession = (SBSSession*)pSocketSession->GetUserData();
+    pBSSession = (SBSSession*)pSocketSession->GetUserData();
     LOG_PROCESS_ERROR( pBSSession );
     LOG_PROCESS_ERROR( pBSSession->pSocketSession == pSocketSession );
     LOG_PROCESS_ERROR(CMSSessionMgr::GetInstance().GetServerState() != sgsClosing);
 
-	B2M_REGISTER* pMsg = (B2M_REGISTER*)pPacketBuffer;
+	pMsg = (B2M_REGISTER*)pPacketBuffer;
 
 	m_ServerInfo.BS.dwAddr = pMsg->dwAddr;
 	m_ServerInfo.BS.wPort = pMsg->wPort;

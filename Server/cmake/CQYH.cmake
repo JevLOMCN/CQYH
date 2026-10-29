@@ -1,7 +1,10 @@
 # Shared helpers for the server build.
 
-set(CQYH_CXX_STANDARD 23 CACHE STRING "C++ standard used for all server targets (17, 20 or 23)")
-set_property(CACHE CQYH_CXX_STANDARD PROPERTY STRINGS 17 20 23)
+set(CQYH_CXX_STANDARD 23 CACHE STRING "C++ standard used for all server targets (23 or newer)")
+set_property(CACHE CQYH_CXX_STANDARD PROPERTY STRINGS 23)
+if(CQYH_CXX_STANDARD LESS 23)
+    message(FATAL_ERROR "Server requires C++23 or newer; configure with -DCQYH_CXX_STANDARD=23")
+endif()
 set(CQYH_MSVC_COMPILE_PROCESSES 2 CACHE STRING "Maximum compiler workers per MSBuild target")
 
 option(CQYH_OUTPUT_TO_BIN
@@ -28,11 +31,20 @@ function(cqyh_target_defaults tgt)
     endif()
 
     if(MSVC)
+        file(RELATIVE_PATH cqyh_relative_source_dir "${CQYH_SERVER_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+        set(cqyh_conformance_option /permissive-)
+        if(cqyh_relative_source_dir MATCHES "^NewServer/tools(/|$)")
+            # Preserve compatibility mode for the existing legacy tool targets.
+            set(cqyh_conformance_option /permissive)
+        else()
+            # Keep STL exception behavior consistent across server libraries and Asio.
+            target_compile_definitions(${tgt} PRIVATE _HAS_EXCEPTIONS=1)
+        endif()
         # Same switches as the old projects: no buffer security checks (/GS-), no RTTI (/GR-).
-        # /std:c++latest turns on /permissive- (strict conformance). The code base relies on non-conforming but
-        # long-accepted MSVC behaviour (goto Exit0 jumping over initializations, ...), so switch it back off.
+        # Compile servers and tests in standard-conforming mode.
         target_compile_options(${tgt} PRIVATE
-            /permissive
+            ${cqyh_conformance_option}
+            /EHsc
             /GS- /GR-
             /MP${CQYH_MSVC_COMPILE_PROCESSES}
             # Read UTF-8 source while retaining the legacy GBK encoding of narrow string literals.

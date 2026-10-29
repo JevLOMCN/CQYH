@@ -44,8 +44,8 @@
 		}															\
 		else														\
 		{															\
-            ERR("LOG_PROCESS_ERROR("#__condition__") at line %d in function %s() file \"%s\"", \
-                __LINE__, __FUNCTION__, __FILE__);                  \
+            ERR("LOG_PROCESS_ERROR(%s) at line %d in function %s() file \"%s\"", \
+                #__condition__, __LINE__, __FUNCTION__, __FILE__);                  \
 			goto Exit0;												\
 		}															\
 	} while (0)
@@ -59,8 +59,8 @@
 		}															\
 		else														\
 		{															\
-            ERR("LOG_CHECK_ERROR("#__condition__") at line %d in function %s() file \"%s\"", \
-                __LINE__, __FUNCTION__, __FILE__);                  \
+            ERR("LOG_CHECK_ERROR(%s) at line %d in function %s() file \"%s\"", \
+                #__condition__, __LINE__, __FUNCTION__, __FILE__);                  \
 		}															\
 	} while (0)
 
@@ -69,8 +69,8 @@
 	{																\
 		if (!(__condition__))										\
 		{															\
-            ERR("LOG_CHECK_ERROR("#__condition__") at line %d in function %s() file \"%s\"", \
-                __LINE__, __FUNCTION__, __FILE__);                  \
+            ERR("LOG_CHECK_ERROR(%s) at line %d in function %s() file \"%s\"", \
+                #__condition__, __LINE__, __FUNCTION__, __FILE__);                  \
             INT3();                                                 \
 		}															\
 	} while (0)
@@ -99,8 +99,8 @@
 		else														\
 		{															\
 			nResult = __result__;									\
-            ERR("LOG_PROCESS_ERROR_RET_CODE("#__condition__") at line %d in function %s() file \"%s\"", \
-                __LINE__, __FUNCTION__, __FILE__);                  \
+            ERR("LOG_PROCESS_ERROR_RET_CODE(%s) at line %d in function %s() file \"%s\"", \
+                #__condition__, __LINE__, __FUNCTION__, __FILE__);                  \
 			goto Exit0;												\
 		}															\
 	} while (0)

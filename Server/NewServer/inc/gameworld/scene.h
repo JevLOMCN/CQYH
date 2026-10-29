@@ -336,12 +336,15 @@ Exit0:
 
 inline GRID_INSTANCE_DATA* CScene::GetGridInstance(const ZONE_DATA* pcZoneData, const GRID_DATA* pcGridData)
 {
+    INT32 nZoneX = 0;
+    INT32 nZoneY = 0;
+    INT64 nGridIndex = 0;
     LOG_PROCESS_ERROR(pcZoneData);
     LOG_PROCESS_ERROR(pcGridData);
 
-	INT32 nZoneX = pcZoneData->usZoneX;
-	INT32 nZoneY = pcZoneData->usZoneY;
-	INT64 nGridIndex = pcGridData - pcZoneData->GridList;
+	nZoneX = pcZoneData->usZoneX;
+	nZoneY = pcZoneData->usZoneY;
+	nGridIndex = pcGridData - pcZoneData->GridList;
 
     PROCESS_ERROR(nZoneX >= 0 && nZoneX < m_nZoneWidth);
 	PROCESS_ERROR(nZoneY >= 0 && nZoneY < m_nZoneHeight);

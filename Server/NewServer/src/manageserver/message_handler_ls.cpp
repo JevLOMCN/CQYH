@@ -15,16 +15,18 @@ using namespace InternalMessage;
 
 void CMessageHandler::OnLSRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    SLSSession* pLSSession{};
+    L2M_REGISTER* pMsg{};
     INT32 nRetCode = 0;
     //check
     SLSSession& rLSSession = CMSSessionMgr::GetInstance().GetLSSession();
     LOG_PROCESS_ERROR( rLSSession.pSocketSession == pSocketSession );
-    SLSSession* pLSSession = (SLSSession*)pSocketSession->GetUserData();
+    pLSSession = (SLSSession*)pSocketSession->GetUserData();
     LOG_PROCESS_ERROR( pLSSession );
     LOG_PROCESS_ERROR( pLSSession->pSocketSession == pSocketSession );
     LOG_PROCESS_ERROR(CMSSessionMgr::GetInstance().GetServerState() != sgsClosing);
 
-    L2M_REGISTER* pMsg = (L2M_REGISTER*)pPacketBuffer;
+    pMsg = (L2M_REGISTER*)pPacketBuffer;
 
     m_ServerInfo.LS.dwAddr = pMsg->dwAddr;
     m_ServerInfo.LS.wPort = pMsg->wPort;

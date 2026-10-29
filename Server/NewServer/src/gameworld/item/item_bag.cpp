@@ -389,12 +389,13 @@ Exit0:
 
 const Item* CItemBag::Next(UINT8 conslot)
 {
+    const Item* item = nullptr;
     LOG_PROCESS_ERROR(conslot >= 0 && conslot < CONSLOT_COUNT);
 
     if (m_allitem.empty())
         return NULL;
 
-    const Item* item = m_allitem.front();
+    item = m_allitem.front();
     m_allitem.pop_front();
     return item;
 Exit0:
@@ -4925,7 +4926,7 @@ INT32 CItemBag::WeaponLevelUpTakeOut()
 #ifdef _DEBUG
 #ifndef _ROBOT
     char debug_string[1024];
-    char result_string[4][4] =
+    static constexpr char result_string[4][4] =
     {
         "n/a",
         "phy",
@@ -5155,7 +5156,7 @@ INT32 CItemBag::WeaponLevelUpTakeOutImmediately()
 #ifdef _DEBUG
 #ifndef _ROBOT
     char debug_string[1024];
-    char result_string[4][4] =
+    static constexpr char result_string[4][4] =
     {
         "n/a",
         "phy",

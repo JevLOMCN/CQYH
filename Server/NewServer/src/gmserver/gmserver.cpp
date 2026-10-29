@@ -272,6 +272,7 @@ BOOL CGmServer::UnInit()
 
 BOOL CGmServer::MainLoop()
 {
+    UINT64 qwEndTick{};
     INT32   nRetCode = 0;
 
     m_dwCurrentTime = (UINT32)time(NULL);
@@ -299,7 +300,7 @@ BOOL CGmServer::MainLoop()
         ++m_qwGameFrame;
     }
 
-    UINT64 qwEndTick = GetTickCountEx();
+    qwEndTick = GetTickCountEx();
     if (qwEndTick - m_qwCurrentTick < 100)
         Sleep(1);
     else /*if (qwEndTick - m_qwCurrentTick > 100)*/

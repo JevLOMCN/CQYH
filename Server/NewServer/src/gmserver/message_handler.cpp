@@ -2298,6 +2298,7 @@ Exit0:
 //
 BOOL CMessageHandler::DoMSRegisterAck( )
 {
+    GM2M_REGISTER_ACK   * pMsg{};
     INT32       nRetCode = 0;
 
     SMSSession  *pMSSession  = CGMSessionMgr::GetInstance().GetMSSession();
@@ -2305,7 +2306,7 @@ BOOL CMessageHandler::DoMSRegisterAck( )
     LOG_PROCESS_ERROR(pMSSession->pSocketSession);
     LOG_PROCESS_ERROR(pMSSession->eState == egmssNormal);
 
-    GM2M_REGISTER_ACK   *pMsg = (GM2M_REGISTER_ACK*)m_pPacketAllocator->Alloc(sizeof(GM2M_REGISTER_ACK));
+    pMsg = (GM2M_REGISTER_ACK*)m_pPacketAllocator->Alloc(sizeof(GM2M_REGISTER_ACK));
     LOG_PROCESS_ERROR(pMsg);
     
     pMsg->wMsg = gm2m_register_ack;

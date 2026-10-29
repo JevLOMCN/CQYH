@@ -1557,6 +1557,7 @@ Exit0:
 
 void CDLMessageHandler::OnGSCompleteAchievement(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+	const ACHIEVEMENT_DATA* pAchievementData{};
 	INT32 nRetCode = 0;
 	G2O_COMPLETE_ACHIEVEMENT* pMsg = (G2O_COMPLETE_ACHIEVEMENT*)pPacketBuffer;
 	char* pLogContent = NULL;
@@ -1564,7 +1565,7 @@ void CDLMessageHandler::OnGSCompleteAchievement(PACKET_BUFFER* pPacketBuffer, UI
 	pLogContent = new char[MAX_DL_RECORD_MESSAGE_LEN];
 	LOG_PROCESS_ERROR(pLogContent);
 
-	const ACHIEVEMENT_DATA* pAchievementData = CDataManager<ACHIEVEMENT_DATA>::GetInstance().GetData(pMsg->nAchievementID);
+	pAchievementData = CDataManager<ACHIEVEMENT_DATA>::GetInstance().GetData(pMsg->nAchievementID);
 	LOG_PROCESS_ERROR(pAchievementData);
 
 	snprintf(pLogContent, MAX_DL_RECORD_MESSAGE_LEN, "%s\t%d\t%d\t%u\t%d\t%s\r\n",

@@ -371,6 +371,7 @@ CExternalMessageHandler& CExternalMessageHandler::GetInstance(void)
 
 BOOL CExternalMessageHandler::Send(UINT32 dwSessionID, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
 {
+	UINT32 msgID = 0;
 	INT32 nRetCode = 0;
 
 	CLIENT_SESSION* pSession = CGTSessionMgr::GetInstance().FindClientSession(dwSessionID);
@@ -378,7 +379,7 @@ BOOL CExternalMessageHandler::Send(UINT32 dwSessionID, PACKET_BUFFER* pPacketBuf
 	LOG_PROCESS_ERROR(pSession->pSocketSession);
 
 
-	UINT32 msgID = ((MESSAGE_HEADER*)(pPacketBuffer + nOffset))->wMsg;
+	msgID = ((MESSAGE_HEADER*)(pPacketBuffer + nOffset))->wMsg;
 
 	if (g_ServerConfig.GT.bLogMessage)
 	{

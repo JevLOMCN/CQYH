@@ -244,13 +244,14 @@ Exit0:
 
 BOOL CSceneObject::CheckAdjGridCharRef(INT64 llX, INT64 llY, INT64 llZ)
 {
+	INT32 nDirection8 = 0;
 	const GRID_DATA* pcGridData = NULL;
 	const ZONE_DATA* pcZoneData = NULL;
 	GRID_INSTANCE_DATA* pGridInstance = NULL;
 
 	LOG_PROCESS_ERROR(m_poScene);
 
-	INT32 nDirection8 = ConvertToDir8(g_GetDirection(m_llX, m_llY, llX, llY));
+	nDirection8 = ConvertToDir8(g_GetDirection(m_llX, m_llY, llX, llY));
 	LOG_PROCESS_ERROR(nDirection8 >= 0 && nDirection8 < DT_DIRECTION_8_COUNT);
 
 	for (INT32 nIndex = 1; nIndex <= g_nAdjList[nDirection8][0]; nIndex++)

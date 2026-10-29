@@ -220,6 +220,7 @@ Exit0:
 
 void CCliMessageHandler::OnShareQuest(CRole* poRole, const char* pData)
 {
+	const QUEST_DATA* pQuestData = nullptr;
 	INT32 nResult = errUnknownError;
 	INT32 nRetCode = 0;
 
@@ -228,7 +229,7 @@ void CCliMessageHandler::OnShareQuest(CRole* poRole, const char* pData)
 	LOG_PROCESS_ERROR(pData);
 	LOG_PROCESS_ERROR(pMsg);
 
-	const QUEST_DATA* pQuestData = CDataManager<QUEST_DATA>::GetInstance().GetData(pMsg->nQuestID);
+	pQuestData = CDataManager<QUEST_DATA>::GetInstance().GetData(pMsg->nQuestID);
 	LOG_PROCESS_ERROR(pQuestData);
 
 	if (pMsg->nShareType == qatShare)

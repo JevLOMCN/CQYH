@@ -4365,6 +4365,16 @@ Exit0:
 }
 INT32 ModifierBullet_135(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32 nParam2, INT32 nParam3, void* pExParam)
 {
+    INT32 v18 = 0;
+    INT32 v16 = 0;
+    INT32 v19 = 0;
+    INT32 v9 = 0;
+    INT32 v14 = 0;
+    INT32 v17 = 0;
+    INT32 v10 = 0;
+    INT64 v22 = 0;
+    INT64 v15 = 0;
+    INT64 v21 = 0;
     //WRN("Execute Function - %s", __FUNCTION__);
 
     CCharacter* caster = NULL;
@@ -4379,19 +4389,19 @@ INT32 ModifierBullet_135(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     caster = CGameWorld::GetInstance().FindValidCharacter(poBullet->GetCasterID());
     LOG_PROCESS_ERROR(caster);
 
-    INT32 v18 = caster->GetAttr(catMaxMagAtk);
-    INT32 v16 = poBullet->GetSpellAttr(satEffectValueMax);
-    INT32 v19 = (int)((poBullet->GetSpellLevel() + 1) * v16) / 4 + v18;
+    v18 = caster->GetAttr(catMaxMagAtk);
+    v16 = poBullet->GetSpellAttr(satEffectValueMax);
+    v19 = (int)((poBullet->GetSpellLevel() + 1) * v16) / 4 + v18;
 
-    INT32 v9 = poBullet->GetSpellAttr(satDefaultValueMax);
-    INT32 v14 = g_Max((v19 + nParam3 + v9), 0);
+    v9 = poBullet->GetSpellAttr(satDefaultValueMax);
+    v14 = g_Max((v19 + nParam3 + v9), 0);
 
-    INT32 v17 = caster->GetAttr(catMaxMagAtk);
-    INT32 v10 = caster->GetAttr(catMagAtk);
-    INT64 v22 = nParam2 + g_Max<INT64>((v17 - v10), 0) / nParam1;
+    v17 = caster->GetAttr(catMaxMagAtk);
+    v10 = caster->GetAttr(catMagAtk);
+    v22 = nParam2 + g_Max<INT64>((v17 - v10), 0) / nParam1;
 
-    INT64 v15 = poBullet->GetX() + v22;
-    INT64 v21 = g_Min<INT64>(v15, (INT64)v14);
+    v15 = poBullet->GetX() + v22;
+    v21 = g_Min<INT64>(v15, (INT64)v14);
 
     poBullet->SetX(v21);
 
@@ -4430,6 +4440,8 @@ Exit0:
 }
 INT32 ModifierBullet_137(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32 nParam2, INT32 nParam3, void* pExParam)
 {
+    INT32 nRootSpellID = 0;
+    INT32 nRootSpellLevel = 0;
     //WRN("Execute Function - %s", __FUNCTION__);
 
     CAura* poAuraTemplate = NULL;
@@ -4450,8 +4462,8 @@ INT32 ModifierBullet_137(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
 
     target->SetLastCasterID(0);
 
-    INT32 nRootSpellID = poBullet->GetSpellID();
-    INT32 nRootSpellLevel = poBullet->GetSpellLevel();
+    nRootSpellID = poBullet->GetSpellID();
+    nRootSpellLevel = poBullet->GetSpellLevel();
 
     poAuraInstance = target->AppendAura(poAuraTemplate, target, target->GetObjID(), (ExtraParam*)pExParam, CONVERT_TIME(nParam3), 0, nRootSpellID, nRootSpellLevel);
     PROCESS_SUCCESS(poAuraInstance == NULL);

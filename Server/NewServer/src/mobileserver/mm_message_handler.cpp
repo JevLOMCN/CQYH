@@ -20,10 +20,11 @@ CMMMesageHandler CMMMesageHandler::ms_Instance;
 
 void CMMMesageHandler::OnAccepted(ISocketAcceptor* pSocketAcceptor, ISocketSession* pSocketSession)
 {
+	MG_SESSION* pMGSession{};
 	LOG_PROCESS_ERROR(pSocketSession);
 	LOG_PROCESS_ERROR(CMMSessionMgr::GetInstance().GetServerState() != sgsClosing);
 
-	MG_SESSION* pMGSession = CMMSessionMgr::GetInstance().NewMGSession(pSocketSession);
+	pMGSession = CMMSessionMgr::GetInstance().NewMGSession(pSocketSession);
 	LOG_PROCESS_ERROR(pMGSession);
 
 	pSocketSession->SetUserData(pMGSession);

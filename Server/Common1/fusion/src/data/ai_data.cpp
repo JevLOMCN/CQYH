@@ -7,7 +7,7 @@
 #include "read_data_helper.h"
 #include "script_mgr.h"
 
-static char* s_NewSpellName[nastTotal] =
+static constexpr const char* s_NewSpellName[nastTotal] =
 {
     "InvalidSpell",
     "NormalSpell1",

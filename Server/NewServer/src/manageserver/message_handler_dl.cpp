@@ -16,13 +16,14 @@ using namespace InternalMessage;
 
 void CMessageHandler::OnDLRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    SDLSession* pDLSession{};
     INT32 nRetCode = 0;
     O2M_REGISTER* pMsg = (O2M_REGISTER*)pPacketBuffer;
 
     //check
     SDLSession& rDLSession = CMSSessionMgr::GetInstance().GetDLSession();
     LOG_PROCESS_ERROR( rDLSession.pSocketSession == pSocketSession );
-    SDLSession* pDLSession = (SDLSession*)pSocketSession->GetUserData();
+    pDLSession = (SDLSession*)pSocketSession->GetUserData();
     LOG_PROCESS_ERROR( pDLSession );
     LOG_PROCESS_ERROR( pDLSession->pSocketSession == pSocketSession );
     LOG_PROCESS_ERROR(CMSSessionMgr::GetInstance().GetServerState() != sgsClosing);

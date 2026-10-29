@@ -238,6 +238,7 @@ Exit0:
 
 BOOL CRole::_SaveBaseData(const char* pcData, UINT32& rdwSize)
 {
+    CGSGuild* guild = nullptr;
 	ROLE_DB_BASE_DATA* pBaseData = (ROLE_DB_BASE_DATA*)pcData;
 
 	LOG_PROCESS_ERROR(pcData);
@@ -286,7 +287,7 @@ BOOL CRole::_SaveBaseData(const char* pcData, UINT32& rdwSize)
 	GetItemBag()->GetAppearance(pBaseData->nAvatar);
 	pBaseData->byRefineFx = GetItemBag()->GetRefineFx();
 
-    CGSGuild* guild = CGuildMgr::GetInstance().FindGuild(m_dwGuildID);
+    guild = CGuildMgr::GetInstance().FindGuild(m_dwGuildID);
     if (guild)
         strxcpy(pBaseData->szGuildName, guild->GetName(), GUILD_NAME_LEN);
     else
@@ -706,6 +707,7 @@ Exit0:
 
 BOOL CReputation::Save(char* pData, UINT32& rdwSize)
 {
+	ROLE_DB_REPUTATION* pReputation = nullptr;
 	LOG_PROCESS_ERROR(pData);
 
 	rdwSize = 0;
@@ -718,7 +720,7 @@ BOOL CReputation::Save(char* pData, UINT32& rdwSize)
 	pData += sizeof(UINT64);
 	rdwSize += sizeof(UINT64);
 
-	ROLE_DB_REPUTATION* pReputation = (ROLE_DB_REPUTATION*)pData;
+	pReputation = (ROLE_DB_REPUTATION*)pData;
 	for (INT32 nForceID = 0; nForceID < MAX_NPC_FORCE_ID; nForceID++)
 	{
 		const INIT_REPUTATION_DATA* pcData = CDataManager<INIT_REPUTATION_DATA>::GetInstance().GetData(nForceID);
@@ -870,6 +872,8 @@ Exit0:
 
 BOOL CQuestList::Save(const char * pData, UINT32& rdwSize)
 {
+	UINT32 dwCompleteDay = 0;
+	UINT32 dwCurrentDay = 0;
 	INT32 nRetCode = 0;
 
 	ROLE_DB_QUEST_DATA* pQuestData = (ROLE_DB_QUEST_DATA*)pData;
@@ -883,8 +887,8 @@ BOOL CQuestList::Save(const char * pData, UINT32& rdwSize)
 	pQuestData->dwRepeatQuestScanTime = m_dwRepeatQuestScanTime;
 	pQuestData->bRecodeKillPlayer = m_bRecodeKillPlayer;
 
-	UINT32 dwCompleteDay = (m_dwLastCompleteEmergencyQuestTime + CGameWorld::GetInstance().GetTimeZone()) / 86400;
-	UINT32 dwCurrentDay = (CGameWorld::GetInstance().GetGameTime() + CGameWorld::GetInstance().GetTimeZone()) / 86400;
+	dwCompleteDay = (m_dwLastCompleteEmergencyQuestTime + CGameWorld::GetInstance().GetTimeZone()) / 86400;
+	dwCurrentDay = (CGameWorld::GetInstance().GetGameTime() + CGameWorld::GetInstance().GetTimeZone()) / 86400;
 	if (dwCompleteDay != dwCurrentDay)
 	{
 		m_nCompleteEmergencyQuestCount = 0;
