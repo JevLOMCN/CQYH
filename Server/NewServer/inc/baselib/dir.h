@@ -1,52 +1,72 @@
-#ifndef _DIR_H_
-#define _DIR_H_
+#ifndef CQYH_BASELIB_DIR_H
+#define CQYH_BASELIB_DIR_H
 
+#include <filesystem>
+#include <system_error>
+
+#if defined(_WIN32)
+#include <Windows.h>
+#else
+#include "std_type.h"
+#endif
+
+#include "process_error.h"
+
+// Nonrecursive creation fails if the directory already exists.
+// Recursive creation also succeeds for an existing directory.
 BOOL g_CreateDirectory(const char* dirName, BOOL bforce);
 BOOL g_DirectoryExists(const char* dirName);
+
+// Removes a directory tree synchronously. Missing paths and regular files fail.
 BOOL g_DeleteDirectory(const char* dirName);
 
+// Visits matching immediate children, skipping dot names and Windows hidden entries.
+// Returns FALSE on a filesystem error or when the callback returns false.
 template<class TFunc>
 inline BOOL g_DirectoryTraverse(const char* szDirectoryPath, TFunc& rFunc)
 {
-	INT32 nRetCode = 0;
+    if (szDirectoryPath == nullptr || *szDirectoryPath == '\0')
+        return FALSE;
 
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	WIN32_FIND_DATA FindFileData;
-	char szPattern[MAX_PATH] = { 0 };
+    std::error_code error;
+    std::filesystem::directory_iterator entry(szDirectoryPath, error);
+    const std::filesystem::directory_iterator end;
+    if (error)
+        return FALSE;
 
-	snprintf(szPattern, MAX_PATH, "%s\\*.*", szDirectoryPath);
-	hFind = FindFirstFile(szPattern, &FindFileData);
-	PROCESS_ERROR(hFind != INVALID_HANDLE_VALUE);
-
-	do
-	{
-		if (FindFileData.cFileName[0] == L'.')
-			continue;
-
-		if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
-			continue;
-
-		if (!(rFunc.RequireDirectory()) == (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-		{
-			continue;
-		}
-
-		nRetCode = rFunc(FindFileData.cFileName);
-		LOG_CHECK_ERROR(nRetCode);
-
-	} while (FindNextFile(hFind, &FindFileData));
-
-	FindClose(hFind);
-	hFind = INVALID_HANDLE_VALUE;
-
-	return TRUE;
-Exit0:
-	if (hFind)
-	{
-		FindClose(hFind);
-		hFind = INVALID_HANDLE_VALUE;
-	}
-	return FALSE;
+    while (entry != end)
+    {
+        const auto name = entry->path().filename().string();
+        if (!name.empty() && name.front() != '.')
+        {
+#if defined(_WIN32)
+            // Hidden attributes have no standard-library equivalent.
+            const auto attributes = GetFileAttributesW(entry->path().c_str());
+            if (attributes == INVALID_FILE_ATTRIBUTES)
+                return FALSE;
+            const bool hidden = (attributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+#else
+            const bool hidden = false;
+#endif
+            if (!hidden)
+            {
+                const bool directory = entry->is_directory(error);
+                if (error)
+                    return FALSE;
+                if (directory == static_cast<bool>(rFunc.RequireDirectory()))
+                {
+                    const auto callbackSucceeded = static_cast<bool>(rFunc(name.c_str()));
+                    LOG_CHECK_ERROR(callbackSucceeded);
+                    if (!callbackSucceeded)
+                        return FALSE;
+                }
+            }
+        }
+        entry.increment(error);
+        if (error)
+            return FALSE;
+    }
+    return TRUE;
 }
 
-#endif  // _DIR_H_
+#endif  // CQYH_BASELIB_DIR_H
