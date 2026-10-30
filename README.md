@@ -308,7 +308,7 @@ The client-facing network layer (gateserver, balanceserver, mgateserver) uses as
       <a href="https://github.com/JevLOMCN/mir5-private">Project</a> •
       <a href="https://mirfiles.co.uk/resources/mir2/users/Jev/Mir%205/Leaks/">Leaked Files</a> •
       <a href="https://mirfiles.co.uk/resources/mir2/users/Jev/Mir%205/Leaks/Mir5%20Alpha%202.mkv">Gameplay Video (24m)</a><br>
-      A massive 2TB development leak from the currently unreleased Mir 5. Includes server/client builds, internal documentation, and a 24-minute video showing <a href="https://github.com/JevLOMCN">Jev</a> connecting a leaked client to Wemade's official development server—since removed from YouTube with two copyright strikes. Preserved for historical and research purposes.
+      Remake of Wemade Entertainment's unreleased <i>Mir 5</i>
     </td>
   </tr>
 
