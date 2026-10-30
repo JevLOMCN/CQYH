@@ -19,13 +19,13 @@ void CRoleGMCmd::OK()
     if (m_bExe || m_confirming) return;
     gm::UiAction action(*this,m_confirming);
     const QPointer<CRoleGMCmd> alive(this);
-    auto text=gm::text_field(ui.textEdit->toPlainText(),MAX_GM_COMMAND_LEN,QStringLiteral("指令"),2);
-    auto reason=gm::text_field(ui.textEdit_2->toPlainText(),GM_REASON_LEN,QStringLiteral("原因"),2);
+    auto text = gm::text_field(ui.textEdit->toPlainText(), MAX_GM_COMMAND_LEN, QStringLiteral("Command"), 2);
+    auto reason = gm::text_field(ui.textEdit_2->toPlainText(), GM_REASON_LEN, QStringLiteral("Reason"), 2);
     if (!text || !reason)
     {
         m_status->setText(!text ? text.error() : reason.error());m_status->show();return;
     }
-    if (!gm::confirm_action(*this,QStringLiteral("确认执行该GM指令？")) || !alive) return;
+    if (!gm::confirm_action(*this,QStringLiteral("Confirm executing this GM command?")) || !alive) return;
     m_Buffer=std::move(*text);m_Reason=std::move(*reason);m_bExe=true;
     accept();
 }

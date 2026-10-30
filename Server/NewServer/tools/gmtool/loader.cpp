@@ -19,20 +19,20 @@ loader::loader(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags)
     ui.label_3->setWordWrap(true);
     ui.label_3->hide();
     ui.userNameEdit->setFocus();
-    setWindowTitle(QStringLiteral("GM工具:     版本号: %1---%2").arg(GM_MAJOR_VERSION).arg(GM_MINOR_VERSION));
+    setWindowTitle(QStringLiteral("GM Tool:     Version: %1---%2").arg(GM_MAJOR_VERSION).arg(GM_MINOR_VERSION));
     m_timeout = new QTimer(this);
     m_timeout->setObjectName(QStringLiteral("loginTimeout"));
     m_timeout->setSingleShot(true);
     m_timeout->setInterval(30000);
     connect(m_timeout, &QTimer::timeout, this, [this] {
-        CancelPending(QStringLiteral("登录超时，请等待重新连接后重试"), true);
+        CancelPending(QStringLiteral("Login timeout, please wait for reconnection and try again"), true);
     });
     m_watch = new QTimer(this);
     m_watch->setObjectName(QStringLiteral("loginConnectionWatch"));
     m_watch->setInterval(125);
     connect(m_watch, &QTimer::timeout, this, [this] {
         if (m_pending && !Current(*m_pending))
-            CancelPending(QStringLiteral("服务器已断开，请重新登录"), false);
+            CancelPending(QStringLiteral("The server has disconnected, please log in again"), false);
     });
 }
 
@@ -97,7 +97,7 @@ void loader::Login()
     if (name.isEmpty() || password.isEmpty() || name.size() >= USER_NAME_LEN ||
         password.size() >= GM_TOOL_PASSWORD_LEN || name.contains('\0') || password.contains('\0'))
     {
-        Status(QStringLiteral("请输入有效账号和密码（UTF-8 各不超过32字节）"));
+        Status(QStringLiteral("Please enter a valid username and password (UTF-8, each no more than 32 bytes)"));
         return;
     }
     auto& sessions = CSessionMgr::GetInstance();
@@ -113,7 +113,7 @@ void loader::Login()
                 break;
             }
         }
-    if (!attempt) { Status(QStringLiteral("没有已注册的服务器，请稍后重试")); return; }
+    if (!attempt) { Status(QStringLiteral("No registered servers available, please try again later")); return; }
     CGMManager::GetInstance().SetUserName(name.constData());
     CGMManager::GetInstance().SetUserPwd(password.constData());
     m_pending = *attempt;
@@ -123,11 +123,11 @@ void loader::Login()
     if (!alive) return;
     ui.userPwdEdit->setEnabled(false);
     if (!alive) return;
-    Status(QStringLiteral("正在登录…"));
+    Status(QStringLiteral("Logging in…"));
     if (!alive) return;
     if (!m_pending || m_pending->serial!=attempt->serial || !Current(*attempt))
     {
-        CancelPending(QStringLiteral("服务器已断开，请重新登录"), false);
+        CancelPending(QStringLiteral("The server has disconnected, please log in again"), false);
         return;
     }
     m_timeout->start();
@@ -136,13 +136,13 @@ void loader::Login()
     try { sent = CMessageHandler::GetInstance().DoVerify(attempt->session_id, name.constData(), password.constData()) != FALSE; }
     catch (...) { sent = false; }
     if (alive && m_pending && m_pending->serial == attempt->serial && (!sent || !Current(*attempt)))
-        CancelPending(QStringLiteral("登录发送失败，请重试"), false);
+        CancelPending(QStringLiteral("Failed to send login request, please try again"), false);
 }
 
 void loader::done(int result)
 {
     const QPointer<loader> alive(this);
-    CancelPending(QStringLiteral("登录已取消"), true);
+    CancelPending(QStringLiteral("Login cancelled"), true);
     if (alive) QDialog::done(result);
 }
 
@@ -166,7 +166,7 @@ BOOL loader::VerifyUser(INT32 result, BOOL exchange_mode, ISocketSession* socket
     if (result != errSuccess || !window)
     {
         ClearPending();
-        if (alive) Status(QStringLiteral("登录失败，错误码：%1").arg(result));
+        if (alive) Status(QStringLiteral("Login failed, error code: %1").arg(result));
         return TRUE;
     }
     m_verified = true;

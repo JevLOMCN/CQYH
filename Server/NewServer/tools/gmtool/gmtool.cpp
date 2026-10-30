@@ -134,11 +134,11 @@ gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
     m_pFCRadioGroup->addButton(ui.fc2_radioButton, 2);
 
     ui.fc1_comboBox->clear();
-    ui.fc1_comboBox->insertItem(TIME_ONE_HOUR_INDEX, QStringLiteral("1小时"));
-    ui.fc1_comboBox->insertItem(TIME_ONE_DAY_INDEX, QStringLiteral("1天"));
-    ui.fc1_comboBox->insertItem(TIME_THREE_DAY_INDEX, QStringLiteral("3天"));
-    ui.fc1_comboBox->insertItem(TIME_SEVEN_DAY_INDEX, QStringLiteral("7天"));
-    ui.fc1_comboBox->insertItem(TIME_FOREVER_INDEX, QStringLiteral("永久"));
+    ui.fc1_comboBox->insertItem(TIME_ONE_HOUR_INDEX, QStringLiteral("1 Hour"));
+    ui.fc1_comboBox->insertItem(TIME_ONE_DAY_INDEX, QStringLiteral("1 Day"));
+    ui.fc1_comboBox->insertItem(TIME_THREE_DAY_INDEX, QStringLiteral("3 Days"));
+    ui.fc1_comboBox->insertItem(TIME_SEVEN_DAY_INDEX, QStringLiteral("7 Days"));
+    ui.fc1_comboBox->insertItem(TIME_FOREVER_INDEX, QStringLiteral("Permanent"));
 
 
     // tag 4
@@ -161,12 +161,12 @@ gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
     ui.dateTimeEdit_log_2->setDateTime(qDataTime);
 
     ui.logComboBox->clear();
-    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGIN, QStringLiteral("账号登入登出"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGOUT, QStringLiteral("角色登出"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_ITEM, QStringLiteral("道具流转"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_MONEY, QStringLiteral("货币流转"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_QUEST, QStringLiteral("角色任务"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_GM, QStringLiteral("gm指令日志"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGIN, QStringLiteral("Account Login/Logout"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGOUT, QStringLiteral("Character Logout"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_ITEM, QStringLiteral("Item Transactions"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_MONEY, QStringLiteral("Currency Transactions"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_QUEST, QStringLiteral("Character Quests"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_GM, QStringLiteral("GM Command Logs"));
 
     connect(ui.logComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(ChangeInputType(int)));
     connect(ui.searchButton_log, SIGNAL(clicked()), this, SLOT(LogSearch()));
@@ -259,7 +259,7 @@ void gmtool::SessionAction(bool login)
             session->nConnectState != SESSION_CONNECTED ||
             session->eState != (login ? GM_SVR_STATE_REGISTERED : GM_SVR_STATE_LOGIN))
         {
-            ui.statusBar->showMessage(QStringLiteral("服务器状态不可用，请稍后重试"));
+            ui.statusBar->showMessage(QStringLiteral("Server status is unavailable. Please try again later."));
             return;
         }
         const auto name = session->name;
@@ -273,12 +273,12 @@ void gmtool::SessionAction(bool login)
         }
         catch (...) { sent = false; }
         if (!alive) return;
-        if (!sent) { ui.statusBar->showMessage(QStringLiteral("发送失败，请稍后重试")); return; }
-        CGMLog::GetInstance().Log("{}服务器[{}]....", login ? "登陆" : "登出",
+        if (!sent) { ui.statusBar->showMessage(QStringLiteral("Failed to send. Please try again later.")); return; }
+        CGMLog::GetInstance().Log("{}Server[{}]....", login ? "Login" : "Logout",
             QString::fromUtf8(name.c_str()).toLocal8Bit().constData());
         return; // The legacy UI operates on the first selected server.
     }
-    ui.statusBar->showMessage(QStringLiteral("请先选择服务器"));
+    ui.statusBar->showMessage(QStringLiteral("Please select a server first."));
 }
 
 void gmtool::SecondInit(int nIndex)
@@ -414,21 +414,21 @@ void gmtool::QueryRoleID()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(false);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
     const auto kind=m_pQueryIDRadioGroup->checkedId();
     if (kind!=GM_QUERY_BY_ROLE_NAME && kind!=GM_QUERY_BY_USER_NAME)
-    { ui.statusBar->showMessage(QStringLiteral("请选择查询类型"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Please select a query type"));return; }
     const auto name=gm::text_field(kind==GM_QUERY_BY_ROLE_NAME ? ui.lineEdit_query_1->text() : ui.lineEdit_query_2->text(),
-        USER_NAME_LEN,QStringLiteral("查询名称"));
+        USER_NAME_LEN,QStringLiteral("Query Name"));
     if (!name) { ui.statusBar->showMessage(name.error());return; }
     ui.treeWidget_queryroleid->clear();
     if (!alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,false))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed. Please try again."));return; }
     const auto sent=manager.QueryRoleID(kind,name->c_str());
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 void gmtool::QueryRoleData()
@@ -437,21 +437,21 @@ void gmtool::QueryRoleData()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
-    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("请选择单个角色名"));return; }
-    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("Please select a single role name"));return; }
+    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("Role Name"));
     if (!name) { ui.statusBar->showMessage(name.error());return; }
     auto command=std::static_pointer_cast<QUERY_ROLE_DATA>(manager.NewCmd(CMD_QUERY_ROLE_DATA));
     if (!gm::copy_field(command->szRoleName,*name)) return;
     ui.treeWidget->clear();
     if (!alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed. Please try again."));return; }
     CDataMgr::GetInstance().ClearRole();
     const auto sent=manager.PreQuery(CMD_QUERY_ROLE_DATA,name->c_str(),command);
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 void gmtool::ViewRoleData()
@@ -459,12 +459,12 @@ void gmtool::ViewRoleData()
     if (m_actionSubmitting || gm::current_main_window()!=this) return;
     gm::UiAction action(*this,m_actionSubmitting);
     if (CCmdManager::GetInstance().IsCmdExecuting())
-    { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto* item=ui.treeWidget->currentItem();
     bool valid=false;
     const auto role=item ? item->data(2,Qt::UserRole).toUInt(&valid) : 0;
     if (!valid || !role || !CDataMgr::GetInstance().FindRole(role))
-    { ui.statusBar->showMessage(QStringLiteral("请选择有效的角色数据"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Please select valid role data"));return; }
     const QPointer<CRoleInfo> dialog=new CRoleInfo(0,role,FALSE,this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
@@ -476,24 +476,24 @@ void gmtool::ModifyRoleData()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
-    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("请选择单个角色名"));return; }
-    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("Please select a single role name"));return; }
+    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("Role Name"));
     if (!name) { ui.statusBar->showMessage(name.error());return; }
-    if (!gm::confirm_action(*this,QStringLiteral("请确认角色“%1”处于离线状态，否则可能导致数据不一致。继续修改？")
+    if (!gm::confirm_action(*this,QStringLiteral("Please confirm that the role “%1” is offline, otherwise it may cause data inconsistency. Continue modifying?")
         .arg(QString::fromUtf8(name->c_str()))) || !alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed. Please try again."));return; }
     auto command=std::static_pointer_cast<LOAD_ROLE_DATA>(manager.NewCmd(CMD_LOAD_ROLE_DATA));
     if (!gm::copy_field(command->szRoleName,*name)) return;
     ui.treeWidget->clear();
     if (!alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed. Please try again."));return; }
     const auto sent=manager.PreQuery(CMD_LOAD_ROLE_DATA,name->c_str(),command);
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 void gmtool::OpenFile() { PickRoleFile(true); }
@@ -507,7 +507,7 @@ void gmtool::PickRoleFile(bool primary)
     const auto dialog=scope.Get();
     dialog->setObjectName(QStringLiteral("gmRoleFileDialog"));
     dialog->setOption(QFileDialog::DontUseNativeDialog);
-    dialog->setWindowTitle(QStringLiteral("选择文件"));dialog->setDirectory(QStringLiteral("."));
+    dialog->setWindowTitle(QStringLiteral("Select File"));dialog->setDirectory(QStringLiteral("."));
     dialog->setFileMode(QFileDialog::ExistingFile);
     if (dialog->exec()!=QDialog::Accepted || !alive || !dialog || !destination) return;
     const auto files=dialog->selectedFiles();
@@ -520,23 +520,23 @@ void gmtool::RoleGMCmd()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
-    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("请选择单个角色名"));return; }
-    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("Please select a single role name"));return; }
+    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("Role Name"));
     if (!name) { ui.statusBar->showMessage(name.error());return; }
     gm::DialogScope scope(new CRoleGMCmd(this));
     const auto dialog=scope.Get();
     if (dialog->exec()!=QDialog::Accepted || !alive || !dialog || !dialog->IsExeCmd()) return;
     const std::string text(dialog->GetBuffer()),reason(dialog->GetReason());
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed. Please try again."));return; }
     auto command=std::static_pointer_cast<EXE_ROLE_CMD>(manager.NewCmd(CMD_EXE_ROLE_GM_CMD));
     if (!gm::copy_field(command->szRoleName,*name) || !gm::copy_field(command->szGM,text) ||
         !gm::copy_field(command->szReason,reason)) return;
     const auto sent=manager.PreQuery(CMD_EXE_ROLE_GM_CMD,name->c_str(),command);
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 // tag 2
@@ -570,14 +570,14 @@ void gmtool::BulkAction(INT32 kind,bool revoke)
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
     std::list<ROLE_RESULT> roles;
     std::filesystem::path report_path;
     if (ui.radioButton_6->isChecked())
     {
-        const auto name=gm::text_field(ui.textEdit_RoleID->toPlainText(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+        const auto name=gm::text_field(ui.textEdit_RoleID->toPlainText(),ROLE_NAME_LEN,QStringLiteral("Role Name"));
         if (!name) { ui.statusBar->showMessage(name.error());return; }
         ROLE_RESULT row{};row.nResult=errUnknownError;
         if (!gm::copy_field(row.szRoleName,*name)) return;
@@ -585,15 +585,15 @@ void gmtool::BulkAction(INT32 kind,bool revoke)
     }
     else if (ui.radioButton_5->isChecked())
     {
-        const auto filename=gm::text_field(ui.lineEdit->text(),std::numeric_limits<std::size_t>::max(),QStringLiteral("文件名"));
+        const auto filename=gm::text_field(ui.lineEdit->text(),std::numeric_limits<std::size_t>::max(),QStringLiteral("File Name"));
         if (!filename) { ui.statusBar->showMessage(filename.error());return; }
         report_path=gm::utf8_path(*filename);
         auto batch=gm::read_role_batch(report_path);
         if (!batch) { ui.statusBar->showMessage(QString::fromUtf8(batch.error().c_str()));return; }
-        if (batch->empty()) { ui.statusBar->showMessage(QStringLiteral("有效角色名数量为0"));return; }
+        if (batch->empty()) { ui.statusBar->showMessage(QStringLiteral("Valid role name count is 0"));return; }
         roles=std::move(*batch);
     }
-    else { ui.statusBar->showMessage(QStringLiteral("请选择角色输入方式"));return; }
+    else { ui.statusBar->showMessage(QStringLiteral("Please select role input method"));return; }
     UINT32 duration=0;
     if (!revoke && (kind==CMD_FORBIDDEN_CHAT || kind==CMD_FREEZE_ROLE))
     {
@@ -603,18 +603,18 @@ void gmtool::BulkAction(INT32 kind,bool revoke)
             constexpr std::array<seconds,5> presets{hours{1},days{1},days{3},days{7},seconds{FOREVER_TIME}};
             const auto index=ui.fc1_comboBox->currentIndex();
             if (index<0 || static_cast<std::size_t>(index)>=presets.size())
-            { ui.statusBar->showMessage(QStringLiteral("请选择有效时间"));return; }
+            { ui.statusBar->showMessage(QStringLiteral("Please select a valid time"));return; }
             duration=static_cast<UINT32>(presets[index].count());
         }
         else if (ui.fc2_radioButton->isChecked())
         {
-            const auto minutes=gm::numeric_field<INT64>(ui.forbiddenChatTimeEdit->text(),QStringLiteral("分钟数"));
+            const auto minutes=gm::numeric_field<INT64>(ui.forbiddenChatTimeEdit->text(),QStringLiteral("Minutes"));
             if (!minutes) { ui.statusBar->showMessage(minutes.error());return; }
             const auto seconds=gm::minute_duration(*minutes,FOREVER_TIME);
-            if (!seconds) { ui.statusBar->showMessage(QStringLiteral("分钟数须为正整数，永久请填 -1"));return; }
+            if (!seconds) { ui.statusBar->showMessage(QStringLiteral("Minutes must be a positive integer, use -1 for permanent"));return; }
             duration=*seconds;
         }
-        else { ui.statusBar->showMessage(QStringLiteral("请选择时间"));return; }
+        else { ui.statusBar->showMessage(QStringLiteral("Please select a time"));return; }
     }
     const auto make=[&]<class T>()
     {
@@ -628,27 +628,27 @@ void gmtool::BulkAction(INT32 kind,bool revoke)
     switch (kind)
     {
     case CMD_FORBIDDEN_CHAT:
-        command=make.operator()<FORBIDDEN_CHAT>();question=revoke ? QStringLiteral("确认解除禁言？") : QStringLiteral("确认禁言？");break;
+        command=make.operator()<FORBIDDEN_CHAT>();question=revoke ? QStringLiteral("Confirm Unban Chat?") : QStringLiteral("Confirm Ban Chat?");break;
     case CMD_FREEZE_ROLE:
-        command=make.operator()<FREEZE_ROLE>();question=revoke ? QStringLiteral("确认解除封号？") : QStringLiteral("确认封号？");break;
+        command=make.operator()<FREEZE_ROLE>();question=revoke ? QStringLiteral("Confirm Unfreeze Role?") : QStringLiteral("Confirm Freeze Role?");break;
     case CMD_KICK_ROLE:
-        command=make.operator()<KICK_ROLE>();question=QStringLiteral("确认强制角色下线？");break;
+        command=make.operator()<KICK_ROLE>();question=QStringLiteral("Confirm Force Role Offline?");break;
     case CMD_SEND_MAIL:
     {
-        const auto item=gm::numeric_field<UINT32>(ui.lineEdit_mail_2->text(),QStringLiteral("道具ID"),true);
-        const auto count=gm::numeric_field<INT32>(ui.lineEdit_mail_3->text(),QStringLiteral("道具数量"),true);
+        const auto item=gm::numeric_field<UINT32>(ui.lineEdit_mail_2->text(),QStringLiteral("Item ID"),true);
+        const auto count=gm::numeric_field<INT32>(ui.lineEdit_mail_3->text(),QStringLiteral("Item Count"),true);
         if (!item || !count) { ui.statusBar->showMessage(!item ? item.error() : count.error());return; }
         if (*count<0 || ((*item==0)!=(*count==0)))
-        { ui.statusBar->showMessage(QStringLiteral("道具ID和数量须同时为0或同时为正数"));return; }
+        { ui.statusBar->showMessage(QStringLiteral("Item ID and Count must be either both 0 or both positive"));return; }
         // Empty subject/body are valid legacy wire values, including attachment-only mail.
-        const auto subject=gm::text_field(ui.lineEdit_mail_1->text(),MAIL_SUBJECT_LEN,QStringLiteral("标题"),0);
-        const auto content=gm::text_field(ui.textEdit_mail->toPlainText(),MAIL_CONTENT_LEN,QStringLiteral("内容"),0);
-        const auto reason=gm::text_field(ui.mailReasonEdit->toPlainText(),GM_REASON_LEN,QStringLiteral("原因"),*item ? 1 : 0);
+        const auto subject=gm::text_field(ui.lineEdit_mail_1->text(),MAIL_SUBJECT_LEN,QStringLiteral("Subject"),0);
+        const auto content=gm::text_field(ui.textEdit_mail->toPlainText(),MAIL_CONTENT_LEN,QStringLiteral("Content"),0);
+        const auto reason=gm::text_field(ui.mailReasonEdit->toPlainText(),GM_REASON_LEN,QStringLiteral("Reason"),*item ? 1 : 0);
         if (!subject || !content || !reason)
         { ui.statusBar->showMessage(!subject ? subject.error() : !content ? content.error() : reason.error());return; }
         auto mail=make.operator()<SEND_MAIL>();mail->dwItemID=*item;mail->nItemNum=*count;
         if (!gm::copy_field(mail->szTitle,*subject) || !gm::copy_field(mail->szContent,*content) || !gm::copy_field(mail->szReason,*reason)) return;
-        command=std::move(mail);question=QStringLiteral("确认发送邮件？");break;
+        command=std::move(mail);question=QStringLiteral("Confirm Send Mail?");break;
     }
     default: return;
     }
@@ -656,12 +656,12 @@ void gmtool::BulkAction(INT32 kind,bool revoke)
     {
         const auto typed=std::static_pointer_cast<T>(command);
         const auto name=std::string(typed->roleList.front().szRoleName);
-        question+=QStringLiteral("（%1 个角色）").arg(static_cast<qulonglong>(typed->roleList.size()));
+        question+=QStringLiteral("（%1 characters）").arg(static_cast<qulonglong>(typed->roleList.size()));
         if (!gm::confirm_action(*this,question) || !alive) return;
         if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-        { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+        { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }
         const auto sent=manager.PreQuery(kind,name.c_str(),command);
-        if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+        if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
     };
     switch (kind)
     {
@@ -688,27 +688,27 @@ void gmtool::AnnounceFunc()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
     INT32 group;
-    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("请选择有效分组"));return; }
+    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("Please select a valid group"));return; }
     const auto date=ui.dateTimeEdit_announce->dateTime();const auto epoch=date.toSecsSinceEpoch();
     if (!date.isValid() || epoch<0 || static_cast<UINT64>(epoch)>std::numeric_limits<UINT32>::max())
-    { ui.statusBar->showMessage(QStringLiteral("公告时间超出协议范围"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Announcement time is out of protocol range"));return; }
     const auto begin=static_cast<UINT32>(std::chrono::floor<std::chrono::minutes>(std::chrono::seconds{epoch}).count()*60);
-    const auto interval=gm::numeric_field<INT32>(ui.lineEdit_announce_1->text(),QStringLiteral("间隔秒数"));
-    const auto repeats=gm::numeric_field<INT32>(ui.lineEdit_announce_2->text(),QStringLiteral("循环次数"));
+    const auto interval=gm::numeric_field<INT32>(ui.lineEdit_announce_1->text(),QStringLiteral("Interval (seconds)"));
+    const auto repeats=gm::numeric_field<INT32>(ui.lineEdit_announce_2->text(),QStringLiteral("Repeat Count"));
     if (!interval || !repeats) { ui.statusBar->showMessage(!interval ? interval.error() : repeats.error());return; }
-    if (*interval<=0 || *repeats<=0) { ui.statusBar->showMessage(QStringLiteral("间隔和循环次数须为正数"));return; }
-    auto text=gm::text_field(ui.textEdit_announce->toPlainText(),GM_ANNOUNCE_LENGTH,QStringLiteral("公告"));
+    if (*interval<=0 || *repeats<=0) { ui.statusBar->showMessage(QStringLiteral("Interval and repeat count must be positive"));return; }
+    auto text=gm::text_field(ui.textEdit_announce->toPlainText(),GM_ANNOUNCE_LENGTH,QStringLiteral("Announcement"));
     if (!text) { ui.statusBar->showMessage(text.error());return; }
     gm::normalize_line_breaks(std::span<char>(*text));
-    if (!gm::confirm_action(*this,QStringLiteral("确认发送公告？")) || !alive) return;
+    if (!gm::confirm_action(*this,QStringLiteral("Confirm Send Announcement?")) || !alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true) || ui.comboBox->currentIndex()!=group)
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }
     const auto sent=manager.SendAnnounce(group,begin,*interval,*repeats,text->c_str());
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 void gmtool::GetAnnounceList()
@@ -717,18 +717,18 @@ void gmtool::GetAnnounceList()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
     INT32 group;
-    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("请选择有效分组"));return; }
+    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("Please select a valid group"));return; }
     ui.announceWidget->clear();
     if (!alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true) || ui.comboBox->currentIndex()!=group)
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }
     CDataMgr::GetInstance().ClearAnnounceList();
     const auto sent=manager.QueryAnnounceList(group);
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 void gmtool::DelAnnounce()
@@ -737,22 +737,22 @@ void gmtool::DelAnnounce()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command executing..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
     INT32 group;
-    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("请选择有效分组"));return; }
+    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("Please select a valid group"));return; }
     const auto* selected=ui.announceWidget->currentItem();
     bool valid=false;const auto serial=selected ? selected->data(0,Qt::UserRole).toUInt(&valid) : 0;
     bool server_valid=false;const auto server=selected ? selected->data(0,Qt::UserRole+1).toInt(&server_valid) : 0;
     const auto* session=CSessionMgr::GetInstance().GetGMSession(peers->front().id);
     if (!valid || !server_valid || !session || server!=session->nSvrID)
-    { ui.statusBar->showMessage(QStringLiteral("请选择当前区服的公告"));return; }
-    if (!gm::confirm_action(*this,QStringLiteral("确认删除公告 %1？").arg(serial)) || !alive) return;
+    { ui.statusBar->showMessage(QStringLiteral("Please select the announcement for the current server"));return; }
+    if (!gm::confirm_action(*this,QStringLiteral("Confirm deletion of announcement %1?").arg(serial)) || !alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true) || ui.comboBox->currentIndex()!=group)
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }
     const auto sent=manager.DelAnnounce(group,serial);
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command"));
 }
 
 // tag 2
@@ -844,21 +844,21 @@ void gmtool::LogSearch()
     const QPointer<gmtool> alive(this);
     struct Reset { QPointer<gmtool> owner;~Reset(){if (owner) owner->m_logSubmitting=false;} } reset{alive};
     if (CCmdManager::GetInstance().IsCmdExecuting() || !CServerMgr::GetInstance().IsSingleSelected())
-    { ui.statusBar->showMessage(QStringLiteral("请选择单一区服并等待当前命令完成"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Please select a single server and wait for the current command to complete"));return; }
     const auto type=ui.logComboBox->currentIndex();
     const auto query=_SerializeQueryLogStr(type);
     const auto begin=ui.dateTimeEdit_log_1->dateTime(),end=ui.dateTimeEdit_log_2->dateTime();
     const auto window=gm::exchange_window(begin.toSecsSinceEpoch(),end.toSecsSinceEpoch());
     if (!query) { ui.statusBar->showMessage(QString::fromUtf8(query.error().c_str()));return; }
     if (!begin.isValid() || !end.isValid() || !window)
-    { ui.statusBar->showMessage(QStringLiteral("请选择有效且有序的日期范围"));return; }
-    if (!_PreDealGameLogFile()) { ui.statusBar->showMessage(QStringLiteral("无法创建指定日志输出文件"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Please select a valid and ordered date range"));return; }
+    if (!_PreDealGameLogFile()) { ui.statusBar->showMessage(QStringLiteral("Failed to create the specified log output file"));return; }
     // Clear before issuing: a synchronous reply must remain visible after Submit returns.
     ui.textEdit->clear();
     if (!alive) return;
     ui.statusBar->clearMessage();
     const auto sent=CCmdManager::GetInstance().QueryLog(type,window->begin,window->end,query->c_str());
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败，请重试"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command, please try again"));
 }
 
 BOOL gmtool::PutsGameLog(INT32,BOOL truncated,INT32 length,const char* bytes)
@@ -868,7 +868,7 @@ BOOL gmtool::PutsGameLog(INT32,BOOL truncated,INT32 length,const char* bytes)
     const auto shown=gm::show_game_log(*ui.textEdit,{bytes,static_cast<std::size_t>(length)},std::filesystem::path("..")/"output.txt");
     if (!alive) return shown.has_value();
     if (!shown) ui.statusBar->showMessage(QString::fromUtf8(shown.error().c_str()));
-    else if (truncated) ui.statusBar->showMessage(QStringLiteral("查询数据过长，请缩短查询范围"));
+    else if (truncated) ui.statusBar->showMessage(QStringLiteral("Query data is too long, please shorten the query range"));
     else ui.statusBar->clearMessage();
     return shown.has_value();
 }
@@ -880,18 +880,18 @@ void gmtool::QueryNameToID()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command execution in progress..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
-    const auto path=gm::text_field(ui.queryfile_lineEdit->text(),std::numeric_limits<std::size_t>::max(),QStringLiteral("文件名"));
+    const auto path=gm::text_field(ui.queryfile_lineEdit->text(),std::numeric_limits<std::size_t>::max(),QStringLiteral("File Name"));
     if (!path) { ui.statusBar->showMessage(path.error());return; }
     auto names=gm::read_name_queries(gm::utf8_path(*path));
     if (!names) { ui.statusBar->showMessage(QString::fromUtf8(names.error().c_str()));return; }
-    if (names->empty()) { ui.statusBar->showMessage(QStringLiteral("文件无有效角色名"));return; }
+    if (names->empty()) { ui.statusBar->showMessage(QStringLiteral("No valid character names in the file"));return; }
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }
     const auto sent=manager.QueryNameToID(*names);
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command, please try again"));
 }
 
 void gmtool::SendGMStrCmd()
@@ -900,16 +900,16 @@ void gmtool::SendGMStrCmd()
     gm::UiAction action(*this,m_actionSubmitting);
     const QPointer<gmtool> alive(this);
     auto& manager=CCmdManager::GetInstance();
-    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("Command execution in progress..."));return; }
     const auto peers=gm::selected_peers(true);
     if (!peers) { ui.statusBar->showMessage(peers.error());return; }
-    const auto text=gm::text_field(ui.textEdit_gmStrCmd->toPlainText(),MAX_GM_COMMAND_LEN,QStringLiteral("GM指令"));
+    const auto text=gm::text_field(ui.textEdit_gmStrCmd->toPlainText(),MAX_GM_COMMAND_LEN,QStringLiteral("GM Commands"));
     if (!text) { ui.statusBar->showMessage(text.error());return; }
-    if (!gm::confirm_action(*this,QStringLiteral("确认执行该GM指令？")) || !alive) return;
+    if (!gm::confirm_action(*this,QStringLiteral("Are you sure you want to execute this GM command?")) || !alive) return;
     if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
-    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }
     const auto sent=manager.SendGMStrCmd(text->c_str());
-    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("Failed to send command, please try again"));
 }
 
 BOOL gmtool::Init()
@@ -943,7 +943,7 @@ BOOL gmtool::Init()
 
 BOOL gmtool::SetTitle()
 {
-    setWindowTitle(QStringLiteral("账号: %1    版本号: %2---%3")
+    setWindowTitle(QStringLiteral("Account: %1    Version: %2---%3")
         .arg(QString::fromUtf8(CGMManager::GetInstance().GetUserName()))
         .arg(GM_MAJOR_VERSION).arg(GM_MINOR_VERSION));
     return TRUE;
@@ -1072,11 +1072,11 @@ BOOL gmtool::_ReadRoleNameFromFile(const char* filename, std::map<INT32, ROLE_NA
 BOOL gmtool::_Tag2ReadRoleID(ROLEID_LIST& roleIDList)
 {
     if (!ui.radioButton_6->isChecked())
-    { ui.statusBar->showMessage(QStringLiteral("请选择角色ID输入方式"));return FALSE; }
+    { ui.statusBar->showMessage(QStringLiteral("Please select a character ID input method"));return FALSE; }
     const auto bytes=ui.textEdit_RoleID->toPlainText().toUtf8();
     auto parsed=gm::parse_role_ids({bytes.constData(),static_cast<std::size_t>(bytes.size())});
-    if (!parsed) { ui.statusBar->showMessage(QStringLiteral("角色ID 格式错误或未获取角色ID"));return FALSE; }
-    if (parsed->size()>10) { ui.statusBar->showMessage(QStringLiteral("角色ID 数量过多"));return FALSE; }
+    if (!parsed) { ui.statusBar->showMessage(QStringLiteral("Invalid character ID format or failed to retrieve character ID"));return FALSE; }
+    if (parsed->size()>10) { ui.statusBar->showMessage(QStringLiteral("Too many character IDs"));return FALSE; }
     roleIDList.swap(*parsed);
     return TRUE;
 }
@@ -1115,8 +1115,8 @@ BOOL gmtool::UpdateAnnounceList()
         item->SetID(static_cast<INT32>(record.dwSerial));
         item->setData(0, Qt::UserRole, record.dwSerial);
         item->setData(0, Qt::UserRole+1, record.nSvrID);
-        QString group = QStringLiteral("未找到组名");
-        if (record.nGroupID == 0) group = QStringLiteral("全区");
+        QString group = QStringLiteral("Group name not found");
+        if (record.nGroupID == 0) group = QStringLiteral("All Regions");
         else if (const auto* server = GetServer(record.nSvrID))
         {
             const auto& name = server->groupList[record.nGroupID].szGroupName;
@@ -1245,7 +1245,7 @@ BOOL gmtool::ServerLogin(INT32 server_id)
         return server.nSvrID == server_id;
     });
     if (found == std::end(servers)) return FALSE;
-    QStringList groups{QStringLiteral("全区")};
+    QStringList groups{QStringLiteral("All Regions")};
     for (INT32 index = 1; index < MAX_SERVER_GROUP_COUNT; ++index)
     {
         const auto& name = found->groupList[index].szGroupName;
@@ -1276,10 +1276,6 @@ BOOL gmtool::LogoutServer(UINT32 dwSessionID)
     return TRUE;
 }
 
-
-
-
-
 BOOL ParseIDString(const char* buffer, UINT32 length, std::list<UINT32>& ids)
 {
     if (!buffer) return FALSE;
@@ -1288,12 +1284,6 @@ BOOL ParseIDString(const char* buffer, UINT32 length, std::list<UINT32>& ids)
     ids.swap(*result);
     return TRUE;
 }
-
-
-
-
-
-
 
 BOOL gm::output_game_log(INT32 type,BOOL truncated,std::string_view text)
 {

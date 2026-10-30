@@ -211,7 +211,7 @@ BOOL CLDWidget::UpdatePrice(INT32 group, INT32 sell_count, INT32 buy_count, PRIC
         auto item=std::make_unique<CMyTreeWidgetItem>();
         item->SetID(rows[index].nPrice);
         item->setData(0,Qt::UserRole,rows[index].nPrice);
-        item->setText(0,legacy_text(side ? "买" : "卖")+QString::number(position));
+        item->setText(0, legacy_text(side ? "Buy" : "Sell") + QString::number(position));
         item->setText(1,QString::fromStdString(gm::exchange_price(rows[index].nPrice)));
         item->setText(2,QString::number(rows[index].nCount));
         prepared[side].push_back(std::move(item));
@@ -273,7 +273,7 @@ BOOL CLDWidget::UpdateOrderDetail(INT32 group, INT32 type, INT32 price, INT32 co
     if (count) rows.assign(data, data + count);
     for (const auto& row : rows)
         if (!std::memchr(row.szRoleName,0,sizeof(row.szRoleName))) return FALSE;
-    const auto header = legacy_text(std::format("区组\t{}\n{}\n价格\t{}\n",group,type==2 ? "卖单" : "买单",gm::exchange_price(price)));
+    const auto header = legacy_text(std::format("Group\t{}\n{}\nPrice\t{}\n",group,type==2 ? "Sell" : "Buy",gm::exchange_price(price)));
     auto dialog = std::make_unique<CDetailDialog>(group,this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     if (!dialog->ShowData(header,rows)) return FALSE;
@@ -365,7 +365,7 @@ void CLDWidget::ClearExchangeLimit()
 bool CLDWidget::CheckExchangeSelection()
 {
     if (m_nGroupID>0 && m_nGroupID<MAX_SERVER_GROUP_COUNT && CServerMgr::GetInstance().IsSingleSelected()) return true;
-    gm::exchange_status(*this,QStringLiteral("请选择有效区组和单一区服"));return false;
+    gm::exchange_status(*this,QStringLiteral("Please select a valid region group and a single server."));return false;
 }
 void CLDWidget::ChangeGroup()
 {
@@ -373,10 +373,10 @@ void CLDWidget::ChangeGroup()
     gm::ExchangeAction action(*this,m_submitting);
     const auto group=ui.comboBox->currentIndex();
     if (group<0 || group>=MAX_SERVER_GROUP_COUNT || !CServerMgr::GetInstance().IsSingleSelected())
-    { gm::exchange_status(*this,QStringLiteral("请选择有效区组和单一区服"));return; }
+    { gm::exchange_status(*this,QStringLiteral("Please select a valid region group and a single server."));return; }
     const QPointer<CLDWidget> alive(this);
     const auto sent=CMessageHandler::GetInstance().DoSelectGroup(group);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send, please try again."));
     // SetGroupID clears the view only after the server confirms the switch.
 }
 void CLDWidget::MoreTradeInfo()
@@ -386,10 +386,10 @@ void CLDWidget::MoreTradeInfo()
     if (!CheckExchangeSelection()) return;
     const auto now=std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     const auto window=gm::exchange_day(now,get_time_zone(),true);
-    if (!window) { gm::exchange_status(*this,QStringLiteral("日期超出协议范围"));return; }
+    if (!window) { gm::exchange_status(*this,QStringLiteral("Date range exceeds protocol scope"));return; }
     const QPointer<CLDWidget> alive(this);
     const auto sent=CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID,0,window->begin,window->end,0,0);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send, please try again."));
 }
 void CLDWidget::ExportTradeInfo()
 {
@@ -399,10 +399,10 @@ void CLDWidget::ExportTradeInfo()
     const auto begin=ui.dateTimeEdit->dateTime(),end=ui.dateTimeEdit_2->dateTime();
     const auto window=gm::exchange_window(begin.toSecsSinceEpoch(),end.toSecsSinceEpoch());
     if (!begin.isValid() || !end.isValid() || !window)
-    { gm::exchange_status(*this,QStringLiteral("请选择有效且有序的日期范围"));return; }
+    { gm::exchange_status(*this,QStringLiteral("Please select a valid and ordered date range."));return; }
     const QPointer<CLDWidget> alive(this);
     const auto sent=CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID,3,window->begin,window->end,0,0);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send, please try again."));
 }
 
 void CLDWidget::AddOrder()
@@ -421,17 +421,17 @@ void CLDWidget::AddOrder()
     if (!price || !valid || count<=0 || group<1 || group>=MAX_SERVER_GROUP_COUNT ||
         !CServerMgr::GetInstance().IsSingleSelected())
     {
-        gm::exchange_status(*this,QStringLiteral("请输入有效价格和数量，并选择单一区服"));return;
+        gm::exchange_status(*this,QStringLiteral("Please enter a valid price and quantity, and select a single server."));return;
     }
-    const auto confirmed=gm::confirm_exchange(*this,QStringLiteral("是否确定单价加单？"));
+    const auto confirmed=gm::confirm_exchange(*this,QStringLiteral("Are you sure you want to add an order at this price?"));
     if (!alive || !confirmed) return;
     if (!binding->Current() || m_nGroupID!=group || !CServerMgr::GetInstance().IsSingleSelected() ||
         CServerMgr::GetInstance().GetSessionIDByIndex(0)!=session)
     {
-        gm::exchange_status(*this,QStringLiteral("区服已更改，请重新确认"));return;
+        gm::exchange_status(*this,QStringLiteral("The server has changed, please confirm again."));return;
     }
     const auto sent=CMessageHandler::GetInstance().DoAddSystemOrder(group,*price,count);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send, please try again."));
 }
 
 void CLDWidget::OrderSelected(QTreeWidgetItem* item,int)
@@ -448,10 +448,10 @@ void CLDWidget::QueryOrderDetail(QTreeWidgetItem* item,QTreeWidget* tree,UINT8 t
     gm::ExchangeAction action(*this,m_submitting);
     if (!CheckExchangeSelection() || !item || item->treeWidget()!=tree) return;
     bool valid=false;const auto price=item->data(0,Qt::UserRole).toInt(&valid);
-    if (!valid) { gm::exchange_status(*this,QStringLiteral("订单价格无效"));return; }
+    if (!valid) { gm::exchange_status(*this,QStringLiteral("Invalid order price"));return; }
     const QPointer<CLDWidget> alive(this);
     const auto sent=CMessageHandler::GetInstance().DoQueryOrderDetail(m_nGroupID,type,price);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send, please try again."));
 }
 void CLDWidget::OrderDetail(QTreeWidgetItem* item,int) { QueryOrderDetail(item,ui.treeWidget,2); }
 void CLDWidget::OrderDetail_2(QTreeWidgetItem* item,int) { QueryOrderDetail(item,ui.treeWidget_2,1); }
@@ -462,5 +462,5 @@ void CLDWidget::SetExchangeLimit()
     if (!CheckExchangeSelection()) return;
     const QPointer<CLDWidget> alive(this);
     const auto sent=CMessageHandler::GetInstance().DoQueryExchangeLimit(m_nGroupID);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send, please try again."));
 }

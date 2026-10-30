@@ -59,14 +59,14 @@ void CExchangeLimit::Modify()
     const auto low=gm::exchange_price_units(ui.doubleSpinBox_2->value());
     if (!high || !low || m_nGroup<1 || m_nGroup>=MAX_SERVER_GROUP_COUNT)
     {
-        gm::exchange_status(*this,QStringLiteral("价格或区组无效"));return;
+        gm::exchange_status(*this,QStringLiteral("Invalid price or region group"));return;
     }
     if (!alive || m_generation!=generation || !gm::exchange_connection_current(m_connection)) return;
     const auto sent=CMessageHandler::GetInstance().DoSetExchangeLimit(m_nGroup,*high,*low,
         ui.spinBox->value(),ui.spinBox_2->value());
     if (!alive || m_generation!=generation) return;
     if (sent) done(QDialog::Accepted);
-    else gm::exchange_status(*this,QStringLiteral("发送失败，请重试"));
+    else gm::exchange_status(*this,QStringLiteral("Failed to send request. Please try again."));
 }
 void CExchangeLimit::done(int result)
 {

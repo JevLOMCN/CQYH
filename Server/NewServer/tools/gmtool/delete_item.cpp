@@ -13,10 +13,10 @@ CDeleteItem::CDeleteItem(QWidget *parent, Qt::WindowFlags flags)
     ui.setupUi(this);
 
     ui.comboBox->addItem("");
-    ui.comboBox->addItem(QString::fromLocal8Bit("扣除道具(根据类型ID)"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("扣除金币"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("清空身上装备"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("清空背包"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("Remove Item (By Type ID)"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("Deduct Gold"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("Clear Equipped Items"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("Clear Inventory"));
 
     ui.label_3->close();
     ui.label_4->close();
@@ -50,29 +50,29 @@ void CDeleteItem::Exit()
 
 void CDeleteItem::OnSelectDeleteItemType(const QString &currentText)
 {
-    if (currentText == QString::fromLocal8Bit("扣除道具(根据类型ID)"))
+    if (currentText == QString::fromLocal8Bit("Remove Item (By Type ID)"))
     {
-        ui.label_3->setText(QString::fromLocal8Bit("道具类型ID"));
+        ui.label_3->setText(QString::fromLocal8Bit("Item Type ID"));
         ui.label_3->show();
         ui.lineEdit->show();
         ui.label_4->show();
         ui.lineEdit_2->show();
         ui.comboBox_2->close();
     }
-    else if (currentText == QString::fromLocal8Bit("扣除金币"))
+    else if (currentText == QString::fromLocal8Bit("Deduct Gold"))
     {
-        ui.label_3->setText(QString::fromLocal8Bit("金币类型"));
+        ui.label_3->setText(QString::fromLocal8Bit("Gold Type"));
         ui.comboBox_2->addItem("");
-        ui.comboBox_2->addItem(QString::fromLocal8Bit("深渊金币"));
-        ui.comboBox_2->addItem(QString::fromLocal8Bit("金币"));
-        ui.comboBox_2->addItem(QString::fromLocal8Bit("名师值"));
+        ui.comboBox_2->addItem(QString::fromLocal8Bit("Abyss Gold"));
+        ui.comboBox_2->addItem(QString::fromLocal8Bit("Gold"));
+        ui.comboBox_2->addItem(QString::fromLocal8Bit("Mentor Points"));
         ui.label_3->show();
         ui.lineEdit->close();
         ui.label_4->show();
         ui.lineEdit_2->show();
         ui.comboBox_2->show();
     }
-    else if (currentText == QString::fromLocal8Bit("清空身上装备"))
+    else if (currentText == QString::fromLocal8Bit("Clear Equipped Items"))
     {
         ui.label_3->close();
         ui.label_4->close();
@@ -80,7 +80,7 @@ void CDeleteItem::OnSelectDeleteItemType(const QString &currentText)
         ui.lineEdit_2->close();
         ui.comboBox_2->close();
     }
-    else if (currentText == QString::fromLocal8Bit("清空背包"))
+    else if (currentText == QString::fromLocal8Bit("Clear Inventory"))
     {
         ui.label_3->close();
         ui.label_4->close();
@@ -97,8 +97,3 @@ void CDeleteItem::OnSelectDeleteItemType(const QString &currentText)
         ui.comboBox_2->close();
     }
 }
-
-
-
-
-

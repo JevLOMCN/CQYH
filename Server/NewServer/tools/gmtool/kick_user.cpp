@@ -34,8 +34,6 @@ CKickUser::~CKickUser()
 
 }
 
-
-
 void CKickUser::Exit()
 {
     done(0);
@@ -45,6 +43,3 @@ void CKickUser::Execute()
 {
     accept();
 }
-
-
-

@@ -148,7 +148,7 @@ void CRoleInfo::ReturnPos()
         return;
     gm::UiAction action(*this,m_submitting);
     const QPointer<CRoleInfo> alive(this);
-    if (!gm::confirm_action(*this,QStringLiteral("确认修改数据？"),"roleEditConfirmation") || !alive)
+    if (!gm::confirm_action(*this,QStringLiteral("Confirm Data Changes？"),"roleEditConfirmation") || !alive)
         return;
     if (!_ModelCurrent()) { _AcceptEdit(std::unexpected("The cached role changed. Reopen the editor."));return; }
     if (_AcceptEdit(m_edits.return_position()) && alive)
@@ -180,7 +180,7 @@ void CRoleInfo::EndModify()
             const auto view = m_edits.bytes();
             const std::vector<char> payload(view.begin(), view.end());
             const auto role=m_dwRoleID,target=m_dwTargetRoleID;
-            if (!gm::confirm_action(*this,QStringLiteral("确认修改数据并退出修改窗口？"),"roleEditConfirmation") || !alive)
+            if (!gm::confirm_action(*this,QStringLiteral("Confirm Data Changes and Exit Editor?"),"roleEditConfirmation") || !alive)
                 return;
             if (m_closed || manager.IsCmdExecuting() || !_ModelCurrent() || !_EditSessionCurrent(true))
             { _AcceptEdit(std::unexpected("The execution state changed. Reopen the editor or retry."));return; }
@@ -362,43 +362,43 @@ void CRoleInfo::ShowItemInfo(QTreeWidgetItem * item, int column)
     iter = m_ItemMap.find(pTreeItem->Get64ID());
     LOG_PROCESS_ERROR(iter != m_ItemMap.end());
 
-    text += std::format("{}\t{}\n", "物品类型ID", iter->second.dwItemID);
-    text += std::format("{}\t{}\n", "物品ID", iter->second.qwGuid);
-    text += std::format("{}\t{}\n", "包裹", iter->second.wConSlot);
-    text += std::format("{}\t{}\n", "包裹位置", iter->second.wItemSlot);
-    text += std::format("{}\t{}\n", "道具类型", iter->second.nType);
-    text += std::format("{}\t{}\n", "道具子类型", iter->second.nSubType);
-    text += std::format("{}\t{}\n", "数量", iter->second.nNum);
-    text += std::format("{}\t{}\n", "绑定类型", iter->second.byBindType);
+    text += std::format("{}\t{}\n", "Item Type ID", iter->second.dwItemID);
+    text += std::format("{}\t{}\n", "Item GUID", iter->second.qwGuid);
+    text += std::format("{}\t{}\n", "Container", iter->second.wConSlot);
+    text += std::format("{}\t{}\n", "Container Position", iter->second.wItemSlot);
+    text += std::format("{}\t{}\n", "Item Type", iter->second.nType);
+    text += std::format("{}\t{}\n", "Item Subtype", iter->second.nSubType);
+    text += std::format("{}\t{}\n", "Quantity", iter->second.nNum);
+    text += std::format("{}\t{}\n", "Binding Type", iter->second.byBindType);
 
-    text += std::format("{}\t{}\n", "鉴定类型", iter->second.byIdentified);
-    text += std::format("{}\t{}\n", "随机属性1", iter->second.wRandomAttrID[0]);
-    text += std::format("{}\t{}\n", "随机属性2", iter->second.wRandomAttrID[1]);
-    text += std::format("{}\t{}\n", "随机属性3", iter->second.wRandomAttrID[2]);
-    text += std::format("{}\t{}\n", "随机属性4", iter->second.wRandomAttrID[3]);
+    text += std::format("{}\t{}\n", "Identification Type", iter->second.byIdentified);
+    text += std::format("{}\t{}\n", "Random Attribute 1", iter->second.wRandomAttrID[0]);
+    text += std::format("{}\t{}\n", "Random Attribute 2", iter->second.wRandomAttrID[1]);
+    text += std::format("{}\t{}\n", "Random Attribute 3", iter->second.wRandomAttrID[2]);
+    text += std::format("{}\t{}\n", "Random Attribute 4", iter->second.wRandomAttrID[3]);
 
-    text += std::format("{}\t{}\n", "签名", iter->second.dwRoleID);
-    text += std::format("{}\t{}\n", "已消费金币", iter->second.dwCostMoney);
-    text += std::format("{}\t{}\n", "幸运值", iter->second.byLuck);
+    text += std::format("{}\t{}\n", "Signature", iter->second.dwRoleID);
+    text += std::format("{}\t{}\n", "Gold Spent", iter->second.dwCostMoney);
+    text += std::format("{}\t{}\n", "Luck", iter->second.byLuck);
 
-    text += std::format("{}\t{}\n", "武器升级次数", iter->second.byLevelupTimes);
-    text += std::format("{}\t{}\n", "武器升级物理点数", iter->second.byLevelupPhyPoint);
-    text += std::format("{}\t{}\n", "武器升级魔法点数", iter->second.byLevelupMagPoint);
-    text += std::format("{}\t{}\n", "武器升级道术点数", iter->second.byLevelupTaoPoint);
-    text += std::format("{}\t{}\n", "武器隐藏类型", iter->second.byLevelupTypeHidden);
-    text += std::format("{}\t{}\n", "武器隐藏点数", iter->second.byLevelupPointHidden);
+    text += std::format("{}\t{}\n", "Weapon Upgrade Attempts", iter->second.byLevelupTimes);
+    text += std::format("{}\t{}\n", "Weapon Upgrade Physical Points", iter->second.byLevelupPhyPoint);
+    text += std::format("{}\t{}\n", "Weapon Upgrade Magic Points", iter->second.byLevelupMagPoint);
+    text += std::format("{}\t{}\n", "Weapon Upgrade Taoism Points", iter->second.byLevelupTaoPoint);
+    text += std::format("{}\t{}\n", "Weapon Hidden Type", iter->second.byLevelupTypeHidden);
+    text += std::format("{}\t{}\n", "Weapon Hidden Points", iter->second.byLevelupPointHidden);
 
-    text += std::format("{}\t{}\n", "铸魂1", iter->second.wRune[0]);
-    text += std::format("{}\t{}\n", "铸魂2", iter->second.wRune[1]);
-    text += std::format("{}\t{}\n", "铸魂3", iter->second.wRune[2]);
-    text += std::format("{}\t{}\n", "铸魂4", iter->second.wRune[3]);
-    text += std::format("{}\t{}\n", "铸魂5", iter->second.wRune[4]);
-    text += std::format("{}\t{}\n", "铸魂6", iter->second.wRune[5]);
+    text += std::format("{}\t{}\n", "Soul Forging 1", iter->second.wRune[0]);
+    text += std::format("{}\t{}\n", "Soul Forging 2", iter->second.wRune[1]);
+    text += std::format("{}\t{}\n", "Soul Forging 3", iter->second.wRune[2]);
+    text += std::format("{}\t{}\n", "Soul Forging 4", iter->second.wRune[3]);
+    text += std::format("{}\t{}\n", "Soul Forging 5", iter->second.wRune[4]);
+    text += std::format("{}\t{}\n", "Soul Forging 6", iter->second.wRune[5]);
 
-    text += std::format("{}\t{}\n", "插槽类型", iter->second.dwSocketCombination);
-    text += std::format("{}\t{}\n", "宝石ID1", iter->second.nSoulID[0]);
-    text += std::format("{}\t{}\n", "宝石ID2", iter->second.nSoulID[1]);
-    text += std::format("{}\t{}\n", "宝石ID3", iter->second.nSoulID[2]);
+    text += std::format("{}\t{}\n", "Socket Configuration", iter->second.dwSocketCombination);
+    text += std::format("{}\t{}\n", "Gem ID 1", iter->second.nSoulID[0]);
+    text += std::format("{}\t{}\n", "Gem ID 2", iter->second.nSoulID[1]);
+    text += std::format("{}\t{}\n", "Gem ID 3", iter->second.nSoulID[2]);
 
 
     {

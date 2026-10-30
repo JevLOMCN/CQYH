@@ -142,7 +142,7 @@
 //    nRetCode = CCmdManager::GetInstance().CanExecuteNewCmd();
 //    if (!nRetCode)
 //    {
-//        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有命令正在执行"), QMessageBox::Yes);
+//        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("A command is already running."), QMessageBox::Yes);
 //        return ;
 //    }
 //
@@ -191,8 +191,3 @@
 //    show();
 //
 //}
-
-
-
-
-

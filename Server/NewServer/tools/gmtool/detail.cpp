@@ -70,18 +70,18 @@ void CDetailDialog::CancelSystemOrder()
 {
     if (m_submitting || !gm::exchange_connection_current(m_connection)) return;
     auto* item=ui.treeWidget->currentItem();
-    if (!item) { gm::exchange_status(*this,QStringLiteral("请选择订单"));return; }
+    if (!item) { gm::exchange_status(*this,QStringLiteral("Please select an order."));return; }
     bool valid=false;
     const auto order=item->text(0).toULongLong(&valid);
-    if (!valid) { gm::exchange_status(*this,QStringLiteral("订单编号无效"));return; }
+    if (!valid) { gm::exchange_status(*this,QStringLiteral("Invalid order ID"));return; }
     gm::ExchangeAction action(*this,m_submitting);
     const QPointer<CDetailDialog> alive(this);
     const auto generation=m_generation;
-    const auto confirmed=gm::confirm_exchange(*this,QStringLiteral("确认取消订单？"));
+    const auto confirmed=gm::confirm_exchange(*this,QStringLiteral("Confirm cancellation of order?"));
     if (!alive || !confirmed || m_generation!=generation || !gm::exchange_connection_current(m_connection)) return;
     // The item may have been replaced while the confirmation was open. Send the captured order only.
     const auto sent=CMessageHandler::GetInstance().DoDelSystemOrder(m_nGroupID,order);
-    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("Failed to send request. Please try again."));
 }
 
 void CDetailDialog::Exit()
@@ -93,7 +93,3 @@ void CDetailDialog::done(int result)
     ++m_generation;
     QDialog::done(result);
 }
-
-
-
-

@@ -59,7 +59,7 @@ void gm::session_disconnected(const GM_SESSION& before,UINT64 generation)
     if(sessions.Generation()!=generation) return;
     if(before.eState!=GM_SVR_STATE_DISCONNECT && before.eState!=GM_SVR_STATE_NONE)
     {
-        CGMLog::GetInstance().Log("服务器[{}]断连!!!",QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
+        CGMLog::GetInstance().Log("Server [{}] disconnected!",QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
         if(sessions.Generation()!=generation) return;
         const auto* current=sessions.GetGMSession(before.dwSessionID);
         if(!current || current->pSocketSession || current->eState!=GM_SVR_STATE_DISCONNECT) return;
@@ -106,7 +106,7 @@ void CMessageHandler::OnGMRegisterAck(PACKET_BUFFER* packet, UINT32 size, ISocke
     }
     else
     {
-        CGMLog::GetInstance().Log("未能注册到服务器[{}]", QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
+        CGMLog::GetInstance().Log("Failed to register with server [{}]", QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
         if (current_session(before, socket, generation)) sessions.CloseSession(socket, false);
     }
 }
@@ -132,14 +132,14 @@ void CMessageHandler::OnGMLoginAck(PACKET_BUFFER* packet, UINT32 size, ISocketSe
     const QPointer<gmtool> window(gm::current_main_window());
     if (reply->nResult != errSuccess)
     {
-        CGMLog::GetInstance().Log("登陆服务器失败[{}], errCode[{}]",
+        CGMLog::GetInstance().Log("Failed to login to server [{}], errCode [{}]",
             QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData(), reply->nResult);
         return;
     }
     session->eState = GM_SVR_STATE_LOGIN;
     if (window) window->UpdateSvrNameColor(before.dwSessionID, GM_SVR_STATE_LOGIN);
     if (!current_session(before, socket, generation)) return;
-    CGMLog::GetInstance().Log("成功登陆服务器[{}]", QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
+    CGMLog::GetInstance().Log("Successfully logged in to server [{}]", QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
     if (!window || !current_session(before, socket, generation)) return;
     CServerMgr::GetInstance().UpdateSelectServer();
     if (window && current_session(before, socket, generation)) window->ServerLogin(before.nSvrID);
@@ -183,7 +183,7 @@ void CMessageHandler::OnGMLogoutAck(PACKET_BUFFER* packet, UINT32 size, ISocketS
     if (window) window->UpdateSvrNameColor(before.dwSessionID, GM_SVR_STATE_REGISTERED);
     if (window && current_session(before, socket, generation)) window->LogoutServer(before.dwSessionID);
     if (!current_session(before, socket, generation)) return;
-    CGMLog::GetInstance().Log("成功登出服务器[{}]", QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
+    CGMLog::GetInstance().Log("Successfully logged out of server [{}]", QString::fromUtf8(before.name.c_str()).toLocal8Bit().constData());
     if (window && current_session(before, socket, generation)) CServerMgr::GetInstance().UpdateSelectServer();
 }
 
@@ -203,7 +203,7 @@ void CMessageHandler::OnGMQueryRoleID(PACKET_BUFFER* packet, UINT32 size, ISocke
         if (!window || !delivery->Current()) return;
         if (!window->AddQueryRoleIDResult(rows->area, row.id, row.name.c_str(), row.account.c_str())) return;
     }
-    if (rows->truncated && window && delivery->Current()) CGMLog::GetInstance().Log("数据过多，部分数据未显示");
+    if (rows->truncated && window && delivery->Current()) CGMLog::GetInstance().Log("Too much data, some data not displayed");
 }
 
 void CMessageHandler::OnGMQueryRoleDataAck(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
@@ -228,7 +228,7 @@ void CMessageHandler::OnGMAnnouceAck(PACKET_BUFFER* packet, UINT32 size, ISocket
     auto delivery = gm::CommandReply::Begin(CMD_ANNOUNCE, socket);
     if (!delivery || std::static_pointer_cast<ANNOUNCE>(delivery->Owner())->nGroupID != reply->nGroupID) return;
     delivery->Complete();
-    if (reply->nResult != errSuccess) CGMLog::GetInstance().Log("发布公告失败，错误码：{}", reply->nResult);
+    if (reply->nResult != errSuccess) CGMLog::GetInstance().Log("Failed to announce, error code: {}", reply->nResult);
 }
 
 void CMessageHandler::OnGMGetAnnounceAck(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
@@ -247,7 +247,7 @@ void CMessageHandler::OnGMGetAnnounceAck(PACKET_BUFFER* packet, UINT32 size, ISo
     delivery->Complete();
     window->UpdateAnnounceList();
     if (window && delivery->Current() && records->empty())
-        window->statusBar()->showMessage(QStringLiteral("当前没有公告"));
+        window->statusBar()->showMessage(QStringLiteral("Current announcement list is empty"));
 }
 
 void CMessageHandler::OnGMDelAnnounce(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)

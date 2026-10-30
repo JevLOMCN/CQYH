@@ -5,8 +5,6 @@
 //#include <QMainWindow>
 #include <QtWidgets/QMessageBox>
 
-
-
 CMail::CMail(QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
 {
@@ -23,7 +21,6 @@ CMail::~CMail()
 
 }
 
-
 void CMail::Exit()
 {
     done(0);
@@ -33,7 +30,3 @@ void CMail::Execute()
 {
     accept();
 }
-
-
-
-

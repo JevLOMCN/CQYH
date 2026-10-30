@@ -229,8 +229,8 @@ BOOL DisplayBaseInfoWidgetItem(CMyTreeWidgetItem* item, INT32 area, INT32 group,
         return QString::fromLocal8Bit(text);
     };
     const std::array<QString,10> columns{QString::number(area), QString::number(group), QString::number(role),
-        QString::fromUtf8(name), deleted ? QStringLiteral("是") : QStringLiteral("否"),
-        online ? QStringLiteral("在线") : QStringLiteral("离线"), QString::fromUtf8(saved),
+    QString::fromUtf8(name), deleted ? QStringLiteral("Yes") : QStringLiteral("No"),
+    online ? QStringLiteral("Online") : QStringLiteral("Offline"), QString::fromUtf8(saved),
         legacy(sex_name), legacy(class_name), QString::number(level)};
     item->SetID(static_cast<INT32>(role));
     item->setData(2, Qt::UserRole, role);

@@ -133,7 +133,7 @@ BOOL CCmdManager::MainLoop()
     if (timeout || command->nSvrNum <= 0)
     {
         DelCmd(command);
-        if (timeout) CGMLog::GetInstance().Log("指令超时!");
+        if (timeout) CGMLog::GetInstance().Log("Command timed out!");
     }
     return TRUE;
 }
@@ -329,67 +329,67 @@ BOOL CCmdManager::Success(CommandPtr pCmd)
     {
     case CMD_QUERY_ROLE_ID:
     {
-        nRetCode = CGMLog::GetInstance().Log("查询角色ID指令执行成功");
+        nRetCode = CGMLog::GetInstance().Log("Query character ID command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_QUERY_ROLE_DATA:
     {
-        nRetCode = CGMLog::GetInstance().Log("查询角色信息成功");
+        nRetCode = CGMLog::GetInstance().Log("Query character information command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_FORBIDDEN_CHAT:
     {
-        nRetCode = CGMLog::GetInstance().Log("禁言角色成功");
+        nRetCode = CGMLog::GetInstance().Log("Forbidden character chat command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_FREEZE_ROLE:
     {
-        nRetCode = CGMLog::GetInstance().Log("冻结角色成功");
+        nRetCode = CGMLog::GetInstance().Log("Freeze character command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_KICK_ROLE:
     {
-        nRetCode = CGMLog::GetInstance().Log("踢线角色成功");
+        nRetCode = CGMLog::GetInstance().Log("Kick character command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_ANNOUNCE:
     {
-        nRetCode = CGMLog::GetInstance().Log("发布公告成功");
+        nRetCode = CGMLog::GetInstance().Log("Publish announcement command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_SEND_MAIL:
     {
-        nRetCode = CGMLog::GetInstance().Log("发送邮件成功");
+        nRetCode = CGMLog::GetInstance().Log("Send email command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_LOG:
     {
-        nRetCode = CGMLog::GetInstance().Log("查询日志成功！");
+        nRetCode = CGMLog::GetInstance().Log("Query log command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_EXECUTE_GM_STR:
     {
-        nRetCode = CGMLog::GetInstance().Log("执行gm lua成功");
+        nRetCode = CGMLog::GetInstance().Log("Execute gm lua command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_LOAD_ROLE_DATA:
     {
-        nRetCode = CGMLog::GetInstance().Log("加载角色数据成功");
+        nRetCode = CGMLog::GetInstance().Log("Load role data command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_MODIFY_ROLE_DATA:
     {
-        nRetCode = CGMLog::GetInstance().Log("修改角色数据成功");
+        nRetCode = CGMLog::GetInstance().Log("Modify role data command executed successfully");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
@@ -414,21 +414,21 @@ BOOL CCmdManager::Washout(CommandPtr pCmd)
     {
     case CMD_QUERY_ROLE_ID:
     {
-        nRetCode = CGMLog::GetInstance().Log("查询角色ID指令超时，部分服务器未执行完毕");
+        nRetCode = CGMLog::GetInstance().Log("Query role ID command timed out, some servers have not completed execution");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_QUERY_ROLE_DATA:
     {
         QUERY_ROLE_DATA *pQuery = static_cast<QUERY_ROLE_DATA*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("查询角色数据指令超时");
+        nRetCode = CGMLog::GetInstance().Log("Query role data command timed out");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_FORBIDDEN_CHAT:
     {
         FORBIDDEN_CHAT *pForbidChat = static_cast<FORBIDDEN_CHAT*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("禁言角色指令超时");
+        nRetCode = CGMLog::GetInstance().Log("Forbidden character chat command timed out");
         LOG_CHECK_ERROR(nRetCode);
 
     }
@@ -436,55 +436,55 @@ BOOL CCmdManager::Washout(CommandPtr pCmd)
     case CMD_FREEZE_ROLE:
     {
         FREEZE_ROLE *pFreezeRole = static_cast<FREEZE_ROLE*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("冻结角色指令超时");
+        nRetCode = CGMLog::GetInstance().Log("Freeze role command timed out");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_KICK_ROLE:
     {
         KICK_ROLE *pKickRole = static_cast<KICK_ROLE*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("踢线角色指令超时");
+        nRetCode = CGMLog::GetInstance().Log("Kick role command timed out");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_ANNOUNCE:
     {
         ANNOUNCE *pAnnounce = static_cast<ANNOUNCE*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("发布公告指令超时， 剩余[{}]个服务器未执行", pAnnounce->nSvrNum);
+        nRetCode = CGMLog::GetInstance().Log("Announcement command timed out. The command was not executed on [{}] remaining servers.", pAnnounce->nSvrNum);
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_SEND_MAIL:
     {
         SEND_MAIL   *pSendMail = static_cast<SEND_MAIL*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("发送邮件指令超时");
+        nRetCode = CGMLog::GetInstance().Log("Send mail command timed out");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_LOG:
     {
-        nRetCode = CGMLog::GetInstance().Log("查询日志超时！");
+        nRetCode = CGMLog::GetInstance().Log("Query log command timed out");
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_EXECUTE_GM_STR:
     {
         EXECUTE_GM_STR *pExeStrCmd = static_cast<EXECUTE_GM_STR*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("执行gm lua指令超时， 剩余[{}]个服务器未执行", pExeStrCmd->nSvrNum);
+        nRetCode = CGMLog::GetInstance().Log("Execute gm lua command timed out. The command was not executed on [{}] remaining servers.", pExeStrCmd->nSvrNum);
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_LOAD_ROLE_DATA:
     {
         LOAD_ROLE_DATA *pLoadRoleCmd = static_cast<LOAD_ROLE_DATA*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("加载角色[{}]数据超时", pLoadRoleCmd->dwRoleID);
+        nRetCode = CGMLog::GetInstance().Log("Load role [{}] data timed out", pLoadRoleCmd->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
     case CMD_MODIFY_ROLE_DATA:
     {
         MODIFY_ROLE_DATA *pModifyRoleCmd = static_cast<MODIFY_ROLE_DATA*>(pCmd.get());
-        nRetCode = CGMLog::GetInstance().Log("修改角色数据类型[{}]超时", pModifyRoleCmd->nType);
+        nRetCode = CGMLog::GetInstance().Log("Modify role data type [{}] timed out", pModifyRoleCmd->nType);
         LOG_CHECK_ERROR(nRetCode);
     }
         break;
@@ -496,7 +496,7 @@ BOOL CCmdManager::Washout(CommandPtr pCmd)
 
     return TRUE;
 Exit0:
-    nRetCode = CGMLog::GetInstance().Log("指令错误！！");
+    nRetCode = CGMLog::GetInstance().Log("Invalid command!");
     LOG_CHECK_ERROR(nRetCode);
     return FALSE;
 }

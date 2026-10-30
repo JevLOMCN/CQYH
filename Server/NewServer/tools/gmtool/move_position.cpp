@@ -13,12 +13,12 @@ CMovePosition::CMovePosition(QWidget *parent, Qt::WindowFlags flags)
     ui.setupUi(this);
 
     ui.comboBox->addItem("");
-    ui.comboBox->addItem(QString::fromLocal8Bit("xsc-新手村"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("hzc-虎爪庄"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("hhc-黑虎村"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("lgz-龙骨镇"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("lgsm-龙骨沙漠"));
-    ui.comboBox->addItem(QString::fromLocal8Bit("hmyj-荒漠遗迹"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("xsc - Beginner Village"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("hzc - Tiger Claw Manor"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("hhc - Black Tiger Village"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("lgz - Dragonbone Town"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("lgsm - Dragonbone Desert"));
+    ui.comboBox->addItem(QString::fromLocal8Bit("hmyj - Desert Ruins"));
 
 
     //connect(ui.loginButton, SIGNAL(clicked()), this, SLOT(Login()));

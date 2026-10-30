@@ -6,7 +6,6 @@
 	purpose:	
 *********************************************************************/
 
-
 #include "stdafx.h"
 #include "svr_tree_widget_item.h"
 
@@ -31,5 +30,3 @@ void CSvrTreeWidgetItem::SetSessionID(UINT32 dwSessionID)
 {
     m_dwSessionID = dwSessionID;
 }
-
-

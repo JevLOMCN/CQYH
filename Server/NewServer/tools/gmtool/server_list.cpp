@@ -95,5 +95,3 @@ BOOL SERVER_LIST_DATA::ReadLine(INT32& rnID, const char*& rpcszName, SERVER_LIST
 //Exit0:
 //    return FALSE;
 //}
-
-

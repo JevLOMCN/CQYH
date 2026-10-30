@@ -65,5 +65,3 @@ UINT32 CServerMgr::GetSessionIDByIndex(INT32 nIndex)
 Exit0:
     return 0xFFFFFFFF;
 }
-
-

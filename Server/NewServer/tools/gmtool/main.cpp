@@ -28,7 +28,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreInstance, LPSTR lpCmdLine,
             return app.exec();
         }
     }
-    
 
     return 0;
 Exit0:
