@@ -11,7 +11,9 @@ The 2016 Shanda Games **Legend Eternal** (传奇永恒 / CQYH) source code: the 
 ---
 
 <p align="center">
-    <img src="https://eternalmir.co.uk/images/Logo/logo-transparent.png" width="360" height="192">
+    <a href="https://eternalmir.co.uk">
+        <img src="https://eternalmir.co.uk/images/Logo/logo-transparent.png" width="360" height="192">
+    </a>
 </p>
 
 ---
