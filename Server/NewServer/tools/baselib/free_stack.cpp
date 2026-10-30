@@ -1,29 +1,31 @@
 #include "stdafx.h"
 #include "free_stack.h"
 
-CFreeStack::CFreeStack()
-{
-    m_StackHead.Int = 0;
-}
-
 CFreeStack::~CFreeStack()
 {
     UnInit();
 }
 
-BOOL CFreeStack::Init(void)
+BOOL CFreeStack::Init()
 {
-    m_StackHead.Int = 0;
-
-    return TRUE;
+    bool empty;
+    {
+        std::scoped_lock lock(m_mutex);
+        empty = m_head == nullptr;
+    }
+    // Log after unlocking: custom log sinks may themselves use a pool.
+    LOG_CHECK_ERROR(empty);
+    return empty;
 }
 
-BOOL CFreeStack::UnInit(void)
+BOOL CFreeStack::UnInit()
 {
-    LOG_CHECK_ERROR((m_StackHead.Int & 0xFFFFFFFFFFFF) == 0);
-
-    m_StackHead.Int = 0;
-
+    bool empty;
+    {
+        std::scoped_lock lock(m_mutex);
+        empty = m_head == nullptr;
+        m_head = nullptr;
+    }
+    LOG_CHECK_ERROR(empty);
     return TRUE;
 }
-

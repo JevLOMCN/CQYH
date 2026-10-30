@@ -10,12 +10,12 @@ CSqlStmt::CSqlStmt()
 {
     m_nParamCount = 0;
     m_pSqlStmtData = NULL;
-    m_pbyParamBuffer = NULL;
     m_nParamBufferSize = 0;
-    m_pCallbackFunc = NULL;
+    m_pCallbackFunc = nullptr;
     m_pUserData = NULL;
     pPrev = pNext = NULL;
     m_nExecuteCount = 0;
+    m_bSucceeded = false;
     m_pSqlMgr = NULL;
 }
 
@@ -33,12 +33,12 @@ BOOL CSqlStmt::Init(CSqlMgr *pSqlMgr, INT32 nSqlStmtID)
     m_pSqlStmtData = m_pSqlMgr->GetSqlStmtData(nSqlStmtID);
     LOG_PROCESS_ERROR(m_pSqlStmtData);
 
-    m_pbyParamBuffer = new UINT8[m_pSqlStmtData->nParamBufferSize];
+    m_pbyParamBuffer = std::make_unique_for_overwrite<UINT8[]>(m_pSqlStmtData->nParamBufferSize);
     LOG_PROCESS_ERROR(m_pbyParamBuffer);
 
     m_nParamCount = 0;
     m_nParamBufferSize = 0;
-    m_pCallbackFunc = NULL;
+    m_pCallbackFunc = nullptr;
     m_pUserData = NULL;
     m_nExecuteCount = 0;
 
@@ -49,15 +49,12 @@ Exit0:
 
 BOOL CSqlStmt::UnInit(void)
 {
-    m_pSqlStmtData = NULL;
-    SAFE_DELETE_ARRAY(m_pbyParamBuffer);
-
-    for (std::list<void*>::iterator it = m_ResultList.begin();
-        it != m_ResultList.end(); ++it)
-    {
-        SAFE_DELETE_ARRAY(*it);
-    }
-    m_ResultList.clear();
+    m_pCallbackFunc = nullptr;
+    m_pUserData = nullptr;
+    m_Results.Clear();
+    m_pbyParamBuffer.reset();
+    m_pSqlStmtData = nullptr;
+    m_bSucceeded = false;
 
     return TRUE;
 }
@@ -69,7 +66,7 @@ BOOL CSqlStmt::UnInit(void)
         LOG_PROCESS_ERROR(m_pSqlStmtData->nParamType[m_nParamCount] == (__mysql_type__));   \
         LOG_PROCESS_ERROR(m_pSqlStmtData->bIsUnsigned[m_nParamCount] == (__is_unsigned__)); \
                                                                                             \
-        memcpy(m_pbyParamBuffer + m_nParamBufferSize, &Param,                               \
+        memcpy(m_pbyParamBuffer.get() + m_nParamBufferSize, &Param,                               \
             m_pSqlStmtData->nParamSize[m_nParamCount]);                                     \
         m_nParamBufferSize += m_pSqlStmtData->nParamSize[m_nParamCount];                    \
         m_nParamCount++;                                                                    \
@@ -100,10 +97,10 @@ BOOL CSqlStmt::PushParam(const char* pcszValue)
 	nStringLen = (INT32)strnlen(pcszValue, m_pSqlStmtData->nParamSize[m_nParamCount]);
 	LOG_PROCESS_ERROR(nStringLen < m_pSqlStmtData->nParamSize[m_nParamCount]);
 
-	*(INT32*)(m_pbyParamBuffer + m_nParamBufferSize) = nStringLen;
+	*(INT32*)(m_pbyParamBuffer.get() + m_nParamBufferSize) = nStringLen;
 	m_nParamBufferSize += sizeof(INT32);
 
-	memcpy(m_pbyParamBuffer + m_nParamBufferSize, pcszValue, nStringLen + 1);
+	memcpy(m_pbyParamBuffer.get() + m_nParamBufferSize, pcszValue, nStringLen + 1);
     m_nParamBufferSize += m_pSqlStmtData->nParamSize[m_nParamCount];
 
     m_nParamCount++;
@@ -120,10 +117,10 @@ BOOL CSqlStmt::PushParam(UINT8* pbyValue, UINT32 dwValueSize)
     LOG_PROCESS_ERROR(m_pSqlStmtData->nParamType[m_nParamCount] == MYSQL_TYPE_BLOB);
     LOG_PROCESS_ERROR(dwValueSize <= (UINT32)m_pSqlStmtData->nParamSize[m_nParamCount]);
 
-    *(UINT32*)(m_pbyParamBuffer + m_nParamBufferSize) = dwValueSize;
+    *(UINT32*)(m_pbyParamBuffer.get() + m_nParamBufferSize) = dwValueSize;
     m_nParamBufferSize += sizeof(UINT32);
 
-    memcpy(m_pbyParamBuffer + m_nParamBufferSize, pbyValue, dwValueSize);
+    memcpy(m_pbyParamBuffer.get() + m_nParamBufferSize, pbyValue, dwValueSize);
     m_nParamBufferSize += m_pSqlStmtData->nParamSize[m_nParamCount];
 
     m_nParamCount++;
@@ -135,6 +132,7 @@ Exit0:
 
 BOOL CSqlStmt::PushParamZ(UINT8* pbyValue, UINT32 dwValueSize)
 {
+    INT32 nRet = 0;
     UINT32  *pSize = NULL;
     unsigned long   BufferLength = 0;
     LOG_PROCESS_ERROR(pbyValue);
@@ -142,14 +140,14 @@ BOOL CSqlStmt::PushParamZ(UINT8* pbyValue, UINT32 dwValueSize)
     LOG_PROCESS_ERROR(m_pSqlStmtData->nParamType[m_nParamCount] == MYSQL_TYPE_LONG_BLOB);
     LOG_PROCESS_ERROR(dwValueSize <= (UINT32)m_pSqlStmtData->nParamSize[m_nParamCount]);
 
-    pSize = (UINT32*)(m_pbyParamBuffer + m_nParamBufferSize);
+    pSize = (UINT32*)(m_pbyParamBuffer.get() + m_nParamBufferSize);
     m_nParamBufferSize += sizeof(UINT32);
     BufferLength = m_pSqlStmtData->nParamSize[m_nParamCount];
 
-    INT32 nRet = compress((unsigned char *)(m_pbyParamBuffer + m_nParamBufferSize), &BufferLength, (unsigned char*)pbyValue, dwValueSize);
+    nRet = compress((unsigned char *)(m_pbyParamBuffer.get() + m_nParamBufferSize), &BufferLength, (unsigned char*)pbyValue, dwValueSize);
     //debug
     //DBG("original data len:%u, zipped data len:%u, zipped data crc:%X", dwValueSize, BufferLength,
-    //    crc32(0, (const Bytef*)(m_pbyParamBuffer + m_nParamBufferSize), BufferLength));
+    //    crc32(0, (const Bytef*)(m_pbyParamBuffer.get() + m_nParamBufferSize), BufferLength));
     //end debug
     LOG_PROCESS_ERROR(nRet == Z_OK);
 
@@ -165,7 +163,7 @@ Exit0:
 
 BOOL CSqlStmt::PushTime(time_t tValue)
 {
-    MYSQL_TIME      mysqlTime;
+    MYSQL_TIME      mysqlTime = {};
     struct tm *pTm = localtime(&tValue);
     LOG_PROCESS_ERROR(pTm);
 
@@ -176,13 +174,13 @@ BOOL CSqlStmt::PushTime(time_t tValue)
     mysqlTime.minute    = pTm->tm_min;
     mysqlTime.second    = pTm->tm_sec;
 
-    mysqlTime.neg       = FALSE;
+    mysqlTime.time_type = MYSQL_TIMESTAMP_DATETIME;
     mysqlTime.second_part   = 0;
 
     LOG_PROCESS_ERROR(m_nParamCount < m_pSqlStmtData->nParamCount);
     LOG_PROCESS_ERROR(m_pSqlStmtData->nParamType[m_nParamCount] == MYSQL_TYPE_DATETIME);
 
-    memcpy(m_pbyParamBuffer + m_nParamBufferSize, &mysqlTime, m_pSqlStmtData->nParamSize[m_nParamCount]);
+    memcpy(m_pbyParamBuffer.get() + m_nParamBufferSize, &mysqlTime, m_pSqlStmtData->nParamSize[m_nParamCount]);
     m_nParamBufferSize += m_pSqlStmtData->nParamSize[m_nParamCount];
 
     m_nParamCount++;

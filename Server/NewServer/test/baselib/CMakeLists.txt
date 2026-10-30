@@ -1,6 +1,11 @@
-# Compile the production server utilities directly for regression coverage.
-foreach(variant IN ITEMS server)
-    set(source_dir "${CQYH_SERVER_DIR}/NewServer/src/baselib")
+# Compile the production utilities directly so the same regression cases also
+# exercise the duplicate used by the standalone legacy tools.
+foreach(variant IN ITEMS server tools)
+    if(variant STREQUAL "server")
+        set(source_dir "${CQYH_SERVER_DIR}/NewServer/src/baselib")
+    else()
+        set(source_dir "${CQYH_SERVER_DIR}/NewServer/tools/baselib")
+    endif()
 
     set(test_target test_baselib_utilities_${variant})
     add_executable(${test_target}

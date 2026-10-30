@@ -2,9 +2,17 @@
 #include "dump.h"
 #include "time_ex.h"
 #include "share_mem.h"
+#include "cas.h"
 #include "dir.h"
 #include "report.h"
 #include <eh.h>
+#include <algorithm>
+#include <atomic>
+#include <array>
+#include <future>
+#include <memory>
+#include <mutex>
+#include <utility>
 
 #define DUMP_INTERVAL           (3000 * 1000)
 #define MAX_WAIT_DUMP_TIME      (100)
@@ -37,19 +45,44 @@ struct DUMP_SHARE_MEMORY
     }       ProcessList[MAX_DUMP_PROCESS_COUNT];
 };
 
-static HANDLE s_hDumpThread = NULL;
-static BOOL s_bStopDumpThread = FALSE;
-static DUMP_CHECK_FUNC s_pDumpCheckFunc = NULL;
+// These owners and flags are local to this process. The shared record above
+// retains its native representation for interoperability with existing hosts.
+struct DumpMapping
+{
+    MemPtr memory{};
+    INT32 processIndex = 0;
+    bool claimedSlot = false;
+    DUMP_SHARE_MEMORY* View() const
+    {
+        return reinterpret_cast<DUMP_SHARE_MEMORY*>(memory.pSharedMem);
+    }
+    ~DumpMapping()
+    {
+        if (claimedSlot)
+            InterlockedExchange(reinterpret_cast<volatile LONG*>(&View()->ProcessList[processIndex].bUsed), FALSE);
+        if (memory.pSharedMem)
+            CloseSharedMemory(memory);
+    }
+};
+static std::atomic<std::shared_ptr<DumpMapping>> s_dumpMapping;
+static DUMP_CHECK_FUNC s_pDumpCheckFunc = nullptr;
 static BOOL s_bDumpHost = FALSE;
-static char s_szDumpFolder[256] = {0};
-static BOOL s_bShowExceptionDialog = FALSE;
-static DUMP_SHARE_MEMORY* s_pDumpShareMemory = NULL;
-static BOOL s_bLocalDump = FALSE;
-static struct _EXCEPTION_POINTERS* s_pExceptionPointers = NULL;
-static INT32 s_nProcessIndex = 0;
+static char s_szDumpFolder[256] = {};
+static std::mutex s_dumpFolderMutex;
+static std::atomic<bool> s_bShowExceptionDialog{false};
+static std::atomic<bool> s_bLocalDump{false};
+static std::atomic<_EXCEPTION_POINTERS*> s_pExceptionPointers{nullptr};
+static bool s_timerPeriodActive = false;
+// Destroy the worker before the state it accesses during cooperative shutdown.
+static CThread s_dumpThread;
 
 void CreateDumpFile(struct _EXCEPTION_POINTERS* pExceptionPointers, UINT32 dwProcessID, UINT32 dwThreadID)
 {
+    std::array<char, sizeof(s_szDumpFolder)> folder;
+    {
+        std::scoped_lock lock(s_dumpFolderMutex);
+        std::copy_n(s_szDumpFolder, folder.size(), folder.data());
+    }
     INT32 nRetCode = 0;
     char szFileName[MAX_PATH] = { 0 };
     char szModuleName[MAX_PATH] = {0};
@@ -74,11 +107,11 @@ void CreateDumpFile(struct _EXCEPTION_POINTERS* pExceptionPointers, UINT32 dwPro
 		bSmallDump = TRUE;
 #endif // _FINAL
 
-	LOG_PROCESS_ERROR(s_szDumpFolder[0] != '\0');
-    g_CreateDirectory(s_szDumpFolder, TRUE);
+	LOG_PROCESS_ERROR(folder[0] != '\0');
+    g_CreateDirectory(folder.data(), TRUE);
 
     snprintf(szFileName, MAX_PATH, "%s/%04d_%02d_%02d", 
-		s_szDumpFolder,
+		folder.data(),
         stLocalTime.wYear, 
         stLocalTime.wMonth, 
         stLocalTime.wDay);
@@ -101,7 +134,7 @@ void CreateDumpFile(struct _EXCEPTION_POINTERS* pExceptionPointers, UINT32 dwPro
     }
 
     snprintf(szFileName, MAX_PATH, "%s/%04d_%02d_%02d/%s_%d_%04d_%02d_%02d_%02d_%02d_%02d_%03d.dmp", 
-		s_szDumpFolder,
+		folder.data(),
         stLocalTime.wYear, 
         stLocalTime.wMonth, 
         stLocalTime.wDay, 
@@ -150,63 +183,71 @@ Exit0:
     return;
 }
 
-DWORD WINAPI DumpThreadProc(void* pParam)
+void DumpThreadProc(std::stop_token token, std::promise<BOOL> ready)
 {
 	INT32 nRetCode = 0;
 	UINT64 qwLastCheckTick = 0;
-	MemPtr mp = { 0 };
+	auto mapping = std::make_shared<DumpMapping>();
+    DUMP_SHARE_MEMORY* memory = nullptr;
 
     if (s_bDumpHost)
     {
-        nRetCode = CreateSharedMemory(DUMP_MEMORY_NAME, sizeof(DUMP_SHARE_MEMORY), mp);
-        LOG_PROCESS_ERROR(nRetCode);
+        nRetCode = CreateSharedMemory(DUMP_MEMORY_NAME, sizeof(DUMP_SHARE_MEMORY), mapping->memory);
+        if (!nRetCode)
+        {
+            LOG_CHECK_ERROR(nRetCode);
+            ready.set_value(FALSE);
+            return;
+        }
 
-        s_pDumpShareMemory = (DUMP_SHARE_MEMORY*)mp.pSharedMem;
-        memset(s_pDumpShareMemory, 0, sizeof(DUMP_SHARE_MEMORY));
+        memory = mapping->View();
+        memset(memory, 0, sizeof(DUMP_SHARE_MEMORY));
 
-        s_pDumpShareMemory->ProcessList[0].bUsed = TRUE;
-        s_pDumpShareMemory->ProcessList[0].dwProcessID = GetCurrentProcessId();
+        cqyh::SharedStore32(&memory->ProcessList[0].bUsed, TRUE);
+        memory->ProcessList[0].dwProcessID = GetCurrentProcessId();
 
-        s_pDumpShareMemory->dwTag = DUMP_SHARE_MEMORY_TAG;
+        cqyh::SharedStore32(reinterpret_cast<INT32*>(&memory->dwTag), DUMP_SHARE_MEMORY_TAG);
+        s_dumpMapping.store(mapping);
     }
 
-    while (!s_bStopDumpThread)
+    ready.set_value(TRUE);
+    while (!token.stop_requested())
     {
         if (s_bDumpHost)
         {
             for (INT32 nIndex = 0; nIndex < MAX_DUMP_PROCESS_COUNT; nIndex++)
             {
-                if (!s_pDumpShareMemory->ProcessList[nIndex].bUsed)
+                if (!cqyh::SharedLoad32(&memory->ProcessList[nIndex].bUsed))
                     continue;
 
                 UINT64 qwCurrentTick = GetTickCountEx();
 
-                if (s_pDumpShareMemory->ProcessList[nIndex].bDump)
+                if (cqyh::SharedLoad32(&memory->ProcessList[nIndex].bDump))
                 {
-                    if (qwCurrentTick - s_pDumpShareMemory->ProcessList[nIndex].qwLastDumpTick > DUMP_INTERVAL ||
-                        s_pDumpShareMemory->ProcessList[nIndex].pExceptionPointers == NULL)
+                    if (qwCurrentTick - memory->ProcessList[nIndex].qwLastDumpTick > DUMP_INTERVAL ||
+                        memory->ProcessList[nIndex].pExceptionPointers == NULL)
                     {
-                        CreateDumpFile(s_pDumpShareMemory->ProcessList[nIndex].pExceptionPointers,
-                            s_pDumpShareMemory->ProcessList[nIndex].dwProcessID,
-                            s_pDumpShareMemory->ProcessList[nIndex].dwThreadID);
-                        s_pDumpShareMemory->ProcessList[nIndex].qwLastDumpTick = qwCurrentTick;
-						INF("created dump for process %d", s_pDumpShareMemory->ProcessList[nIndex].dwProcessID);
+                        CreateDumpFile(memory->ProcessList[nIndex].pExceptionPointers,
+                            memory->ProcessList[nIndex].dwProcessID,
+                            memory->ProcessList[nIndex].dwThreadID);
+                        memory->ProcessList[nIndex].qwLastDumpTick = qwCurrentTick;
+						INF("created dump for process %d", memory->ProcessList[nIndex].dwProcessID);
                     }
-                    s_pDumpShareMemory->ProcessList[nIndex].bDump = FALSE;
+                    cqyh::SharedStore32(&memory->ProcessList[nIndex].bDump, FALSE);
                 }
 
-				if (qwCurrentTick - s_pDumpShareMemory->ProcessList[nIndex].qwLastCheckAliveTick > CHECK_PROCESS_INTERVAL)
+				if (qwCurrentTick - memory->ProcessList[nIndex].qwLastCheckAliveTick > CHECK_PROCESS_INTERVAL)
                 {
-                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, s_pDumpShareMemory->ProcessList[nIndex].dwProcessID);
+                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, memory->ProcessList[nIndex].dwProcessID);
                     if (hProcess == NULL)
                     {
-                        s_pDumpShareMemory->ProcessList[nIndex].bUsed = FALSE;
+                        cqyh::SharedStore32(&memory->ProcessList[nIndex].bUsed, FALSE);
                     }
                     else
                     {
                         CloseHandle(hProcess);
                     }
-					s_pDumpShareMemory->ProcessList[nIndex].qwLastCheckAliveTick = qwCurrentTick;
+					memory->ProcessList[nIndex].qwLastCheckAliveTick = qwCurrentTick;
                 }
             }
         }
@@ -214,36 +255,43 @@ DWORD WINAPI DumpThreadProc(void* pParam)
         {
             UINT64 qwCurrentTick = GetTickCountEx();
 
-            if ((s_pDumpShareMemory == NULL || !s_pDumpShareMemory->ProcessList[s_nProcessIndex].bUsed) && qwCurrentTick - qwLastCheckTick > CHECK_PROCESS_INTERVAL)
+            if ((memory == NULL || !cqyh::SharedLoad32(&memory->ProcessList[mapping->processIndex].bUsed)) && qwCurrentTick - qwLastCheckTick > CHECK_PROCESS_INTERVAL)
             {
-				if (mp.pSharedMem)
-					CloseSharedMemory(mp);
-
-                nRetCode = OpenSharedMemory(DUMP_MEMORY_NAME, mp);
-                if (mp.pSharedMem && ((DUMP_SHARE_MEMORY*)mp.pSharedMem)->dwTag == DUMP_SHARE_MEMORY_TAG)
+				s_dumpMapping.store(nullptr);
+                mapping = std::make_shared<DumpMapping>();
+                memory = nullptr;
+                nRetCode = OpenSharedMemory(DUMP_MEMORY_NAME, mapping->memory);
+                if (nRetCode && cqyh::SharedLoad32(reinterpret_cast<const INT32*>(&mapping->View()->dwTag)) == DUMP_SHARE_MEMORY_TAG)
                 {
-                    s_pDumpShareMemory = (DUMP_SHARE_MEMORY*)mp.pSharedMem;
+                    memory = mapping->View();
+                    mapping->processIndex = MAX_DUMP_PROCESS_COUNT;
 
                     for (INT32 nIndex = 0; nIndex < MAX_DUMP_PROCESS_COUNT; nIndex++)
                     {
-                        if (!s_pDumpShareMemory->ProcessList[nIndex].bUsed)
+                        if (!cqyh::SharedLoad32(&memory->ProcessList[nIndex].bUsed))
                         {
-                            nRetCode = InterlockedCompareExchange((volatile long*)&s_pDumpShareMemory->ProcessList[nIndex].bUsed, TRUE, FALSE);
+                            nRetCode = InterlockedCompareExchange((volatile long*)&memory->ProcessList[nIndex].bUsed, TRUE, FALSE);
                             if (nRetCode == FALSE)
                             {
-                                s_nProcessIndex = nIndex;
+                                mapping->processIndex = nIndex;
+                                mapping->claimedSlot = true;
+                                memory->ProcessList[nIndex].dwProcessID = GetCurrentProcessId();
                                 break;
                             }
                         }
                     }
-                    LOG_PROCESS_ERROR(s_nProcessIndex < MAX_DUMP_PROCESS_COUNT);
+                    LOG_CHECK_ERROR(mapping->processIndex < MAX_DUMP_PROCESS_COUNT);
+                    if (mapping->processIndex < MAX_DUMP_PROCESS_COUNT)
+                        s_dumpMapping.store(mapping);
+                    else
+                        memory = nullptr;
                 }
                 qwLastCheckTick = qwCurrentTick;
             }
 
             if (s_bLocalDump)
             {
-                CreateDumpFile(s_pExceptionPointers, GetCurrentProcessId(), GetCurrentThreadId());
+                CreateDumpFile(s_pExceptionPointers.load(), GetCurrentProcessId(), GetCurrentThreadId());
                 s_bLocalDump = FALSE;
             }
 
@@ -251,17 +299,17 @@ DWORD WINAPI DumpThreadProc(void* pParam)
             {
                 INT32 nWaitTimer = 0;
 
-                if (s_pDumpShareMemory && s_pDumpShareMemory->dwTag)
+                if (memory && cqyh::SharedLoad32(reinterpret_cast<const INT32*>(&memory->dwTag)))
                 {
-                    s_pDumpShareMemory->ProcessList[s_nProcessIndex].pExceptionPointers = NULL;
-                    s_pDumpShareMemory->ProcessList[s_nProcessIndex].dwProcessID = GetCurrentProcessId();
-                    s_pDumpShareMemory->ProcessList[s_nProcessIndex].dwThreadID = GetCurrentThreadId();
-                    s_pDumpShareMemory->ProcessList[s_nProcessIndex].bDump = TRUE;
+                    memory->ProcessList[mapping->processIndex].pExceptionPointers = NULL;
+                    memory->ProcessList[mapping->processIndex].dwProcessID = GetCurrentProcessId();
+                    memory->ProcessList[mapping->processIndex].dwThreadID = GetCurrentThreadId();
+                    cqyh::SharedStore32(&memory->ProcessList[mapping->processIndex].bDump, TRUE);
 
-                    while (s_pDumpShareMemory->ProcessList[s_nProcessIndex].bDump && nWaitTimer < MAX_WAIT_DUMP_TIME)
+                    while (!token.stop_requested() && cqyh::SharedLoad32(&memory->ProcessList[mapping->processIndex].bDump) && nWaitTimer < MAX_WAIT_DUMP_TIME)
                     {
                         nWaitTimer++;
-                        Sleep(50);
+                        s_dumpThread.WaitForStop(std::chrono::milliseconds(50));
                     }
                 }
 				else
@@ -271,25 +319,28 @@ DWORD WINAPI DumpThreadProc(void* pParam)
             }
         }
 
-        Sleep(16);
+        s_dumpThread.WaitForStop(std::chrono::milliseconds(16));
     }
 
-Exit0:
-    return 0;
+    s_dumpMapping.store(nullptr);
 }
 
 LONG WINAPI DumpExceptionFilter(struct _EXCEPTION_POINTERS* pExceptionPointers)
 {
+    // Keep the view alive if the worker reconnects or stops during this filter.
+    const auto mapping = s_dumpMapping.load();
+    auto* memory = mapping ? mapping->View() : nullptr;
+    const auto processIndex = mapping ? mapping->processIndex : 0;
     INT32 nWaitTimer = 0;
 
-    if (s_pDumpShareMemory && s_pDumpShareMemory->dwTag)
+    if (memory && cqyh::SharedLoad32(reinterpret_cast<const INT32*>(&memory->dwTag)))
     {
-        s_pDumpShareMemory->ProcessList[s_nProcessIndex].pExceptionPointers = pExceptionPointers;
-        s_pDumpShareMemory->ProcessList[s_nProcessIndex].dwProcessID = GetCurrentProcessId();
-        s_pDumpShareMemory->ProcessList[s_nProcessIndex].dwThreadID = GetCurrentThreadId();
-        s_pDumpShareMemory->ProcessList[s_nProcessIndex].bDump = TRUE;
+        memory->ProcessList[processIndex].pExceptionPointers = pExceptionPointers;
+        memory->ProcessList[processIndex].dwProcessID = GetCurrentProcessId();
+        memory->ProcessList[processIndex].dwThreadID = GetCurrentThreadId();
+        cqyh::SharedStore32(&memory->ProcessList[processIndex].bDump, TRUE);
 
-        while (s_pDumpShareMemory->ProcessList[s_nProcessIndex].bDump && nWaitTimer < MAX_WAIT_DUMP_TIME)
+        while (cqyh::SharedLoad32(&memory->ProcessList[processIndex].bDump) && nWaitTimer < MAX_WAIT_DUMP_TIME)
         {
             nWaitTimer++;
             Sleep(50);
@@ -327,15 +378,16 @@ LONG WINAPI DumpExceptionFilter(struct _EXCEPTION_POINTERS* pExceptionPointers)
 void DisableSetUnhandledExceptionFilter(void)
 {
     HMODULE hModule = NULL;
+    void* addr = nullptr;
+    int size = 0;
 
     hModule = LoadLibrary("kernel32.dll");
     LOG_PROCESS_ERROR(hModule);
 
-    void *addr = (void*)GetProcAddress(hModule, "SetUnhandledExceptionFilter");
+    addr = (void*)GetProcAddress(hModule, "SetUnhandledExceptionFilter");
     LOG_PROCESS_ERROR(addr);
 
     unsigned char code[16];
-    int size = 0;
 	code[size++] = 0x33;
 	code[size++] = 0xC0;
 	code[size++] = 0xC2;
@@ -407,6 +459,7 @@ INT32 ReplaceThreadProc(int a, int b, void* pThreadFunc, void* pUserData)
 void HookCreateThread(void)
 {
 	HMODULE hModule = NULL;
+	unsigned char* addr = nullptr;
 	DWORD dwOldFlag, dwTempFlag;
 	INT32 nEntryOffset = 0x152;
 	INT32 nOffset1, nOffset2, nOffset3;
@@ -414,7 +467,7 @@ void HookCreateThread(void)
 	hModule = LoadLibrary("kernel32.dll");
 	LOG_PROCESS_ERROR(hModule);
 
-	unsigned char *addr = (unsigned char*)GetProcAddress(hModule, "CreateThread") - nEntryOffset;
+	addr = (unsigned char*)GetProcAddress(hModule, "CreateThread") - nEntryOffset;
 	LOG_PROCESS_ERROR(addr);
 
 	VirtualProtect(addr, nEntryOffset + 4, PAGE_READWRITE, &dwOldFlag);
@@ -530,70 +583,72 @@ int __cdecl MyReportHook(int, char* pszMessage, int *)
 
 BOOL StartDumpThread(DUMP_CHECK_FUNC pDumpCheckFunc, BOOL bDumpHost, const char* pDumpFolder)
 {
-    DWORD dwThreadID;
-	char szWorkingDir[MAX_PATH] = { 0 };
-	ULARGE_INTEGER FreeBytes;
-
-    s_bStopDumpThread = FALSE;
-
-#if defined(WIN32) | defined (WIN64)
-	SetErrorMode(SEM_NOGPFAULTERRORBOX);
-	SetUnhandledExceptionFilter(DumpExceptionFilter);
-	//DisableSetUnhandledExceptionFilter();
-	_set_purecall_handler(_crt_handler);
-	set_terminate(_crt_handler);
-	set_unexpected(_crt_handler);
-	_set_invalid_parameter_handler(_invalid_param_handler);
-	//HookCreateThread();
-	timeBeginPeriod(1);
-#endif	// WIN32 | WIN64
-
+    // Startup/shutdown are controlled by the owning server thread.
+    if (!pDumpFolder || !*pDumpFolder || s_timerPeriodActive || s_dumpThread.IsRunning())
+        return FALSE;
+    SetErrorMode(SEM_NOGPFAULTERRORBOX);
+    SetUnhandledExceptionFilter(DumpExceptionFilter);
+    _set_purecall_handler(_crt_handler);
+    set_terminate(_crt_handler);
+    _set_invalid_parameter_handler(_invalid_param_handler);
+    s_timerPeriodActive = timeBeginPeriod(1) == TIMERR_NOERROR;
 #if defined (_FINAL)
-	GetCurrentDirectory(MAX_PATH, szWorkingDir);
-	GetDiskFreeSpaceEx(szWorkingDir, &FreeBytes, NULL, NULL);
-	LOG_PROCESS_ERROR(FreeBytes.QuadPart > 1024LL * 1024 * 1024 * 36);
-#endif // _FINAL
-
-#if defined(_DEBUG)
-//	_CrtSetReportHook(MyReportHook);
-#endif // _DEBUG
-
+    char workingDirectory[MAX_PATH] = {};
+    ULARGE_INTEGER freeBytes{};
+    GetCurrentDirectory(MAX_PATH, workingDirectory);
+    if (!GetDiskFreeSpaceEx(workingDirectory, &freeBytes, nullptr, nullptr) ||
+        freeBytes.QuadPart <= 1024LL * 1024 * 1024 * 36)
+    {
+        LOG_CHECK_ERROR(false);
+        StopDumpThread();
+        return FALSE;
+    }
+#endif
     s_bDumpHost = bDumpHost;
-	strxcpy(s_szDumpFolder, pDumpFolder, sizeof(s_szDumpFolder) );
+    SetDumpFolder(pDumpFolder);
     s_pDumpCheckFunc = pDumpCheckFunc;
-
-    s_hDumpThread = CreateThread(NULL, 0, DumpThreadProc, NULL, 0, &dwThreadID);
-    PROCESS_ERROR(s_hDumpThread);
-
+    s_bLocalDump.store(false);
+    s_pExceptionPointers.store(nullptr);
+    try
+    {
+        std::promise<BOOL> ready;
+        auto started = ready.get_future();
+        if (!s_dumpThread.Start(CThread::Work([ready = std::move(ready)](std::stop_token token) mutable
+            { DumpThreadProc(token, std::move(ready)); })) || !started.get())
+        {
+            StopDumpThread();
+            return FALSE;
+        }
+    }
+    catch (const std::exception& error)
+    {
+        ERR("Cannot initialize dump worker: %s", error.what());
+        StopDumpThread();
+        return FALSE;
+    }
     return TRUE;
-Exit0:
-    StopDumpThread();
-
-    return FALSE;
 }
 
 void SetDumpOption(BOOL bShowDumpDialog)
 {
-    s_bShowExceptionDialog = bShowDumpDialog;
+    s_bShowExceptionDialog.store(bShowDumpDialog != FALSE);
 }
 
 void SetDumpFolder(const char* pDumpFolder)
 {
-	strxcpy(s_szDumpFolder, pDumpFolder, sizeof(s_szDumpFolder));
+    std::scoped_lock lock(s_dumpFolderMutex);
+    strxcpy(s_szDumpFolder, pDumpFolder, sizeof(s_szDumpFolder));
 }
 
-BOOL StopDumpThread(void)
+BOOL StopDumpThread()
 {
-    if (s_hDumpThread)
+    s_dumpThread.Wait();
+    s_dumpMapping.store(nullptr);
+    if (s_timerPeriodActive)
     {
-        s_bStopDumpThread = TRUE;
-        WaitForSingleObject(s_hDumpThread, INFINITE);
-        CloseHandle(s_hDumpThread);
+        timeEndPeriod(1);
+        s_timerPeriodActive = false;
     }
-#if defined(WIN32) | defined (WIN64)
-	timeEndPeriod(1);
-#endif	// WIN32 | WIN64
-
     return TRUE;
 }
 

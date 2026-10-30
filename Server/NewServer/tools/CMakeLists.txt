@@ -10,21 +10,36 @@ option(CQYH_BUILD_MFC_TOOLS "Build the MFC GUI tools (encrypt, PosLog); needs th
 
 set(_tools_dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# cqyh_add_tool(<name> OUTPUT <exe name> [GUI] [MFC] [EXCLUDE_FROM_ALL] [PCH_DIR <dir>]
+# cqyh_add_tool(<name> OUTPUT <exe name> [GUI] [MFC] [STRICT] [EXCLUDE_FROM_ALL] [PCH_DIR <dir>]
 #               SOURCES ... [INCLUDES ...] [DEFINITIONS ...] [LIBS ...])
 function(cqyh_add_tool tgt)
-    cmake_parse_arguments(A "GUI;MFC;EXCLUDE_FROM_ALL" "OUTPUT;PCH_DIR" "SOURCES;INCLUDES;DEFINITIONS;LIBS" ${ARGN})
+    cmake_parse_arguments(A "GUI;MFC;STRICT;EXCLUDE_FROM_ALL" "OUTPUT;PCH_DIR" "SOURCES;INCLUDES;DEFINITIONS;LIBS" ${ARGN})
 
-    if(A_MFC)
-        set(CMAKE_MFC_FLAG 1)   # static MFC, as the old projects
-    endif()
     if(A_GUI)
         add_executable(${tgt} WIN32 ${A_SOURCES})
     else()
         add_executable(${tgt} ${A_SOURCES})
     endif()
 
-    cqyh_target_defaults(${tgt} EXECUTABLE)
+    if(A_MFC)
+        # Match the dependencies' /MD[d] runtime. Persist this per target;
+        # a function-local CMAKE_MFC_FLAG does not survive project generation.
+        set_target_properties(${tgt} PROPERTIES VS_GLOBAL_UseOfMfc Dynamic)
+        target_compile_definitions(${tgt} PRIVATE _AFXDLL)
+    endif()
+
+    if(A_STRICT)
+        cqyh_target_defaults(${tgt} EXECUTABLE STRICT)
+    else()
+        cqyh_target_defaults(${tgt} EXECUTABLE)
+    endif()
+    if(A_MFC)
+        # Both MFC tools use Unicode. Do not inherit the server's _MBCS switch,
+        # which makes the generated VS project select the wrong GUI startup.
+        get_target_property(_mfc_definitions ${tgt} COMPILE_DEFINITIONS)
+        list(REMOVE_ITEM _mfc_definitions _MBCS)
+        set_target_properties(${tgt} PROPERTIES COMPILE_DEFINITIONS "${_mfc_definitions}")
+    endif()
     if(A_PCH_DIR)
         cqyh_use_pch(${tgt} ${A_PCH_DIR})
     endif()

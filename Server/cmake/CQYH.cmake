@@ -14,7 +14,7 @@ option(CQYH_OUTPUT_TO_BIN
 # ---------------------------------------------------------------------------------------------------------------------
 # Defaults every server target gets. EXECUTABLE adds the _d debug suffix the old projects used (gateserver64_d.exe).
 function(cqyh_target_defaults tgt)
-    cmake_parse_arguments(A "EXECUTABLE" "" "" ${ARGN})
+    cmake_parse_arguments(A "EXECUTABLE;STRICT" "" "" ${ARGN})
 
     set_target_properties(${tgt} PROPERTIES
         CXX_STANDARD ${CQYH_CXX_STANDARD}
@@ -33,8 +33,8 @@ function(cqyh_target_defaults tgt)
     if(MSVC)
         file(RELATIVE_PATH cqyh_relative_source_dir "${CQYH_SERVER_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
         set(cqyh_conformance_option /permissive-)
-        if(cqyh_relative_source_dir MATCHES "^NewServer/tools(/|$)")
-            # Preserve compatibility mode for the existing legacy tool targets.
+        if(cqyh_relative_source_dir MATCHES "^NewServer/tools(/|$)" AND NOT A_STRICT)
+            # Tools opt into strict conformance as each source migration is validated.
             set(cqyh_conformance_option /permissive)
         else()
             # Keep STL exception behavior consistent across server libraries and Asio.
@@ -83,8 +83,11 @@ endfunction()
 function(cqyh_copy_runtime_dlls tgt)
     if(WIN32)
         add_custom_command(TARGET ${tgt} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${tgt}> $<TARGET_FILE_DIR:${tgt}>
+            COMMAND "${CMAKE_COMMAND}"
+                "-DRUNTIME_DLLS=$<TARGET_RUNTIME_DLLS:${tgt}>"
+                "-DDESTINATION=$<TARGET_FILE_DIR:${tgt}>"
+                -P "${CQYH_SERVER_DIR}/cmake/CopyRuntimeDlls.cmake"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CQYH_MYSQL_RUNTIME_DLLS} $<TARGET_FILE_DIR:${tgt}>
-            COMMAND_EXPAND_LISTS)
+            VERBATIM)
     endif()
 endfunction()
