@@ -176,9 +176,10 @@ cqyh_add_tool(gmtool_label_version OUTPUT gmtool_label_version64 STRICT
 # --- MFC tools ---------------------------------------------------------------------------------------------------
 
 if(CQYH_BUILD_MFC_TOOLS AND MSVC)
-    cqyh_add_tool(encrypt OUTPUT encrypt64 GUI MFC PCH_DIR ${_tools_dir}/gmtool-encrypt/Encrypt/encrypt
+    cqyh_add_tool(encrypt OUTPUT encrypt64 GUI MFC STRICT PCH_DIR ${_tools_dir}/gmtool-encrypt/Encrypt/encrypt
         SOURCES
             gmtool-encrypt/Encrypt/encrypt/base.cpp
+            gmtool-encrypt/Encrypt/encrypt/file_transform.cpp
             gmtool-encrypt/Encrypt/encrypt/encrypt.cpp
             gmtool-encrypt/Encrypt/encrypt/encryptDlg.cpp
             gmtool-encrypt/Encrypt/encrypt/stdafx.cpp

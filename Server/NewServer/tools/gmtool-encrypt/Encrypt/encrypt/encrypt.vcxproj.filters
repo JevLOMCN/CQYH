@@ -36,6 +36,7 @@
     <ClInclude Include="base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="file_transform.h"><Filter>Header Files</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="encrypt.cpp">
@@ -50,6 +51,7 @@
     <ClCompile Include="base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="file_transform.cpp"><Filter>Source Files</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="encrypt.rc">

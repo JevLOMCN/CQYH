@@ -284,6 +284,33 @@ target_compile_definitions(test_tool_maintain_stats PRIVATE NOMINMAX)
 add_test(NAME tool_maintain_stats COMMAND test_tool_maintain_stats)
 set_tests_properties(tool_maintain_stats PROPERTIES TIMEOUT 30)
 
+add_executable(test_tool_encrypt_files test_encrypt_files.cpp
+    ../../tools/gmtool-encrypt/Encrypt/encrypt/file_transform.cpp ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
+cqyh_target_defaults(test_tool_encrypt_files STRICT)
+target_compile_definitions(test_tool_encrypt_files PRIVATE NOMINMAX)
+target_include_directories(test_tool_encrypt_files PRIVATE ../../tools/gmtool-encrypt/Encrypt/encrypt ../../3rd/zlib)
+target_link_libraries(test_tool_encrypt_files PRIVATE cqyh::zlib)
+add_test(NAME tool_encrypt_files COMMAND test_tool_encrypt_files "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/encrypt files")
+set_tests_properties(tool_encrypt_files PROPERTIES TIMEOUT 30)
+if(TARGET encrypt)
+    add_executable(test_tool_encrypt_dialog test_encrypt_dialog.cpp
+        ../../tools/gmtool-encrypt/Encrypt/encrypt/encryptDlg.cpp
+        ../../tools/gmtool-encrypt/Encrypt/encrypt/file_transform.cpp
+        ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp
+        ../../tools/gmtool-encrypt/Encrypt/encrypt/encrypt.rc)
+    cqyh_target_defaults(test_tool_encrypt_dialog STRICT)
+    set_target_properties(test_tool_encrypt_dialog PROPERTIES VS_GLOBAL_UseOfMfc Dynamic)
+    target_compile_definitions(test_tool_encrypt_dialog PRIVATE _AFXDLL UNICODE _UNICODE)
+    get_target_property(_encrypt_test_definitions test_tool_encrypt_dialog COMPILE_DEFINITIONS)
+    list(REMOVE_ITEM _encrypt_test_definitions _MBCS)
+    set_target_properties(test_tool_encrypt_dialog PROPERTIES COMPILE_DEFINITIONS "${_encrypt_test_definitions}")
+    target_include_directories(test_tool_encrypt_dialog PRIVATE ../../tools/gmtool-encrypt/Encrypt/encrypt ../../3rd/zlib)
+    target_link_libraries(test_tool_encrypt_dialog PRIVATE cqyh::zlib)
+    cqyh_use_pch(test_tool_encrypt_dialog "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/gmtool-encrypt/Encrypt/encrypt")
+    add_test(NAME tool_encrypt_dialog COMMAND test_tool_encrypt_dialog "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/encrypt dialog")
+    set_tests_properties(tool_encrypt_dialog PROPERTIES TIMEOUT 30)
+endif()
+
 add_executable(test_tool_gm_file_transform test_gm_file_transform.cpp
     ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
 cqyh_target_defaults(test_tool_gm_file_transform STRICT)
