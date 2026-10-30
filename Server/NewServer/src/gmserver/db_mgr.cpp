@@ -149,19 +149,20 @@ Exit0:
     return NULL;
 }
 
-MYSQL* CDBMgr::GetMysql( )
+cqyh::MysqlPtr CDBMgr::GetMysql( )
 {
+    cqyh::MysqlPtr connection;
     DBSetting   *pSetting = NULL;
     MYSQL       *res_mysql = NULL;
 
-    m_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_mysql);
+    connection = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(connection.get());
 
     pSetting = GetDBSetting();
     LOG_PROCESS_ERROR(pSetting);
 
     res_mysql = mysql_real_connect(
-        m_mysql,
+        connection.get(),
         pSetting->szServerAddr,
         pSetting->szLoginName,
         pSetting->szPassword,
@@ -173,28 +174,29 @@ MYSQL* CDBMgr::GetMysql( )
 
     if (strlen(pSetting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(m_mysql, pSetting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(connection.get(), pSetting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    return m_mysql;
+    return connection;
 Exit0:
-    return NULL;
+    return {};
 }
 
-MYSQL* CDBMgr::GetSlaverMysql()
+cqyh::MysqlPtr CDBMgr::GetSlaverMysql()
 {
+    cqyh::MysqlPtr connection;
     DBSetting   *pSetting = NULL;
     MYSQL       *res_mysql = NULL;
 
-    m_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_mysql);
+    connection = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(connection.get());
 
     pSetting = GetSlaverDBSetting();
     LOG_PROCESS_ERROR(pSetting);
 
     res_mysql = mysql_real_connect(
-        m_mysql,
+        connection.get(),
         pSetting->szServerAddr,
         pSetting->szLoginName,
         pSetting->szPassword,
@@ -206,36 +208,30 @@ MYSQL* CDBMgr::GetSlaverMysql()
 
     if (strlen(pSetting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(m_mysql, pSetting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(connection.get(), pSetting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    return m_mysql;
+    return connection;
 Exit0:
-    return NULL;
+    return {};
 }
 
-BOOL CDBMgr::FreeMysql(MYSQL* mysql)
-{
-    mysql_close(m_mysql);
-    m_mysql = NULL;
 
-    return TRUE;
-}
-
-MYSQL* CDBMgr::GetLogMysql( )
+cqyh::MysqlPtr CDBMgr::GetLogMysql( )
 {
+    cqyh::MysqlPtr connection;
     DBSetting   *pSetting = NULL;
     MYSQL       *res_mysql = NULL;
 
-    m_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_mysql);
+    connection = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(connection.get());
 
     pSetting = GetDBSetting();
     LOG_PROCESS_ERROR(pSetting);
 
     res_mysql = mysql_real_connect(
-        m_mysql,
+        connection.get(),
         pSetting->szServerAddr,
         pSetting->szLoginName,
         pSetting->szPassword,
@@ -247,28 +243,29 @@ MYSQL* CDBMgr::GetLogMysql( )
 
     if (strlen(pSetting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(m_mysql, pSetting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(connection.get(), pSetting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    return m_mysql;
+    return connection;
 Exit0:
-    return NULL;
+    return {};
 }
 
-MYSQL* CDBMgr::GetSlaverLogMysql()
+cqyh::MysqlPtr CDBMgr::GetSlaverLogMysql()
 {
+    cqyh::MysqlPtr connection;
     DBSetting   *pSetting = NULL;
     MYSQL       *res_mysql = NULL;
 
-    m_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_mysql);
+    connection = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(connection.get());
 
     pSetting = GetSlaverDBSetting();
     LOG_PROCESS_ERROR(pSetting);
 
     res_mysql = mysql_real_connect(
-        m_mysql,
+        connection.get(),
         pSetting->szServerAddr,
         pSetting->szLoginName,
         pSetting->szPassword,
@@ -280,13 +277,13 @@ MYSQL* CDBMgr::GetSlaverLogMysql()
 
     if (strlen(pSetting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(m_mysql, pSetting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(connection.get(), pSetting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    return m_mysql;
+    return connection;
 Exit0:
-    return NULL;
+    return {};
 }
 
 
@@ -309,6 +306,7 @@ BOOL CDBMgr::MainLoop()
 
 BOOL CDBMgr::PreQueryRoleID(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32       nRetCode = 0;
     CMD_PRE_QUERY   *pQueryCmd = NULL;
 
@@ -317,12 +315,12 @@ BOOL CDBMgr::PreQueryRoleID(CMD_DATA_BASE *pCmd)
     pQueryCmd = (CMD_PRE_QUERY *)pCmd;
     LOG_PROCESS_ERROR(pQueryCmd);
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
 
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().SyncExecSqlStmt(GMMysqlSelectRoleID, CB_DBPreQueryRoleID, (void *)pCmdID, "s", pQueryCmd->szRoleName);
+    nRetCode = GetSlaverSqlMgr().SyncExecSqlStmtOwned(GMMysqlSelectRoleID, MakeOwnedSqlCallback(CB_DBPreQueryRoleID, std::move(pCmdID)), "s", pQueryCmd->szRoleName);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
@@ -332,6 +330,7 @@ Exit0:
 
 BOOL CDBMgr::QueryRoleID(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32   nRetCode = 0;
     CMD_QUERY_ROLE_ID   *pQueryCmd = NULL;
     LOG_PROCESS_ERROR(pCmd);
@@ -339,14 +338,14 @@ BOOL CDBMgr::QueryRoleID(CMD_DATA_BASE *pCmd)
     pQueryCmd = (CMD_QUERY_ROLE_ID *)pCmd;
     LOG_PROCESS_ERROR(pQueryCmd);
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
 
     *pCmdID = pCmd->dwSerialID;
 
     if (pQueryCmd->nQueryType == GM_QUERY_BY_ROLE_NAME)
     {
-        nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectRoleIDByRoleName, CB_DBQueryRoleID, (void *)pCmdID, "s", pQueryCmd->szName);
+        nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectRoleIDByRoleName, MakeOwnedSqlCallback(CB_DBQueryRoleID, std::move(pCmdID)), "s", pQueryCmd->szName);
         LOG_PROCESS_ERROR(nRetCode);
 
         //nRetCode = CGMLog::GetInstance().WriteLog(pQueryCmd->szUserName, "query role id", "Role Name[%s]", pQueryCmd->szName);
@@ -354,7 +353,7 @@ BOOL CDBMgr::QueryRoleID(CMD_DATA_BASE *pCmd)
     }
     else if (pQueryCmd->nQueryType == GM_QUERY_BY_USER_NAME)
     {
-        nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectRoleIDByUserName, CB_DBQueryRoleID, (void *)pCmdID, "s", pQueryCmd->szName);
+        nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectRoleIDByUserName, MakeOwnedSqlCallback(CB_DBQueryRoleID, std::move(pCmdID)), "s", pQueryCmd->szName);
         LOG_PROCESS_ERROR(nRetCode);
 
         //nRetCode = CGMLog::GetInstance().WriteLog(pQueryCmd->szUserName, "query role id", "Account Name[%s]", pQueryCmd->szName);
@@ -364,57 +363,54 @@ BOOL CDBMgr::QueryRoleID(CMD_DATA_BASE *pCmd)
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::QueryRoleData(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     CMD_QUERY_ROLE_DATA *pQueryData = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pQueryData = (CMD_QUERY_ROLE_DATA *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectRoleData, CB_DBLoadRole, (void *)pCmdID, "ud", pQueryData->dwRoleID);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectRoleData, MakeOwnedSqlCallback(CB_DBLoadRole, std::move(pCmdID)), "ud", pQueryData->dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::QueryGuildID(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     CMD_QUERY_ROLE_DATA *pQueryData = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pQueryData = (CMD_QUERY_ROLE_DATA *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectGuildID, CB_DBQueryGuildID, (void *)pCmdID, "ud", pQueryData->dwRoleID);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectGuildID, MakeOwnedSqlCallback(CB_DBQueryGuildID, std::move(pCmdID)), "ud", pQueryData->dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::QueryGMForbid(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     CMD_QUERY_ROLE_DATA *pQueryData = NULL;
     UINT64              qwIDChat = 0;
@@ -423,42 +419,39 @@ BOOL CDBMgr::QueryGMForbid(CMD_DATA_BASE *pCmd)
 
     pQueryData = (CMD_QUERY_ROLE_DATA *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
     qwIDChat = (((UINT64)pQueryData->dwRoleID) << 32) + GM_RECORD_FORBID_CHAT;
     qwIDLogin = (((UINT64)pQueryData->dwRoleID) << 32) + GM_RECORD_FREEZE_ROLE;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectGMForbid, CB_DBQueryGMForbid, (void *)pCmdID, "ulul", qwIDChat, qwIDLogin);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectGMForbid, MakeOwnedSqlCallback(CB_DBQueryGMForbid, std::move(pCmdID)), "ulul", qwIDChat, qwIDLogin);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::QueryMail(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     CMD_QUERY_ROLE_DATA *pQueryData = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pQueryData = (CMD_QUERY_ROLE_DATA *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectMail, CB_DBLoadMail, (void *)pCmdID, "ud", pQueryData->dwRoleID);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectMail, MakeOwnedSqlCallback(CB_DBLoadMail, std::move(pCmdID)), "ud", pQueryData->dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
@@ -487,11 +480,12 @@ Exit0:
 
 BOOL CDBMgr::ForbiddenChat(CMD_DATA_BASE *pCmd)
 {
+    CMD_FORBIDDEN_CHAT   * pForbidChat{};
     INT32   nRetCode = 0;
     INT32   nGroupID = -1;
     LOG_PROCESS_ERROR(pCmd);
 
-    CMD_FORBIDDEN_CHAT   *pForbidChat = (CMD_FORBIDDEN_CHAT*)pCmd;
+    pForbidChat = (CMD_FORBIDDEN_CHAT*)pCmd;
 
 
     nRetCode = GetSlaverSqlMgr().SyncExecSqlStmt(GMMysqlSelectGroup, CB_DBQueryRoleGroup, &nGroupID, "ud", pForbidChat->dwRoleID);
@@ -517,11 +511,12 @@ Exit0:
 
 BOOL CDBMgr::FreezeRole(CMD_DATA_BASE *pCmd)
 {
+    CMD_FREEZE_ROLE   * pFreezeRole{};
     INT32   nRetCode = 0;
     INT32   nGroupID = -1;
     LOG_PROCESS_ERROR(pCmd);
 
-    CMD_FREEZE_ROLE   *pFreezeRole = (CMD_FREEZE_ROLE*)pCmd;
+    pFreezeRole = (CMD_FREEZE_ROLE*)pCmd;
 
     nRetCode = GetSlaverSqlMgr().SyncExecSqlStmt(GMMysqlSelectGroup, CB_DBQueryRoleGroup, &nGroupID, "ud", pFreezeRole->dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
@@ -546,21 +541,23 @@ Exit0:
 
 BOOL CDBMgr::SendMail(CMD_DATA_BASE *pCmd)
 {
+    CMD_SEND_MAIL   * pSendMail{};
+    std::unique_ptr<UINT32> pCmdID;
     INT32   nRetCode = 0;
     struct SimpleAttach     sa;
 
     LOG_PROCESS_ERROR(pCmd);
-    CMD_SEND_MAIL   *pSendMail = (CMD_SEND_MAIL*)pCmd;
+    pSendMail = (CMD_SEND_MAIL*)pCmd;
     sa.nItemID = pSendMail->dwItemID;
     sa.nItemCount = pSendMail->nItemNum;
 
     // get mail id
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetMasterSqlMgr().SyncExecSqlStmt(GMMasterMysqlSelectMaxMailID, CB_DBSelectMailID, (void *)pCmdID, "");
+    nRetCode = GetMasterSqlMgr().SyncExecSqlStmtOwned(GMMasterMysqlSelectMaxMailID, MakeOwnedSqlCallback(CB_DBSelectMailID, std::move(pCmdID)), "");
     LOG_PROCESS_ERROR(nRetCode);
 
     pCmdID = NULL;
@@ -584,13 +581,13 @@ BOOL CDBMgr::SendMail(CMD_DATA_BASE *pCmd)
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
 {
+    CMD_LOG   * pCmdLog{};
+    std::unique_ptr<UINT32> pCmdID;
     INT32       nRetCode = 0;
     char        szSndaID[65] = { 0 };
     UINT32      dwRoleID = 0;
@@ -601,9 +598,9 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
     INT32       nQuestID = 0;
 
     LOG_PROCESS_ERROR(pCmd);
-    CMD_LOG   *pCmdLog = (CMD_LOG*)pCmd;
+    pCmdLog = (CMD_LOG*)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
@@ -615,7 +612,7 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
     {
         sscanf(pCmdLog->szQueryStr, "%s", &szSndaID);
 
-        nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectRoleLogin, CB_DBQueryLogRoleLogin, (void *)pCmdID, "sudud", szSndaID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+        nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectRoleLogin, MakeOwnedSqlCallback(CB_DBQueryLogRoleLogin, std::move(pCmdID)), "sudud", szSndaID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
         LOG_PROCESS_ERROR(nRetCode);
     }
         break;
@@ -623,7 +620,7 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
     {
         sscanf(pCmdLog->szQueryStr, "%u", &dwRoleID);
 
-        nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectRoleLogout, CB_DBQueryLogRoleLogout, (void *)pCmdID, "ududud", dwRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+        nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectRoleLogout, MakeOwnedSqlCallback(CB_DBQueryLogRoleLogout, std::move(pCmdID)), "ududud", dwRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
         LOG_PROCESS_ERROR(nRetCode);
     }
         break;
@@ -633,17 +630,17 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
 
         if (qwGuid != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectItemByGuid, CB_DBQueryLogItem, (void *)pCmdID, "uludud", qwGuid, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectItemByGuid, MakeOwnedSqlCallback(CB_DBQueryLogItem, std::move(pCmdID)), "uludud", qwGuid, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else if (dwItemID != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectItemByItemID, CB_DBQueryLogItem, (void *)pCmdID, "ududud", dwItemID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectItemByItemID, MakeOwnedSqlCallback(CB_DBQueryLogItem, std::move(pCmdID)), "ududud", dwItemID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else if (dwRoleID != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectItemByRoleID, CB_DBQueryLogItem, (void *)pCmdID, "ududud", dwRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectItemByRoleID, MakeOwnedSqlCallback(CB_DBQueryLogItem, std::move(pCmdID)), "ududud", dwRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else
@@ -656,12 +653,12 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
 
         if (dwRoleID != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectMoneyBySourceRole, CB_DBQueryLogMoney, (void *)pCmdID, "ududud", dwRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectMoneyBySourceRole, MakeOwnedSqlCallback(CB_DBQueryLogMoney, std::move(pCmdID)), "ududud", dwRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else if (dwTargetRoleID != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectMoneyByTargetRole, CB_DBQueryLogMoney, (void *)pCmdID, "ududud", dwTargetRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectMoneyByTargetRole, MakeOwnedSqlCallback(CB_DBQueryLogMoney, std::move(pCmdID)), "ududud", dwTargetRoleID, pCmdLog->dwBeginTime, pCmdLog->dwEndTime);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else
@@ -674,12 +671,12 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
 
         if (dwRoleID != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectQuestByRole, CB_DBQueryLogQuest, (void *)pCmdID, "ud", dwRoleID);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectQuestByRole, MakeOwnedSqlCallback(CB_DBQueryLogQuest, std::move(pCmdID)), "ud", dwRoleID);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else if (nQuestID != 0)
         {
-            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmt(GMLogSelectQuestByQuest, CB_DBQueryLogQuest, (void *)pCmdID, "ud", dwRoleID);
+            nRetCode = GetLogDataSqlMgr().AsyncExecSqlStmtOwned(GMLogSelectQuestByQuest, MakeOwnedSqlCallback(CB_DBQueryLogQuest, std::move(pCmdID)), "ud", dwRoleID);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else
@@ -693,8 +690,6 @@ BOOL CDBMgr::QueryLog(CMD_DATA_BASE *pCmd)
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
@@ -702,62 +697,58 @@ BOOL CDBMgr::LoadRole(UINT32 dwSerialID, UINT32 dwRoleID)
 {
     INT32               nRetCode = 0;
 
-    UINT32 *pCmdID = new UINT32;
+    auto pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = dwSerialID;
 
-    nRetCode = GetMasterSqlMgr().AsyncExecSqlStmt(GMMasterMysqlSelectRoleData, CB_DBLoadRole, (void *)pCmdID, "ud", dwRoleID);
+    nRetCode = GetMasterSqlMgr().AsyncExecSqlStmtOwned(GMMasterMysqlSelectRoleData, MakeOwnedSqlCallback(CB_DBLoadRole, std::move(pCmdID)), "ud", dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::LoadMail(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     CMD_LOAD_ROLE *pLoadRole = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pLoadRole = (CMD_LOAD_ROLE *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetMasterSqlMgr().AsyncExecSqlStmt(GMMasterMysqlSelectMail, CB_DBLoadMail, (void *)pCmdID, "ud", pLoadRole->dwRoleID);
+    nRetCode = GetMasterSqlMgr().AsyncExecSqlStmtOwned(GMMasterMysqlSelectMail, MakeOwnedSqlCallback(CB_DBLoadMail, std::move(pCmdID)), "ud", pLoadRole->dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 
 BOOL CDBMgr::RoleExeGMCmd(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     CMD_ROLE_EXE_GM_CMD *pRoleExeCmd = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pRoleExeCmd = (CMD_ROLE_EXE_GM_CMD *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetMasterSqlMgr().AsyncExecSqlStmt(GMMasterMysqlSelectRoleData, CB_DBRoleExeCmd, (void *)pCmdID, "ud", pRoleExeCmd->dwRoleID);
+    nRetCode = GetMasterSqlMgr().AsyncExecSqlStmtOwned(GMMasterMysqlSelectRoleData, MakeOwnedSqlCallback(CB_DBRoleExeCmd, std::move(pCmdID)), "ud", pRoleExeCmd->dwRoleID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
@@ -775,6 +766,7 @@ Exit0:
 
 BOOL CDBMgr::CheckRoleFreeze(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     UINT64              qwIDLogin = 0;
     UINT32              dwRoleID = 0;
@@ -789,19 +781,17 @@ BOOL CDBMgr::CheckRoleFreeze(CMD_DATA_BASE *pCmd)
         dwRoleID = ((CMD_ROLE_EXE_GM_CMD *)pCmd)->dwRoleID;
     }
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
     qwIDLogin = (((UINT64)dwRoleID) << 32) + GM_RECORD_FREEZE_ROLE;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectFreezeTime, CB_DBCheckRoleFreeze, (void *)pCmdID, "ul", qwIDLogin);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectFreezeTime, MakeOwnedSqlCallback(CB_DBCheckRoleFreeze, std::move(pCmdID)), "ul", qwIDLogin);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
@@ -841,6 +831,7 @@ Exit0:
 
 BOOL CDBMgr::QueryNameToID(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32   nRetCode = 0;
     CMD_QUERY_NAME_TO_ID   *pQueryCmd = NULL;
     LOG_PROCESS_ERROR(pCmd);
@@ -848,18 +839,16 @@ BOOL CDBMgr::QueryNameToID(CMD_DATA_BASE *pCmd)
     pQueryCmd = (CMD_QUERY_NAME_TO_ID *)pCmd;
     LOG_PROCESS_ERROR(pQueryCmd);
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
 
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectRoleIDByName, CB_DBQueryNameToID, (void *)pCmdID, "s", pQueryCmd->szRoleName);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectRoleIDByName, MakeOwnedSqlCallback(CB_DBQueryNameToID, std::move(pCmdID)), "s", pQueryCmd->szRoleName);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
@@ -867,82 +856,76 @@ BOOL CDBMgr::QueryExchangeLog(UINT32 dwSessionID, INT32 nGroupID)
 {
     INT32       nRetCode = 0;
     
-    UINT32 *pSessionID = new UINT32;
+    auto pSessionID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pSessionID);
 
     *pSessionID = dwSessionID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectExchangeLog, CB_DBQueryExchangeLog, (void *)pSessionID, "uc", nGroupID);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectExchangeLog, MakeOwnedSqlCallback(CB_DBQueryExchangeLog, std::move(pSessionID)), "uc", nGroupID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pSessionID)
-        delete pSessionID;
     return FALSE;
 }
 
 BOOL CDBMgr::QueryExchangeHistory(UINT32 dwSessionID, INT32 nGroupID)
 {
     INT32       nRetCode = 0;
-    UINT32 *pSessionID = new UINT32;
+    auto pSessionID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pSessionID);
 
     *pSessionID = dwSessionID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectExchangeHistory, CB_DBQueryExchangeHistory, (void *)pSessionID, "uc", nGroupID);
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectExchangeHistory, MakeOwnedSqlCallback(CB_DBQueryExchangeHistory, std::move(pSessionID)), "uc", nGroupID);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pSessionID)
-        delete pSessionID;
     return FALSE;
 }
 
 BOOL CDBMgr::QuerySysExchangeOrder(CMD_DATA_BASE *pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32               nRetCode = 0;
     QUERY_SYSTEM_EXCHANGE_INFO *pQueryCmd = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pQueryCmd = (QUERY_SYSTEM_EXCHANGE_INFO *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectSysExchangeOrder, CB_DBQuerySysExchangeOrderInfo, (void *)pCmdID,
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectSysExchangeOrder, MakeOwnedSqlCallback(CB_DBQuerySysExchangeOrderInfo, std::move(pCmdID)),
         "ucudud", pQueryCmd->byGroupID, pQueryCmd->dwBeginDayTime, pQueryCmd->dwEndDayTime);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 
 BOOL CDBMgr::QuerySysExchangeLog(CMD_DATA_BASE* pCmd)
 {
+    std::unique_ptr<UINT32> pCmdID;
     INT32       nRetCode = 0;
     QUERY_SYSTEM_EXCHANGE_INFO *pQueryCmd = NULL;
     LOG_PROCESS_ERROR(pCmd);
 
     pQueryCmd = (QUERY_SYSTEM_EXCHANGE_INFO *)pCmd;
 
-    UINT32 *pCmdID = new UINT32;
+    pCmdID = std::make_unique<UINT32>();
     LOG_PROCESS_ERROR(pCmdID);
     *pCmdID = pCmd->dwSerialID;
 
-    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmt(GMMysqlSelectSysExchangeLog, CB_DBQuerySysExchangeLogInfo, (void *)pCmdID,
+    nRetCode = GetSlaverSqlMgr().AsyncExecSqlStmtOwned(GMMysqlSelectSysExchangeLog, MakeOwnedSqlCallback(CB_DBQuerySysExchangeLogInfo, std::move(pCmdID)),
         "ucudud", pQueryCmd->byGroupID, pQueryCmd->dwBeginDayTime, pQueryCmd->dwEndDayTime);
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
 Exit0:
-    if (pCmdID)
-        delete pCmdID;
     return FALSE;
 }
 

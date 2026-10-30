@@ -28,6 +28,7 @@ struct AuctionThreadNode
 class CAuctionThread : public CThread
 {
 public:
+    ~CAuctionThread() override { UnInit(); }
     BOOL Init(UINT32 dwAuctionPoolSize, UINT32 dwListSize);
     BOOL UnInit();
 
@@ -42,6 +43,8 @@ protected:
     virtual VOID ThrdProc();
 
 private:
+    void _ProcessRequest();
+    bool _PublishResult(SearchResult* result);
     void _AddAuctionToList(AuctionThreadNode* auction);
     void _DelAuctionFromList(AuctionThreadNode* auction);
     SearchResult* _SearchAuctionInList(UINT32 sessionid, UINT32 roleid, UINT8 groupid, UINT8 sortby, UINT8 asc, INT32 templateid);

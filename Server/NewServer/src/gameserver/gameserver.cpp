@@ -230,6 +230,7 @@ void CGameServer::SetForceClose(void)
 
 BOOL CGameServer::MainLoop(void)
 {
+	UINT64 qwEndTick{};
 	INT32 nRetCode = 0;
 	CGameWorld& rGameWorld = CGameWorld::GetInstance();
 
@@ -263,7 +264,7 @@ BOOL CGameServer::MainLoop(void)
 	}
 #endif	// _FINAL
 
-	UINT64 qwEndTick = GetTickCountEx();
+	qwEndTick = GetTickCountEx();
 	if (qwEndTick - qwCurrentTick < (1000 / GAME_FPS))
 		Sleep(1);
 	else

@@ -21,7 +21,7 @@ public:
     ~CMyTreeWidgetItem();
 
 
-    INT32   GetSvrID();
+    INT32   GetSvrID() const;
     //CRole*  GetRoleDataPtr();
 
     //void    SetSvrID(INT32 nSvrID);
@@ -31,16 +31,16 @@ public:
     //UINT32  GetRoleID();
 
     void    Set64ID(INT64 qwID)     { m_qwID = qwID; }
-    INT64   Get64ID()               { return m_qwID; }
+    INT64   Get64ID() const         { return m_qwID; }
 
     void    SetID(INT32 dwID)       { m_dwID = dwID; }
-    INT32   GetID()                 { return m_dwID; }
+    INT32   GetID() const           { return m_dwID; }
 
     void    SetRoleType(INT32 nType)        { m_nRoleType = nType; }
-    INT32   GetRoleType()           { return m_nRoleType; }
+    INT32   GetRoleType() const     { return m_nRoleType; }
 
     void    SetBaseDataType(INT32 nType)    { m_nBaseType = nType; }
-    INT32   GetBaseDataType()       { return m_nBaseType; }
+    INT32   GetBaseDataType() const { return m_nBaseType; }
 
 
 private:

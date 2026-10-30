@@ -1,290 +1,247 @@
 #include "stdafx.h"
-#include <time.h>
-
 #include "cash_accounting.h"
-#include "sql_mgr.h"
 #include "cash_accounting_stmt.list.h"
 
-CCashAccounting CCashAccounting::ms_Instance;
+#include <algorithm>
+#include <cstring>
+#include <ctime>
+#include <format>
+#include <iterator>
+#include <limits>
+#include <stdexcept>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
 
-CCashAccounting::CCashAccounting()
+namespace
 {
-	
-}
-
-CCashAccounting::~CCashAccounting()
+#pragma pack(push, 1)
+struct SnapshotRow
 {
-
-}
-
- CCashAccounting& CCashAccounting::GetInstance(void)
- {
- 	return ms_Instance;
- }
-
- BOOL CCashAccounting::Init(void)
- {
- 	INT32 nRetCode = 0; 
- 	m_pLogHandler = NULL;
- 
- 	m_AccountingRoleList.Clear();
- 	
- 	strxcpy(m_dbsetting.szServerAddr, "172.30.66.24", DB_SETTING_STRING_LEN);
- 	strxcpy(m_dbsetting.szLoginName, "Jiutian", DB_SETTING_STRING_LEN);
- 	strxcpy(m_dbsetting.szPassword, "JiutianSky", DB_SETTING_STRING_LEN);
- 	strxcpy(m_dbsetting.szDBName, "sh_zhangm03_d", DB_SETTING_STRING_LEN);
- 	strxcpy(m_dbsetting.szDBNameLogData, "jtdb_logdata", DB_SETTING_STRING_LEN);
- 	strxcpy(m_dbsetting.szCharSet, "utf8", DB_SETTING_STRING_LEN);
- 	m_dbsetting.dwServerPort = 3306;
- 
- 	nRetCode = m_AccountingRolePool.Init(8192);
- 	LOG_PROCESS_ERROR(nRetCode);
- 
- 	nRetCode = CSqlMgr::GetInstance().Init(
- 		m_dbsetting.szServerAddr,
- 		m_dbsetting.szLoginName,
- 		m_dbsetting.szPassword,
- 		m_dbsetting.szDBName,
- 		m_dbsetting.szCharSet,
- 		m_dbsetting.dwServerPort,
- 		g_CASqlStmtList, caSqlTotal);
- 
- 	LOG_PROCESS_ERROR(nRetCode);
- 
-  	nRetCode = CSqlMgr::GetInstance().SyncExecSqlStmt(caSqlSelectLogoutRole, _Load, NULL, "");
-  	LOG_PROCESS_ERROR(nRetCode);
-
- 	m_pLogHandler = fopen("money_accounting", "a+");
- 	LOG_PROCESS_ERROR(m_pLogHandler);
- 
-	return TRUE;
-Exit0:
-	return FALSE;
-}
- 
- BOOL CCashAccounting::UnInit(void)
- {
-	INT32 nRetCode = 0;
-
-	nRetCode = CSqlMgr::GetInstance().UnInit();
-	LOG_CHECK_ERROR(nRetCode);
-
-	nRetCode = m_AccountingRolePool.UnInit();
-	LOG_CHECK_ERROR(nRetCode);
-
- 	m_AccountingRoleList.Clear();
-	
-	fclose(m_pLogHandler);
-
- 	return TRUE;
- }
- 
- BOOL CCashAccounting::MainLoop(void)
- {
- 	INT32 nRetCode = 0;
- 	ACCOUNTING_ROLE* poAccountingRole = NULL;
- 
- 	while (!ms_Instance.m_AccountingRoleList.IsEmpty())
- 	{
-		BASE_LIST_NODE* pNode = NULL;
-
- 		poAccountingRole = (ACCOUNTING_ROLE*)m_AccountingRoleList.Head().pNext;
- 		LOG_PROCESS_ERROR(poAccountingRole);
- 
- 		for (pNode = m_AccountingRoleList.Head().pNext->pNext; pNode != (ACCOUNTING_ROLE*)&m_AccountingRoleList.Rear();)
- 		{
-	 		ACCOUNTING_ROLE* pRole = (ACCOUNTING_ROLE*)pNode;
-			LOG_PROCESS_ERROR(pRole);
-
- 			if (pRole->dwRoleID == poAccountingRole->dwRoleID)
- 			{
-				RoleMoneyUserData stRoleMoneyUserData;
-
-				stRoleMoneyUserData.dwBeginLogTime = poAccountingRole->dwLogTime;
-				stRoleMoneyUserData.dwEndLogTime = pRole->dwLogTime;
-				stRoleMoneyUserData.nBeginMoney0 = poAccountingRole->nMoney0;
-				stRoleMoneyUserData.nBeginMoney1 = poAccountingRole->nMoney1;
-				stRoleMoneyUserData.nEndMoney0 = pRole->nMoney0;
-				stRoleMoneyUserData.nEndMoney1 = pRole->nMoney1;
-				stRoleMoneyUserData.dwRoleID = poAccountingRole->dwRoleID;
-				strxcpy(stRoleMoneyUserData.szRoleName, poAccountingRole->szName, sizeof(stRoleMoneyUserData.szRoleName));
-
- 				nRetCode = CSqlMgr::GetInstance().SyncExecSqlStmt(caSqlSelectRoleMoney, _Check, (void*)&stRoleMoneyUserData, "dddd", poAccountingRole->dwRoleID, poAccountingRole->dwRoleID, poAccountingRole->dwLogTime, pRole->dwLogTime);
- 				LOG_CHECK_ERROR(nRetCode);
-
-				break;
- 			}
-
- 			pNode = pNode->pNext;
- 		}
-
-		m_AccountingRoleList.Remove(poAccountingRole);
- 	}
- 
- 	return TRUE;
- Exit0:
- 	return FALSE;
- }
-
- void CCashAccounting::_Load(std::list<void*>& rResult, void* pUserData)
- {
- 	INT32 nRetCode = 0;
- 	ACCOUNTING_ROLE* pAccountingRole = NULL;
- 
- #pragma pack(push, 1)
- 	struct LOAD_RESULT
- 	{
-		UINT32	dwLogTime;
- 		INT32	nRoleID;
- 		INT32	nMoney0;
- 		INT32	nMoney1;
-		char	czName[21];
- 	};
- #pragma pack(pop)
-
- 	for (std::list<void*>::iterator it = rResult.begin();
- 		it != rResult.end(); ++it)
- 	{
- 		LOAD_RESULT* pLoadResult = (LOAD_RESULT*)*it;
- 		
- 		pAccountingRole = ms_Instance.m_AccountingRolePool.New();
- 		LOG_PROCESS_ERROR(pAccountingRole);
-
-		pAccountingRole->pNext = NULL;
-		pAccountingRole->pPrev = NULL;
-
-		pAccountingRole->dwLogTime = pLoadResult->dwLogTime;
- 		pAccountingRole->dwRoleID = pLoadResult->nRoleID;
- 		pAccountingRole->nMoney0 = pLoadResult->nMoney0;
- 		pAccountingRole->nMoney1 = pLoadResult->nMoney1;
-		strxcpy(pAccountingRole->szName, pLoadResult->czName, sizeof(pAccountingRole->szName));
-
- 		ms_Instance.m_AccountingRoleList.PushRear(pAccountingRole);
- 	}
-
-	return;
- Exit0:
- 	return;
- }
- 
- void CCashAccounting::_Check(std::list<void*>& rResult, void* pUserData)
- {
- 	INT32 nRetCode = 0;
-	INT32 nBeginMoney0 = 0;
-	INT32 nEndMoney0 = 0;
-	INT32 nBeginMoney1 = 0;
-	INT32 nEndMoney1 = 0;
-
- #pragma pack(push, 1)
- 	struct LOAD_RESULT
- 	{
- 		INT32 nSourceID;
- 		INT32 nTargetID;
- 		INT8  byMoenyType;
- 		INT32 nMoneyCount;
- 	};
- #pragma pack(pop)
- 
-	RoleMoneyUserData* pRoleMoneyUserData = (RoleMoneyUserData*)pUserData;
-	LOG_PROCESS_ERROR(pRoleMoneyUserData);
-
-	nBeginMoney0 = pRoleMoneyUserData->nBeginMoney0;
-	nEndMoney0 = pRoleMoneyUserData->nEndMoney0;
-	nBeginMoney1 = pRoleMoneyUserData->nBeginMoney1;
-	nEndMoney1 = pRoleMoneyUserData->nEndMoney1;
-
- 	for (std::list<void*>::iterator it = rResult.begin();
- 		it != rResult.end(); ++it)
- 	{
- 		LOAD_RESULT* pLoadResult = (LOAD_RESULT*)*it;
- 		if (pLoadResult->nSourceID == pRoleMoneyUserData->dwRoleID  && pLoadResult->byMoenyType == 0)
- 		{
- 			nBeginMoney0 -= pLoadResult->nMoneyCount;
- 		}
- 		else if (pLoadResult->nTargetID == pRoleMoneyUserData->dwRoleID && pLoadResult->byMoenyType == 0)
- 		{
- 			nBeginMoney0 += pLoadResult->nMoneyCount;
- 		}
-		else if (pLoadResult->nSourceID == pRoleMoneyUserData->dwRoleID  && pLoadResult->byMoenyType == 1)
-		{
-			nBeginMoney1 -= pLoadResult->nMoneyCount;
-		}
-		else if (pLoadResult->nTargetID == pRoleMoneyUserData->dwRoleID && pLoadResult->byMoenyType == 1)
-		{
-			nBeginMoney1 += pLoadResult->nMoneyCount;
-		}
- 	}
- 
- 	if (nBeginMoney0 == nEndMoney0)
- 	{
- 		nRetCode = CCashAccounting::GetInstance()._WriteLog(pRoleMoneyUserData->dwRoleID, pRoleMoneyUserData->szRoleName, pRoleMoneyUserData->dwBeginLogTime, pRoleMoneyUserData->dwEndLogTime,
-			0, pRoleMoneyUserData->nBeginMoney0, pRoleMoneyUserData->nEndMoney0, TRUE);
- 		LOG_PROCESS_ERROR(nRetCode);
- 	}
- 	else
- 	{
-		nRetCode = CCashAccounting::GetInstance()._WriteLog(pRoleMoneyUserData->dwRoleID, pRoleMoneyUserData->szRoleName, pRoleMoneyUserData->dwBeginLogTime, pRoleMoneyUserData->dwEndLogTime, 
-			0, pRoleMoneyUserData->nBeginMoney0, pRoleMoneyUserData->nEndMoney0, FALSE);
- 		LOG_PROCESS_ERROR(nRetCode);
- 	}
-
-	if (nBeginMoney1 == nEndMoney1)
-	{
-		nRetCode = CCashAccounting::GetInstance()._WriteLog(pRoleMoneyUserData->dwRoleID, pRoleMoneyUserData->szRoleName, pRoleMoneyUserData->dwBeginLogTime, pRoleMoneyUserData->dwEndLogTime,
-			1, pRoleMoneyUserData->nBeginMoney1, pRoleMoneyUserData->nEndMoney1, TRUE);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-	else
-	{
-		nRetCode = CCashAccounting::GetInstance()._WriteLog(pRoleMoneyUserData->dwRoleID, pRoleMoneyUserData->szRoleName, pRoleMoneyUserData->dwBeginLogTime, pRoleMoneyUserData->dwEndLogTime, 
-			1, pRoleMoneyUserData->nBeginMoney1, pRoleMoneyUserData->nEndMoney1, FALSE);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-
- 	return;
- Exit0:
- 	return;
-}
- 
- BOOL CCashAccounting::_WriteLog(INT32 dwRoleID, char* pRoleName, UINT32 dwBeginTime, UINT32 dwEndTime, INT8 byMoneyType, INT32 nBeginMoney, INT32 nEndMoney, INT32 nResult)
+    std::int64_t time;
+    std::int64_t role;
+    std::int32_t money0;
+    std::int32_t money1;
+    char name[22]; // {s21} reserves 21 data bytes and one terminator.
+};
+struct TransactionRow
 {
- 	char szMessage[256];
- 	INT32 nMessageSize = 0;
-	char szBeginTime[128];
-	char szEndTime[128];
+    std::int64_t source;
+    std::int64_t target;
+    std::int8_t type;
+    std::int32_t amount;
+};
+#pragma pack(pop)
+static_assert(sizeof(SnapshotRow) == 46 && sizeof(TransactionRow) == 21);
+static_assert(std::is_trivially_copyable_v<SnapshotRow> && std::is_trivially_copyable_v<TransactionRow>);
+constexpr auto no_next = std::numeric_limits<std::size_t>::max();
 
- 	memset(szMessage, 0, sizeof(szMessage));
- 	memset(szBeginTime, 0, sizeof(szBeginTime));
- 	memset(szEndTime, 0, sizeof(szEndTime));
+std::uint32_t identifier(std::int64_t value)
+{
+    if (value < 0 || static_cast<std::uint64_t>(value) > std::numeric_limits<std::uint32_t>::max())
+        throw std::runtime_error("SQL role ID or timestamp is outside the 32-bit data range");
+    return static_cast<std::uint32_t>(value);
+}
 
-	time_t llBeginTime = (time_t)dwBeginTime;
-	struct tm* stBeginTime = localtime(&llBeginTime);
+std::int64_t add(std::int64_t left, std::int64_t right)
+{
+    if ((right > 0 && left > std::numeric_limits<std::int64_t>::max() - right) ||
+        (right < 0 && left < std::numeric_limits<std::int64_t>::min() - right))
+        throw std::overflow_error("Money accumulation exceeds 64-bit range");
+    return left + right;
+}
 
-	snprintf(szBeginTime, sizeof(szBeginTime), "%d-%d-%d %d:%d:%d", (stBeginTime->tm_year+1900), (stBeginTime->tm_mon+1), stBeginTime->tm_mday, 
-		stBeginTime->tm_hour, stBeginTime->tm_min, stBeginTime->tm_sec);
+std::string time_text(std::uint32_t stamp)
+{
+    const time_t value = stamp;
+    std::tm local{};
+    if (localtime_s(&local, &value) != 0)
+        throw std::runtime_error("Cannot format accounting timestamp");
+    return std::format("{}-{}-{} {}:{}:{}", local.tm_year + 1900, local.tm_mon + 1,
+        local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+}
+}
 
-	time_t llEndTime = (time_t)dwEndTime;
-	struct tm* stEndTime = localtime(&llEndTime);
- 
-	snprintf(szEndTime, sizeof(szEndTime), "%d-%d-%d %d:%d:%d", (stEndTime->tm_year+1900), (stEndTime->tm_mon+1), stEndTime->tm_mday, 
-		stEndTime->tm_hour, stEndTime->tm_min, stEndTime->tm_sec);
+CCashAccounting::~CCashAccounting() { UnInit(); }
+CCashAccounting& CCashAccounting::GetInstance()
+{
+    static CCashAccounting instance;
+    return instance;
+}
 
- 	if (nResult)
- 	{
-		snprintf(szMessage, sizeof(szMessage), "RoleID: %d\tRoleName:%10s\tBeginTime:%s\tEndTime:%s\tMoneyType:%d\t\tBeginMoney:%10d\tEndMoney:%10d\tMoneyChangeCount:%10d\tAccountint Result: Success!\n", 
-			dwRoleID, pRoleName, szBeginTime, szEndTime, byMoneyType, nBeginMoney, nEndMoney, (nEndMoney-nBeginMoney));
- 	}
- 	else
- 	{
-		snprintf(szMessage, sizeof(szMessage), "RoleID: %d\tRoleName:%10s\tBeginTime:%s\tEndTime:%s\tMoneyType:%d\t\tBeginMoney:%10d\tEndMoney:%10d\tMoneyChangeCount:%10d\tAccountint Result: Fail!\n", 
-			dwRoleID, pRoleName, szBeginTime, szEndTime, byMoneyType, nBeginMoney, nEndMoney, (nEndMoney-nBeginMoney));
-	}
- 
- 	nMessageSize = (INT32)strlen(szMessage);
- 
- 	fwrite(szMessage, nMessageSize, 1, m_pLogHandler);
- 
- 	fflush(m_pLogHandler);
- 
- 	return TRUE;
- }
+BOOL CCashAccounting::Init()
+{
+    CashDatabaseSettings settings;
+// Existing connection defaults; explicit settings may be passed to Init.
+    settings.server = "172.30.66.24";
+    settings.user = "Jiutian";
+    settings.password = "JiutianSky";
+    settings.database = "sh_zhangm03_d";
+    settings.log_database = "jtdb_logdata";
+    settings.charset = "utf8";
+    return Init(settings);
+}
+
+BOOL CCashAccounting::Init(const CashDatabaseSettings& settings, const std::filesystem::path& output)
+{
+    if (m_initialized)
+        return FALSE;
+    UnInit();
+    m_summary = {};
+    try
+    {
+        if (!m_sql.Init(settings.server.c_str(), settings.user.c_str(), settings.password.c_str(),
+            settings.database.c_str(), settings.charset.c_str(), settings.port, g_CASqlStmtList, caSqlTotal, 1))
+            return FALSE;
+        if (!m_sql.SyncExecSqlStmtOwned(caSqlSelectLogoutRole,
+            [this](std::list<void*>& rows, void*) -> BOOL { return Load(rows); }, ""))
+        {
+            UnInit();
+            return FALSE;
+        }
+        m_next.assign(m_snapshots.size(), no_next);
+        std::unordered_map<std::uint32_t, std::size_t> following;
+        for (std::size_t i = m_snapshots.size(); i-- > 0;)
+        {
+            const auto [entry, inserted] = following.try_emplace(m_snapshots[i].role, i);
+            if (!inserted)
+            {
+                m_next[i] = entry->second;
+                entry->second = i;
+            }
+        }
+        m_log.clear();
+        m_log.open(output, std::ios::app);
+        if (!m_log)
+        {
+            UnInit();
+            return FALSE;
+        }
+        m_initialized = true;
+        return TRUE;
+    }
+    catch (const std::exception& error)
+    {
+        UnInit();
+        ERR("Cash accounting initialization failed: %s", error.what());
+        return FALSE;
+    }
+}
+
+BOOL CCashAccounting::UnInit()
+{
+    const bool sql_closed = m_sql.UnInit();
+    bool file_closed = true;
+    if (m_log.is_open())
+    {
+        m_log.close();
+        file_closed = !m_log.fail();
+    }
+    m_log.clear();
+    m_snapshots.clear();
+    m_next.clear();
+    m_cursor = 0;
+    m_initialized = false;
+    return sql_closed && file_closed;
+}
+
+BOOL CCashAccounting::Load(std::list<void*>& rows)
+{
+    for (const auto* bytes : rows)
+    {
+        if (!bytes)
+            return FALSE;
+        SnapshotRow row;
+        std::memcpy(&row, bytes, sizeof(row));
+        Snapshot snapshot;
+        snapshot.role = identifier(row.role);
+        snapshot.time = identifier(row.time);
+        snapshot.money = {row.money0, row.money1};
+        // The legacy destination stored at most 20 bytes plus the terminator.
+        const auto end = std::find(std::begin(row.name), std::end(row.name), '\0');
+        snapshot.name.assign(row.name, std::min<std::size_t>(end - row.name, 20));
+        m_snapshots.push_back(std::move(snapshot));
+    }
+    return TRUE;
+}
+
+BOOL CCashAccounting::MainLoop()
+{
+    if (!m_initialized)
+        return FALSE;
+    try
+    {
+        while (m_cursor < m_snapshots.size())
+        {
+            const auto following = m_next[m_cursor];
+            if (following != no_next)
+            {
+                const auto& begin = m_snapshots[m_cursor];
+                const auto& end = m_snapshots[following];
+                auto callback = [this, begin, end](std::list<void*>& rows, void*) -> BOOL
+                { return Check(rows, begin, end); };
+                // Widen to signed SQL BIGINT so the shared native binding preserves
+                // the entire unsigned 32-bit role/time range without sign conversion.
+                if (!m_sql.SyncExecSqlStmtOwned(caSqlSelectRoleMoney, std::move(callback), "llll",
+                    static_cast<INT64>(begin.role), static_cast<INT64>(begin.role),
+                    static_cast<INT64>(begin.time), static_cast<INT64>(end.time)))
+                    return FALSE;
+            }
+            ++m_cursor;
+        }
+        m_snapshots.clear();
+        m_next.clear();
+        m_cursor = 0;
+        return TRUE;
+    }
+    catch (const std::exception& error)
+    {
+        ERR("Cash accounting failed: %s", error.what());
+        return FALSE;
+    }
+}
+
+BOOL CCashAccounting::Check(std::list<void*>& rows, const Snapshot& begin, const Snapshot& end)
+{
+    std::array<std::int64_t, 2> predicted{begin.money[0], begin.money[1]};
+    for (const auto* bytes : rows)
+    {
+        if (!bytes)
+            return FALSE;
+        TransactionRow row;
+        std::memcpy(&row, bytes, sizeof(row));
+        const auto source = identifier(row.source);
+        const auto target = identifier(row.target);
+        if (row.type < 0 || row.type > 1)
+            continue;
+        if (source == begin.role)
+            predicted[row.type] = add(predicted[row.type], -static_cast<std::int64_t>(row.amount));
+        else if (target == begin.role)
+            predicted[row.type] = add(predicted[row.type], row.amount);
+    }
+    std::string name;
+    if (begin.name.size() < 10)
+        name.append(10 - begin.name.size(), ' ');
+    name += begin.name;
+    const auto first_time = time_text(begin.time);
+    const auto last_time = time_text(end.time);
+    std::string report;
+    std::size_t successes = 0;
+    for (int type = 0; type < 2; ++type)
+    {
+        const bool success = predicted[type] == end.money[type];
+        successes += success;
+        // Keep the original byte padding and text labels, including its report spelling.
+        report += std::format("RoleID: {}\tRoleName:{}\tBeginTime:{}\tEndTime:{}\tMoneyType:{}\t\tBeginMoney:{:10}\tEndMoney:{:10}\tMoneyChangeCount:{:10}\tAccountint Result: {}!\n",
+            begin.role, name, first_time, last_time, type, begin.money[type], end.money[type],
+            static_cast<std::int64_t>(end.money[type]) - begin.money[type], success ? "Success" : "Fail");
+    }
+    m_log.write(report.data(), static_cast<std::streamsize>(report.size()));
+    m_log.flush();
+    if (!m_log)
+        return FALSE;
+    ++m_summary.intervals;
+    m_summary.successes += successes;
+    m_summary.failures += 2 - successes;
+    return TRUE;
+}

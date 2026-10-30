@@ -2,6 +2,7 @@
 #define _FREE_OBJECT_POOL_H_
 
 #include <stddef.h>
+#include <memory>
 #include "free_stack.h"
 
 #define HEAD_FENCE (0xABCDEF0123456789)
@@ -13,6 +14,8 @@ class CFreeObjectPool
 public:
     CFreeObjectPool();
     ~CFreeObjectPool();
+    CFreeObjectPool(const CFreeObjectPool&) = delete;
+    CFreeObjectPool& operator=(const CFreeObjectPool&) = delete;
 
     BOOL Init(INT32 nInitSize);
     BOOL UnInit(void);
@@ -41,7 +44,7 @@ private:
         UINT64      qwRearFence;
 #endif  // _DEBUG_FENCE
     };
-    DATA_NODE*      m_pDataPool;
+    std::unique_ptr<DATA_NODE[]> m_pDataPool;
     CFreeStack      m_FreeStack;
 };
 
@@ -50,7 +53,7 @@ template<class T>
 CFreeObjectPool<T>::CFreeObjectPool()
 {
     m_nSize = 0;
-    m_pDataPool = NULL;
+    m_pDataPool.reset();
 }
 
 template<class T>
@@ -62,31 +65,32 @@ CFreeObjectPool<T>::~CFreeObjectPool()
 template<class T>
 BOOL CFreeObjectPool<T>::Init(INT32 nInitSize)
 {
-    INT32 nRetCode = 0;
-
-    m_pDataPool = new DATA_NODE[nInitSize];
-    LOG_PROCESS_ERROR(m_pDataPool);
-
-    nRetCode = m_FreeStack.Init();
-    LOG_PROCESS_ERROR(nRetCode);
-
-    for (INT32 nIndex = 0; nIndex < nInitSize; nIndex++)
+    if (nInitSize < 0 || m_pDataPool)
+        return FALSE;
+    try
     {
+        auto records = std::make_unique_for_overwrite<DATA_NODE[]>(nInitSize);
+        if (!m_FreeStack.Init())
+            return FALSE;
+        m_pDataPool = std::move(records);
+        m_nSize = nInitSize;
+        for (INT32 index = 0; index < nInitSize; ++index)
+        {
 #ifdef _DEBUG_FENCE
-        m_pDataPool[nIndex].qwHeadFence = HEAD_FENCE;
-        m_pDataPool[nIndex].qwRearFence = REAR_FENCE;
-#endif  // _DEBUG_FENCE
-        m_pDataPool[nIndex].StackNode.pData = &(m_pDataPool[nIndex].Data);
-        m_FreeStack.Push(&(m_pDataPool[nIndex].StackNode));
+            m_pDataPool[index].qwHeadFence = HEAD_FENCE;
+            m_pDataPool[index].qwRearFence = REAR_FENCE;
+#endif
+            m_pDataPool[index].StackNode.pData = &m_pDataPool[index].Data;
+            m_FreeStack.Push(&m_pDataPool[index].StackNode);
+        }
+        return TRUE;
     }
-
-    m_nSize = nInitSize;
-
-    return TRUE;
-Exit0:
-    UnInit();
-
-    return FALSE;
+    catch (...)
+    {
+        ERR("Fixed object pool allocation or construction failed");
+        UnInit();
+        return FALSE;
+    }
 }
 
 template<class T>
@@ -101,8 +105,7 @@ BOOL CFreeObjectPool<T>::UnInit(void)
     LOG_CHECK_ERROR(m_nSize == nFreeSize);
 
     m_FreeStack.UnInit();
-    SAFE_DELETE_ARRAY(m_pDataPool);
-    m_pDataPool = NULL;
+    m_pDataPool.reset();
     m_nSize = 0;
 
     return TRUE;
@@ -158,7 +161,7 @@ INT32 CFreeObjectPool<T>::GetSize(void)
 template<class T>
 void* CFreeObjectPool<T>::GetDataPool(void)
 {
-	return m_pDataPool;
+	return m_pDataPool.get();
 }
 
 template<class T>

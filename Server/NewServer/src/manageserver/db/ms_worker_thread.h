@@ -3,9 +3,9 @@
 
 #include "thread.h"
 #include "circle_list.h"
+#include "mysql_owner.h"
 #include "db/db_operation.h"
 
-struct MYSQL;
 struct DBSetting;
 class CMsGuild;
 class CMsGuildMember;
@@ -29,7 +29,7 @@ private:
     INT32 _CheckSqlResult(BOOL bRet, MYSQL_STMT* stmt);
 
     BOOL m_bServerOK;
-    MYSQL* m_mysql;
+    cqyh::MysqlPtr m_mysql;
     const DBSetting* m_setting;
 
     CCircleList m_requests;

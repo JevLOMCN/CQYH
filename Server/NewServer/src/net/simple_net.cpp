@@ -3,7 +3,6 @@
 #include "internal_message_header.h"
 #include "packet_allocator.h"
 
-#define MESSAGE_LIST_COUNT				(1024)
 #define MAX_OPERATION_PER_LOOP          (1024)
 #define MAX_MAIN_THREAD_PROCESS_TIME    (500)
 
@@ -778,7 +777,8 @@ namespace SimpleNet
 	BOOL CNet::Init(IPacketAllocator* pPacketAllocator, INetEventHandler* pNetEvent, void* pInitParam)
 	{
 		INT32 nRetCode = 0;
-		m_bThreadRuning = FALSE;
+        if (m_bThreadRuning.load() || m_MsgListToMain.IsInitialized() || m_MsgListToWork.IsInitialized())
+            return FALSE;
 		m_pNetHandler = NULL;
 
 		LOG_PROCESS_ERROR(pPacketAllocator != NULL);
@@ -799,15 +799,16 @@ namespace SimpleNet
 		m_oSessionPool.Init(m_oInitParam.nMaxSessionCount);
 		m_oAcceptorPool.Init(m_oInitParam.nMaxAcceptor);
 
-		m_MsgListToMain.Init(MESSAGE_LIST_COUNT);
-		m_MsgListToWork.Init(MESSAGE_LIST_COUNT);
+        LOG_PROCESS_ERROR(m_MsgListToMain.Init());
+        LOG_PROCESS_ERROR(m_MsgListToWork.Init());
 
 		m_pNetHandler = pNetEvent;
 		m_pPacketAllocator = pPacketAllocator;
 		m_ThrdProc = CNet::_NetProc;
 
-		m_bThreadRuning = oNetThread.Start(m_ThrdProc, this);
-		LOG_PROCESS_ERROR(m_bThreadRuning);
+		m_bThreadRuning = TRUE; // Set before launch: the worker reads this flag immediately.
+		nRetCode = oNetThread.Start(m_ThrdProc, this);
+		LOG_PROCESS_ERROR(nRetCode);
 
 		WFD_ZERO(&m_ConnetedSet);
 		return TRUE;
@@ -821,10 +822,12 @@ namespace SimpleNet
 	{
 		INT32 nRetCode = 0;
 
-		if (m_bThreadRuning)
+		const bool wasRunning = m_bThreadRuning.exchange(false);
+        m_MsgListToWork.Close();
+		oNetThread.Wait();
+        m_MsgListToMain.Close();
+		if (wasRunning)
 		{
-			m_bThreadRuning = FALSE;
-			oNetThread.Wait();
 
 			nRetCode = MainLoop();
 			LOG_CHECK_ERROR(nRetCode);
@@ -900,38 +903,33 @@ namespace SimpleNet
 
 	BOOL CNet::PushMsgToMain(SSessionMsg* poMsg)
 	{
-		return m_MsgListToMain.Push((VOID*)poMsg);
+        const bool accepted = m_MsgListToMain.Push(std::unique_ptr<SSessionMsg>(poMsg));
+        LOG_CHECK_ERROR(accepted || !m_bThreadRuning.load());
+        return accepted;
 	}
 
 	BOOL CNet::PushMsgToWork(SSessionMsg* poMsg)
 	{
-		return m_MsgListToWork.Push((VOID*)poMsg);
+        const bool accepted = m_MsgListToWork.Push(std::unique_ptr<SSessionMsg>(poMsg));
+        LOG_CHECK_ERROR(accepted || !m_bThreadRuning.load());
+        return accepted;
 	}
 
 	SSessionMsg* CNet::PopWorkMsg()
 	{
-		SSessionMsg* poMsg = NULL;
-		PROCESS_ERROR(m_MsgListToWork.Check());
-
-		poMsg = (SSessionMsg*)m_MsgListToWork.Pop();
-
-		return poMsg;
-	Exit0:
-		return NULL;
+        return m_MsgListToWork.Pop().release();
 	}
 
 	BOOL CNet::IsUnProcessMsg()
 	{
-		if (m_MsgListToWork.Check())
-			return TRUE;
-
-		return FALSE;
+        return !m_MsgListToWork.IsEmpty();
 	}
 
 	BOOL CNet::UpdateWorkingSocket(wfd_set& stListenSet, wfd_set& stConnectingSet, wfd_set& stConnectedSet, wfd_set& stClosingSet)
 	{
 		SOCKET nSocketFD = INVALID_SOCKET;
-		SSessionMsg* poMsg = PopWorkMsg();
+        std::unique_ptr<SSessionMsg> message(PopWorkMsg());
+        auto* poMsg = message.get();
 		INT32 nRetCode = 0;
 
 		while (poMsg)
@@ -1030,8 +1028,8 @@ namespace SimpleNet
 				}
 			}
 
-			SAFE_DELETE(poMsg);
-			poMsg = PopWorkMsg();
+            message.reset(PopWorkMsg());
+            poMsg = message.get();
 		}
 
 		return TRUE;
@@ -1720,21 +1718,24 @@ namespace SimpleNet
 	BOOL CNet::MainLoop(void)
 	{
 		INT32 nRetCode = 0;
+        std::unique_ptr<SSessionMsg> message;
 		SSessionMsg* poMsg = NULL;
 		CSocketSession* poSession = NULL;
 		UINT64 qwStartTick = GetTickCountEx();
 
 		LOG_PROCESS_ERROR(m_pNetHandler);
 
-		poMsg = (SSessionMsg*)m_MsgListToMain.Pop();
+        message = m_MsgListToMain.Pop();
+        poMsg = message.get();
 		while (poMsg)
 		{
 			//INF("m_MsgListToMain.Pop() msg from poMsg->nSocketFD %d, poMsg->eOperate %d", poMsg->nSocketFD, poMsg->eOperate);
 			poSession = g_SessionList[poMsg->nSocketFD];
 			if (!poSession || poSession->GetSocketID() != poMsg->nSocketFD)
 			{
-				SAFE_DELETE(poMsg);
-				poMsg = (SSessionMsg*)m_MsgListToMain.Pop();
+                message.reset();
+                message = m_MsgListToMain.Pop();
+                poMsg = message.get();
 				continue;
 			}
 
@@ -1749,7 +1750,8 @@ namespace SimpleNet
 				poMsg->eOperate = esoConnected;
 
 				WFD_SET(poMsg->nSocketFD, &m_ConnetedSet);
-				m_MsgListToWork.Push(poMsg);
+                PushMsgToWork(message.release());
+                poMsg = nullptr;
 
 			}
 				break;
@@ -1759,7 +1761,8 @@ namespace SimpleNet
 				poMsg->eOperate = esoConnected;
 
 				WFD_SET(poMsg->nSocketFD, &m_ConnetedSet);
-				m_MsgListToWork.Push(poMsg);
+                PushMsgToWork(message.release());
+                poMsg = nullptr;
 			}
 				break;
 			case esoOnDisConnect:
@@ -1784,7 +1787,8 @@ namespace SimpleNet
 
 				DestroySession(poSession);
 				//INF("CNet::MainLoop() get main msg: esoOnDisConnect, SAFE_DELETE a msg from fd=%d, eOperate=%d", poMsg->nSocketFD, poMsg->eOperate );
-				SAFE_DELETE(poMsg);
+                message.reset();
+                poMsg = nullptr;
 			}
 				break;
 			default:
@@ -1798,7 +1802,8 @@ namespace SimpleNet
 				break;
 			}
 
-			poMsg = (SSessionMsg*)m_MsgListToMain.Pop();
+            message = m_MsgListToMain.Pop();
+            poMsg = message.get();
 		}
 
 		for (UINT32 i = 0; i < m_ConnetedSet.fd_count; ++i)
@@ -1851,8 +1856,9 @@ namespace SimpleNet
 		INF("simple net acceptor pool allocated %d acceptors %.2fMB", m_oInitParam.nMaxAcceptor,
 			llAcceptorSize / (1024 * 1024.0f));
 
-		INT64 llMsgSize = MESSAGE_LIST_COUNT * 2 * sizeof(void*);
-		INF("simple net message list allocated %d messages %.2fMB", MESSAGE_LIST_COUNT * 2,
+        const auto pending = m_MsgListToMain.Size() + m_MsgListToWork.Size();
+        const INT64 llMsgSize = pending * (sizeof(SSessionMsg) + sizeof(std::unique_ptr<SSessionMsg>));
+		INF("simple net pending control events %zu, estimated payload %.2fMB", pending,
 			llMsgSize / (1024 * 1024.0f));
 
 		return llSessionSize + llAcceptorSize + llMsgSize;

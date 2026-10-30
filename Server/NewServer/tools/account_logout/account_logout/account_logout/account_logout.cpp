@@ -1,253 +1,119 @@
-#include <stdio.h>
-#include <windows.h>
-#include "stdafx.h"
 #include "account_logout.h"
-#include "log.h"
 
-CAccountLogout CAccountLogout::ms_Instance;
+#include <charconv>
+#include <cstdint>
+#include <format>
+#include <fstream>
+#include <string_view>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
-CAccountLogout::CAccountLogout()
+namespace account_logout
 {
-
+namespace
+{
+std::string display(const std::filesystem::path& path)
+{
+    const auto bytes = path.u8string();
+    return {reinterpret_cast<const char*>(bytes.data()), bytes.size()};
 }
 
-CAccountLogout::~CAccountLogout()
+std::string_view token(std::string_view line)
 {
-	m_Session2UserNamePool.UnInit();
-	m_ActualLogoutSessionPool.UnInit();
-
-	m_ActualLogoutSessionList.Clear();
-	m_Session2UserNameList.Clear();
+    constexpr std::string_view whitespace = " \t\r\n\v\f";
+    const auto begin = line.find_first_not_of(whitespace);
+    if (begin == line.npos) return {};
+    line.remove_prefix(begin);
+    return line.substr(0, line.find_first_of(whitespace));
 }
 
-CAccountLogout& CAccountLogout::GetInstance(void)
+std::expected<std::vector<std::string>, std::string> read(const std::filesystem::path& path)
 {
-	return ms_Instance;
+    std::ifstream stream{path, std::ios::binary};
+    if (!stream) return std::unexpected(std::format("cannot open {}", display(path)));
+    std::vector<std::string> lines;
+    for (std::string line; std::getline(stream, line);)
+    {
+        if (lines.empty() && line.starts_with("\xEF\xBB\xBF")) line.erase(0, 3);
+        if (line.find('\0') != line.npos)
+            return std::unexpected(std::format("{}:{}: embedded zero byte", display(path), lines.size() + 1));
+        lines.push_back(std::move(line));
+    }
+    if (stream.bad()) return std::unexpected(std::format("cannot read {}", display(path)));
+    return lines;
 }
 
-INT32 CAccountLogout::Init()
+std::expected<std::vector<std::uint32_t>, std::string> sessions(const std::filesystem::path& path)
 {
-	INT32 nRetCode = 0;
-
-	m_pFile = NULL;
-
-	nRetCode = m_Session2UserNamePool.Init(65535);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	nRetCode = m_ActualLogoutSessionPool.Init(65535);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	m_Session2UserNameList.Clear();
-	m_ActualLogoutSessionList.Clear();
-
-	//nRetCode = CLog::GetInstance().Init("account_result", lltAll, (lotConsole + lotFile + lotTrace), FALSE, FALSE, TRUE);
-	//LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    const auto lines = read(path);
+    if (!lines) return std::unexpected(lines.error());
+    std::vector<std::uint32_t> values;
+    values.reserve(lines->size());
+    for (const auto& line : *lines)
+    {
+        auto value = token(line);
+        if (value.starts_with('+')) value.remove_prefix(1);
+        if (value.starts_with("0x") || value.starts_with("0X")) value.remove_prefix(2);
+        if (value.empty())
+            return std::unexpected(std::format("{}:{}: invalid 32-bit hexadecimal session ID", display(path), values.size() + 1));
+        std::uint32_t id = 0;
+        const auto result = std::from_chars(value.data(), value.data() + value.size(), id, 16);
+        if (result.ec != std::errc{} || result.ptr != value.data() + value.size())
+            return std::unexpected(std::format("{}:{}: invalid 32-bit hexadecimal session ID", display(path), values.size() + 1));
+        values.push_back(id);
+    }
+    return values;
 }
 
-INT32 CAccountLogout::Uninit()
+std::expected<std::vector<std::string>, std::string> users(const std::filesystem::path& path)
 {
-	INT32 nRetCode = 0;
-
-	nRetCode = m_Session2UserNamePool.UnInit();
-	LOG_CHECK_ERROR(nRetCode);
-
-	m_Session2UserNameList.Clear();
-
-	return TRUE;
+    auto lines = read(path);
+    if (!lines) return std::unexpected(lines.error());
+    std::vector<std::string> values;
+    values.reserve(lines->size());
+    for (const auto& line : *lines)
+    {
+        const auto name = token(line);
+        if (name.empty() || name.size() > 63)
+            return std::unexpected(std::format("{}:{}: username must contain 1 to 63 bytes", display(path), values.size() + 1));
+        values.emplace_back(name);
+    }
+    return values;
+}
 }
 
-BOOL CAccountLogout::MainLoop(void)
+std::expected<Report, std::string> analyze(const std::filesystem::path& root)
 {
-	char szReadLine[MAX_READLINE_LEN];
-	FILE* pFile = NULL;
-	BASE_LIST_NODE* pNode = NULL;
+    const auto ids = sessions(root / "db_file" / "session.txt");
+    if (!ids) return std::unexpected(ids.error());
+    const auto names = users(root / "db_file" / "user.txt");
+    if (!names) return std::unexpected(names.error());
+    if (ids->size() != names->size())
+        return std::unexpected(std::format("session.txt/user.txt row count mismatch: {} versus {}", ids->size(), names->size()));
+    const auto logoutIds = sessions(root / "db_file" / "logout.txt");
+    if (!logoutIds) return std::unexpected(logoutIds.error());
+    const auto loginNames = users(root / "dl_file" / "AccountLogin.txt");
+    if (!loginNames) return std::unexpected(loginNames.error());
 
-	INT32 nUserSize = 0;
-	INT32 nSessionSize = 0;
-
-	memset(szReadLine, 0, sizeof(szReadLine));
-
-	sprintf(szReadLine, "%s", "..//account_logout//db_file//session.txt");
-
-	// session file
-
-	pFile = fopen(szReadLine, "r+");
-	LOG_PROCESS_ERROR(pFile);
-
-	while (fgets(szReadLine, MAX_READLINE_LEN, pFile))
-	{
-		SESSION_2_USERNAME_NODE* pNewRole = m_Session2UserNamePool.New();
-		LOG_PROCESS_ERROR(pNewRole);
-
-		pNewRole->dwSessionID = HextoDec(szReadLine);
-		memset(szReadLine, 0, sizeof(szReadLine));
-		memset(pNewRole->szName, 0, sizeof(pNewRole->szName));
-
-		pNewRole->pNext = NULL;
-		pNewRole->pPrev = NULL;
-
-		m_Session2UserNameList.PushRear(pNewRole);
-
-		nSessionSize++;
-	}
-
-	fclose(pFile);
-	pFile = NULL;
-
-	// user file
-
-	sprintf(szReadLine, "%s", "..//account_logout//db_file//user.txt");
-
-	// session file
-
-	pFile = fopen(szReadLine, "r+");
-	LOG_PROCESS_ERROR(pFile);
-
-	LOG_PROCESS_ERROR(!m_Session2UserNameList.IsEmpty());
-	pNode = m_Session2UserNameList.Head().pNext;
-	memset(szReadLine, 0, sizeof(szReadLine));
-
-	while (fgets(szReadLine, MAX_READLINE_LEN, pFile))
-	{
-		LOG_PROCESS_ERROR(pNode != &(m_Session2UserNameList.Rear()));
-
-		DeleteSpace(szReadLine);
-		strxcpy(((SESSION_2_USERNAME_NODE*)pNode)->szName, szReadLine, USER_NAME_LEN);
-		memset(szReadLine, 0, sizeof(szReadLine));
-
-		nUserSize++;
-
-		pNode = pNode->pNext;
-	}
-
-	pNode = NULL;
-
-	fclose(pFile);
-	pFile = NULL;
-
-	LOG_PROCESS_ERROR(nUserSize == nSessionSize);
-
-	// already connected from sessionid 2 username
-
-	memset(szReadLine, 0, sizeof(szReadLine));
-	sprintf(szReadLine, "%s", "..//account_logout//db_file//logout.txt");
-
-	// session file
-
-	pFile = fopen(szReadLine, "r+");
-	LOG_PROCESS_ERROR(pFile);
-
-	memset(szReadLine, 0, sizeof(szReadLine));
-
-	while (fgets(szReadLine, MAX_READLINE_LEN, pFile))
-	{
-		SESSION_2_USERNAME_NODE* pNewRole = m_ActualLogoutSessionPool.New();
-		LOG_PROCESS_ERROR(pNewRole);
-
-		DeleteSpace(szReadLine);
-
-		pNewRole->dwSessionID = HextoDec(szReadLine);
-		memset(szReadLine, 0, sizeof(szReadLine));
-
-		pNewRole->pNext = NULL;
-		pNewRole->pPrev = NULL;
-
-		m_ActualLogoutSessionList.PushRear(pNewRole);
-	}
-
-	fclose(pFile);
-	pFile = NULL;
-
-	// load and check dl file
-
-	memset(szReadLine, 0, sizeof(szReadLine));
-	sprintf(szReadLine, "%s", "..//account_logout//dl_file//AccountLogin.txt");
-
-	// session file
-
-	pFile = fopen(szReadLine, "r+");
-	LOG_PROCESS_ERROR(pFile);
-
-	LOG_PROCESS_ERROR(!m_ActualLogoutSessionList.IsEmpty());
-	pNode = m_ActualLogoutSessionList.Head().pNext;
-
-	memset(szReadLine, 0, sizeof(szReadLine));
-
-	while (fgets(szReadLine, MAX_READLINE_LEN, pFile))
-	{
-		UINT32 dwSessionID = 0;
-		BOOL bFound = FALSE;
-		DeleteSpace(szReadLine);
-
-		for (BASE_LIST_NODE* pFindNode = m_Session2UserNameList.Head().pNext; pFindNode != &(m_Session2UserNameList.Rear()); pFindNode = pFindNode->pNext)
-		{
-			if (strcmp(szReadLine, ((SESSION_2_USERNAME_NODE*)pFindNode)->szName) == 0)
-			{
-				dwSessionID = ((SESSION_2_USERNAME_NODE*)pFindNode)->dwSessionID;
-				break;
-			}
-		}
-
-		if (dwSessionID == 0)
-		{
-			printf("Can not find UserName : %s in db login file?\n", szReadLine);
-		}
-
-		for (BASE_LIST_NODE* pActualNode = m_ActualLogoutSessionList.Head().pNext; pActualNode != &(m_ActualLogoutSessionList.Rear()); pActualNode = pActualNode->pNext)
-		{
-			if (dwSessionID == (((SESSION_2_USERNAME_NODE*)pActualNode)->dwSessionID))
-			{
-				printf("Session : %lx, UserName : %s Found!\n", dwSessionID, szReadLine);
-				bFound = TRUE;
-				break;
-			}
-		}
-
-		if (!bFound)
-		{
-			printf("SessionID : %lx in , UserName : %s in dl file, not found in db file?\n", dwSessionID, szReadLine);
-		}
-		
-		bFound = FALSE;
-		memset(szReadLine, 0, sizeof(szReadLine));
-	}
-
-	fclose(pFile);
-
-	return TRUE;
-Exit0:
-
-	if (pFile)
-	{
-		fclose(pFile);
-	}
-	return FALSE;
+    std::unordered_map<std::string, std::uint32_t> byName;
+    byName.reserve(names->size());
+    for (std::size_t index = 0; index < names->size(); ++index)
+        byName.try_emplace((*names)[index], (*ids)[index]); // Preserve first duplicate-name match.
+    const std::unordered_set<std::uint32_t> loggedOut(logoutIds->begin(), logoutIds->end());
+    Report report{ids->size(), names->size(), logoutIds->size(), loginNames->size(), {}};
+    for (const auto& name : *loginNames)
+    {
+        const auto found = byName.find(name);
+        const auto id = found == byName.end() ? 0 : found->second;
+        if (id == 0)
+            report.text += std::format("Can not find UserName : {} in db login file?\n", name);
+        if (loggedOut.contains(id))
+            report.text += std::format("Session : {:x}, UserName : {} Found!\n", id, name);
+        else
+            report.text += std::format("SessionID : {:x} in , UserName : {} in dl file, not found in db file?\n", id, name);
+    }
+    return report;
 }
-
-UINT32 CAccountLogout::HextoDec(char* pstring)
-{
-	return strtol(pstring, (char**)NULL, 16);
-}
-
-void CAccountLogout::DeleteSpace(char* pstring)
-{
-	char* pChar = pstring;
-	LOG_PROCESS_ERROR(pstring);
-
-	for (INT32 nSize = 0; nSize < MAX_DB_FILE_NAME_LEN; nSize++, pChar++)
-	{
-		if (*pChar == ' ' || *pChar == '\n' || *pChar == '\t')
-		{
-			*pChar = '\0';
-			break;
-		}
-	}
-
-	return;
-Exit0:
-	return;
 }

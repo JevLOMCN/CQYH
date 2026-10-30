@@ -110,10 +110,11 @@ Exit1:
 
 INT32 CSpirit::GetPow()
 {
+	const SPIRIT_DATA* pSpiritData = nullptr;
 	LOG_PROCESS_ERROR(m_pOwner);
 	PROCESS_SUCCESS(m_pOwner->GetLevel() < SPIRIT_OPEN_LEVEL);
 
-	const SPIRIT_DATA* pSpiritData = CDataManager<SPIRIT_DATA>::GetInstance().GetData(m_pOwner->GetSpirit().GetLevel());
+	pSpiritData = CDataManager<SPIRIT_DATA>::GetInstance().GetData(m_pOwner->GetSpirit().GetLevel());
 	LOG_PROCESS_ERROR(pSpiritData);
 
 	

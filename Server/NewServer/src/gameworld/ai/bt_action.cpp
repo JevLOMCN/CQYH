@@ -1029,6 +1029,7 @@ Exit0:
 
 INT32 bfCheckThreatFadeTime(BTCustomCtx* pCtx, INT32 nParam[])
 {
+    THREAT_NODE* pNode = nullptr;
     INT32       nRetCode = 0;
     CCharacter  *poOwner = NULL;
     CCharacter  *poTarget = NULL;
@@ -1046,7 +1047,7 @@ INT32 bfCheckThreatFadeTime(BTCustomCtx* pCtx, INT32 nParam[])
     poTarget = _GetTargetChar(pCtx, nTargetType);
     LOG_PROCESS_ERROR(poTarget);
 
-    THREAT_NODE* pNode = (THREAT_NODE*)(poOwner->GetThreatList().GetThreatList().Head().pNext);
+    pNode = (THREAT_NODE*)(poOwner->GetThreatList().GetThreatList().Head().pNext);
     while (pNode != &(poOwner->GetThreatList().GetThreatList().Rear()))
     {
         if (pNode->dwCharID == poTarget->GetObjID() && (pNode->nLastUpdateLoop + nFadeTime) > CGameWorld::GetInstance().GetGameFrame())
@@ -1063,6 +1064,7 @@ Exit0:
 
 INT32 bftCheckThreatenFadeTime(BTCustomCtx* pCtx, INT32 nParam[])
 {
+    THREAT_NODE* pNode = nullptr;
     INT32       nRetCode = 0;
     CCharacter  *poOwner = NULL;
     CCharacter  *poTarget = NULL;
@@ -1080,7 +1082,7 @@ INT32 bftCheckThreatenFadeTime(BTCustomCtx* pCtx, INT32 nParam[])
     poTarget = _GetTargetChar(pCtx, nTargetType);
     LOG_PROCESS_ERROR(poTarget);
 
-    THREAT_NODE* pNode = (THREAT_NODE*)(poOwner->GetThreatList().GetThreatenList().Head().pNext);
+    pNode = (THREAT_NODE*)(poOwner->GetThreatList().GetThreatenList().Head().pNext);
     while (pNode != &(poOwner->GetThreatList().GetThreatenList().Rear()))
     {
         if (pNode->dwCharID == poTarget->GetObjID() && (pNode->nLastUpdateLoop + nFadeTime) > CGameWorld::GetInstance().GetGameFrame())
@@ -4063,15 +4065,17 @@ struct CTraverseRoleInSceneToDistributeExp
 	INT32	m_nTableIndex;
 	bool operator()(CRole* poRole)
 	{
+		INT32 nLevel = 0;
+		INT32 nExp = 0;
 		if (m_nAuraID != 0)
 			PROCESS_ERROR(poRole->GetFirstAura(m_nAuraID));
 
-		INT32 nLevel = poRole->GetLevel();
+		nLevel = poRole->GetLevel();
 		if (nLevel < 1)
 			nLevel = 1;
 		else if (nLevel >= sizeof(g_GWConfig.DistributeExp[m_nTableIndex].nLevelTable) / sizeof(g_GWConfig.DistributeExp[m_nTableIndex].nLevelTable[0]))
 			nLevel = sizeof(g_GWConfig.DistributeExp[m_nTableIndex].nLevelTable) / sizeof(g_GWConfig.DistributeExp[m_nTableIndex].nLevelTable[0]) - 1;
-		INT32 nExp = m_nExp * g_GWConfig.DistributeExp[m_nTableIndex].nLevelTable[nLevel] / RATE_MAX;
+		nExp = m_nExp * g_GWConfig.DistributeExp[m_nTableIndex].nLevelTable[nLevel] / RATE_MAX;
 		if (nExp > nLevel * 20)
 			nExp = nLevel * 20;
 
@@ -5517,6 +5521,9 @@ Exit0:
 
 INT32 bfRoleCheckDailyVariable(BTCustomCtx* pCtx, INT32 nParam[])
 {
+	UINT32 dwVarValue = 0;
+	UINT32 dwOldDay = 0;
+	UINT32 dwToday = 0;
 	INT32 nRetCode = 0;
 	CRole* poRole = NULL;
 
@@ -5525,9 +5532,9 @@ INT32 bfRoleCheckDailyVariable(BTCustomCtx* pCtx, INT32 nParam[])
 	poRole = CGameWorld::GetInstance().FindRole(pCtx->dwRoleID);
 	LOG_PROCESS_ERROR(poRole);
 
-	UINT32 dwVarValue = poRole->GetVariable(nParam[0]);
-	UINT32 dwOldDay = (dwVarValue + CGameWorld::GetInstance().GetTimeZone()) / 86400;
-	UINT32 dwToday = (CGameWorld::GetInstance().GetGameTime() + CGameWorld::GetInstance().GetTimeZone()) / 86400;
+	dwVarValue = poRole->GetVariable(nParam[0]);
+	dwOldDay = (dwVarValue + CGameWorld::GetInstance().GetTimeZone()) / 86400;
+	dwToday = (CGameWorld::GetInstance().GetGameTime() + CGameWorld::GetInstance().GetTimeZone()) / 86400;
 	if (dwOldDay < dwToday - nParam[1])
 		return brvSuccess;
 	else
@@ -5757,6 +5764,7 @@ Exit0:
 
 INT32 bfRoleAddDailyExtraExp(BTCustomCtx* pCtx, INT32 nParam[])
 {
+	const ROLE_LEVEL_DATA* pcLevelData = nullptr;
 	INT32 nRetCode = 0;
 	CRole* poRole = NULL;
 	INT32 nAverageLevel = 0;
@@ -5765,7 +5773,7 @@ INT32 bfRoleAddDailyExtraExp(BTCustomCtx* pCtx, INT32 nParam[])
 	poRole = CGameWorld::GetInstance().FindRole(pCtx->dwRoleID);
 	LOG_PROCESS_ERROR(poRole);
 
-	const ROLE_LEVEL_DATA* pcLevelData = CDataManager<ROLE_LEVEL_DATA>::GetInstance().GetData(poRole->GetLevel());
+	pcLevelData = CDataManager<ROLE_LEVEL_DATA>::GetInstance().GetData(poRole->GetLevel());
 	LOG_PROCESS_ERROR(pcLevelData);
 
 	nAverageLevel = CGameWorld::GetInstance().GetAverageLevel(poRole->GetServerGroup());

@@ -1,73 +1,35 @@
-#ifndef _IOCP_MGR_H_
-#define _IOCP_MGR_H_
+#pragma once
 
-#include <map>
-#include "circle_list.h"
+#include "analysis_records.h"
 
-#define IOCP_THREAD_COUNT   (32)
+#include <atomic>
+#include <memory>
+#include <thread>
+#include <vector>
 
-typedef std::map<std::string, UINT32> ERROR_MAP;
-
-enum EWorkingMode
+namespace log_analysis
 {
-	wmInvalid = 0,
-	wmExtractError,
-	wmExtractNetworkFlow,
-
-	wmTotal,
-};
-
-struct IOCP_TASK : OVERLAPPED
-{
-	char		szFilePath[MAX_PATH];
-	HANDLE		hFile;
-	UINT64		qwFileSize;
-	char*		pFileData;
-	ERROR_MAP*	pErrorMap;
-	UINT64		dwSubmitTick;
-	UINT64		dwCreateTick;
-	UINT64		dwReadTick;
-	UINT64		dwProcessTick;
-	UINT64		dwFetchTick;
-	INT32		eWorkingMode;
-};
-
-class CIocpMgr
+// Lifecycle calls are serialized by the owner. Submission/result waits may overlap Stop().
+class Workers
 {
 public:
-    CIocpMgr();
-    ~CIocpMgr();
+    using Pointer = std::unique_ptr<Task>;
+    using Processor = void (*)(Task&, std::stop_token);
+    Workers() = default;
+    ~Workers();
+    Workers(const Workers&) = delete;
+    Workers& operator=(const Workers&) = delete;
 
-    BOOL Init(void);
-    BOOL UnInit(void);
-    static inline CIocpMgr& GetInstance(void);
-
-    BOOL SubmitTask(IOCP_TASK* pTask);
-    IOCP_TASK* FetchResult(void);
-    INT32 GetUncompletedTaskCount(void);
-
-    inline HANDLE GetIocpHandle(void);
+    bool Start(std::size_t count = 32, Processor processor = Process) noexcept;
+    void Stop() noexcept;
+    bool Submit(Pointer task) noexcept;
+    Pointer WaitResult();
+    std::size_t Pending() const;
 
 private:
-    static DWORD WINAPI _IocpThreadFunc(void* pParam);
-    
-private:
-    static CIocpMgr ms_Instance;
-    HANDLE          m_hIOCP;
-    HANDLE          m_ThreadList[IOCP_THREAD_COUNT];
-    CCircleList     m_ResultList[IOCP_THREAD_COUNT];
-    INT32           m_nSubmitCount;
-    INT32           m_nFetchCount;
+    struct State;
+    static void Run(const std::shared_ptr<State>& state, std::stop_token stop);
+    std::atomic<std::shared_ptr<State>> m_state;
+    std::vector<std::jthread> m_threads;
 };
-
-inline CIocpMgr& CIocpMgr::GetInstance(void)
-{
-    return ms_Instance;
 }
-
-inline HANDLE CIocpMgr::GetIocpHandle(void)
-{
-    return m_hIOCP;
-}
-
-#endif  // _IOCP_MGR_H_

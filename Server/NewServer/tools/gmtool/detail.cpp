@@ -8,17 +8,20 @@
 
 
 #include "stdafx.h"
+#include "gm_exchange_ui.h"
 #include "detail.h"
 #include "my_tree_widget_item.h"
 #include "ld_widget.h"
 #include "message_handler.h"
-#include <QtWidgets/QMessageBox>
+#include "server_mgr.h"
+#include <memory>
 
 
 CDetailDialog::CDetailDialog(INT32 nGroupID, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
 {
     m_nGroupID = nGroupID;
+    m_connection=gm::connection_binding(CServerMgr::GetInstance().GetSessionIDByIndex(0));
     ui.setupUi(this);
 
     connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(Exit()));
@@ -32,60 +35,63 @@ CDetailDialog::~CDetailDialog()
 
 }
 
-BOOL CDetailDialog::ShowData(const char *pcszBuffer, INT32 nCount, EXCHANGE_COUNT_DATA *pData)
+BOOL CDetailDialog::ShowData(const QString& header, std::span<const EXCHANGE_COUNT_DATA> rows)
 {
-    LOG_PROCESS_ERROR(pcszBuffer);
-    LOG_PROCESS_ERROR(pData);
-
-    ui.label->setText(QString::fromLocal8Bit(pcszBuffer));
-
-
-    for (INT32 i = 0; i < nCount; ++i)
+    if (rows.size() > 255) return FALSE;
+    for (const auto& row : rows)
+        if (!std::memchr(row.szRoleName,0,sizeof(row.szRoleName))) return FALSE;
+    ui.label->setText(header);
+    ui.treeWidget->clear();
+    for (const auto& row : rows)
     {
-        CMyTreeWidgetItem   *pTreeWidgetItem = new CMyTreeWidgetItem;
-        LOG_PROCESS_ERROR(pTreeWidgetItem);
-
-        pTreeWidgetItem->Set64ID(pData[i].qwOrderID);
-
-        pTreeWidgetItem->setText(0, QString::number(pData[i].qwOrderID));
-        pTreeWidgetItem->setText(1, QString::fromUtf8(pData[i].szRoleName));
-        pTreeWidgetItem->setText(2, QString::number(pData[i].nCount));
-
-        if (pData[i].dwRoleID == 0)
-        {
-            pTreeWidgetItem->setTextColor(1, QColor(255,0,0));
-        }
-
-        ui.treeWidget->addTopLevelItem(pTreeWidgetItem);
+        auto item=std::make_unique<CMyTreeWidgetItem>();
+        item->Set64ID(row.qwOrderID);
+        item->setText(0,QString::number(row.qwOrderID));
+        item->setText(1,QString::fromUtf8(row.szRoleName));
+        item->setText(2,QString::number(row.nCount));
+        if (!row.dwRoleID) item->setTextColor(1,QColor(255,0,0));
+        ui.treeWidget->addTopLevelItem(item.get()); item.release();
     }
-
-
-Exit0:
+    for (INT32 column=0;column<3;++column) ui.treeWidget->resizeColumnToContents(column);
     return TRUE;
 }
 
+bool CDetailDialog::ContainsOrder(UINT64 order) const
+{
+    for (int index=0;index<ui.treeWidget->topLevelItemCount();++index)
+    {
+        bool valid=false;
+        const auto value=ui.treeWidget->topLevelItem(index)->text(0).toULongLong(&valid);
+        if (valid && value==order) return true;
+    }
+    return false;
+}
 void CDetailDialog::CancelSystemOrder()
 {
-    INT32       nRetCode = 0;
-    CMyTreeWidgetItem   *pItem = NULL;
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认取消订单？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    pItem = (CMyTreeWidgetItem *)ui.treeWidget->currentItem();
-    LOG_PROCESS_ERROR(pItem);
-
-    nRetCode = CMessageHandler::GetInstance().DoDelSystemOrder(m_nGroupID, pItem->Get64ID());
-    LOG_PROCESS_ERROR(nRetCode);
-
-Exit0:
-    return;
+    if (m_submitting || !gm::exchange_connection_current(m_connection)) return;
+    auto* item=ui.treeWidget->currentItem();
+    if (!item) { gm::exchange_status(*this,QStringLiteral("请选择订单"));return; }
+    bool valid=false;
+    const auto order=item->text(0).toULongLong(&valid);
+    if (!valid) { gm::exchange_status(*this,QStringLiteral("订单编号无效"));return; }
+    gm::ExchangeAction action(*this,m_submitting);
+    const QPointer<CDetailDialog> alive(this);
+    const auto generation=m_generation;
+    const auto confirmed=gm::confirm_exchange(*this,QStringLiteral("确认取消订单？"));
+    if (!alive || !confirmed || m_generation!=generation || !gm::exchange_connection_current(m_connection)) return;
+    // The item may have been replaced while the confirmation was open. Send the captured order only.
+    const auto sent=CMessageHandler::GetInstance().DoDelSystemOrder(m_nGroupID,order);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
 }
 
 void CDetailDialog::Exit()
 {
     done(0);
+}
+void CDetailDialog::done(int result)
+{
+    ++m_generation;
+    QDialog::done(result);
 }
 
 

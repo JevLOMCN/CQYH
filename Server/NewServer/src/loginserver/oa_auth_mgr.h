@@ -2,7 +2,8 @@
 #define _OA_AUTH_MGR_H_
 
 #include "SdoBase.h"
-#include "circle_list.h"
+#include "callback_queue.h"
+#include "release_owner.h"
 #include "id_object_pool.h"
 #include "string_def.h"
 
@@ -40,8 +41,8 @@ private:
 	static COAAuthMgr ms_Instance;
 
 	CIDObjectPool<SOAAuthingUser, UINT32>		m_AuthingUserPool;
-	CCircleList									m_lstAuthorizedUser;
-	ISDOCommonHandler*							m_poOAAuth;
+	cqyh::CallbackQueue<SOAAuthorizedUser> m_lstAuthorizedUser;
+	cqyh::ReleasePtr<ISDOCommonHandler> m_poOAAuth;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <memory>
 #include "npc.h"
 
 #include "utf8.h"
@@ -658,19 +659,16 @@ BOOL CNpc::Die(INT32 nParam)
             std::string strBossName = this->GetName();
             std::string strRoleName = poKiller->GetName();
 
-            char* strAnsiBossName = utf8_to_char(strBossName.c_str());
-            char* strAnsiRoleName = utf8_to_char(strRoleName.c_str());
+            std::unique_ptr<char[]> strAnsiBossName(utf8_to_char(strBossName.c_str()));
+            std::unique_ptr<char[]> strAnsiRoleName(utf8_to_char(strRoleName.c_str()));
 
             // Example: "[Woma Leader] was defeated by player [Ada]!"
             char strMsg[128] = { 0 };
-            snprintf(strMsg, sizeof(strMsg), "[%s]被玩家[%s]击败!", strAnsiBossName, strAnsiRoleName);
+            snprintf(strMsg, sizeof(strMsg), "[%s]被玩家[%s]击败!", strAnsiBossName ? strAnsiBossName.get() : "", strAnsiRoleName ? strAnsiRoleName.get() : "");
 
-            char* str_utf8 = char_to_utf8(strMsg);
-            Say(cctServer, cltTvShow, str_utf8);
+            std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
+            Say(cctServer, cltTvShow, str_utf8 ? str_utf8.get() : "");
 
-            free_converted_string(strAnsiBossName);  // Free memory
-            free_converted_string(strAnsiRoleName);
-            free_converted_string(str_utf8);
         }
     }
 

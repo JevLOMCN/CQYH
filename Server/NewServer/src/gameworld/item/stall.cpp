@@ -295,7 +295,11 @@ INT32 CStall::BuyGood(CRole* buyer, UINT8 slot, INT32 itemcount, INT64 modifyfra
     Goods::iterator it;
 
     UINT32 stalllevel = m_pOwner->GetGrid()->uStallLevel;
-    LOG_PROCESS_ERROR(stalllevel >= 1 && stalllevel <= 3);
+    if (stalllevel < 1 || stalllevel > 3)
+    {
+        LOG_CHECK_ERROR(stalllevel >= 1 && stalllevel <= 3);
+        return errItemUnknown;
+    }
 
     INT32 tax = g_GWConfig.nStallTax[stalllevel - 1];
 
@@ -360,9 +364,6 @@ INT32 CStall::BuyGood(CRole* buyer, UINT8 slot, INT32 itemcount, INT64 modifyfra
     }
 
     return nRetCode;
-
-Exit0:
-    return errItemUnknown;
 }
 
 #endif

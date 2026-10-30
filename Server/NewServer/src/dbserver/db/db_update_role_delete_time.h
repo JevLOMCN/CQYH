@@ -1,7 +1,7 @@
 #ifndef _DB_UPDATE_ROLE_DELETE_TIME_H_
 #define _DB_UPDATE_ROLE_DELETE_TIME_H_
 
-#include "mysql.h"
+#include "mysql_owner.h"
 
 class CDBRole;
 
@@ -19,7 +19,7 @@ public:
     UINT32 m_dwRoleID;
     UINT32 m_dwDeleteTime;
 
-    MYSQL_STMT* m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 
 private:
     MYSQL_BIND m_bind_param[2];

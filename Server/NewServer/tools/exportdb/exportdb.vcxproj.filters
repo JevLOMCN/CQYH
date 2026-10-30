@@ -24,6 +24,8 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="role_records.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="role_lua.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="guild.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -41,6 +43,11 @@
     <ClCompile Include="exportdb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="export_sql.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="role_records.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="role_gameworld.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="guild.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

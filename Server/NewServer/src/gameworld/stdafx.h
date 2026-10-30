@@ -19,7 +19,6 @@
 #include "baselib/simple_list.h"
 
 #define _SCL_SECURE_INVALID_PARAMETER(expr) INT3()
-#define _HAS_EXCEPTIONS 0
 #include <math.h>
 #include <vector>
 #include <map>

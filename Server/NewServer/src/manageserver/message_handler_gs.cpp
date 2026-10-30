@@ -3110,6 +3110,7 @@ Exit0:
 
 void CMessageHandler::OnGSAuctionPay(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    MS_ONLINE_ROLE_DATA* pOnlineRole{};
     // Reaching the balance-payment step means the debit succeeded
     Auction* auction = NULL;
     G2M_AUCTION_PAY* pMsg = (G2M_AUCTION_PAY*)pPacketBuffer;
@@ -3117,7 +3118,7 @@ void CMessageHandler::OnGSAuctionPay(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize
     MS_ROLE_DATA* role = CRoleDataMgr::GetInstance().FindRole(pMsg->dwRoleID);
     LOG_PROCESS_ERROR(role);
 
-    MS_ONLINE_ROLE_DATA* pOnlineRole = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(pMsg->dwRoleID);
+    pOnlineRole = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(pMsg->dwRoleID);
     if (pOnlineRole)
         LOG_PROCESS_ERROR(pOnlineRole->pRoleData == role);
 
@@ -3325,13 +3326,14 @@ Exit0:
 
 void CMessageHandler::OnGSQueryRoleLocation(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    MS_ONLINE_ROLE_DATA* pTargetOnlineRole{};
     INT32 nRetCode = 0;
     G2M_QUERY_ROLE_LOCATION* pMsg = (G2M_QUERY_ROLE_LOCATION*)pPacketBuffer;
 
     MS_ONLINE_ROLE_DATA* pSrcOnlineRole = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(pMsg->dwRoleID);
     PROCESS_ERROR(pSrcOnlineRole && pSrcOnlineRole->pRoleData);
 
-    MS_ONLINE_ROLE_DATA* pTargetOnlineRole = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByNameInGroup(
+    pTargetOnlineRole = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByNameInGroup(
         pMsg->szRoleName, pSrcOnlineRole->pRoleData->byGroup);
     PROCESS_ERROR(pTargetOnlineRole && pTargetOnlineRole->pRoleData);
     PROCESS_ERROR(pTargetOnlineRole->pUser->eState == USER_STATE_INGAME);
@@ -3395,13 +3397,14 @@ Exit0:
 
 void CMessageHandler::OnGSRecallTeamMember(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    CTeam* poTeam{};
     INT32 nRetCode = 0;
     G2M_RECALL_TEAM_MEMBER* pMsg = (G2M_RECALL_TEAM_MEMBER*)pPacketBuffer;
 
     MS_ONLINE_ROLE_DATA* pOnlineRoleData = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(pMsg->dwLeaderID);
     LOG_PROCESS_ERROR(pOnlineRoleData && pOnlineRoleData->pRoleData);
 
-    CTeam* poTeam = CTeamMgr::GetInstance().Find(pOnlineRoleData->pRoleData->dwTeamID);
+    poTeam = CTeamMgr::GetInstance().Find(pOnlineRoleData->pRoleData->dwTeamID);
     LOG_PROCESS_ERROR(poTeam);
     LOG_PROCESS_ERROR(poTeam->GetLeader() == pMsg->dwLeaderID);
 
@@ -3529,15 +3532,17 @@ Exit0:
 
 void CMessageHandler::OnGSTemporaryCharge(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    const REAL_MONEY_SHOP_DATA* data{};
+    BOOL bRet{};
     G2M_TEMPORARY_CHARGE* pMsg = (G2M_TEMPORARY_CHARGE*)pPacketBuffer;
 
     MS_ONLINE_ROLE_DATA* role = COnlineRoleDataMgr::GetInstance().FindOnlineRoleByRoleID(pMsg->dwRoleID);
     LOG_PROCESS_ERROR(role);
 
-    const REAL_MONEY_SHOP_DATA* data = CRealMoneyShop::GetInstance().GetDataMgr().GetFirstData();
+    data = CRealMoneyShop::GetInstance().GetDataMgr().GetFirstData();
     LOG_PROCESS_ERROR(data);
 
-    BOOL bRet = COABillMgr::GetInstance().DoCharge(role, data->m_nCurrentPrice, data->m_nItemTemplateID, data->m_shItemCount, "");
+    bRet = COABillMgr::GetInstance().DoCharge(role, data->m_nCurrentPrice, data->m_nItemTemplateID, data->m_shItemCount, "");
     LOG_PROCESS_ERROR(bRet);
 
 Exit0:

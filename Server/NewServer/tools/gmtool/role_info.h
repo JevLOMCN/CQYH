@@ -12,7 +12,11 @@
 #define _H_ROLE_INFO_H_
 
 
-#include <QtWidgets/QMainWindow>
+#include "../qt_cpp23.h"
+#include "gm_role_data.h"
+#include <map>
+#include <memory>
+#include <QtWidgets/QDialog>
 #include <QCloseEvent>
 #include <QtWidgets/QLabel>
 #include "ui_role_info.h"
@@ -21,7 +25,6 @@
 
 
 class CItemTreeWidgetItem;
-struct GM_ROLE_SLOT;
 
 class CRoleInfo : public QDialog
 {
@@ -32,17 +35,20 @@ public:
 
     ~CRoleInfo();
 
-    virtual void timerEvent(QTimerEvent* event);
+    void reject() override;
 
-    void reject();
 
-    char *GetReason(char *pszStr);
 
 
 
 protected:
     void _Update();
-    void _UpdateBaseData(GM_ROLE_SLOT *pSlot);
+    void _UpdateBaseData(const gm::RoleRecord& record);
+    void _RemoveSelected(QTreeWidget* tree, UINT16 type);
+    bool _AcceptEdit(const std::expected<void, std::string>& result);
+    bool _ModelCurrent() const;
+    bool _EditSessionCurrent(bool selected) const;
+    void _DeleteCurrentModel();
 
 public slots:
     //void AddItem();
@@ -67,23 +73,20 @@ public slots:
 
 
 private:
-#define MAX_ROLE_DISPLAY_ATTR_NUM   (26)
-    int         m_nTimeID;
-    //UINT32      m_dwSvrID;
-    UINT32      m_dwRoleID;
-    UINT32      m_dwTargetRoleID;
-
-    QLabel      *m_pLabel[MAX_ROLE_DISPLAY_ATTR_NUM];
-    QLineEdit   *m_pLineEdit[MAX_ROLE_DISPLAY_ATTR_NUM];
-
+    UINT32 m_dwRoleID{};
+    UINT32 m_dwTargetRoleID{};
 
     Ui::RoleInfoDialog ui;
 
     BOOL        m_bIsModify;
     UINT32      m_dwSessionID;
 
-    INT32       m_nLength;
-    char        m_SaveList[1024 * 32];
+    gm::RoleEdits m_edits;
+    bool m_rendering = false;
+    bool m_closed = false;
+    bool m_submitting = false;
+    std::weak_ptr<const char> m_connectionLifetime,m_roleLifetime;
+    QLabel* m_editStatus = nullptr;
 
 
     typedef std::map<UINT64, GM_ROLE_ITEM_SLOT> GM_ITEM_MAP;

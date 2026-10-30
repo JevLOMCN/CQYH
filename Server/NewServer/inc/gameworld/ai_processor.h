@@ -5,6 +5,7 @@
 #include "bt_action.h"
 #include "bt_manager.h"
 #include "variable_def.h"
+#include "region.h"
 
 #ifndef _ROBOT
 	#define MAX_WAYPOINT_COUNT	    (16)

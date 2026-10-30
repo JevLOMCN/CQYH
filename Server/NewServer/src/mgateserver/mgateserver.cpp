@@ -167,6 +167,7 @@ BOOL CMGateServer::UnInit(void)
 
 BOOL CMGateServer::MainLoop(void)
 {
+	UINT64 qwEndTick{};
 	INT32 nRetCode = 0;
 	UINT64 qwCurrentTick = GetTickCountEx();
 	static UINT64 s_qwLastSessionTick = 0;
@@ -185,7 +186,7 @@ BOOL CMGateServer::MainLoop(void)
 	nRetCode = m_pExternalNet->MainLoop();
 	LOG_PROCESS_ERROR(nRetCode);
 
-	UINT64 qwEndTick = GetTickCountEx();
+	qwEndTick = GetTickCountEx();
 	if (qwEndTick - qwCurrentTick < 10)
 		Sleep(1);
 	else if (qwEndTick - qwCurrentTick > 50)

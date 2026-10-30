@@ -1,9 +1,12 @@
 
 #include "stdafx.h"
+#include "gm_exchange_stats.h"
+#include "gm_exchange_ui.h"
+#include "gm_def.h"
 #include "exchange_limit.h"
 #include "message_handler.h"
-#include "gmtool.h"
-#include "ld_widget.h"
+#include "server_mgr.h"
+#include <QtCore/QPointer>
 
 CExchangeLimit::CExchangeLimit(INT32 nGroup, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
@@ -15,6 +18,7 @@ CExchangeLimit::CExchangeLimit(INT32 nGroup, QWidget *parent, Qt::WindowFlags fl
 
 
     m_nGroup = nGroup;
+    m_connection=gm::connection_binding(CServerMgr::GetInstance().GetSessionIDByIndex(0));
 
 
 }
@@ -26,11 +30,8 @@ CExchangeLimit::~CExchangeLimit()
 
 BOOL CExchangeLimit::ShowExchangeLimit(INT32 nPriceHigh, INT32 nPriceLow, INT32 nSingleOrderLimit, INT32 nDailyOrderLimit)
 {
-    double  lfPriceHigh = (double)nPriceHigh / 100;
-    double  lfPriceLow = (double)nPriceLow / 100;
-
-    ui.label_5->setText(QString::number(lfPriceHigh));
-    ui.label_6->setText(QString::number(lfPriceLow));
+    ui.label_5->setText(QString::fromStdString(gm::exchange_price(nPriceHigh)));
+    ui.label_6->setText(QString::fromStdString(gm::exchange_price(nPriceLow)));
     ui.label_7->setText(QString::number(nSingleOrderLimit));
     ui.label_8->setText(QString::number(nDailyOrderLimit));
 
@@ -48,28 +49,27 @@ Exit0:
 
 void CExchangeLimit::Modify()
 {
-    INT32       nRetCode = 0;
-
-    nRetCode = CMessageHandler::GetInstance().DoSetExchangeLimit(m_nGroup,
-        ui.doubleSpinBox->text().toDouble() * 100,
-        ui.doubleSpinBox_2->text().toDouble() * 100,
-        ui.spinBox->text().toInt(),
-        ui.spinBox_2->text().toInt());
-
-Exit0:
-    done(0);
-    return;
+    if (m_submitting || !gm::exchange_connection_current(m_connection)) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    const QPointer<CExchangeLimit> alive(this);
+    const auto generation=m_generation;
+    ui.doubleSpinBox->interpretText();ui.doubleSpinBox_2->interpretText();
+    ui.spinBox->interpretText();ui.spinBox_2->interpretText();
+    const auto high=gm::exchange_price_units(ui.doubleSpinBox->value());
+    const auto low=gm::exchange_price_units(ui.doubleSpinBox_2->value());
+    if (!high || !low || m_nGroup<1 || m_nGroup>=MAX_SERVER_GROUP_COUNT)
+    {
+        gm::exchange_status(*this,QStringLiteral("价格或区组无效"));return;
+    }
+    if (!alive || m_generation!=generation || !gm::exchange_connection_current(m_connection)) return;
+    const auto sent=CMessageHandler::GetInstance().DoSetExchangeLimit(m_nGroup,*high,*low,
+        ui.spinBox->value(),ui.spinBox_2->value());
+    if (!alive || m_generation!=generation) return;
+    if (sent) done(QDialog::Accepted);
+    else gm::exchange_status(*this,QStringLiteral("发送失败，请重试"));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
+void CExchangeLimit::done(int result)
+{
+    ++m_generation;
+    QDialog::done(result);
+}

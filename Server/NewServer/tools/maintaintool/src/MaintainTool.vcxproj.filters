@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="Form Files">
       <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
@@ -39,19 +39,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeneratedFiles\qrc_maintaintool.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_maintaintool.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_maintaintool.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>main</Filter>
     </ClCompile>
     <ClCompile Include="maintaintool.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="maintain_files.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="maintain_stats.cpp">
       <Filter>main</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
@@ -63,36 +60,51 @@
     <ClCompile Include="session_mgr.cpp">
       <Filter>session</Filter>
     </ClCompile>
+    <ClCompile Include="session_ui.cpp">
+      <Filter>session</Filter>
+    </ClCompile>
     <ClCompile Include="transmit_file_mgr.cpp">
       <Filter>version_mgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_maintaintool.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>main</Filter>
     </ClInclude>
     <ClInclude Include="message_handler.h">
       <Filter>message</Filter>
     </ClInclude>
+    <ClInclude Include="maintain_files.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="maintain_stats.h">
+      <Filter>main</Filter>
+    </ClInclude>
     <ClInclude Include="session_mgr.h">
       <Filter>session</Filter>
+    </ClInclude>
+    <ClInclude Include="session_state.h">
+      <Filter>session</Filter>
+    </ClInclude>
+    <ClInclude Include="receive_packets.h">
+      <Filter>message</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\qt_cpp23.h">
+      <Filter>main</Filter>
     </ClInclude>
     <ClInclude Include="transmit_file_mgr.h">
       <Filter>version_mgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="maintaintool.ui">
+    <None Include="maintaintool.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="maintaintool.qrc">
+    </None>
+    <None Include="maintaintool.qrc">
       <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="maintaintool.h">
+    </None>
+    <ClInclude Include="maintaintool.h">
       <Filter>main</Filter>
-    </CustomBuild>
+    </ClInclude>
   </ItemGroup>
 </Project>

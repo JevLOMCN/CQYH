@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "sol_bindings.h"
 #include "stdlib.h"
-#include "../../../Common/define/guild_def.h"
+#include "guild_def.h"
 
 int sol_guild_def_open(lua_State* L)
 {

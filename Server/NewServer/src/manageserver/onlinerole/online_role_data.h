@@ -122,7 +122,7 @@ struct MS_ONLINE_ROLE_DATA : public BASE_LIST_NODE
     void AddShopLog(const ShopLog& shoplog);
 };
 
-BOOL LoadFriends(std::list<void*>& rResult, void* pUserData);
+BOOL LoadFriends(std::list<void*>& rResult, UINT32 roleID, UINT32 clientSessionID);
 
 #endif
 

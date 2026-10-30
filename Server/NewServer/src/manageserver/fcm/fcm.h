@@ -2,8 +2,8 @@
 #define _FCM_H
 
 #include "string_def.h"
-#include "free_object_pool.h"
-#include "circle_list.h"
+#include "callback_queue.h"
+#include "release_owner.h"
 
 struct FCM_CALLBACK
 {
@@ -21,6 +21,7 @@ public:
         return ms_Instance;
     }
 
+    ~CFcmMgr();
     BOOL Init();
     BOOL UnInit();
     BOOL MainLoop();
@@ -33,12 +34,10 @@ public:
     BOOL PopCallback(FCM_CALLBACK& cb);
 
 private:
-    CFCMSDKBase* m_poFCM;
+    cqyh::CallbackQueue<FCM_CALLBACK> m_callback_list;
+    cqyh::ReleasePtr<CFCMSDKBase> m_poFCM;
 
-    CFreeObjectPool<FCM_CALLBACK> m_callback_pool;
-    CCircleList m_callback_list;
-
-    CFcmMgr() :m_poFCM(NULL) {}
+    CFcmMgr();
 };
 
 #endif // _FCM_H

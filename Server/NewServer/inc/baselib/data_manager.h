@@ -178,7 +178,7 @@ BOOL CDataManager<T>::PostProcessData(void)
 
 	if (m_pFunc && m_bNeedPostProcessData)
 	{
-		for (MAP_ID_2_DATA::iterator it = m_mapID2Data.begin();
+		for (auto it = m_mapID2Data.begin();
 			it != m_mapID2Data.end(); ++it)
 		{
 			nRetCode = m_pFunc(it->second, TRUE);

@@ -275,8 +275,8 @@ target_include_directories(net PRIVATE
     ${CQYH_SERVER_DIR}/Common/message
 )
 
-# asio transport (netAsio). It must not use the project's precompiled stdafx.h: that header defines
-# _HAS_EXCEPTIONS=0 and includes <windows.h> before the socket headers, neither of which asio can live with.
+# asio transport (netAsio) includes its socket headers before Windows headers.
+# Keep it separate from the legacy stdafx.h include order.
 target_sources(net PRIVATE asio_net.cpp)
 set_source_files_properties(asio_net.cpp PROPERTIES
     SKIP_PRECOMPILE_HEADERS ON
@@ -288,7 +288,7 @@ target_link_libraries(net PUBLIC asio::asio)
 target_link_libraries(net PUBLIC cqyh::sol2)
 
 # Visual Studio also emits a dummy .lib for an OBJECT target. Keep packet
-# objects out of that dummy archive; the two real archives below own them.
+# objects out of that dummy archive; the real archives below own them.
 if(MSVC)
     get_target_property(_net_objects net SOURCES)
     foreach(source IN LISTS _net_objects)
@@ -299,16 +299,22 @@ if(MSVC)
 endif()
 
 set(_net_external_bindings "sol_external_message|external_.*_bindings")
+set(_net_external_responses "external_(game|manage)_to_client_.*_bindings")
 set(_net_internal_bindings "sol_internal_message|internal_.*_bindings")
 add_library(net_core STATIC "$<FILTER:$<TARGET_OBJECTS:net>,EXCLUDE,${_net_external_bindings}|${_net_internal_bindings}>")
-add_library(net_lua_external STATIC "$<FILTER:$<TARGET_OBJECTS:net>,INCLUDE,${_net_external_bindings}>")
+# C++23's Debug objects push the complete external archive past MSVC's 4 GB
+# limit. Keep the large game/manage-to-client registrations in their own archive.
+add_library(net_lua_external STATIC "$<FILTER:$<FILTER:$<TARGET_OBJECTS:net>,INCLUDE,${_net_external_bindings}>,EXCLUDE,${_net_external_responses}>")
+add_library(net_lua_external_responses STATIC "$<FILTER:$<TARGET_OBJECTS:net>,INCLUDE,${_net_external_responses}>")
 add_library(net_lua_internal STATIC "$<FILTER:$<TARGET_OBJECTS:net>,INCLUDE,${_net_internal_bindings}>")
-foreach(archive net_core net_lua_external net_lua_internal)
+foreach(archive net_core net_lua_external net_lua_external_responses net_lua_internal)
     cqyh_target_defaults(${archive})
     set_target_properties(${archive} PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(${archive} PUBLIC cqyh::sol2)
 endforeach()
 set_target_properties(net_core PROPERTIES OUTPUT_NAME net)
+# Preserve the complete external binding interface for existing consumers.
+target_link_libraries(net_lua_external PUBLIC net_lua_external_responses)
 target_link_libraries(net_core PUBLIC asio::asio net_lua_external net_lua_internal)
 add_library(cqyh::net ALIAS net_core)
 

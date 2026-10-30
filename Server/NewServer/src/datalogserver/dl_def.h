@@ -139,7 +139,7 @@ enum DL_LOG_MODULE_TYPE
 	dlmtTotal
 };
 
-static char* s_pcszModuleName[] = {
+static constexpr const char* s_pcszModuleName[] = {
 	"Item",
 	"Chat",
 	"Quest",
@@ -188,32 +188,32 @@ static char* s_pcszModuleName[] = {
 	"AntiCheat",
 };
 
-static char* s_pcszLoginName[] = {
+static constexpr const char* s_pcszLoginName[] = {
 	"Login",
 	"Logout"
 };
 
-static char* s_pcszTeamAction[] = {
+static constexpr const char* s_pcszTeamAction[] = {
 	"CreateTeam",
 	"JoinTeam",
 	"LeaveTeam",
 	"BreakDownTeam",
 };
 
-static char* s_pcszQuestAction[dqtTotal] = {
+static constexpr const char* s_pcszQuestAction[dqtTotal] = {
 	"Accept",
 	"Complete",
 	"Abandon",
 };
 
-static char* s_pcszSceneStateType[] = {
+static constexpr const char* s_pcszSceneStateType[] = {
 	"Create",
 	"Enter",
 	"Leave",
 	"Destory",
 };
 
-inline char* GetDLChatTypeFromID(INT32 nTargetID)
+inline const char* GetDLChatTypeFromID(INT32 nTargetID)
 {
 	switch (GetTypeFromID(nTargetID))
 	{
@@ -256,7 +256,7 @@ Exit0:
 	return "error";
 }
 
-inline char* GetLoginStringByType(INT32 nType)
+inline const char* GetLoginStringByType(INT32 nType)
 {
 	LOG_PROCESS_ERROR(nType >= 0 && nType < sizeof(s_pcszLoginName) / sizeof(s_pcszLoginName[0]));
 	
@@ -265,7 +265,7 @@ Exit0:
 	return "error";
 }
 
-inline char* GetTeamActionByType(INT32 nType)
+inline const char* GetTeamActionByType(INT32 nType)
 {
 	LOG_PROCESS_ERROR(nType >= 0 && nType < sizeof(s_pcszTeamAction) / sizeof(s_pcszTeamAction[0]));
 
@@ -274,7 +274,7 @@ Exit0:
 	return "error";
 }
 
-inline char* GetQuestActionByType(INT32 nType)
+inline const char* GetQuestActionByType(INT32 nType)
 {
 	LOG_PROCESS_ERROR(nType >= 0 && nType < sizeof(s_pcszQuestAction) / sizeof(s_pcszQuestAction[0]));
 
@@ -292,7 +292,7 @@ Exit0:
 //	return "error";
 //}
 
-inline char* GetSceneTypeTypeByType(INT32 nType)
+inline const char* GetSceneTypeTypeByType(INT32 nType)
 {
 	LOG_PROCESS_ERROR(nType >= 0 && nType < sizeof(s_pcszSceneStateType) / sizeof(s_pcszSceneStateType[0]));
 

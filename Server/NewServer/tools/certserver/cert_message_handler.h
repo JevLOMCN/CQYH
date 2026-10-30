@@ -2,6 +2,7 @@
 #define _CERT_MESSAGE_HANDLER_H_
 
 #include "net.h"
+#include <vector>
 
 class CCertMessageHandler : public INetEventHandler
 {
@@ -14,17 +15,21 @@ public:
 public:
     CCertMessageHandler();
     ~CCertMessageHandler();
+    CCertMessageHandler(const CCertMessageHandler&) = delete;
+    CCertMessageHandler& operator=(const CCertMessageHandler&) = delete;
 
     BOOL Init(INet* pNet, IPacketAllocator* pPacketAllocator);
     BOOL UnInit(void);
+    void BeginShutdown() noexcept { m_accepting = false; }
 
     static CCertMessageHandler& GetInstance(void);
 public:
 
 private:
-    static CCertMessageHandler      ms_Instance;
     INet*                           m_pNet;
     IPacketAllocator*               m_pPacketAllocator;
+    std::vector<char> m_certificate;
+    bool m_accepting = false;
 };
 
 extern CCertMessageHandler g_MessageHandler;

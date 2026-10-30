@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "mysql_owner.h"
 #include "datalogserver.h"
 #include "dump.h"
 
@@ -105,14 +106,14 @@ CDatalogServer& CDatalogServer::GetInstance(void)
 BOOL CDatalogServer::_InitLogDataBase()
 {
     BOOL bRet = FALSE;
-    MYSQL* mysql = NULL;
+    cqyh::MysqlPtr mysql;
     MYSQL* res_mysql = NULL;
 
-    mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(mysql);
+    mysql = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(mysql.get());
 
     res_mysql = mysql_real_connect(
-        mysql,
+        mysql.get(),
         m_dbsetting.szServerAddr,
         m_dbsetting.szLoginName,
         m_dbsetting.szPassword,
@@ -122,23 +123,19 @@ BOOL CDatalogServer::_InitLogDataBase()
         CLIENT_MULTI_STATEMENTS | CLIENT_MULTI_RESULTS);
     LOG_PROCESS_ERROR(res_mysql);
 
-    if (!ExistDB(mysql, m_dbsetting.szDBName))
+    if (!ExistDB(mysql.get(), m_dbsetting.szDBName))
     {
-        bRet = CreateDB(mysql, m_dbsetting.szDBName);
+        bRet = CreateDB(mysql.get(), m_dbsetting.szDBName);
         LOG_PROCESS_ERROR(bRet);
     }
 
-    bRet = UpdateDB(mysql, m_dbsetting.szDBName, "logdata", CURRENT_LOG_DB_VERSION);
+    bRet = UpdateDB(mysql.get(), m_dbsetting.szDBName, "logdata", CURRENT_LOG_DB_VERSION);
     LOG_PROCESS_ERROR(bRet);
 
-    if (mysql)
-        mysql_close(mysql);
 
     return TRUE;
 
 Exit0:
-    if (mysql)
-        mysql_close(mysql);
 
     return FALSE;
 }

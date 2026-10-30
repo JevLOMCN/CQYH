@@ -180,6 +180,9 @@ add_executable(gen_msg
 )
 
 cqyh_target_defaults(gen_msg EXECUTABLE)
+target_sources(gen_msg PRIVATE generator_bindings.h)
+target_compile_definitions(gen_msg PRIVATE
+    CQYH_GENERATOR_SOURCE_DIR="${CQYH_SERVER_DIR}/NewServer/inc/gameworld")
 cqyh_use_pch(gen_msg ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_include_directories(gen_msg PRIVATE

@@ -312,7 +312,7 @@
             </size>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -538,7 +538,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>120</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
@@ -807,7 +807,7 @@
   <customwidget>
    <class>CExchangeHistoryUI</class>
    <extends>QLabel</extends>
-   <header>ui_exchange_history.h</header>
+   <header>exchange_history_widget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -30,6 +30,7 @@ using namespace InternalMessage;
 
 void CMessageHandler::OnDBRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
+    SDBSession* pDBSession{};
     INT32 nRetCode = 0;
     struct in_addr addr;
     D2M_REGISTER* pMsg = (D2M_REGISTER*)pPacketBuffer;
@@ -37,7 +38,7 @@ void CMessageHandler::OnDBRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, 
     //check
     SDBSession& rDBSession = CMSSessionMgr::GetInstance().GetDBSession();
     LOG_PROCESS_ERROR( rDBSession.pSocketSession == pSocketSession );
-    SDBSession* pDBSession = (SDBSession*)pSocketSession->GetUserData();
+    pDBSession = (SDBSession*)pSocketSession->GetUserData();
     LOG_PROCESS_ERROR( pDBSession );
     LOG_PROCESS_ERROR( pDBSession->pSocketSession == pSocketSession );
     LOG_PROCESS_ERROR(CMSSessionMgr::GetInstance().GetServerState() != sgsClosing);
@@ -476,6 +477,7 @@ Exit0:
 
 BOOL CMessageHandler::DoDBGMCommand(const char* pcszGMCommand)
 {
+	M2D_GM_COMMAND* pMsg{};
 	INT32 nRetCode = 0;
 	INT32 nCommandLen = 0;
 
@@ -483,7 +485,7 @@ BOOL CMessageHandler::DoDBGMCommand(const char* pcszGMCommand)
 		
 	nCommandLen = (INT32)strlen(pcszGMCommand) + 1;
 
-	M2D_GM_COMMAND* pMsg = (M2D_GM_COMMAND*)m_pPacketAllocator->Alloc(sizeof(M2D_GM_COMMAND) + nCommandLen);
+	pMsg = (M2D_GM_COMMAND*)m_pPacketAllocator->Alloc(sizeof(M2D_GM_COMMAND) + nCommandLen);
 	LOG_PROCESS_ERROR(pMsg);
 
 	pMsg->wMsg = m2d_gm_command;

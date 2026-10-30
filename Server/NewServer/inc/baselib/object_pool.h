@@ -2,6 +2,9 @@
 #define _OBJECT_POOL_H_
 
 #include <exception>
+#include <limits>
+#include <memory>
+#include <vector>
 #include <typeinfo>
 #include <psapi.h>
 
@@ -18,6 +21,8 @@ class CObjectPool
 public:
 	CObjectPool();
 	~CObjectPool();
+    CObjectPool(const CObjectPool&) = delete;
+    CObjectPool& operator=(const CObjectPool&) = delete;
 
 	BOOL Init(INT32 nInitSize);
 	BOOL UnInit(void);
@@ -41,11 +46,8 @@ private:
 		DATA_NODE*	pNext;
 	}	m_FreeListHead;
 
-	struct CHUNK_NODE
-	{
-		DATA_NODE*	pDataNode;
-		CHUNK_NODE* pNext;
-	}	m_ChunkListHead;
+    // Each array stays at its original address as the owner vector grows.
+    std::vector<std::unique_ptr<DATA_NODE[]>> m_chunks;
 
 	BOOL _CreateChunk(INT32 nSize);
 };
@@ -58,8 +60,6 @@ CObjectPool<T>::CObjectPool()
 	m_nObjSize = 0;
 	m_FreeListHead.pNext = NULL;
 
-	m_ChunkListHead.pDataNode = NULL;
-	m_ChunkListHead.pNext = NULL;
 }
 
 template<class T>
@@ -71,95 +71,47 @@ CObjectPool<T>::~CObjectPool()
 template<class T>
 BOOL CObjectPool<T>::_CreateChunk(INT32 nSize)
 {
-	DATA_NODE* pNewChunk = NULL;
-	CHUNK_NODE* pChunkNode = NULL;
-	DATA_NODE* pNode = NULL;
-
-    LOG_PROCESS_ERROR(nSize > 0);
-
-	pNewChunk = new DATA_NODE[nSize];
-	LOG_PROCESS_ERROR(pNewChunk);
-
-	pChunkNode = new CHUNK_NODE;
-	LOG_PROCESS_ERROR(pChunkNode);
-
-	pChunkNode->pDataNode = pNewChunk;
-	pChunkNode->pNext = m_ChunkListHead.pNext;
-	m_ChunkListHead.pNext = pChunkNode;
-
-	pNode = pNewChunk;
-	for (int nIndex = 1; nIndex < nSize; nIndex++)
-	{
-		DATA_NODE* pNextNode = pNewChunk + nIndex;
-		pNode->pNext = pNextNode;
-		pNode = pNextNode;
-	}
-	pNode->pNext = m_FreeListHead.pNext;
-	m_FreeListHead.pNext = pNewChunk;
-
-	m_nSize += nSize;
-	m_nFreeSize += nSize;
-
-	return TRUE;
-Exit0:
-	SAFE_DELETE(pChunkNode);
-	SAFE_DELETE_ARRAY(pNewChunk);
-
-	return FALSE;
+    if (nSize <= 0 || nSize > (std::numeric_limits<INT32>::max)() - m_nSize)
+        return FALSE;
+    try
+    {
+        auto chunk = std::make_unique_for_overwrite<DATA_NODE[]>(nSize);
+        auto* nodes = chunk.get();
+        m_chunks.push_back(std::move(chunk));
+        for (INT32 index = 0; index < nSize; ++index)
+            nodes[index].pNext = index + 1 < nSize ? nodes + index + 1 : m_FreeListHead.pNext;
+        m_FreeListHead.pNext = nodes;
+        m_nSize += nSize;
+        m_nFreeSize += nSize;
+        return TRUE;
+    }
+    catch (...)
+    {
+        ERR("Object pool chunk allocation or construction failed");
+        return FALSE;
+    }
 }
 
 template<class T>
 BOOL CObjectPool<T>::Init(INT32 nInitSize)
 {
-	INT32 nRetCode = 0;
-	PROCESS_MEMORY_COUNTERS pmc;
-	INT64 llMemorySize = 0;
-
-	nRetCode = GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-	LOG_PROCESS_ERROR(nRetCode);
-
-	llMemorySize = pmc.PagefileUsage;
-
-	m_nSize = 0;
-	m_nFreeSize = 0;
-	m_FreeListHead.pNext = NULL;
-
-	nRetCode = _CreateChunk(nInitSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	nRetCode = GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-	LOG_PROCESS_ERROR(nRetCode);
-
-	m_nObjSize = (INT32)((pmc.PagefileUsage - llMemorySize) / nInitSize);
-
-	return TRUE;
-Exit0:
-	UnInit();
-
-	return FALSE;
+    if (!m_chunks.empty() || !_CreateChunk(nInitSize))
+        return FALSE;
+    m_nObjSize = sizeof(DATA_NODE);
+    return TRUE;
 }
 
 template<class T>
 BOOL CObjectPool<T>::UnInit(void)
 {
-	LOG_CHECK_ERROR(m_nFreeSize == m_nSize);
-
-	CHUNK_NODE* pChunkNode = m_ChunkListHead.pNext;
-	while (pChunkNode)
-	{
-		CHUNK_NODE* pNext = pChunkNode->pNext;
-		SAFE_DELETE_ARRAY(pChunkNode->pDataNode);
-		SAFE_DELETE(pChunkNode);
-
-		pChunkNode = pNext;
-	}
-
-	m_ChunkListHead.pNext = NULL;
-	m_FreeListHead.pNext = NULL;
-	m_nFreeSize = 0;
-	m_nSize = 0;
-
-	return TRUE;
+    LOG_CHECK_ERROR(m_nFreeSize == m_nSize);
+    // Arrays retain reverse-slot destruction; visit newest chunks first.
+    while (!m_chunks.empty())
+        m_chunks.pop_back();
+    m_FreeListHead.pNext = nullptr;
+    m_nFreeSize = 0;
+    m_nSize = 0;
+    return TRUE;
 }
 
 template<class T>

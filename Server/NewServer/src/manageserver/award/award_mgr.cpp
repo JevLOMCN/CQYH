@@ -99,6 +99,8 @@ BOOL CAwardManager::UnInit()
 
 BOOL CAwardManager::SendAwardReq(MS_ONLINE_ROLE_DATA* pOnlineUserData, INT32 nAwardType, char* pAwardNumber)
 {
+	time_t llCurrentTime{};
+	struct tm* tm{};
 	INT32 nRetCode = 0;
 	char szTime[COMMON_NAME_LEN];
     struct in_addr  tempAddr;
@@ -165,8 +167,8 @@ BOOL CAwardManager::SendAwardReq(MS_ONLINE_ROLE_DATA* pOnlineUserData, INT32 nAw
 	stAwardReqMsg.msgBody.userGrade = htonl(pOnlineUserData->pRoleData->byLevel);						
 	stAwardReqMsg.msgBody.awardGrade = htonl(pOnlineUserData->pRoleData->byLevel);								
 
-	time_t llCurrentTime = (time_t)time(NULL);
-	struct tm* tm = localtime(&llCurrentTime);
+	llCurrentTime = (time_t)time(NULL);
+	tm = localtime(&llCurrentTime);
 	LOG_PROCESS_ERROR(tm);
 	
 	memset(&szTime, 0, sizeof(szTime));
@@ -334,6 +336,7 @@ Exit0:
 
 void _OnSendItem(char *pData, INT32 length)
 {
+	const MAIL_TEMPLATE_DATA* mail_data{};
 	INT32 nResult = -1;
 	INT32 nRetCode = 0;
 	MsgHeadDef* pHead = (MsgHeadDef*)pData;
@@ -354,7 +357,7 @@ void _OnSendItem(char *pData, INT32 length)
 	nItemCount = ntohl(pItemReqMsg->msgBody.itemKindCount);
 	LOG_PROCESS_ERROR_RET_CODE(nItemCount < 7, -5);
 
-	const MAIL_TEMPLATE_DATA* mail_data = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(mtiAward);
+	mail_data = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(mtiAward);
 	LOG_PROCESS_ERROR(mail_data);
 
 	for (INT32 nIndex = 0; nIndex < nItemCount; nIndex++)

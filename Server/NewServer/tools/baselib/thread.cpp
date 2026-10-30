@@ -1,121 +1,119 @@
 #include "stdafx.h"
 #include "thread.h"
 
-#if defined(WIN32) | defined(WIN64)
-#include <process.h>
-#endif  // WIN32 | WIN64
+#include <cstdio>
+#include <exception>
+#include <utility>
 
-CThread::CThread(void)
+CThread::CThread() = default;
+
+CThread::~CThread()
 {
-    m_bstart = FALSE;
-    m_handle = 0;
-    m_tid = 0;
+    Wait();
 }
 
-CThread::~CThread(void)
+BOOL CThread::Start()
 {
-    if (m_handle != 0)
+    return Start(Work([this](std::stop_token) { ThrdProc(); }));
+}
+
+BOOL CThread::Start(PFThrdProc function, void* parameter)
+{
+    if (!function)
+        return FALSE;
+    return Start(Work([function, parameter](std::stop_token) { function(parameter); }));
+}
+
+BOOL CThread::Start(Work work)
+{
+    if (!work)
+        return FALSE;
+    if (IsRunning())
+        return TRUE;
+    // A completed thread must still be joined, including after startup failure.
+    if (m_thread.joinable())
+        m_thread.join();
+
+    try
     {
-        Terminate();
-        m_handle = 0;
-    }
-}
-
-THREAD_HANDLE _CreateThread(PFThrdProc pThrdProc, void * pParam, THREAD_ID * pThreadId, BOOL bSuspend)
-{
-#if (defined(WIN32) || defined(WIN64))
-    int thrdFlag = bSuspend ? CREATE_SUSPENDED : 0;
-    // CreateThread(NULL, 0, pThrdProc, pParam, thrdFlag, pThreadId);
-    return (THREAD_HANDLE)_beginthreadex(NULL, 0, pThrdProc, pParam, thrdFlag, pThreadId);
-#else
-    if (0 != pthread_create((pthread_t*)pThreadId, NULL, pThrdProc, pParam))
-    {
-        return SDINVALID_HANDLE;
-    }
-    return *pThreadId;
-#endif // 
-}
-
-INT32 _ThreadWait(THREAD_HANDLE handle)
-{
-#if (defined(WIN32) || defined(WIN64))
-    return ::WaitForSingleObject(handle, INFINITE);
-#else
-    return pthread_join(handle,NULL);
-#endif //
-}
-
-void  _ThreadTerminate(THREAD_HANDLE handle)
-{
-#if (defined(WIN32) || defined(WIN64))
-    TerminateThread(handle, 0);
-    CloseHandle(handle);
-#else
-    pthread_cancel(handle);
-#endif
-}
-
-BOOL CThread::Start(void)
-{
-    if (!m_bstart)
-    {
-        m_handle = _CreateThread(ThreadFunc, this, &m_tid, FALSE);
-        if (0 == m_handle)
+        // Publish the token and loop flag before the worker can execute.
+        m_stopSource = std::stop_source{};
+        m_failed.store(false);
+        m_bstart.store(true);
+        m_running.store(true);
+        m_thread = std::jthread([this, work = std::move(work)](std::stop_token token) mutable
         {
-            return FALSE;
-        }
-        m_bstart = TRUE;
+            std::stop_callback stopped(token, [this] { RequestStop(); });
+            try
+            {
+                work(m_stopSource.get_token());
+            }
+            catch (const std::exception& error)
+            {
+                std::fprintf(stderr, "Worker thread failed: %s\n", error.what());
+                m_failed.store(true);
+            }
+            catch (...)
+            {
+                std::fputs("Worker thread failed with an unknown exception\n", stderr);
+                m_failed.store(true);
+            }
+            m_bstart.store(false);
+            m_running.store(false);
+        });
     }
-    return m_bstart;
-}
-
-BOOL CThread::Start(PFThrdProc pFunc, void* pParam)
-{
-    if (!m_bstart)
+    catch (const std::exception& error)
     {
-        m_handle = _CreateThread(pFunc, pParam, &m_tid, FALSE);
-        if (0 == m_handle)
-        {
-            return FALSE;
-        }
-        m_bstart = TRUE;
+        std::fprintf(stderr, "Cannot start worker thread: %s\n", error.what());
+        m_bstart.store(false);
+        m_running.store(false);
+        m_failed.store(true);
+        return FALSE;
     }
-    return m_bstart;
+    return TRUE;
 }
 
-void CThread::Wait(void)
+void CThread::RequestStop() noexcept
 {
-    if (m_bstart)
-    {
-        m_bstart = FALSE;
-        _ThreadWait(m_handle);
-    }
+    m_bstart.store(false);
+    m_stopSource.request_stop();
 }
 
-void CThread::Terminate(void)
+bool CThread::IsRunning() const noexcept
 {
-    if (m_bstart)
-    {
-        _ThreadTerminate(m_handle);
-        m_bstart = FALSE;
-    }
+    return m_running.load();
 }
 
-THREAD_DECLARE(CThread::ThreadFunc) (void * pParam)
+bool CThread::HasFailed() const noexcept
 {
-    CThread *pThread = static_cast<CThread*>(pParam);
-    if (pThread != NULL)
-    {
-        pThread->ThrdProc();
-    }
-    return 0;
+    return m_failed.load();
 }
 
-THREAD_ID CThread::GetThreadID(void)
+bool CThread::WaitForStop(std::chrono::milliseconds delay)
 {
-#if (defined(WIN32) || defined(WIN64))
+    const auto token = m_stopSource.get_token();
+    std::unique_lock lock(m_waitMutex);
+    m_stopWake.wait_for(lock, token, delay, [] { return false; });
+    return token.stop_requested();
+}
+
+void CThread::Wait()
+{
+    RequestStop();
+    if (m_thread.joinable())
+        m_thread.join();
+}
+
+void CThread::Terminate()
+{
+    Wait();
+}
+
+THREAD_ID CThread::GetThreadID()
+{
+#if defined(WIN32) || defined(WIN64)
     return ::GetCurrentThreadId();
 #else
     return pthread_self();
-#endif  //WIN32
+#endif
 }

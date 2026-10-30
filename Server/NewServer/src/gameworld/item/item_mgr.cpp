@@ -419,8 +419,7 @@ BOOL CItemMgr::RegisterRuneData(const RUNE_DATA* data)
 
     if (data->nRuneID)
     {
-        LOG_PROCESS_ERROR(data->dwWeight > 0);
-        //LOG_PROCESS_ERROR(data->dwWeight <= 1000000);
+        // Zero normal-drop weights are valid in the shipped rune table.
         LOG_PROCESS_ERROR(data->dwWeight[0][0] <= 1000000);    // For now, always use index [0][0]
         LOG_PROCESS_ERROR(CSpellConfig::GetInstance().FindSpellTemplate(data->nSpellID, 0, 0));
         LOG_PROCESS_ERROR(data->nClass >= clsPlayerBegin && data->nClass < clsPlayerEnd);

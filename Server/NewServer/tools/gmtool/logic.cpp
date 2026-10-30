@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "logic.h"
+#include "gm_input.h"
+#include <QtCore/QTextCodec>
+#include <array>
 #include "char_def.h"
 #include "item_def.h"
 #include "gm_def.h"
@@ -213,50 +216,30 @@ const char * gm_itoa64(INT64 i, char *pBuffer)
 }
 
 
-BOOL DisplayBaseInfoWidgetItem(CMyTreeWidgetItem *pTreeItem, INT32 nAreaId, INT32 nGroupID, UINT32 dwRoleID, 
-    BOOL bIsOnline, const char *pcszSaveTime, UINT32 dwDeleteTime, const char *pcszRoleName, INT32 nSex, INT32 nClass, INT32 nLevel)
+BOOL DisplayBaseInfoWidgetItem(CMyTreeWidgetItem* item, INT32 area, INT32 group, UINT32 role,
+    BOOL online, const char* saved, UINT32 deleted, const char* name, INT32 sex, INT32 role_class, INT32 level)
 {
-    char        szNum[20] = { 0 };
-
-    LOG_PROCESS_ERROR(pTreeItem);
-    LOG_PROCESS_ERROR(pcszRoleName);
-    LOG_PROCESS_ERROR(pcszSaveTime);
-    
-    pTreeItem->SetID(dwRoleID);
-
-    memset(szNum, 0, sizeof(szNum));
-    pTreeItem->setText(0, QString::fromLocal8Bit(gm_itoa(nAreaId, szNum)));
-    memset(szNum, 0, sizeof(szNum));
-    pTreeItem->setText(1, QString::fromLocal8Bit(gm_itoa(nGroupID, szNum)));
-    memset(szNum, 0, sizeof(szNum));
-    pTreeItem->setText(2, QString::fromLocal8Bit(gm_itoa(dwRoleID, szNum)));
-
-    pTreeItem->setText(3, QString::fromUtf8(pcszRoleName));
-
-    if (dwDeleteTime > 0)
-        pTreeItem->setText(4, QString::fromLocal8Bit("是"));
-    else
-        pTreeItem->setText(4, QString::fromLocal8Bit("否"));
-
-    if (bIsOnline)
-        pTreeItem->setText(5, QString::fromLocal8Bit("在线"));
-    else
-        pTreeItem->setText(5, QString::fromLocal8Bit("离线"));
-
-    pTreeItem->setText(6, QString::fromLocal8Bit(pcszSaveTime));
-
-    LOG_PROCESS_ERROR(NULL != GetSexString(nSex));
-    LOG_PROCESS_ERROR(NULL != GetClassString(nClass));
-
-    pTreeItem->setText(7, QString::fromLocal8Bit(GetSexString(nSex)));
-    pTreeItem->setText(8, QString::fromLocal8Bit(GetClassString(nClass)));
-
-    memset(szNum, 0, sizeof(szNum));
-    pTreeItem->setText(9, QString::fromLocal8Bit(gm_itoa(nLevel, szNum)));
-
+    if (!item || !name || !saved) return FALSE;
+    const auto* sex_name = GetSexString(sex);
+    const auto* class_name = GetClassString(role_class);
+    if (!sex_name || !class_name) return FALSE;
+    const auto legacy = [](const char* text)
+    {
+        if (const auto* codec = QTextCodec::codecForName("GB18030")) return codec->toUnicode(text);
+        return QString::fromLocal8Bit(text);
+    };
+    const std::array<QString,10> columns{QString::number(area), QString::number(group), QString::number(role),
+        QString::fromUtf8(name), deleted ? QStringLiteral("是") : QStringLiteral("否"),
+        online ? QStringLiteral("在线") : QStringLiteral("离线"), QString::fromUtf8(saved),
+        legacy(sex_name), legacy(class_name), QString::number(level)};
+    item->SetID(static_cast<INT32>(role));
+    item->setData(2, Qt::UserRole, role);
+    for (int column = 0; column < static_cast<int>(columns.size()); ++column)
+    {
+        item->setText(column, columns[column]);
+        item->setToolTip(column, columns[column]);
+    }
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
 
@@ -330,46 +313,9 @@ const INT32 UTF8_4CHAR = UTF8_3CHAR + (1 << 4);
 const INT32 UTF8_5CHAR = UTF8_4CHAR + (1 << 3);
 const INT32 UTF8_6CHAR = UTF8_5CHAR + (1 << 2);
 
-BOOL FilterUtf8EnterKey(char *pcszStr)
+BOOL FilterUtf8EnterKey(char* text)
 {
-    INT32       nIndex = 0;
-    LOG_PROCESS_ERROR(pcszStr);
-
-    while (pcszStr[nIndex] != '\0')
-    {
-        if ((pcszStr[nIndex] >> 7) == 0)
-        {
-            if (pcszStr[nIndex] == '\r' && pcszStr[nIndex+1] == '\n')
-            {
-                pcszStr[nIndex] = ' ';
-                pcszStr[nIndex+1] = ' ';
-                nIndex += 2;
-            }
-            else if (pcszStr[nIndex] == '\n')
-            {
-                pcszStr[nIndex] = ' ';
-                nIndex += 1;
-            }
-            else
-                nIndex += 1;
-        }
-        else
-        {
-            if ((UTF8_6CHAR & pcszStr[nIndex]) == UTF8_6CHAR)
-                nIndex += 6;
-            else if ((UTF8_5CHAR & pcszStr[nIndex]) == UTF8_5CHAR)
-                nIndex += 5;
-            else if ((UTF8_4CHAR & pcszStr[nIndex]) == UTF8_4CHAR)
-                nIndex += 4;
-            else if ((UTF8_3CHAR & pcszStr[nIndex]) == UTF8_3CHAR)
-                nIndex += 3;
-            else if ((UTF8_2CHAR & pcszStr[nIndex]) == UTF8_2CHAR)
-                nIndex += 2;
-        }
-    }
-
+    if (!text) return FALSE;
+    gm::normalize_line_breaks(std::span<char>(text,std::string_view(text).size()));
     return TRUE;
-Exit0:
-    return FALSE;
 }
-

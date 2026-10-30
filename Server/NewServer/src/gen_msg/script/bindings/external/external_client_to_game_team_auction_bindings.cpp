@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "sol_bindings.h"
+#include "generator_bindings.h"
 #include "../registration.h"
 #include "../../../../../../Common/message/external_message_header.h"
 #include "../../../../../../Common/message/c2g_message.h"
@@ -13,12 +13,12 @@ void register_external_client_to_game_team_auction_bindings(lua_State* L)
     sol::state_view lua(L);
     sol::table globals = lua.globals();
     sol::table external_message_namespace = globals["ExternalMessage"].get_or_create<sol::table>();
-    auto external_message_c2g_team_auction_bid_type = cqyh::lua::usertype<ExternalMessage::C2G_TEAM_AUCTION_BID>(L, external_message_namespace, "C2G_TEAM_AUCTION_BID", "ExternalMessage::C2G_TEAM_AUCTION_BID", sol::base_classes, sol::bases<ExternalMessage::MESSAGE_HEADER>());
+    auto external_message_c2g_team_auction_bid_type = cqyh::gen_msg::usertype<ExternalMessage::C2G_TEAM_AUCTION_BID>(L, external_message_namespace, "C2G_TEAM_AUCTION_BID", "ExternalMessage::C2G_TEAM_AUCTION_BID", sol::base_classes, sol::bases<ExternalMessage::MESSAGE_HEADER>());
     external_message_c2g_team_auction_bid_type.set_function("new", [](sol::table) -> decltype(auto) { return new ExternalMessage::C2G_TEAM_AUCTION_BID(); });
     external_message_c2g_team_auction_bid_type.set_function("new_local", [](sol::table) -> decltype(auto) { return std::unique_ptr<ExternalMessage::C2G_TEAM_AUCTION_BID>(new ExternalMessage::C2G_TEAM_AUCTION_BID()); });
     external_message_c2g_team_auction_bid_type["dwAuctionIndex"] = sol::property([](const ExternalMessage::C2G_TEAM_AUCTION_BID& self) { return self.dwAuctionIndex; }, [](ExternalMessage::C2G_TEAM_AUCTION_BID& self, decltype(ExternalMessage::C2G_TEAM_AUCTION_BID::dwAuctionIndex) value) { self.dwAuctionIndex = value; });
     external_message_c2g_team_auction_bid_type["dwOfferPrice"] = sol::property([](const ExternalMessage::C2G_TEAM_AUCTION_BID& self) { return self.dwOfferPrice; }, [](ExternalMessage::C2G_TEAM_AUCTION_BID& self, decltype(ExternalMessage::C2G_TEAM_AUCTION_BID::dwOfferPrice) value) { self.dwOfferPrice = value; });
-    auto external_message_c2g_team_auction_abandon_type = cqyh::lua::usertype<ExternalMessage::C2G_TEAM_AUCTION_ABANDON>(L, external_message_namespace, "C2G_TEAM_AUCTION_ABANDON", "ExternalMessage::C2G_TEAM_AUCTION_ABANDON", sol::base_classes, sol::bases<ExternalMessage::MESSAGE_HEADER>());
+    auto external_message_c2g_team_auction_abandon_type = cqyh::gen_msg::usertype<ExternalMessage::C2G_TEAM_AUCTION_ABANDON>(L, external_message_namespace, "C2G_TEAM_AUCTION_ABANDON", "ExternalMessage::C2G_TEAM_AUCTION_ABANDON", sol::base_classes, sol::bases<ExternalMessage::MESSAGE_HEADER>());
     external_message_c2g_team_auction_abandon_type.set_function("new", [](sol::table) -> decltype(auto) { return new ExternalMessage::C2G_TEAM_AUCTION_ABANDON(); });
     external_message_c2g_team_auction_abandon_type.set_function("new_local", [](sol::table) -> decltype(auto) { return std::unique_ptr<ExternalMessage::C2G_TEAM_AUCTION_ABANDON>(new ExternalMessage::C2G_TEAM_AUCTION_ABANDON()); });
     external_message_c2g_team_auction_abandon_type["dwAuctionIndex"] = sol::property([](const ExternalMessage::C2G_TEAM_AUCTION_ABANDON& self) { return self.dwAuctionIndex; }, [](ExternalMessage::C2G_TEAM_AUCTION_ABANDON& self, decltype(ExternalMessage::C2G_TEAM_AUCTION_ABANDON::dwAuctionIndex) value) { self.dwAuctionIndex = value; });

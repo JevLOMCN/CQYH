@@ -10,14 +10,20 @@
 #ifndef _H_DATA_MGR_H_
 #define _H_DATA_MGR_H_
 
+#include "std_type.h"
 #include "string_def.h"
-#include "id_object_pool.h"
 #include "item_def.h"
 #include "quest_def.h"
 #include "mail_def.h"
 #include "money_def.h"
 #include "server_def.h"
 #include "gm_def.h"
+#include "gm_role_data.h"
+#include <array>
+#include <map>
+#include <memory>
+#include <span>
+#include <vector>
 
 
 struct GM_ITEM_DATA
@@ -51,8 +57,9 @@ struct GM_MAIL_DATA
 struct GM_ROLE_DATA
 {
     UINT32      dwRoleID;
-    INT32       nLength;
-    char        szData[MAX_GM_ROLE_DATA_STR_LENGTH];
+    gm::RoleDocument document;
+    // A weak editor reference identifies this cache entry across replacement/clear.
+    const std::shared_ptr<const char> lifetime=std::make_shared<const char>(0);
 };
 
 
@@ -73,12 +80,6 @@ struct TL_ANNOUNCE_DATA
     char        szText[GM_ANNOUNCE_LENGTH];
 };
 
-struct TL_ANNOUNCE_LIST
-{
-    INT32       nCount;
-    TL_ANNOUNCE_DATA    data[100];
-};
-
 
 
 class CDataMgr
@@ -96,35 +97,35 @@ public:
     BOOL UnInit();
 
     // role data
-    GM_ROLE_DATA*   NewRole(UINT32 dwRoleID);
+    GM_ROLE_DATA*   StoreRole(UINT32 role_id, gm::RoleDocument document);
     BOOL            DeleteRole(GM_ROLE_DATA*);
     BOOL            ClearRole();
     GM_ROLE_DATA*   FindRole(UINT32 dwRoleID);
 
     // item template
     void        ClearItemMap(UINT32 dwSessionID);
-    BOOL        AddItem(UINT32 dwSessionID, UINT32 dwItemID, const char *pcszName);
-    void        ItemMapBegin(UINT32 dwSessionID);
-    ITEM_TEMPLATE_DATA  *ItemMapNext(UINT32 dwSessionID);
+    BOOL        ApplyItems(UINT32 session, bool clear, std::span<const ITEM_TEMPLATE_DATA> items);
+    std::vector<ITEM_TEMPLATE_DATA> GetItems(UINT32 session) const;
 
     // announce
-    TL_ANNOUNCE_LIST &GetAnnounceList()     { return m_AnnounceList; }
-    void        ClearAnnounceList()         { memset(&m_AnnounceList, 0, sizeof(m_AnnounceList)); }
+    const std::vector<TL_ANNOUNCE_DATA>& GetAnnounceList() const { return m_AnnounceList; }
+    BOOL        ReplaceAnnounceList(std::span<const TL_ANNOUNCE_DATA> records);
+    void        ClearAnnounceList()         { m_AnnounceList.clear(); }
     BOOL        DelAnnounceFromList(UINT32 dwAnnounceSerial);
 
 private:
     // role data
-    CIDObjectPool<GM_ROLE_DATA, UINT32>       m_RolePool;
+    std::map<UINT32, std::unique_ptr<GM_ROLE_DATA>> m_Roles;
+    bool m_initialized = false;
 
 
 
     // item template
     typedef     std::map<UINT32, ITEM_TEMPLATE_DATA>    ITEM_MAP;
-    ITEM_MAP    m_ItemMap[MAX_GM_SESSION_COUNT];
-    ITEM_MAP::iterator  m_ItemMap_Cursor[MAX_GM_SESSION_COUNT];
+    std::array<ITEM_MAP, MAX_GM_SESSION_COUNT> m_ItemMap;
 
     // announce 
-    TL_ANNOUNCE_LIST        m_AnnounceList;
+    std::vector<TL_ANNOUNCE_DATA> m_AnnounceList;
 
 };
 

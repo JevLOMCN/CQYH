@@ -1,37 +1,23 @@
 #include "stdafx.h"
 #include "circle_list.h"
 
-CCircleList::CCircleList()
+BOOL CCircleList::Init(UINT32 size)
 {
-    m_dwSize = m_dwHead = m_dwRear = 0;
-    m_ppData = NULL;
-}
-
-CCircleList::~CCircleList()
-{
-    UnInit();
-}
-
-BOOL CCircleList::Init(UINT32 dwSize)
-{
-    LOG_PROCESS_ERROR(dwSize > 0);
-
-    m_ppData = new void*[dwSize];
-    LOG_PROCESS_ERROR(m_ppData);
-
-    m_dwSize = dwSize;
-    m_dwHead = m_dwRear = 0;
-
-    return TRUE;
-Exit0:
-    return FALSE;
-}
-
-BOOL CCircleList::UnInit(void)
-{
-    SAFE_DELETE_ARRAY(m_ppData);
-    m_dwSize = 0;
-
+    if (size == 0 || !m_data.empty())
+    {
+        LOG_CHECK_ERROR(size > 0 && m_data.empty());
+        return FALSE;
+    }
+    m_data.resize(size);
+    m_head.store(0, std::memory_order_relaxed);
+    m_rear.store(0, std::memory_order_relaxed);
     return TRUE;
 }
 
+BOOL CCircleList::UnInit()
+{
+    std::vector<void*>{}.swap(m_data);
+    m_head.store(0, std::memory_order_relaxed);
+    m_rear.store(0, std::memory_order_relaxed);
+    return TRUE;
+}

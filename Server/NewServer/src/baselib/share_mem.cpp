@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "share_mem.h"
+#include "cas.h"
+#include <chrono>
+#include <limits>
+#include <memory>
+#include <thread>
 
 #ifdef __linux__
 
@@ -72,123 +77,112 @@ Exit0:
 
 #include <winternl.h>
 
-BOOL CreateSharedMemory(const char* szName, UINT64 qwSize, MemPtr& RetPtr)
+namespace
 {
-	HANDLE hMapFile = NULL;
-	BOOL bIsNew = FALSE;
-	void* pResult = NULL;
+struct MappingHandleCloser
+{
+    void operator()(void* value) const noexcept { CloseHandle(value); }
+};
+struct MappingViewCloser
+{
+    void operator()(void* value) const noexcept { UnmapViewOfFile(value); }
+};
+using MappingHandle = std::unique_ptr<void, MappingHandleCloser>;
+using MappingView = std::unique_ptr<void, MappingViewCloser>;
 
-	RetPtr.pSharedMem = NULL;
-	RetPtr.pFd = NULL;
-	RetPtr.bIsNew = TRUE;
-
-	ShareMemHeader* pHeader = NULL;
-
-	qwSize += sizeof(ShareMemHeader);
-
-	UINT32 dwSizeHi = (UINT32)(qwSize >> 32);
-	UINT32 dwSizeLo = (UINT32)(qwSize & 0x00000000FFFFFFFF);
-
-	hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, dwSizeHi, dwSizeLo, szName);
-	LOG_PROCESS_ERROR(hMapFile);
-
-	if(GetLastError() == ERROR_ALREADY_EXISTS)
-		RetPtr.bIsNew = FALSE;
-
-	pResult = MapViewOfFile(hMapFile, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
-	LOG_PROCESS_ERROR(pResult);
-
-	pHeader = (ShareMemHeader*)pResult;
-	
-	if(pHeader->nTag != SHARED_MEM_HEAD_TAG)
-	{
-		pHeader->nTag = SHARED_MEM_HEAD_TAG;
-		pHeader->qwSize = qwSize - sizeof(ShareMemHeader);
-	}
-	else
-	{
-		UINT64 qwFileSize = pHeader->qwSize + sizeof(ShareMemHeader);
-
-		UnmapViewOfFile(pResult);
-
-		pResult = MapViewOfFile(hMapFile, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
-		LOG_PROCESS_ERROR(pResult);
-
-		pHeader = (ShareMemHeader*)pResult;
-	}
-
-	RetPtr.pSharedMem = (char*)pResult + sizeof(ShareMemHeader);
-	RetPtr.pFd = hMapFile;
-	RetPtr.qwSize = pHeader->qwSize;
-
-	return TRUE;
-Exit0:
-
-	DWORD dwLastError = GetLastError();
-	CRI("CreateSharedMemory Failed, SysError: %u", dwLastError);
-
-	UnmapViewOfFile(pResult);
-
-	if(hMapFile)
-		CloseHandle(hMapFile);
-
-	return FALSE;
+bool WaitForMappingHeader(ShareMemHeader& header)
+{
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    while (cqyh::SharedLoad32(&header.nTag) != SHARED_MEM_HEAD_TAG)
+    {
+        if (std::chrono::steady_clock::now() >= deadline)
+            return false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    return true;
 }
 
-BOOL OpenSharedMemory(const char* szName, MemPtr& RetPtr)
+BOOL AttachMapping(MappingHandle handle, BOOL isNew, UINT64 requestedSize, MemPtr& result)
 {
-	HANDLE hMapFile = NULL;
-	void* pResult = NULL;
-	INT32 nRetCode = 0;
-	UINT64 qwFileSize = 0;
-
-	RetPtr.pSharedMem = NULL;
-	RetPtr.pFd = NULL;
-	RetPtr.bIsNew = FALSE;
-
-	ShareMemHeader* pHeader = NULL;
-
-	hMapFile = OpenFileMapping(FILE_MAP_READ | FILE_MAP_WRITE, FALSE, szName);
-	PROCESS_ERROR(hMapFile);
-
-	pResult = MapViewOfFile(hMapFile, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
-	LOG_PROCESS_ERROR(pResult);
-
-	pHeader = (ShareMemHeader*)pResult;
-	LOG_PROCESS_ERROR(pHeader->nTag == SHARED_MEM_HEAD_TAG);
-	qwFileSize = pHeader->qwSize + sizeof(ShareMemHeader);
-
-	UnmapViewOfFile(pResult);
-
-	pResult = MapViewOfFile(hMapFile, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
-	LOG_PROCESS_ERROR(pResult);
-
-	pHeader = (ShareMemHeader*)pResult;
-	LOG_PROCESS_ERROR(pHeader->nTag == SHARED_MEM_HEAD_TAG);
-
-	RetPtr.pSharedMem = (char*)pResult + sizeof(ShareMemHeader);
-	RetPtr.pFd = hMapFile;
-	RetPtr.qwSize = pHeader->qwSize;
-
-	return TRUE;
-Exit0:
-	DWORD dwLastError = GetLastError();
-
-	UnmapViewOfFile(pResult);
-
-	if(hMapFile)
-		CloseHandle(hMapFile);
-	return FALSE;
+    MappingView view(MapViewOfFile(handle.get(), FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0));
+    if (!view)
+    {
+        ERR("Cannot map shared memory (Windows error=%lu)", GetLastError());
+        return FALSE;
+    }
+    auto& header = *static_cast<ShareMemHeader*>(view.get());
+    if (isNew)
+    {
+        // qwSize is packed and immutable. Publish its initialized value through
+        // the aligned 32-bit tag before allowing another process to consume it.
+        header.qwSize = requestedSize;
+        cqyh::SharedStore32(&header.nTag, SHARED_MEM_HEAD_TAG);
+    }
+    else if (!WaitForMappingHeader(header))
+    {
+        ERR("Shared-memory mapping metadata was not published");
+        return FALSE;
+    }
+    const auto payloadSize = header.qwSize;
+    MEMORY_BASIC_INFORMATION information{};
+    if (!VirtualQuery(view.get(), &information, sizeof(information)) ||
+        information.RegionSize < sizeof(ShareMemHeader) ||
+        payloadSize == 0 || payloadSize > information.RegionSize - sizeof(ShareMemHeader))
+    {
+        ERR("Invalid shared-memory mapping size");
+        return FALSE;
+    }
+    result.bIsNew = isNew;
+    result.qwSize = payloadSize;
+    result.pSharedMem = static_cast<char*>(view.release()) + sizeof(ShareMemHeader);
+    result.pFd = handle.release();
+    return TRUE;
+}
 }
 
-
-void CloseSharedMemory(MemPtr& ptr)
+BOOL CreateSharedMemory(const char* name, UINT64 size, MemPtr& result)
 {
-	UnmapViewOfFile(ptr.pSharedMem - sizeof(ShareMemHeader));
-	CloseHandle(ptr.pFd);
+    result = {};
+    if (!name || !*name || size == 0 || size > (std::numeric_limits<UINT64>::max)() - sizeof(ShareMemHeader))
+    {
+        LOG_CHECK_ERROR(name && *name && size > 0 &&
+                        size <= (std::numeric_limits<UINT64>::max)() - sizeof(ShareMemHeader));
+        return FALSE;
+    }
+    const auto total = size + sizeof(ShareMemHeader);
+    HANDLE raw = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
+                                  static_cast<DWORD>(total >> 32), static_cast<DWORD>(total), name);
+    const auto error = GetLastError();
+    MappingHandle handle(raw);
+    if (!handle)
+    {
+        ERR("Cannot create shared memory %s (Windows error=%lu)", name, error);
+        return FALSE;
+    }
+    return AttachMapping(std::move(handle), error != ERROR_ALREADY_EXISTS, size, result);
+}
 
-	ptr.pSharedMem = NULL;
-	ptr.pFd = NULL;
+BOOL OpenSharedMemory(const char* name, MemPtr& result)
+{
+    result = {};
+    if (!name || !*name)
+    {
+        LOG_CHECK_ERROR(name && *name);
+        return FALSE;
+    }
+    MappingHandle handle(OpenFileMapping(FILE_MAP_READ | FILE_MAP_WRITE, FALSE, name));
+    if (!handle)
+        return FALSE; // An absent peer is a normal polling result.
+    return AttachMapping(std::move(handle), FALSE, 0, result);
+}
+
+void CloseSharedMemory(MemPtr& value)
+{
+    if (value.pSharedMem)
+        UnmapViewOfFile(value.pSharedMem - sizeof(ShareMemHeader));
+    if (value.pFd)
+        CloseHandle(value.pFd);
+    value = {};
 }
 
 typedef NTSTATUS (__stdcall *NT_QUERYOBJECT)(_In_opt_ HANDLE, _In_ ULONG, _Out_opt_ PVOID, _In_ ULONG, _Out_opt_ PULONG);

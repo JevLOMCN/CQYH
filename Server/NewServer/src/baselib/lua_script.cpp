@@ -2,10 +2,13 @@
 #include "sol_bindings.h"
 #include "lua_script.h"
 
-#include "ifile.h"
+#include "file_owner.h"
 #include "script_mgr.h"
 #include "utf8.h"
 #include "zlib.h"
+
+#include <cstring>
+#include <memory>
 
 
 #define LUA_SCRIPT_THIS		"LuaScriptThis"
@@ -70,9 +73,9 @@ BOOL CLuaScript::UnInit(void)
 BOOL CLuaScript::LoadFromFile(const char* pcszFileName)
 {
 	INT32 nRetCode = FALSE;
-	char* pszBuffer = NULL;
+	std::unique_ptr<char[]> pszBuffer;
 	UINT32 dwSize = 0;
-	IFile* pFile = NULL;
+	cqyh::FilePtr pFile;
     UINT32 dwOldCRC = m_dwCRC;
 
     LOG_PROCESS_ERROR(pcszFileName);
@@ -82,31 +85,30 @@ BOOL CLuaScript::LoadFromFile(const char* pcszFileName)
 
     if (dwOldCRC != m_dwCRC)
     {
-        pFile = g_OpenFile(pcszFileName, "rb");
+        pFile.reset(g_OpenFile(pcszFileName, "rb"));
         LOG_PROCESS_ERROR(pFile);
 
         dwSize = pFile->Size();
 
-        pszBuffer = new char[dwSize];
+        pszBuffer = std::make_unique<char[]>(dwSize);
         LOG_PROCESS_ERROR(pszBuffer);
 
-        nRetCode = pFile->Read(pszBuffer, dwSize);
+        nRetCode = pFile->Read(pszBuffer.get(), dwSize);
         LOG_PROCESS_ERROR(nRetCode == dwSize);
 
-        if ((*(UINT32*)pszBuffer & 0x00FFFFFF) == UTF8_BOM)
+        if (dwSize >= 3 && std::memcmp(pszBuffer.get(), "\xEF\xBB\xBF", 3) == 0)
         {
-            nRetCode = LoadFromBuffer(pcszFileName, pszBuffer + 3, dwSize - 3);
+            nRetCode = LoadFromBuffer(pcszFileName, pszBuffer.get() + 3, dwSize - 3);
             LOG_PROCESS_ERROR(nRetCode);
         }
         else
         {
-            nRetCode = LoadFromBuffer(pcszFileName, pszBuffer, dwSize);
+            nRetCode = LoadFromBuffer(pcszFileName, pszBuffer.get(), dwSize);
             LOG_PROCESS_ERROR(nRetCode);
         }
 
-        SAFE_DELETE_ARRAY(pszBuffer);
-        pFile->Close();
-        pFile = NULL;
+        pszBuffer.reset();
+        pFile.reset();
 
 		INF("loaded lua script %s successfully", pcszFileName);
     }
@@ -119,10 +121,6 @@ BOOL CLuaScript::LoadFromFile(const char* pcszFileName)
 Exit0:
 	if (pcszFileName)
 		WRN("failed to load lua script %s", pcszFileName);
-
-	SAFE_DELETE_ARRAY(pszBuffer);
-	if (pFile)
-		pFile->Close();
 
 	return FALSE;
 }
@@ -491,13 +489,12 @@ BOOL CLuaScript::CollectGarbage(INT32 nGCSize)
 INT32 CLuaScript::_Include(lua_State* L)
 {
 	INT32 nRetCode = 0;
-	IFile* pFile = NULL;
-	char* pszBuffer = NULL;
+	cqyh::FilePtr pFile;
+	std::unique_ptr<char[]> pszBuffer;
 	UINT32 dwSize = 0;
 	const char* pcszFileName = NULL;
     INT32 nErrFunc = 0;
     char szFileName[SCRIPT_NAME_LEN];
-
 
 	pcszFileName = lua_tostring(L, 1);
 	LOG_PROCESS_ERROR(pcszFileName);
@@ -508,41 +505,40 @@ INT32 CLuaScript::_Include(lua_State* L)
 	if (CScriptMgr::GetInstance().GetRootPath()[0])
 	{
 		snprintf(szFileName, SCRIPT_NAME_LEN, "%s/%s", CScriptMgr::GetInstance().GetRootPath(), pcszFileName);
-		pFile = g_OpenFile(szFileName, "rb");
+		pFile.reset(g_OpenFile(szFileName, "rb"));
 	}
 	else
     {
         snprintf(szFileName, SCRIPT_NAME_LEN, "%s", pcszFileName);
-        pFile = g_OpenFile(szFileName, "rb");
+        pFile.reset(g_OpenFile(szFileName, "rb"));
     }
     LOG_PROCESS_ERROR(pFile);
 
 	dwSize = pFile->Size();
 	LOG_PROCESS_ERROR(dwSize > 0);
 
-	pszBuffer = new char[dwSize];
+	pszBuffer = std::make_unique<char[]>(dwSize);
 	LOG_PROCESS_ERROR(pszBuffer);
 
-	nRetCode = pFile->Read(pszBuffer, dwSize);
+	nRetCode = pFile->Read(pszBuffer.get(), dwSize);
 	LOG_PROCESS_ERROR(nRetCode == dwSize);
 
-    if ((*(UINT32*)pszBuffer & 0x00FFFFFF) == UTF8_BOM)
+    if (dwSize >= 3 && std::memcmp(pszBuffer.get(), "\xEF\xBB\xBF", 3) == 0)
     {
-	    nRetCode = luaL_loadbuffer(L, pszBuffer + 3, dwSize - 3, pcszFileName);
+	    nRetCode = luaL_loadbuffer(L, pszBuffer.get() + 3, dwSize - 3, pcszFileName);
 	    LOG_PROCESS_ERROR(nRetCode == 0);
     }
     else
     {
-        nRetCode = luaL_loadbuffer(L, pszBuffer, dwSize, pcszFileName);
+        nRetCode = luaL_loadbuffer(L, pszBuffer.get(), dwSize, pcszFileName);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
 	nRetCode = lua_pcall(L, 0, 0, nErrFunc);
 	LOG_PROCESS_ERROR(nRetCode == 0);
 
-	SAFE_DELETE_ARRAY(pszBuffer);
-	pFile->Close();
-	pFile = NULL;
+	pszBuffer.reset();
+	pFile.reset();
 
 	return 0;
 
@@ -557,13 +553,8 @@ Exit0:
 	else 
 		CRI("[LUA] Include() : nil file name");
 
-	SAFE_DELETE_ARRAY(pszBuffer);
-	if (pFile)
-		pFile->Close();
-
 	return 0;
 }
-
 
 void CLuaScript::_EnumTable(lua_State* L, int nTableIndex, int nTableDepth)
 {
@@ -787,9 +778,9 @@ UINT32 CLuaScript::GetCRC(void)
 void CLuaScript::_GetCRC(const char* pcszFileName, INT32 nLevel)
 {
     INT32 nRetCode = 0;
-    IFile* pFile = NULL;
+    cqyh::FilePtr pFile;
     UINT32 dwSize = 0;
-    char* pszFileData = NULL;
+    std::unique_ptr<char[]> pszFileData;
     UINT32 dwPointer = 0;
     BOOL bInString = FALSE;
     char chStartChar = 0;
@@ -799,22 +790,21 @@ void CLuaScript::_GetCRC(const char* pcszFileName, INT32 nLevel)
     //memset(szTab, 0x09, nLevel);
     //DBG("%sinclude file %s", szTab, pcszFileName);
 
-    pFile = g_OpenFile(pcszFileName, "rb");
+    pFile.reset(g_OpenFile(pcszFileName, "rb"));
     LOG_PROCESS_ERROR(pFile);
 
     dwSize = pFile->Size();
     PROCESS_ERROR(dwSize > 0);
 
-    pszFileData = new char[dwSize + 1];
+    pszFileData = std::make_unique<char[]>(static_cast<std::size_t>(dwSize) + 1);
     LOG_PROCESS_ERROR(pszFileData);
 
-    nRetCode = pFile->Read(pszFileData, dwSize);
+    nRetCode = pFile->Read(pszFileData.get(), dwSize);
     LOG_PROCESS_ERROR(nRetCode == dwSize);
 
-    pFile->Close();
-    pFile = NULL;
+    pFile.reset();
 
-    m_dwCRC = crc32(m_dwCRC, (const Bytef*)pszFileData, dwSize);
+    m_dwCRC = crc32(m_dwCRC, reinterpret_cast<const Bytef*>(pszFileData.get()), dwSize);
 
     while (dwPointer < dwSize)
     {
@@ -884,15 +874,15 @@ void CLuaScript::_GetCRC(const char* pcszFileName, INT32 nLevel)
             break;
         default:
             if (!bInString && (dwPointer + 8 < dwSize) && 
-                *(UINT32*)(pszFileData + dwPointer) == 'lcnI' &&
-                *(UINT32*)(pszFileData + dwPointer + 4) == '(edu')
+                *(UINT32*)(pszFileData.get() + dwPointer) == 'lcnI' &&
+                *(UINT32*)(pszFileData.get() + dwPointer + 4) == '(edu')
             {
                 dwPointer += 8;
                 while (dwPointer < dwSize && pszFileData[dwPointer] != '\"')
                     dwPointer++;
                 dwPointer++;
 
-                char* pszFileName = pszFileData + dwPointer;
+                char* pszFileName = pszFileData.get() + dwPointer;
 
                 while (dwPointer < dwSize && pszFileData[dwPointer] != '\"')
                     dwPointer++;
@@ -917,10 +907,6 @@ void CLuaScript::_GetCRC(const char* pcszFileName, INT32 nLevel)
 
 	return;
 Exit0:
-	if (pFile)
-		pFile->Close();
-
-	SAFE_DELETE_ARRAY(pszFileData);
 
 	if (pcszFileName)
 		CRI("failed to get crc from %s", pcszFileName);

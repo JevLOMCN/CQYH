@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.25)
+execute_process(COMMAND "${EXPORT_TEST}" "${WORK_DIR}" "${CMAKE_CURRENT_LIST_DIR}/fixtures"
+    RESULT_VARIABLE result OUTPUT_VARIABLE stdout ERROR_VARIABLE stderr TIMEOUT 60)
+if(NOT "${result}" STREQUAL "0" OR NOT stderr STREQUAL "")
+    message(FATAL_ERROR "Exportdb checks failed: ${result}\n${stdout}\n${stderr}")
+endif()
+string(REGEX MATCH "[0-9]+ exportdb checks passed" check_report "${stdout}")
+message(STATUS "${check_report}")
+file(MAKE_DIRECTORY "${WORK_DIR}/entry-empty")
+if(EXISTS "${WORK_DIR}/entry-empty/global_config.lua")
+    message(FATAL_ERROR "The missing-config fixture is not empty")
+endif()
+execute_process(COMMAND "${EXPORT_TOOL}" WORKING_DIRECTORY "${WORK_DIR}/entry-empty"
+    RESULT_VARIABLE result OUTPUT_VARIABLE stdout ERROR_VARIABLE stderr TIMEOUT 10)
+if(NOT "${result}" STREQUAL "1" OR NOT stderr MATCHES "export or cleanup failed")
+    message(FATAL_ERROR "Missing configuration did not fail cleanly: ${result}\n${stdout}\n${stderr}")
+endif()
+execute_process(COMMAND "${EXPORT_TOOL}" --help RESULT_VARIABLE result
+    OUTPUT_VARIABLE stdout ERROR_VARIABLE stderr TIMEOUT 10)
+if(NOT "${result}" STREQUAL "0" OR NOT stdout MATCHES "Usage:" OR NOT stderr STREQUAL "")
+    message(FATAL_ERROR "Exportdb help failed: ${result}\n${stdout}\n${stderr}")
+endif()
+execute_process(COMMAND "${EXPORT_TOOL}" --invalid RESULT_VARIABLE result
+    OUTPUT_VARIABLE stdout ERROR_VARIABLE stderr TIMEOUT 10)
+if(NOT "${result}" STREQUAL "1" OR NOT stderr MATCHES "Usage:")
+    message(FATAL_ERROR "Exportdb invalid argument did not fail: ${result}\n${stdout}\n${stderr}")
+endif()

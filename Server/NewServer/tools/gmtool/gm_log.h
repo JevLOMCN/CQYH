@@ -9,6 +9,10 @@
 
 #ifndef _H_GM_LOG_H_
 #define _H_GM_LOG_H_
+#include "std_type.h"
+#include <format>
+#include <string_view>
+#include <utility>
 
 
 
@@ -28,7 +32,13 @@ public:
     BOOL UnInit();
 
 
-    BOOL Log(const char *pcszLog, ...);
+    BOOL Log(std::string_view text);
+    BOOL Log(const char* text) { return text ? Log(std::string_view(text)) : FALSE; }
+    template<class... Args> requires(sizeof...(Args)>0)
+    BOOL Log(std::format_string<Args...> format,Args&&... args)
+    {
+        return Log(std::format(format,std::forward<Args>(args)...));
+    }
 
 
 

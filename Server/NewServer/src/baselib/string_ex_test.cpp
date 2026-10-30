@@ -3,9 +3,9 @@
 
 struct StringTestCase
 {
-    char*   src;
-    char*   init_dst;
-    char*   dst;
+    const char* src;
+    const char* init_dst;
+    const char* dst;
     size_t  size;
     size_t  ret;
 };

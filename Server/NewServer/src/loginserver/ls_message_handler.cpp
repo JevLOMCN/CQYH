@@ -475,8 +475,8 @@ Exit0:
 
 // Client login response
 BOOL CLSMessageHandler::DoGTLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode, 
-                                     CHAR* szOASessionID, CHAR* szUserName, CHAR* szPGT, UINT8 bAdult,
-                                     UINT16 wInfoLen, BYTE* abyInfo)
+                                     const CHAR* szOASessionID, const CHAR* szUserName, const CHAR* szPGT, UINT8 bAdult,
+                                     UINT16 wInfoLen, const BYTE* abyInfo)
 {
     INT32 nRetCode = 0;
 
@@ -490,7 +490,7 @@ BOOL CLSMessageHandler::DoGTLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode,
     strxcpy(pMsg->szUserName, szUserName, USER_NAME_LEN);
     strxcpy(pMsg->szPGT, szPGT, OA_PGT_FIELD_LEN);
     pMsg->bAdult = bAdult;
-    if (abyInfo > 0)
+    if (abyInfo != nullptr)
     {
         pMsg->wInfoLen = wInfoLen;
         memcpy(pMsg->abyInfo, abyInfo, wInfoLen);
@@ -533,8 +533,8 @@ Exit0:
 }
 
 BOOL CLSMessageHandler::DoMGLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode,
-	CHAR* szOASessionID, CHAR* szUserName, CHAR* szPGT, UINT8 bAdult,
-	UINT16 wInfoLen, BYTE* abyInfo)
+	const CHAR* szOASessionID, const CHAR* szUserName, const CHAR* szPGT, UINT8 bAdult,
+	UINT16 wInfoLen, const BYTE* abyInfo)
 {
 	INT32 nRetCode = 0;
 
@@ -548,7 +548,7 @@ BOOL CLSMessageHandler::DoMGLoginAck(UINT32 dwClientSessionID, INT32 nErrorCode,
 	strxcpy(pMsg->szUserName, szUserName, USER_NAME_LEN);
 	strxcpy(pMsg->szPGT, szPGT, OA_PGT_FIELD_LEN);
 	pMsg->bAdult = bAdult;
-	if (abyInfo > 0)
+	if (abyInfo != nullptr)
 	{
 		pMsg->wInfoLen = wInfoLen;
 		memcpy(pMsg->abyInfo, abyInfo, wInfoLen);

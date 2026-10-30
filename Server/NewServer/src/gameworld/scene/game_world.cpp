@@ -193,6 +193,7 @@ CGameWorld& CGameWorld::GetInstance(void)
 BOOL CGameWorld::Init(void)
 {
 	INT32 nRetCode = 0;
+	int LogLevelMask = 0;
 	char szHostName[256];
 
 	strxcpy(m_szConfigPath, g_GWConfig.szConfigPath, PATH_LEN);
@@ -240,7 +241,7 @@ BOOL CGameWorld::Init(void)
 
 	gethostname(szHostName, 256);
 
-	char* szDeveloperList[] = { 
+	static constexpr const char* szDeveloperList[] = {
 		"sh-zhujianqiu-d", 
 		"sh-lixj01-d", 
 		"sh-taoqun-d",
@@ -271,7 +272,7 @@ BOOL CGameWorld::Init(void)
 		"sh-caihy-d",
 	};
 
-	char* szShowSpellLogList[] =
+	static constexpr const char* szShowSpellLogList[] =
 	{
 		"sh-yangchen05-d",
 		"sh-lixj01-d", 
@@ -279,7 +280,7 @@ BOOL CGameWorld::Init(void)
         "sh-fangruyi-d",
 	};
 
-	int DevelopersCount = sizeof( szDeveloperList ) / sizeof( szDeveloperList[0] );
+	static constexpr auto DevelopersCount = sizeof( szDeveloperList ) / sizeof( szDeveloperList[0] );
 	m_bProgrammer = FALSE;
 	for( int i = 0 ; i < DevelopersCount ; ++i )
 	{
@@ -290,8 +291,8 @@ BOOL CGameWorld::Init(void)
 		}
 	}
 
-	int LixjCount = sizeof( szShowSpellLogList ) / sizeof( szShowSpellLogList[0] );
-	int LogLevelMask = CLog::GetInstance().GetLevelMask();
+	static constexpr auto LixjCount = sizeof( szShowSpellLogList ) / sizeof( szShowSpellLogList[0] );
+	LogLevelMask = CLog::GetInstance().GetLevelMask();
 
 	LogLevelMask &= ~lltSpell;
 	m_bIsInLixjList = FALSE;
@@ -1334,6 +1335,10 @@ INT32 CGameWorld::GetGlobalExpRate()
 
 INT32 CGameWorld::SendItemToRole(UINT32 dwRoleID, INT32 nMailTemplateID, Item* pItem, EItemLog reason)
 {
+#ifndef _ROBOT
+    UINT32 attachlen = 0;
+    const MAIL_TEMPLATE_DATA* mail_data = nullptr;
+#endif
 	INT32 nRetCode = errUnknownError;
 	CRole* pRole = NULL;
     BOOL bRet = FALSE;
@@ -1350,9 +1355,9 @@ INT32 CGameWorld::SendItemToRole(UINT32 dwRoleID, INT32 nMailTemplateID, Item* p
 
 #ifndef _ROBOT
     char attachbuffer[1024];
-    UINT32 attachlen = pItem->m_iteminfo.Save(attachbuffer);
+    attachlen = pItem->m_iteminfo.Save(attachbuffer);
 
-    const MAIL_TEMPLATE_DATA* mail_data = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(nMailTemplateID);
+    mail_data = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(nMailTemplateID);
     LOG_PROCESS_ERROR(mail_data);
 
     bRet = CCliMessageHandler::GetInstance().DoMSSendSystemMailWithBufferAttach(
@@ -1397,11 +1402,12 @@ Exit0:
 BOOL CGameWorld::SendItemMail(UINT32 dwRoleID, INT32 nMailTemplateID, Item* pItem, EItemLog reason)
 {
 	INT32 nRetCode = 0;
+	UINT32 attachlen = 0;
 
 	LOG_PROCESS_ERROR(pItem);
 
 	char attachbuffer[1024];
-	UINT32 attachlen = pItem->m_iteminfo.Save(attachbuffer);
+	attachlen = pItem->m_iteminfo.Save(attachbuffer);
 
 	{
 		const MAIL_TEMPLATE_DATA* mail_data = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(nMailTemplateID);

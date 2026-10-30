@@ -5,6 +5,8 @@
 #include "m2c_message.h"
 #include "manageserver.h"
 #include <algorithm>
+#include <memory>
+#include "worker_queue.h"
 
 #include "server_config.h"
 #include "dump.h"
@@ -20,6 +22,7 @@ enum
 
 struct AucRequest
 {
+    virtual ~AucRequest() = default;
     UINT8 m_eOp;
 };
 struct AucRequestAdd : public AucRequest
@@ -130,6 +133,18 @@ Exit0:
 
 BOOL CAuctionThread::UnInit()
 {
+    Wait();
+    while (auto* request = static_cast<AucRequest*>(m_requests.Pop()))
+        delete request;
+    while (auto* result = static_cast<SearchResult*>(m_results.Pop()))
+    {
+        CManageServer::GetInstance().GetPacketAllocator()->Free((PACKET_BUFFER*)result->pMsg);
+        delete result;
+    }
+    for (auto& lists : m_sorted_lists_map)
+        lists.clear();
+    for (auto& lists : m_sorted_type_lists_map)
+        lists.clear();
     BOOL bRet = FALSE;
 
     bRet = m_requests.UnInit();
@@ -283,106 +298,124 @@ BOOL CAuctionThread::GetSearchResult(SearchResult& res)
         return FALSE;
 }
 
+bool CAuctionThread::_PublishResult(SearchResult* result)
+{
+    const auto destroy = [](SearchResult* value)
+    {
+        CManageServer::GetInstance().GetPacketAllocator()->Free((PACKET_BUFFER*)value->pMsg);
+        delete value;
+    };
+    std::unique_ptr<SearchResult, decltype(destroy)> owned(result, destroy);
+    if (!cqyh::PublishUntilStopped(m_results, owned.get(), *this))
+        return false;
+    owned.release();
+    return true;
+}
+
+void CAuctionThread::_ProcessRequest()
+{
+    std::unique_ptr<AucRequest> request(static_cast<AucRequest*>(m_requests.Pop()));
+    auto* req = request.get();
+    if (req)
+    {
+        switch (req->m_eOp)
+        {
+            case AUC_REQUEST_ADD:
+            {
+                AucRequestAdd* req_add = (AucRequestAdd*)req;
+                AuctionThreadNode* auction = m_AuctionPool.New(req_add->auction.m_dwAuctionID);
+                LOG_CHECK_ERROR(auction);
+                LOG_CHECK_ERROR(req_add->auction.m_byGroupID < MAX_SERVER_GROUP_COUNT);
+
+                if (auction && req_add->auction.m_byGroupID < MAX_SERVER_GROUP_COUNT)
+                {
+                    auction->m_auction = req_add->auction;
+
+                    if (auction->m_auction.m_pItemData->m_byDurType == DURTYPE_STACK)
+                    {
+                        auction->m_nItemCount = auction->m_auction.m_iteminfo.m_nCurDur;
+                        LOG_CHECK_ERROR(auction->m_nItemCount > 0);
+
+                        if (auction->m_nItemCount <= 0)
+                            auction->m_nItemCount = 1;
+                    }
+                    else
+                        auction->m_nItemCount = 1;
+
+                    // Different
+                    auction->m_llSinglePrice = auction->m_auction.m_llPrice / auction->m_nItemCount;
+                    auction->m_llBuyoutSinglePrice = auction->m_auction.m_llBuyoutPrice / auction->m_nItemCount;
+
+                    _AddAuctionToList(auction);
+                }
+            }
+            break;
+            case AUC_REQUEST_DEL:
+            {
+                AucRequestDel* req_del = (AucRequestDel*)req;
+                AuctionThreadNode* auction = m_AuctionPool.Find(req_del->auctionid);
+                LOG_CHECK_ERROR(auction);
+                LOG_CHECK_ERROR(auction && auction->m_auction.m_byGroupID < MAX_SERVER_GROUP_COUNT);
+
+                if (auction && auction->m_auction.m_byGroupID < MAX_SERVER_GROUP_COUNT)
+                {
+                    _DelAuctionFromList(auction);
+                    m_AuctionPool.Delete(auction);
+                }
+            }
+            break;
+            case AUC_REQUEST_UPDATE_PRICE:
+            {
+                AucRequestUpdatePrice* req_update = (AucRequestUpdatePrice*)req;
+                AuctionThreadNode* auction = m_AuctionPool.Find(req_update->auctionid);
+                LOG_CHECK_ERROR(auction);
+                LOG_CHECK_ERROR(auction && auction->m_auction.m_byGroupID < MAX_SERVER_GROUP_COUNT);
+
+                if (auction && auction->m_auction.m_byGroupID < MAX_SERVER_GROUP_COUNT)
+                {
+                    _DelAuctionFromList(auction);
+                    auction->m_auction.m_llPrice = req_update->price;
+                    auction->m_auction.m_dwBuyerRoleID = req_update->buyerid;
+                    auction->m_auction.m_dwFinishTime = req_update->finishtime;
+                    auction->m_llSinglePrice = auction->m_auction.m_llPrice / auction->m_nItemCount;
+                    _AddAuctionToList(auction);
+                }
+            }
+            break;
+            case AUC_REQUEST_SEARCH:
+            {
+                AucRequestSearch* req_search = (AucRequestSearch*)req;
+                SearchResult* sr = _SearchAuctionInList(req_search->sessionid, req_search->roleid,
+                    req_search->groupid, req_search->sortby, req_search->asc, req_search->templateid);
+                LOG_CHECK_ERROR(sr);
+                if (sr)
+                    _PublishResult(sr);
+            }
+            break;
+            case AUC_REQUEST_SEARCH_TYPE:
+            {
+                AucRequestSearchType* req_search_type = (AucRequestSearchType*)req;
+                SearchResult* sr = _SearchAuctionType(req_search_type->sessionid, req_search_type->roleid,
+                    req_search_type->groupid, req_search_type->sortby, req_search_type->asc, req_search_type->auctiontype);
+                LOG_CHECK_ERROR(sr);
+                if (sr)
+                    _PublishResult(sr);
+            }
+            break;
+            default:
+                LOG_CHECK_ERROR(FALSE);
+        }
+    }
+}
+
 void CAuctionThread::ThrdProc()
 {
     for (; m_bstart; )
     {
         __try
         {
-            AucRequest* req = (AucRequest*)m_requests.Pop();
-            if (req)
-            {
-                switch (req->m_eOp)
-                {
-                    case AUC_REQUEST_ADD:
-                    {
-                        AucRequestAdd* req_add = (AucRequestAdd*)req;
-                        AuctionThreadNode* auction = m_AuctionPool.New(req_add->auction.m_dwAuctionID);
-                        LOG_CHECK_ERROR(auction);
-                        LOG_CHECK_ERROR(req_add->auction.m_byGroupID < MAX_SERVER_GROUP_COUNT);
-
-                        if (auction && req_add->auction.m_byGroupID < MAX_SERVER_GROUP_COUNT)
-                        {
-                            auction->m_auction = req_add->auction;
-
-                            if (auction->m_auction.m_pItemData->m_byDurType == DURTYPE_STACK)
-                            {
-                                auction->m_nItemCount = auction->m_auction.m_iteminfo.m_nCurDur;
-                                LOG_CHECK_ERROR(auction->m_nItemCount > 0);
-
-                                if (auction->m_nItemCount <= 0)
-                                    auction->m_nItemCount = 1;
-                            }
-                            else
-                                auction->m_nItemCount = 1;
-
-                            // Different
-                            auction->m_llSinglePrice = auction->m_auction.m_llPrice / auction->m_nItemCount;
-                            auction->m_llBuyoutSinglePrice = auction->m_auction.m_llBuyoutPrice / auction->m_nItemCount;
-
-                            _AddAuctionToList(auction);
-                        }
-                    }
-                    break;
-                    case AUC_REQUEST_DEL:
-                    {
-                        AucRequestDel* req_del = (AucRequestDel*)req;
-                        AuctionThreadNode* auction = m_AuctionPool.Find(req_del->auctionid);
-                        LOG_CHECK_ERROR(auction);
-                        LOG_CHECK_ERROR(auction->m_auction.m_byGroupID <= MAX_SERVER_GROUP_COUNT);
-
-                        if (auction && auction->m_auction.m_byGroupID <= MAX_SERVER_GROUP_COUNT)
-                        {
-                            _DelAuctionFromList(auction);
-                            m_AuctionPool.Delete(auction);
-                        }
-                    }
-                    break;
-                    case AUC_REQUEST_UPDATE_PRICE:
-                    {
-                        AucRequestUpdatePrice* req_update = (AucRequestUpdatePrice*)req;
-                        AuctionThreadNode* auction = m_AuctionPool.Find(req_update->auctionid);
-                        LOG_CHECK_ERROR(auction);
-                        LOG_CHECK_ERROR(auction->m_auction.m_byGroupID <= MAX_SERVER_GROUP_COUNT);
-
-                        if (auction && auction->m_auction.m_byGroupID <= MAX_SERVER_GROUP_COUNT)
-                        {
-                            _DelAuctionFromList(auction);
-                            auction->m_auction.m_llPrice = req_update->price;
-                            auction->m_auction.m_dwBuyerRoleID = req_update->buyerid;
-                            auction->m_auction.m_dwFinishTime = req_update->finishtime;
-                            auction->m_llSinglePrice = auction->m_auction.m_llPrice / auction->m_nItemCount;
-                            _AddAuctionToList(auction);
-                        }
-                    }
-                    break;
-                    case AUC_REQUEST_SEARCH:
-                    {
-                        AucRequestSearch* req_search = (AucRequestSearch*)req;
-                        SearchResult* sr = _SearchAuctionInList(req_search->sessionid, req_search->roleid,
-                            req_search->groupid, req_search->sortby, req_search->asc, req_search->templateid);
-                        LOG_CHECK_ERROR(sr);
-                        if (sr)
-                            m_results.Push(sr);
-                    }
-                    break;
-                    case AUC_REQUEST_SEARCH_TYPE:
-                    {
-                        AucRequestSearchType* req_search_type = (AucRequestSearchType*)req;
-                        SearchResult* sr = _SearchAuctionType(req_search_type->sessionid, req_search_type->roleid,
-                            req_search_type->groupid, req_search_type->sortby, req_search_type->asc, req_search_type->auctiontype);
-                        LOG_CHECK_ERROR(sr);
-                        if (sr)
-                            m_results.Push(sr);
-                    }
-                    break;
-                    default:
-                        LOG_CHECK_ERROR(FALSE);
-                }
-
-                delete req;
-            }
-            Sleep(16);
+            _ProcessRequest();
+            WaitForStop(std::chrono::milliseconds(16));
         }
         __except (DumpExceptionFilter(GetExceptionInformation()))
         {
@@ -435,10 +468,11 @@ void CAuctionThread::SortedLists::AddAuction(AuctionThreadNode* auction)
 
 void CAuctionThread::_AddAuctionToList(AuctionThreadNode* auction)
 {
+    UINT8 auctiontype{};
     UINT8 group_id = auction->m_auction.m_byGroupID;
     LOG_PROCESS_ERROR(group_id < MAX_SERVER_GROUP_COUNT);
 
-    UINT8 auctiontype = auction->m_auction.m_pItemData->m_byAuctionType;
+    auctiontype = auction->m_auction.m_pItemData->m_byAuctionType;
     LOG_PROCESS_ERROR(auctiontype);
     LOG_PROCESS_ERROR(auctiontype < MAX_AUCTION_TYPE);
 
@@ -460,10 +494,11 @@ void CAuctionThread::SortedLists::DelAuction(AuctionThreadNode* auction)
 
 void CAuctionThread::_DelAuctionFromList(AuctionThreadNode* auction)
 {
+    UINT8 auctiontype{};
     UINT8 group_id = auction->m_auction.m_byGroupID;
     LOG_PROCESS_ERROR(group_id < MAX_SERVER_GROUP_COUNT);
 
-    UINT8 auctiontype = auction->m_auction.m_pItemData->m_byAuctionType;
+    auctiontype = auction->m_auction.m_pItemData->m_byAuctionType;
     LOG_PROCESS_ERROR(auctiontype);
     LOG_PROCESS_ERROR(auctiontype < MAX_AUCTION_TYPE);
 

@@ -194,6 +194,7 @@ Exit0:
 
 void CCliMessageHandler::OnDungeonSelectReward(CRole* pRole, const char* pData)
 {
+    const DROP_GROUP_DATA* data = nullptr;
     INT32 nRetCode = 0;
     C2G_DUNGEON_SELECT_REWARD* pMsg = (C2G_DUNGEON_SELECT_REWARD*)pData;
     CScene* poScene = NULL;
@@ -256,7 +257,7 @@ void CCliMessageHandler::OnDungeonSelectReward(CRole* pRole, const char* pData)
         break;
     }
 
-    const DROP_GROUP_DATA* data = CDropManager::GetInstance().GetData(poDungeonData->nRewardGroup[pMsg->byRewardType]);
+    data = CDropManager::GetInstance().GetData(poDungeonData->nRewardGroup[pMsg->byRewardType]);
     LOG_PROCESS_ERROR(data);
 
     nRetCode = CDropGenerator::GetInstance().GenerateDropContentFromDropGroupData(pRole->GetServerGroup(), data, stRewardContent);

@@ -1859,6 +1859,7 @@ Exit0:
 
 CAuraInstance* CCharacter::_AuraSubstitute(CAuraInstance* poExistAura, CAura* pAuraInfo, CCharacter* poCaster, UINT32 dwFromObjID, ExtraParam* pExParam, INT32 nNewDurationFrm, INT32 nNewStackCount, INT32 nRootSpellID, INT32 nRootSpellLevel)
 {
+	CAuraInstance* aura = nullptr;
 	if (pAuraInfo->GetAttr(aatTimeCover))
 	{
 		PROCESS_SUCCESS(poExistAura->GetRemainFrm() >= nNewDurationFrm);
@@ -1868,7 +1869,7 @@ CAuraInstance* CCharacter::_AuraSubstitute(CAuraInstance* poExistAura, CAura* pA
 
 	RemoveAura(poExistAura, FALSE);
 
-	CAuraInstance* aura = _AuraNew(pAuraInfo, poCaster, dwFromObjID, pExParam, nNewDurationFrm, nNewStackCount, nRootSpellID, nRootSpellLevel);
+	aura = _AuraNew(pAuraInfo, poCaster, dwFromObjID, pExParam, nNewDurationFrm, nNewStackCount, nRootSpellID, nRootSpellLevel);
 	LOG_PROCESS_ERROR(aura);
 
 	SPL("------ Aura Substitute : %d, %u", poExistAura->GetID(), GetObjID());
@@ -2496,15 +2497,19 @@ Exit0:
 BOOL CCharacter::_OnStiffKnockBack(INT32 nDirection)
 {
 	INT32 nRetCode = 0;
+	INT64 llDistance = 0;
+	INT32 nSpeed = 0;
+	INT64 llDestX = 0;
+	INT64 llDestY = 0;
 
 	PROCESS_ERROR(_CanPassiveMove());
 
-	INT64 llDistance = CONVERT_LENGTH(g_GWConfig.nKnockBackDistance);
-	INT32 nSpeed = CONVERT_SPEED(g_GWConfig.nKnockBackSpeed);
+	llDistance = CONVERT_LENGTH(g_GWConfig.nKnockBackDistance);
+	nSpeed = CONVERT_SPEED(g_GWConfig.nKnockBackSpeed);
 	//INT32 nDirection = NormalizeDirection(MAX_DIRECTION_COUNT / 2 + m_nFaceDirection);
 
-	INT64 llDestX = m_llX + llDistance * g_Cos(nDirection) / SIN_COS_NUMBER;
-	INT64 llDestY = m_llY + llDistance * g_Sin(nDirection) / SIN_COS_NUMBER;
+	llDestX = m_llX + llDistance * g_Cos(nDirection) / SIN_COS_NUMBER;
+	llDestY = m_llY + llDistance * g_Sin(nDirection) / SIN_COS_NUMBER;
 
 	nRetCode = KnockBack(nSpeed, llDestX, llDestY);
 	LOG_PROCESS_ERROR(nRetCode);

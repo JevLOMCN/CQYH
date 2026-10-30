@@ -1,108 +1,104 @@
-#include "stdafx.h"
 #include "common_log.h"
+#include <array>
+#include <charconv>
+#include <chrono>
+#include <format>
+#include <fstream>
+#include <string_view>
 
-static bool process_field(int field_idx, int line_idx, const char* field_value, line_data* ld, log_context* context)
+namespace
 {
-	if (field_idx == lfSceneTempID)
-		ld->scene_temp_id = atoi(field_value);
-
-	if (field_idx == lfTime)
-	{
-		int tm_fld_idx = 0;
-		char val[8] = { 0 };
-		int k = 0;
-
-		for (int i = 0; i <= strlen(field_value); i++)
-		{
-			if (field_value[i] == ' ' || field_value[i] == '-' || field_value[i] == ':' || field_value[i] == 0)
-			{
-				ld->time_value[tm_fld_idx] = atoi(val);
-				memset(val, 0, sizeof(val));
-				tm_fld_idx++;
-				k = 0;
-			}
-			else
-				val[k++] = field_value[i];
-		}
-	}
-
-	if (field_idx == lfX)
-	{
-		ld->x = atoi(field_value);
-	}
-
-	if (field_idx == lfY)
-	{
-		ld->y = atoi(field_value);
-	}
-
-	return true;
+template<class T> std::expected<T,std::string> number(std::string_view text)
+{
+    if(text.empty())return std::unexpected("Empty numeric field.");
+    T value{};
+    const auto [end,error]=std::from_chars(text.data(),text.data()+text.size(),value);
+    if(error!=std::errc{} || end!=text.data()+text.size()) return std::unexpected("Invalid numeric field.");
+    return value;
+}
+std::expected<unsigned,std::string> hour(std::string_view text)
+{
+    if(text.size()!=19 || text[4]!='-' || text[7]!='-' || text[10]!=' ' || text[13]!=':' || text[16]!=':')
+        return std::unexpected("Expected YYYY-MM-DD HH:MM:SS timestamp.");
+    std::array<unsigned,6> fields{};
+    constexpr std::array<std::size_t,6> offsets{0,5,8,11,14,17};
+    for(std::size_t index=0;index<fields.size();++index)
+    {
+        const auto parsed=number<unsigned>(text.substr(offsets[index],index ? 2 : 4));
+        if(!parsed) return std::unexpected(parsed.error());fields[index]=*parsed;
+    }
+    const auto date=std::chrono::year{static_cast<int>(fields[0])}/std::chrono::month{fields[1]}/std::chrono::day{fields[2]};
+    if(!date.ok() || fields[3]>23 || fields[4]>59 || fields[5]>59) return std::unexpected("Invalid calendar date or time.");
+    return fields[3];
+}
+std::expected<void,std::string> append(std::string_view line,std::size_t index,poslog::LogData& data)
+{
+    if(line.empty()) return {};
+    std::array<std::string_view,8> fields{};
+    for(auto& field:fields)
+    {
+        const auto end=line.find('\t');field=line.substr(0,end);
+        if(&field!=&fields.back() && end==line.npos) return std::unexpected(std::format("Line {}: expected at least eight tab-separated fields.",index));
+        line=end==line.npos ? std::string_view{} : line.substr(end+1);
+    }
+    const auto timestamp=hour(fields[0]);const auto scene=number<std::uint32_t>(fields[4]);
+    const auto x=number<std::int64_t>(fields[6]),y=number<std::int64_t>(fields[7]);
+    if(!timestamp || !scene || !x || !y) return std::unexpected(std::format("Line {}: {}",index,!timestamp ? timestamp.error() : !scene ? scene.error() : !x ? x.error() : y.error()));
+    ++data.rows;
+    if(const auto point=poslog::project(*x,*y)) data.groups[{*timestamp,*scene}].push_back(*point);
+    else ++data.outside_scene;
+    return {};
+}
 }
 
-static void convert_pos(__int64 x, __int64 y)
+std::optional<poslog::Position> poslog::project(std::int64_t x,std::int64_t y)
 {
-
+    if(x>max_scene_width || y>max_scene_width || x< -max_scene_width || y< -max_scene_width) return {};
+    const auto shifted=x/points_per_cm-max_scene_width/points_per_cm/2;
+    const auto vertical=y/points_per_cm;
+    return Position{static_cast<std::int32_t>((shifted*70710+vertical*70710)/100000),
+                    static_cast<std::int32_t>((-shifted*70710+vertical*70710)/100000)};
 }
-
-static bool process_line(int line_idx, const line_data* ld, log_context* context)
+std::optional<poslog::Pixel> poslog::pixel(Position point,std::uint32_t width,std::uint32_t height)
 {
-	return false;
+    if(!width || !height || point.x<0 || point.y<0 || point.x>=projection_extent || point.y>=projection_extent) return {};
+    return Pixel{static_cast<std::uint32_t>(static_cast<std::int64_t>(point.y)*width/projection_extent),
+                 static_cast<std::uint32_t>(static_cast<std::int64_t>(point.x)*height/projection_extent)};
 }
-
-bool load_file(const char* file_name, log_context* context)
+std::expected<poslog::LogData,std::string> poslog::parse_log(std::istream& input)
 {
-	int field_idx = 0;
-	int line = 0;
-	int i = 0;
-	char field[MAX_FIELD_LEN] = { 0 };
-	line_data ld = { 0 };
-
-	if (context->_field_func == NULL || context->_line_func == NULL)
-		return false;
-
-	FILE* fp = fopen(file_name, "rb");
-	if (!fp)
-		return false;
-
-	while (!feof(fp))
-	{
-		char c = (char)fgetc(fp);
-
-		if (c == '\n')
-		{
-			if (line > 0)
-				(*context->_line_func)(line, &ld, context);
-			line++;
-			memset(&ld, 0, sizeof(ld));
-			ld.line_idx = line;
-		}
-		else if (line > 0)
-		{
-			switch (c)
-			{
-			case '\t':
-				(*context->_field_func)(field_idx, line, field, &ld, context);
-				field_idx++;
-				memset(field, 0, sizeof(field));
-				i = 0;
-				break;
-			case EOF:
-			case '\r':
-				(*context->_field_func)(field_idx, line, field, &ld, context);
-				field_idx = 0;
-				memset(field, 0, sizeof(field));
-				i = 0;
-				break;
-			case '\n':
-				break;
-			default:
-				field[i++] = c;
-				break;
-			}
-		}
-	}
-
-	(*context->_over_func)(context);
-
-	return true;
+    try
+    {
+        constexpr std::size_t max_line=64*1024;
+        LogData data;std::string line;line.reserve(256);std::size_t index=0;bool after_cr=false;
+        const auto flush=[&]() -> std::expected<void,std::string>
+        {
+            ++index;
+            if(line.find('\0')!=line.npos) return std::unexpected(std::format("Line {} contains a NUL character.",index));
+            auto result=index==1 ? std::expected<void,std::string>{} : append(line,index,data);
+            line.clear();return result;
+        };
+        char byte;
+        while(input.get(byte))
+        {
+            if(byte=='\n' && after_cr){after_cr=false;continue;}
+            after_cr=byte=='\r';
+            if(byte=='\r' || byte=='\n') {const auto result=flush();if(!result)return std::unexpected(result.error());}
+            else {if(line.size()==max_line)return std::unexpected(std::format("Line {} exceeds the supported row length.",index+1));line.push_back(byte);}
+        }
+        if(input.bad() || (!input.eof() && input.fail())) return std::unexpected("Cannot read the complete position log.");
+        if(!line.empty()){const auto result=flush();if(!result)return std::unexpected(result.error());}
+        if(index==0) return std::unexpected("Position log has no header.");
+        return data;
+    }
+    catch(const std::bad_alloc&) {return std::unexpected("Not enough memory to load the position log.");}
+    catch(const std::ios_base::failure&) {return std::unexpected("Cannot read the complete position log.");}
+}
+std::expected<poslog::LogData,std::string> poslog::load_log(const std::filesystem::path& filename)
+{
+    if(filename.empty() || filename.native().find(std::filesystem::path::value_type{})!=filename.native().npos)
+        return std::unexpected("Select a filename without embedded NUL characters.");
+    std::ifstream stream(filename,std::ios::binary);
+    if(!stream) return std::unexpected("Cannot open the position log.");
+    return parse_log(stream);
 }

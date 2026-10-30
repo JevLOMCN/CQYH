@@ -10,126 +10,89 @@
 #include "maintaintool.h"
 #include "transmit_file_mgr.h"
 #include "maintain_tool_version.h"
+#include <algorithm>
+#include <cstring>
+#include <memory>
+#include <format>
+#include "receive_packets.h"
+#include "maintain_stats.h"
 
 using namespace InternalMessage;
 CMTMessageHandler CMTMessageHandler::ms_Instance;
 
-void CMTMessageHandler::OnAccepted(ISocketAcceptor* pSocketAcceptor, ISocketSession* pSocketSession)
+void CMTMessageHandler::OnAccepted(ISocketAcceptor*,ISocketSession* socket)
 {
-	LOG_PROCESS_ERROR(pSocketSession);
-
-    return;
-Exit0:
-    if(pSocketSession)
-        pSocketSession->Close();
-    return;
+    try { if (socket) socket->Close(); }
+    catch (...) { ERR("cannot close unexpected inbound maintaintool connection"); }
 }
 
-void CMTMessageHandler::OnConnected(ISocketSession* pSocketSession)
+void CMTMessageHandler::OnConnected(ISocketSession* socket)
 {
-	INT32 nRetCode = 0;
-	UINT32 dwIP = 0;
-	UINT16 wPort = 0;
-	struct in_addr addr;
-	SRemoteGuardSession* pRemoteGuardSession = NULL;
-
-	LOG_PROCESS_ERROR(pSocketSession);
-	
-	pRemoteGuardSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-	LOG_PROCESS_ERROR(pRemoteGuardSession);
-	LOG_PROCESS_ERROR(pRemoteGuardSession->pSocketSession == pSocketSession);
-
-	//nRetCode = pSocketSession->GetRemoteAddress(dwIP, wPort);
-	//LOG_PROCESS_ERROR( nRetCode );
-	//pRemoteGuardSession->dwIp = dwIP;
-	
-	memset(pRemoteGuardSession->lstProcess, 0, sizeof(pRemoteGuardSession->lstProcess));
-	pRemoteGuardSession->dwTimer = GetTickCount() + g_MTConfig.nPingTimeout;
-	pRemoteGuardSession->bConnected = TRUE;
-
-	addr.s_addr = pRemoteGuardSession->dwIp;
-	INF("an remote guard (%s) is connected", inet_ntoa(addr));
-
-	nRetCode = MaintainTool::GetInstance().UpdateGuardConnectInfo(pRemoteGuardSession, emctConnected, NULL);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	nRetCode = CMTMessageHandler::GetInstance().DoGDRegristerGD(pRemoteGuardSession, MaintainTool::GetInstance().GetUserName(), MaintainTool::GetInstance().GetPassword());
-	LOG_PROCESS_ERROR(nRetCode);
-
-    return;
-Exit0:
-    if (pSocketSession)
-        pSocketSession->Close();
-
-    return;
+    try
+    {
+        if (!socket) return;
+        if (!m_receiving) { socket->Close(); return; }
+        auto* session=static_cast<SRemoteGuardSession*>(socket->GetUserData());
+        if (!session || session->pSocketSession!=socket) { socket->Close(); return; }
+        auto fresh=std::make_unique<stProcessStatisInfo>();
+        session->poStatisInfo=std::move(fresh);
+        session->lstProcess.clear();
+        session->dwTimer=CSessionMgr::GetInstance().Deadline(g_MTConfig.nPingTimeout);
+        session->bConnected=TRUE;
+        if (!MaintainTool::GetInstance().UpdateGuardConnectInfo(session,emctConnected,nullptr))
+        { socket->Close(); return; }
+        if (!m_receiving || socket->GetUserData()!=session || session->pSocketSession!=socket) return;
+        if (!DoGDRegristerGD(session,MaintainTool::GetInstance().GetUserName(),MaintainTool::GetInstance().GetPassword()))
+            socket->Close();
+    }
+    catch (const std::exception& error)
+    {
+        ERR("maintaintool connected callback failed: %s",error.what());
+        if (socket) socket->Close();
+    }
 }
 
-void CMTMessageHandler::OnRecv(ISocketSession* pSocketSession, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize)
+void CMTMessageHandler::OnRecv(ISocketSession* socket, PACKET_BUFFER* buffer, UINT32 size)
 {
-    MESSAGE_HEADER* pHeader = (MESSAGE_HEADER*)pPacketBuffer;
-    LOG_PROCESS_ERROR(pHeader);
-
-    LOG_PROCESS_ERROR(pSocketSession);
-    LOG_PROCESS_ERROR(pPacketBuffer);
-
-    LOG_PROCESS_ERROR(m_RemoteGuardMessageFuncList[pHeader->wMsg]);
-
-    (this->*m_RemoteGuardMessageFuncList[pHeader->wMsg])(pPacketBuffer, dwSize, pSocketSession);
-
-	if (pPacketBuffer)
-		m_pPacketAllocator->Free(pPacketBuffer);
-    return;
-Exit0:
-    CRI("unknown internal message id %d size %d", pHeader->wMsg, dwSize);
-    if (pPacketBuffer)
-        m_pPacketAllocator->Free(pPacketBuffer);
-    if (pSocketSession)
-        pSocketSession->Close();
-
-    return;
+    const auto free = [allocator = m_pPacketAllocator](PACKET_BUFFER* packet) { if (allocator) allocator->Free(packet); };
+    const std::unique_ptr<PACKET_BUFFER, decltype(free)> packet{buffer, free};
+    MESSAGE_HEADER header{};
+    if (m_receiving && socket && packet && m_pPacketAllocator && size >= sizeof(header))
+    {
+        std::memcpy(&header, packet.get(), sizeof(header));
+        auto* session = static_cast<SRemoteGuardSession*>(socket->GetUserData());
+        if (session && session->pSocketSession == socket && header.wMsg < m_RemoteGuardMessageFuncList.size() &&
+            maintain::valid(header.wMsg, {packet.get(), size}))
+        {
+            if (const auto handler = m_RemoteGuardMessageFuncList[header.wMsg])
+            {
+                try { (this->*handler)(packet.get(), size, socket); return; }
+                catch (const std::exception& error) { ERR("maintain message failed: %s", error.what()); }
+                catch (...) { ERR("maintain message callback threw an exception"); }
+            }
+        }
+    }
+    ERR("invalid maintain message %u size %u", header.wMsg, size);
+    if (socket) socket->Close();
 }
 
-void CMTMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemoteShutdown)
+void CMTMessageHandler::OnDisconnected(ISocketSession* socket, BOOL)
 {
-    INT32 nRetCode = 0;
-    SRemoteGuardSession* pRemoteGuardSession = NULL;
-
-    LOG_PROCESS_ERROR(pSocketSession);
-
-    pRemoteGuardSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-	LOG_PROCESS_ERROR(pRemoteGuardSession);
-	LOG_PROCESS_ERROR(pRemoteGuardSession->pSocketSession == pSocketSession);
-
-    struct in_addr addr;
-    addr.s_addr = pRemoteGuardSession->dwIp;
-    INF("Guard %s:%d disconnected", inet_ntoa(addr), pRemoteGuardSession->wPort);
-
-	pRemoteGuardSession->pSocketSession->SetUserData(NULL);
-
-	pRemoteGuardSession->pSocketSession = NULL;
-	pRemoteGuardSession->bConnected = FALSE;
-	pRemoteGuardSession->dwTimer = GetTickCount() + g_MTConfig.nReconnectTime;
-
-	for (INT32 i = 0; i < MAX_REMOTE_SESSION_COUNT; ++i)
-	{
-		if (pRemoteGuardSession->lstProcess[i].poHibernateStatisFileHandle)
-		{
-			INF("fclose hibernate file for %s-%d=%d@%s", 
-				pRemoteGuardSession->lstProcess[i].byType, pRemoteGuardSession->lstProcess[i].dwSessionID,
-				pRemoteGuardSession->lstProcess[i].dwProcessID, inet_ntoa(addr));
-			fclose(pRemoteGuardSession->lstProcess[i].poHibernateStatisFileHandle);
-			pRemoteGuardSession->lstProcess[i].poHibernateStatisFileHandle = NULL;
-		}
-	}
-	memset(pRemoteGuardSession->lstProcess, 0, sizeof(pRemoteGuardSession->lstProcess));
-
-	nRetCode = MaintainTool::GetInstance().UpdateGuardConnectInfo(pRemoteGuardSession, emctUnConnect, NULL);
-	LOG_PROCESS_ERROR(nRetCode);
-
-    CTransmitFileMgr::GetInstance().StopSending(pRemoteGuardSession->dwArea, pRemoteGuardSession->dwIp);
-    return;
-Exit0:
-    return;
+    if (!socket) return;
+    auto* session = static_cast<SRemoteGuardSession*>(socket->GetUserData());
+    socket->SetUserData(nullptr);
+    if (!session || session->pSocketSession != socket) return;
+    const auto area = session->dwArea;
+    const auto ip = session->dwIp;
+    session->pSocketSession = nullptr;
+    session->bConnected = FALSE;
+    session->closing = false;
+    session->dwTimer = CSessionMgr::GetInstance().Deadline(g_MTConfig.nReconnectTime);
+    session->lstProcess.clear();
+    CTransmitFileMgr::GetInstance().StopSending(area, ip);
+    LOG_CHECK_ERROR(MaintainTool::GetInstance().UpdateGuardConnectInfo(session, emctUnConnect, nullptr));
+    MaintainTool::GetInstance().UpdateGuardProcessesInfo();
+    MaintainTool::GetInstance().UpdateGuardStatisInfo(area,ip);
 }
 
 CMTMessageHandler::CMTMessageHandler()
@@ -145,11 +108,16 @@ CMTMessageHandler::~CMTMessageHandler()
 
 BOOL CMTMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator)
 {
+
+    {
+    if (m_pNet || m_pPacketAllocator) return FALSE;
     LOG_PROCESS_ERROR(pNet);
     LOG_PROCESS_ERROR(pPacketAllocator);
 
     m_pNet = pNet;
     m_pPacketAllocator = pPacketAllocator;
+    m_RemoteGuardMessageFuncList.fill(nullptr);
+    m_receiving = true;
 
     //All
     //////////////////////////////////////////////////////////////////////////////////////
@@ -166,12 +134,17 @@ BOOL CMTMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator)
 	m_RemoteGuardMessageFuncList[u2n_error] = &CMTMessageHandler::OnGDError;
     /////////////////////////////////////////////////////////////////////////////////////
     return TRUE;
+    }
 Exit0:
     return FALSE;
 }
 
 BOOL CMTMessageHandler::UnInit(void)
 {
+    BeginShutdown();
+    m_RemoteGuardMessageFuncList.fill(nullptr);
+    m_pNet = nullptr;
+    m_pPacketAllocator = nullptr;
     return TRUE;
 }
 
@@ -180,297 +153,139 @@ CMTMessageHandler& CMTMessageHandler::GetInstance(void)
     return ms_Instance;
 }
 
-//BOOL CMessageHandler::_SendRemoteGD(UINT32 dwIp, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
-//{
-//	INT32 nRetCode = 0;
-//
-//	SRemoteGuardSession* pRemoteGDSession = CSessionMgr::GetInstance().GetRemoteGDSession(dwIp);
-//	LOG_PROCESS_ERROR(pRemoteGDSession);
-//	LOG_PROCESS_ERROR(pRemoteGDSession->pSocketSession&& pRemoteGDSession->bConnected);
-//
-//	nRetCode = pRemoteGDSession->pSocketSession->Send((PACKET_BUFFER*)pPacketBuffer, dwSize, nOffset);
-//	LOG_PROCESS_ERROR(nRetCode == dwSize);
-//
-//    return TRUE;
-//Exit0:
-//    return FALSE;
-//}
-
-BOOL CMTMessageHandler::_SendRemoteGD(SRemoteGuardSession* pRemoteGDSession, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+namespace
 {
-	INT32 nRetCode = 0;
-
-	LOG_PROCESS_ERROR(pRemoteGDSession);
-	LOG_PROCESS_ERROR(pRemoteGDSession->pSocketSession&& pRemoteGDSession->bConnected);
-
-	nRetCode = pRemoteGDSession->pSocketSession->Send((PACKET_BUFFER*)pPacketBuffer, dwSize, nOffset);
-	LOG_PROCESS_ERROR(nRetCode == dwSize);
-
-	return TRUE;
-Exit0:
-	return FALSE;
-}
-
-BOOL CMTMessageHandler::DoPing(SRemoteGuardSession* pRemoteGDSession)
+template<class Initialize>
+BOOL send_packet(IPacketAllocator* allocator,bool accepting,SRemoteGuardSession* session,std::size_t size,Initialize initialize)
+try
 {
-    INT32 nRetCode = 0;
-    A2A_PING* pMsg = NULL;
-    CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-	pMsg = (A2A_PING*)m_pPacketAllocator->Alloc(sizeof(A2A_PING));
-	LOG_PROCESS_ERROR(pMsg);
-
-	pMsg->wMsg = a2a_ping;
-	nRetCode = _SendRemoteGD(pRemoteGDSession, (PACKET_BUFFER*)pMsg, sizeof(A2A_PING));
-	LOG_PROCESS_ERROR(nRetCode);
-
+    if (!accepting || !allocator || !session || !session->bConnected || !session->pSocketSession ||
+        !size || size>MAX_MESSAGE_SIZE) return FALSE;
+    auto* socket=session->pSocketSession;
+    const auto free=[allocator](PACKET_BUFFER* packet) { allocator->Free(packet); };
+    std::unique_ptr<PACKET_BUFFER,decltype(free)> packet{allocator->Alloc(static_cast<INT32>(size)),free};
+    if (!packet) { ERR("maintaintool packet allocation failed (%zu bytes)",size); return FALSE; }
+    std::memset(packet.get(),0,size);
+    initialize(packet.get());
+    if (socket->Send(packet.get(),static_cast<INT32>(size),0)!=static_cast<INT32>(size))
+    { ERR("maintaintool transport rejected an outgoing packet"); return FALSE; }
+    packet.release(); // Native Send takes ownership only on success.
     return TRUE;
-Exit0:
-    if (pMsg)
-        m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-    return FALSE;
 }
-
-
-BOOL CMTMessageHandler::DoGDRegristerGD(SRemoteGuardSession* pRemoteGDSession, const char* pcszUserName, const char* pcszPassword)
-{
-	INT32 nRetCode = 0;
-	N2U_REGRISTER* pMsg = NULL;
-	CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-	pMsg = (N2U_REGRISTER*)m_pPacketAllocator->Alloc(sizeof(N2U_REGRISTER));
-	LOG_PROCESS_ERROR(pMsg);
-
-	pMsg->wMsg = n2u_regrister;
-	strxcpy(pMsg->szName, pcszUserName, 32);
-	strxcpy(pMsg->szPwd, pcszPassword, 32);
-
-	nRetCode = _SendRemoteGD(pRemoteGDSession, (PACKET_BUFFER*)pMsg, sizeof(N2U_REGRISTER));
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+catch (const std::exception& error) { ERR("maintaintool send failed: %s",error.what()); return FALSE; }
+catch (...) { ERR("maintaintool send callback threw an exception"); return FALSE; }
 }
-
-
-BOOL CMTMessageHandler::DoGDExecCmd(INT32 nAreaID, UINT32 dwIP, const char* pcszCmd)
+BOOL CMTMessageHandler::DoPing(SRemoteGuardSession* session)
 {
-	INT32 nRetCode = 0;
-	N2U_UPDATE_CMD* pMsg = NULL;
-	SRemoteGuardSession* pRemoteGDSession = NULL;
-
-	INT32 nSize = sizeof(N2U_UPDATE_CMD) + strlen(pcszCmd) + 1;
-
-	CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-	pMsg = (N2U_UPDATE_CMD*)m_pPacketAllocator->Alloc(nSize);
-	LOG_PROCESS_ERROR(pMsg);
-
-	pMsg->wMsg = n2u_exec_cmd;
-	strxcpy(pMsg->szCmd, pcszCmd, strlen(pcszCmd) + 1);
-
-	pRemoteGDSession = CSessionMgr::GetInstance().GetRemoteGDSession(nAreaID, dwIP);
-	LOG_PROCESS_ERROR(pRemoteGDSession);
-
-	nRetCode = _SendRemoteGD(pRemoteGDSession, (PACKET_BUFFER*)pMsg, nSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+    return send_packet(m_pPacketAllocator,m_receiving,session,sizeof(A2A_PING),[](auto* packet) {
+        reinterpret_cast<A2A_PING*>(packet)->wMsg=a2a_ping;
+    });
 }
-
-BOOL CMTMessageHandler::DoGDSendFiles(INT32 nAreaID, UINT32 dwIP, BOOL nFileType,
-								  const char* szFileName,
-                                  UINT16 wBufferIndex, UINT16 wBufferTotal,  
-                                  UINT16 wBufferSize, char szBuffer[],
-                                  UINT16 wFileIndex, UINT16 wFileTotal)
+BOOL CMTMessageHandler::DoGDRegristerGD(SRemoteGuardSession* session,const char* user,const char* password)
 {
-    INT32 nRetCode = 0;
-	N2U_SEND_FILES* pMsg = NULL;
-	SRemoteGuardSession* pRemoteGDSession = NULL;
-    CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-    pMsg = (N2U_SEND_FILES*)m_pPacketAllocator->Alloc(sizeof(N2U_SEND_FILES));
-    LOG_PROCESS_ERROR(pMsg);
-
-    pMsg->wMsg = n2u_send_files;
-	pMsg->nFileType = nFileType;
-    strxcpy(pMsg->szFileName, szFileName, sizeof(pMsg->szFileName) );
-    pMsg->wBufferIndex = wBufferIndex;
-    pMsg->wBufferTotal = wBufferTotal;
-    pMsg->wFileIndex = wFileIndex;
-    pMsg->wFileTotal = wFileTotal;
-    pMsg->wBufferSize = wBufferSize;
-    memcpy(pMsg->szBuffer, szBuffer, wBufferSize);
-
-	pRemoteGDSession = CSessionMgr::GetInstance().GetRemoteGDSession(nAreaID, dwIP);
-	LOG_PROCESS_ERROR(pRemoteGDSession);
-
-	nRetCode = _SendRemoteGD(pRemoteGDSession, (PACKET_BUFFER*)pMsg, sizeof(N2U_SEND_FILES));
-    LOG_PROCESS_ERROR(nRetCode);
-
-    return TRUE;
-Exit0:
-    if (pMsg)
-        m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-    return FALSE;
+    if (!user || !password) return FALSE;
+    const std::string_view name{user},secret{password};
+    if (name.size()>=sizeof(N2U_REGRISTER::szName) || secret.size()>=sizeof(N2U_REGRISTER::szPwd)) return FALSE;
+    return send_packet(m_pPacketAllocator,m_receiving,session,sizeof(N2U_REGRISTER),[&](auto* packet) {
+        auto* message=reinterpret_cast<N2U_REGRISTER*>(packet);
+        message->wMsg=n2u_regrister;
+        std::ranges::copy(name,message->szName);std::ranges::copy(secret,message->szPwd);
+    });
 }
-
-BOOL CMTMessageHandler::DoGDDeployServerVersion(INT32 nAreaID, UINT32 dwIP, const char* pcszVersion)
+BOOL CMTMessageHandler::DoGDExecCmd(INT32 area,UINT32 ip,const char* text)
 {
-	INT32 nRetCode = 0;
-	N2U_DEPLOY_SERVER_VERSION* pMsg = NULL;
-	SRemoteGuardSession* pRemoteGDSession = NULL;
-	CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-	pMsg = (N2U_DEPLOY_SERVER_VERSION*)m_pPacketAllocator->Alloc(sizeof(N2U_DEPLOY_SERVER_VERSION));
-	LOG_PROCESS_ERROR(pMsg);
-
-	pMsg->wMsg = n2u_deploy_server_version;
-	strxcpy(pMsg->szVersion, pcszVersion, sizeof(pMsg->szVersion));
-
-	pRemoteGDSession = CSessionMgr::GetInstance().GetRemoteGDSession(nAreaID, dwIP);
-	LOG_PROCESS_ERROR(pRemoteGDSession);
-
-	nRetCode = _SendRemoteGD(pRemoteGDSession, (PACKET_BUFFER*)pMsg, sizeof(N2U_DEPLOY_SERVER_VERSION));
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+    if (!text) return FALSE;
+    const std::string_view command{text};
+    if (command.size()>MAX_MESSAGE_SIZE-sizeof(N2U_UPDATE_CMD)-1) return FALSE;
+    return send_packet(m_pPacketAllocator,m_receiving,CSessionMgr::GetInstance().GetRemoteGDSession(area,ip),
+        sizeof(N2U_UPDATE_CMD)+command.size()+1,[&](auto* packet) {
+            auto* message=reinterpret_cast<N2U_UPDATE_CMD*>(packet);message->wMsg=n2u_exec_cmd;
+            std::ranges::copy(command,message->szCmd);
+        });
 }
-
-BOOL CMTMessageHandler::DoGDHotUpdatePatch(INT32 nAreaID, UINT32 dwIP, const char* pcszPatch)
+BOOL CMTMessageHandler::DoGDSendFiles(INT32 area,UINT32 ip,BOOL type,const char* name,
+    UINT16 block,UINT16 blocks,UINT16 length,char bytes[],UINT16 file,UINT16 files)
 {
-	INT32 nRetCode = 0;
-	N2U_HOT_UPDATE_PATCH* pMsg = NULL;
-	SRemoteGuardSession* pRemoteGDSession = NULL;
-	CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-	pMsg = (N2U_HOT_UPDATE_PATCH*)m_pPacketAllocator->Alloc(sizeof(N2U_HOT_UPDATE_PATCH));
-	LOG_PROCESS_ERROR(pMsg);
-
-	pMsg->wMsg = n2u_hot_update_patch;
-	strxcpy(pMsg->szPatch, pcszPatch, sizeof(pMsg->szPatch));
-
-	pRemoteGDSession = CSessionMgr::GetInstance().GetRemoteGDSession(nAreaID, dwIP);
-	LOG_PROCESS_ERROR(pRemoteGDSession);
-
-	nRetCode = _SendRemoteGD(pRemoteGDSession, (PACKET_BUFFER*)pMsg, sizeof(N2U_HOT_UPDATE_PATCH));
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+    if (!name || std::strlen(name)>=sizeof(N2U_SEND_FILES::szFileName) || !blocks || block>=blocks ||
+        !files || file>=files || length>G_FILE_SEND_BLOCK || (!bytes && length)) return FALSE;
+    return send_packet(m_pPacketAllocator,m_receiving,CSessionMgr::GetInstance().GetRemoteGDSession(area,ip),
+        sizeof(N2U_SEND_FILES),[&](auto* packet) {
+            auto* message=reinterpret_cast<N2U_SEND_FILES*>(packet);
+            message->wMsg=n2u_send_files;message->nFileType=type;
+            std::memcpy(message->szFileName,name,std::strlen(name));
+            message->wBufferIndex=block;message->wBufferTotal=blocks;message->wBufferSize=length;
+            message->wFileIndex=file;message->wFileTotal=files;
+            if (length) std::memcpy(message->szBuffer,bytes,length);
+        });
+}
+BOOL CMTMessageHandler::DoGDDeployServerVersion(INT32 area,UINT32 ip,const char* version)
+{
+    if (!version || std::strlen(version)>=sizeof(N2U_DEPLOY_SERVER_VERSION::szVersion)) return FALSE;
+    return send_packet(m_pPacketAllocator,m_receiving,CSessionMgr::GetInstance().GetRemoteGDSession(area,ip),
+        sizeof(N2U_DEPLOY_SERVER_VERSION),[&](auto* packet) {
+            auto* message=reinterpret_cast<N2U_DEPLOY_SERVER_VERSION*>(packet);message->wMsg=n2u_deploy_server_version;
+            std::memcpy(message->szVersion,version,std::strlen(version));
+        });
+}
+BOOL CMTMessageHandler::DoGDHotUpdatePatch(INT32 area,UINT32 ip,const char* patch)
+{
+    if (!patch || std::strlen(patch)>=sizeof(N2U_HOT_UPDATE_PATCH::szPatch)) return FALSE;
+    return send_packet(m_pPacketAllocator,m_receiving,CSessionMgr::GetInstance().GetRemoteGDSession(area,ip),
+        sizeof(N2U_HOT_UPDATE_PATCH),[&](auto* packet) {
+            auto* message=reinterpret_cast<N2U_HOT_UPDATE_PATCH*>(packet);message->wMsg=n2u_hot_update_patch;
+            std::memcpy(message->szPatch,patch,std::strlen(patch));
+        });
 }
 
 void CMTMessageHandler::OnAllPing(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
     SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
     if(pSession)
-        pSession->dwTimer = GetTickCount() + g_MTConfig.nPingTimeout;
+        pSession->dwTimer = CSessionMgr::GetInstance().Deadline(g_MTConfig.nPingTimeout);
 
     return;
 }
 
-void CMTMessageHandler::OnGDRegristerAck(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CMTMessageHandler::OnGDRegristerAck(PACKET_BUFFER* packet, UINT32, ISocketSession* socket)
 {
-	INT32 nRetCode = 0;
-	char szLog[256] = {0};
-    U2N_REGRISTER_ACK* pMsg = (U2N_REGRISTER_ACK*)pPacketBuffer;
-    LOG_PROCESS_ERROR( pSocketSession );
-
-	struct in_addr stRemoteAddr = { 0 };
-	UINT32 dwRemoteAddr = 0;
-	UINT16 wRemotePort = 0;
-	nRetCode = pSocketSession->GetRemoteAddress(dwRemoteAddr, wRemotePort);
-	LOG_CHECK_ERROR(nRetCode);
-	stRemoteAddr.s_addr = dwRemoteAddr;
-
-	if (pMsg->nMsgVersion != MAINTAIN_TOOLS_MSG_VERSION)
-	{
-		snprintf(szLog, sizeof(szLog), "guard on %s msg version don't match, expecting %d, but got %d", inet_ntoa(stRemoteAddr), MAINTAIN_TOOLS_MSG_VERSION, pMsg->nMsgVersion);
-		INF(szLog);
-		QMessageBox msgBox;
-		msgBox.setText(szLog);
-		msgBox.exec();
-
-		CRI(szLog);
-		MaintainTool::GetInstance().UpdateNotifyInfo(szLog);
-
-		pSocketSession->Close();
-
-		LOG_PROCESS_ERROR(FALSE);
-	}
-	if (strcmp(pMsg->szBuildVersion, MAINTAIN_TOOLS_BUILD_VERSION) != 0)
-	{
-		snprintf(szLog, sizeof(szLog), "guard on %s build version don't match, expecting %s, but got %s", inet_ntoa(stRemoteAddr), MAINTAIN_TOOLS_BUILD_VERSION, pMsg->szBuildVersion);
-		INF(szLog);
-		//QMessageBox msgBox;
-		//msgBox.setText(szLog);
-		//msgBox.exec();
-
-		CRI(szLog);
-		//MaintainTool::GetInstance().UpdateNotifyInfo(szLog);
-
-		//pSocketSession->Close();
-		//LOG_PROCESS_ERROR(FALSE);
-	}
-
-    if ( pMsg->nErrorCode == errSuccess )
+    U2N_REGRISTER_ACK message{};
+    std::memcpy(&message, packet, sizeof(message));
+    UINT32 ip = 0; UINT16 port = 0;
+    socket->GetRemoteAddress(ip, port);
+    in_addr address{}; address.s_addr = ip;
+    if (message.nMsgVersion != MAINTAIN_TOOLS_MSG_VERSION)
     {
-        SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-        if(pSession)
-		{
-			nRetCode = strlen(pMsg->szVersion);
-			for (int i = 0; i < nRetCode; ++i)
-			{
-				if (pMsg->szVersion[i] == '\n' || pMsg->szVersion[i] == '\r' || pMsg->szVersion[i] == ' ')
-				{
-					pMsg->szVersion[i] = '\0';
-					break;
-				}
-			}
-
-            nRetCode = MaintainTool::GetInstance().SetAreaVersion(pSession->dwArea, pMsg->szVersion );
-            LOG_PROCESS_ERROR(nRetCode);
-
-            nRetCode = MaintainTool::GetInstance().UpdateGuardConnectInfo(pSession, emctNormal, NULL);
-            LOG_PROCESS_ERROR(nRetCode);
-        }
+        const auto info = std::format("guard on {} msg version don't match, expecting {}, but got {}",
+            inet_ntoa(address), MAINTAIN_TOOLS_MSG_VERSION, message.nMsgVersion);
+        INF("%s", info.c_str());
+        QMessageBox box;
+        box.setText(QString::fromLocal8Bit(info.c_str()));
+        box.exec();
+        CRI("%s", info.c_str());
+        MaintainTool::GetInstance().UpdateNotifyInfo(QString::fromLocal8Bit(info.c_str()));
+        socket->Close();
+        return;
     }
-	else if (pMsg->nErrorCode == errLoginRepeat )
-	{
-		INF("kicked off! %s", pMsg->szVersion);
-
-		QMessageBox msgBox;
-		msgBox.setText(pMsg->szVersion);
-		msgBox.exec();
-	}
-    else
+    if (std::string_view{message.szBuildVersion} != MAINTAIN_TOOLS_BUILD_VERSION)
+        CRI("guard on %s build version don't match, expecting %s, but got %s",
+            inet_ntoa(address), MAINTAIN_TOOLS_BUILD_VERSION, message.szBuildVersion);
+    auto* session = static_cast<SRemoteGuardSession*>(socket->GetUserData());
+    if (!session || session->pSocketSession != socket) return;
+    if (message.nErrorCode == errSuccess)
     {
-        struct in_addr stRemoteAddr = {0}; 
-        UINT32 dwRemoteAddr = 0; 
-        UINT16 wRemotePort = 0; 
-        nRetCode = pSocketSession->GetRemoteAddress(dwRemoteAddr, wRemotePort);
-        LOG_CHECK_ERROR( nRetCode ); 
-        stRemoteAddr.s_addr = dwRemoteAddr;
-        
-        INF("register %s failed!: reason %s", inet_ntoa(stRemoteAddr), pMsg->szVersion );
+        const auto area = session->dwArea;
+        std::string version{message.szVersion};
+        if (const auto end = version.find_first_of(" \r\n"); end != version.npos) version.resize(end);
+        LOG_CHECK_ERROR(MaintainTool::GetInstance().SetAreaVersion(area, version.c_str()));
+        if (socket->GetUserData() == session && session->pSocketSession == socket)
+            LOG_CHECK_ERROR(MaintainTool::GetInstance().UpdateGuardConnectInfo(session, emctNormal, nullptr));
     }
-
-Exit0:
-	return;
+    else if (message.nErrorCode == errLoginRepeat)
+    {
+        INF("kicked off! %s", message.szVersion);
+        QMessageBox box; box.setText(QString::fromLocal8Bit(message.szVersion)); box.exec();
+    }
+    else INF("register %s failed!: reason %s", inet_ntoa(address), message.szVersion);
 }
 
 void CMTMessageHandler::OnGDSyncProcessSummary(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
@@ -479,69 +294,51 @@ void CMTMessageHandler::OnGDSyncProcessSummary(PACKET_BUFFER* pPacketBuffer, UIN
 	U2N_SYNC_DEFAULT_INFO* pMsg = (U2N_SYNC_DEFAULT_INFO*)pPacketBuffer;
 
 	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
+
+    {
 	if(pSession)
 	{
 		nRetCode = MaintainTool::GetInstance().UpdateGuardConnectInfo(pSession, emctNormal, pMsg->nDefaultCount );
 		LOG_PROCESS_ERROR(nRetCode);
 	}
+    }
 Exit0:
 	return;
 }
 
-void CMTMessageHandler::OnGDUpdateProcess(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CMTMessageHandler::OnGDUpdateProcess(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
 {
-	INT32 nRetCode = 0;
-	BOOL bDone = FALSE;
-	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-	N2U_UPDATE_SESSION* pMsg = (N2U_UPDATE_SESSION*)pPacketBuffer;
-
-	if(pSession)
-	{
-		for (INT32 i = 0; i < MAX_REMOTE_SESSION_COUNT; ++i)
-		{
-			if (pSession->lstProcess[i].dwProcessID == pMsg->dwProcessID)
-			{
-				if (pMsg->nState != epsDestroy)
-				{
-					pSession->lstProcess[i].bAuto = pMsg->bAuto;
-					pSession->lstProcess[i].byType = pMsg->byType;
-					pSession->lstProcess[i].nState = pMsg->nState;
-					pSession->lstProcess[i].dwProcessID = pMsg->dwProcessID;
-					pSession->lstProcess[i].dwSessionID = pMsg->dwSessionID;
-				}
-				else
-				{
-					pSession->lstProcess[i].dwProcessID = 0;
-				}
-
-				bDone = TRUE;
-				break;
-			}
-		}
-
-
-		if (!bDone && pMsg->nState != epsDestroy)
-		{
-			for(INT32 i = 0; i < MAX_REMOTE_SESSION_COUNT; ++i)
-			{
-				if(pSession->lstProcess[i].dwProcessID == 0)
-				{
-					pSession->lstProcess[i].bAuto = pMsg->bAuto;
-					pSession->lstProcess[i].byType = pMsg->byType;
-					pSession->lstProcess[i].nState = pMsg->nState;
-					pSession->lstProcess[i].dwProcessID = pMsg->dwProcessID;
-					pSession->lstProcess[i].dwSessionID = pMsg->dwSessionID;
-					break;
-				}
-			}
-		}
-	}
-
-	nRetCode = MaintainTool::GetInstance().UpdateGuardProcessesInfo();
-	LOG_CHECK_ERROR(nRetCode);
-
-Exit0:
-	return;
+    if (size != sizeof(N2U_UPDATE_SESSION)) { socket->Close(); return; }
+    N2U_UPDATE_SESSION message{};
+    std::memcpy(&message, packet, sizeof(message));
+    auto* session = static_cast<SRemoteGuardSession*>(socket->GetUserData());
+    if (!session || session->pSocketSession != socket) return;
+    if (!message.dwProcessID || message.nState < epsUnonnect || message.nState > epsDestroy ||
+        (message.nState != epsDestroy && (message.byType < stMS || message.byType >= stClient)))
+    { socket->Close(); return; }
+    auto& processes = session->lstProcess;
+    auto process = std::ranges::find(processes, message.dwProcessID, &SProcessInfo::dwProcessID);
+    if (message.nState == epsDestroy)
+    {
+        if (process != processes.end()) processes.erase(process);
+        if (session->poStatisInfo) maintain::forget_statistics(*session->poStatisInfo,message.dwProcessID);
+    }
+    else
+    {
+        if (process == processes.end())
+        {
+            processes.emplace_back();
+            process = std::prev(processes.end());
+        }
+        process->dwProcessID = message.dwProcessID;
+        process->dwSessionID = message.dwSessionID;
+        process->byType = message.byType;
+        process->bAuto = message.bAuto != FALSE;
+        process->nState = message.nState;
+    }
+    const auto area=session->dwArea,ip=session->dwIp;
+    LOG_CHECK_ERROR(MaintainTool::GetInstance().UpdateGuardProcessesInfo());
+    MaintainTool::GetInstance().UpdateGuardStatisInfo(area,ip);
 }
 
 void CMTMessageHandler::OnGDNotify(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
@@ -551,6 +348,8 @@ void CMTMessageHandler::OnGDNotify(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, 
 	UINT16  wPort = 0;
 
 	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
+
+    {
 	LOG_PROCESS_ERROR(pSession);
 	LOG_PROCESS_ERROR(pSession->poStatisInfo);
 
@@ -564,81 +363,41 @@ void CMTMessageHandler::OnGDNotify(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, 
 	LOG_PROCESS_ERROR(nRetCode);
 
 	return;
+    }
 Exit0:
 	return;
 }
 
-void CMTMessageHandler::OnGDError(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CMTMessageHandler::OnGDError(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
 {
-	INT32 nRetCode = 0;
-	UINT32 dwRemoteAddr = 0;
-	UINT16 wRemotePort = 0;
-	struct in_addr stRemoteAddr = { 0 };
-
-	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-	LOG_PROCESS_ERROR(pSession);
-	LOG_PROCESS_ERROR(pSession->poStatisInfo);
-
-	U2N_ERROR* pMsg = (U2N_ERROR*)pPacketBuffer;
-	LOG_PROCESS_ERROR(pMsg);
-
-	nRetCode = pSocketSession->GetRemoteAddress(dwRemoteAddr, wRemotePort);
-	LOG_CHECK_ERROR(nRetCode);
-	stRemoteAddr.s_addr = dwRemoteAddr;
-
-	nRetCode = CRI("error from guard on %s: %s",inet_ntoa(stRemoteAddr), pMsg->szErrorInfo);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return;
-Exit0:
-	return;
+    auto* session = static_cast<SRemoteGuardSession*>(socket->GetUserData());
+    if (!session || !session->poStatisInfo) return;
+    UINT32 ip = 0; UINT16 port = 0;
+    socket->GetRemoteAddress(ip, port);
+    in_addr address{}; address.s_addr = ip;
+    const std::string info{*maintain::text(maintain::Bytes{packet, size}.subspan(sizeof(MESSAGE_HEADER) + sizeof(INT32)))};
+    CRI("error from guard on %s: %s", inet_ntoa(address), info.c_str());
 }
-void CMTMessageHandler::OnGDUpdateStatisInfo(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CMTMessageHandler::OnGDUpdateStatisInfo(PACKET_BUFFER* packet,UINT32,ISocketSession* socket)
 {
-	INT32 nRetCode = 0;
-	INT32 nProcessIndex = -1;
-
-    SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-    LOG_PROCESS_ERROR( pSession );
-    LOG_PROCESS_ERROR( pSession->poStatisInfo );
-
-    U2N_UPDATE_STATIS_INFO* pMsg = (U2N_UPDATE_STATIS_INFO*)pPacketBuffer;
-    LOG_PROCESS_ERROR( pMsg );
-
-    //LOG_PROCESS_ERROR( pMsg->bConnected == TRUE );
-
-    memcpy( pSession->poStatisInfo->ProcessInfo, pMsg->oStatisInfo.ProcessInfo, sizeof(pSession->poStatisInfo->ProcessInfo));
-
-    memcpy( &pSession->poStatisInfo->oAccumuStatis[pSession->poStatisInfo->nAccumuIndex], &pMsg->oStatisInfo, 
-        sizeof(pSession->poStatisInfo->oAccumuStatis[pSession->poStatisInfo->nAccumuIndex]));
-    pSession->poStatisInfo->nAccumuIndex = (pSession->poStatisInfo->nAccumuIndex + 1) % ACCUMU_MAX_TIMES;
-
-	nRetCode = MaintainTool::GetInstance().UpdateGuardStatisInfo(pSession->dwArea, pSession->dwIp);
-    LOG_CHECK_ERROR(nRetCode);
-
-	for (INT32 s = 0; s < MAX_REMOTE_SESSION_COUNT; ++s)
-	{
-		//if (pSession->lstRemoteSession[s].dwProcessID > 0)
-		if (pSession->lstProcess[s].poHibernateStatisFileHandle)
-		{
-			LOG_PROCESS_ERROR(pSession->lstProcess[s].dwProcessID > 0);
-
-			for (INT32 p = 0; p < MAX_STATIS_PROCESS_COUNT; ++p)
-			{
-				if (pSession->lstProcess[s].dwProcessID == pSession->poStatisInfo->ProcessInfo[p].dwProcessID)
-				{
-					nProcessIndex = p;
-					break;
-				}
-			}
-			PROCESS_ERROR(nProcessIndex > -1);
-
-			MaintainTool::GetInstance().ProcessHibernateGuardStatisInfoByIp(&pSession->poStatisInfo->ProcessInfo[nProcessIndex], &pSession->lstProcess[s]);
-		}
-	}
-	return;
-Exit0:
-    return;
+    auto* session=static_cast<SRemoteGuardSession*>(socket->GetUserData());
+    if (!session || session->pSocketSession!=socket || !session->poStatisInfo) return;
+    const auto& message=*reinterpret_cast<const U2N_UPDATE_STATIS_INFO*>(packet);
+    const auto result=maintain::ingest_statistics(*session->poStatisInfo,message.oStatisInfo,session->lstProcess);
+    if (!result) throw std::runtime_error(result.error());
+    const auto area=session->dwArea,ip=session->dwIp;
+    for (auto& process:session->lstProcess)
+    {
+        if (!process.hibernate) continue;
+        const auto found=std::ranges::find_if(session->poStatisInfo->ProcessInfo,[&](const auto& entry) {
+            return entry.bUsed && entry.dwProcessID==process.dwProcessID;
+        });
+        if (found==std::end(session->poStatisInfo->ProcessInfo)) continue;
+        MaintainTool::GetInstance().ProcessHibernateGuardStatisInfoByIp(&*found,&process);
+        if (socket->GetUserData()!=session || session->pSocketSession!=socket) return;
+    }
+    // GUI callbacks may reload or shut down the session. No borrowed state follows.
+    MaintainTool::GetInstance().UpdateGuardStatisInfo(area,ip);
 }
 
 void CMTMessageHandler::OnGDExecCmdAck(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
@@ -650,6 +409,8 @@ void CMTMessageHandler::OnGDExecCmdAck(PACKET_BUFFER* pPacketBuffer, UINT32 dwSi
 	U2N_UPDATE_CMD_ACK* pMsg = (U2N_UPDATE_CMD_ACK*)pPacketBuffer;
 
 	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
+
+    {
 	LOG_PROCESS_ERROR(pSession);
 
 	nRetCode = pSocketSession->GetRemoteAddress(dwIP, wPort);
@@ -657,6 +418,7 @@ void CMTMessageHandler::OnGDExecCmdAck(PACKET_BUFFER* pPacketBuffer, UINT32 dwSi
 
 	nRetCode = MaintainTool::GetInstance().UpdateCmdResult(dwIP, pMsg->nErrorCode, pMsg->szResult);
 	LOG_PROCESS_ERROR(nRetCode);
+    }
 Exit0:
 	return;
 }
@@ -667,6 +429,8 @@ void CMTMessageHandler::OnGDDeployServerVersionAck(PACKET_BUFFER* pPacketBuffer,
 	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
 	U2N_DEPLOY_SERVER_VERSION_ACK* pMsg = (U2N_DEPLOY_SERVER_VERSION_ACK*)pPacketBuffer;
 	
+
+    {
 	LOG_PROCESS_ERROR(pSession);
 	
 	nRetCode = MaintainTool::GetInstance().DeployVersionResultByIp(pSession->dwArea, 
@@ -675,6 +439,7 @@ void CMTMessageHandler::OnGDDeployServerVersionAck(PACKET_BUFFER* pPacketBuffer,
 	
 	return;
 
+    }
 Exit0:
 	return;
 }
@@ -685,6 +450,8 @@ void CMTMessageHandler::OnGDHotUpdatePatchAck(PACKET_BUFFER* pPacketBuffer, UINT
 	SRemoteGuardSession* pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
 	U2N_HOT_UPDATE_PATCH_ACK* pMsg = (U2N_HOT_UPDATE_PATCH_ACK*)pPacketBuffer;
 
+
+    {
 	LOG_PROCESS_ERROR(pSession);
 
 	nRetCode = MaintainTool::GetInstance().HotUpdatePatchResultByIp(pSession->dwArea,
@@ -693,64 +460,19 @@ void CMTMessageHandler::OnGDHotUpdatePatchAck(PACKET_BUFFER* pPacketBuffer, UINT
 
 	return;
 
+    }
 Exit0:
 	return;
 }
 
-void CMTMessageHandler::OnGDSendFilesAck(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CMTMessageHandler::OnGDSendFilesAck(PACKET_BUFFER* packet, UINT32, ISocketSession* socket)
 {
-    INT32 nRetCode = 0;
-
-    U2N_SEND_FILES_ACK* pMsg = NULL;
-    SRemoteGuardSession* pSession = NULL;
-    STransmitFileCtx*	pCurBaseSend = NULL;
-
-    struct in_addr stRemoteAddr = {0}; 
-    //UINT32 dwRemoteAddr = 0; 
-    //UINT16 wRemotePort = 0; 
-    //LOG_PROCESS_ERROR( pSocketSession );
-    //nRetCode = pSocketSession->GetRemoteAddress(dwRemoteAddr, wRemotePort);
-    //LOG_CHECK_ERROR( nRetCode ); 
-    //stRemoteAddr.s_addr = dwRemoteAddr;
-
-    pMsg = (U2N_SEND_FILES_ACK*)pPacketBuffer;
-    pSession = (SRemoteGuardSession*)pSocketSession->GetUserData();
-    LOG_PROCESS_ERROR(pSession);
-
-	pCurBaseSend = CTransmitFileMgr::GetInstance().GetPendingSending(pSession->dwArea, pSession->dwIp);
-    LOG_PROCESS_ERROR(pCurBaseSend);
-
-    LOG_PROCESS_ERROR(pMsg->nErrorCode == errSuccess);
-    LOG_PROCESS_ERROR(pCurBaseSend->wBufferIndex == pCurBaseSend->wBufferTotal);
-
-    //strxcpy(szVersion, pCurBaseSend->szVersionName, sizeof(szVersion));
-
-    if (pMsg->wBufferIndex + 1 == pMsg->wBufferTotal &&
-        pMsg->wFileIndex + 1 == pMsg->wFileTotal )
-    {
-        CTransmitFileMgr::GetInstance().StopSending( pSession->dwArea, pSession->dwIp );
-
-        MaintainTool::GetInstance().UpdateGuardSendProgress(pCurBaseSend->nAreaID, pCurBaseSend->dwIp, 101);
-    }
-
-    stRemoteAddr.s_addr = pCurBaseSend->dwIp;
-    INF("send file:%s to ip:%s success", pMsg->szFileName, inet_ntoa(stRemoteAddr));
-
-    return;
-Exit0:
-
-    if(pCurBaseSend)
-    {
-        stRemoteAddr.s_addr = pCurBaseSend->dwIp;
-        INF("send file:%s to ip:%s failed, ErrorCode = %d", pMsg->szFileName, inet_ntoa(stRemoteAddr), pMsg->nErrorCode);
-
-		MaintainTool::GetInstance().UpdateGuardSendProgress(pCurBaseSend->nAreaID, pCurBaseSend->dwIp, pMsg->nErrorCode);
-    }
-
-    if(pSession)
-        CTransmitFileMgr::GetInstance().StopSending( pSession->dwArea, pSession->dwIp );
-
-    return;
+    auto* session = static_cast<SRemoteGuardSession*>(socket->GetUserData());
+    if (!session || session->pSocketSession != socket) return;
+    U2N_SEND_FILES_ACK message{};
+    std::memcpy(&message, packet, sizeof(message));
+    if (!CTransmitFileMgr::GetInstance().Acknowledge(session->dwArea, session->dwIp, message))
+        ERR("ignoring acknowledgement that does not match the current file transfer");
 }
 
 

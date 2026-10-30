@@ -12,7 +12,6 @@
 #include "../db/db_save_role.h"
 #include "../db/db_list_role.h"
 
-struct MYSQL;
 
 class CDBWorkerThread : public CThread
 {
@@ -57,7 +56,8 @@ private:
     CCircleList m_UserTaskList;
     CCircleList m_FinishedUserTaskList;
 
-    MYSQL* m_mysql;
+    cqyh::MysqlPtr m_mysql;
+    void CloseStatements();
 
     CDBCreateRole m_createrole;
     CDBDeleteRole m_deleterole;

@@ -35,7 +35,8 @@ size_t		utf8_to_wchar(const char *in, size_t insize, wchar_t *out,
 size_t		wchar_to_utf8(const wchar_t *in, size_t insize, char *out,
 		    size_t outsize, int flags);
 
-// New code
+// Windows code-page conversions. Results are caller-owned new[] arrays; release
+// with free_converted_string or adopt into unique_ptr<char[]>. Failure returns null.
 char* char_to_utf8(char* str_mb);            // Convert an ANSI char string to UTF-8
 char* utf8_to_char(const char* str_utf8);    // Convert a UTF-8 char string to ANSI
 void free_converted_string(char* str);       // Helper function: free memory

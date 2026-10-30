@@ -1,7 +1,9 @@
 #ifndef _STD_AFX_H_
 #define _STD_AFX_H_
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
 //#include <QtCore/QtCore>
 
@@ -20,5 +22,6 @@
 #include <stack>
 
 #include "read_data_helper.h"
+#include "../../qt_cpp23.h"
 
 #endif  // _STD_AFX_H_

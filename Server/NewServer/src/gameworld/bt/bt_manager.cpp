@@ -9,7 +9,7 @@
 CBTManager CBTManager::ms_Instance;
 #define MAX_BT_LAYER	(64)
 
-static char* s_szOwnerNameList[botTotal] =
+static constexpr const char* s_szOwnerNameList[botTotal] =
 {
     "Invalid",
     "CCharacter",

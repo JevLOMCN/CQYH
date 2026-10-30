@@ -3,6 +3,10 @@
 
 #include <list>
 #include <vector>
+#include <atomic>
+#include "guard_files.h"
+#include "guard_transport.h"
+#include "guard_console.h"
 
 #include "server_def.h"
 #include "packet_allocator.h"
@@ -27,7 +31,7 @@ public:
     BOOL Close(void);
     BOOL MainLoop(void);
 
-    INet* GetNetInterface(void)                     {return m_pNet;}
+    INet* GetNetInterface(void)                     {return m_pNet.get();}
     IPacketAllocator* GetPacketAllocator(void)      {return &m_PacketAllocator;}
 
     BOOL IsRuning()                                 {return m_bRun;}
@@ -43,25 +47,34 @@ public:
 	BOOL ProcessDeployServerVersion();
 	BOOL ProcessHotUpdatePatch();
     BOOL FetchCurrentVersion( char* pcszCurrentVersion, int nLen  );
+    BOOL StartDeployment(bool patch, const char* name);
+    bool DeploymentBusy() const noexcept { return m_deployment.busy(); }
+    void StopBackgroundWork();
 
 private:
     BOOL _UpdateScreen();
 	BOOL _PrintProcessContent();
 	BOOL _GetLogSubFolders(const char* pszTargetDir);
-	BOOL _EraseOldestLogSubFolders(std::string strSubFolderName);
 	BOOL _AsyncEraseOldestLogSubFolders(std::string strSubFolderName);
+    void _PollLogCleanup();
+    BOOL _ProcessOperationResult(bool patch);
 
 	std::vector<std::string> m_roLogFolderEntries;
     static CGuardServer     ms_Instance;
-	BOOL                    m_bRun;
+	std::atomic_bool        m_bRun{false};
 	UINT64					m_qwLatestTickCheckDiskSpace;
 
-    INet*                   m_pNet;
-    ISocketAcceptor*        m_pSocketAcceptor;
+    guard_runtime::NetOwner m_pNet;
+    guard_runtime::AcceptorOwner m_pSocketAcceptor;
     CPacketAllocator        m_PacketAllocator;
 
-	CHAR					m_szProcessingVersion[128];
-	CHAR					m_szProcessingPatch[128];
+	CHAR					m_szProcessingVersion[128]{};
+	CHAR					m_szProcessingPatch[128]{};
+    guard_files::FileTask m_logCleanup;
+    guard_files::FileTask m_deployment;
+    bool m_deploymentIsPatch = false;
+    guard_runtime::ConsoleInput m_console;
+    UINT64 m_lastScreenTick = 0;
 };
 
 #endif  // _GUARD_SERVER_H_

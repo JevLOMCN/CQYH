@@ -271,7 +271,10 @@ INT32 CMailMgr::GetMailAttach(MS_ONLINE_ROLE_DATA* role, UINT32 dwMailID)
     }
 
     mailinfo->ma.byAttachLocked = 1;
-    bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(mysqlUpdateMailAttachLocked, _OnMailAttachLocked, mailinfo, "cud", 1, dwMailID);
+    bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmtOwned(mysqlUpdateMailAttachLocked,
+        [mailID = dwMailID, receiverID = mailinfo->dwReceiverRoleID, mailTime = mailinfo->dwMailTime]
+        (std::list<void*>& rows, void*) { return _OnMailAttachLocked(rows, mailID, receiverID, mailTime); },
+        "cud", 1, dwMailID);
     LOG_PROCESS_ERROR(bRet);
 
     return errSuccess;
@@ -413,6 +416,7 @@ Exit0:
 
 BOOL CMailMgr::SendSystemMail(MS_ROLE_DATA* receiver, const char* subject, const char* content)
 {
+    UINT32 mailid{};
     MailInfo* mail = NULL;
     MS_ONLINE_ROLE_DATA* online_role = NULL;
     BOOL bRet = FALSE;
@@ -423,7 +427,7 @@ BOOL CMailMgr::SendSystemMail(MS_ROLE_DATA* receiver, const char* subject, const
     LOG_PROCESS_ERROR(content);
     LOG_PROCESS_ERROR(strlen(content) <= MAIL_CONTENT_LEN);
 
-    UINT32 mailid = _GetMailID(receiver->byGroup);
+    mailid = _GetMailID(receiver->byGroup);
     LOG_PROCESS_ERROR(mailid);
 
     mail = m_MailPool.New(mailid);
@@ -463,6 +467,7 @@ Exit0:
 
 BOOL CMailMgr::SendSystemMailWithSimpleAttach(MS_ROLE_DATA* receiver, const char* subject, const char* content, INT32 itemid, INT32 itemcount)
 {
+    UINT32 mailid{};
     MailInfo* mail = NULL;
     MS_ONLINE_ROLE_DATA* online_role = NULL;
     BOOL bRet = FALSE;
@@ -474,7 +479,7 @@ BOOL CMailMgr::SendSystemMailWithSimpleAttach(MS_ROLE_DATA* receiver, const char
     LOG_PROCESS_ERROR(strlen(content) <= MAIL_CONTENT_LEN);
     LOG_PROCESS_ERROR(itemid > 0 && itemcount > 0);
 
-    UINT32 mailid = _GetMailID(receiver->byGroup);
+    mailid = _GetMailID(receiver->byGroup);
     LOG_PROCESS_ERROR(mailid);
 
     mail = m_MailPool.New(mailid);
@@ -516,6 +521,7 @@ Exit0:
 
 BOOL CMailMgr::SendSystemMailWithBufferAttach(MS_ROLE_DATA* receiver, const char* subject, const char* content, const char* itembuffer, UINT8 bufferlen)
 {
+    UINT32 mailid{};
     MailInfo* mail = NULL;
     MS_ONLINE_ROLE_DATA* online_role = NULL;
     BOOL bRet = FALSE;
@@ -527,7 +533,7 @@ BOOL CMailMgr::SendSystemMailWithBufferAttach(MS_ROLE_DATA* receiver, const char
     LOG_PROCESS_ERROR(strlen(content) <= MAIL_CONTENT_LEN);
     LOG_PROCESS_ERROR(bufferlen <= BUFFER_ATTACH_LEN);
 
-    UINT32 mailid = _GetMailID(receiver->byGroup);
+    mailid = _GetMailID(receiver->byGroup);
     LOG_PROCESS_ERROR(mailid);
 
     mail = m_MailPool.New(mailid);
@@ -637,6 +643,8 @@ Exit0:
 BOOL CMailMgr::_LoadMail(UINT32 dwMailID, UINT32 dwMailTime, UINT32 dwSenderRoleID, UINT32 dwReceiverRoleID, UINT8 byMailType, UINT8 byNew, UINT8 byAttachLocked,
                          char* szMailSubject, char* szMailContent, UINT8 byAttachType, UINT32 dwAttachBufferLen, char* AttachBuffer)
 {
+    INT32 group_id{};
+    BOOL bRet{};
     MailInfo* mail = NULL;
 
     LOG_PROCESS_ERROR(byAttachType < ATTACHTYPE_COUNT);
@@ -663,10 +671,10 @@ BOOL CMailMgr::_LoadMail(UINT32 dwMailID, UINT32 dwMailTime, UINT32 dwSenderRole
         memcpy(mail->ma.buffer, AttachBuffer, dwAttachBufferLen);
     }
 
-    INT32 group_id = dwMailID >> 24;
+    group_id = dwMailID >> 24;
     LOG_PROCESS_ERROR(IsValidGroup(group_id));
 
-    BOOL bRet = seed_finder[group_id].CheckID(dwMailID & 0x00FFFFFF);
+    bRet = seed_finder[group_id].CheckID(dwMailID & 0x00FFFFFF);
     LOG_PROCESS_ERROR(bRet);
 
     m_nLoadedCount++;
@@ -789,10 +797,13 @@ Exit0:
     return FALSE;
 }
 
-BOOL CMailMgr::_OnMailAttachLocked(std::list<void*>& rResult, void* pUserData)
+BOOL CMailMgr::_OnMailAttachLocked(std::list<void*>& rResult, UINT32 mailID, UINT32 receiverID, UINT32 mailTime)
 {
     MS_ONLINE_ROLE_DATA* role = NULL;
-    MailInfo* mail = (MailInfo*)pUserData;
+    MailInfo* mail = GetInstance().m_MailPool.Find(mailID);
+    // The mail may have been deleted while this asynchronous update was queued.
+    if (!mail || mail->dwReceiverRoleID != receiverID || mail->dwMailTime != mailTime)
+        return TRUE;
 
     LOG_PROCESS_ERROR(mail);
     LOG_PROCESS_ERROR(mail->ma.byAttachType == ATTACHTYPE_SIMPLE || mail->ma.byAttachType == ATTACHTYPE_BUFFER);

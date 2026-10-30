@@ -7,26 +7,45 @@
 *********************************************************************/
 
 #include "stdafx.h"
+#include "gm_exchange_ui.h"
 #include "ld_widget.h"
 #include "my_tree_widget_item.h"
 #include "message_handler.h"
 #include "server_mgr.h"
-#include <QtWidgets/QMessageBox>
 #include "gm_def.h"
 #include "gm_item_info.h"
-#include "string_ex.h"
-#include "time.h"
 #include "detail.h"
 #include "time_ex.h"
 #include "tl_config.h"
+#include "gm_exchange_stats.h"
+#include "gm_reports.h"
+#include <QtCore/QTextCodec>
+#include <format>
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <iterator>
+#include <memory>
+#include <span>
+#include <vector>
+
+namespace
+{
+QString legacy_text(std::string_view text)
+{
+    if (const auto* codec = QTextCodec::codecForName("GB18030"))
+        return codec->toUnicode(text.data(), static_cast<int>(text.size()));
+    return QString::fromLocal8Bit(text.data(), static_cast<int>(text.size()));
+}
+}
 
 CLDWidget::CLDWidget(QWidget *parent, Qt::WindowFlags flags)
 : QWidget(parent, flags)
 {
     m_nGroupID = 0;
-    m_nCurrentTime = 0;
 
     ui.setupUi(this);
+    ui.label->setWordWrap(true);
 
     ui.treeWidget->setColumnWidth(0, 46);
     ui.treeWidget->setColumnWidth(1, 55);
@@ -72,10 +91,9 @@ CLDWidget::CLDWidget(QWidget *parent, Qt::WindowFlags flags)
 
     connect(ui.pushButton_5, SIGNAL(clicked()), this, SLOT(SetExchangeLimit()));
 
-    QDateTime   qDataTime;
-    qDataTime.setTime_t(time(NULL));
-    ui.dateTimeEdit->setDateTime(qDataTime);
-    ui.dateTimeEdit_2->setDateTime(qDataTime);
+    const auto now=QDateTime::currentDateTime();
+    ui.dateTimeEdit->setDateTime(now);
+    ui.dateTimeEdit_2->setDateTime(now);
 
     show();
 
@@ -95,797 +113,354 @@ BOOL CLDWidget::Init()
 
 BOOL CLDWidget::UnInit()
 {
-    m_nGroupID = 0;
-    ui.label_6->clear();
-    ui.comboBox->clear();
-
-    ui.treeWidget->clear();
-    ui.treeWidget_2->clear();
-    ui.treeWidget_3->clear();
-    ui.treeWidget_4->clear();
-    ui.treeWidget_5->clear();
-
-    ui.label->clear();
-
-    ui.doubleSpinBox->clear();
-    ui.lineEdit->clear();
-
-    ui.label_8->UnInit();
-    //ui.label_8->clear();
-
+    ++m_view_generation;m_nGroupID=0;m_poll={};
+    const QPointer<CLDWidget> alive(this);
+    DelDetail();if (!alive) return FALSE;
+    ClearExchangeLimit();if (!alive) return FALSE;
+    m_statistics={};
+    ui.label_6->clear();ui.comboBox->clear();
+    for (auto* tree : {ui.treeWidget,ui.treeWidget_2,ui.treeWidget_3,ui.treeWidget_4,ui.treeWidget_5}) tree->clear();
+    ui.label->clear();ui.doubleSpinBox->setValue(0);ui.lineEdit->clear();ui.label_8->UnInit();
+    if (auto* status=findChild<QLabel*>("exchangeActionStatus",Qt::FindDirectChildrenOnly)) { status->clear();status->hide(); }
     return TRUE;
 }
 
-BOOL CLDWidget::ServerLogin(INT32 nSvrID)
+BOOL CLDWidget::ServerLogin(INT32 server_id)
 {
-    INT32       nServerListIndex = 0;
-
-    ui.label_6->clear();
-    ui.comboBox->clear();
-
-    for (; nServerListIndex < GM_MAX_SERVER_COUNT; ++nServerListIndex)
+    const auto& servers=g_TLConfig.ServerList.arrGMList;
+    const auto server=std::ranges::find_if(servers,[&](const auto& value){return value.nSvrID==server_id;});
+    if (server_id<=0 || server==std::end(servers)) return FALSE;
+    QStringList groups{QString()};
+    for (int index=1;index<MAX_SERVER_GROUP_COUNT;++index)
     {
-        if (g_TLConfig.ServerList.arrGMList[nServerListIndex].nSvrID == nSvrID)
-            break;
+        const auto& name=server->groupList[index].szGroupName;
+        const auto* end=static_cast<const char*>(std::memchr(name,0,sizeof(name)));
+        if (!end) return FALSE;
+        groups.push_back(QString::number(index)+QStringLiteral(" - ")+QString::fromUtf8(name,static_cast<int>(end-name)));
     }
-    LOG_PROCESS_ERROR(GM_MAX_SERVER_COUNT != nServerListIndex);
-
-    ui.comboBox->insertItem(0, "");
-    for (INT32 nIndex = 1; nIndex < MAX_SERVER_GROUP_COUNT; ++nIndex)
-    {
-        QString a;
-        a = QString::number(nIndex) + QString::fromLocal8Bit(" - ");
-        if (0 == strlen(g_TLConfig.ServerList.arrGMList[nServerListIndex].groupList[nIndex].szGroupName))
-        {
-            ui.comboBox->insertItem(nIndex, a);
-        }
-        else
-        {
-            ui.comboBox->insertItem(nIndex, a + QString::fromUtf8(g_TLConfig.ServerList.arrGMList[nServerListIndex].groupList[nIndex].szGroupName));
-        }
-    }
-
-
+    const QPointer<CLDWidget> alive(this);
+    if (!UnInit() || !alive) return FALSE;
+    ui.comboBox->addItems(groups);
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
 BOOL CLDWidget::MainLoop()
 {
-    INT32       nRetCode = 0;
-    INT32       nCurrTime = time(NULL);
-
-    if (m_nCurrentTime != nCurrTime && m_nGroupID > 0)
+    return MainLoop(std::chrono::steady_clock::now(),std::chrono::system_clock::now());
+}
+BOOL CLDWidget::MainLoop(std::chrono::steady_clock::time_point tick,std::chrono::system_clock::time_point wall)
+{
+    if (m_polling || m_nGroupID<1 || !CServerMgr::GetInstance().IsSingleSelected()) return TRUE;
+    gm::ExchangeAction action(*this,m_polling);
+    const QPointer<CLDWidget> alive(this);
+    const auto group=m_nGroupID;
+    const auto generation=m_view_generation;
+    const auto session=CServerMgr::GetInstance().GetSessionIDByIndex(0);
+    const auto binding=gm::connection_binding(session);
+    if (!binding) return FALSE;
+    const auto current=[&]
     {
-        nRetCode = CMessageHandler::GetInstance().DoQueryExchangeLog(m_nGroupID);
-        LOG_CHECK_ERROR(nRetCode);
+        return alive && binding->Current() && m_view_generation==generation && m_nGroupID==group &&
+            CServerMgr::GetInstance().IsSingleSelected() && CServerMgr::GetInstance().GetSessionIDByIndex(0)==session;
+    };
+    const auto due=m_poll.take(tick);
+    bool success=true;
+    if (due.log) success=CMessageHandler::GetInstance().DoQueryExchangeLog(group)!=FALSE;
+    if (!current()) return FALSE;
+    if (due.history) success=(CMessageHandler::GetInstance().DoQueryExchangeHistory(group)!=FALSE) && success;
+    if (!current()) return FALSE;
+    if (due.statistics)
+    {
+        const auto seconds=std::chrono::duration_cast<std::chrono::seconds>(wall.time_since_epoch()).count();
+        const auto day=gm::exchange_day(seconds),hour=gm::exchange_hour(seconds);
+        if (!day || !hour) return FALSE;
+        success=(CMessageHandler::GetInstance().DoQuerySysExchangeInfo(group,1,day->begin,day->end,hour->begin,hour->end)!=FALSE) && success;
+    }
+    return current() && success;
+}
 
-        if (m_nCurrentTime % 3 == 0)
+BOOL CLDWidget::SetGroupID(INT32 group)
+{
+    if (group<0 || group>=MAX_SERVER_GROUP_COUNT) return FALSE;
+    if (m_nGroupID!=group)
+    {
+        ++m_view_generation;m_nGroupID=group;m_poll={};
+        const QPointer<CLDWidget> alive(this);
+        DelDetail();if (!alive) return FALSE;
+        ClearExchangeLimit();if (!alive) return FALSE;
+        m_statistics={};ui.label->clear();ui.label_8->UnInit();
+        for (auto* tree : {ui.treeWidget,ui.treeWidget_2,ui.treeWidget_3,ui.treeWidget_4,ui.treeWidget_5}) tree->clear();
+        if (auto* status=findChild<QLabel*>("exchangeActionStatus",Qt::FindDirectChildrenOnly)) { status->clear();status->hide(); }
+    }
+    ui.comboBox->setCurrentIndex(group);ui.label_6->setText(ui.comboBox->currentText());
+    auto palette=ui.label_6->palette();palette.setColor(QPalette::WindowText,Qt::red);ui.label_6->setPalette(palette);
+    return TRUE;
+}
+
+BOOL CLDWidget::UpdatePrice(INT32 group, INT32 sell_count, INT32 buy_count, PRICE_DATA* data)
+{
+    if (group != m_nGroupID || sell_count < 0 || buy_count < 0 ||
+        sell_count > 40 || buy_count > 40 - sell_count || ((sell_count || buy_count) && !data)) return FALSE;
+    const auto count=static_cast<std::size_t>(sell_count+buy_count);
+    std::vector<PRICE_DATA> rows(count);
+    if (count) std::memcpy(rows.data(),data,count*sizeof(PRICE_DATA));
+    using Items=std::vector<std::unique_ptr<CMyTreeWidgetItem>>;
+    std::array<Items,2> prepared;
+    const auto prepare=[&](std::size_t index, int side, int position)
+    {
+        auto item=std::make_unique<CMyTreeWidgetItem>();
+        item->SetID(rows[index].nPrice);
+        item->setData(0,Qt::UserRole,rows[index].nPrice);
+        item->setText(0,legacy_text(side ? "买" : "卖")+QString::number(position));
+        item->setText(1,QString::fromStdString(gm::exchange_price(rows[index].nPrice)));
+        item->setText(2,QString::number(rows[index].nCount));
+        prepared[side].push_back(std::move(item));
+    };
+    for (int index=sell_count; index>0; --index) prepare(index-1,0,index);
+    for (int index=0; index<buy_count; ++index) prepare(sell_count+index,1,index+1);
+    const std::array trees{ui.treeWidget,ui.treeWidget_2};
+    for (std::size_t side=0; side<trees.size(); ++side)
+    {
+        trees[side]->clear();
+        for (auto& item : prepared[side]) trees[side]->addTopLevelItem(item.release());
+    }
+    return TRUE;
+}
+
+BOOL CLDWidget::UpdateExchangeLog(INT32 group, INT32 count, BOOL clear, const char* data)
+{
+    if (group != m_nGroupID || count<0 || count>MAX_EXCHANGE_LOG_NUM ||
+        (clear!=FALSE && clear!=TRUE) || (count && !data)) return FALSE;
+    std::vector<GM_EXCHANGE_PRICE_LOG> rows(count);
+    if (count) std::memcpy(rows.data(),data,rows.size()*sizeof(GM_EXCHANGE_PRICE_LOG));
+    for (const auto& row : rows)
+        if (!std::memchr(row.szExchangeTime,0,sizeof(row.szExchangeTime))) return FALSE;
+    using Items=std::vector<std::unique_ptr<CMyTreeWidgetItem>>;
+    std::array<Items,3> prepared;
+    for (const auto& row : rows)
+    {
+        const std::array text{QString::fromUtf8(row.szExchangeTime),
+            QString::fromStdString(gm::exchange_price(row.nPrice)),QString::number(row.nCount),
+            row.dwSellerID ? QStringLiteral("P") : QStringLiteral("S")};
+        const auto prepare=[&](int table)
         {
-            nRetCode = CMessageHandler::GetInstance().DoQueryExchangeHistory(m_nGroupID);
-            LOG_CHECK_ERROR(nRetCode);
-        }
-
-        if (m_nCurrentTime % 5 == 0)
-        {
-            UINT32      dwBeginTime = nCurrTime / 86400;
-            dwBeginTime *= 86400;
-            UINT32      dwEndTime = dwBeginTime + 86400;
-
-            UINT32      dwBeginHour = nCurrTime / 3600;
-            dwBeginHour *= 3600;
-            UINT32      dwEndHour = dwBeginHour + 3600;
-
-            nRetCode = CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID, 1, dwBeginTime, dwEndTime, dwBeginHour, dwEndHour);
-            LOG_CHECK_ERROR(nRetCode);
-        }
-
-
-        m_nCurrentTime = nCurrTime;
+            auto item=std::make_unique<CMyTreeWidgetItem>();
+            for (int column=0;column<static_cast<int>(text.size());++column) item->setText(column,text[column]);
+            prepared[table].push_back(std::move(item));
+        };
+        prepare(0);prepare(row.dwSellerID ? 2 : 1);
     }
-
-    return TRUE;
-}
-
-
-BOOL CLDWidget::SetGroupID(INT32 nGroupID)
-{
-    ui.comboBox->setCurrentIndex(nGroupID);
-    ui.label_6->setText(ui.comboBox->currentText());
-    QPalette    qpa;
-    qpa.setColor(QPalette::WindowText, Qt::red);
-    ui.label_6->setPalette(qpa);
-    m_nGroupID = nGroupID;
-
-    return TRUE;
-}
-
-BOOL CLDWidget::UpdatePrice(INT32 nGroupID, INT32 nSellNum, INT32 nBuyNum, PRICE_DATA *pData)
-{
-    double  lfPrice = 0.0;
-    ui.treeWidget->clear();
-    ui.treeWidget_2->clear();
-
-    if (nGroupID != m_nGroupID)
-        return FALSE;
-
-    LOG_PROCESS_ERROR(pData);
-
-    for (INT32 i = nSellNum - 1; i >= 0; --i)
+    const std::array trees{ui.treeWidget_3,ui.treeWidget_4,ui.treeWidget_5};
+    for (std::size_t table=0;table<trees.size();++table)
     {
-        CMyTreeWidgetItem   *pTreeWidgetItem = new CMyTreeWidgetItem;
-        LOG_PROCESS_ERROR(pTreeWidgetItem);
-
-        pTreeWidgetItem->SetID(pData[i].nPrice);
-
-        QString n;
-        n.setNum(i+1);
-        QString s = QString::fromLocal8Bit("卖") + n;
-        pTreeWidgetItem->setText(0, s);
-        lfPrice = pData[i].nPrice;
-        lfPrice /= 100;
-        pTreeWidgetItem->setText(1, QString::number(lfPrice));
-        pTreeWidgetItem->setText(2, QString::number(pData[i].nCount));
-        //pTreeWidgetItem->setText(1, QString::number(*(UINT32*)(pSlot->szData)));
-
-        ui.treeWidget->addTopLevelItem(pTreeWidgetItem);
+        if (clear) trees[table]->clear();
+        for (auto& item : prepared[table]) trees[table]->addTopLevelItem(item.release());
     }
-
-    INT32   show_i = 1;
-    for (INT32 i = nSellNum; i < nSellNum + nBuyNum; ++i, show_i++)
-    {
-        CMyTreeWidgetItem   *pTreeWidgetItem = new CMyTreeWidgetItem;
-        LOG_PROCESS_ERROR(pTreeWidgetItem);
-
-        pTreeWidgetItem->SetID(pData[i].nPrice);
-
-        QString n;
-        n.setNum(show_i);
-        QString s = QString::fromLocal8Bit("买") + n;
-        pTreeWidgetItem->setText(0, s);
-        lfPrice = pData[i].nPrice;
-        lfPrice /= 100;
-        pTreeWidgetItem->setText(1, QString::number(lfPrice));
-        pTreeWidgetItem->setText(2, QString::number(pData[i].nCount));
-        //pTreeWidgetItem->setText(1, QString::number(*(UINT32*)(pSlot->szData)));
-
-        ui.treeWidget_2->addTopLevelItem(pTreeWidgetItem);
-    }
-
-    return TRUE;
-Exit0:
-    return FALSE;
-}
-
-BOOL CLDWidget::UpdateExchangeLog(INT32 nGroupID, INT32 nCount, BOOL bClear, const char *pcData)
-{
-    INT32       nRetCode = 0;
-    double      lfPrice = 0.0;
-    GM_EXCHANGE_PRICE_LOG   *pElog = NULL;
-
-    if (nGroupID != m_nGroupID)
-        return FALSE;
-
-    LOG_PROCESS_ERROR(pcData);
-
-    if (bClear == TRUE)
-    {
-        ui.treeWidget_3->clear();
-        ui.treeWidget_4->clear();
-        ui.treeWidget_5->clear();
-    }
-
-    LOG_PROCESS_ERROR(pcData);
-
-    pElog = (GM_EXCHANGE_PRICE_LOG *)pcData;
-
-    //for (INT32 i = nCount - 1; i >= 0; --i)
-    for (INT32 i = 0; i < nCount; ++i)
-    {
-        CMyTreeWidgetItem   *pTreeWidgetItem = new CMyTreeWidgetItem;
-        LOG_PROCESS_ERROR(pTreeWidgetItem);
-
-        pTreeWidgetItem->setText(0, QString(pElog[i].szExchangeTime /*+ 11*/));
-        lfPrice = pElog[i].nPrice;
-        lfPrice /= 100;
-        pTreeWidgetItem->setText(1, QString::number(lfPrice));
-        pTreeWidgetItem->setText(2, QString::number(pElog[i].nCount));
-        if (pElog[i].dwSellerID == 0 )
-            pTreeWidgetItem->setText(3, QString("S"));
-        else
-            pTreeWidgetItem->setText(3, QString("P"));
-
-        ui.treeWidget_3->addTopLevelItem(pTreeWidgetItem);
-
-        if (pElog[i].dwSellerID == 0)
-        {
-            CMyTreeWidgetItem   *pT = new CMyTreeWidgetItem;
-            LOG_PROCESS_ERROR(pT);
-
-            pT->setText(0, QString(pElog[i].szExchangeTime /*+ 11*/));
-            lfPrice = pElog[i].nPrice;
-            lfPrice /= 100;
-            pT->setText(1, QString::number(lfPrice));
-            pT->setText(2, QString::number(pElog[i].nCount));
-            if (pElog[i].dwSellerID == 0)
-                pT->setText(3, QString("S"));
-            else
-                pT->setText(3, QString("P"));
-            ui.treeWidget_4->addTopLevelItem(pT);
-        }
-        else
-        {
-            CMyTreeWidgetItem   *pT = new CMyTreeWidgetItem;
-            LOG_PROCESS_ERROR(pT);
-
-            pT->setText(0, QString(pElog[i].szExchangeTime /*+ 11*/));
-            lfPrice = pElog[i].nPrice;
-            lfPrice /= 100;
-            pT->setText(1, QString::number(lfPrice));
-            pT->setText(2, QString::number(pElog[i].nCount));
-            if (pElog[i].dwSellerID == 0)
-                pT->setText(3, QString("S"));
-            else
-                pT->setText(3, QString("P"));
-            ui.treeWidget_5->addTopLevelItem(pT);
-        }
-
-    }
-
-
-
-    return TRUE;
-Exit0:
-    return FALSE;
-}
-
-BOOL CLDWidget::UpdateExchangeHistory(INT32 nGroupID, INT32 nCount, BOOL bClear, const char *pcData)
-{
-    if (nGroupID == m_nGroupID)
-    {
-        ui.label_8->SetData(nCount, pcData);
-    }
-    
     return TRUE;
 }
 
-BOOL CLDWidget::UpdateOrderDetail(INT32 nGroupID, INT32 nOrderType, INT32 nPrice, INT32 nCount, EXCHANGE_COUNT_DATA *pData)
+BOOL CLDWidget::UpdateExchangeHistory(INT32 group,INT32 count,BOOL clear,const char* bytes)
 {
-    INT32   nLength = 0;
-    double  lfPrice = 0.0;
-    const   INT32 BUFFER_LENGTH = 1024 * 20;
-    char    *pBuffer = NULL;
-
-    LOG_PROCESS_ERROR(pData);
-
-    pBuffer = new char[BUFFER_LENGTH];
-    LOG_PROCESS_ERROR(pBuffer);
-
-    memset(pBuffer, 0, BUFFER_LENGTH);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%d\n", "区组", nGroupID);
-    if (nOrderType == 2)
-        nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\n", "卖单");
-    else
-        nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\n", "买单");
-
-    lfPrice = nPrice;
-    lfPrice /= 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n", "价格", lfPrice);
-    
-
-    m_pDetailDialog = new CDetailDialog(m_nGroupID, this);
-    LOG_PROCESS_ERROR(m_pDetailDialog);
-
-    m_pDetailDialog->ShowData(pBuffer, nCount, pData);
-    m_pDetailDialog->show();
-
-    if (pBuffer)
-        delete[] pBuffer;
-    return TRUE;
-Exit0:
-    if (pBuffer)
-        delete[] pBuffer;
-    if (m_pDetailDialog)
-    {
-        delete m_pDetailDialog;
-        m_pDetailDialog = NULL;
-    }
-    return FALSE;
+    if (group!=m_nGroupID || (clear!=FALSE && clear!=TRUE)) return FALSE;
+    // The server sends a complete history snapshot for both flag values.
+    return ui.label_8->SetData(count,bytes);
 }
 
-BOOL CLDWidget::ShowTodayStat(INT32 nGroupID, 
-    INT64 llSysTotalMoney, INT64 llTotalMoney,
-    INT64 llSysTotalExchangeMoney, INT64 llTotalExchangeMoney,
-    INT64 llSysExchangeRMB, INT64 llExchangeRMB,
-    INT32 nAveragePriceToday, INT32 nAveragePriceLastHour)
+BOOL CLDWidget::UpdateOrderDetail(INT32 group, INT32 type, INT32 price, INT32 count, EXCHANGE_COUNT_DATA* data)
 {
-    INT32   nLength = 0;
-    const   INT32 BUFFER_LENGTH = 1024 * 20;
-    char    *pBuffer = NULL;
-    double  lfExchangeRMB = 0.0;
-    double  lfTotalMoney = 0.0;
-    double  lfTotalExchangeMoney = 0.0;
-
-    double  lfSysExchangeRMB = 0.0;
-    double  lfSysTotalMoney = 0.0;
-    double  lfSysTotalExchangeMoney = 0.0;
-
-    if (m_nGroupID != nGroupID)
-        return FALSE;
-
-    m_llSysTotalMoney = llSysTotalMoney;
-    m_llSysTotalExchangeMoney = llSysTotalExchangeMoney;
-    m_llSysExchangeRMB = llSysExchangeRMB;
-
-    m_llTotalMoney = llTotalMoney;
-    m_llTotalExchangeMoney = llTotalExchangeMoney;
-    m_llExchangeRMB = llExchangeRMB;
-
-    m_lfAveragePriceToday = nAveragePriceToday;
-    m_lfAveragePriceToday /= 100;
-    m_lfAveragePriceLastHour = nAveragePriceLastHour;
-    m_lfAveragePriceLastHour /= 100;
-
-    pBuffer = new char[BUFFER_LENGTH];
-    LOG_PROCESS_ERROR(pBuffer);
-
-    memset(pBuffer, 0, BUFFER_LENGTH);
-
-    lfSysTotalMoney = m_llSysTotalMoney / 10000;
-    lfSysTotalExchangeMoney = m_llSysTotalExchangeMoney / 10000;
-    lfSysExchangeRMB = (double)m_llSysExchangeRMB / 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "系统投放量", lfSysTotalMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "系统成交量", lfSysTotalExchangeMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n", "系统成交元宝", lfSysExchangeRMB);
-
-    lfTotalMoney = m_llTotalMoney / 10000;
-    lfTotalExchangeMoney = m_llTotalExchangeMoney / 10000;
-    lfExchangeRMB = (double)m_llExchangeRMB / 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "\n%s\t%.2lf 万\n", "玩家投放量", lfTotalMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "玩家成交量", lfTotalExchangeMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "玩家成交元宝", lfExchangeRMB);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n", "当日平均价", m_lfAveragePriceToday);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "前1小时平均价", m_lfAveragePriceLastHour);
-
-    ui.label->setText(QString::fromLocal8Bit(pBuffer));
-
-    if (pBuffer)
-        delete[] pBuffer;
+    if (group != m_nGroupID || count < 0 || count > 255 || (count && !data)) return FALSE;
+    std::vector<EXCHANGE_COUNT_DATA> rows;
+    if (count) rows.assign(data, data + count);
+    for (const auto& row : rows)
+        if (!std::memchr(row.szRoleName,0,sizeof(row.szRoleName))) return FALSE;
+    const auto header = legacy_text(std::format("区组\t{}\n{}\n价格\t{}\n",group,type==2 ? "卖单" : "买单",gm::exchange_price(price)));
+    auto dialog = std::make_unique<CDetailDialog>(group,this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    if (!dialog->ShowData(header,rows)) return FALSE;
+    DelDetail();
+    m_pDetailDialog=dialog.get();
+    connect(dialog.get(),&QDialog::finished,this,[this,guard=QPointer<CDetailDialog>(dialog.get())]
+    { if (m_pDetailDialog.data()==guard.data()) m_pDetailDialog.clear(); });
+    dialog->show();
+    dialog.release();
     return TRUE;
-Exit0:
-    if (pBuffer)
-        delete[] pBuffer;
-    return FALSE;
 }
 
-BOOL CLDWidget::ShowYesterdayStat(INT32 nGroupID, 
-    INT64 llSysYesTotalMoney, INT64 llYesTotalMoney,
-    INT64 llSysYesTotalExchangeMoney, INT64 llYesTotalExchangeMoney,
-    INT64 llSysYesExchangeRMB, INT64 llYesExchangeRMB,
-    INT32 nAveragePriceToday, INT32 nAveragePriceLastHour)
+BOOL CLDWidget::ShowTodayStat(INT32 group, INT64 system_money, INT64 player_money,
+    INT64 system_traded, INT64 player_traded, INT64 system_gems, INT64 player_gems,
+    INT32 average, INT32 previous_average)
 {
-    INT32   nLength = 0;
-    const   INT32 BUFFER_LENGTH = 1024 * 20;
-    char    *pBuffer = NULL;
-    CGMItemInfo *pItemInfo = NULL;
-    
-    double  lfSysExchangeRMB = 0.0;
-    double  lfSysTotalMoney = 0.0;
-    double  lfSysTotalExchangeMoney = 0.0;
-
-    double  lfExchangeRMB = 0.0;
-    double  lfTotalMoney = 0.0;
-    double  lfTotalExchangeMoney = 0.0;
-
-    double  lfSysYesExchangeRMB = 0.0;
-    double  lfSysYesTotalMoney = 0.0;
-    double  lfSysYesTotalExchangeMoney = 0.0;
-
-    double  lfYesExchangeRMB = 0.0;
-    double  lfYesTotalMoney = 0.0;
-    double  lfYesTotalExchangeMoney = 0.0;
-
-    if (m_nGroupID != nGroupID)
-        return FALSE;
-
-    pBuffer = new char[BUFFER_LENGTH];
-    LOG_PROCESS_ERROR(pBuffer);
-
-    memset(pBuffer, 0, BUFFER_LENGTH);
-
-    lfSysTotalMoney = m_llSysTotalMoney / 10000;
-    lfSysTotalExchangeMoney = m_llSysTotalExchangeMoney / 10000;
-    lfSysExchangeRMB = (double)m_llSysExchangeRMB / 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "系统投放量", lfSysTotalMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "系统成交量", lfSysTotalExchangeMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "系统成交元宝", lfSysExchangeRMB);
-
-    lfTotalMoney = m_llTotalMoney / 10000;
-    lfTotalExchangeMoney = m_llTotalExchangeMoney / 10000;
-    lfExchangeRMB = (double)m_llExchangeRMB / 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "玩家投放量", lfTotalMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "玩家成交量", lfTotalExchangeMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "玩家成交元宝", lfExchangeRMB);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "当日平均价", m_lfAveragePriceToday);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n\n\n", "前1小时平均价", m_lfAveragePriceLastHour);
-
-
-    // yesterday
-    lfSysYesTotalMoney = llSysYesTotalMoney / 10000;
-    lfSysYesTotalExchangeMoney = llSysYesTotalExchangeMoney / 10000;
-    lfSysYesExchangeRMB = (double)llSysYesExchangeRMB / 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "昨日系统投放量", lfSysYesTotalMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "昨日系统成交量", lfSysYesTotalExchangeMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "昨日系统成交元宝", lfSysYesExchangeRMB);
-
-    lfYesTotalMoney = llYesTotalMoney / 10000;
-    lfYesTotalExchangeMoney = llYesTotalExchangeMoney / 10000;
-    lfYesExchangeRMB = (double)llYesExchangeRMB / 100;
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "昨日玩家投放量", lfYesTotalMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf 万\n", "昨日玩家成交量", lfYesTotalExchangeMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%.2lf\n\n", "昨日玩家成交元宝", lfYesExchangeRMB);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%d\n\n", "昨日平均价", nAveragePriceToday);
-
-    
-    pItemInfo = new CGMItemInfo(this);
-    LOG_PROCESS_ERROR(pItemInfo);
-
-    pItemInfo->ShowInfo(pBuffer, TRUE);
-    pItemInfo->show();
-
-    if (pBuffer)
-        delete[] pBuffer;
+    if (group != m_nGroupID) return FALSE;
+    const gm::ExchangeStatistics candidate{system_money,player_money,system_traded,player_traded,system_gems,player_gems,average,previous_average};
+    const auto text = legacy_text(gm::exchange_summary(candidate));
+    m_statistics=candidate;
+    ui.label->setText(text);
+    ui.label->setMinimumHeight(ui.label->heightForWidth(ui.label->width()));
     return TRUE;
-Exit0:
-    if (pBuffer)
-        delete[] pBuffer;
-    return FALSE;
 }
 
-BOOL CLDWidget::OutputStatToFile(UINT32 dwBeginTime, UINT32 dwEndTime, INT32 nGroupID,
-    INT64 llSysTotalMoney, INT64 llTotalMoney,
-    INT64 llSysTotalExchangeMoney, INT64 llTotalExchangeMoney,
-    INT64 llSysExchangeRMB, INT64 llExchangeRMB,
-    INT32 nAveragePriceToday, INT32 nAveragePriceLastHour)
+BOOL CLDWidget::ShowYesterdayStat(INT32 group, INT64 system_money, INT64 player_money,
+    INT64 system_traded, INT64 player_traded, INT64 system_gems, INT64 player_gems,
+    INT32 average, INT32 previous_average)
 {
-    INT32   nLength = 0;
-    const   INT32 BUFFER_LENGTH = 1024 * 20;
-    char    *pBuffer = NULL;
-
-    double  lfSysExchangeRMB = 0.0;
-    double  lfSysTotalMoney = 0.0;
-    double  lfSysTotalExchangeMoney = 0.0;
-
-    double  lfExchangeRMB = 0.0;
-    double  lfTotalMoney = 0.0;
-    double  lfTotalExchangeMoney = 0.0;
-
-    time_t  tTime = 0;
-    struct tm *pTMBegin = NULL;
-    struct tm *pTMEnd = NULL;
-
-    if (m_nGroupID != nGroupID)
-        return FALSE;
-
-    pBuffer = new char[BUFFER_LENGTH];
-    LOG_PROCESS_ERROR(pBuffer);
-
-    memset(pBuffer, 0, BUFFER_LENGTH);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, 
-        "开始时间\t结束时间\t系统投放量\t系统成交量\t系统成交元宝\t玩家投放量\t玩家成交量\t玩家成交元宝\t平均价\n");
-
-    tTime = dwBeginTime;
-    pTMBegin = localtime(&tTime);
-    LOG_PROCESS_ERROR(pTMBegin);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%d-%d-%d %d:%d\t", pTMBegin->tm_year + 1900, pTMBegin->tm_mon + 1, pTMBegin->tm_mday, pTMBegin->tm_hour, pTMBegin->tm_min);
-
-    tTime = dwEndTime;
-    pTMEnd = localtime(&tTime);
-    LOG_PROCESS_ERROR(pTMEnd);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%d-%d-%d %d:%d\t", pTMEnd->tm_year + 1900, pTMEnd->tm_mon + 1, pTMEnd->tm_mday, pTMEnd->tm_hour, pTMEnd->tm_min);
-
-    // 
-    lfSysTotalMoney = llSysTotalMoney / 10000;
-    lfSysTotalExchangeMoney = llSysTotalExchangeMoney / 10000;
-    lfSysExchangeRMB = (double)llSysExchangeRMB / 100;
-
-    lfTotalMoney = llTotalMoney / 10000;
-    lfTotalExchangeMoney = llTotalExchangeMoney / 10000;
-    lfExchangeRMB = (double)llExchangeRMB / 100;
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%d\n", 
-        lfSysTotalMoney, lfSysTotalExchangeMoney, 
-        lfSysExchangeRMB, lfTotalMoney, lfTotalExchangeMoney, lfExchangeRMB, nAveragePriceToday);
-
-    {
-        INT32       nFileLength = 0;
-        char        szFileName[128] = { 0 };
-
-        tTime = dwBeginTime;
-        pTMBegin = localtime(&tTime);
-        LOG_PROCESS_ERROR(pTMBegin);
-        nFileLength += snprintf(szFileName + nFileLength, 128 - nFileLength, "../%d-%d_", pTMBegin->tm_mon + 1, pTMBegin->tm_mday);
-
-        tTime = dwEndTime;
-        pTMEnd = localtime(&tTime);
-        LOG_PROCESS_ERROR(pTMEnd);
-        nFileLength += snprintf(szFileName + nFileLength, 128 - nFileLength, "%d-%d.txt", pTMEnd->tm_mon + 1, pTMEnd->tm_mday);
-
-        FILE    *pFile = fopen(szFileName, "w");
-        LOG_PROCESS_ERROR(pFile);
-
-        fwrite(pBuffer, 1, nLength, pFile);
-
-        fclose(pFile);
-    }
-    
-    if (pBuffer)
-        delete[] pBuffer;
+    if (group != m_nGroupID) return FALSE;
+    const gm::ExchangeStatistics yesterday{system_money,player_money,system_traded,player_traded,system_gems,player_gems,average,previous_average};
+    const auto text = legacy_text(gm::exchange_comparison(m_statistics,yesterday));
+    auto dialog = std::make_unique<CGMItemInfo>(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->ShowInfo(text,TRUE);
+    dialog->show();
+    dialog.release();
     return TRUE;
-Exit0:
-    if (pBuffer)
-        delete[] pBuffer;
-    return FALSE;
+}
+
+BOOL CLDWidget::OutputStatToFile(UINT32 begin, UINT32 end, INT32 group,
+    INT64 system_money, INT64 player_money, INT64 system_traded, INT64 player_traded,
+    INT64 system_gems, INT64 player_gems, INT32 average, INT32 previous_average)
+{
+    if (group != m_nGroupID) return FALSE;
+    const gm::ExchangeStatistics values{system_money,player_money,system_traded,player_traded,system_gems,player_gems,average,previous_average};
+    const auto report=gm::exchange_export(begin,end,values);
+    if (!report) { CRI("GM statistics: %s",report.error().c_str()); return FALSE; }
+    const auto written=gm::write_text_report(std::filesystem::path("..")/report->filename,report->bytes);
+    if (!written) CRI("GM statistics: %s",written.error().c_str());
+    return written.has_value();
 }
 
 BOOL CLDWidget::DelDetail()
 {
-    if (m_pDetailDialog)
-    {
-        m_pDetailDialog->Exit();
-        m_pDetailDialog = NULL;
-    }
-
+    const auto dialog=m_pDetailDialog;
+    m_pDetailDialog.clear();
+    if (dialog) dialog->Exit();
     return TRUE;
 }
 
-BOOL CLDWidget::ShowExchangeLimit(INT32 nPriceHigh, INT32 nPriceLow, INT32 nSingleOrderLimit, INT32 nDailyOrderLimit)
+BOOL CLDWidget::OrderDeleted(UINT64 order)
 {
-    if (m_pExchangeLimit == NULL)
+    if (m_pDetailDialog && m_pDetailDialog->ContainsOrder(order)) return DelDetail();
+    return FALSE;
+}
+BOOL CLDWidget::ShowExchangeLimit(INT32 high, INT32 low, INT32 single, INT32 daily)
+{
+    if (!m_pExchangeLimit)
     {
-        m_pExchangeLimit = new CExchangeLimit(m_nGroupID, this);
-        
+        auto* dialog = new CExchangeLimit(m_nGroupID,this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        m_pExchangeLimit=dialog;
+        connect(dialog,&QDialog::finished,this,[this,guard=QPointer<CExchangeLimit>(dialog)]
+        { if (m_pExchangeLimit.data()==guard.data()) m_pExchangeLimit.clear(); });
     }
-
-    m_pExchangeLimit->ShowExchangeLimit(nPriceHigh, nPriceLow, nSingleOrderLimit, nDailyOrderLimit);
+    m_pExchangeLimit->ShowExchangeLimit(high,low,single,daily);
     m_pExchangeLimit->show();
-
     return TRUE;
 }
 
 void CLDWidget::ClearExchangeLimit()
 {
-    if (m_pExchangeLimit)
-    {
-        delete m_pExchangeLimit;
-        m_pExchangeLimit = NULL;
-    }
+    const auto dialog=m_pExchangeLimit;
+    m_pExchangeLimit.clear();
+    if (dialog) dialog->Exit();
 }
 
+bool CLDWidget::CheckExchangeSelection()
+{
+    if (m_nGroupID>0 && m_nGroupID<MAX_SERVER_GROUP_COUNT && CServerMgr::GetInstance().IsSingleSelected()) return true;
+    gm::exchange_status(*this,QStringLiteral("请选择有效区组和单一区服"));return false;
+}
 void CLDWidget::ChangeGroup()
 {
-    INT32       nRetCode = 0;
-    INT32       nGroupID = 0;
-
-    nGroupID = ui.comboBox->currentIndex();
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CMessageHandler::GetInstance().DoSelectGroup( nGroupID);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    ui.treeWidget->clear();
-    ui.treeWidget_2->clear();
-
-Exit0:
-    return;
+    if (m_submitting) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    const auto group=ui.comboBox->currentIndex();
+    if (group<0 || group>=MAX_SERVER_GROUP_COUNT || !CServerMgr::GetInstance().IsSingleSelected())
+    { gm::exchange_status(*this,QStringLiteral("请选择有效区组和单一区服"));return; }
+    const QPointer<CLDWidget> alive(this);
+    const auto sent=CMessageHandler::GetInstance().DoSelectGroup(group);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
+    // SetGroupID clears the view only after the server confirms the switch.
 }
-
 void CLDWidget::MoreTradeInfo()
 {
-    INT32       nRetCode = 0;
-    INT32       nCurrTime = time(NULL) + get_time_zone();
-    UINT32      dwBeginTime = nCurrTime / 86400;
-    --dwBeginTime;
-    dwBeginTime *= 86400;
-    UINT32      dwEndTime = dwBeginTime + 86400;
-
-    if (m_nGroupID < 1 || m_nGroupID > (MAX_SERVER_GROUP_COUNT - 1))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("服务器区组不对"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID, 0, dwBeginTime, dwEndTime, 0, 0);
-    LOG_CHECK_ERROR(nRetCode);
-
-    return;
+    if (m_submitting) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    if (!CheckExchangeSelection()) return;
+    const auto now=std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    const auto window=gm::exchange_day(now,get_time_zone(),true);
+    if (!window) { gm::exchange_status(*this,QStringLiteral("日期超出协议范围"));return; }
+    const QPointer<CLDWidget> alive(this);
+    const auto sent=CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID,0,window->begin,window->end,0,0);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
 }
-
 void CLDWidget::ExportTradeInfo()
 {
-    INT32       nRetCode = 0;
-    UINT32      dwBeginTime = 0;
-    UINT32      dwEndTime = 0;
-
-    dwBeginTime = ui.dateTimeEdit->dateTime().toTime_t();
-    dwEndTime = ui.dateTimeEdit_2->dateTime().toTime_t();
-
-    if (m_nGroupID < 1 || m_nGroupID >(MAX_SERVER_GROUP_COUNT - 1))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("服务器区组不对"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID, 3, dwBeginTime, dwEndTime, 0, 0);
-    LOG_CHECK_ERROR(nRetCode);
-
-    return;
+    if (m_submitting) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    if (!CheckExchangeSelection()) return;
+    const auto begin=ui.dateTimeEdit->dateTime(),end=ui.dateTimeEdit_2->dateTime();
+    const auto window=gm::exchange_window(begin.toSecsSinceEpoch(),end.toSecsSinceEpoch());
+    if (!begin.isValid() || !end.isValid() || !window)
+    { gm::exchange_status(*this,QStringLiteral("请选择有效且有序的日期范围"));return; }
+    const QPointer<CLDWidget> alive(this);
+    const auto sent=CMessageHandler::GetInstance().DoQuerySysExchangeInfo(m_nGroupID,3,window->begin,window->end,0,0);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
 }
 
 void CLDWidget::AddOrder()
 {
-    INT32       nRetCode = 0;
-    INT32       nGroupID = 0;
-    double      lfPrice = 0.0;
-    INT32       nPrice = 0;
-    INT32       nCount = 0;
-
-    nGroupID = m_nGroupID;
-    lfPrice = ui.doubleSpinBox->text().toDouble();
-    nCount = ui.lineEdit->text().toInt();
-    nPrice = lfPrice * 100;
-
-    if (nGroupID < 1 || nGroupID > (MAX_SERVER_GROUP_COUNT - 1))
+    if (m_submitting) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    const QPointer<CLDWidget> alive(this);
+    const auto group=m_nGroupID;
+    const auto session=CServerMgr::GetInstance().GetSessionIDByIndex(0);
+    const auto binding=gm::connection_binding(session);
+    if (!binding) return;
+    ui.doubleSpinBox->interpretText();
+    const auto price=gm::exchange_price_units(ui.doubleSpinBox->value());
+    bool valid=false;
+    const auto count=ui.lineEdit->text().toInt(&valid);
+    if (!price || !valid || count<=0 || group<1 || group>=MAX_SERVER_GROUP_COUNT ||
+        !CServerMgr::GetInstance().IsSingleSelected())
     {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("服务器区组不对"), QMessageBox::Yes);
-        return;
+        gm::exchange_status(*this,QStringLiteral("请输入有效价格和数量，并选择单一区服"));return;
     }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
+    const auto confirmed=gm::confirm_exchange(*this,QStringLiteral("是否确定单价加单？"));
+    if (!alive || !confirmed) return;
+    if (!binding->Current() || m_nGroupID!=group || !CServerMgr::GetInstance().IsSingleSelected() ||
+        CServerMgr::GetInstance().GetSessionIDByIndex(0)!=session)
     {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
+        gm::exchange_status(*this,QStringLiteral("区服已更改，请重新确认"));return;
     }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("是否确定单价加单"));
-    if (nCheckEnum == QMessageBox::Yes)
-    {
-        nRetCode = CMessageHandler::GetInstance().DoAddSystemOrder(nGroupID, nPrice, nCount);
-        LOG_PROCESS_ERROR(nRetCode);
-    }
-
-Exit0:
-    return;
+    const auto sent=CMessageHandler::GetInstance().DoAddSystemOrder(group,*price,count);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
 }
 
-void CLDWidget::OrderSelected(QTreeWidgetItem * item, int column)
+void CLDWidget::OrderSelected(QTreeWidgetItem* item,int)
 {
-    LOG_PROCESS_ERROR(item);
-
-    ui.treeWidget->setItemSelected(item, true);
-    //item->setSelected(true);
-
-Exit0:
-    return;
+    if (item && item->treeWidget()==ui.treeWidget) item->setSelected(true);
 }
-
-void CLDWidget::OrderSelected_2(QTreeWidgetItem * item, int column)
+void CLDWidget::OrderSelected_2(QTreeWidgetItem* item,int)
 {
-
+    if (item && item->treeWidget()==ui.treeWidget_2) item->setSelected(true);
 }
-
-void CLDWidget::OrderDetail(QTreeWidgetItem * item, int column)
+void CLDWidget::QueryOrderDetail(QTreeWidgetItem* item,QTreeWidget* tree,UINT8 type)
 {
-    INT32       nRetCode = 0;
-    INT32       nPrice = 0;
-    INT32       nCount = 0;
-
-    LOG_PROCESS_ERROR(item);
-
-    nPrice = ((CMyTreeWidgetItem*)item)->GetID();
-
-    if (m_nGroupID < 1 || m_nGroupID >(MAX_SERVER_GROUP_COUNT - 1))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("服务器区组不对"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CMessageHandler::GetInstance().DoQueryOrderDetail(m_nGroupID, 2, nPrice);
-    LOG_PROCESS_ERROR(nRetCode);
-
-Exit0:
-    return;
-
+    if (m_submitting) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    if (!CheckExchangeSelection() || !item || item->treeWidget()!=tree) return;
+    bool valid=false;const auto price=item->data(0,Qt::UserRole).toInt(&valid);
+    if (!valid) { gm::exchange_status(*this,QStringLiteral("订单价格无效"));return; }
+    const QPointer<CLDWidget> alive(this);
+    const auto sent=CMessageHandler::GetInstance().DoQueryOrderDetail(m_nGroupID,type,price);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
 }
-
-void CLDWidget::OrderDetail_2(QTreeWidgetItem * item, int column)
-{
-    INT32       nRetCode = 0;
-    INT32       nPrice = 0;
-    INT32       nCount = 0;
-
-    LOG_PROCESS_ERROR(item);
-
-    nPrice = ((CMyTreeWidgetItem*)item)->GetID();
-
-    if (m_nGroupID < 1 || m_nGroupID >(MAX_SERVER_GROUP_COUNT - 1))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("服务器区组不对"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CMessageHandler::GetInstance().DoQueryOrderDetail(m_nGroupID, 1, nPrice);
-    LOG_PROCESS_ERROR(nRetCode);
-
-Exit0:
-    return;
-}
-
+void CLDWidget::OrderDetail(QTreeWidgetItem* item,int) { QueryOrderDetail(item,ui.treeWidget,2); }
+void CLDWidget::OrderDetail_2(QTreeWidgetItem* item,int) { QueryOrderDetail(item,ui.treeWidget_2,1); }
 void CLDWidget::SetExchangeLimit()
 {
-    INT32       nRetCode = 0;
-
-    if (m_nGroupID < 1 || m_nGroupID >(MAX_SERVER_GROUP_COUNT - 1))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("服务器区组不对"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CMessageHandler::GetInstance().DoQueryExchangeLimit(m_nGroupID);
-    LOG_PROCESS_ERROR(nRetCode);
-
-Exit0:
-    return;
+    if (m_submitting) return;
+    gm::ExchangeAction action(*this,m_submitting);
+    if (!CheckExchangeSelection()) return;
+    const QPointer<CLDWidget> alive(this);
+    const auto sent=CMessageHandler::GetInstance().DoQueryExchangeLimit(m_nGroupID);
+    if (alive) gm::exchange_status(*this,sent ? QString() : QStringLiteral("发送失败，请重试"));
 }
-
-
-
-//void CLDWidget::paintEvent(QPaintEvent *event)
-//{
-//    ui.label_8->paintEvent(event);
-//    //QPainter    painter;
-//    //QBrush      brush;
-//
-//    //brush.setColor(QColor(255, 255, 0));
-//    //painter.setBrush(brush);
-//
-//    //painter.drawRect(QRect(0, 0, 2000, 2000));
-//
-//    //painter.end();
-//
-//    QWidget::paintEvent(event);
-//}

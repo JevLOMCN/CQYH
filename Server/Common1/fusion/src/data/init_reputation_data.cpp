@@ -4,7 +4,7 @@
 #include "string_def.h"
 #include "money_def.h"
 
-static char* s_szClassName[clsPlayerEnd] =
+static constexpr const char* s_szClassName[clsPlayerEnd] =
 {
 	"Warrior",
 	"Mage",

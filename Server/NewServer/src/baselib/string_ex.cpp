@@ -1,71 +1,54 @@
 #include "stdafx.h"
 #include "string_ex.h"
 
-size_t strxcpy(char *dst, const char *src, size_t size)
-{
-    const char *d = dst;
+#include <algorithm>
+#include <span>
+#include <string_view>
 
-    if (dst == NULL || src == NULL || size == 0)
+std::size_t strxcpy(char* dst, const char* src, std::size_t size)
+{
+    if (dst == nullptr || src == nullptr || size == 0)
         return 0;
 
-    while (--size > 0)
-    {
-        if ((*dst++ = *src++) == 0)
-            break;
-    }
-
-    if (size == 0)
-    {
-        *dst++ = 0;
-    }
-
-    return dst - d - 1;
+    const std::span destination(dst, size);
+    // Preserve the legacy bounded read: packet fields need not contain a NUL
+    // when the destination has room for only a prefix.
+    std::size_t length = 0;
+    while (length < destination.size() - 1 && src[length] != '\0')
+        ++length;
+    std::char_traits<char>::move(destination.data(), src, length);
+    destination[length] = '\0';
+    return length;
 }
 
-size_t strxcat(char *dst, const char *src, size_t size)
+std::size_t strxcat(char* dst, const char* src, std::size_t size)
 {
-    const char *d = dst;
-
-    if (dst == NULL || src == NULL || size == 0)
+    if (dst == nullptr || src == nullptr || size == 0)
         return 0;
 
-    while (size && *dst)
+    const std::span destination(dst, size);
+    const auto terminator = std::ranges::find(destination, '\0');
+    if (terminator == destination.end())
     {
-        size--;
-        dst++;
+        destination.back() = '\0';
+        return destination.size() - 1;
     }
 
-    while (--size > 0)
-    {
-        if ((*dst++ = *src++) == 0)
-            break;
-    }
-
-    if (size == 0)
-    {
-        *dst++ = 0;
-    }
-
-    return dst - d - 1;
+    const auto length = static_cast<std::size_t>(terminator - destination.begin());
+    return length + strxcpy(dst + length, src, size - length);
 }
 
 char* SplitStr(char*& tszString, char nSep)
 {
-    INT32 nIdx = 0;
-    INT32 nLen = (INT32)strlen(tszString);
-    char* pRet = NULL;
+    if (tszString == nullptr || nSep == '\0')
+        return nullptr;
 
-    for(INT32 i = 0; i < nLen; i++)
-    {
-        if(tszString[i] == nSep)
-        {
-            tszString[i] = 0;
-            pRet = tszString;
-            tszString = tszString + i + 1;
+    const auto separator = std::string_view(tszString).find(nSep);
+    if (separator == std::string_view::npos)
+        return nullptr;
 
-            return pRet;
-        }
-    }
-
-    return NULL;
+    char* token = tszString;
+    tszString[separator] = '\0';
+    tszString += separator + 1;
+    return token;
 }

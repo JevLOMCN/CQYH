@@ -219,6 +219,7 @@ Exit0:
 
 BOOL CCliMessageHandler::DoSyncMasterRewardExp(CRole *poRole)
 {
+	const TEACHER_REWARD* pTeacherRewardExpList = nullptr;
 	INT32 nRetCode = 0;
 	G2C_SYNC_MASTER_REWARD_EXP* pMsg = NULL;
 
@@ -232,7 +233,7 @@ BOOL CCliMessageHandler::DoSyncMasterRewardExp(CRole *poRole)
 	pMsg->nStudentRewardExp = poRole->GetMaster().GetStudentRewardExp();
 	pMsg->nStudentRewardMoney = poRole->GetMaster().GetStudentRewardExp() * g_GWConfig.nStudentExp2MoneyRate / RATE_MAX;
 
-	const TEACHER_REWARD* pTeacherRewardExpList = poRole->GetMaster().GetTeacherRewardList();
+	pTeacherRewardExpList = poRole->GetMaster().GetTeacherRewardList();
 	LOG_PROCESS_ERROR(pTeacherRewardExpList);
 
 	for (INT32 nIndex = 0; nIndex < MAX_STUDENT_NUM; nIndex++)

@@ -141,7 +141,7 @@ inline void CSceneMgr::SubSceneTempRoleCount(INT32 nServerGroup, INT32 nSceneTem
 {
 	LOG_PROCESS_ERROR(nServerGroup > 0 && nServerGroup < MAX_SERVER_GROUP_COUNT);
 	LOG_PROCESS_ERROR(nSceneTempID > 0 && nSceneTempID < MAX_SCENE_TEMPLATE_COUNT);
-	LOG_CHECK_ERROR(m_nSceneTempRoleCount[nSceneTempID] > 0);
+	LOG_CHECK_ERROR(m_nSceneTempRoleCount[nServerGroup][nSceneTempID] > 0);
 
 	m_nSceneTempRoleCount[nServerGroup][nSceneTempID]--;
 Exit0:

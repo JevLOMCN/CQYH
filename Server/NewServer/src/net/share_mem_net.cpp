@@ -37,14 +37,16 @@ namespace ShareMem
 	{
 		INT32 nRetCode = 0;
 		PACKET_BUFFER* pStart = NULL;
+		SessionMemHeader* pHeader = nullptr;
+		char* pWritePos = nullptr;
 
         LOG_PROCESS_ERROR(pPacketBuffer);
         LOG_PROCESS_ERROR(nSize >= 0);
 		LOG_PROCESS_ERROR(m_poHandler);
 
-		SessionMemHeader* pHeader = (SessionMemHeader*)m_SendBuf.GetUserHeader();
+		pHeader = (SessionMemHeader*)m_SendBuf.GetUserHeader();
 
-		char* pWritePos = (char*)pPacketBuffer + nOffset - sizeof(UINT16);
+		pWritePos = (char*)pPacketBuffer + nOffset - sizeof(UINT16);
 		*(UINT16*)pWritePos = nSize;
 
 		if(pHeader == NULL)
@@ -87,10 +89,11 @@ Exit0:
 	BOOL CSocketSession::Recv(char* pPacketBuffer, INT32 nSize)
 	{
 		INT32 nRetCode = 0;
+		SessionMemHeader* pLocalHeader = nullptr;
 
 		LOG_PROCESS_ERROR(nSize >= 0);
 
-		SessionMemHeader* pLocalHeader = (SessionMemHeader*)m_RecvBuf.GetUserHeader();
+		pLocalHeader = (SessionMemHeader*)m_RecvBuf.GetUserHeader();
 		PROCESS_ERROR(pLocalHeader);
 
 		nRetCode = m_RecvBuf.Read(pPacketBuffer, nSize);
@@ -414,11 +417,12 @@ Exit0:
 	{
 		INT32 nRetCode = 0;
 		CSocketSession* poSession = NULL;
+		AcceptNode* pHeadNode = nullptr;
 
 		INetEventHandler* poHandler = m_poNet->GetEventHandler();
 		LOG_PROCESS_ERROR(poHandler);
 
-		AcceptNode* pHeadNode = (AcceptNode*)(m_AcceptBuffer.pSharedMem + sizeof(AcceptBufHeader));
+		pHeadNode = (AcceptNode*)(m_AcceptBuffer.pSharedMem + sizeof(AcceptBufHeader));
 		LOG_PROCESS_ERROR(pHeadNode != NULL);
 
 		for(INT32 i = 0; i < m_nMaxConnCount; i++)

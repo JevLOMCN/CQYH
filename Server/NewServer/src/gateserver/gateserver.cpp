@@ -196,6 +196,7 @@ BOOL CGateServer::UnInit(void)
 
 BOOL CGateServer::MainLoop(void)
 {
+    UINT64 qwEndTick = 0;
     INT32 nRetCode = 0;
 	UINT64 qwCurrentTick = GetTickCountEx();
 	static UINT64 s_qwLastSessionTick = 0;
@@ -214,7 +215,7 @@ BOOL CGateServer::MainLoop(void)
     nRetCode = m_pExternalNet->MainLoop();    // External network
     LOG_PROCESS_ERROR(nRetCode);
 
-	UINT64 qwEndTick = GetTickCountEx();
+	qwEndTick = GetTickCountEx();
 	if (qwEndTick - qwCurrentTick < 10)
         Sleep(1);
 	else if (qwEndTick - qwCurrentTick > 50)

@@ -49,6 +49,7 @@ INT64 Auction::GetNextPrice() const
 
 void Auction::Finish()
 {
+    BOOL is_expire{};
     // This function handles three cases: timeout, voluntary cancellation, and normal auction completion
     BOOL bRet = FALSE;
 
@@ -63,14 +64,12 @@ void Auction::Finish()
     // Check order status
     LOG_PROCESS_ERROR(m_byAuctionStatus == easEffective);
 
-    BOOL is_expire = (m_dwFinishTime <= CManageServer::GetInstance().GetGameTime());
+    is_expire = (m_dwFinishTime <= CManageServer::GetInstance().GetGameTime());
     m_dwFinishTime = CManageServer::GetInstance().GetGameTime();
 
     // For a normal auction, BidItem adds an entry to m_deposit_map, so it must be nonempty here
-    CAuctionMgr::AUCTION_DEPOSIT_MAP& dmap = CAuctionMgr::GetInstance().m_deposit_map[m_dwAuctionID];
-
     // Empty: no bids, due to timeout or voluntary cancellation
-    if (dmap.empty())
+    if (auto& dmap = CAuctionMgr::GetInstance().m_deposit_map[m_dwAuctionID]; dmap.empty())
     {
         LOG_PROCESS_ERROR(m_dwBuyerRoleID == 0);
 
@@ -204,20 +203,26 @@ Exit0:
 
 void Auction::FinishWaitForPayment()
 {
+    MS_ROLE_DATA* buyer_role{};
+    const MAIL_TEMPLATE_DATA* seller_mail_item{};
+    const MAIL_TEMPLATE_DATA* seller_mail_deposit{};
+    const MAIL_TEMPLATE_DATA* buyer_mail{};
+    UINT32 attachlen{};
+    INT64 temp_price{};
     BOOL bRet = FALSE;
     MS_ONLINE_ROLE_DATA* pOnlineRole = NULL;
     MS_ROLE_DATA* seller_role = CRoleDataMgr::GetInstance().FindRole(m_dwSellerRoleID);
     LOG_PROCESS_ERROR(seller_role);
-    MS_ROLE_DATA* buyer_role = CRoleDataMgr::GetInstance().FindRole(m_dwBuyerRoleID);
+    buyer_role = CRoleDataMgr::GetInstance().FindRole(m_dwBuyerRoleID);
     LOG_PROCESS_ERROR(buyer_role);
     LOG_PROCESS_ERROR(m_byAuctionStatus == easWaitForPayment);
 
-    const MAIL_TEMPLATE_DATA* seller_mail_item = NULL;
-    const MAIL_TEMPLATE_DATA* seller_mail_deposit = NULL;
-    const MAIL_TEMPLATE_DATA* buyer_mail = NULL;
+    seller_mail_item = NULL;
+    seller_mail_deposit = NULL;
+    buyer_mail = NULL;
     char mail_subject[MAIL_SUBJECT_LEN];
     char attachbuffer[1024];
-    UINT32 attachlen = m_iteminfo.Save(attachbuffer);
+    attachlen = m_iteminfo.Save(attachbuffer);
     LOG_PROCESS_ERROR(attachlen <= BUFFER_ATTACH_LEN);
 
     seller_mail_item = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(mtiAuctionLeftMoneyExpireReturnItem);
@@ -235,7 +240,7 @@ void Auction::FinishWaitForPayment()
     LOG_PROCESS_ERROR(bRet);
 
     snprintf(mail_subject, MAIL_SUBJECT_LEN, seller_mail_deposit->m_szMailSubject, m_iteminfo.m_nTemplateID);
-    INT64 temp_price = m_llDepositPrice - m_llDepositPrice * g_GWConfig.nAuctionDepositTax / RATE_MAX;
+    temp_price = m_llDepositPrice - m_llDepositPrice * g_GWConfig.nAuctionDepositTax / RATE_MAX;
     while (temp_price > ONE_TIME_MAX_MONEY)
     {
         bRet = CMailMgr::GetInstance().SendSystemMailWithSimpleAttach(seller_role, mail_subject,
@@ -393,11 +398,10 @@ BOOL CAuctionMgr::UnInit()
 {
     BOOL bRet;
 
-    bRet = m_AuctionPool.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
     if (m_threads)
     {
+        for (UINT32 i = 0; i < m_dwThreadCount; ++i)
+            m_threads[i].RequestStop();
         for (UINT32 i = 0; i < m_dwThreadCount; i++)
         {
             m_threads[i].Wait();
@@ -407,6 +411,8 @@ BOOL CAuctionMgr::UnInit()
         SAFE_DELETE_ARRAY(m_threads);
     }
 
+    bRet = m_AuctionPool.UnInit();
+    LOG_CHECK_ERROR(bRet);
     return TRUE;
 }
 
@@ -453,6 +459,8 @@ BOOL CAuctionMgr::MainLoop(void)
 
                 CMessageHandler::GetInstance().DoClientAuctionSearchResult(sr.dwClientSessionID, sr.pMsg);
             }
+            else
+                CManageServer::GetInstance().GetPacketAllocator()->Free((PACKET_BUFFER*)sr.pMsg);
         }
     }
 
@@ -470,6 +478,7 @@ BOOL CAuctionMgr::MainLoop(void)
 
 INT32 CAuctionMgr::AddItem(MS_ROLE_DATA* role, ItemInfo& iteminfo, UINT8 bytimetype, UINT8 byopen, INT64 llprice, INT64 llbuyoutprice, INT64 lldepositprice)
 {
+    UINT32 auctionid{};
     MS_ONLINE_ROLE_DATA* pOnlineRole = NULL;
     UINT32 actual_buf_len = 0;
     char item_buf[256] = { 0 };
@@ -481,7 +490,7 @@ INT32 CAuctionMgr::AddItem(MS_ROLE_DATA* role, ItemInfo& iteminfo, UINT8 bytimet
     LOG_PROCESS_ERROR(IsValidGroup(role->byGroup));
     LOG_PROCESS_ERROR(bytimetype < MAX_AUCTION_TIME_INTERVAL_TYPE);
 
-    UINT32 auctionid = _GetAuctionID(role->byGroup);
+    auctionid = _GetAuctionID(role->byGroup);
     LOG_PROCESS_ERROR(auctionid);
 
     auction = m_AuctionPool.New(auctionid);
@@ -582,9 +591,10 @@ Exit0:
 
 void CAuctionMgr::_UpDateAuctionSql(Auction* auction)
 {
+    BOOL bRet{};
     LOG_PROCESS_ERROR(auction);
 
-    BOOL bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlUpdateAuction, NULL, NULL, "udluducud",
+    bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlUpdateAuction, NULL, NULL, "udluducud",
         auction->m_dwBuyerRoleID, auction->m_llPrice, auction->m_dwFinishTime, auction->m_byAuctionStatus, auction->m_dwAuctionID);
     LOG_PROCESS_ERROR(bRet);
 
@@ -695,6 +705,8 @@ Exit0:
 
 INT32 CAuctionMgr::PaidLeftMoney(Auction* auction)
 {
+    UINT32 attachlen{};
+    INT64 temp_price{};
     BOOL bRet = FALSE;
     INT32 nResult = errAuctionUnknown;
     MS_ONLINE_ROLE_DATA* pOnlineRoleSeller = NULL;
@@ -716,7 +728,7 @@ INT32 CAuctionMgr::PaidLeftMoney(Auction* auction)
     LOG_PROCESS_ERROR(auction->m_dwBuyerRoleID);
     LOG_PROCESS_ERROR(auction->m_byAuctionStatus == easWaitForPayment);
 
-    UINT32 attachlen = auction->m_iteminfo.Save(attachbuffer);
+    attachlen = auction->m_iteminfo.Save(attachbuffer);
     LOG_PROCESS_ERROR(attachlen <= BUFFER_ATTACH_LEN);
 
     buyer_role = CRoleDataMgr::GetInstance().FindRole(auction->m_dwBuyerRoleID);
@@ -747,7 +759,7 @@ INT32 CAuctionMgr::PaidLeftMoney(Auction* auction)
     snprintf(mail_subject_seller, MAIL_SUBJECT_LEN, seller_mail->m_szMailSubject, auction->m_iteminfo.m_nTemplateID);
     snprintf(mail_content_seller, MAIL_CONTENT_LEN, seller_mail->m_szMailContent, auction->m_llPrice - tax, tax);
 
-    INT64 temp_price = auction->m_llPrice - tax;
+    temp_price = auction->m_llPrice - tax;
     while (temp_price > ONE_TIME_MAX_MONEY)
     {
         bRet = CMailMgr::GetInstance().SendSystemMailWithSimpleAttach(seller_role, mail_subject_seller, mail_content_seller, MONEYTYPE_02, ONE_TIME_MAX_MONEY);
@@ -817,10 +829,11 @@ Exit0:
 
 INT32 CAuctionMgr::SearchType(UINT32 sessionid, UINT32 roleid, UINT8 groupid, UINT8 sortby, UINT8 asc, UINT8 auctiontype)
 {
+    BOOL bRet{};
     LOG_PROCESS_ERROR(auctiontype < MAX_AUCTION_TYPE);
     LOG_PROCESS_ERROR(sortby < esbTotal);
 
-    BOOL bRet = m_threads[(m_dwSearchThreadIndex++) % m_dwThreadCount].SearchAuctionType(sessionid, roleid, groupid, sortby, asc, auctiontype);
+    bRet = m_threads[(m_dwSearchThreadIndex++) % m_dwThreadCount].SearchAuctionType(sessionid, roleid, groupid, sortby, asc, auctiontype);
     LOG_PROCESS_ERROR(bRet);
 
     return errSuccess;
@@ -878,10 +891,11 @@ BOOL CAuctionMgr::IsBidder(UINT32 auctionid, UINT32 roleid) const
 
 BOOL CAuctionMgr::AddDeposit(Auction* auction, UINT32 roleid)
 {
+    BOOL bRet{};
     LOG_PROCESS_ERROR(auction);
     LOG_PROCESS_ERROR(!IsBidder(auction->m_dwAuctionID, roleid));
 
-    BOOL bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlInserAuctionDeposit, NULL, NULL,
+    bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlInserAuctionDeposit, NULL, NULL,
         "ucududl", auction->m_byGroupID, auction->m_dwAuctionID, roleid, auction->m_llDepositPrice);
     LOG_PROCESS_ERROR(bRet);
 
@@ -895,10 +909,11 @@ Exit0:
 
 BOOL CAuctionMgr::DelDeposit(Auction* auction, UINT32 roleid)
 {
+    BOOL bRet{};
     LOG_PROCESS_ERROR(auction);
     LOG_PROCESS_ERROR(IsBidder(auction->m_dwAuctionID, roleid));
 
-    BOOL bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlDeleteAuctionDeposit, NULL, NULL,
+    bRet = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(msqlDeleteAuctionDeposit, NULL, NULL,
         "udud", auction->m_dwAuctionID, roleid);
     LOG_PROCESS_ERROR(bRet);
 
@@ -912,6 +927,7 @@ Exit0:
 
 BOOL CAuctionMgr::ReturnDeposit(INT32 itemid, UINT32 roleid, INT64 depositprice)
 {
+    INT64 temp_price{};
     const MAIL_TEMPLATE_DATA* mail_data = NULL;
     char mail_subjece[MAIL_SUBJECT_LEN] = { 0 };
     MS_ROLE_DATA* bidder = NULL;
@@ -925,7 +941,7 @@ BOOL CAuctionMgr::ReturnDeposit(INT32 itemid, UINT32 roleid, INT64 depositprice)
 
     snprintf(mail_subjece, MAIL_SUBJECT_LEN, mail_data->m_szMailSubject, itemid);
 
-    INT64 temp_price = depositprice;
+    temp_price = depositprice;
     while (temp_price > ONE_TIME_MAX_MONEY)
     {
         bRet = CMailMgr::GetInstance().SendSystemMailWithSimpleAttach(bidder, mail_subjece,
@@ -998,6 +1014,8 @@ Exit0:
 
 BOOL CAuctionMgr::_LoadAuction(UINT8 groupid, UINT32 auctionid, const char* itembuf, UINT32 itemlen, UINT32 sellerid, UINT32 buyerid, INT64 price, INT64 buyoutprice, INT64 depositprice, UINT32 starttime, UINT32 finishtime, UINT8 open, UINT8 auctionstatus)
 {
+    INT32 group_id{};
+    BOOL bRet{};
     UINT32 actual_item_len = 0;
 
     Auction* auction = m_AuctionPool.New(auctionid);
@@ -1046,11 +1064,11 @@ BOOL CAuctionMgr::_LoadAuction(UINT8 groupid, UINT32 auctionid, const char* item
         _AddSoldAuction(sellerid, auction);
     }
 
-    INT32 group_id = auctionid >> 24;
+    group_id = auctionid >> 24;
     LOG_PROCESS_ERROR(IsValidGroup(group_id));
     LOG_PROCESS_ERROR(group_id == groupid);
 
-    BOOL bRet = seed_finder[groupid].CheckID(auctionid & 0x00FFFFFF);
+    bRet = seed_finder[groupid].CheckID(auctionid & 0x00FFFFFF);
     LOG_PROCESS_ERROR(bRet);
 
     m_nLoadedCount++;

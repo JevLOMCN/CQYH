@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "db_worker_thread.h"
+#include "worker_queue.h"
 
 #include <time.h>
 
@@ -22,7 +23,7 @@ static UINT64 TASK_TIME_LIMIT_INDIVIDUAL = 250;
 
 CDBWorkerThread::CDBWorkerThread()
 {
-    m_mysql = NULL;
+    m_mysql = cqyh::MysqlPtr{};
     m_bServerOK = FALSE;
 }
 
@@ -33,6 +34,11 @@ CDBWorkerThread::~CDBWorkerThread()
 
 BOOL CDBWorkerThread::Init(UINT32 dwRoleCount)
 {
+    if (m_mysql || m_bstart)
+    {
+        LOG_CHECK_ERROR(!m_mysql && !m_bstart);
+        return FALSE;
+    }
     const DBSetting* dbsetting;
     BOOL bRet = FALSE;
     MYSQL* res_mysql = NULL;
@@ -55,13 +61,13 @@ BOOL CDBWorkerThread::Init(UINT32 dwRoleCount)
     bRet = m_FinishedUserTaskList.Init(dwRoleCount);
     LOG_PROCESS_ERROR(bRet);
 
-    m_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(m_mysql);
+    m_mysql = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(m_mysql.get());
 
     dbsetting = CDBServer::GetInstance().GetDBSetting();
 
     res_mysql = mysql_real_connect(
-        m_mysql,
+        m_mysql.get(),
         dbsetting->szServerAddr,
         dbsetting->szLoginName,
         dbsetting->szPassword,
@@ -73,26 +79,26 @@ BOOL CDBWorkerThread::Init(UINT32 dwRoleCount)
 
     if (strlen(dbsetting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(m_mysql, dbsetting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(m_mysql.get(), dbsetting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    bRet = m_createrole.Init(m_mysql);
+    bRet = m_createrole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_deleterole.Init(m_mysql);
+    bRet = m_deleterole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_updateroledeletetime.Init(m_mysql);
+    bRet = m_updateroledeletetime.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_loadrole.Init(m_mysql);
+    bRet = m_loadrole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_saverole.Init(m_mysql);
+    bRet = m_saverole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_listrole.Init(m_mysql);
+    bRet = m_listrole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
     m_bServerOK = TRUE;
@@ -145,14 +151,16 @@ BOOL CDBWorkerThread::Init(UINT32 dwRoleCount)
     return TRUE;
 
 Exit0:
-    if (m_mysql)
-        CRI("mysql error number: %d, %s", mysql_errno(m_mysql), mysql_error(m_mysql));
+    if (m_mysql.get())
+        CRI("mysql error number: %d, %s", mysql_errno(m_mysql.get()), mysql_error(m_mysql.get()));
 
+    UnInit();
     return FALSE;
 }
 
 BOOL CDBWorkerThread::UnInit()
 {
+    Wait();
     BOOL bRet = FALSE;
 
     bRet = m_RoleDbTaskList.UnInit();
@@ -173,47 +181,37 @@ BOOL CDBWorkerThread::UnInit()
     bRet = m_FinishedUserTaskList.UnInit();
     LOG_CHECK_ERROR(bRet);
 
-    bRet = m_createrole.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
-    bRet = m_deleterole.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
-    bRet = m_updateroledeletetime.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
-    bRet = m_loadrole.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
-    bRet = m_saverole.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
-    bRet = m_listrole.UnInit();
-    LOG_CHECK_ERROR(bRet);
-
-    if (m_mysql)
-    {
-        mysql_close(m_mysql);
-        m_mysql = NULL;
-    }
+    CloseStatements();
+    m_mysql = cqyh::MysqlPtr{};
 
     m_bServerOK = FALSE;
     return TRUE;
 }
 
+void CDBWorkerThread::CloseStatements()
+{
+    LOG_CHECK_ERROR(m_createrole.UnInit());
+    LOG_CHECK_ERROR(m_deleterole.UnInit());
+    LOG_CHECK_ERROR(m_updateroledeletetime.UnInit());
+    LOG_CHECK_ERROR(m_loadrole.UnInit());
+    LOG_CHECK_ERROR(m_saverole.UnInit());
+    LOG_CHECK_ERROR(m_listrole.UnInit());
+}
+
 BOOL CDBWorkerThread::ReInit()
 {
     BOOL bRet = FALSE;
+    bool replaced = false;
     const DBSetting* dbsetting = CDBServer::GetInstance().GetDBSetting();
 
     INF("DB Failure, Reconnecting...");
 
-    MYSQL* new_mysql = mysql_init(NULL);
-    LOG_PROCESS_ERROR(new_mysql);
+    auto new_mysql = cqyh::MakeMysql();
+    LOG_PROCESS_ERROR(new_mysql.get());
 
     {
         MYSQL* res_mysql = mysql_real_connect(
-            new_mysql,
+            new_mysql.get(),
             dbsetting->szServerAddr,
             dbsetting->szLoginName,
             dbsetting->szPassword,
@@ -226,36 +224,30 @@ BOOL CDBWorkerThread::ReInit()
 
     if (strlen(dbsetting->szCharSet))
     {
-        INT32 nRetCode = mysql_set_character_set(new_mysql, dbsetting->szCharSet);
+        INT32 nRetCode = mysql_set_character_set(new_mysql.get(), dbsetting->szCharSet);
         LOG_PROCESS_ERROR(nRetCode == 0);
     }
 
-    mysql_close(m_mysql);
-    m_mysql = new_mysql;
+    CloseStatements();
+    m_mysql = std::move(new_mysql);
+    replaced = true;
 
-    m_createrole.UnInit();
-    m_deleterole.UnInit();
-    m_updateroledeletetime.UnInit();
-    m_loadrole.UnInit();
-    m_saverole.UnInit();
-    m_listrole.UnInit();
-
-    bRet = m_createrole.Init(m_mysql);
+    bRet = m_createrole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_deleterole.Init(m_mysql);
+    bRet = m_deleterole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_updateroledeletetime.Init(m_mysql);
+    bRet = m_updateroledeletetime.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_loadrole.Init(m_mysql);
+    bRet = m_loadrole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_saverole.Init(m_mysql);
+    bRet = m_saverole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
-    bRet = m_listrole.Init(m_mysql);
+    bRet = m_listrole.Init(m_mysql.get());
     LOG_PROCESS_ERROR(bRet);
 
     INF("DB Reconnection Succeeded!!!");
@@ -263,12 +255,20 @@ BOOL CDBWorkerThread::ReInit()
     return TRUE;
 
 Exit0:
+    if (replaced)
+    {
+        CloseStatements();
+        m_mysql = cqyh::MysqlPtr{};
+        m_bServerOK = FALSE;
+    }
     INF("DB Reconnection Failed.");
     return FALSE;
 }
 
 BOOL CDBWorkerThread::AddRoleDbTask(CDBRole* dbrole)
 {
+    if (!m_bstart.load() || !IsRunning())
+        return FALSE;
     BOOL bRet = m_RoleDbTaskList.Push(dbrole);
     LOG_CHECK_ERROR(bRet);
 
@@ -282,6 +282,8 @@ CDBRole* CDBWorkerThread::GetFinishedRoleDbTask()
 
 BOOL CDBWorkerThread::AddRoleLockTask(CDBRole* dbrole)
 {
+    if (!m_bstart.load() || !IsRunning())
+        return FALSE;
     BOOL bRet = m_RoleLockTaskList.Push(dbrole);
     LOG_CHECK_ERROR(bRet);
 
@@ -295,6 +297,8 @@ CDBRole* CDBWorkerThread::GetFinishedRoleLockTask()
 
 BOOL CDBWorkerThread::AddUserTask(CDBUser* dbuser)
 {
+    if (!m_bstart.load() || !IsRunning())
+        return FALSE;
     BOOL bRet = m_UserTaskList.Push(dbuser);
     LOG_CHECK_ERROR(bRet);
 
@@ -316,6 +320,12 @@ bool CmpRole(const CDBRole* r1, const CDBRole* r2)
 
 VOID CDBWorkerThread::ThrdProc()
 {
+    cqyh::MysqlThreadContext clientThread;
+    if (!clientThread)
+    {
+        LOG_CHECK_ERROR(clientThread);
+        return;
+    }
     INT32 nRet = errSuccess;
     BOOL bRet = FALSE;
     UINT32 roles_saved;
@@ -358,7 +368,7 @@ VOID CDBWorkerThread::ThrdProc()
         listroles = 0;
         for (;;)
         {
-            CDBUser* dbuser = (CDBUser*)m_UserTaskList.Pop();
+            CDBUser* dbuser = (CDBUser*)m_UserTaskList.Check();
 
             if (dbuser == NULL)
                 break;
@@ -368,8 +378,9 @@ VOID CDBWorkerThread::ThrdProc()
             nRet = ListRole(dbuser);
             LOG_CHECK_ERROR(nRet == errSuccess);
             dbuser->m_nResult = nRet;
-            bRet = m_FinishedUserTaskList.Push(dbuser);
-            LOG_CHECK_ERROR(bRet);
+            if (!cqyh::PublishUntilStopped(m_FinishedUserTaskList, dbuser, *this))
+                goto FinishWorker;
+            m_UserTaskList.Pop();
             listroles++;
 
             this_task_finish_time = GetTickCountEx();
@@ -385,7 +396,7 @@ VOID CDBWorkerThread::ThrdProc()
         loadroles = 0;
         for (;;)
         {
-            CDBRole* dbrole = (CDBRole*)m_RoleDbTaskList.Pop();
+            CDBRole* dbrole = (CDBRole*)m_RoleDbTaskList.Check();
 
             if (dbrole == NULL)
                 break;
@@ -398,34 +409,39 @@ VOID CDBWorkerThread::ThrdProc()
                 nRet = LoadRole(dbrole->m_dwRoleID, dbrole->m_pCurMem);
                 LOG_CHECK_ERROR(nRet == errSuccess);
                 dbrole->m_nResult = nRet;
-                bRet = m_FinishedRoleDbTaskList.Push(dbrole);
-                LOG_CHECK_ERROR(bRet);
+                if (!cqyh::PublishUntilStopped(m_FinishedRoleDbTaskList, dbrole, *this))
+                    goto FinishWorker;
+                m_RoleDbTaskList.Pop();
                 break;
             case CDBRole::DB_TASK_CREATE_ROLE:    // Create character
                 nRet = CreateRole(dbrole);
                 LOG_CHECK_ERROR(nRet == errSuccess);
                 dbrole->m_nResult = nRet;
-                bRet = m_FinishedRoleDbTaskList.Push(dbrole);
-                LOG_CHECK_ERROR(bRet);
+                if (!cqyh::PublishUntilStopped(m_FinishedRoleDbTaskList, dbrole, *this))
+                    goto FinishWorker;
+                m_RoleDbTaskList.Pop();
                 break;
             case CDBRole::DB_TASK_UPDATE_ROLE_DELETE_TIME:
             case CDBRole::DB_TASK_UPDATE_ROLE_DELETE_TIME_WITHOUT_DATA:
                 nRet = UpdateRoleDeleteTime(dbrole);
                 LOG_CHECK_ERROR(nRet == errSuccess);
                 dbrole->m_nResult = nRet;
-                bRet = m_FinishedRoleDbTaskList.Push(dbrole);
-                LOG_CHECK_ERROR(bRet);
+                if (!cqyh::PublishUntilStopped(m_FinishedRoleDbTaskList, dbrole, *this))
+                    goto FinishWorker;
+                m_RoleDbTaskList.Pop();
                 break;
             case CDBRole::DB_TASK_DELETE_ROLE:
             case CDBRole::DB_TASK_DELETE_ROLE_WITHOUT_DATA:
                 nRet = DeleteRole(dbrole);
                 LOG_CHECK_ERROR(nRet == errSuccess);
                 dbrole->m_nResult = nRet;
-                bRet = m_FinishedRoleDbTaskList.Push(dbrole);
-                LOG_CHECK_ERROR(bRet);
+                if (!cqyh::PublishUntilStopped(m_FinishedRoleDbTaskList, dbrole, *this))
+                    goto FinishWorker;
+                m_RoleDbTaskList.Pop();
                 break;
             default:
                 LOG_CHECK_ERROR(FALSE);
+                m_RoleDbTaskList.Pop();
             }
             loadroles++;
 
@@ -442,7 +458,7 @@ VOID CDBWorkerThread::ThrdProc()
         lockroles = 0;
         for (;;)
         {
-            CDBRole* dbrole = (CDBRole*)m_RoleLockTaskList.Pop();
+            CDBRole* dbrole = (CDBRole*)m_RoleLockTaskList.Check();
 
             if (dbrole == NULL)
                 break;
@@ -455,8 +471,9 @@ VOID CDBWorkerThread::ThrdProc()
             case CDBRole::LOCK_STATE_LOCKING_AND_UNLOCKING:
                 bRet = m_roles.insert(dbrole).second;
                 LOG_CHECK_ERROR(bRet);
-                bRet = m_FinishedRoleLockTaskList.Push(dbrole);
-                LOG_CHECK_ERROR(bRet);
+                if (!cqyh::PublishUntilStopped(m_FinishedRoleLockTaskList, dbrole, *this))
+                    goto FinishWorker;
+                m_RoleLockTaskList.Pop();
                 break;
             case CDBRole::LOCK_STATE_UNLOCKING:
             case CDBRole::LOCK_STATE_UNLOCKING_AND_LOCKING:
@@ -464,10 +481,13 @@ VOID CDBWorkerThread::ThrdProc()
                 LOG_CHECK_ERROR(bRet);
                 bRet = m_roles.erase(dbrole) > 0;
                 LOG_CHECK_ERROR(bRet);
-                bRet = m_FinishedRoleLockTaskList.Push(dbrole);
+                if (!cqyh::PublishUntilStopped(m_FinishedRoleLockTaskList, dbrole, *this))
+                    goto FinishWorker;
+                m_RoleLockTaskList.Pop();
                 break;
             default:
                 LOG_CHECK_ERROR(FALSE);
+                m_RoleLockTaskList.Pop();
             }
             lockroles++;
 
@@ -532,9 +552,10 @@ VOID CDBWorkerThread::ThrdProc()
                 savetime-starttime);
         }
 
-        Sleep(16);
+        WaitForStop(std::chrono::milliseconds(16));
     }
 
+FinishWorker:
     for (std::set<CDBRole*>::iterator it=m_roles.begin(); it!=m_roles.end(); ++it)
     {
         bRet = SaveIfNeeded(*it);
@@ -625,11 +646,11 @@ INT32 CDBWorkerThread::CreateRole(CDBRole* dbrole)
         return errSuccess;
     else
     {
-        if (mysql_errno(m_mysql) == ER_DUP_ENTRY)
+        if (mysql_errno(m_mysql.get()) == ER_DUP_ENTRY)
             return errLoginCreateRoleDupeName;
         else
         {
-            if (mysql_stmt_errno(m_createrole.m_stmt) == CR_SERVER_LOST)
+            if (mysql_stmt_errno(m_createrole.m_stmt.get()) == CR_SERVER_LOST)
             {
                 m_bServerOK = FALSE;
             }
@@ -657,7 +678,7 @@ INT32 CDBWorkerThread::DeleteRole(CDBRole* dbrole)
         return errSuccess;
     else
     {
-        if (mysql_stmt_errno(m_deleterole.m_stmt) == CR_SERVER_LOST)
+        if (mysql_stmt_errno(m_deleterole.m_stmt.get()) == CR_SERVER_LOST)
         {
             m_bServerOK = FALSE;
         }
@@ -685,7 +706,7 @@ INT32 CDBWorkerThread::UpdateRoleDeleteTime(CDBRole* dbrole)
         return errSuccess;
     else
     {
-        if (mysql_stmt_errno(m_deleterole.m_stmt) == CR_SERVER_LOST)
+        if (mysql_stmt_errno(m_deleterole.m_stmt.get()) == CR_SERVER_LOST)
         {
             m_bServerOK = FALSE;
         }
@@ -713,7 +734,7 @@ INT32 CDBWorkerThread::SaveRole(UINT32 dwRoleID, DB_ROLE_DATA* data)
     }
     else
     {
-        if (mysql_stmt_errno(m_saverole.m_stmt) == CR_SERVER_LOST)
+        if (mysql_stmt_errno(m_saverole.m_stmt.get()) == CR_SERVER_LOST)
         {
             m_bServerOK = FALSE;
         }
@@ -741,7 +762,7 @@ INT32 CDBWorkerThread::LoadRole(UINT32 dwRoleID, DB_ROLE_DATA* data)
     }
     else
     {
-        if (mysql_stmt_errno(m_loadrole.m_stmt) == CR_SERVER_LOST)
+        if (mysql_stmt_errno(m_loadrole.m_stmt.get()) == CR_SERVER_LOST)
         {
             m_bServerOK = FALSE;
         }
@@ -762,7 +783,7 @@ INT32 CDBWorkerThread::ListRole(CDBUser* dbuser)
         return errSuccess;
     else
     {
-        if (mysql_stmt_errno(m_listrole.m_stmt) == CR_SERVER_LOST)
+        if (mysql_stmt_errno(m_listrole.m_stmt.get()) == CR_SERVER_LOST)
         {
             m_bServerOK = FALSE;
         }

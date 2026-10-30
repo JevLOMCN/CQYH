@@ -17,6 +17,7 @@
 #include <sys/types.h>
 
 #include <wchar.h>
+#include <memory>
 
 #include "utf8.h"
 
@@ -322,65 +323,37 @@ wchar_to_utf8(const wchar_t *in, size_t insize, char *out, size_t outsize,
 	return (total);
 }
 
-// Convert a char string to a UTF-8 char string
-char* char_to_utf8(char* str_mb)
+namespace
 {
-	// Get the wide string length including the null terminator
-	int len_wcs = MultiByteToWideChar(CP_ACP, 0, str_mb, -1, NULL, 0);
-
-	// Allocate space for the wide string
-	wchar_t* str_wcs = new wchar_t[len_wcs];
-
-	// Convert to a wide string
-	MultiByteToWideChar(CP_ACP, 0, str_mb, -1, str_wcs, len_wcs);
-
-	// Get the UTF-8 string length including the null terminator
-	int len_utf8 = WideCharToMultiByte(CP_UTF8, 0, str_wcs, -1, NULL, 0, NULL, NULL);
-
-	// Allocate space for the UTF-8 string
-	char* str_utf8 = new char[len_utf8];
-
-	// Convert to a UTF-8 string
-	WideCharToMultiByte(CP_UTF8, 0, str_wcs, -1, str_utf8, len_utf8, NULL, NULL);
-
-	delete[] str_wcs; // Free the wide string buffer
-
-	// Normally this also needs delete, but it cannot be deleted here because it is returned
-	// Delete it externally after using the return value
-	// delete[] str_utf8;
-
-	return str_utf8;
+std::unique_ptr<char[]> ConvertCodePage(const char* input, UINT from, UINT to)
+{
+    if (!input)
+        return {};
+    const int wideCount = MultiByteToWideChar(from, 0, input, -1, nullptr, 0);
+    if (wideCount <= 0)
+        return {};
+    auto wide = std::make_unique_for_overwrite<wchar_t[]>(wideCount);
+    if (MultiByteToWideChar(from, 0, input, -1, wide.get(), wideCount) != wideCount)
+        return {};
+    const int byteCount = WideCharToMultiByte(to, 0, wide.get(), -1, nullptr, 0, nullptr, nullptr);
+    if (byteCount <= 0)
+        return {};
+    auto output = std::make_unique_for_overwrite<char[]>(byteCount);
+    if (WideCharToMultiByte(to, 0, wide.get(), -1, output.get(), byteCount, nullptr, nullptr) != byteCount)
+        return {};
+    return output;
+}
 }
 
-// Convert UTF-8 to ANSI
+// Preserve the existing caller-owned new[] result and Windows code-page policy.
+char* char_to_utf8(char* str_mb)
+{
+    return ConvertCodePage(str_mb, CP_ACP, CP_UTF8).release();
+}
+
 char* utf8_to_char(const char* str_utf8)
 {
-	if (str_utf8 == NULL) return NULL;
-
-	// UTF-8 -> WideChar
-	int len_wcs = MultiByteToWideChar(CP_UTF8, 0, str_utf8, -1, NULL, 0);
-	if (len_wcs == 0) return NULL;
-
-	wchar_t* str_wcs = new wchar_t[len_wcs];
-	MultiByteToWideChar(CP_UTF8, 0, str_utf8, -1, str_wcs, len_wcs);
-
-	// WideChar -> ANSI
-	int len_mb = WideCharToMultiByte(CP_ACP, 0, str_wcs, -1, NULL, 0, NULL, NULL);
-	if (len_mb == 0) {
-		delete[] str_wcs;
-		return NULL;
-	}
-
-	char* str_mb = new char[len_mb];
-	WideCharToMultiByte(CP_ACP, 0, str_wcs, -1, str_mb, len_mb, NULL, NULL);
-
-	delete[] str_wcs;
-
-	// Normally this also needs delete, but it cannot be deleted here because it is returned
-	// Delete it externally after using the return value
-	// delete[] str_mb;
-
-	return str_mb;
+    return ConvertCodePage(str_utf8, CP_UTF8, CP_ACP).release();
 }
 
 // Helper function: free memory

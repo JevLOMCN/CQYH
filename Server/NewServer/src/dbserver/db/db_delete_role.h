@@ -1,7 +1,7 @@
 #ifndef _DB_DELETE_ROLE_H_
 #define _DB_DELETE_ROLE_H_
 
-#include "mysql.h"
+#include "mysql_owner.h"
 
 class CDBRole;
 
@@ -18,7 +18,7 @@ public:
 
     UINT32 m_dwRoleID;
 
-    MYSQL_STMT* m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 
 private:
     MYSQL_BIND m_bind_param;

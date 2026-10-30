@@ -10,9 +10,12 @@ purpose:
 #define _H_ROLE_GM_CMD_H_
 
 
-#include <QtWidgets/QMainWindow>
+#include "../qt_cpp23.h"
+#include <QtWidgets/QDialog>
+#include <string>
 #include "ui_role_gm_cmd.h"
 #include "string_def.h"
+class QLabel;
 
 class CRoleGMCmd : public QDialog
 {
@@ -22,11 +25,10 @@ public:
     CRoleGMCmd(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~CRoleGMCmd();
 
-    char *GetBuffer()   { return m_Buffer; }
-    char *GetReason()   { return m_Reason; }
+    const char* GetBuffer() const { return m_Buffer.c_str(); }
+    const char* GetReason() const { return m_Reason.c_str(); }
     BOOL IsExeCmd()     { return m_bExe; }
 
-    virtual void timerEvent(QTimerEvent* event);
 
 public slots:
 void OK();
@@ -35,9 +37,9 @@ void Exit();
 
 private:
 
-    char    m_Buffer[MAX_GM_COMMAND_LEN];
-    char    m_Reason[GM_REASON_LEN];
-    BOOL    m_bExe;
+    std::string m_Buffer, m_Reason;
+    bool m_bExe=false, m_confirming=false;
+    QLabel* m_status=nullptr;
 
     Ui::roleGMDialog ui;
 };

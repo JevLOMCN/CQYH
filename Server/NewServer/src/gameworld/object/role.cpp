@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <memory>
 #include "role.h"
 
 #include "zlib.h"
@@ -733,9 +734,8 @@ void CRole::NotifyRole_GameTimeCard()
         const char* strNoTime = "[Vip月卡]已过期!";
 
         snprintf(strMsg, sizeof(strMsg), "%s", strNoTime);
-        char* str_utf8 = char_to_utf8(strMsg);
-        Say(GetObjID(), cltNormal, str_utf8);
-        delete[] str_utf8;
+        std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
+        Say(GetObjID(), cltNormal, str_utf8 ? str_utf8.get() : "");
     }
     // Not expired
     else
@@ -745,9 +745,8 @@ void CRole::NotifyRole_GameTimeCard()
         const char* strHaveTime = "[Vip月卡]时间: ";
 
         snprintf(strMsg, sizeof(strMsg), "%s%s", strHaveTime, strTime);
-        char* str_utf8 = char_to_utf8(strMsg);
-        Say(GetObjID(), cltNormal, str_utf8);
-        delete[] str_utf8;
+        std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
+        Say(GetObjID(), cltNormal, str_utf8 ? str_utf8.get() : "");
     }
 }
 
@@ -872,7 +871,7 @@ void CRole::IncRuneRootCount(INT32 nType, INT32 cls)
 void CRole::NotifyRole_RuneRootCount(INT32 nType, INT32 cls)
 {
     char strMsg[128] = { 0 };
-    char* str_utf8 = "";
+    std::unique_ptr<char[]> str_utf8;
 
     // Normal
     if (nType == rrrNormal)
@@ -885,21 +884,21 @@ void CRole::NotifyRole_RuneRootCount(INT32 nType, INT32 cls)
         {
             const char* str2 = "[战士] ";
             snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneNormal_Warrior);
-            str_utf8 = char_to_utf8(strMsg);
+            str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsMage:
         {
             const char* str2 = "[法师] ";
             snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneNormal_Mage);
-            str_utf8 = char_to_utf8(strMsg);
+            str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsTaoist:
         {
             const char* str2 = "[道士] ";
             snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneNormal_Taoist);
-            str_utf8 = char_to_utf8(strMsg);
+            str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         }
@@ -915,28 +914,27 @@ void CRole::NotifyRole_RuneRootCount(INT32 nType, INT32 cls)
         {
             const char* str2 = "[战士] ";
             snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneAdvanced_Warrior);
-            str_utf8 = char_to_utf8(strMsg);
+            str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsMage:
         {
             const char* str2 = "[法师] ";
             snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneAdvanced_Mage);
-            str_utf8 = char_to_utf8(strMsg);
+            str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsTaoist:
         {
             const char* str2 = "[道士] ";
             snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneAdvanced_Taoist);
-            str_utf8 = char_to_utf8(strMsg);
+            str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         }
     }
 
-    Say(GetObjID(), cltDialog, str_utf8);
-    delete[] str_utf8;
+    Say(GetObjID(), cltDialog, str_utf8 ? str_utf8.get() : "");
 }
 
 void CRole::ResetLuckRootCount()
@@ -960,12 +958,10 @@ void CRole::IncLuckRootCount()
 void CRole::NotifyRole_LuckRootCount()
 {
     char strMsg[128] = { 0 };
-    char* str_utf8 = "";
     const char* str1 = "祝福油节点-";
     snprintf(strMsg, sizeof(strMsg), "%s[%d]", str1, m_nLuckRootCount);
-    str_utf8 = char_to_utf8(strMsg);
-    Say(GetObjID(), cltDialog, str_utf8);
-    delete[] str_utf8;
+    std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
+    Say(GetObjID(), cltDialog, str_utf8 ? str_utf8.get() : "");
 }
 
 // ==================== Custom code ends
@@ -2842,6 +2838,7 @@ void CRole::SetFaction(INT32 nFaction)
 
 BOOL CRole::SetLevel(INT32 nNewLevel)
 {
+    CLuaScript* poScript = nullptr;
     INT32 nRetCode = 0;
     INT32 nOldLevel = m_nLevel;
 
@@ -2852,8 +2849,6 @@ BOOL CRole::SetLevel(INT32 nNewLevel)
         const ROLE_LEVEL_DATA* pData = CDataManager<ROLE_LEVEL_DATA>::GetInstance().GetData(nNewLevel);
         LOG_PROCESS_ERROR(pData);
     }
-
-    CLuaScript* poScript = NULL;
 
     nRetCode = CCharacter::SetLevel(nNewLevel);  // Update attributes
     LOG_PROCESS_ERROR(nRetCode);
@@ -3806,6 +3801,7 @@ BOOL CRole::GetVIPLevel(void)
 
 INT32 CRole::SubscribeVIP(INT32 nVIPLevel, UINT32 dwMonth)
 {
+    UINT32 dwDuration = 0;
     INT32 nResult = errUnknownError;
     INT32 nRetCode = 0;
     INT32 nMoney = 0;
@@ -3813,7 +3809,7 @@ INT32 CRole::SubscribeVIP(INT32 nVIPLevel, UINT32 dwMonth)
     LOG_PROCESS_ERROR(nVIPLevel > vlLevel0 && nVIPLevel < vlTotal);
     LOG_PROCESS_ERROR(dwMonth < MAX_VIP_MONTH);
 
-    UINT32 dwDuration = dwMonth * 31 * 86400;
+    dwDuration = dwMonth * 31 * 86400;
     if (m_dwVIPTime[nVIPLevel] > CGameWorld::GetInstance().GetGameTime())
     {
         m_dwVIPTime[nVIPLevel] += dwDuration;
@@ -4484,7 +4480,11 @@ INT32 CRole::GetPow(void)
     const SPIRIT_DATA* pSpiritData = NULL;
 
     pData = CDataManager<ROLE_LEVEL_DATA>::GetInstance().GetData(m_nLevel);
-    LOG_PROCESS_ERROR(pData);
+    if (pData == nullptr)
+    {
+        LOG_CHECK_ERROR(pData);
+        return 0;
+    }
 
     INT32 nBasePow = pData->m_nPow;
 
@@ -4497,8 +4497,6 @@ INT32 CRole::GetPow(void)
     INT32 nTitlePow = GetTitle().GetPow();
 
     return nBasePow + nItemPow + nSpiritPow + nTitlePow + nSpellPow;
-Exit0:
-    return 0;
 }
 
 void CRole::TryDailyRefresh()

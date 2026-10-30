@@ -8,8 +8,16 @@
 #ifndef LOADER_H
 #define LOADER_H
 
+#include "gm_application.h"
 #include <QtWidgets/QMainWindow>
 #include "ui_loader.h"
+#include <optional>
+#include <memory>
+#include <cstdint>
+#include <string_view>
+
+class ISocketSession;
+class QTimer;
 
 class loader : public QDialog
 {
@@ -19,20 +27,34 @@ public:
     loader(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~loader();
 
-    //virtual void timerEvent(QTimerEvent* event);
-
-    BOOL VerifyUser(INT32 nResult, BOOL bLD);
+    BOOL VerifyUser(INT32 result, BOOL exchange_mode, ISocketSession* socket);
+    void ServerError(ISocketSession* socket, std::string_view text);
 
 public slots:
     void Login();
     void Exit();
+    void done(int result) override;
 
 
 private:
-    INT32       m_nTimeID;
+    struct Attempt
+    {
+        std::uint64_t generation, serial;
+        UINT32 session_id;
+        ISocketSession* socket;
+        std::shared_ptr<const char> connection_lifetime;
+    };
+    std::optional<Attempt> m_pending;
+    std::uint64_t m_serial = 0;
+    bool m_verified = false, m_submitting = false;
+    QTimer *m_timeout, *m_watch;
+    bool Current(const Attempt& attempt) const;
+    void ClearPending();
+    void Status(const QString& text);
+    void CancelPending(const QString& text, bool close_peer);
     Ui::loginDialog ui;
 };
 
-extern loader  g_loader;
+
 
 #endif // LOADER_H

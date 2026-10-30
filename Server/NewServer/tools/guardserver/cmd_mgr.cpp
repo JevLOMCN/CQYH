@@ -1,5 +1,10 @@
 #include "stdafx.h"
+#include <chrono>
+#include <thread>
 #include "cmd_mgr.h"
+#include "guard_command.h"
+
+#include <string>
 
 #include "gd_message_handler.h"
 #include "process_mgr.h"
@@ -30,9 +35,6 @@ CCmdMgr CCmdMgr::ms_Instance;
 
 CCmdMgr::CCmdMgr()
 {
-    memset(m_CmdFuncList, 0, sizeof(m_CmdFuncList));
-    m_szCmdParam[0] = 0;
-    m_szCmdProc = NULL;
     m_bNeedPrintCmdDes = FALSE;
 }
 
@@ -48,27 +50,6 @@ CCmdMgr& CCmdMgr::GetInstance(void)
 
 BOOL CCmdMgr::Init()
 {
-    memset(m_szCmdParam, 0, sizeof(m_szCmdParam));
-    memset(m_CmdFuncList, 0, sizeof(m_CmdFuncList));
-    
-    strxcpy(m_CmdFuncList[0].szCommandName, "quit", 32);
-    m_CmdFuncList[0].pProc = &CCmdMgr::QuitGuard;
-
-    strxcpy(m_CmdFuncList[1].szCommandName, "start", 32);
-    m_CmdFuncList[1].pProc = &CCmdMgr::StartServer;
-
-    strxcpy(m_CmdFuncList[2].szCommandName, "stop", 32);
-    m_CmdFuncList[2].pProc = &CCmdMgr::StopServer;
-
-    strxcpy(m_CmdFuncList[3].szCommandName, "close", 32);
-    m_CmdFuncList[3].pProc = &CCmdMgr::CloseServer;
-
-	strxcpy(m_CmdFuncList[4].szCommandName, "check", 32);
-    m_CmdFuncList[4].pProc = &CCmdMgr::CheckServerConfig;
-    
-    strxcpy(m_CmdFuncList[5].szCommandName, "reload", 32);
-    m_CmdFuncList[5].pProc = &CCmdMgr::ReloadServerConfig;
-
     m_bNeedPrintCmdDes = FALSE;
 
     SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_INSERT_MODE | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
@@ -78,7 +59,7 @@ BOOL CCmdMgr::Init()
 
 BOOL CCmdMgr::UnInit(void)
 {
-    memset(m_szCmdParam, 0, sizeof(m_szCmdParam));
+    m_bNeedPrintCmdDes = FALSE;
 
     return TRUE;
 }
@@ -233,7 +214,7 @@ BOOL CCmdMgr::StopServer(INT32 nCount, const char* pcszParam)
 			break;
 		}
 
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         bMSRuning = CProcessMgr::GetInstance().CountRuningProcessByType(stMS);
 
         if (GetTickCountEx() - qwCurrentTick > 10 * 1000)
@@ -347,9 +328,8 @@ Exit0:
 BOOL CCmdMgr::CheckServerConfig(INT32 nCount, const char* pcszParam)
 {
 	INT32 nRetCode = 0;
-	char pStartParam[64] = {0};
+	char pStartParam[] = "check";
 	BOOL bView = FALSE;
-	snprintf(pStartParam, 64, "%s", "check");
 
 	nRetCode = CProcessMgr::GetInstance().StartProcess(stGS, pStartParam, bView);
 	LOG_PROCESS_ERROR(nRetCode);
@@ -362,14 +342,15 @@ Exit0:
 BOOL CCmdMgr::ReloadServerConfig(INT32 nCount, const char* pcszParam)
 {
     INT32 nRetCode = 0;
-    char szGmCommand[256] = {0};
-    BOOL bView = FALSE;
-    snprintf(szGmCommand, sizeof(szGmCommand), ".reload %s", pcszParam);
+    std::string command{".reload "};
+    // The former 256-byte buffer could lose its terminator on truncation.
+    // Retain its intended payload bound with explicitly terminated storage.
+    command.append(std::string_view{pcszParam}.substr(0, 255 - command.size()));
 
     BOOL bMSRuning = CProcessMgr::GetInstance().CountRuningProcessByType(stMS);
     LOG_PROCESS_ERROR( bMSRuning );
 
-    nRetCode = CGDMessageHandler::GetInstance().DoMSCommand(szGmCommand);
+    nRetCode = CGDMessageHandler::GetInstance().DoMSCommand(command.c_str());
     LOG_PROCESS_ERROR(nRetCode);
 
     return TRUE;
@@ -377,53 +358,14 @@ Exit0:
     return FALSE;
 }
 
-BOOL CCmdMgr::ParseCmd(const char* szFullCmd)
-{
-    INT32 nRetCode = 0;
-    INT32 nIndex = 0;
-  
-	m_szCmdParam[0] = '\0';
-	m_szParamCount = 0;
-
-	LOG_PROCESS_ERROR(szFullCmd);
-	LOG_PROCESS_ERROR(szFullCmd[0] != '.');
-
-	{
-		char* pCmd = NULL;
-		char* pNextToken = NULL;
-
-		pCmd = strtok_s((char*)szFullCmd, " ", &pNextToken);
-		if (pCmd)
-		{
-			for (INT32 i = 0; i < MAX_GUARD_CMD_COUNT; ++i)
-			{
-				if (strnicmp(m_CmdFuncList[i].szCommandName, pCmd, strlen(m_CmdFuncList[i].szCommandName)) == 0)
-				{
-					m_szCmdProc = m_CmdFuncList[i].pProc;
-					break;
-				}
-			}
-		}
-
-		if (pNextToken)
-		{
-			strxcpy(m_szCmdParam, pNextToken, sizeof(m_szCmdParam));
-			m_szParamCount = strlen(m_szCmdParam);
-		}
-	}
-
-	return TRUE;
-Exit0:
-	return FALSE;
-}
-
 INT32 CCmdMgr::ExecGMCmd(const char* szFullCmd)
 {
     INT32 nRetCode = 0;
+    BOOL bMSRuning = FALSE;
 	LOG_PROCESS_ERROR(szFullCmd);
 	LOG_PROCESS_ERROR(szFullCmd[0] == '.' );
 
-	BOOL bMSRuning = CProcessMgr::GetInstance().CountRuningProcessByType(stMS);
+	bMSRuning = CProcessMgr::GetInstance().CountRuningProcessByType(stMS);
 	LOG_PROCESS_ERROR(bMSRuning);
 
 	nRetCode = CGDMessageHandler::GetInstance().DoMSCommand(szFullCmd);
@@ -436,27 +378,31 @@ Exit0:
 
 INT32 CCmdMgr::ExecOPCmd(const char* szFullCmd)
 {
-	INT32 nRetCode = 0;
-	m_bNeedPrintCmdDes = FALSE;
-	LOG_PROCESS_ERROR(szFullCmd);
+    m_bNeedPrintCmdDes = TRUE;
+    if (szFullCmd == nullptr)
+    {
+        LOG_CHECK_ERROR(szFullCmd);
+        return FALSE;
+    }
 
-	nRetCode = ParseCmd(szFullCmd);// set m_szCmdProc
-	LOG_PROCESS_ERROR(nRetCode);
+    const auto command = guard_command::Parse(szFullCmd);
+    if (!command)
+    {
+        LOG_CHECK_ERROR(command.has_value());
+        return FALSE;
+    }
 
-	LOG_PROCESS_ERROR(m_szCmdProc != NULL);
-	nRetCode = (this->*m_szCmdProc)(m_szParamCount, m_szCmdParam);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	m_szCmdProc = NULL;
-	m_szParamCount = 0;
-
-	return TRUE;
-Exit0:
-	m_bNeedPrintCmdDes = TRUE;
-	m_szCmdProc = NULL;
-	m_szParamCount = 0;
-
-	return FALSE;
+    using CommandFunction = BOOL (CCmdMgr::*)(INT32, const char*);
+    static constexpr std::array<CommandFunction, guard_command::names.size()> functions{
+        &CCmdMgr::QuitGuard, &CCmdMgr::StartServer, &CCmdMgr::StopServer,
+        &CCmdMgr::CloseServer, &CCmdMgr::CheckServerConfig, &CCmdMgr::ReloadServerConfig};
+    const auto function = functions[static_cast<std::size_t>(command->kind)];
+    // The callback receives its own terminated storage; parsing never writes to input.
+    const std::string parameters{command->parameters};
+    const BOOL result = (this->*function)(static_cast<INT32>(parameters.size()), parameters.c_str());
+    LOG_CHECK_ERROR(result);
+    m_bNeedPrintCmdDes = !result;
+    return result ? TRUE : FALSE;
 }
 
 BOOL CCmdMgr::PrintCmdDescribe()

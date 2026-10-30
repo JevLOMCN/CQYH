@@ -491,6 +491,7 @@ Exit0:
 
 BOOL CScene::CTraverseRoleCalculate::operator()(CRole* poRole)
 {
+    CTeamInGS* pTeam = nullptr;
     INT32 nRetCode = 0;
     CScene* poScene = NULL;
 
@@ -652,7 +653,7 @@ BOOL CScene::CTraverseRoleCalculate::operator()(CRole* poRole)
 
     nNormalExp = (4LL * s_ScoreFactor[nTotalScore] / (10 * RATE_MAX) + 1) * 10;
 
-    CTeamInGS* pTeam = CGameWorld::GetInstance().FindTeam(poRole->GetTeamID());
+    pTeam = CGameWorld::GetInstance().FindTeam(poRole->GetTeamID());
     if (pTeam && pTeam->GetMemberCount() > 0)
     {
         for (INT32 nMemberIndex = 0; nMemberIndex < pTeam->GetMaxMemberCount(); nMemberIndex++)
@@ -3375,12 +3376,13 @@ BOOL CScene::CTraverseRoleForSabac::operator()(CRole* poRole)
 
 void CScene::_DeliverSabacAward(UINT32 dwGuildID)
 {
+    UINT32 dwRoleID = INVALID_OBJECT_ID;
     INT32 nRetCode = 0;
 
     CGSGuild* poGSGuild = CGuildMgr::GetInstance().FindGuild(dwGuildID);
     LOG_PROCESS_ERROR(poGSGuild);
 
-    UINT32 dwRoleID = poGSGuild->GetFirstMember();
+    dwRoleID = poGSGuild->GetFirstMember();
     while (dwRoleID != INVALID_OBJECT_ID)
     {
         BOOL bAddedItem = FALSE;

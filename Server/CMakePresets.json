@@ -18,6 +18,13 @@
       "cacheVariables": {
         "CQYH_CXX_STANDARD": "23"
       }
+    },
+    {
+      "name": "vs2026",
+      "inherits": "vs2022",
+      "displayName": "Visual Studio 2026 (x64) - generates build/vs2026/CQYHServer.sln",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build/vs2026"
     }
   ],
   "buildPresets": [
@@ -29,6 +36,16 @@
     {
       "name": "vs2022-release",
       "configurePreset": "vs2022",
+      "configuration": "Release"
+    },
+    {
+      "name": "vs2026-debug",
+      "configurePreset": "vs2026",
+      "configuration": "Debug"
+    },
+    {
+      "name": "vs2026-release",
+      "configurePreset": "vs2026",
       "configuration": "Release"
     }
   ],
@@ -44,6 +61,22 @@
     {
       "name": "vs2022-release",
       "configurePreset": "vs2022",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "vs2026-debug",
+      "configurePreset": "vs2026",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "vs2026-release",
+      "configurePreset": "vs2026",
       "configuration": "Release",
       "output": {
         "outputOnFailure": true

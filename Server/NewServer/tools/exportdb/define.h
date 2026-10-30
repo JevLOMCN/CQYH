@@ -23,4 +23,7 @@ enum MS_SQL_STMT_ID
 
 
 
+struct SQL_STMT_DATA;
+extern SQL_STMT_DATA g_SqlStmtList[mysqlTotal];
+
 #endif //_H_DEFINE_H_

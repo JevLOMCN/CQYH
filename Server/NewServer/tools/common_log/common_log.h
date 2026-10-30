@@ -1,6 +1,8 @@
 #ifndef common_log_h__
 #define common_log_h__
 
+#include <iosfwd>
+
 #define MAX_FIELD_LEN	(1024)
 #define POINT_PER_CM	(1LL << 10)
 
@@ -38,6 +40,8 @@ struct log_context
 
 
 bool load_file(const char* file_name, log_context* context);
+// Field strings are borrowed for the duration of each callback. A false callback stops parsing.
+bool load_stream(std::istream& input, log_context* context);
 
 #endif // common_log_h__
 

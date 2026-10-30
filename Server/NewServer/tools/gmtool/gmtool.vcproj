@@ -1722,10 +1722,6 @@
 			Name="kernel"
 			>
 			<File
-				RelativePath=".\cmd_data.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\cmd_data.h"
 				>
 			</File>
@@ -1735,10 +1731,6 @@
 			</File>
 			<File
 				RelativePath=".\cmd_manager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\cmd_manager_message.cpp"
 				>
 			</File>
 			<File

@@ -21,6 +21,12 @@
     <ClCompile Include="guardserver.cpp">
       <Filter>main</Filter>
     </ClCompile>
+    <ClCompile Include="guard_files.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="guard_deploy.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>main</Filter>
     </ClCompile>
@@ -41,8 +47,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="guard_console.h" />
+    <ClInclude Include="guard_transport.h" />
+    <ClInclude Include="guard_packets.h" />
     <ClInclude Include="guardserver.h">
       <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="guard_files.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="guard_deploy.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="guard_command.h">
+      <Filter>cmd</Filter>
+    </ClInclude>
+    <ClInclude Include="native_handle.h">
+      <Filter>process</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>main</Filter>

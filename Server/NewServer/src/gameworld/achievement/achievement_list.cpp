@@ -160,10 +160,11 @@ INT32 CAchievementsList::CanReward(INT32 nAchievementID)
 	INT32 nRetCode = 0;
 	INT32 nResult = errUnknownError;
 	INT32 nFreeSlotNeed = 0;
+	const ACHIEVEMENT_DATA* pData = nullptr;
 
 	LOG_PROCESS_ERROR(m_pOwner);
 
-	const ACHIEVEMENT_DATA* pData = CDataManager<ACHIEVEMENT_DATA>::GetInstance().GetData(nAchievementID);
+	pData = CDataManager<ACHIEVEMENT_DATA>::GetInstance().GetData(nAchievementID);
 	LOG_PROCESS_ERROR(pData);
 
 	LOG_PROCESS_ERROR_RET_CODE(m_wAchievement[nAchievementID] != 0, errAchievementNotCompleted);

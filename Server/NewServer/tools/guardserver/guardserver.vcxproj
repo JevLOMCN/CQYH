@@ -225,11 +225,24 @@
       <Command>attrib -R ../../bin/_Guard/guardserver64.exe &amp; attrib -R ../../bin/_Guard/guardserver64.pdb</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <ConformanceMode>true</ConformanceMode>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <PreprocessorDefinitions>NOMINMAX;_HAS_EXCEPTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cmd_mgr.cpp" />
     <ClCompile Include="gd_message_handler.cpp" />
     <ClCompile Include="gd_session_mgr.cpp" />
     <ClCompile Include="guardserver.cpp" />
+    <ClCompile Include="guard_files.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="guard_deploy.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="process_mgr.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -243,7 +256,14 @@
     <ClInclude Include="cmd_mgr.h" />
     <ClInclude Include="gd_message_handler.h" />
     <ClInclude Include="gd_session_mgr.h" />
+    <ClInclude Include="guard_console.h" />
+    <ClInclude Include="guard_transport.h" />
+    <ClInclude Include="guard_packets.h" />
     <ClInclude Include="guardserver.h" />
+    <ClInclude Include="guard_files.h" />
+    <ClInclude Include="guard_deploy.h" />
+    <ClInclude Include="guard_command.h" />
+    <ClInclude Include="native_handle.h" />
     <ClInclude Include="process_mgr.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

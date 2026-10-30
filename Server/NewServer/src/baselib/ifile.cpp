@@ -1,397 +1,224 @@
 #include "stdafx.h"
-#include "ifile.h"
+#include "file_owner.h"
 
+#include <algorithm>
+#include <cerrno>
+#include <cstdint>
+#include <cstring>
+#include <memory>
 #include <sys/stat.h>
+
 #include "pak_loader.h"
 
-CPakLoader	g_PakLoader;
+CPakLoader g_PakLoader;
 
-class CNormalFile : public IFile
+namespace
+{
+class CNormalFile final : public IFile
 {
 public:
-	CNormalFile();
-	virtual ~CNormalFile();
-
-	BOOL Init(const char* pcszFileName, const char* pcszMode);
-	BOOL UnInit(void);
-
-	virtual BOOL Close(void);
-
-	virtual UINT32 Read(void* pData, UINT32 dwLen);
-	virtual UINT32 Write(const void* pData, UINT32 dwLen);
-	virtual BOOL  Seek(INT32 nOffset, INT32 nOrigin);
-	virtual BOOL Eof(void);
-	virtual UINT32 Size(void);
-
-private:
-	FILE*   m_pFile;
-};
-
-CNormalFile::CNormalFile()
-{
-	m_pFile = NULL;
-}
-
-CNormalFile::~CNormalFile()
-{
-	UnInit();
-}
-
-BOOL CNormalFile::Init(const char* pcszFileName, const char* pcszMode)
-{
-	LOG_PROCESS_ERROR(m_pFile == NULL);
-
-	m_pFile = fopen(pcszFileName, pcszMode);
-	PROCESS_ERROR(m_pFile);
-
-	return TRUE;
-Exit0:
-	return FALSE;
-}
-
-BOOL CNormalFile::UnInit(void)
-{
-	if (m_pFile)
+    BOOL Init(const char* name, const char* mode)
     {
-		fclose(m_pFile);
-    }
-	m_pFile = NULL;
-
-	return TRUE;
-}
-
-BOOL CNormalFile::Close(void)
-{
-	UnInit();
-	delete this;
-
-	return TRUE;
-}
-
-UINT32 CNormalFile::Read(void* pData, UINT32 dwLen)
-{
-	return (UINT32)fread(pData, 1, dwLen, m_pFile);
-}
-
-UINT32 CNormalFile::Write(const void* pData, UINT32 dwLen)
-{
-	return (UINT32)fwrite(pData, 1, dwLen, m_pFile);
-}
-
-BOOL CNormalFile::Seek(INT32 nOffset, INT32 nOrigin)
-{
-	return fseek(m_pFile, nOffset, nOrigin) == 0;
-}
-
-BOOL CNormalFile::Eof(void)
-{
-	if (m_pFile)
-		return feof(m_pFile);
-	return TRUE;
-}
-
-UINT32 CNormalFile::Size(void)
-{
-	UINT32 dwResult = 0;
-	INT32 nRetCode = 0;
-	UINT32 dwCurrent = 0;
-
-	LOG_PROCESS_ERROR(m_pFile);
-
-	dwCurrent = ftell(m_pFile);
-
-	nRetCode = fseek(m_pFile, 0, SEEK_END);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	dwResult = ftell(m_pFile);
-
-	nRetCode = fseek(m_pFile, dwCurrent, SEEK_SET);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-Exit0:
-	return dwResult;
-}
-
-/************************************************************************/
-
-class CPakFileDummy : public IFile
-{
-public:
-	CPakFileDummy();
-	~CPakFileDummy();
-
-	BOOL Init(INT32 nFileIndex);
-	BOOL UnInit(void);
-
-	virtual BOOL Close(void);
-
-	virtual UINT32 Read(void* pData, UINT32 dwLen);
-	virtual BOOL  Seek(INT32 nOffset, INT32 nOrigin);
-	virtual BOOL Eof(void);
-	virtual UINT32 Size(void);
-
-private:
-	INT32	m_nFileIndex;
-	char*	m_pData;
-	UINT32	m_dwSize;
-	UINT32	m_dwOffset;
-};
-
-
-CPakFileDummy::CPakFileDummy()
-{
-	m_nFileIndex = INVALID_PAK_FILE_INDEX;
-	m_pData = NULL;
-	m_dwSize = 0;
-	m_dwOffset = 0;
-}
-
-CPakFileDummy::~CPakFileDummy()
-{
-	UnInit();
-}
-
-BOOL CPakFileDummy::Init(INT32 nFileIndex)
-{
-	INT32 nRetCode = 0;
-
-	m_dwSize = g_PakLoader.GetFileSize(nFileIndex);
-	LOG_PROCESS_ERROR(m_dwSize >= 0);
-
-	m_pData = new char[m_dwSize];
-	LOG_PROCESS_ERROR(m_pData);
-
-	nRetCode = g_PakLoader.ReadFileData(nFileIndex, m_pData, m_dwSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	m_nFileIndex = nFileIndex;
-	m_dwOffset = 0;
-
-	return TRUE;
-Exit0:
-	UnInit();
-
-	return FALSE;
-}
-
-BOOL CPakFileDummy::UnInit(void)
-{
-	m_nFileIndex = INVALID_PAK_FILE_INDEX;
-	SAFE_DELETE_ARRAY(m_pData);
-	m_dwSize = 0;
-
-	return TRUE;
-}
-
-BOOL CPakFileDummy::Close(void)
-{
-	UnInit();
-	delete this;
-
-	return TRUE;
-}
-
-UINT32 CPakFileDummy::Read(void* pData, UINT32 dwLen)
-{
-	if (pData == NULL)
-		return 0;
-
-	UINT32 dwRealSize = dwLen;
-	if (m_dwOffset + dwLen > m_dwSize)
-		dwRealSize = m_dwSize - m_dwOffset;
-
-	memcpy(pData, m_pData + m_dwOffset, dwRealSize);
-	m_dwOffset += dwRealSize;
-
-	return dwRealSize;
-}
-
-BOOL  CPakFileDummy::Seek(INT32 nOffset, INT32 nOrigin)
-{
-	UINT32 dwNewOffset = -1;
-
-	if (nOrigin == SEEK_SET)
-		dwNewOffset = nOffset;
-	else if (nOrigin ==  SEEK_CUR)
-		dwNewOffset = m_dwOffset + nOffset;
-	else if (nOrigin == SEEK_END)
-		dwNewOffset = m_dwSize - nOffset - 1;
-	else
-		return FALSE;
-
-	if (dwNewOffset > m_dwSize)
-		return FALSE;
-
-	m_dwOffset = dwNewOffset;
-
-	return TRUE;
-}
-
-BOOL CPakFileDummy::Eof(void)
-{
-	return (m_dwOffset == m_dwSize) && (m_nFileIndex != INVALID_PAK_FILE_INDEX);
-}
-
-UINT32 CPakFileDummy::Size(void)
-{
-	return m_dwSize;
-}
-
-/************************************************************************/
-
-BOOL g_OpenPakFolder(const char* pcszFolderName)
-{
-	return g_PakLoader.Init(pcszFolderName);
-}
-
-BOOL g_ClosePakFolder(void)
-{
-	return g_PakLoader.UnInit();
-}
-
-BOOL g_ReloadPakFolder(const char* pcszFolderName)
-{
-	return g_PakLoader.Reload(pcszFolderName);
-}
-
-IFile* g_OpenFile(const char* pcszFileName, const char* pcszMode)
-{
-	INT32 nRetCode = 0;
-	IFile* pResult = NULL;
-	INT32 nFileIndex = INVALID_PAK_FILE_INDEX;
-	
-	pResult = new CNormalFile;
-	LOG_PROCESS_ERROR(pResult);
-
-	nRetCode = ((CNormalFile*)pResult)->Init(pcszFileName, pcszMode);
-	PROCESS_SUCCESS(nRetCode);
-
-	SAFE_DELETE(pResult);
-
-	if (g_PakLoader.GetFileCount() > 0)
-	{
-		nFileIndex = g_PakLoader.FindFile(pcszFileName);
-		PROCESS_ERROR(nFileIndex != INVALID_PAK_FILE_INDEX);
-
-		pResult = new CPakFileDummy;
-		LOG_PROCESS_ERROR(pResult);
-
-		nRetCode = ((CPakFileDummy*)pResult)->Init(nFileIndex);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-
-Exit1:
-	return pResult;
-Exit0:
-	SAFE_DELETE(pResult);
-
-	return NULL;
-}
-
-BOOL _FileExists(const char* strFileName)
-{
-    FILE* fp = fopen(strFileName, "r");
-    if (fp == NULL)
-    {
-        return FALSE;
+        if (m_file || name == nullptr || mode == nullptr)
+        {
+            LOG_CHECK_ERROR(!m_file && name != nullptr && mode != nullptr);
+            return FALSE;
+        }
+        m_file.reset(std::fopen(name, mode));
+        return m_file != nullptr;
     }
 
-    fclose(fp);
-
-    return TRUE;
-}
-
-BOOL g_IsFileExist(const char* pcszFileName)
-{
-    INT32 nRetCode = 0;
-    INT32 nFileIndex = INVALID_PAK_FILE_INDEX;
-
-    nRetCode = _FileExists(pcszFileName);
-    if (nRetCode)
+    BOOL Close() override
+    {
+        delete this;
         return TRUE;
+    }
+
+    UINT32 Read(void* data, UINT32 length) override
+    {
+        if (data == nullptr || length == 0)
+            return 0;
+        return static_cast<UINT32>(std::fread(data, 1, length, m_file.get()));
+    }
+
+    virtual UINT32 Write(const void* data, UINT32 length)
+    {
+        if (data == nullptr || length == 0)
+            return 0;
+        return static_cast<UINT32>(std::fwrite(data, 1, length, m_file.get()));
+    }
+
+    BOOL Seek(INT32 offset, INT32 origin) override
+    {
+        return std::fseek(m_file.get(), offset, origin) == 0;
+    }
+
+    BOOL Eof() override
+    {
+        return !m_file || std::feof(m_file.get());
+    }
+
+    UINT32 Size() override
+    {
+        if (!m_file)
+        {
+            LOG_CHECK_ERROR(m_file);
+            return 0;
+        }
+        const auto current = std::ftell(m_file.get());
+        if (current < 0 || std::fseek(m_file.get(), 0, SEEK_END) != 0)
+        {
+            ERR("Cannot query file size (errno=%d)", errno);
+            return 0;
+        }
+        const auto size = std::ftell(m_file.get());
+        if (std::fseek(m_file.get(), current, SEEK_SET) != 0 || size < 0)
+        {
+            ERR("Cannot restore file position or determine file size (errno=%d)", errno);
+            return 0;
+        }
+        return static_cast<UINT32>(size);
+    }
+
+private:
+    cqyh::CFilePtr m_file;
+};
+
+class CPakFileDummy final : public IFile
+{
+public:
+    BOOL Init(INT32 index)
+    {
+        m_size = g_PakLoader.GetFileSize(index);
+        m_data = std::make_unique_for_overwrite<char[]>(m_size);
+        if (!g_PakLoader.ReadFileData(index, m_data.get(), m_size))
+        {
+            ERR("Cannot read packed file at index %d (%u bytes)", index, m_size);
+            return FALSE;
+        }
+        m_index = index;
+        m_offset = 0;
+        return TRUE;
+    }
+
+    BOOL Close() override
+    {
+        delete this;
+        return TRUE;
+    }
+
+    UINT32 Read(void* data, UINT32 length) override
+    {
+        if (data == nullptr || length == 0)
+            return 0;
+        // Subtraction avoids overflow when callers request UINT32_MAX bytes.
+        const auto size = (std::min)(length, m_size - m_offset);
+        if (size != 0)
+            std::memcpy(data, m_data.get() + m_offset, size);
+        m_offset += size;
+        return size;
+    }
+
+    BOOL Seek(INT32 offset, INT32 origin) override
+    {
+        std::int64_t position = offset;
+        if (origin == SEEK_CUR)
+            position += m_offset;
+        else if (origin == SEEK_END)
+            // Preserve the pak reader's legacy convention: END,0 is the last byte.
+            position = static_cast<std::int64_t>(m_size) - offset - 1;
+        else if (origin != SEEK_SET)
+            return FALSE;
+        if (position < 0 || position > m_size)
+            return FALSE;
+        m_offset = static_cast<UINT32>(position);
+        return TRUE;
+    }
+
+    BOOL Eof() override { return m_offset == m_size && m_index != INVALID_PAK_FILE_INDEX; }
+    UINT32 Size() override { return m_size; }
+
+private:
+    INT32 m_index = INVALID_PAK_FILE_INDEX;
+    std::unique_ptr<char[]> m_data;
+    UINT32 m_size = 0;
+    UINT32 m_offset = 0;
+};
+
+UINT32 FileTime(const char* name, bool creation)
+{
+    if (name == nullptr)
+    {
+        LOG_CHECK_ERROR(name != nullptr);
+        return 0;
+    }
+    cqyh::CFilePtr file(std::fopen(name, "rb"));
+    if (file)
+    {
+        const int descriptor = fileno(file.get());
+        struct stat info {};
+        if (descriptor == -1 || fstat(descriptor, &info) != 0)
+        {
+            ERR("Cannot read file timestamps for %s (errno=%d)", name, errno);
+            return 0;
+        }
+        return static_cast<UINT32>(creation ? info.st_ctime : info.st_mtime);
+    }
+    if (g_PakLoader.GetFileCount() > 0)
+    {
+        const auto index = g_PakLoader.FindFile(name);
+        if (index != INVALID_PAK_FILE_INDEX)
+            return creation ? g_PakLoader.GetFileCreateTime(index) : g_PakLoader.GetFileModifyTime(index);
+    }
+    return 0;
+}
+}
+
+BOOL g_OpenPakFolder(const char* name) { return g_PakLoader.Init(name); }
+BOOL g_ClosePakFolder() { return g_PakLoader.UnInit(); }
+BOOL g_ReloadPakFolder(const char* name) { return g_PakLoader.Reload(name); }
+
+IFile* g_OpenFile(const char* name, const char* mode)
+{
+    if (name == nullptr || mode == nullptr)
+    {
+        LOG_CHECK_ERROR(name != nullptr && mode != nullptr);
+        return nullptr;
+    }
+
+    // Keep concrete ownership until initialization succeeds. IFile has no virtual destructor.
+    auto normal = std::make_unique<CNormalFile>();
+    if (normal->Init(name, mode))
+        return normal.release();
 
     if (g_PakLoader.GetFileCount() > 0)
     {
-        nFileIndex = g_PakLoader.FindFile(pcszFileName);
-        if (nFileIndex != INVALID_PAK_FILE_INDEX)
-            return TRUE;
+        const auto index = g_PakLoader.FindFile(name);
+        if (index != INVALID_PAK_FILE_INDEX)
+        {
+            auto packed = std::make_unique<CPakFileDummy>();
+            if (packed->Init(index))
+                return packed.release();
+            ERR("Failed to open packed file %s", name);
+        }
     }
-
-    return FALSE;
+    return nullptr;
 }
 
-UINT32 g_GetFileCreateTime(const char* pcszFileName)
+BOOL _FileExists(const char* name)
 {
-    UINT32 dwResult = 0;
-    INT32 nRetCode = 0;
-    FILE* pFile = NULL;
-    INT32 nFileIndex = INVALID_PAK_FILE_INDEX;
-
-    LOG_PROCESS_ERROR(pcszFileName);
-
-    pFile = fopen(pcszFileName, "rb");
-    if (pFile)
-    {
-        int fd;
-        struct stat FileStat;
-
-        fd = fileno(pFile);
-        LOG_PROCESS_ERROR(fd != -1);
-
-        nRetCode = fstat(fd, &FileStat);
-        LOG_PROCESS_ERROR(nRetCode == 0);
-
-        dwResult = (UINT32)FileStat.st_ctime;
-    }
-    else if (g_PakLoader.GetFileCount() > 0)
-    {
-        nFileIndex = g_PakLoader.FindFile(pcszFileName);
-        PROCESS_ERROR(nFileIndex != INVALID_PAK_FILE_INDEX);
-
-        dwResult = g_PakLoader.GetFileCreateTime(nFileIndex);
-    }
-
-Exit0:
-    if (pFile)
-        fclose(pFile);
-
-    return dwResult;
+    if (name == nullptr)
+        return FALSE;
+    return cqyh::CFilePtr(std::fopen(name, "r")) != nullptr;
 }
 
-UINT32 g_GetFileModifyTime(const char* pcszFileName)
+BOOL g_IsFileExist(const char* name)
 {
-    UINT32 dwResult = 0;
-    INT32 nRetCode = 0;
-    FILE* pFile = NULL;
-    INT32 nFileIndex = INVALID_PAK_FILE_INDEX;
-
-    LOG_PROCESS_ERROR(pcszFileName);
-
-    pFile = fopen(pcszFileName, "rb");
-    if (pFile)
-    {
-        int fd;
-        struct stat FileStat;
-
-        fd = fileno(pFile);
-        LOG_PROCESS_ERROR(fd != -1);
-
-        nRetCode = fstat(fd, &FileStat);
-        LOG_PROCESS_ERROR(nRetCode == 0);
-
-        dwResult = (UINT32)FileStat.st_mtime;
-    }
-    else if (g_PakLoader.GetFileCount() > 0)
-    {
-        nFileIndex = g_PakLoader.FindFile(pcszFileName);
-        PROCESS_ERROR(nFileIndex != INVALID_PAK_FILE_INDEX);
-
-        dwResult = g_PakLoader.GetFileModifyTime(nFileIndex);
-    }
-
-Exit0:
-    if (pFile)
-        fclose(pFile);
-
-    return dwResult;
+    if (name == nullptr)
+        return FALSE;
+    return _FileExists(name) || (g_PakLoader.GetFileCount() > 0 &&
+                                g_PakLoader.FindFile(name) != INVALID_PAK_FILE_INDEX);
 }
+
+UINT32 g_GetFileCreateTime(const char* name) { return FileTime(name, true); }
+UINT32 g_GetFileModifyTime(const char* name) { return FileTime(name, false); }

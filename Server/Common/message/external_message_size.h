@@ -3,7 +3,7 @@
 extern INT32 g_nMessageVersion;
 extern INT32 g_nS2CMessageSize[];
 extern INT32 g_nC2SMessageSize[];
-extern char* g_szC2SMessageName[];
-extern char* g_szS2CMessageName[];
+extern const char* g_szC2SMessageName[];
+extern const char* g_szS2CMessageName[];
 
 #endif  // _EXTERNAL_MESSAGE_SIZE_H_

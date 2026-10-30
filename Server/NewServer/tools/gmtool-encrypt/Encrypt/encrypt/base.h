@@ -1,11 +1,15 @@
-#ifndef _H_BASE_H_
+#ifndef CQYH_GM_FILE_TRANSFORM_H
+#define CQYH_GM_FILE_TRANSFORM_H
 
+#include <cstdint>
 
-bool Encrypt(__int32 nInputLength, const char *pData, __int32 &nOutputLength, char *pOutputData);
+// output_length supplies capacity and receives the number of published bytes.
+// Invalid input leaves output and output_length unchanged. Allocation failures
+// propagate; no output is published before staging succeeds.
+bool Encrypt(std::int32_t input_length, const char* input,
+             std::int32_t& output_length, char* output);
+bool Decrypt(std::int32_t input_length, const char* input,
+             std::int32_t& output_length, char* output);
 
-bool Decrypt(__int32 nInputLength, const char *pInputData, __int32 &nOutputLength, char *pOutputData);
-
-
-
-#endif //_H_BASE_H_
+#endif
 

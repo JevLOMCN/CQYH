@@ -6,8 +6,11 @@
 #include "encrypt.h"
 #include "encryptDlg.h"
 #include "afxdialogex.h"
-#include "base.h"
-#include "zlib.h"
+#include "file_transform.h"
+#include <filesystem>
+#include <format>
+#include <string>
+#include <utility>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -156,154 +159,44 @@ HCURSOR CencryptDlg::OnQueryDragIcon()
 
 
 
-bool GetSourceFileName(const char *pcszInFile, char *pOutName)
+void CencryptDlg::TransformSelectedFile(gm_file::Operation operation)
 {
-    if (pcszInFile == 0 || pOutName == 0)
-        return false;
-
-    __int32 i = 0;
-    __int32 l = 0;
-    while (pcszInFile[i] != '\0')
+    const auto state=m_operation;
+    if (std::exchange(state->running,true)) return;
+    struct Reset
     {
-        if (pcszInFile[i] == '\\' || pcszInFile[i] == '/')
-            l = i;
-        ++i;
-    }
-
-    i = l + 1;
-    __int32 j = 0;
-    while (pcszInFile[i] != '\0' && pcszInFile[i] != '.')
+        std::shared_ptr<OperationState> state;
+        ~Reset(){state->running=false;}
+    } reset{state};
+    CString filename;
+    GetDlgItemText(IDC_MFCEDITBROWSE1,filename);
+    const std::filesystem::path input(std::wstring(filename.GetString(),static_cast<std::size_t>(filename.GetLength())));
+    const auto result=gm_file::transform_file(input,operation);
+    if (result)
     {
-        pOutName[j++] = pcszInFile[i++];
+        const auto message=std::format(L"{}\n{}",operation==gm_file::Operation::encrypt ? L"加密成功" : L"解密成功",result->native());
+        ShowOperationResult(true,CString(message.c_str()));
     }
+    else
+    {
+        // The standard file workflow returns ASCII diagnostics; paths remain native Unicode.
+        const std::wstring detail(result.error().begin(),result.error().end());
+        const auto message=std::format(L"操作失败\n{}",detail);
+        ShowOperationResult(false,CString(message.c_str()));
+    }
+}
 
-    pOutName[j] = '\0';
-
-    return true;
+void CencryptDlg::ShowOperationResult(bool success,const CString& message)
+{
+    MessageBox(message,L"文件转换",MB_OK|(success ? MB_ICONINFORMATION : MB_ICONERROR));
 }
 
 void CencryptDlg::OnBnClickedButton2()
 {
-    // TODO: Add your control notification handler code here
-    CString     csFile;
-    char        szFile[512] = { 0 };
-    char        szSourceFile[512] = { 0 };
-    FILE        *pf = 0;
-
-    __int32     csFileLength = 0;
-    __int32     szFileLength = 512;
-
-    GetDlgItemText(IDC_MFCEDITBROWSE1, csFile);
-    csFileLength = csFile.GetLength();
-
-    WideCharToMultiByte(CP_ACP, 0, csFile, csFileLength, szFile, szFileLength, 0, 0);
-
-    fopen_s(&pf, szFile, "rb");
-    if (pf == NULL)
-    {
-        return;
-    }
-
-    const __int32  INPUT_LENGTH = 1024 * 1024;
-    const __int32  OUTPUT_LENGTH = INPUT_LENGTH + 8;
-
-    char *pOutputStr = new char[OUTPUT_LENGTH];
-    char *pInputStr = new char[INPUT_LENGTH];
-    __int32 nLength = 0;
-    __int32 nOLength = OUTPUT_LENGTH;
-
-    fseek(pf, 0, SEEK_END);
-    nLength = ftell(pf);
-    fseek(pf, 0, SEEK_SET);
-    fread(pInputStr, 1, nLength, pf);
-    fclose(pf);
-    pf = NULL;
-
-    bool bRet = Decrypt(nLength, pInputStr, nOLength, pOutputStr);
-    if (bRet == false)
-    {
-        return;
-    }
-
-    //GetSourceFileName(szFile, szSourceFile);
-
-    fopen_s(&pf, szFile, "wb");
-    if (pf == NULL)
-        return;
-
-    fwrite(pOutputStr, 1, nOLength, pf);
-    fclose(pf);
-    pf = NULL;
-
-    delete[] pInputStr;
-    delete[] pOutputStr;
-
-    CString tmp("解密成功");
-    MessageBox(tmp);
+    TransformSelectedFile(gm_file::Operation::decrypt);
 }
-
 
 void CencryptDlg::OnBnClickedButton1()
 {
-    // TODO: Add your control notification handler code here
-    CString     csFile;
-    char        szFile[512] = { 0 };
-    char        szSourceFile[512] = { 0 };
-    char        szFinalFile[512] = { 0 };
-    char        cBuffer[512] = { 0 };
-    FILE        *pf = 0;
-
-    __int32     csFileLength = 0;
-    __int32     szFileLength = 512;
-
-    GetDlgItemText(IDC_MFCEDITBROWSE1, csFile);
-    csFileLength = csFile.GetLength();
-
-    WideCharToMultiByte(CP_ACP, 0, csFile, csFileLength, szFile, szFileLength, 0, 0);
-
-    fopen_s(&pf, szFile, "rb");
-    if (pf == NULL)
-    {
-        return;
-    }
-
-    const __int32  INPUT_LENGTH = 1024 * 1024;
-    const __int32  OUTPUT_LENGTH = INPUT_LENGTH + 8;
-
-    char *pOutputStr = new char[OUTPUT_LENGTH];
-    char *pInputStr = new char[INPUT_LENGTH];
-    __int32 nLength = 0;
-    __int32 nOLength = OUTPUT_LENGTH;
-
-    fseek(pf, 0, SEEK_END);
-    nLength = ftell(pf);
-    fseek(pf, 0, SEEK_SET);
-    fread(pInputStr, 1, nLength, pf);
-    fclose(pf);
-    pf = NULL;
-
-    bool bRet = Encrypt(nLength, pInputStr, nOLength, pOutputStr);
-    if (bRet == false)
-    {
-        return;
-    }
-
-    GetSourceFileName(szFile, szSourceFile);
-
-    unsigned __int32 dwcrc = crc32(0, (Bytef*)szSourceFile, strlen(szSourceFile));
-    sprintf_s(szFinalFile, 512, "%u", dwcrc);
-
-    fopen_s(&pf, szFinalFile, "wb");
-    if (pf == NULL)
-        return;
-
-    fwrite(pOutputStr, 1, nOLength, pf);
-    fclose(pf);
-    pf = NULL;
-
-    delete[] pInputStr;
-    delete[] pOutputStr;
-
-    CString tmp("加密成功");
-    MessageBox(tmp);
+    TransformSelectedFile(gm_file::Operation::encrypt);
 }

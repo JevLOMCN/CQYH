@@ -7,8 +7,7 @@
 //   "main" thread   : whoever calls CNet::MainLoop(). It parses packets, drives the session state machine and calls
 //                     INetEventHandler. Worker threads talk to it through a mutex protected event queue.
 //
-// This file deliberately does not use the project's precompiled stdafx.h (which defines _HAS_EXCEPTIONS=0 and pulls
-// in <windows.h> before the socket headers).
+// This file includes socket headers before <windows.h>, independently of the legacy precompiled stdafx.h.
 
 #include <asio.hpp>
 
@@ -134,7 +133,7 @@ namespace AsioNet
 
         asio::io_context        ctx;
         std::optional<asio::executor_work_guard<asio::io_context::executor_type>> workGuard;
-        std::vector<std::thread> threads;
+        std::vector<std::jthread> threads;
 
         std::atomic<int>        sessionCount{ 0 };
 
@@ -754,6 +753,8 @@ namespace AsioNet
     // ============================================================================================================
     bool NetImpl::Init(IPacketAllocator* pPacketAllocator, INetEventHandler* pNetEventHandler, void* pInitParam)
     {
+        if (m_bInitialized)
+            return false;
         if (!pPacketAllocator || !pNetEventHandler || !pInitParam)
         {
             ERR("asio net: Init() with null argument");
@@ -776,25 +777,41 @@ namespace AsioNet
         allocator = pPacketAllocator;
         handler = pNetEventHandler;
 
-        workGuard.emplace(asio::make_work_guard(ctx));
-        for (int i = 0; i < param.nThreadCount; i++)
+        try
         {
-            threads.emplace_back([this]()
+            ctx.restart();
+            workGuard.emplace(asio::make_work_guard(ctx));
+            threads.reserve(param.nThreadCount);
+            for (int i = 0; i < param.nThreadCount; i++)
             {
-                for (;;)
+                threads.emplace_back([this](std::stop_token token)
                 {
-                    try
+                    std::stop_callback stopped(token, [this] { ctx.stop(); });
+                    for (;;)
                     {
-                        ctx.run();
-                        break;
+                        try
+                        {
+                            ctx.run();
+                            break;
+                        }
+                        catch (const std::exception& e)
+                        {
+                            CRI("asio work thread exception: %s", e.what());
+                        }
                     }
-                    catch (const std::exception& e)
-                    {
-                        CRI("asio work thread exception: %s", e.what());
-                    }
-                }
-                INF("asio work thread quit");
-            });
+                    INF("asio work thread quit");
+                });
+            }
+        }
+        catch (const std::exception& error)
+        {
+            workGuard.reset();
+            ctx.stop();
+            threads.clear(); // jthread joins every worker already launched.
+            allocator = nullptr;
+            handler = nullptr;
+            ERR("asio net: cannot start workers: %s", error.what());
+            return false;
         }
 
         m_bInitialized = true;

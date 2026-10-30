@@ -2,7 +2,7 @@
 
 add_executable(test_asio_net test_asio_net.cpp)
 
-# deliberately no precompiled stdafx.h here: it defines _HAS_EXCEPTIONS=0, which the asio headers cannot live with
+# Keep the transport test independent of the legacy stdafx.h include order.
 cqyh_target_defaults(test_asio_net EXECUTABLE)
 target_compile_definitions(test_asio_net PRIVATE NOMINMAX)
 

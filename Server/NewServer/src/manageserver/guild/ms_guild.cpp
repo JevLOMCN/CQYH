@@ -4594,6 +4594,7 @@ Exit0:
 
 INT32 CB_BuildingEnable(BASE_TRIGGER_NODE *pNode)
 {
+    MS_G_B_DATA * pBuildingData{};
     INT32       nRetCode = 0;
     INT32       nResult = errUnknownError;
     CMsGuild    *poMSGuild = NULL;
@@ -4604,7 +4605,7 @@ INT32 CB_BuildingEnable(BASE_TRIGGER_NODE *pNode)
     poMSGuild = CMsGuildMgr::GetInstance().FindGuildByID(pTrigger->dwGuildID);
     LOG_PROCESS_ERROR(poMSGuild);
 
-    MS_G_B_DATA *pBuildingData = poMSGuild->GetBuildingDataByNpcID(pTrigger->qwNameID);
+    pBuildingData = poMSGuild->GetBuildingDataByNpcID(pTrigger->qwNameID);
     LOG_PROCESS_ERROR(pBuildingData);
 
     pBuildingData->dwReviveTime = 0;

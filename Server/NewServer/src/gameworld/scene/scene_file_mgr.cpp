@@ -2440,6 +2440,10 @@ Exit0:
 // Zone phx
 BOOL CSceneFileMgr::_LoadPhyxData(const SCENE_DATA* pSceneData, CSceneStaticData* pSceneStaticData, char* pData, INT32 nSize)
 {
+    INT32 nRegionWidth = 0;
+    INT32 nRegionHeight = 0;
+    UINT32 dwValid_GRID_DATA = 0;
+    INT32 nRegionIndex = 0;
     INT32 nRetCode = 0;
     char szScript[256] = { 0 };
     char szBTTreeName[256] = { 0 };
@@ -2502,9 +2506,9 @@ BOOL CSceneFileMgr::_LoadPhyxData(const SCENE_DATA* pSceneData, CSceneStaticData
     // REGION_WIDTH / ZONE_WIDTH is the number of zones along one region dimension.
     // Divide the scene zone column count m_nMaxZoneX by zones per region to obtain region columns (+1 handles the remainder).
     // nRegionHeight (region rows) is calculated similarly.
-    INT32 nRegionWidth = pSceneStaticData->m_nMaxZoneX / (REGION_WIDTH / ZONE_WIDTH) + 1;
+    nRegionWidth = pSceneStaticData->m_nMaxZoneX / (REGION_WIDTH / ZONE_WIDTH) + 1;
     LOG_PROCESS_ERROR(nRegionWidth < (1 << 16));
-    INT32 nRegionHeight = pSceneStaticData->m_nMaxZoneY / (REGION_WIDTH / ZONE_WIDTH) + 1;
+    nRegionHeight = pSceneStaticData->m_nMaxZoneY / (REGION_WIDTH / ZONE_WIDTH) + 1;
     LOG_PROCESS_ERROR(nRegionHeight < (1 << 16));
 
     // AI analysis
@@ -2517,7 +2521,7 @@ BOOL CSceneFileMgr::_LoadPhyxData(const SCENE_DATA* pSceneData, CSceneStaticData
     // For 16 = 2097152 / 131072, each region has 16 grids along each axis, or 256 grids to scan.
     // 2 - The !bValidRegion condition exits early once a walkable grid marks the region valid.
     pSceneStaticData->m_dwValidRegion = 0;
-    UINT32 dwValid_GRID_DATA = 0;
+    dwValid_GRID_DATA = 0;
     for (INT32 nRegionX = 0; nRegionX < nRegionWidth; nRegionX++)
     {
         for (INT32 nRegionY = 0; nRegionY < nRegionHeight; nRegionY++)
@@ -2561,7 +2565,7 @@ BOOL CSceneFileMgr::_LoadPhyxData(const SCENE_DATA* pSceneData, CSceneStaticData
     // This provides efficient storage and retrieval.
     // INT32 decodedX = encodedValue >> 16;  // Decode X
     // INT32 decodedY = encodedValue & 0xFFFF; // Decode Y
-    INT32 nRegionIndex = 0;
+    nRegionIndex = 0;
     for (INT32 nRegionX = 0; nRegionX < nRegionWidth; nRegionX++)
     {
         for (INT32 nRegionY = 0; nRegionY < nRegionHeight; nRegionY++)

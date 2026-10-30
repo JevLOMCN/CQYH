@@ -95,6 +95,8 @@ public:
 
 private:
 	BOOL _WriteLog(INT32 nLevelIndex, const char* pcszMessage, va_list valist);
+    void _OutputMessage(INT32 level, const char* message, INT32 size);
+    bool _DrainMessages();
 
 	BOOL _Log2Console(INT32 nLevelIndex, const char* pcszMessage, INT32 nMessageSize);
 	BOOL _Log2File(INT32 nLevelIndex, const char* pcszMessage, INT32 nMessageSize);
@@ -105,11 +107,12 @@ private:
 
 private:
 	static CLog         ms_Instance;
+    std::recursive_mutex m_outputMutex;
 
 	char		        m_szModuleName[MAX_MODULE_NAME];
 	UINT32              m_dwProcessID;
-	INT32		        m_eLogLevelMask;
-	INT32		        m_eLogOutputMask;
+	std::atomic<INT32> m_eLogLevelMask;
+	std::atomic<INT32> m_eLogOutputMask;
 	BOOL                m_bPrintThreadID;
 	BOOL                m_bFlushFile;
 
@@ -124,10 +127,11 @@ private:
 #endif
 	CThread*			m_pLogThread;
 	CCircleList			m_LogList[MAX_LOG_THREAD_COUNT];
-	UINT32				m_dwThreadCount;
-	BOOL				m_bStopThread;
+	std::atomic<UINT32> m_dwThreadCount;
+    std::uint64_t m_generation = 0;
+	std::atomic<bool> m_bStopThread{false};
 
-	CUSTOM_OUTPUT_FUNC  m_pOutputFunc;
+	std::atomic<CUSTOM_OUTPUT_FUNC> m_pOutputFunc;
 };
 
 #endif	// _LOG_H_

@@ -1,449 +1,162 @@
 #include "stdafx.h"
-#include "ui_exchange_history.h"
+#include "exchange_history_widget.h"
+#include "gm_exchange_stats.h"
+#include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QWheelEvent>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <cmath>
+#include <cstring>
+#include <limits>
+#include <span>
+#include <utility>
 
-#define VOLUME_HEIGHT       (115)
-#define KVOLUMEDISTANCE     (10)
-#define VOLUME_TEXT_HEIGHT  (15)
-#define KTEXT_WIDTH         (30)
-#define KTEXT_HEIGHT        (12)
-#define HEIGHT_TOP_OFFSET   (10)
+namespace
+{
+constexpr int volume_height=115, bottom_margin=20, top_margin=10;
+int interval(int width)
+{
+    constexpr std::array thresholds{std::pair{3,1},std::pair{6,2},std::pair{12,3},std::pair{18,6},
+        std::pair{24,8},std::pair{30,10},std::pair{36,14},std::pair{42,18}};
+    int result=1;
+    for (const auto [threshold,gap] : thresholds)
+        if (width>=threshold) result=gap;
+    return result;
+}
+struct Plot
+{
+    QRectF price,volume;
+    int stride;
+    std::size_t count;
+};
+std::optional<Plot> plot(const QWidget& widget,std::size_t records,int candle_width)
+{
+    const auto font=widget.fontMetrics();
+    const int axis=std::max({80,font.horizontalAdvance(QString::fromStdString(gm::exchange_price(INT32_MIN)))+12,
+        font.horizontalAdvance(QString::number(INT32_MIN))+12});
+    const int right=widget.width()-axis;
+    const int price_bottom=widget.height()-volume_height-10;
+    const int stride=candle_width+interval(candle_width);
+    if (!records || right<stride+2 || price_bottom-top_margin<100) return {};
+    const auto count=std::min(records,static_cast<std::size_t>((right-2)/stride));
+    if (!count) return {};
+    return Plot{QRectF(0,top_margin,right,price_bottom-top_margin),
+        QRectF(0,widget.height()-volume_height+5,right,volume_height-bottom_margin-5),stride,count};
+}
+}
 
-#define K_WIDTH         (6)
-#define K_INTERVAL      (2)
-
-
-
-CExchangeHistoryUI::CExchangeHistoryUI(QWidget *parent, Qt::WindowFlags flags)
-    : QLabel(parent, flags)
+CExchangeHistoryUI::CExchangeHistoryUI(QWidget* parent,Qt::WindowFlags flags) : QLabel(parent,flags)
 {
     setMouseTracking(true);
-    
-    m_nShowIndex = -1;
-
-    m_nKInterval = K_INTERVAL;
-    m_nKWidth = K_WIDTH;
 }
-
-CExchangeHistoryUI::~CExchangeHistoryUI()
-{
-}
-
+CExchangeHistoryUI::~CExchangeHistoryUI() = default;
 BOOL CExchangeHistoryUI::UnInit()
 {
-    m_nBaseLowY = 0;
-    m_nBaseHighY = 0;
-
-    m_lfUnit = 0.0;
-
-    m_nCount = 0;
-    memset(m_Data, 0, sizeof(m_Data));
-
-    return TRUE;
+    m_Data.clear();m_mouse.reset();update();return TRUE;
 }
-
-BOOL CExchangeHistoryUI::SetData(INT32 nCount, const char *pcBuffer)
+BOOL CExchangeHistoryUI::SetData(INT32 count,const char* bytes)
 {
-    GM_EXCHANGE_PRICE_HISTORY   *pHistory = NULL;
-    LOG_PROCESS_ERROR(pcBuffer);
-
-    pHistory = (GM_EXCHANGE_PRICE_HISTORY *)pcBuffer;
-
-    memset(m_Data, 0, sizeof(m_Data));
-
-    m_nBaseLowY = 0x7FFFFFFF;
-    m_nBaseHighY = 0;
-    m_nVolumeMin = 0x7FFFFFFF;
-    m_nVolumeMax = 0;
-    m_lfUnit = 0.0;
-
-    m_nCount = nCount;
-
-    for (INT32 i = 0; i < nCount; ++i)
-    {
-        m_Data[i] = pHistory[i];
-    }
-
-    repaint();
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    if (count<0 || count>MAX_EXCHANGE_HISTORY_NUM || (count && !bytes)) return FALSE;
+    std::vector<GM_EXCHANGE_PRICE_HISTORY> candidate(count);
+    if (count) std::memcpy(candidate.data(),bytes,candidate.size()*sizeof(candidate.front()));
+    for (const auto& row : candidate)
+        if (!std::memchr(row.szHistoryTime,0,sizeof(row.szHistoryTime))) return FALSE;
+    m_Data.swap(candidate);m_mouse.reset();update();return TRUE;
 }
-
-INT32 GetInterval(INT32 nWidth, INT32 nOldValue)
+void CExchangeHistoryUI::wheelEvent(QWheelEvent* event)
 {
-    switch (nWidth)
-    {
-    case 3:
-        return 1;
-    case 6:
-        return 2;
-    case 12:
-        return 3;
-    case 18:
-        return 6;
-    case 24:
-        return 8;
-    case 30:
-        return 10;
-    case 36:
-        return 14;
-    case 42:
-        return 18;
-    default:
-        return nOldValue;
-    }
+    const auto delta=event->angleDelta().y() ? event->angleDelta().y() : event->pixelDelta().y();
+    if (!delta) { QLabel::wheelEvent(event);return; }
+    m_candle_width=std::clamp(m_candle_width+(delta>0 ? 1 : -1),1,48);
+    update();event->accept();
 }
-
-void CExchangeHistoryUI::wheelEvent(QWheelEvent*event)
+void CExchangeHistoryUI::mouseMoveEvent(QMouseEvent* event)
 {
-    QPoint qAD = event->angleDelta();
-
-    if (qAD.y() > 0)
-    {
-        ++m_nKWidth;
-
-        if (m_nKWidth > 48)
-            m_nKWidth = 48;
-
-        m_nKInterval = GetInterval(m_nKWidth, m_nKInterval);
-    }
-    else if (qAD.y() < 0)
-    {
-        --m_nKWidth;
-
-        if (m_nKWidth < 1)
-            m_nKWidth = 1;
-
-        m_nKInterval = GetInterval(m_nKWidth, m_nKInterval);
-    }
-
-    repaint();
-    return;
+    m_mouse=rect().contains(event->pos()) ? std::optional(event->pos()) : std::nullopt;
+    update();event->accept();
 }
-
-
-void CExchangeHistoryUI::mouseMoveEvent(QMouseEvent *event)
+void CExchangeHistoryUI::leaveEvent(QEvent* event)
 {
-    INT32       HEIGHT_LIMIT = height() - VOLUME_HEIGHT;
-    INT32       WIDTH_LIMIT = width() - KTEXT_WIDTH;
-    INT32       K_NUM = WIDTH_LIMIT / (m_nKWidth + m_nKInterval);
-    INT32       nX = 1;
-    INT32   nHeight = height() ;
-
-    m_nShowIndex = -1;
-    m_nMouseX = event->x();
-    m_nMouseY = event->y();
-
-    if (m_nMouseX > WIDTH_LIMIT)
-    {
-        m_nMouseX = 0;
-        m_nMouseY = 0;
-    }
-
-    //if (event->y() > HEIGHT_LIMIT && event->y() < (nHeight - VOLUME_TEXT_HEIGHT))
-    {
-        INT32       nIndex = 0;
-        if (m_nCount > K_NUM)
-            nIndex = m_nCount - K_NUM;
-        else
-            nIndex = 0;
-        for (INT32 i = 0; nIndex < m_nCount; ++i, ++nIndex)
-        {
-            GM_EXCHANGE_PRICE_HISTORY   &rd = m_Data[nIndex];
-
-            if (m_nMouseX >= nX && m_nMouseX < (nX + m_nKWidth + m_nKInterval))
-            {
-                m_nShowIndex = nIndex;   
-            }
-
-            //
-            nX += m_nKInterval;
-            nX += m_nKWidth;
-        }
-    }
-        
-    if (m_nCount > 0)
-        repaint();
-
-    return;
+    m_mouse.reset();update();QLabel::leaveEvent(event);
 }
-
-void CExchangeHistoryUI::paintEvent(QPaintEvent *event)
+void CExchangeHistoryUI::paintEvent(QPaintEvent* event)
 {
-    INT32       HEIGHT_LIMIT = height() - KVOLUMEDISTANCE  - VOLUME_HEIGHT;
-    INT32       WIDTH_LIMIT = width() - KTEXT_WIDTH;
-    
-    INT32       K_NUM = WIDTH_LIMIT / (m_nKWidth + m_nKInterval);
-
-    INT32       K_LINE_NUM = 12;
-    INT32       K_LINE_DISTANCE = 50;
-    QPainter    painter(this);
-    QPen        dash_pen;
-    QPen        red_full_pen;
-    QPen        white_full_pen;
-
-    dash_pen.setWidth(1);
-    dash_pen.setColor(QColor(176, 0, 0));
-    red_full_pen.setColor(QColor(176, 0, 0));
-    white_full_pen.setColor(QColor(255, 255, 255));
-
-    double lfPriceUnit = (m_nBaseHighY - m_nBaseLowY) / (HEIGHT_LIMIT - HEIGHT_TOP_OFFSET);
-
-    INT32       nMax = 0;
-    INT32       nMin = 0x7FFFFFFF;
-
-    INT32       nTempIndex = 0;
-    if (m_nCount > K_NUM)
-        nTempIndex = m_nCount - K_NUM;
-    else
-        nTempIndex = 0;
-    for (; nTempIndex < m_nCount; ++nTempIndex)
+    const auto frame=plot(*this,m_Data.size(),m_candle_width);
+    if (!frame) { QLabel::paintEvent(event);return; }
+    const auto rows=std::span<const GM_EXCHANGE_PRICE_HISTORY>(m_Data).last(frame->count);
+    std::int64_t low=INT64_MAX,high=INT64_MIN,volume=1;
+    for (const auto& row : rows)
     {
-        if (nMax < m_Data[nTempIndex].nHigh)
-            nMax = m_Data[nTempIndex].nHigh;
-        if (nMin > m_Data[nTempIndex].nLow)
-            nMin = m_Data[nTempIndex].nLow;
-
-        if (m_nVolumeMax < m_Data[nTempIndex].nVolume)
-            m_nVolumeMax = m_Data[nTempIndex].nVolume;
-        if (m_nVolumeMin > m_Data[nTempIndex].nVolume)
-            m_nVolumeMin = m_Data[nTempIndex].nVolume;
+        const std::array<std::int64_t,4> prices{row.nLow,row.nHigh,row.nOpen,row.nClose};
+        low=std::min(low,std::ranges::min(prices));high=std::max(high,std::ranges::max(prices));
+        volume=std::max(volume,static_cast<std::int64_t>(row.nVolume));
     }
-
-
-    m_nBaseLowY = ((nMin / 10) - 1) * 10;
-    m_nBaseHighY = ((nMax / 10) + 1) * 10;
-
-    m_nBaseLowY = m_nBaseLowY > 0 ? m_nBaseLowY : 0;
-    m_nBaseHighY = m_nBaseHighY > 0 ? m_nBaseHighY : 0;
-
-
-
-    if (m_nBaseHighY - m_nBaseLowY)
-        m_lfUnit = (double)(HEIGHT_LIMIT - HEIGHT_TOP_OFFSET) / (m_nBaseHighY - m_nBaseLowY);
-    else
-        m_lfUnit = 1;
-
-    if (m_nVolumeMax - m_nVolumeMin)
-        m_lfVolumeUnit = (double)(VOLUME_HEIGHT - VOLUME_TEXT_HEIGHT - HEIGHT_TOP_OFFSET) / (m_nVolumeMax - m_nVolumeMin);
-    else
-        m_lfVolumeUnit = 1.0;
-
-    K_LINE_NUM = (HEIGHT_LIMIT - HEIGHT_TOP_OFFSET) / K_LINE_DISTANCE;
-    --K_LINE_NUM;
-    K_LINE_DISTANCE = (HEIGHT_LIMIT - HEIGHT_TOP_OFFSET) / K_LINE_NUM;
-
-    // init widget
-    QPalette    palette;
-    palette.setColor(QPalette::Background, QColor(0, 0, 0));
-    setPalette(palette);
-    setAutoFillBackground(true);
-
-    QVector<qreal>  dashes;
-    qreal   space = 3;
-    dashes << 1 << space;
-    dash_pen.setDashPattern(dashes);
-
-    painter.setPen(dash_pen);
-
-    for (INT32 i = 0; i < K_LINE_NUM + 1; ++i)
+    const auto padding=std::max<std::int64_t>(10,(high-low)/20);
+    low-=padding;high+=padding;
+    const auto price_y=[&](std::int64_t value)
     {
-        INT32   nHeight = K_LINE_DISTANCE * i + HEIGHT_TOP_OFFSET;
-        painter.drawLine(QLine(0, nHeight, WIDTH_LIMIT, nHeight));
+        const auto fraction=static_cast<double>(value-low)/static_cast<double>(high-low);
+        return frame->price.bottom()-std::clamp(fraction,0.0,1.0)*frame->price.height();
+    };
+    QPainter painter(this);
+    painter.fillRect(rect(),Qt::black);
+    const auto right=frame->price.right();
+    const auto axis_width=width()-right-5;
+    QPen grid(QColor(176,0,0));grid.setStyle(Qt::DashLine);painter.setPen(grid);
+    const int lines=std::clamp(static_cast<int>(frame->price.height()/50),2,12);
+    for (int line=0;line<=lines;++line)
+    {
+        const auto value=low+(high-low)*line/lines;
+        const auto y=price_y(value);
+        painter.drawLine(QLineF(0,y,right,y));
+        painter.drawText(QRectF(right+5,y-fontMetrics().height()/2.0,axis_width,fontMetrics().height()),
+            Qt::AlignLeft,QString::fromStdString(gm::exchange_price(value)));
     }
-    
-    // volume
-    INT32   VOLUME_LINE_NUM = 5;
-    INT32   VOLUME_LINE_DISTANCE = (VOLUME_HEIGHT - VOLUME_TEXT_HEIGHT - HEIGHT_TOP_OFFSET) / VOLUME_LINE_NUM;
-    for (INT32 i = 0; i < VOLUME_LINE_NUM; ++i)
+    for (int line=0;line<=4;++line)
     {
-        INT32   nHeight = height() - VOLUME_TEXT_HEIGHT - VOLUME_LINE_DISTANCE * (i + 1);
-        painter.drawLine(QLine(0, nHeight, WIDTH_LIMIT, nHeight));
+        const auto y=frame->volume.bottom()-frame->volume.height()*line/4.0;
+        painter.drawLine(QLineF(0,y,right,y));
+        painter.drawText(QRectF(right+5,y-fontMetrics().height()/2.0,axis_width,fontMetrics().height()),
+            Qt::AlignLeft,QString::number(static_cast<qlonglong>(volume*line/4)));
     }
-
-    painter.setPen(red_full_pen);
-    painter.drawLine(QLine(0, height() - VOLUME_HEIGHT, width(), height() - VOLUME_HEIGHT));
-    painter.drawLine(QLine(0, height() - VOLUME_TEXT_HEIGHT, width(), height() - VOLUME_TEXT_HEIGHT));
-    painter.drawLine(QLine(width() - KTEXT_WIDTH, 0, width() - KTEXT_WIDTH, height()));
-
-
-    // draw text
-    if (m_nBaseHighY > 0)
+    painter.setPen(QColor(176,0,0));
+    painter.drawLine(QLineF(right,0,right,height()));
+    painter.drawLine(QLineF(0,frame->volume.top(),width(),frame->volume.top()));
+    painter.drawLine(QLineF(0,frame->volume.bottom(),width(),frame->volume.bottom()));
+    for (std::size_t index=0;index<rows.size();++index)
     {
-        double lfInterval = (double)((m_nBaseHighY - m_nBaseLowY) * 100 / K_LINE_NUM) / 100;
-        QString qstr;
-        painter.drawText(WIDTH_LIMIT, HEIGHT_LIMIT - HEIGHT_TOP_OFFSET, KTEXT_WIDTH, KTEXT_HEIGHT, Qt::AlignLeft, qstr.setNum((double)m_nBaseLowY / 100));
-
-        for (INT32 i = 1; i < K_LINE_NUM + 1; ++i)
-        {
-            painter.drawText(WIDTH_LIMIT, HEIGHT_LIMIT - K_LINE_DISTANCE * i - HEIGHT_TOP_OFFSET, KTEXT_WIDTH, KTEXT_HEIGHT, Qt::AlignLeft, qstr.setNum((double)(m_nBaseLowY + lfInterval * i) / 100));
-        }
-    }
-
-    if (m_nVolumeMax > 0)
-    {
-        double lfVolumeInterval = (double)(m_nVolumeMax - m_nVolumeMin) / K_LINE_NUM;
-
-        for (INT32 i = 0; i < VOLUME_LINE_NUM; ++i)
-        {
-            double   lfNum = m_nVolumeMin + lfVolumeInterval * (i + 1);
-            QString qstr;
-            INT32   nHeight = height() - VOLUME_TEXT_HEIGHT - VOLUME_LINE_DISTANCE * (i + 1) - KTEXT_HEIGHT / 2;
-
-            painter.drawText(WIDTH_LIMIT, nHeight, KTEXT_WIDTH, KTEXT_HEIGHT, Qt::AlignLeft, qstr.setNum(lfNum));
-        }
-    }
- 
-    // draw k lines
-    QPen        pen;
-    QColor      blackColor(0, 0, 0);
-    QColor      greenColor(84, 255, 255);
-    QColor      *pRc = &blackColor;
-    pen.setWidth(1);
-
-    const INT32     K_HEIGHT_LIMIT = K_LINE_NUM * K_LINE_DISTANCE + HEIGHT_TOP_OFFSET;
-
-    INT32   nX = 1;
-    INT32   nY = 0;
-    INT32   nH = 0;
-
-    INT32   n1;
-    INT32   n2;
-    INT32   n3;
-    INT32   n4;
-
-    INT32       nIndex = 0;
-    if (m_nCount > K_NUM)
-        nIndex = m_nCount - K_NUM;
-    else
-        nIndex = 0;
-
-    for (INT32 i = 0; nIndex < m_nCount; ++i, ++nIndex)
-    {
-        GM_EXCHANGE_PRICE_HISTORY   &rd = m_Data[nIndex];
-
-        n1 = rd.nLow;
-        n4 = rd.nHigh;
-
-        if (rd.nClose > rd.nOpen)       // Up, red
-        {
-            pen.setColor(QColor(255, 50, 50));
-            pRc = &blackColor;
-
-            n2 = rd.nOpen;
-            n3 = rd.nClose;
-        }
-        else if (rd.nClose < rd.nOpen)      // Down, green
-        {
-            pen.setColor(QColor(84, 255, 255));
-            pRc = &greenColor;
-
-            n2 = rd.nClose;
-            n3 = rd.nOpen;
-        }
+        const auto& row=rows[index];
+        const auto x=1.0+static_cast<double>(index)*frame->stride;
+        const QColor colour=row.nClose>row.nOpen ? QColor(255,50,50) :
+            row.nClose<row.nOpen ? QColor(84,255,255) : QColor(Qt::white);
+        painter.setPen(colour);
+        painter.drawLine(QLineF(x+m_candle_width/2.0,price_y(row.nHigh),x+m_candle_width/2.0,price_y(row.nLow)));
+        const auto open=price_y(row.nOpen),close=price_y(row.nClose);
+        if (row.nOpen==row.nClose) painter.drawLine(QLineF(x,open,x+m_candle_width,open));
         else
         {
-            pen.setColor(QColor(255, 255, 255));
-            n1 = rd.nOpen;
-            n2 = n1;
-            n3 = rd.nLow;
+            const QRectF body(x,std::min(open,close),m_candle_width,std::abs(open-close));
+            painter.fillRect(body,row.nClose<row.nOpen ? colour : QColor(Qt::black));painter.drawRect(body);
         }
-
-        painter.setPen(pen);
-
-
-        // translate coordinate
-
-        // draw volume
-        INT32   nVolumeHeight = rd.nVolume * m_lfVolumeUnit;
-        painter.drawRect(QRect(nX, height() - VOLUME_TEXT_HEIGHT - nVolumeHeight, m_nKWidth, nVolumeHeight));
-        painter.fillRect(QRect(nX + 1, height() - VOLUME_TEXT_HEIGHT - nVolumeHeight + 1, m_nKWidth - 1, nVolumeHeight - 1), *pRc);
-
-        if (m_nShowIndex  >= 0 && m_nShowIndex == nIndex)
-        {
-            const QPen    &old_pen = painter.pen();
-            painter.setPen(white_full_pen);
-
-            if (m_nMouseX > WIDTH_LIMIT - 110)
-            {
-                QString qstr(rd.szHistoryTime);
-                painter.drawText(m_nMouseX - 110, height() - VOLUME_TEXT_HEIGHT, 110, VOLUME_TEXT_HEIGHT, Qt::AlignLeft, qstr);
-            }
-            else
-            {
-                QString qstr(rd.szHistoryTime);
-                painter.drawText(m_nMouseX, height() - VOLUME_TEXT_HEIGHT, 110, VOLUME_TEXT_HEIGHT, Qt::AlignLeft, qstr);
-            }
-            
-            if (m_nMouseY > height() - VOLUME_HEIGHT)
-            {
-                QString volumeStr;
-                painter.drawText(WIDTH_LIMIT, m_nMouseY - KTEXT_HEIGHT, KTEXT_WIDTH, KTEXT_HEIGHT, Qt::AlignLeft, volumeStr.setNum(rd.nVolume));
-            }
-            else if (m_nMouseY < HEIGHT_LIMIT)
-            {
-                //QString volumeStr;
-                //painter.drawText(WIDTH_LIMIT, m_nMouseY - KTEXT_HEIGHT, KTEXT_WIDTH, KTEXT_HEIGHT, Qt::AlignLeft, volumeStr.setNum((HEIGHT_LIMIT - m_nMouseY) * lfPriceUnit + m_nBaseLowY));
-            }
-
-            painter.setPen(old_pen);
-        }
-
-        // step 1.
-        if (n1 < n2)
-        {
-            nY = (n1 - m_nBaseLowY) * m_lfUnit;
-            nH = (n2 - m_nBaseLowY) * m_lfUnit - nY;
-            nY = K_HEIGHT_LIMIT - nY;
-            
-            painter.drawLine(QLine(nX + m_nKWidth / 2, nY, nX + m_nKWidth / 2, nY - nH));
-        }
-
-        // step 2.
-        if (rd.nClose != rd.nOpen)
-        {
-            nY = (n2 - m_nBaseLowY) * m_lfUnit;
-            nH = (n3 - m_nBaseLowY) * m_lfUnit - nY;
-            nY = K_HEIGHT_LIMIT - nY;
-
-            painter.drawRect(QRect(nX, nY - nH, m_nKWidth, nH));
-            painter.fillRect(QRect(nX + 1, nY - nH + 1, m_nKWidth - 1, nH - 1), *pRc);
-        }
-        else
-        {
-            nY = (n2 - m_nBaseLowY) * m_lfUnit;
-            nY = K_HEIGHT_LIMIT - nY;
-
-            painter.drawLine(QLine(nX, nY, nX + m_nKWidth, nY));
-        }
-
-        // step 3.
-        if (n3 < n4)
-        {
-            nY = (n3 - m_nBaseLowY) * m_lfUnit;
-            nH = (n4 - m_nBaseLowY) * m_lfUnit - nY;
-            nY = K_HEIGHT_LIMIT - nY;
-
-            painter.drawLine(QLine(nX + m_nKWidth / 2, nY, nX + m_nKWidth / 2, nY - nH));
-        }
-
-        //
-        nX += m_nKInterval;
-        nX += m_nKWidth;
+        const auto bar_height=frame->volume.height()*static_cast<double>(std::max<std::int64_t>(0,row.nVolume))/volume;
+        const QRectF bar(x,frame->volume.bottom()-bar_height,m_candle_width,bar_height);
+        painter.fillRect(bar,row.nClose<row.nOpen ? colour : QColor(Qt::black));painter.drawRect(bar);
     }
-    
-    if (m_nMouseX > 0 && m_nMouseY > 0 && m_nCount > 0)
+    if (m_mouse && m_mouse->x()>=1 && m_mouse->x()<right)
     {
-        painter.setPen(white_full_pen);
-
-        painter.drawLine(QLine(m_nMouseX, 0, m_nMouseX, height()));
-        painter.drawLine(QLine(0, m_nMouseY, width(), m_nMouseY));
+        const auto index=static_cast<std::size_t>((m_mouse->x()-1)/frame->stride);
+        if (index<rows.size())
+        {
+            painter.setPen(Qt::white);
+            painter.drawLine(QLineF(m_mouse->x(),0,m_mouse->x(),height()));
+            painter.drawLine(QLineF(0,m_mouse->y(),width(),m_mouse->y()));
+            const auto time=QString::fromUtf8(rows[index].szHistoryTime);
+            const auto text_x=std::clamp(m_mouse->x()+8,0,std::max(0,static_cast<int>(right)-fontMetrics().horizontalAdvance(time)));
+            painter.drawText(QPointF(text_x,height()-4),time);
+            if (m_mouse->y()>=frame->volume.top())
+                painter.drawText(QPointF(right+5,std::clamp(m_mouse->y(),0,height()-4)),QString::number(rows[index].nVolume));
+        }
     }
-
-
-
-    painter.end();
-
 }
-

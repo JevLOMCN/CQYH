@@ -2,351 +2,287 @@
 #include "guild.h"
 #include "sql_mgr.h"
 #include "define.h"
+#include "guild_def.h"
+#include "string_def.h"
 #include "../../src/manageserver/guild/guild_db_def_v_5.h"
 #include "zlib.h"
-#include "guild_def.h"
-//extern SQL_STMT_DATA g_SqlStmtList;
 
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <format>
+#include <fstream>
+#include <limits>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-YY_GUILD_STAT  g_GuildStat;
-
-#define EXPORT_GUILD_BUFFER_LENGTH      (4096)
-
-void _LoadGuild(CSqlMgr& sqlmgr)
+namespace cqyh::exportdb
 {
-    INT32 nRetCode = 0;
-    FILE    *pFile = NULL;
-    char    *pBuffer = NULL;
-    INT32   nLength = 0;
-
-    nRetCode = sqlmgr.SyncExecSqlStmt(mysqlSelectGuild, CB_ExportGuild, NULL, "");
-    LOG_PROCESS_ERROR(nRetCode);
-
-
-    for (YY_GUILD_STAT::GUILD_LIST::iterator iter = g_GuildStat.GuildList.begin(); iter != g_GuildStat.GuildList.end(); ++iter)
-    {
-        nRetCode = sqlmgr.SyncExecSqlStmt(mysqlSelectGuildMemberCount, CB_ExportGuildMember, (void*)(&(*iter)->nMemberCount), "ud", (*iter)->dwGuildID);
-        LOG_PROCESS_ERROR(nRetCode);
-    }
-
-    // export 
-    pFile = fopen("guild_stat.txt", "wb");
-    LOG_PROCESS_ERROR(pFile);
-
-    pBuffer = new char[EXPORT_GUILD_BUFFER_LENGTH];
-    memset(pBuffer, 0, EXPORT_GUILD_BUFFER_LENGTH);
-    nLength = snprintf(pBuffer, EXPORT_GUILD_BUFFER_LENGTH, "GuildID\tGuildName\tGuildLevel\tGroupID\tLeaderID\tCreaterName\tCreateTime\tDeleteTime\tMemberCount\n");
-    fwrite(pBuffer, 1, nLength, pFile);
-
-    for (YY_GUILD_STAT::GUILD_LIST::iterator iter = g_GuildStat.GuildList.begin(); iter != g_GuildStat.GuildList.end(); ++iter)
-    {
-        memset(pBuffer, 0, EXPORT_GUILD_BUFFER_LENGTH);
-
-        nLength = snprintf(pBuffer, EXPORT_GUILD_BUFFER_LENGTH, "%u\t%s\t%d\t%d\t%u\t%s\t%s\t%s\t%d\n", (*iter)->dwGuildID, (*iter)->szGuildName,
-            (*iter)->nGuildLevel, (*iter)->nGroupID, (*iter)->dwLeaderID, (*iter)->szCreaterName,
-            (*iter)->szCreateTime, (*iter)->szDeleteTime, (*iter)->nMemberCount);
-
-        fwrite(pBuffer, 1, nLength, pFile);
-    }
-
-    fclose(pFile);
-
-    // clear
-    {
-        YY_GUILD_STAT::GUILD_LIST::iterator iter = g_GuildStat.GuildList.begin();
-        while (iter != g_GuildStat.GuildList.end())
-        {
-            YY_GUILD_STAT::GUILD_LIST::iterator old_iter = iter;
-            ++iter;
-
-            delete (*old_iter);
-            g_GuildStat.GuildList.erase(old_iter);
-        }
-
-        g_GuildStat.GuildList.clear();
-    }
-
-
-Exit0:
-    return;
+namespace
+{
+using Bytes = std::span<const std::byte>;
+template<class T> bool read(Bytes bytes, T& value, std::size_t offset = 0)
+{
+    static_assert(std::is_trivially_copyable_v<T>);
+    if (offset > bytes.size() || sizeof(T) > bytes.size() - offset)
+        return false;
+    std::memcpy(&value, bytes.data() + offset, sizeof(T));
+    return true;
 }
-
-
-
-BOOL CB_ExportGuild(std::list<void*>& rResult, void* pUserData)
+std::uint32_t identifier(std::int64_t value)
 {
-    INT32       nRetCode = 0;
-    INT32       nRecords = 0;
-
-    for (std::list<void*>::iterator it = rResult.begin();
-        it != rResult.end(); ++it)
-    {
-        YY_GUILD_DB* pLoadResult = (YY_GUILD_DB*)*it;
-
-        YY_GUILD_DATA    *poGuild = new YY_GUILD_DATA;
-        LOG_PROCESS_ERROR(poGuild);
-
-        strxcpy(poGuild->szCreateTime, pLoadResult->szCreateTime, sizeof(poGuild->szCreateTime));
-        strxcpy(poGuild->szDeleteTime, pLoadResult->szDeleteTime, sizeof(poGuild->szDeleteTime));
-
-        poGuild->dwGuildID = pLoadResult->dwGuildID;
-        poGuild->nGroupID = pLoadResult->byGroupID;
-        poGuild->dwLeaderID = pLoadResult->dwLeaderID;
-        strxcpy(poGuild->szCreaterName, pLoadResult->szCreaterName, ROLE_NAME_LEN);
-        poGuild->dwCreateTime = pLoadResult->dwCreateTime;
-        strxcpy(poGuild->szGuildName, pLoadResult->szGuildName, GUILD_NAME_LEN);
-
-        nRetCode = poGuild->Load(pLoadResult->BlobBuffer);
-        LOG_PROCESS_ERROR(nRetCode);
-
-        g_GuildStat.GuildList.push_back(poGuild);
-
-        nRecords++;
-    }
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    if (value < 0 || static_cast<std::uint64_t>(value) > std::numeric_limits<std::uint32_t>::max())
+        throw std::runtime_error("SQL identifier or timestamp is outside its unsigned 32-bit range");
+    return static_cast<std::uint32_t>(value);
 }
-
-BOOL CB_ExportGuildMember(std::list<void*>& rResult, void* pUserData)
+template<std::size_t Size> std::string text(const char (&buffer)[Size], std::size_t limit = Size - 1)
 {
+    const auto end = std::find(buffer, buffer + Size, '\0');
+    return {buffer, std::min<std::size_t>(end - buffer, limit)};
+}
 #pragma pack(push, 1)
-    struct LOAD_RESULT
-    {
-        INT32      nMemberCount;
-    };
+struct GuildRow
+{
+    char created[21];
+    char deleted[21];
+    std::int64_t id;
+    std::int32_t version;
+    char name[25];
+    std::int32_t group;
+    std::int64_t leader;
+    char creator[25];
+    std::int64_t timestamp;
+    char announce[101];
+    char notice[201];
+};
+struct MemberRow
+{
+    std::int64_t role;
+    std::int64_t guild;
+    char guild_name[25];
+    char role_name[25];
+    char user_name[65];
+};
 #pragma pack(pop)
-
-    INT32       nRetCode = 0;
-    INT32* pMemberCount = (INT32 *)pUserData;
-    LOG_PROCESS_ERROR(pMemberCount);
-
-    for (std::list<void*>::iterator it = rResult.begin();
-        it != rResult.end(); ++it)
-    {
-        LOAD_RESULT* pLoadResult = (LOAD_RESULT*)*it;
-
-        *pMemberCount = pLoadResult->nMemberCount;
-
-        break;
-    }
-
-    return TRUE;
-Exit0:
-    return FALSE;
+static_assert(sizeof(GuildRow) == 426 && sizeof(MemberRow) == 131);
+struct Guild
+{
+    std::uint32_t id = 0;
+    std::string name;
+    std::int32_t level = 0;
+    std::int32_t group = 0;
+    std::uint32_t leader = 0;
+    std::string creator;
+    std::string created;
+    std::string deleted;
+    std::int64_t members = 0;
+};
+bool finish(std::ofstream& output)
+{
+    output.flush();
+    if (!output)
+        return false;
+    output.close();
+    return !output.fail();
+}
 }
 
-
-BOOL YY_GUILD_DATA::Load(const char *pcData)
+std::expected<GuildResources, std::string> ParseGuildBlob(Bytes bytes)
 {
     using namespace GUILD_DEF_VER_5;
-
-    INT32       nRetCode = 0;
-    const char *pcActualData = pcData;
-    GUILD_DB_DATA       *pGuildData = NULL;
-    UINT32      dwRealSize = 0;
-
-    LOG_PROCESS_ERROR(pcData);
-    pcActualData = pcData + sizeof(UINT32);
-    pGuildData = (GUILD_DB_DATA *)pcActualData; // The four added bytes are the length prepended when saving the blob
-
-    LOG_PROCESS_ERROR(pGuildData->dwLen >= 4 && pGuildData->dwLen < 60000);
-    LOG_PROCESS_ERROR(pGuildData->dwCRC ==
-        crc32(0, (const Bytef*)&pGuildData->dwVersion, pGuildData->dwLen - sizeof(pGuildData->dwLen) - sizeof(pGuildData->dwCRC)));
-
-    if (pGuildData->dwVersion < 5)
-        INF("load old guild %d db data %d %d", pGuildData->dwGuildID, pGuildData->dwVersion, pGuildData->dwLen);
-
-    //////////////////////////////////////////////////////////////////////////
-    // actual load
-
-    pGuildData = (GUILD_DB_DATA *)pcActualData;
-    dwRealSize = pGuildData->dwLen - sizeof(GUILD_DB_DATA);
-
-    for (INT32 i = 0; i < gbtTotal; ++i)
+    GUILD_DB_DATA header;
+    if (!read(bytes, header) || header.dwLen < sizeof(header) || header.dwLen >= 60000 || header.dwLen > bytes.size())
+        return std::unexpected("invalid guild blob length");
+    bytes = bytes.first(header.dwLen);
+    const auto checksum = crc32(0, reinterpret_cast<const Bytef*>(bytes.data()) + 8, static_cast<uInt>(bytes.size() - 8));
+    if (header.dwCRC != checksum)
+        return std::unexpected("guild blob CRC mismatch");
+    if (header.dwVersion < 5)
+        INF("load old guild %u db data %u %u", header.dwGuildID, header.dwVersion, header.dwLen);
+    const auto payload = bytes.subspan(sizeof(header));
+    GuildResources resources;
+    for (const auto& descriptor : header.BlockTable)
     {
-        GUILD_DB_DATA_BLOCK *pBlock = &pGuildData->BlockTable[i];
-
-        const char *pcBlockData = &pGuildData->GuildData[pBlock->dwStartOffset];
-        UINT32      dwBlockSize = pBlock->dwBlockSize;
-        LOG_PROCESS_ERROR(dwBlockSize + pBlock->dwStartOffset <= dwRealSize);
-
-        if (dwBlockSize == 0)
+        if (descriptor.dwStartOffset > payload.size() || descriptor.dwBlockSize > payload.size() - descriptor.dwStartOffset)
+            return std::unexpected("guild block exceeds the blob");
+        if (descriptor.dwBlockSize == 0)
             continue;
-
-        switch (pBlock->byBlockType)
+        const auto block = payload.subspan(descriptor.dwStartOffset, descriptor.dwBlockSize);
+        switch (descriptor.byBlockType)
         {
         case gbtBase:
         {
-            const GUILD_DB_BASE   *pBase = (const GUILD_DB_BASE*)pcBlockData;
-
-            LOG_PROCESS_ERROR(pBase);
-            LOG_PROCESS_ERROR(GUILD_POSITION_COUNT >= sizeof(pBase->wStorageRight) / sizeof(pBase->wStorageRight[0]));
-            LOG_PROCESS_ERROR(MAX_GUILD_VARIABLE_COUNT >= sizeof(pBase->nVariables) / sizeof(pBase->nVariables[0]));
-            LOG_PROCESS_ERROR(GUILD_ACHI_TYPE_NUM == sizeof(pBase->byAchievement) / sizeof(pBase->byAchievement[0]));
-
-            pBase->dwRoutineConsumeTime;
-            pBase->nState;
-            pBase->dwCalculateResourceTime;
-
-            nGuildMoney = pBase->nMoney;
-            nWood = pBase->nWood;
-            nHerb = pBase->nHerb;
-            nCrystal = pBase->nCrystal;
-            nSilver = pBase->nSilver;
-
-            LOG_PROCESS_ERROR(sizeof(GUILD_DB_BASE) == dwBlockSize);
-        }
+            GUILD_DB_BASE base;
+            if (block.size() != sizeof(base) || !read(block, base))
+                return std::unexpected("invalid guild base block");
+            resources.money = base.nMoney;
+            resources.wood = base.nWood;
+            resources.herb = base.nHerb;
+            resources.crystal = base.nCrystal;
+            resources.silver = base.nSilver;
             break;
+        }
         case gbtWelfare:
         {
-            const GUILD_DB_WELFARE    *pWelfare = (const GUILD_DB_WELFARE*)pcBlockData;
-            const GUILD_DB_WELFARE_UPGRADE    *pUpgrade = NULL;
-            LOG_PROCESS_ERROR(pWelfare);
-            LOG_PROCESS_ERROR((sizeof(GUILD_DB_WELFARE) + pWelfare->byUpgradeWelfareNum * sizeof(GUILD_DB_WELFARE_UPGRADE)) == dwBlockSize);
-
-            LOG_PROCESS_ERROR(GUILD_MAX_WELFARE_AURA_COUNT >= sizeof(pWelfare->WelfareAuraLevel) / sizeof(pWelfare->WelfareAuraLevel[0]));
-        }
+            GUILD_DB_WELFARE welfare;
+            if (!read(block, welfare) || block.size() != sizeof(welfare) + welfare.byUpgradeWelfareNum * sizeof(GUILD_DB_WELFARE_UPGRADE))
+                return std::unexpected("invalid guild welfare block");
             break;
+        }
         case gbtBuilding:
         {
-            const GUILD_DB_BUILDING           *pBuilding = (const GUILD_DB_BUILDING*)pcBlockData;
-            const GUILD_DB_BUILDING_DATA      *pBuildingData = NULL;
-            const GUILD_DB_BUILDING_UPGRADE   *pUpgrade = NULL;
-
-            LOG_PROCESS_ERROR(pBuilding);
-            LOG_PROCESS_ERROR((pBuilding->wBuildingBufferLength + pBuilding->wUpgradeBufferLength + sizeof(GUILD_DB_BUILDING)) == dwBlockSize);
-
-            pBuildingData = (const GUILD_DB_BUILDING_DATA *)pBuilding->Building;
-            LOG_PROCESS_ERROR(pBuildingData);
-            for (INT32 i = 0; i < pBuilding->byBuildingNum; ++i)
+            GUILD_DB_BUILDING building;
+            if (!read(block, building) || block.size() != sizeof(building) + building.wBuildingBufferLength + building.wUpgradeBufferLength ||
+                building.wBuildingBufferLength != building.byBuildingNum * sizeof(GUILD_DB_BUILDING_DATA) ||
+                building.wUpgradeBufferLength != building.byUpgradeBuildingNum * sizeof(GUILD_DB_BUILDING_UPGRADE))
+                return std::unexpected("invalid guild building block");
+            const auto buildings = block.subspan(sizeof(building), building.wBuildingBufferLength);
+            for (std::size_t index = 0; index < building.byBuildingNum; ++index)
             {
-                if (pBuildingData[i].byType == GUILD_B_MAIN)
-                    nGuildLevel = pBuildingData[i].byLevel;
+                GUILD_DB_BUILDING_DATA item;
+                if (!read(buildings, item, index * sizeof(item)))
+                    return std::unexpected("truncated guild building");
+                if (item.byType == GUILD_B_MAIN)
+                    resources.level = item.byLevel;
             }
-            LOG_PROCESS_ERROR(pBuilding->wBuildingBufferLength == pBuilding->byBuildingNum * sizeof(GUILD_DB_BUILDING_DATA));
-        }
             break;
+        }
         case gbtDiplomat:
         {
-            const GUILD_DB_DIPLOMAT_DATA    *pData = NULL;
-            const GUILD_DB_DIPLOMAT *pDiplomat = (const GUILD_DB_DIPLOMAT*)pcBlockData;
-            LOG_PROCESS_ERROR(pDiplomat);
-
-            LOG_PROCESS_ERROR(GUILD_MAX_ALLIANCE_NUM >= pDiplomat->byAllianceNum);
-            LOG_PROCESS_ERROR(GUILD_MAX_ENEMY_NUM >= pDiplomat->byEnemyNum);
-
-            LOG_PROCESS_ERROR(dwBlockSize == (sizeof(GUILD_DB_DIPLOMAT) + (pDiplomat->byAllianceNum + pDiplomat->byEnemyNum) * sizeof(GUILD_DB_DIPLOMAT_DATA)));
-        }
+            GUILD_DB_DIPLOMAT diplomat;
+            if (!read(block, diplomat) || diplomat.byAllianceNum > GUILD_MAX_ALLIANCE_NUM || diplomat.byEnemyNum > GUILD_MAX_ENEMY_NUM ||
+                block.size() != sizeof(diplomat) + (diplomat.byAllianceNum + diplomat.byEnemyNum) * sizeof(GUILD_DB_DIPLOMAT_DATA))
+                return std::unexpected("invalid guild diplomat block");
             break;
+        }
+        // The old exporter does not interpret these payloads. Their enclosing
+        // ranges are still checked before accepting them.
         case gbtDungeon:
-        {
-        }
-            break;
         case gbtStorage:
-        {
-
-        }
-            break;
         case gbtHistory:
-        {
-
-        }
-            break;
         case gbtStorageHistory:
-        {
-
-        }
             break;
         default:
-            LOG_PROCESS_ERROR(FALSE);
-            break;
+            return std::unexpected("unknown guild block type");
         }
     }
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    return resources;
 }
 
-MEMBER_LIST        g_MemberList;
-
-void _LoadMember(CSqlMgr& sqlmgr)
+bool ExportGuilds(CSqlMgr& manager, const std::filesystem::path& path)
 {
-    INT32       nRetCode = 0;
-    FILE        *pFile = NULL;
-    char    *pBuffer = NULL;
-    INT32   nLength = 0;
-
-    g_MemberList.clear();
-
-    nRetCode = sqlmgr.SyncExecSqlStmt(mysqlSelectGuildMemberInfo, CB_ExportGuildMemberInfo, NULL, "");
-    LOG_PROCESS_ERROR(nRetCode);
-
-
-    // export 
-    pFile = fopen("guild_member.txt", "wb");
-    LOG_PROCESS_ERROR(pFile);
-
-    pBuffer = new char[EXPORT_GUILD_BUFFER_LENGTH];
-    memset(pBuffer, 0, EXPORT_GUILD_BUFFER_LENGTH);
-    nLength = snprintf(pBuffer, EXPORT_GUILD_BUFFER_LENGTH, "RoleID\tGuildID\tGuildName\tRoleName\tUserName\n");
-    fwrite(pBuffer, 1, nLength, pFile);
-
-    for (MEMBER_LIST::iterator iter = g_MemberList.begin(); iter != g_MemberList.end(); ++iter)
+    try
     {
-        memset(pBuffer, 0, EXPORT_GUILD_BUFFER_LENGTH);
-
-        nLength = snprintf(pBuffer, EXPORT_GUILD_BUFFER_LENGTH, "%u\t%u\t%s\t%s\t%s\n", iter->dwRoleID, iter->dwGuildID, iter->szGuildName, iter->szRoleName, iter->szUserName);
-
-        fwrite(pBuffer, 1, nLength, pFile);
+        std::vector<Guild> guilds;
+        auto load = [&guilds](std::list<void*>& rows, void*) -> BOOL
+        {
+            guilds.reserve(rows.size());
+            for (const auto* row : rows)
+            {
+                if (!row)
+                    return FALSE;
+                // SQL result widths are fixed by export_sql.cpp, including the
+                // blob's native length prefix. Copy packed fields into objects.
+                const Bytes bytes(static_cast<const std::byte*>(row), sizeof(GuildRow) + sizeof(std::uint32_t) + 60000);
+                GuildRow fields;
+                std::uint32_t size;
+                if (!read(bytes, fields) || !read(bytes, size, sizeof(fields)) || size > 60000)
+                    return FALSE;
+                // Decode this tool's blob here. The shared legacy {z} path does
+                // not publish a reliable length prefix in its callback rows.
+                std::array<std::byte, 60000> decoded;
+                uLongf decoded_size = static_cast<uLongf>(decoded.size());
+                if (uncompress(reinterpret_cast<Bytef*>(decoded.data()), &decoded_size,
+                    reinterpret_cast<const Bytef*>(bytes.data()) + sizeof(fields) + sizeof(size), size) != Z_OK)
+                {
+                    ERR("Cannot decompress guild data");
+                    return FALSE;
+                }
+                const auto parsed = ParseGuildBlob(std::span(decoded).first(decoded_size));
+                if (!parsed)
+                {
+                    ERR("Cannot export guild: %s", parsed.error().c_str());
+                    return FALSE;
+                }
+                if (fields.group < 0 || fields.group > 255)
+                    return FALSE;
+                // Validate the unused timestamp too; it is still part of the
+                // native result schema and must not silently wrap.
+                (void)identifier(fields.timestamp);
+                guilds.push_back({identifier(fields.id), text(fields.name), parsed->level, fields.group,
+                    identifier(fields.leader), text(fields.creator), text(fields.created), text(fields.deleted), 0});
+            }
+            return TRUE;
+        };
+        if (!manager.SyncExecSqlStmtOwned(mysqlSelectGuild, std::move(load), ""))
+            return false;
+        for (auto& guild : guilds)
+        {
+            auto count = [&guild](std::list<void*>& rows, void*) -> BOOL
+            {
+                if (rows.size() != 1 || !rows.front())
+                    return FALSE;
+                std::memcpy(&guild.members, rows.front(), sizeof(guild.members));
+                return guild.members >= 0;
+            };
+            // Synchronous completion keeps the vector element alive throughout
+            // the owned callback; the vector is not modified in this loop.
+            if (!manager.SyncExecSqlStmtOwned(mysqlSelectGuildMemberCount, std::move(count), "l", static_cast<INT64>(guild.id)))
+                return false;
+        }
+        std::ofstream output(path, std::ios::binary | std::ios::trunc);
+        if (!output)
+            return false;
+        output << "GuildID\tGuildName\tGuildLevel\tGroupID\tLeaderID\tCreaterName\tCreateTime\tDeleteTime\tMemberCount\n";
+        for (const auto& guild : guilds)
+            output << std::format("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n", guild.id, guild.name,
+                guild.level, guild.group, guild.leader, guild.creator, guild.created, guild.deleted, guild.members);
+        return finish(output);
     }
-
-    fclose(pFile);
-
-
-Exit0:
-    return ;
+    catch (const std::exception& error)
+    {
+        ERR("Guild export failed: %s", error.what());
+        return false;
+    }
 }
 
-BOOL CB_ExportGuildMemberInfo(std::list<void*>& rResult, void* pUserData)
+bool ExportMembers(CSqlMgr& manager, const std::filesystem::path& path)
 {
-#pragma pack(push, 1)
-    struct LOAD_RESULT
+    try
     {
-        UINT32      dwRoleID;
-        UINT32      dwGuildID;
-        char        szGuildName[GUILD_NAME_LEN];
-        char        szRoleName[ROLE_NAME_LEN];
-        char        szUserName[USER_NAME_LEN];
-    };
-#pragma pack(pop)
-
-    INT32       nRetCode = 0;
-
-    for (std::list<void*>::iterator it = rResult.begin();
-        it != rResult.end(); ++it)
-    {
-        LOAD_RESULT* pLoadResult = (LOAD_RESULT*)*it;
-
-        YY_GUILD_MEMBER     member;
-        member.dwGuildID = pLoadResult->dwGuildID;
-        member.dwRoleID = pLoadResult->dwRoleID;
-        strxcpy(member.szGuildName, pLoadResult->szGuildName, GUILD_NAME_LEN);
-        strxcpy(member.szRoleName, pLoadResult->szRoleName, ROLE_NAME_LEN);
-        strxcpy(member.szUserName, pLoadResult->szUserName, USER_NAME_LEN);
-
-        g_MemberList.push_back(member);
-
+        std::vector<MemberRow> members;
+        if (!manager.SyncExecSqlStmtOwned(mysqlSelectGuildMemberInfo,
+            [&members](std::list<void*>& rows, void*) -> BOOL
+            {
+                members.reserve(rows.size());
+                for (const auto* row : rows)
+                {
+                    if (!row)
+                        return FALSE;
+                    MemberRow member;
+                    std::memcpy(&member, row, sizeof(member));
+                    (void)identifier(member.role);
+                    (void)identifier(member.guild);
+                    members.push_back(member);
+                }
+                return TRUE;
+            }, ""))
+            return false;
+        std::ofstream output(path, std::ios::binary | std::ios::trunc);
+        if (!output)
+            return false;
+        output << "RoleID\tGuildID\tGuildName\tRoleName\tUserName\n";
+        for (const auto& member : members)
+            output << std::format("{}\t{}\t{}\t{}\t{}\n", identifier(member.role), identifier(member.guild),
+                text(member.guild_name), text(member.role_name), text(member.user_name, USER_NAME_LEN - 1));
+        return finish(output);
     }
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    catch (const std::exception& error)
+    {
+        ERR("Guild member export failed: %s", error.what());
+        return false;
+    }
 }
-
-
-
-
-
+}

@@ -1,6 +1,8 @@
-
 #ifndef _H_DB_OPERATION_H_
 #define _H_DB_OPERATION_H_
+
+#include "mysql_owner.h"
+#include <list>
 
 #include "gm_db_def.h"
 #include "string_def.h"
@@ -64,7 +66,7 @@ public:
 
     BOOL DoLoadItemLog(UINT64 llGuid, DB_OP_LOG_ITEM_RESULT *res);
 
-    MYSQL_STMT* m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 
 private:
     UINT64  m_llGuid;
@@ -83,7 +85,7 @@ public:
 
     BOOL DoLoadItemLog(UINT32 dwTemplateID, DB_OP_LOG_ITEM_RESULT *res);
 
-    MYSQL_STMT* m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 private:
     UINT32  m_dwTemplateID;
     MYSQL_BIND  m_bind_param;
@@ -100,7 +102,7 @@ public:
     BOOL UnInit();
     BOOL DoLoadItemLog(UINT32 dwRoleID, UINT64 llGuid, DB_OP_LOG_ITEM_RESULT *res);
 
-    MYSQL_STMT *m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 private:
     UINT32  m_dwRoleID;
     UINT64  m_llGuid;
@@ -119,7 +121,7 @@ public:
 
     BOOL DoLoadItemLog(UINT32 dwRoleID, UINT32 dwTemplateID, DB_OP_LOG_ITEM_RESULT *res);
 
-    MYSQL_STMT  *m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 
 private:
     UINT32      m_dwRoleID;
@@ -139,7 +141,7 @@ public:
 
     BOOL DoLoadItemLog(UINT32 dwRoleID, DB_OP_LOG_ITEM_RESULT *res);
 
-    MYSQL_STMT  *m_stmt;
+    cqyh::MysqlStmtPtr m_stmt;
 
 private:
     UINT32  m_dwRoleID;

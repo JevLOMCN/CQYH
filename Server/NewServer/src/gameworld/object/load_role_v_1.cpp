@@ -638,6 +638,8 @@ Exit0:
 
 BOOL CReputation::Load_v_1(const char* pcData, UINT32 dwSize)
 {
+    const ROLE_DB_REPUTATION* pcReputation = nullptr;
+    INT32 nCount = 0;
     LOG_PROCESS_ERROR(pcData);
 
     m_qwActiveState = *(UINT64*)pcData;
@@ -646,8 +648,8 @@ BOOL CReputation::Load_v_1(const char* pcData, UINT32 dwSize)
     m_qwAwardState = *(UINT64*)pcData;
     pcData += sizeof(UINT64);
 
-    const ROLE_DB_REPUTATION* pcReputation = (ROLE_DB_REPUTATION*)pcData;
-    INT32 nCount = (dwSize - sizeof(UINT64) - sizeof(UINT64)) / sizeof(*pcReputation);
+    pcReputation = (ROLE_DB_REPUTATION*)pcData;
+    nCount = (dwSize - sizeof(UINT64) - sizeof(UINT64)) / sizeof(*pcReputation);
     for (INT32 nIndex = 0; nIndex < nCount; nIndex++)
     {
         LOG_PROCESS_ERROR(pcReputation->byForceID < MAX_NPC_FORCE_ID);

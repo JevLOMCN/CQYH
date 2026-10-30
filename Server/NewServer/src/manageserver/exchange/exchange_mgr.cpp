@@ -175,13 +175,15 @@ BOOL CExchangeMgr::MainLoop()
 
 INT32 CExchangeMgr::AddOrder(MS_ROLE_DATA* role, UINT8 ordertype, INT32 count, INT32 price, const char* billing_order_id)
 {
+    UINT64 orderid{};
+    Order* order{};
     MS_ONLINE_ROLE_DATA* pOnlineRole = NULL;
     BOOL bRet = FALSE;
 
     LOG_PROCESS_ERROR(IsValidGroup(role->byGroup));
 
-    UINT64 orderid = CreateOrderGuid();
-    Order* order = m_order_pool.New(orderid);
+    orderid = CreateOrderGuid();
+    order = m_order_pool.New(orderid);
     LOG_PROCESS_ERROR(order);
 
     memset(order, 0, sizeof(Order));
@@ -264,6 +266,7 @@ Exit0:
 
 void CExchangeMgr::AddSystemOrder(UINT32 dwTLUserID, UINT8 groupid, INT32 price, INT32 count)
 {
+    UINT64 orderid{};
     INT32 nResult = errUnknownError;
     BOOL bRet = FALSE;
     Order* order = NULL;
@@ -274,7 +277,7 @@ void CExchangeMgr::AddSystemOrder(UINT32 dwTLUserID, UINT8 groupid, INT32 price,
     LOG_PROCESS_ERROR(count <= limit_params[groupid].nSingleOrderLimit);
     LOG_PROCESS_ERROR(count + limit_params[groupid].nDailyOrderCurCount <= limit_params[groupid].nDailyOrderLimit);
 
-    UINT64 orderid = CreateOrderGuid();
+    orderid = CreateOrderGuid();
     order = m_order_pool.New(orderid);
     LOG_PROCESS_ERROR(order);
 
@@ -311,6 +314,7 @@ Exit0:
 
 void CExchangeMgr::CancelSystemOrder(UINT32 dwTLUserID, UINT8 groupid, UINT64 orderid)
 {
+    Order* order{};
     BOOL bRet = FALSE;
     INT32 nResult = errUnknownError;
 
@@ -319,7 +323,7 @@ void CExchangeMgr::CancelSystemOrder(UINT32 dwTLUserID, UINT8 groupid, UINT64 or
 
     LOG_PROCESS_ERROR(IsValidGroup(groupid));
 
-    Order* order = m_order_pool.Find(orderid);
+    order = m_order_pool.Find(orderid);
     LOG_PROCESS_ERROR_RET_CODE(order, errExchangeOrderNotFound);
     LOG_PROCESS_ERROR(order->m_byOrderType == eotSell);
     LOG_PROCESS_ERROR(order->m_dwRoleID == 0);

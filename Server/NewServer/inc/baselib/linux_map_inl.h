@@ -180,7 +180,7 @@ static void LM_InsertColor(LM_MAP_NODE<N>* pDataNode, LM_MAP_NODE<N>** ppRootNod
 
 		if (pParent == pGrandParent->pLeft)
 		{
-			register LM_MAP_NODE<N>* pUncle = pGrandParent->pRight;
+			LM_MAP_NODE<N>* pUncle = pGrandParent->pRight;
 			if (pUncle && RB_IS_RED(pUncle))
 			{
 				RB_SET_BLACK(pUncle);
@@ -192,7 +192,7 @@ static void LM_InsertColor(LM_MAP_NODE<N>* pDataNode, LM_MAP_NODE<N>** ppRootNod
 
 			if (pParent->pRight == pDataNode)
 			{
-				register LM_MAP_NODE<N>* pTemp;
+				LM_MAP_NODE<N>* pTemp;
 				LM_RotateLeft(pParent, ppRootNode);
 				pTemp = pParent;
 				pParent = pDataNode;
@@ -205,7 +205,7 @@ static void LM_InsertColor(LM_MAP_NODE<N>* pDataNode, LM_MAP_NODE<N>** ppRootNod
 		}
 		else
 		{
-			register LM_MAP_NODE<N>* pUncle = pGrandParent->pLeft;
+			LM_MAP_NODE<N>* pUncle = pGrandParent->pLeft;
 			if (pUncle && RB_IS_RED(pUncle))
 			{
 				RB_SET_BLACK(pUncle);
@@ -217,7 +217,7 @@ static void LM_InsertColor(LM_MAP_NODE<N>* pDataNode, LM_MAP_NODE<N>** ppRootNod
 
 			if (pParent->pLeft == pDataNode)
 			{
-				register LM_MAP_NODE<N>* pTemp;
+				LM_MAP_NODE<N>* pTemp;
 				LM_RotateRight(pParent, ppRootNode);
 				pTemp = pParent;
 				pParent = pDataNode;

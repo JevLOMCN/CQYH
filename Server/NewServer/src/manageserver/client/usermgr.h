@@ -95,9 +95,10 @@ Exit0:
 
 inline INT32 CUserMgr::GetCountByIP(const char* pcszIPAddress)
 {
+	UINT32 dwIPAddress{};
 	LOG_PROCESS_ERROR(pcszIPAddress);
 
-	UINT32 dwIPAddress = inet_addr(pcszIPAddress);
+	dwIPAddress = inet_addr(pcszIPAddress);
 
 	return (UINT32)m_mapIP2SessionID.count(dwIPAddress);
 Exit0:

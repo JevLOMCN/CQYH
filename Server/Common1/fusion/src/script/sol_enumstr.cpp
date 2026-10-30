@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "sol_bindings.h"
 #include "stdlib.h"
-#include "../../../Common/define/achievement_def.h"
+#include "achievement_def.h"
 
 int sol_enumstr_open(lua_State* L)
 {

@@ -1,135 +1,162 @@
 #include "stdafx.h"
 #include "time_ex.h"
 
-#include <time.h>
+// This translation unit uses standard formatting instead of the compatibility alias.
+#ifdef snprintf
+#undef snprintf
+#endif
 
-static tm_ex t;
+#include <array>
+#include <charconv>
+#include <chrono>
+#include <ctime>
+#include <format>
+#include <optional>
+#include <stdexcept>
 
-#if defined(WIN32) | defined(WIN64)
-const tm_ex* localtime_ex(void)
+namespace
 {
-	SYSTEMTIME SystemTime;
-
-	GetLocalTime(&SystemTime);
-
-	t.tm_msec = SystemTime.wMilliseconds;
-	t.tm_sec = SystemTime.wSecond;
-	t.tm_min = SystemTime.wMinute;
-	t.tm_hour = SystemTime.wHour;
-	t.tm_mday = SystemTime.wDay;
-	t.tm_mon = SystemTime.wMonth;
-	t.tm_year = SystemTime.wYear;
-	t.tm_wday = SystemTime.wDayOfWeek;
-
-	return &t;
-}
+std::optional<std::tm> LocalTime(std::time_t value)
+{
+    std::tm result{};
+#if defined(_WIN32)
+    if (::localtime_s(&result, &value) != 0)
+        return std::nullopt;
 #else
+    if (::localtime_r(&value, &result) == nullptr)
+        return std::nullopt;
+#endif
+    return result;
+}
+
+std::optional<std::tm> UtcTime(std::time_t value)
+{
+    std::tm result{};
+#if defined(_WIN32)
+    if (::gmtime_s(&result, &value) != 0)
+        return std::nullopt;
+#else
+    if (::gmtime_r(&value, &result) == nullptr)
+        return std::nullopt;
+#endif
+    return result;
+}
+
+constexpr bool SupportedYear(int value)
+{
+    return value >= static_cast<int>((std::chrono::year::min)()) &&
+           value <= static_cast<int>((std::chrono::year::max)());
+}
+}
+
 const tm_ex* localtime_ex(void)
 {
-    time_t CurrentTime;
-    struct tm* tm;
-
-    time(&CurrentTime);
-    tm = localtime(&CurrentTime);
-
-    t.tm_msec = 0;
-    t.tm_sec = tm->tm_sec;
-    t.tm_min = tm->tm_min;
-    t.tm_hour = tm->tm_hour;
-    t.tm_mday = tm->tm_mday;
-    t.tm_mon = tm->tm_mon + 1;
-    t.tm_year = tm->tm_year + 1900;
-    t.tm_wday = tm->tm_wday;
-
-    return &t;
+    thread_local tm_ex result{};
+#if defined(_WIN32) && __cpp_lib_chrono >= 201907L
+    try
+    {
+        using namespace std::chrono;
+        const auto now = floor<milliseconds>(system_clock::now());
+        const auto local = current_zone()->to_local(now);
+        const auto day = floor<days>(local);
+        const year_month_day date{day};
+        const hh_mm_ss time{local - day};
+        result = {static_cast<INT32>(time.subseconds().count()),
+                  static_cast<INT32>(time.seconds().count()),
+                  static_cast<INT32>(time.minutes().count()),
+                  static_cast<INT32>(time.hours().count()),
+                  static_cast<INT32>(static_cast<unsigned>(date.day())),
+                  static_cast<INT32>(static_cast<unsigned>(date.month())),
+                  static_cast<int>(date.year()),
+                  static_cast<INT32>(weekday{day}.c_encoding())};
+        return &result;
+    }
+    catch (const std::runtime_error&)
+    {
+        // Custom Windows zones or unavailable timezone data retain the native fallback.
+    }
+#endif
+#if defined(_WIN32)
+    SYSTEMTIME time{};
+    GetLocalTime(&time);
+    result = {time.wMilliseconds, time.wSecond, time.wMinute, time.wHour,
+              time.wDay, time.wMonth, time.wYear, time.wDayOfWeek};
+#else
+    const auto now = std::chrono::system_clock::now();
+    if (const auto local = LocalTime(std::chrono::system_clock::to_time_t(now)))
+    {
+        const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+        result = {static_cast<INT32>(milliseconds.count() % 1000),
+                  local->tm_sec, local->tm_min, local->tm_hour, local->tm_mday,
+                  local->tm_mon + 1, local->tm_year + 1900, local->tm_wday};
+    }
+#endif
+    return &result;
 }
-#endif	// WIN32
 
 bool is_leap_year(int nYear)
 {
-    if (nYear % 100 == 0)
-    {
-        if (nYear % 400 == 0)
-            return true;
-        else
-            return false;
-    }
-    else
-    {
-        if (nYear % 4 == 0)
-            return true;
-        else
-            return false;
-    }
+    if (SupportedYear(nYear))
+        return std::chrono::year{nYear}.is_leap();
+    // chrono::year has a bounded representation; retain the legacy full-int domain.
+    return nYear % 4 == 0 && (nYear % 100 != 0 || nYear % 400 == 0);
 }
 
 int get_month_day_count(int nYear, int nMonth)
 {
-    static int nMonthDayCount[] =
+    if (nMonth < 0 || nMonth >= 12)
+        return 0;
+    if (SupportedYear(nYear))
     {
-        31, // Jan 
-        28, // Feb
-        31, // Mar
-        30, // Apr
-        31, // May
-        30, // Jun
-        31, // Jul
-        31, // Aug
-        30, // Sep
-        31, // Oct
-        30, // Nov
-        31, // Dec
-    };
-
-    if (nMonth == 1 && is_leap_year(nYear))
-        return 29;
-    else
-        return nMonthDayCount[nMonth];
+        const auto date = std::chrono::year{nYear} /
+                          std::chrono::month{static_cast<unsigned>(nMonth) + 1} / std::chrono::last;
+        return static_cast<int>(static_cast<unsigned>(date.day()));
+    }
+    constexpr std::array monthDays{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    return nMonth == 1 && is_leap_year(nYear) ? 29 : monthDays[nMonth];
 }
 
 UINT64 GetTickCountEx()
 {
-#if (defined(WIN32) || defined(WIN64))
-	return GetTickCount64();
+#if defined(_WIN32)
+    return GetTickCount64();
 #else
-	struct timeval cateq_v;
-
-	gettimeofday(&cateq_v, NULL);
-
-	return 1000LL * cateq_v.tv_sec + cateq_v.tv_usec / 1000LL;
-#endif //
+    return static_cast<UINT64>(std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count());
+#endif
 }
 
-const char*	get_time_str(UINT32 dwTime)
+const char* get_time_str(UINT32 dwTime)
 {
-	static char s_szTime[64];
-	time_t t = dwTime;
-
-	struct tm* stCurrenttm = localtime(&t);
-	if (stCurrenttm)
-	{
-		snprintf(s_szTime, 64, "%d-%02d-%02d %02d:%02d:%02d", (stCurrenttm->tm_year + 1900),
-			(stCurrenttm->tm_mon + 1), stCurrenttm->tm_mday, stCurrenttm->tm_hour, stCurrenttm->tm_min, stCurrenttm->tm_sec);
-		if (stCurrenttm->tm_year + 1900 == 2150)
-			INT3();
-	}
-	else
-	{
-		itoa(dwTime, s_szTime, 10);
-	}
-
-	return s_szTime;
+    thread_local std::array<char, 64> result{};
+    if (const auto local = LocalTime(static_cast<std::time_t>(dwTime)))
+    {
+        const auto formatted = std::format_to_n(result.begin(), result.size() - 1,
+            "{:04}-{:02}-{:02} {:02}:{:02}:{:02}", local->tm_year + 1900,
+            local->tm_mon + 1, local->tm_mday, local->tm_hour, local->tm_min, local->tm_sec);
+        *formatted.out = '\0';
+    }
+    else
+    {
+        const auto formatted = std::to_chars(result.data(), result.data() + result.size() - 1, dwTime);
+        if (formatted.ec == std::errc{})
+            *formatted.ptr = '\0';
+        else
+            result.front() = '\0';
+    }
+    return result.data();
 }
 
 int get_time_zone(void)
 {
-	time_t now = time(NULL);
-
-	struct tm* gt = gmtime(&now);
-	time_t gmt = mktime(gt);
-
-	struct tm* lt = localtime(&now);
-	time_t lmt = mktime(lt);
-
-	return difftime(lmt, gmt);
+    const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto utc = UtcTime(now);
+    auto local = LocalTime(now);
+    if (!utc || !local)
+        return 0;
+    const auto utcEpoch = std::mktime(&*utc);
+    const auto localEpoch = std::mktime(&*local);
+    return static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::system_clock::from_time_t(localEpoch) -
+        std::chrono::system_clock::from_time_t(utcEpoch)).count());
 }

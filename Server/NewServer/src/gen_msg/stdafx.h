@@ -6,7 +6,6 @@
 #include "std_type.h"
 #include "baselib/asm.h"
 #define _SCL_SECURE_INVALID_PARAMETER(expr) INT3()
-#define _HAS_EXCEPTIONS 0
 #include <stdio.h>
 
 #include "process_error.h"
