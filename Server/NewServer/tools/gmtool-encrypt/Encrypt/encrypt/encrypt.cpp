@@ -1,4 +1,3 @@
-
 // encrypt.cpp : Defines the class behaviors for the application.
 //
 
@@ -11,13 +10,11 @@
 #define new DEBUG_NEW
 #endif
 
-
 // CencryptApp
 
 BEGIN_MESSAGE_MAP(CencryptApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
 END_MESSAGE_MAP()
-
 
 // CencryptApp construction
 
@@ -27,11 +24,9 @@ CencryptApp::CencryptApp()
 	// Place all significant initialization in InitInstance
 }
 
-
 // The one and only CencryptApp object
 
 CencryptApp theApp;
-
 
 // CencryptApp initialization
 
@@ -85,4 +80,3 @@ BOOL CencryptApp::InitInstance()
 	//  application, rather than start the application's message pump.
 	return FALSE;
 }
-

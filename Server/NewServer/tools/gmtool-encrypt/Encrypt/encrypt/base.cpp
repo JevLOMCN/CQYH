@@ -78,7 +78,3 @@ bool Decrypt(std::int32_t input_length, const char* input,
     output_length = static_cast<std::int32_t>(decoded_length);
     return true;
 }
-
-
-
-

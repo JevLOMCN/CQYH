@@ -162,7 +162,6 @@ BOOL CGDMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator)
 	m_GuardMessageFuncList[n2u_hot_update_patch] = &CGDMessageHandler::OnMTHotUpdatePatch;
     /////////////////////////////////////////////////////////////////////////////////////
 
-
     return TRUE;
 Exit0:
     return FALSE;
@@ -1426,4 +1425,3 @@ Exit0:
         m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
     return FALSE;
 }
-

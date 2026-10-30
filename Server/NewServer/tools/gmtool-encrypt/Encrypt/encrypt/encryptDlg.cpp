@@ -1,4 +1,3 @@
-
 // encryptDlg.cpp : implementation file
 //
 
@@ -15,7 +14,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
 
 // CAboutDlg dialog used for App About
 
@@ -47,10 +45,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-
 // CencryptDlg dialog
-
-
 
 CencryptDlg::CencryptDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CencryptDlg::IDD, pParent)
@@ -70,7 +65,6 @@ BEGIN_MESSAGE_MAP(CencryptDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BUTTON2, &CencryptDlg::OnBnClickedButton2)
     ON_BN_CLICKED(IDC_BUTTON1, &CencryptDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
-
 
 // CencryptDlg message handlers
 
@@ -157,8 +151,6 @@ HCURSOR CencryptDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CencryptDlg::TransformSelectedFile(gm_file::Operation operation)
 {
     const auto state=m_operation;
@@ -174,21 +166,21 @@ void CencryptDlg::TransformSelectedFile(gm_file::Operation operation)
     const auto result=gm_file::transform_file(input,operation);
     if (result)
     {
-        const auto message=std::format(L"{}\n{}",operation==gm_file::Operation::encrypt ? L"加密成功" : L"解密成功",result->native());
+		const auto message = std::format(L"{}\n{}", operation == gm_file::Operation::encrypt ? L"Encryption successful" : L"Decryption successful", result->native());
         ShowOperationResult(true,CString(message.c_str()));
     }
     else
     {
         // The standard file workflow returns ASCII diagnostics; paths remain native Unicode.
         const std::wstring detail(result.error().begin(),result.error().end());
-        const auto message=std::format(L"操作失败\n{}",detail);
+        const auto message=std::format(L"Operation failed\n{}",detail);
         ShowOperationResult(false,CString(message.c_str()));
     }
 }
 
 void CencryptDlg::ShowOperationResult(bool success,const CString& message)
 {
-    MessageBox(message,L"文件转换",MB_OK|(success ? MB_ICONINFORMATION : MB_ICONERROR));
+    MessageBox(message,L"File Conversion",MB_OK|(success ? MB_ICONINFORMATION : MB_ICONERROR));
 }
 
 void CencryptDlg::OnBnClickedButton2()

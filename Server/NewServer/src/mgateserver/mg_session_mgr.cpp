@@ -159,7 +159,6 @@ BOOL CMGSessionMgr::IsAllClientSessionClosed(void)
 	return m_UsedClientSessionList.IsEmpty();
 }
 
-
 BOOL CMGSessionMgr::MainLoop(void)
 {
 	UINT64 qwCurrentTick = GetTickCountEx();

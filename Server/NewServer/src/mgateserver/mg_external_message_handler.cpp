@@ -8,7 +8,6 @@
 #include "server_def.h"
 #include "server_config.h"
 
-
 #include "mg_session_mgr.h"
 #include "mgateserver.h"
 
