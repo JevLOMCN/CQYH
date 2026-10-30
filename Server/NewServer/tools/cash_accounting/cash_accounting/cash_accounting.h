@@ -1,65 +1,66 @@
-#include "stdafx.h"
-#include "object_pool.h"
-#include "base_list.h"
+#pragma once
 
-#define DB_SETTING_STRING_LEN 64
-struct DBSetting
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <list>
+#include <string>
+#include <vector>
+
+#include "std_type.h"
+#include "process_error.h"
+#include "sql_mgr.h"
+
+struct CashDatabaseSettings
 {
-	char szServerAddr[DB_SETTING_STRING_LEN];
-	char szLoginName[DB_SETTING_STRING_LEN];
-	char szPassword[DB_SETTING_STRING_LEN];
-	char szDBName[DB_SETTING_STRING_LEN];
-	char szCharSet[DB_SETTING_STRING_LEN];
-	char szDBNameLogData[DB_SETTING_STRING_LEN];
-	UINT32 dwServerPort;
+    std::string server;
+    std::string user;
+    std::string password;
+    std::string database;
+    std::string charset;
+    std::string log_database;
+    std::uint32_t port = 3306;
 };
 
-struct RoleMoneyUserData
+struct CashAccountingSummary
 {
-	INT32	nBeginMoney0;
-	INT32	nEndMoney0;
-	INT32	nBeginMoney1;
-	INT32	nEndMoney1;
-	UINT32  dwBeginLogTime;
-	UINT32  dwEndLogTime;
-	UINT32	dwRoleID;
-	char	szRoleName[21];
-};
-
-struct ACCOUNTING_ROLE : BASE_LIST_NODE
-{
-	INT32	dwRoleID;
-	INT32	nMoney0;
-	INT32	nMoney1;
-	UINT32	dwLogTime;
-	char	szName[21];
+    std::size_t intervals = 0;
+    std::size_t successes = 0;
+    std::size_t failures = 0;
 };
 
 class CCashAccounting
 {
 public:
-	CCashAccounting();
-	~CCashAccounting();
+    CCashAccounting() = default;
+    ~CCashAccounting();
+    CCashAccounting(const CCashAccounting&) = delete;
+    CCashAccounting& operator=(const CCashAccounting&) = delete;
+    static CCashAccounting& GetInstance();
+    BOOL Init();
+    BOOL Init(const CashDatabaseSettings& settings, const std::filesystem::path& output = "money_accounting");
+    BOOL UnInit();
+    BOOL MainLoop();
+    const CashAccountingSummary& GetSummary() const noexcept { return m_summary; }
 
-	static CCashAccounting& GetInstance(void);
-
- 	BOOL Init(void);
- 	BOOL UnInit(void);
- 
- 	BOOL MainLoop(void);
-
- private:
-    static void	_Load(std::list<void*>& rResult, void* pUserData);
-    static void	_Check(std::list<void*>& rResult, void* pUserData);	
- 
- 	BOOL	_WriteLog(INT32 dwRoleID, char* pName, UINT32 dwBeginTime, UINT32 dwEndTime, INT8 byMoneyType, INT32 nBeginMoney, INT32 nEndMoney, INT32 nResult);
- 
- private:
- 	FILE*							m_pLogHandler;
- 
- 	static CCashAccounting			ms_Instance;
- 	DBSetting						m_dbsetting;
- 
- 	CObjectPool<ACCOUNTING_ROLE>	m_AccountingRolePool;
- 	CBaseList m_AccountingRoleList;
+private:
+    struct Snapshot
+    {
+        std::uint32_t role = 0;
+        std::uint32_t time = 0;
+        std::array<std::int32_t, 2> money{};
+        std::string name;
+    };
+    BOOL Load(std::list<void*>& rows);
+    BOOL Check(std::list<void*>& rows, const Snapshot& begin, const Snapshot& end);
+    std::vector<Snapshot> m_snapshots;
+    std::vector<std::size_t> m_next;
+    std::size_t m_cursor = 0;
+    std::ofstream m_log;
+    CashAccountingSummary m_summary;
+    bool m_initialized = false;
+    // Close SQL callbacks/workers before the data and output they can reference.
+    CSqlMgr m_sql;
 };

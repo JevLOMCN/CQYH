@@ -1,0 +1,3 @@
+GuildID	GuildName	GuildLevel	GroupID	LeaderID	CreaterName	CreateTime	DeleteTime	MemberCount
+17	Alpha%s	3	2	101	Creator	2020-01-01 02:03:04	0000-00-00 00:00:00	2
+23	名字	6	0	202	100%	2020-02-03 04:05:06	2021-03-04 05:06:07	3

@@ -69,6 +69,52 @@ add_test(NAME tool_role_log
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_role_log.cmake")
 set_tests_properties(tool_role_log PROPERTIES TIMEOUT 120)
 
+add_executable(test_tool_cash_accounting test_cash_accounting.cpp
+    ../baselib/fake_mysql_client.cpp
+    ../../tools/cash_accounting/cash_accounting/cash_accounting.cpp
+    ../../tools/cash_accounting/cash_accounting/cash_accounting_stmt.list.cpp)
+cqyh_target_defaults(test_tool_cash_accounting)
+target_include_directories(test_tool_cash_accounting PRIVATE
+    ../../tools/cash_accounting/cash_accounting ../baselib ../../inc ../../inc/baselib)
+target_compile_definitions(test_tool_cash_accounting PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
+target_link_libraries(test_tool_cash_accounting PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_cash_accounting)
+add_test(NAME tool_cash_accounting
+    COMMAND "${CMAKE_COMMAND}"
+        "-DCASH_TEST=$<TARGET_FILE:test_tool_cash_accounting>"
+        "-DCASH_TOOL=$<TARGET_FILE:cash_accounting>"
+        "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/cash accounting"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cash_accounting.cmake")
+set_tests_properties(tool_cash_accounting PROPERTIES TIMEOUT 90)
+
+add_executable(test_tool_exportdb test_exportdb.cpp ../baselib/fake_mysql_client.cpp
+    ../../tools/exportdb/export_sql.cpp ../../tools/exportdb/guild.cpp)
+cqyh_target_defaults(test_tool_exportdb)
+target_include_directories(test_tool_exportdb PRIVATE ../../tools/exportdb ../baselib
+    ../../inc ../../inc/baselib "${CQYH_SERVER_DIR}/Common/define")
+target_compile_definitions(test_tool_exportdb PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
+target_link_libraries(test_tool_exportdb PRIVATE baselib fusion cqyh::zlib cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_exportdb)
+add_test(NAME tool_exportdb
+    COMMAND "${CMAKE_COMMAND}"
+        "-DEXPORT_TEST=$<TARGET_FILE:test_tool_exportdb>"
+        "-DEXPORT_TOOL=$<TARGET_FILE:exportdb>"
+        "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/exportdb"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_exportdb.cmake")
+set_tests_properties(tool_exportdb PROPERTIES TIMEOUT 90)
+
+add_executable(test_tool_export_roles test_export_roles.cpp ../baselib/fake_mysql_client.cpp
+    ../../tools/exportdb/export_sql.cpp ../../tools/exportdb/role_records.cpp)
+cqyh_target_defaults(test_tool_export_roles)
+target_include_directories(test_tool_export_roles PRIVATE ../../tools/exportdb ../baselib
+    ../../inc ../../inc/baselib "${CQYH_SERVER_DIR}/Common/define")
+target_compile_definitions(test_tool_export_roles PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
+target_link_libraries(test_tool_export_roles PRIVATE baselib fusion cqyh::lua cqyh::zlib cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_export_roles)
+add_test(NAME tool_export_roles COMMAND test_tool_export_roles
+    "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/export roles" "${CMAKE_CURRENT_SOURCE_DIR}/fixtures")
+set_tests_properties(tool_export_roles PROPERTIES TIMEOUT 90)
+
 add_executable(test_tool_gm_file_transform test_gm_file_transform.cpp
     ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
 cqyh_target_defaults(test_tool_gm_file_transform STRICT)

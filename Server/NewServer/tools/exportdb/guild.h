@@ -1,99 +1,26 @@
-#ifndef _H_YY_GUILD_H_
-#define _H_YY_GUILD_H_
-
-#include "string_def.h"
-
+#pragma once
+#include <cstddef>
+#include <cstdint>
+#include <expected>
+#include <filesystem>
+#include <span>
+#include <string>
 
 class CSqlMgr;
 
-#pragma pack(push, 1)
-struct YY_GUILD_DB
+namespace cqyh::exportdb
 {
-    char            szCreateTime[21];
-    char            szDeleteTime[21];
-
-    UINT32          dwGuildID;
-    UINT16          wVersion;
-    CHAR            szGuildName[GUILD_NAME_LEN];
-    UINT8           byGroupID;
-    UINT32          dwLeaderID;
-
-    CHAR            szCreaterName[ROLE_NAME_LEN];
-    UINT32          dwCreateTime;
-    CHAR            szAnnounce[GUILD_ANNOUNCE_LEN];         // Guild declaration
-    CHAR            szNotice[GUILD_NOTICE_LEN];             // Guild notice
-    char            BlobBuffer[0];
-};
-#pragma pack(pop)
-
-
-struct YY_GUILD_DATA 
+struct GuildResources
 {
-    char    szCreateTime[21];
-    char    szDeleteTime[21];
-
-    INT32           nMemberCount;
-
-    UINT32          dwGuildID;
-    CHAR            szGuildName[GUILD_NAME_LEN];
-    INT32           nGroupID;
-    UINT32          dwLeaderID;
-
-    CHAR            szCreaterName[ROLE_NAME_LEN];
-    UINT32          dwCreateTime;
-
-    INT32           nGuildLevel;
-
-    INT32           nGuildMoney;
-    INT32           nWood;
-    INT32           nHerb;
-    INT32           nCrystal;
-    INT32           nSilver;
-
-    BOOL Load(const char *pcData);
+    std::int32_t level = 0;
+    std::int32_t money = 0;
+    std::int32_t wood = 0;
+    std::int32_t herb = 0;
+    std::int32_t crystal = 0;
+    std::int32_t silver = 0;
 };
-
-struct YY_GUILD_STAT 
-{
-    typedef std::list<YY_GUILD_DATA*>    GUILD_LIST;
-    GUILD_LIST  GuildList;
-};
-
-
-struct YY_GUILD_MEMBER 
-{
-    UINT32      dwRoleID;
-    UINT32      dwGuildID;
-    char        szGuildName[GUILD_NAME_LEN];
-    char        szRoleName[ROLE_NAME_LEN];
-    char        szUserName[USER_NAME_LEN];
-};
-
-
-typedef std::list<YY_GUILD_MEMBER>    MEMBER_LIST;
-
-
-
-
-void _LoadGuild(CSqlMgr& sqlmgr);
-
-BOOL CB_ExportGuild(std::list<void*>& rResult, void* pUserData);
-BOOL CB_ExportGuildMember(std::list<void*>& rResult, void* pUserData);
-
-BOOL TemporaryLoadGuild();
-
-extern YY_GUILD_STAT  g_GuildStat;
-
-
-
-
-// member
-
-void _LoadMember(CSqlMgr& sqlmgr);
-BOOL CB_ExportGuildMemberInfo(std::list<void*>& rResult, void* pUserData);
-
-
-
-
-
-#endif //_H_YY_GUILD_H_
+// The span is the uncompressed version-5 blob, excluding the SQL length prefix.
+std::expected<GuildResources, std::string> ParseGuildBlob(std::span<const std::byte> bytes);
+bool ExportGuilds(CSqlMgr& manager, const std::filesystem::path& output = "guild_stat.txt");
+bool ExportMembers(CSqlMgr& manager, const std::filesystem::path& output = "guild_member.txt");
+}

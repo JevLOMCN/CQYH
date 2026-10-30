@@ -146,15 +146,28 @@
       <AdditionalDependencies>ws2_32.lib;iphlpapi.lib;winmm.lib;gameworld_r.lib;baselib.lib;lua64.lib;dbghelp.lib;psapi.lib;net.lib;zlib.lib;gpkitsvr64.lib;fusion.lib;libmysql64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <PreprocessorDefinitions>NOMINMAX;_HAS_EXCEPTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\manageserver\guild\guild_db_def_v_5.h" />
     <ClInclude Include="define.h" />
     <ClInclude Include="guild.h" />
+    <ClInclude Include="role_records.h" />
+    <ClInclude Include="role_lua.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="exportdb.cpp" />
+    <ClCompile Include="export_sql.cpp" />
+    <ClCompile Include="role_records.cpp" />
+    <ClCompile Include="role_gameworld.cpp" />
     <ClCompile Include="guild.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

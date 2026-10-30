@@ -82,9 +82,12 @@ cqyh_add_tool(guardserver OUTPUT guardserver64 PCH_DIR ${_tools_dir}/guardserver
     DEFINITIONS WIN32_LEAN_AND_MEAN
     LIBS baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs shlwapi)
 
-cqyh_add_tool(exportdb OUTPUT exportdb64 PCH_DIR ${_tools_dir}/exportdb
+cqyh_add_tool(exportdb OUTPUT exportdb64 STRICT PCH_DIR ${_tools_dir}/exportdb
     SOURCES
         exportdb/exportdb.cpp
+        exportdb/export_sql.cpp
+        exportdb/role_records.cpp
+        exportdb/role_gameworld.cpp
         exportdb/guild.cpp
         exportdb/stdafx.cpp
     INCLUDES
@@ -92,6 +95,7 @@ cqyh_add_tool(exportdb OUTPUT exportdb64 PCH_DIR ${_tools_dir}/exportdb
         ${CQYH_SERVER_DIR}/NewServer/inc/gameworld
         ${CQYH_SERVER_DIR}/NewServer/3rd/gpk/Include
         ${CQYH_SERVER_DIR}/NewServer/src/manageserver
+    DEFINITIONS NOMINMAX
     LIBS gameworld baselib cqyh::net cqyh::lua cqyh::sol2 cqyh::zlib cqyh::gpk cqyh::mysql fusion cqyh::syslibs)
 
 cqyh_add_tool(analysis_log OUTPUT analysis_log64 STRICT PCH_DIR ${_tools_dir}/analysis_log
@@ -120,13 +124,14 @@ cqyh_add_tool(RoleLogCheck OUTPUT RoleLogCheck64 STRICT PCH_DIR ${_tools_dir}/Ro
     DEFINITIONS NOMINMAX
     LIBS baselib cqyh::lua cqyh::zlib fusion cqyh::syslibs)
 
-cqyh_add_tool(cash_accounting OUTPUT cash_accounting64 PCH_DIR ${_tools_dir}/cash_accounting/cash_accounting
+cqyh_add_tool(cash_accounting OUTPUT cash_accounting64 STRICT PCH_DIR ${_tools_dir}/cash_accounting/cash_accounting
     SOURCES
         cash_accounting/cash_accounting/cash_accounting.cpp
         cash_accounting/cash_accounting/cash_accounting_stmt.list.cpp
         cash_accounting/cash_accounting/main.cpp
         cash_accounting/cash_accounting/stdafx.cpp
     INCLUDES ${_tools_dir}/cash_accounting/cash_accounting
+    DEFINITIONS NOMINMAX
     LIBS baselib cqyh::mysql cqyh::syslibs)
 
 cqyh_add_tool(certserver OUTPUT certserver64 PCH_DIR ${_tools_dir}/certserver

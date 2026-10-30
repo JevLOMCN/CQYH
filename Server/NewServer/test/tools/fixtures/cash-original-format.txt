@@ -1,0 +1,4 @@
+RoleID: 7	RoleName:     Alice	BeginTime:2020-1-1 0:0:0	EndTime:2020-1-1 0:1:0	MoneyType:0		BeginMoney:       100	EndMoney:       120	MoneyChangeCount:        20	Accountint Result: Success!
+RoleID: 7	RoleName:     Alice	BeginTime:2020-1-1 0:0:0	EndTime:2020-1-1 0:1:0	MoneyType:1		BeginMoney:        10	EndMoney:         8	MoneyChangeCount:        -2	Accountint Result: Fail!
+RoleID: 42	RoleName:     100%s	BeginTime:2020-1-1 12:34:56	EndTime:2020-1-2 12:34:56	MoneyType:0		BeginMoney:       -20	EndMoney:        30	MoneyChangeCount:        50	Accountint Result: Success!
+RoleID: 42	RoleName:    名字	BeginTime:2020-1-1 12:34:56	EndTime:2020-1-2 12:34:56	MoneyType:1		BeginMoney:         0	EndMoney:         0	MoneyChangeCount:         0	Accountint Result: Success!

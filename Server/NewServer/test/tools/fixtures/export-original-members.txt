@@ -1,0 +1,4 @@
+RoleID	GuildID	GuildName	RoleName	UserName
+101	17	Alpha%s	Alice	user-a
+102	17	Alpha%s	100%name	ABCDEFGHIJKLMNOPQRSTUVWXYZ012345
+202	23	名字	角色	utf8-user
