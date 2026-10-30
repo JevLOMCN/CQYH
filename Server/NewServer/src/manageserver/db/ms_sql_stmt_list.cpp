@@ -107,4 +107,3 @@ SQL_STMT_DATA g_MSSqlStmtList[msqlTotal] =
     { 3, msqlDeleteAuctionDeposit, "DELETE FROM auction_deposit WHERE AuctionID = [ud] AND RoleID = [ud]" },
 
 };
-

@@ -1,12 +1,3 @@
-/********************************************************************
-	created:	23:12:2013   15:12
-	file:		gm_query_thread.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
-
 #include "stdafx.h"
 #include "gm_query_thread.h"
 #include "time_ex.h"
@@ -15,7 +6,6 @@
 #include "db_mgr.h"
 #include "gm_role_mgr.h"
 #include <limits>
-
 
 CGMQueryThread::CGMQueryThread()
 {
@@ -404,9 +394,6 @@ void CGMQueryThread::ThrdProc()
             //default:
             //    LOG_CHECK_ERROR(FALSE);
             //}
-
-
-
         }
 
         WaitForStop(std::chrono::milliseconds(16));
@@ -426,15 +413,3 @@ INT32 CGMQueryThread::_CheckSqlResult(BOOL nRetCode, MYSQL_STMT* stmt)
         return errDatabase;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

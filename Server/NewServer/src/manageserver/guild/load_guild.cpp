@@ -5,7 +5,6 @@
 
 typedef BOOL(CMsGuild::*LOAD_GUILD_DATA_FUNC)(const char *pcszData);
 
-
 BOOL CMsGuild::LoadGuild(const char *pcData)
 {
     INT32       nRetCode = 0;
@@ -40,5 +39,3 @@ BOOL CMsGuild::LoadGuild(const char *pcData)
 Exit0:
     return FALSE;
 }
-
-

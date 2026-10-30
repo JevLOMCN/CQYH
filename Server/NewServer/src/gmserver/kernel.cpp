@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	19:12:2013   18:10
-	file:		kernel.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "kernel.h"
 #include "tl_user.h"
@@ -18,8 +10,6 @@
 #include "server_config.h"
 #include "gm_data.h"
 #include "permission_mgr.h"
-
-
 
 CKernel  CKernel::m_Instance;
 
@@ -117,7 +107,7 @@ BOOL CKernel::MainLoop()
             nRetCode = CPermissionMgr::GetInstance().CheckExecutePermission((*old_iter)->eCmdType, pTLUser->GetPermission());
             if (nRetCode == FALSE)  // Default code used "="; it appears to have been a mistake and was changed to "=="
             {
-                CMessageHandler::GetInstance().DoTLErrorStr(pTLUser->GetSessionID(), "权限不够");
+                CMessageHandler::GetInstance().DoTLErrorStr(pTLUser->GetSessionID(), "Insufficient permissions.");
                 pCmd = *old_iter;
                 nRetCode = CKernel::GetInstance().PopCmd(pCmd);
                 LOG_CHECK_ERROR(nRetCode);
@@ -132,6 +122,3 @@ BOOL CKernel::MainLoop()
 
     return TRUE;
 }
-
-
-

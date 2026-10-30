@@ -69,4 +69,3 @@ SQL_STMT_DATA g_GMLogDataStmtList[lSqlTotal] =
     //{ 1, GMLogSelectQuestByQuest, "SELECT LogTime{s20}, GroupID{uc}, AreaID{h}, RoleID{ud}, QuestID{ud}, Action{s8}, Type{s6}, QuestName{s20}"\
     //" FROM logdata_quest WHERE QuestID = [ud] AND UNIX_TIMESTAMP(LogTime) > [ud] AND UNIX_TIMESTAMP(LogTime) < [ud] LIMIT 2000" },
 };
-

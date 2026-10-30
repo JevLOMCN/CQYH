@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	23:12:2013   15:18
-	file:		gm_db_operation.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "gm_db_operation.h"
 
@@ -14,8 +6,6 @@
 #define LOAD_ITEM_LOG_ROLE_GUID "SELECT UNIX_TIMESTAMP(LogTime), GroupID, AreaID, ActionType, TemplateID, Guid, ItemCount, SrcRoleID, TargetRoleID, Reason FROM logdata_item WHERE SrcRoleID = ? OR TargetRoleID = ? AND Guid = ?"
 #define LOAD_ITEM_LOG_ROLE_TEMP_ID "SELECT UNIX_TIMESTAMP(LogTime), GroupID, AreaID, ActionType, TemplateID, Guid, ItemCount, SrcRoleID, TargetRoleID, Reason FROM logdata_item WHERE SrcRoleID = ? OR TargetRoleID = ? AND TemplateID = ?"
 #define LOAD_ITEM_LOG_ROLE "SELECT UNIX_TIMESTAMP(LogTime), GroupID, AreaID, ActionType, TemplateID, Guid, ItemCount, SrcRoleID, TargetRoleID, Reason FROM logdata_item WHERE SrcRoleID = ? OR TargetRoleID = ?"
-
-
 
 CDBItemLogWithGuid::CDBItemLogWithGuid() :
 m_stmt(nullptr),
@@ -348,7 +338,6 @@ Exit0:
     return FALSE;
 }
 
-
 CDBItemLogWithRoleTempID::CDBItemLogWithRoleTempID() :
 m_stmt(nullptr),
 m_dwTemplateID(0),
@@ -464,10 +453,6 @@ Exit0:
     return FALSE;
 }
 
-
-
-
-
 CDBItemLogWithRole::CDBItemLogWithRole() :
 m_stmt(nullptr),
 m_dwRoleID(0)
@@ -578,18 +563,3 @@ BOOL CDBItemLogWithRole::DoLoadItemLog(UINT32 dwRoleID, DB_OP_LOG_ITEM_RESULT *r
 Exit0:
     return FALSE;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

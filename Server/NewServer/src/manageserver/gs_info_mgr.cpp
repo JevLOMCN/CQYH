@@ -95,7 +95,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CGSInfoMgr::CTraverseSceneData::_AssignGS(INT32 nTargetGSIndex, const SCENE_DATA* pSceneData, INT32 nGroupID)
 {
 	LOG_PROCESS_ERROR(pSceneData);

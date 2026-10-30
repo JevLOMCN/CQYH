@@ -17,7 +17,6 @@
 #include "./queuematch/battlequeuemgr.h"
 #include "scene/scenemgr.h"
 
-
 COnlineRoleDataMgr COnlineRoleDataMgr::ms_Instance;
 
 COnlineRoleDataMgr::COnlineRoleDataMgr()
@@ -33,8 +32,6 @@ COnlineRoleDataMgr& COnlineRoleDataMgr::GetInstance(void)
 {
     return ms_Instance;
 }
-
-
 
 BOOL COnlineRoleDataMgr::Init(UINT32 dwMaxOnlineRole)
 {
@@ -487,4 +484,3 @@ UINT32 COnlineRoleDataMgr::GetRoleNumberCount(void)
 {
     return m_oOnlineRolePool.GetUsedSize();
 }
-

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	12:8:2013   10:16
-	file:		gm_manager.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "gm_manager.h"
 #include "script_mgr.h"
@@ -16,14 +8,12 @@
 
 #include "server_config.h"
 
-
 CGMManager  CGMManager::m_Instance;
 
 CGMManager & CGMManager::GetInstance()
 {
     return m_Instance;
 }
-
 
 CGMManager::CGMManager()
 {
@@ -54,11 +44,6 @@ BOOL CGMManager::UnInit()
 //Exit0:
 //    return FALSE;
 }
-
-
-
-
-
 
 BOOL CGMManager::AddLockUser(UINT32 dwTLUserID, const char *pcszName)
 {
@@ -217,9 +202,6 @@ BOOL CGMManager::DelAnnounceRecord(INT32 nGroupID, UINT32 dwSerialID)
     return TRUE;
 }
 
-
-
-
 INT32 CB_BroadcastGMAnnounce(BASE_TRIGGER_NODE *pTriggerNode)
 {
     INT32       nRetCode = 0;
@@ -268,5 +250,3 @@ BOOL g_GM_CheckRoleName(CHAR* RoleName)
     }
     return FALSE;
 }
-
-

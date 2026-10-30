@@ -1,11 +1,3 @@
-/********************************************************************
-    created:	9:7:2013   11:03
-    file:		ms_guild_handler.cpp
-    author:		Allan Tao
-
-    purpose:	Guild-related client protocol
-*********************************************************************/
-
 #include "stdafx.h"
 
 #include "zlib.h"
@@ -3134,6 +3126,3 @@ Exit0:
         CMessageHandler::GetInstance().DoErrorNotify(pstOnlineRole->dwCliSessionID, nResult, 0, 0);
     return;
 }
-
-
-

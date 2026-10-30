@@ -477,8 +477,6 @@ void CManageServer::_On1MinMainLoop(void)
     //        var.SetVariable(g_ServerConfig.CC.nItemDropLimitLuck2NecklaceServerGroup, MakeServerKey(esvtItemDropLimitLuck2Necklace, it->first), 0);
     //    }
     //}
-
-
 }
 
 void CManageServer::_OnDailyMainLoop(void)
@@ -1085,8 +1083,6 @@ Exit0:
 
     return FALSE;
 }
-
-/************************************************************************/
 
 #ifdef _WIN32
 void _signal_handler(int sig)
@@ -1781,4 +1777,3 @@ void MSSysLogError(MS_USER* poUser, const char* szFucntionName)
 Exit0:
 	return;
 }
-

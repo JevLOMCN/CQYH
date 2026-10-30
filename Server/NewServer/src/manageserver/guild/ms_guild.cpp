@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	7:4:2013   15:25
-	file:		ms_guild.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "ms_guild.h"
 
@@ -689,7 +681,6 @@ BOOL CMsGuild::Destory()
         }
     }
 
-
     nRetCode = CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(mysqlDeleteGMemberByGuildID, NULL, NULL, "ud", GetID());
     LOG_CHECK_ERROR(nRetCode);
 
@@ -785,8 +776,6 @@ BOOL CMsGuild::MainLoop(UINT32 dwCurrentTime)
                         if (pBuildingTemplate)
                             nTotalRoutineConsume += pBuildingTemplate->nRoutineConsumption;
                     }
-                    //////////////////////////////////////////////////////////////////////////
-
 
                     if (GetMoney() >= nTotalRoutineConsume)
                     {
@@ -1004,7 +993,6 @@ INT32 CMsGuild::AgreeRoleApply(UINT32 dwInviterID, UINT32 dwRoleID)
 Exit0:
     return nResult;
 }
-
 
 INT32 CMsGuild::InviteToJoinGuild(MS_ONLINE_ROLE_DATA &onlineRoleData, const char *pcszRoleName)
 {
@@ -1798,8 +1786,6 @@ INT32 CMsGuild::GetPow()
     return nTotalPow >> 1;
 }
 
-
-
 // lua
 BOOL CMsGuild::LuaBroadcastMsgNotifyType(INT32 nType)
 {
@@ -2434,7 +2420,6 @@ CMsGuildMember* CMsGuild::GetMember(UINT32 dwRoleID)
     return NULL;
 }
 
-
 INT32 CMsGuild::GetMemberNumInAPost(UINT8 byPosition)
 {
     INT32       count = 0;
@@ -2488,7 +2473,6 @@ INT32 CMsGuild::GetBuildingMaxLevelByType(INT32 nType)
 
         return nLevel;
     }
-    
 }
 
 INT32 CMsGuild::GetBuildingNumByType(INT32 nType)
@@ -3099,8 +3083,6 @@ BOOL CMsGuild::CompleteUpgradeBuilding(GUILD_UPGRADE_TRIGGER* pData)
             m_BuildingList.insert(std::make_pair(qwNameID, MS_G_B_DATA(qwNameID, nType, nLevel)));
         }
     }
-
-
     
     nRetCode = CMsGuildMgr::GetInstance().DeleteUpgradeTriggerData(pData);
     LOG_CHECK_ERROR(nRetCode);
@@ -3125,7 +3107,6 @@ BOOL CMsGuild::CompleteUpgradeBuilding(GUILD_UPGRADE_TRIGGER* pData)
         nRetCode = AddGuildEvent(GUILD_HE_TYPE_BUILDING_LVLUP, dwRoleID, nType, nLevel, 0);
         LOG_PROCESS_ERROR(nRetCode);
     }
-
 
     nRetCode = CMessageHandler::GetInstance().DoGSGuildUpdateBuilding(GetID(), qwNameID, nType, nLevel);
     LOG_PROCESS_ERROR(nRetCode);
@@ -3381,7 +3362,6 @@ BOOL CMsGuild::IsEnemy(UINT32 dwGuildID)
     return FALSE;
 }
 
-
 BOOL CMsGuild::AddAlliance(UINT32  dwGuildID, UINT32 dwEndTime)
 {
     INT32       nRetCode = 0;
@@ -3561,8 +3541,6 @@ BOOL CMsGuild::CanBeginNewMatchWar()
 Exit0:
     return FALSE;
 }
-
-
 
 BOOL CMsGuild::DisableBuilding(UINT64 qwNameID, UINT32 dwReviveTime)
 {
@@ -3801,7 +3779,6 @@ Exit0:
     return nResult;
 }
 
-
 INT32 CMsGuild::_DiplomatAlliance(MS_ONLINE_ROLE_DATA &onlineRoleData, CMsGuild *pMsTargetGuild, INT32 nTimeType)
 {
     INT32   nRetCode = 0;
@@ -3992,7 +3969,6 @@ INT32 CMsGuild::_AgreeApplyAlliance(MS_ONLINE_ROLE_DATA &onlineRoleData, CMsGuil
     snprintf(szAllTVContent, 512, "<#P0:%s><#P1:%s><#T:%d>", this->GetName(), pApplicantGuild->GetName(), g_GuildConfig.dwGuildAllianceTVID);
     nRetCode = CMSChatMgr::GetInstance().Say(0, cctGroup, cltTvShow, szAllTVContent, this->GetSvrGroup());
     LOG_PROCESS_ERROR_RET_CODE(nRetCode, errGuildSendTVMsgError);
-
 
     return errSuccess;
 Exit0:
@@ -4467,7 +4443,6 @@ Exit0:
     return;
 }
 
-
 //void CMsGuild::ChangeMoney(INT32 byOpType, UINT32 dwMoney)
 //{
 //    INT32   nResult = errGuildFailed;
@@ -4493,10 +4468,6 @@ Exit0:
 //
 //    return ;    
 //}
-
-
-
-
 
 void CB_GuildAppTimeout(APP_NODE *pNode)
 {
@@ -4733,9 +4704,6 @@ Exit0:
     return FALSE;
 }
 
-
-
-
 BOOL CMsGuild::SetWarCharacter(INT32 nC)
 {
     INT32       nRetCode = 0;
@@ -4793,4 +4761,3 @@ UINT32 CMsGuild::NextIntruder()
 Exit0:
     return 0;
 }
-

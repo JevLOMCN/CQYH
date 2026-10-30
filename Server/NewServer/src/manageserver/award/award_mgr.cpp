@@ -45,7 +45,6 @@ CAwardManager::~CAwardManager()
 	m_pRmGetSotsUniqueId = NULL;
 }
 
-
 BOOL CAwardManager::Init()
 {
 	// Initialize UMP 

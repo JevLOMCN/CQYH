@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	26:4:2013   10:39
-	file:		guild_storage.cpp
-	author:		Allan Tao
-	
-	purpose:	Guild storage
-*********************************************************************/
-
 #include "stdafx.h"
 #include "guild_storage.h"
 
@@ -83,7 +75,6 @@ BOOL CMsGuildStorage::UnInit()
 
     return TRUE;
 }
-
 
 INT32 CMsGuildStorage::PrePushItem(INT32 nConSlot, INT32 nItemSlot)
 {
@@ -302,8 +293,6 @@ Exit0:
     return nResult;
 }
 
-
-
 INT32 CMsGuildStorage::MoveItem(INT32 nSourceConSlot, INT32 nSourceItemSlot, INT32 nTargetConSlot, INT32 nTargetItemSlot)
 {
     GUILD_STORAGE_ITEM_DATA    stTempItemData;
@@ -485,5 +474,3 @@ BOOL CMsGuildStorage::CheckCD()
     }
     return FALSE;
 }
-
-

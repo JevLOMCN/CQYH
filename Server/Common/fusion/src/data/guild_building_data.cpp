@@ -1,16 +1,6 @@
-/********************************************************************
-	created:	2:9:2013   15:30
-	file:		guild_building_data.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "guild_building_data.h"
 #include "read_data_helper.h"
-
-
 
 BOOL GUILD_BUILDING_DATA::ReadLine(INT32& rnID, const char*& rpcszName, GUILD_BUILDING_DATA* pData, CTabFile* pTabConfig, INT32 nRow)
 {

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	21:9:2015   15:33
-	file:		ld_widget.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "gm_exchange_ui.h"
 #include "ld_widget.h"

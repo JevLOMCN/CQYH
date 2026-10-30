@@ -11,7 +11,6 @@
 #include "manageserver.h"
 #include "db/ms_sql_stmt_list.h"
 
-
 BOOL LoadFriends(std::list<void*>& rResult, UINT32 roleID, UINT32 clientSessionID)
 {
     INT32       nRetCode = 0;

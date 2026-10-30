@@ -180,8 +180,6 @@ int SNDACALLBACK AuthorizeCallback(EMsgDirection eMsgType, unsigned int dwRpcID,
     pstAuthorizedUser = owned.get();
 	LOG_PROCESS_ERROR(pstAuthorizedUser);
 
-
-
 	pstAuthorizedUser->dwRpcID = dwRpcID;
 	pstAuthorizedUser->nError = nResult;
 

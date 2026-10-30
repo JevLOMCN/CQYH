@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	8:7:2013   17:43
-	file:		application_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	Application management
-*********************************************************************/
-
 #include "stdafx.h"
 #include "application_mgr.h"
 #include "manageserver.h"
@@ -14,7 +6,6 @@
 #include "time_ex.h"
 
 CApplicationMgr CApplicationMgr::m_Instance;
-
 
 CApplicationMgr & CApplicationMgr::GetInstance()
 {
@@ -30,7 +21,6 @@ CApplicationMgr::~CApplicationMgr()
 {
 
 }
-
 
 BOOL CApplicationMgr::Init()
 {
@@ -147,7 +137,6 @@ BOOL CApplicationMgr::InsertApplication(APP_NODE *pNode)
         m_TimeList.InsertAfter(&pNode->TimeNode, pPrev);
     }
  
-
     return TRUE;
 Exit0:
     return FALSE;
@@ -187,7 +176,6 @@ BOOL CApplicationMgr::RemoveApplication(APP_NODE *pNode)
 Exit0:
     return FALSE;
 }
-
 
 APP_NODE *CApplicationMgr::Find(UINT32 dwID1, UINT32 dwID2)
 {
@@ -355,7 +343,6 @@ APP_NODE *CApplicationMgr::NextAppNodeByID2(APP_NODE *pNode)
     LOG_PROCESS_ERROR(nHashKey2 >= 0 && nHashKey2 < HASH_TABLE_BUCKET_NUM);
 #endif
 
-
     pNext = pNode->HashTableNode2.pNext;
     while (pNext && pNext != &m_HashTable2[nHashKey2].Rear())
     {
@@ -373,8 +360,6 @@ Exit1:
 Exit0:
     return NULL;
 }
-
-
 
 INT32 CApplicationMgr::_GetHashValue(UINT32 dwID)
 {
@@ -394,6 +379,3 @@ INT32 CApplicationMgr::_GetHashValue(UINT32 dwID)
     //pNode->dwID_1 ^ (pNode->dwID_1 >> 16) & 0x00000FFF;
 
 }
-
-
-

@@ -823,8 +823,6 @@ BOOL CMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator, ISock
 
     m_ExternalMessageFuncList[ExternalMessage::c2m_arena_fund] = &CMessageHandler::OnArenaFund;
 
-
-	/////////////////////////////////////////////////////////////////////////////////////////////
     return TRUE;
 Exit0:
     return FALSE;
@@ -889,7 +887,6 @@ Exit0:
     return FALSE;
 
 }
-
 
 BOOL CMessageHandler::_SendGT(UINT32 dwGTSessionID, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
 {

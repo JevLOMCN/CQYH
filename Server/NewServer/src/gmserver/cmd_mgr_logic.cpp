@@ -26,9 +26,9 @@ BOOL CB_PreQueryRoleID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     LOG_PROCESS_ERROR(pTLUser);
 
     nRetCode = CDBMgr::GetInstance().PreQueryRoleID(pQueryCmd);
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Database query failed.");
 
-    LOG_ECHO_ERROR(pQueryCmd->dwRoleID != 0, pTLUser->GetID(), "角色不存在");
+    LOG_ECHO_ERROR(pQueryCmd->dwRoleID != 0, pTLUser->GetID(), "Role does not exist");
 
     nRetCode = CMessageHandler::GetInstance().DoTLPreQueryAck(pTLUser->GetSessionID(), pQueryCmd->szRoleName, pQueryCmd->dwRoleID);
     LOG_CHECK_ERROR(nRetCode);
@@ -64,7 +64,7 @@ BOOL CB_QueryRoleID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
 
         nRetCode = CDBMgr::GetInstance().QueryRoleID(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Database query failed");
     }
         break;
     case GM_LS_TIMEOUT:
@@ -72,7 +72,7 @@ BOOL CB_QueryRoleID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Query RoleID timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out.");
         }
     }
         break;
@@ -80,12 +80,12 @@ BOOL CB_QueryRoleID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] Query RoleID Reslut[%d]", pTLUser->GetID(), pQueryCmd->nResult);
 
-        LOG_ECHO_ERROR(pQueryCmd->nResult == errSuccess, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(pQueryCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Database query failed");
 
         nRetCode = CMessageHandler::GetInstance().DoTLQueryRoleIDAck(pTLUser->GetSessionID(), pQueryCmd->nCount, pQueryCmd->RoleKey);
         LOG_PROCESS_ERROR(nRetCode);
         
-        EchoTLError(pTLUser->GetSessionID(), "查询角色ID成功");
+        EchoTLError(pTLUser->GetSessionID(), "Query role ID successful");
 
         //pTLUser->ClearCmd();
         CKernel::GetInstance().PopCmd(pCmd);
@@ -141,7 +141,7 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     case GM_LS_MS_QUERY_ROLE_INFO_ACK:
     {
         LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), 
-            "去ms查询角色失败[%s]", CGmServer::GetInstance().GetErrString(pCmd->nResult));
+            "Failed to query role from ms[%s]", CGmServer::GetInstance().GetErrString(pCmd->nResult));
 
         pCmd->eCmdState = GM_LS_LOAD_ROLE;
     }
@@ -149,12 +149,12 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     case GM_LS_LOAD_ROLE:
     {
         nRetCode = CDBMgr::GetInstance().QueryRoleData(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Database query failed");
     }
         break;
     case GM_LS_LOAD_ROLE_ACK:
     {
-        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载角色失败");
+        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load role");
 
         if (pQueryCmd->bIsOnline == TRUE)
         {
@@ -169,7 +169,7 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         }
 
         nRetCode = LoadRole(pQueryCmd, pQueryCmd->nLength, pQueryCmd->szData);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解析角色数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to parse character data.");
 
         pQueryCmd->eCmdState = GM_LS_QUERY_GUILD_ID;
     }
@@ -179,7 +179,7 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Query Role Data timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -190,15 +190,15 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         DBG("TLUserID[%u] Query Role Data, begin query guild id", pTLUser->GetID());
 
         nRetCode = CDBMgr::GetInstance().QueryGuildID(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Database query failed");
     }
         break;
     case GM_LS_QUERY_GUILD_ID_ACK:
     {
-        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载公会失败");
+        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load guild");
 
         nRetCode = LoadGuild(pQueryCmd, pQueryCmd->nLength, pQueryCmd->szData);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解析公会数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to parse guild data.");
 
         pCmd->eCmdState = GM_LS_QUERY_GM_FORBID;
     }
@@ -210,15 +210,15 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         DBG("TLUserID[%u] Query Role Data, begin query forbid time", pTLUser->GetID());
 
         nRetCode = CDBMgr::GetInstance().QueryGMForbid(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "查询GM封停数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query GM forbid data");
     }
         break;
     case GM_LS_QUERY_GM_FORBID_ACK:
     {
-        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载GM封停数据失败");
+        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load GM forbid data");
 
         nRetCode = LoadGMForbid(pQueryCmd, pQueryCmd->nLength, pQueryCmd->szData);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解析GM封停数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to parse GM forbid data");
 
         pCmd->eCmdState = GM_LS_LOAD_MAIL;
     }
@@ -230,15 +230,15 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         DBG("TLUserID[%u] query role data, begin query mail", pTLUser->GetID());
 
         nRetCode = CDBMgr::GetInstance().QueryMail(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "查询邮件失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query mail");
     }
         break;
     case GM_LS_LOAD_MAIL_ACK:
     {
-        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载邮件数据失败");
+        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load mail data");
 
         nRetCode = LoadMail(pQueryCmd, pQueryCmd->nLength, pQueryCmd->szData);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解析邮件数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to parse mail data");
 
         DBG("TLUserID[%u] Query Role Data, result[%d]", pTLUser->GetID(), pQueryCmd->nResult);
 
@@ -246,7 +246,7 @@ BOOL CB_QueryRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             pQueryCmd->bIsOnline, pQueryCmd->nLength, pQueryCmd->szData);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "查询角色数据成功");
+        EchoTLError(pTLUser->GetSessionID(), "Character data queried successfully.");
 
         if (pQueryCmd->poRole)
         {
@@ -292,17 +292,17 @@ BOOL CB_ForbiddenChat(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
         if (CGMSessionMgr::GetInstance().IsMSOnline())
         {
-            DBG("TLUserID[%u] Forbid Role Chat send msg to ms", pTLUser->GetID());
+            DBG("TLUserID[%u] Forbid Role Chat send msg to MS", pTLUser->GetID());
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSForbidChat(pTLUser->GetID(), pForbidChat->dwSerialID, pForbidChat->dwTime, pForbidChat->dwRoleID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
             DBG("TLUserID[%u] Forbid Role Chat modify db directly, ms not online", pTLUser->GetID());
 
             nRetCode = CDBMgr::GetInstance().ForbiddenChat(pForbidChat);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database.");
 
             pForbidChat->nResult = errSuccess;
             pForbidChat->eCmdState = GM_LS_FORBID_CHAT_ACK;
@@ -314,7 +314,7 @@ BOOL CB_ForbiddenChat(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Forbid Role Chat timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out.");
         }
     }
         break;
@@ -322,14 +322,14 @@ BOOL CB_ForbiddenChat(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         INF("TLUserID[%u] Forbid Role Chat , result[%d]", pTLUser->GetID(), pForbidChat->nResult);
 
-        LOG_ECHO_ERROR(pForbidChat->nResult == errSuccess, pTLUser->GetSessionID(), "禁言失败");
+        LOG_ECHO_ERROR(pForbidChat->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to mute player.");
 
         nRetCode = CMessageHandler::GetInstance().DoTLForbidChatAck(pTLUser->GetSessionID(), pForbidChat->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
 
         if (pForbidChat->dwTime == 0)
         {
-            nRetCode = CGMLog::GetInstance().WriteLog(pForbidChat->szUserName, "forbid chat", "RoleID[%u],EndTime[%u]", pForbidChat->dwRoleID, pForbidChat->dwTime);
+            nRetCode = CGMLog::GetInstance().WriteLog(pForbidChat->szUserName, "Forbid chat", "RoleID[%u],EndTime[%u]", pForbidChat->dwRoleID, pForbidChat->dwTime);
             LOG_CHECK_ERROR(nRetCode);
         }
         else
@@ -337,15 +337,15 @@ BOOL CB_ForbiddenChat(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             time_t  t = pForbidChat->dwTime;
             struct tm  *pt = localtime(&t);
 
-            nRetCode = CGMLog::GetInstance().WriteLog(pForbidChat->szUserName, "forbid chat", "RoleID[%u],EndTime[%d-%d-%d %d:%d:%d]", 
+            nRetCode = CGMLog::GetInstance().WriteLog(pForbidChat->szUserName, "Forbid chat", "RoleID[%u],EndTime[%d-%d-%d %d:%d:%d]", 
                 pForbidChat->dwRoleID, pt->tm_year + 1900, pt->tm_mon, pt->tm_mday, pt->tm_hour, pt->tm_min, pt->tm_sec);
             LOG_CHECK_ERROR(nRetCode);
         }
 
         if (pForbidChat->dwTime == 0)
-            EchoTLError(pTLUser->GetSessionID(), "解除禁言成功");
+            EchoTLError(pTLUser->GetSessionID(), "Failed to unmute player.");
         else
-            EchoTLError(pTLUser->GetSessionID(), "禁言成功");
+            EchoTLError(pTLUser->GetSessionID(), "Failed to mute player.");
 
         //pTLUser->ClearCmd();
         CKernel::GetInstance().PopCmd(pCmd);
@@ -385,14 +385,14 @@ BOOL CB_FreezeRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
 
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSFreezeRole(pTLUser->GetID(), pFreezeRole->dwSerialID, pFreezeRole->dwTime, pFreezeRole->dwRoleID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
             DBG("TLUserID[%u] Freeze Role modify db directly, ms not online", pTLUser->GetID());
 
             nRetCode = CDBMgr::GetInstance().FreezeRole(pFreezeRole);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database.");
 
             pFreezeRole->nResult = errSuccess;
             pFreezeRole->eCmdState = GM_LS_FREEZE_ROLE_ACK;
@@ -404,7 +404,7 @@ BOOL CB_FreezeRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Freeze Role timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out.");
         }
     }
         break;
@@ -412,14 +412,14 @@ BOOL CB_FreezeRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         INF("TLUserID[%u] Freeze Role Result[%d]", pTLUser->GetID(), pFreezeRole->nResult);
 
-        LOG_ECHO_ERROR(pFreezeRole->nResult == errSuccess, pTLUser->GetSessionID(), "封号失败");
+        LOG_ECHO_ERROR(pFreezeRole->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to freeze player.");
 
         nRetCode = CMessageHandler::GetInstance().DoTLFreezeRoleAck(pTLUser->GetSessionID(), pFreezeRole->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
 
         if (pFreezeRole->dwTime == 0)
         {
-            nRetCode = CGMLog::GetInstance().WriteLog(pFreezeRole->szUserName, "freeze role", "RoleID[%u],EndTime[%u]", pFreezeRole->dwRoleID, pFreezeRole->dwTime);
+            nRetCode = CGMLog::GetInstance().WriteLog(pFreezeRole->szUserName, "Freeze role", "RoleID[%u],EndTime[%u]", pFreezeRole->dwRoleID, pFreezeRole->dwTime);
             LOG_CHECK_ERROR(nRetCode);
         }
         else
@@ -427,15 +427,15 @@ BOOL CB_FreezeRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             time_t  t = pFreezeRole->dwTime;
             struct tm  *pt = localtime(&t);
             
-            nRetCode = CGMLog::GetInstance().WriteLog(pFreezeRole->szUserName, "freeze role", "RoleID[%u],EndTime[%d-%d-%d %d:%d:%d]", 
+            nRetCode = CGMLog::GetInstance().WriteLog(pFreezeRole->szUserName, "Freeze role", "RoleID[%u],EndTime[%d-%d-%d %d:%d:%d]", 
                 pFreezeRole->dwRoleID, pt->tm_year + 1900, pt->tm_mon, pt->tm_mday, pt->tm_hour, pt->tm_min, pt->tm_sec);
             LOG_CHECK_ERROR(nRetCode);
         }
 
         if (pFreezeRole->dwTime == 0)
-            EchoTLError(pTLUser->GetSessionID(), "解除冻结成功");
+            EchoTLError(pTLUser->GetSessionID(), "Failed to unfreeze player.");
         else
-            EchoTLError(pTLUser->GetSessionID(), "冻结角色成功");
+            EchoTLError(pTLUser->GetSessionID(), "Failed to freeze player.");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -474,7 +474,7 @@ BOOL CB_KickRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
 
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSKickRole(pTLUser->GetID(), pKickRole->dwSerialID, pKickRole->dwRoleID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
@@ -490,7 +490,7 @@ BOOL CB_KickRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Kick Role timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -498,15 +498,15 @@ BOOL CB_KickRole(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         INF("TLUserID[%u] Kick Role Result[%d]", pTLUser->GetID(), pKickRole->nResult);
 
-        LOG_ECHO_ERROR(pKickRole->nResult == errSuccess || pKickRole->nResult == errGMMSNotOnline, pTLUser->GetSessionID(), "踢人失败");
+        LOG_ECHO_ERROR(pKickRole->nResult == errSuccess || pKickRole->nResult == errGMMSNotOnline, pTLUser->GetSessionID(), "Failed to kick player");
 
         nRetCode = CMessageHandler::GetInstance().DoTLKickRoleAck(pTLUser->GetSessionID(), pKickRole->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
 
-        nRetCode = CGMLog::GetInstance().WriteLog(pKickRole->szUserName, "kick role", "RoleID[%u]", pKickRole->dwRoleID);
+        nRetCode = CGMLog::GetInstance().WriteLog(pKickRole->szUserName, "Kick role", "RoleID[%u]", pKickRole->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "强制角色下线成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to kick player");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -547,14 +547,14 @@ BOOL CB_SendMail(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSSendMail(pTLUser->GetID(),
                 pSendMail->dwSerialID, pSendMail->dwRoleID, pSendMail->szTitle, pSendMail->szContent, pSendMail->dwItemID, pSendMail->nItemNum);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
             DBG("TLUserID[%u] Send Mail modify db directly, ms not online", pTLUser->GetID());
 
             nRetCode = CDBMgr::GetInstance().SendMail(pCmd);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database");
 
             pSendMail->eCmdState = GM_LS_SEND_MAIL_ACK;
             pSendMail->nResult = errSuccess;
@@ -566,7 +566,7 @@ BOOL CB_SendMail(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Send Mail timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -574,7 +574,7 @@ BOOL CB_SendMail(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] Send Mail Result[%d]", pTLUser->GetID(), pSendMail->nResult);
 
-        LOG_ECHO_ERROR(pSendMail->nResult == errSuccess, pTLUser->GetSessionID(), "发送邮件失败");
+        LOG_ECHO_ERROR(pSendMail->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to send mail");
 
         nRetCode = CMessageHandler::GetInstance().DoTLSendMailAck(pTLUser->GetSessionID(), pSendMail->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
@@ -583,7 +583,7 @@ BOOL CB_SendMail(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             pSendMail->dwRoleID, pSendMail->szTitle, pSendMail->szContent, pSendMail->dwItemID, pSendMail->nItemNum, pSendMail->szReason);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "邮件发送成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to send mail");
 
         //pTLUser->ClearCmd();
         CKernel::GetInstance().PopCmd(pCmd);
@@ -624,7 +624,7 @@ BOOL CB_Announce(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSAnnounce(pAnnounce->nGroupID, pTLUser->GetID(), 
                 pAnnounce->dwSerialID, pAnnounce->dwBeginTime, pAnnounce->nRepeatNum, pAnnounce->dwIntervalTime, pAnnounce->szText);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS");
         }
         else
         {
@@ -640,7 +640,7 @@ BOOL CB_Announce(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] send announce timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -648,14 +648,14 @@ BOOL CB_Announce(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] groupid[%d] send announce Result[%d]", pTLUser->GetID(), pAnnounce->nGroupID, pAnnounce->nResult);
 
-        LOG_ECHO_ERROR(pAnnounce->nResult == errSuccess, pTLUser->GetSessionID(), "发送公告失败");
+        LOG_ECHO_ERROR(pAnnounce->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to send announcement");
 
         nRetCode = CMessageHandler::GetInstance().DoTLAnnounceAck(pAnnounce->nGroupID, pTLUser->GetSessionID(), errSuccess);
         LOG_CHECK_ERROR(nRetCode);
 
         if (pAnnounce->dwBeginTime == 0)
         {
-            nRetCode = CGMLog::GetInstance().WriteLog(pAnnounce->szUserName, "announce", "GroupID[%d]BeginTime[%u],RepeatNum[%d],IntervalTime[%d],Text[%s]",
+            nRetCode = CGMLog::GetInstance().WriteLog(pAnnounce->szUserName, "Announce", "GroupID[%d]BeginTime[%u],RepeatNum[%d],IntervalTime[%d],Text[%s]",
                 pAnnounce->nGroupID, pAnnounce->dwBeginTime, pAnnounce->nRepeatNum, pAnnounce->dwIntervalTime, pAnnounce->szText);
             LOG_CHECK_ERROR(nRetCode);
         }
@@ -664,12 +664,12 @@ BOOL CB_Announce(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             time_t  t = pAnnounce->dwBeginTime;
             struct tm  *pt = localtime(&t);
 
-            nRetCode = CGMLog::GetInstance().WriteLog(pAnnounce->szUserName, "announce", "GroupID[%d]BeginTime[%d-%d-%d %d:%d:%d],RepeatNum[%d],IntervalTime[%d],Text[%s]",
+            nRetCode = CGMLog::GetInstance().WriteLog(pAnnounce->szUserName, "Announce", "GroupID[%d]BeginTime[%d-%d-%d %d:%d:%d],RepeatNum[%d],IntervalTime[%d],Text[%s]",
                 pAnnounce->nGroupID, pt->tm_year + 1900, pt->tm_mon, pt->tm_mday, pt->tm_hour, pt->tm_min, pt->tm_sec, pAnnounce->nRepeatNum, pAnnounce->dwIntervalTime, pAnnounce->szText);
             LOG_CHECK_ERROR(nRetCode);
         }
 
-        EchoTLError(pTLUser->GetSessionID(), "公告发送成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to send announcement");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -713,7 +713,7 @@ BOOL CB_GetAnnounceList(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             DBG("TLUserID[%u] query announce list send msg to ms", pTLUser->GetID());
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSGetAnnounceList(pAnnounce->nGroupID, pTLUser->GetID(), pAnnounce->dwSerialID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS");
         }
         else
         {
@@ -728,7 +728,7 @@ BOOL CB_GetAnnounceList(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] query announce list timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -736,12 +736,12 @@ BOOL CB_GetAnnounceList(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] groupid[%d] query announce list Result[%d]", pTLUser->GetID(), pAnnounce->nGroupID, pAnnounce->nResult);
 
-        LOG_ECHO_ERROR(pAnnounce->nResult == errSuccess, pTLUser->GetSessionID(), "获取公告失败");
+        LOG_ECHO_ERROR(pAnnounce->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to retrieve announcement");
 
         nRetCode = CMessageHandler::GetInstance().DoTLGetAnnounceListAck(pAnnounce->nGroupID, pTLUser->GetSessionID(), pCmd);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "获取公告列表成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to retrieve announcement");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -776,14 +776,14 @@ BOOL CB_DelAnnounce(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
         if (CGMSessionMgr::GetInstance().IsMSOnline())
         {
-            DBG("TLUserID[%u] del announce send msg to ms", pTLUser->GetID());
+            DBG("TLUserID[%u] Del Announce send msg to ms", pTLUser->GetID());
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSDelAnnounce(pAnnounce->nGroupID, pTLUser->GetID(), pAnnounce->dwSerialID, pAnnounce->dwAnnounceSerial);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
-            DBG("TLUserID[%u] del announce ms not online", pTLUser->GetID());
+            DBG("TLUserID[%u] Del Announce ms not online", pTLUser->GetID());
             pAnnounce->eCmdState = GM_LS_DEL_ANNOUNCE_ACK;
             pAnnounce->nResult = errGMMSNotOnline;
         }
@@ -793,23 +793,23 @@ BOOL CB_DelAnnounce(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         if (time(NULL) > pCmd->nTimeout)
         {
-            INF("TLUserID[%u] del announce timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            INF("TLUserID[%u] Del Announce timeout", pTLUser->GetID());
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
     case GM_LS_DEL_ANNOUNCE_ACK:
     {
-        DBG("TLUserID[%u] groupid[%d] del announce Result[%d]", pTLUser->GetID(), pAnnounce->nGroupID, pAnnounce->nResult);
-        LOG_ECHO_ERROR(pAnnounce->nResult == errSuccess, pTLUser->GetSessionID(), "删除宣言失败");
+        DBG("TLUserID[%u] groupid[%d] Del Announce Result[%d]", pTLUser->GetID(), pAnnounce->nGroupID, pAnnounce->nResult);
+        LOG_ECHO_ERROR(pAnnounce->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to delete announcement");
 
         nRetCode = CMessageHandler::GetInstance().DoTLDelAnnounceAck(pAnnounce->nGroupID, pTLUser->GetSessionID(), pAnnounce->dwAnnounceSerial);
         LOG_CHECK_ERROR(nRetCode);
 
-        nRetCode = CGMLog::GetInstance().WriteLog(pAnnounce->szUserName, "del announce", "GroupID[%d]AnnounceSerial[%u]", pAnnounce->nGroupID, pAnnounce->dwAnnounceSerial);
+        nRetCode = CGMLog::GetInstance().WriteLog(pAnnounce->szUserName, "Del Announce", "GroupID[%d]AnnounceSerial[%u]", pAnnounce->nGroupID, pAnnounce->dwAnnounceSerial);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "删除公告成功");
+        EchoTLError(pTLUser->GetSessionID(), "Announcement deleted successfully.");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -844,7 +844,7 @@ BOOL CB_Log(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
 
         nRetCode = CDBMgr::GetInstance().QueryLog(pCmdLog);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database");
     }
         break;
     case GM_LS_TIMEOUT:
@@ -852,7 +852,7 @@ BOOL CB_Log(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] query log timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -865,7 +865,7 @@ BOOL CB_Log(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
 
         DBG("TLUserID[%u] query log Result[%d]", pTLUser->GetID(), pCmdLog->nResult);
 
-        LOG_ECHO_ERROR(pCmdLog->nResult == errSuccess, pTLUser->GetSessionID(), "查询日志失败");
+        LOG_ECHO_ERROR(pCmdLog->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to query log");
 
         nRetCode = CMessageHandler::GetInstance().DoTLLogAck(pTLUser->GetSessionID(), pCmdLog->nLogType, pCmdLog->bTruncated, pCmdLog->nLength, pCmdLog->szBuffer);
         LOG_CHECK_ERROR(nRetCode);
@@ -874,7 +874,7 @@ BOOL CB_Log(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             //pCmdLog->nLogType, pCmdLog->szQueryStr);
         //LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "日志查询成功");
+        EchoTLError(pTLUser->GetSessionID(), "Log query successful");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -913,7 +913,7 @@ BOOL CB_ExeGMStr(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             DBG("TLUserID[%u] exe gm str send to ms", pTLUser->GetID());
             // online 
             nRetCode = CMessageHandler::GetInstance().DoMSExeGMStrCmd(pTLUser->GetID(), pCmd->dwSerialID, pExeGMStr->szGMStr);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
@@ -928,7 +928,7 @@ BOOL CB_ExeGMStr(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] exe gm str timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timed out");
         }
     }
         break;
@@ -936,7 +936,7 @@ BOOL CB_ExeGMStr(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] exe gm str Result[%d]", pTLUser->GetID(), pExeGMStr->nResult);
 
-        LOG_ECHO_ERROR(pExeGMStr->nResult == errSuccess, pTLUser->GetSessionID(), "gm指令执行失败");
+        LOG_ECHO_ERROR(pExeGMStr->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to execute gm command");
 
         nRetCode = CMessageHandler::GetInstance().DoTLExeGMStrAck(pTLUser->GetSessionID());
         LOG_CHECK_ERROR(nRetCode);
@@ -944,7 +944,7 @@ BOOL CB_ExeGMStr(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         nRetCode = CGMLog::GetInstance().WriteLog(pExeGMStr->szUserName, "execute gm str cmd", "Str[%s]", pExeGMStr->szGMStr);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "GM指令成功");
+        EchoTLError(pTLUser->GetSessionID(), "GM command executed successfully.");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -973,7 +973,7 @@ BOOL CB_LoadRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     LOG_PROCESS_ERROR(pTLUser);
 
     nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pLoadRoleCmd->dwRoleID, pLoadRoleCmd->dwTLUserID);
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "角色已被其他用户加载");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Role has been loaded by another user");
 
     switch (pCmd->eCmdState)
     {
@@ -986,22 +986,22 @@ BOOL CB_LoadRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             DBG("TLUserID[%u] load role send msg to ms to check role is frozen", pTLUser->GetID());
             // online 
             nRetCode = CMessageHandler::GetInstance().DoCheckRoleFreeze(pTLUser->GetID(), pCmd->dwSerialID, pLoadRoleCmd->dwRoleID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS.");
         }
         else
         {
             DBG("TLUserID[%u] load role ask db to check role is frozen", pTLUser->GetID());
             nRetCode = CDBMgr::GetInstance().CheckRoleFreeze(pLoadRoleCmd);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "角色未被冻结");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Role is not frozen.");
         }
     }
         break;
     case GM_LS_MS_CHECK_ROLE_FREEZE_ACK:
     {
-        LOG_ECHO_ERROR(pLoadRoleCmd->nResult != errGMRoleNotFreeze, pTLUser->GetSessionID(), "角色未被冻结");
-        LOG_ECHO_ERROR(pLoadRoleCmd->nResult != errGMRoleFreezeLessOneHour, pTLUser->GetSessionID(), "角色冻结时间小于1小时");
-        LOG_ECHO_ERROR(pLoadRoleCmd->nResult != errGMRoleOnline, pTLUser->GetSessionID(), "角色在线");
-        LOG_ECHO_ERROR(pLoadRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "其他错误[%s]", CGmServer::GetInstance().GetErrString(pLoadRoleCmd->nResult));
+        LOG_ECHO_ERROR(pLoadRoleCmd->nResult != errGMRoleNotFreeze, pTLUser->GetSessionID(), "Role is not frozen.");
+        LOG_ECHO_ERROR(pLoadRoleCmd->nResult != errGMRoleFreezeLessOneHour, pTLUser->GetSessionID(), "Role freeze time is less than 1 hour.");
+        LOG_ECHO_ERROR(pLoadRoleCmd->nResult != errGMRoleOnline, pTLUser->GetSessionID(), "Role is online.");
+        LOG_ECHO_ERROR(pLoadRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Other error[%s]", CGmServer::GetInstance().GetErrString(pLoadRoleCmd->nResult));
 
         pCmd->eCmdState = GM_LS_LOAD_ROLE;
     }
@@ -1010,7 +1010,7 @@ BOOL CB_LoadRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] load role", pTLUser->GetID());
         nRetCode = CDBMgr::GetInstance().LoadRole(pLoadRoleCmd->dwSerialID, pLoadRoleCmd->dwRoleID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Database query failed");
 
         pCmd->eCmdState = GM_LS_TIMEOUT;
     }
@@ -1020,16 +1020,16 @@ BOOL CB_LoadRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] load role timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Execution timeout");
         }
     }
         break;
     case GM_LS_LOAD_ROLE_ACK:
     {
-        LOG_ECHO_ERROR(pLoadRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载角色失败");
+        LOG_ECHO_ERROR(pLoadRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load role");
 
         nRetCode = LoadRole(pLoadRoleCmd, pLoadRoleCmd->nLength, pLoadRoleCmd->szData);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解析角色数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to parse role data");
 
         pCmd->eCmdState = GM_LS_LOAD_MAIL;
     }
@@ -1039,20 +1039,20 @@ BOOL CB_LoadRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
 
         nRetCode = CDBMgr::GetInstance().LoadMail(pLoadRoleCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Database query failed");
     }
         break;
     case GM_LS_LOAD_MAIL_ACK:
     {
-        LOG_ECHO_ERROR(pLoadRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载邮件失败");
+        LOG_ECHO_ERROR(pLoadRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load mail");
 
         nRetCode = LoadMail(pLoadRoleCmd, pLoadRoleCmd->nLength, pLoadRoleCmd->szData);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解析邮件数据失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to parse mail data");
 
         nRetCode = CMessageHandler::GetInstance().DoTLLoadRoleDataAck(pTLUser->GetSessionID(), pLoadRoleCmd->dwRoleID, pLoadRoleCmd->nLength, pLoadRoleCmd->szData);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "加载角色数据成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to load role");
 
         if (pLoadRoleCmd->poRole)
         {
@@ -1102,12 +1102,12 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     LOG_PROCESS_ERROR(pTLUser);
 
     nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pModifyRoleCmd->dwRoleID, pModifyRoleCmd->dwTLUserID);
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "角色已被其他用户加载");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Role has been loaded by another user");
 
     if (pModifyRoleCmd->dwTargetRoleID != 0)
     {
         nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pModifyRoleCmd->dwTargetRoleID, pModifyRoleCmd->dwTLUserID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "目标角色已被其他用户加载");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Target role has been loaded by another user");
     }
 
     switch (pCmd->eCmdState)
@@ -1119,7 +1119,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             DBG("TLUserID[%u] modify role send msg to ms to clear role cache", pTLUser->GetID());
 
             nRetCode = CMessageHandler::GetInstance().DoMSClearRoleCache(pModifyRoleCmd->dwTLUserID, pModifyRoleCmd->dwRoleID, pModifyRoleCmd->dwSerialID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to ms");
 
             pCmd->eCmdState = GM_LS_TIMEOUT;
         }
@@ -1135,14 +1135,14 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     case GM_LS_MS_DEL_ROLE_CACHE_ACK:
     {
         DBG("TLUserID[%u] modify role step 90, Result[%d]", pTLUser->GetID(), pModifyRoleCmd->nResult);
-        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "清楚角色cache数据失败");
+        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to clear role cache data");
 
         if (pModifyRoleCmd->bClearTargetRoleCache == FALSE)
         {
             DBG("TLUserID[%u] modify role send msg to ms to clear target cache", pTLUser->GetID());
 
             nRetCode = CMessageHandler::GetInstance().DoMSClearRoleCache(pModifyRoleCmd->dwTLUserID, pModifyRoleCmd->dwTargetRoleID, pModifyRoleCmd->dwSerialID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to ms");
 
             pModifyRoleCmd->bClearTargetRoleCache = TRUE;
             pModifyRoleCmd->eCmdState = GM_LS_TIMEOUT;
@@ -1174,7 +1174,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
                     DBG("TLUserID[%u] modify role send msg to ms to del mail", pTLUser->GetID());
 
                     nRetCode = CMessageHandler::GetInstance().DoMSDelMail(pTLUser->GetID(), pCmd->dwSerialID, pModifyRoleCmd->dwRoleID, *((UINT32*)pSlot->szData));
-                    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+                    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to ms");
 
                     ++pModifyRoleCmd->nMailCount;
                     //LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "ms在线，不能删除邮件");
@@ -1184,7 +1184,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
                     DBG("TLUserID[%u] modify role db del mail", pTLUser->GetID());
 
                     nRetCode = CDBMgr::GetInstance().DelMail(*((UINT32*)pSlot->szData));
-                    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "执行超时");
+                    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to execute timeout");
                     --pModifyRoleCmd->nSlotCount;
 
                     GM_LOG_BUFFER   buff;
@@ -1232,7 +1232,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pModifyRoleCmd->poSelfRole = NULL;
 
         nRetCode = CDBMgr::GetInstance().LoadRole(pModifyRoleCmd->dwSerialID, pModifyRoleCmd->dwRoleID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query role from database");
 
         pModifyRoleCmd->eCmdState = GM_LS_TIMEOUT;
     }
@@ -1242,14 +1242,14 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] modify role timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Failed to execute timeout");
         }
     }
         break;
     case GM_LS_LOAD_ROLE_ACK:
     {
         DBG("TLUserID[%u] modify role Result[%d]", pTLUser->GetID(), pModifyRoleCmd->nResult);
-        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载角色数据失败");
+        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load role data");
 
         if (pModifyRoleCmd->dwTargetRoleID == 0)
         {
@@ -1265,7 +1265,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
                 pModifyRoleCmd->poRole = pModifyRoleCmd->poTargetRole;
 
                 nRetCode = CDBMgr::GetInstance().LoadRole(pModifyRoleCmd->dwSerialID, pModifyRoleCmd->dwTargetRoleID);
-                LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+                LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query role from database");
                 pModifyRoleCmd->eCmdState = GM_LS_TIMEOUT;
             }
             else
@@ -1278,11 +1278,11 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         break;
     case GM_LS_MODIFY_ROLE:
     {
-        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载目标角色失败");
+        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load target role");
 
         // modify role
         nRetCode = ModifyRoleData(pModifyRoleCmd);
-        LOG_ECHO_ERROR(nRetCode == errSuccess, pTLUser->GetSessionID(), "修改角色数据成功");
+        LOG_ECHO_ERROR(nRetCode == errSuccess, pTLUser->GetSessionID(), "Failed to modify role data");
 
         pModifyRoleCmd->eCmdState = GM_LS_MODIFY_ROLE_ACK;
         pModifyRoleCmd->nResult = errSuccess;
@@ -1293,7 +1293,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] modify role Result[%d]", pTLUser->GetID(), pModifyRoleCmd->nResult);
 
-        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "修改角色数据失败");
+        LOG_ECHO_ERROR(pModifyRoleCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to modify role data");
 
         for (CMD_MODIFY_ROLE::LOG_LIST::iterator iter = pModifyRoleCmd->logList.begin(); iter != pModifyRoleCmd->logList.end(); ++iter)
         {
@@ -1303,18 +1303,18 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         }
 
         nRetCode = CGMRoleMgr::GetInstance().DelRole(pModifyRoleCmd->dwRoleID, pModifyRoleCmd->dwTLUserID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解锁角色失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to unlock role");
 
         if (pModifyRoleCmd->dwTargetRoleID)
         {
             nRetCode = CGMRoleMgr::GetInstance().DelRole(pModifyRoleCmd->dwTargetRoleID, pModifyRoleCmd->dwTLUserID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解锁目标角色失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to unlock target role");
         }
 
         nRetCode = CMessageHandler::GetInstance().DoTLModifyRoleDataAck(pTLUser->GetSessionID(), pModifyRoleCmd->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "修改角色数据成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to modify role data");
 
         if (pModifyRoleCmd->poSelfRole)
         {
@@ -1387,7 +1387,7 @@ BOOL CB_QueryNameToID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
 
         nRetCode = CDBMgr::GetInstance().QueryNameToID(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query name to ID from database");
     }
         break;
     case GM_LS_TIMEOUT:
@@ -1395,7 +1395,7 @@ BOOL CB_QueryNameToID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] query name id list timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Failed to query name to ID from database");
         }
     }
         break;
@@ -1403,7 +1403,7 @@ BOOL CB_QueryNameToID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] query name id list Result[%d]", pTLUser->GetID(), pQueryCmd->nResult);
 
-        LOG_ECHO_ERROR(pQueryCmd->nResult == errSuccess, pTLUser->GetSessionID(), "批量查询失败");
+        LOG_ECHO_ERROR(pQueryCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to query name to ID from database");
 
         nRetCode = CMessageHandler::GetInstance().DoTLQueryNameToIDAck(pTLUser->GetSessionID(), pQueryCmd->nIndex, pQueryCmd->dwRoleID);
         LOG_CHECK_ERROR(nRetCode);
@@ -1411,7 +1411,7 @@ BOOL CB_QueryNameToID(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         //nRetCode = CGMLog::GetInstance().WriteLog(pQueryCmd->szUserName, "query name to id", "Name[%s]", pQueryCmd->szRoleName);
         //LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "批量查询角色ID成功");
+        EchoTLError(pTLUser->GetSessionID(), "Bulk character ID query successful.");
 
         //pTLUser->ClearCmd();
         CKernel::GetInstance().PopCmd(pCmd);
@@ -1452,14 +1452,14 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             DBG("TLUserID[%u] role exe gm cmd send msg to ms to check role online", pTLUser->GetID());
 
             nRetCode = CMessageHandler::GetInstance().DoCheckRoleFreeze(pTLUser->GetID(), pCmd->dwSerialID, pRoleExeCmd->dwRoleID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS");
         }
         else
         {
             DBG("TLUserID[%u] role exe gm cmd ms not online, db check role online", pTLUser->GetID());
 
             nRetCode = CDBMgr::GetInstance().CheckRoleFreeze(pRoleExeCmd);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "角色未被冻结");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to check role freeze");
 
             pCmd->eCmdState = GM_LS_MS_CHECK_ROLE_FREEZE_ACK;
             pRoleExeCmd->nResult = errSuccess;
@@ -1468,10 +1468,11 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         break;
     case GM_LS_MS_CHECK_ROLE_FREEZE_ACK:
     {
-        LOG_ECHO_ERROR(pRoleExeCmd->nResult != errGMRoleNotFreeze, pTLUser->GetSessionID(), "角色未被冻结");
-        LOG_ECHO_ERROR(pRoleExeCmd->nResult != errGMRoleFreezeLessOneHour, pTLUser->GetSessionID(), "角色冻结时间小于1小时");
-        LOG_ECHO_ERROR(pRoleExeCmd->nResult != errGMRoleOnline, pTLUser->GetSessionID(), "角色在线");
-        LOG_ECHO_ERROR(pRoleExeCmd->nResult == errSuccess, pTLUser->GetSessionID(), "其他错误");
+        LOG_ECHO_ERROR(pRoleExeCmd->nResult != errGMRoleNotFreeze, pTLUser->GetSessionID(), "Failed to check role freeze");
+        LOG_ECHO_ERROR(pRoleExeCmd->nResult != errGMRoleFreezeLessOneHour, pTLUser->GetSessionID(), "Failed to check role freeze");
+
+        LOG_ECHO_ERROR(pRoleExeCmd->nResult != errGMRoleOnline, pTLUser->GetSessionID(), "Character is online.");
+        LOG_ECHO_ERROR(pRoleExeCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Other errors");
 
         pCmd->eCmdState = GM_LS_MS_DEL_ROLE_CACHE;
     }
@@ -1484,7 +1485,7 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             DBG("TLUserID[%u] role exe gm cmd send msg to ms, clear role cache", pTLUser->GetID());
 
             nRetCode = CMessageHandler::GetInstance().DoMSClearRoleCache(pRoleExeCmd->dwTLUserID, pRoleExeCmd->dwRoleID, pRoleExeCmd->dwSerialID);
-            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "发送消息到ms失败");
+            LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to MS");
         }
         else
         {
@@ -1499,10 +1500,10 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] role exe gm cmd clear role cache Result[%d]", pTLUser->GetID(), pRoleExeCmd->nResult);
 
-        LOG_ECHO_ERROR(pRoleExeCmd->nResult == errSuccess, pTLUser->GetSessionID(), "清楚角色cache数据失败");
+        LOG_ECHO_ERROR(pRoleExeCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to clear role cache data");
 
         nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pRoleExeCmd->dwRoleID, pRoleExeCmd->dwTLUserID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "角色已被其他用户加载");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Character has been loaded by another user");
 
         pCmd->eCmdState = GM_LS_LOAD_ROLE;
     }
@@ -1510,7 +1511,7 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     case GM_LS_LOAD_ROLE:
     {
         nRetCode = CDBMgr::GetInstance().LoadRole(pRoleExeCmd->dwSerialID, pRoleExeCmd->dwRoleID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database");
 
         DBG("TLUserID[%u] role exe gm cmd ExeSuccess", pTLUser->GetID());
     }
@@ -1520,7 +1521,7 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] role exe gm cmd timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Failed to execute command within timeout");
         }
     }
         break;
@@ -1528,16 +1529,16 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         DBG("TLUserID[%u] role exe gm cmd Result[%d]", pTLUser->GetID(), pRoleExeCmd->nResult);
 
-        LOG_ECHO_ERROR(pRoleExeCmd->nResult == errSuccess, pTLUser->GetSessionID(), "加载角色数据失败");
+        LOG_ECHO_ERROR(pRoleExeCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to load role data");
 
         nRetCode = ExeLuaGMCmd(pRoleExeCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "执行GM指令失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to execute GM command");
 
         nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pRoleExeCmd->dwRoleID, pRoleExeCmd->dwTLUserID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "角色已被其他用户加载");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Character has been loaded by another user");
 
         nRetCode = CGMRoleMgr::GetInstance().DelRole(pRoleExeCmd->dwRoleID, pRoleExeCmd->dwTLUserID);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解锁角色失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to unlock character");
 
         LOG_CHECK_ERROR(pRoleExeCmd->poRole);
         if (pRoleExeCmd->poRole)
@@ -1552,7 +1553,7 @@ BOOL CB_RoleExeCmd(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
             pRoleExeCmd->dwRoleID, pRoleExeCmd->szGM, pRoleExeCmd->szReason);
         LOG_CHECK_ERROR(nRetCode);
 
-        EchoTLError(pTLUser->GetSessionID(), "对角色执行gm指令成功");
+        EchoTLError(pTLUser->GetSessionID(), "Failed to execute GM command");
 
         CKernel::GetInstance().PopCmd(pCmd);
         CCmdMgr::GetInstance().DeleteCmd(pCmd);
@@ -1582,10 +1583,6 @@ Exit0:
     return FALSE;
 }
 
-
-
-
-
 BOOL CB_QuerySysExchangeInfo(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
 {
     INT32       nRetCode = 0;
@@ -1603,7 +1600,7 @@ BOOL CB_QuerySysExchangeInfo(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         pCmd->eCmdState = GM_LS_TIMEOUT;
 
         nRetCode = CDBMgr::GetInstance().QuerySysExchangeOrder(pQueryCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database");
     }
         break;
     case GM_LS_TIMEOUT:
@@ -1611,14 +1608,14 @@ BOOL CB_QuerySysExchangeInfo(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
         if (time(NULL) > pCmd->nTimeout)
         {
             INF("TLUserID[%u] Query system exchange info timeout", pTLUser->GetID());
-            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "执行超时");
+            LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "Failed to execute command within timeout");
         }
     }
         break;
     case GM_LS_SYS_EXCHANGE_ORDER_ACK:
     {
         DBG("TLUserID[%u] query sys exchange order result[%d]", pTLUser->GetID(), pCmd->nResult);
-        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to query database");
         pCmd->eCmdState = GM_LS_SYS_EXCHANGE_LOG;
     }
         break;
@@ -1626,13 +1623,13 @@ BOOL CB_QuerySysExchangeInfo(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
     {
         pCmd->eCmdState = GM_LS_TIMEOUT;
         nRetCode = CDBMgr::GetInstance().QuerySysExchangeLog(pCmd);
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to query database");
     }
         break;
     case GM_LS_SYS_EXCHANGE_LOG_ACK:
     {
         DBG("TLUserID[%u] query sys exchange log result[%d]", pTLUser->GetID(), pCmd->nResult);
-        LOG_ECHO_ERROR(pQueryCmd->nResult == errSuccess, pTLUser->GetSessionID(), "数据库查询失败");
+        LOG_ECHO_ERROR(pQueryCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to query database");
 
         nRetCode = CMessageHandler::GetInstance().DoTLQuerySystemExchangeInfo(pTLUser->GetSessionID(), 
             pQueryCmd->dwBeginDayTime, pQueryCmd->dwEndDayTime, 
@@ -1660,8 +1657,3 @@ Exit0:
     CCmdMgr::GetInstance().DeleteCmd(pCmd);
     return FALSE;
 }
-
-
-
-
-

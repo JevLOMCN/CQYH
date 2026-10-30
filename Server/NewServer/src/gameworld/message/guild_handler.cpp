@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	16:4:2013   15:48
-	file:		guild_handler.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "message_handler.h"
 

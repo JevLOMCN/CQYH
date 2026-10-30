@@ -10,9 +10,6 @@ CMSGuildAchiMgr & CMSGuildAchiMgr::GetInstance()
     return m_Instance;
 }
 
-
-
-
 CMSGuildAchiMgr::CMSGuildAchiMgr()
 {
 
@@ -21,7 +18,6 @@ CMSGuildAchiMgr::CMSGuildAchiMgr()
 CMSGuildAchiMgr::~CMSGuildAchiMgr()
 {
 }
-
 
 BOOL CMSGuildAchiMgr::Init()
 {
@@ -47,7 +43,6 @@ BOOL CMSGuildAchiMgr::UnInit()
 
     return nRetCode;
 }
-
 
 BOOL CMSGuildAchiMgr::AddAchiType(INT32 nType, INT32 nParam1, INT32 nAchiID)
 {
@@ -177,6 +172,3 @@ void CMSGuildAchiMgr::RecordAchiCondition(INT32 nType, CMsGuild *poMsGuild)
 Exit0:
     return;
 }
-
-
-

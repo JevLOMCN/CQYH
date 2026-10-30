@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	3:12:2013   15:27
-	file:		ms_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "ms_mgr.h"
 //#include "gm_svr_def.h"
@@ -162,6 +154,3 @@
 //    return MAX_MS_SESSION_COUNT;
 //}
 //
-
-
-

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	12:8:2013   13:29
-	file:		message_handler_gm.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "string_def.h"
 #include "message_handler.h"
@@ -16,10 +8,7 @@
 #include "script_mgr.h"
 #include "role_data_mgr.h"
 
-
-
 using namespace InternalMessage;
-
 
 //BOOL CMessageHandler::DoGMLoginAck(UINT32 dwGMSessionID, INT32 nResult)
 //{
@@ -322,4 +311,3 @@ using namespace InternalMessage;
 //
 //
 //}
-

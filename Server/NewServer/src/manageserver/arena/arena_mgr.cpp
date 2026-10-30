@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	26:6:2014   14:34
-	file:		arena_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "arena_mgr.h"
 #include "scene_data.h"
@@ -27,7 +19,6 @@ CArenaMgr& CArenaMgr::GetInstance()
 {
     return m_Instace;
 }
-
 
 CArenaMgr::CArenaMgr()
 {
@@ -355,7 +346,6 @@ BOOL CArenaMgr::UpdateSeasonInfo(UINT8 byGroup, UINT32 dwRoleID, UINT8 byPointSe
         }
     }
 
-
     // update sql
     nRetCode = _UpdateRank(byGroup);
     LOG_PROCESS_ERROR(nRetCode);
@@ -433,7 +423,6 @@ Exit0:
     return g_GWConfig.ArenaReward[0].dwItemID;
 }
 
-
 INT32 CArenaMgr::GetRewardMoney(UINT8 byGroup, INT32 nRank)
 {
     INT64       qwMoney = 0;
@@ -479,7 +468,6 @@ Exit0:
 //
 //    }
 //}
-
 
 void CArenaMgr::End()
 {
@@ -530,7 +518,6 @@ void CArenaMgr::Clear()
     ReInit();
 }
 
-
 BOOL CArenaMgr::DeleteTriggerData(BASE_TRIGGER_NODE *pNode)
 {
     LOG_PROCESS_ERROR(pNode);
@@ -542,13 +529,10 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CArenaMgr::LuaBroadcastArenaBegin()
 {
     return CMessageHandler::GetInstance().DoClientArenaMatchBeginNtf();
 }
-
-
 
 BOOL CArenaMgr::MainLoop()
 {
@@ -596,7 +580,6 @@ BOOL CArenaMgr::_Match(UINT8 byGroup)
             m_FreeMatchDataList[byGroup].PushRear(pNode2);
         }
     }
-
 
     return TRUE;
 Exit0:
@@ -761,7 +744,6 @@ BOOL CArenaMgr::_InitTimer()
     LOG_PROCESS_ERROR(nRetCode);
     pTrigger = NULL;
 
-
     return TRUE;
 Exit0:
     if (pTrigger)
@@ -819,7 +801,6 @@ BOOL CArenaMgr::_UpdateRank(UINT8 byGroup)
 Exit0:
     return FALSE;
 }
-
 
 INT32 CB_TuesdayBegin(BASE_TRIGGER_NODE *pNode)
 {
@@ -952,6 +933,3 @@ BOOL LoadArena(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
-
-

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	7:8:2013   11:32
-	file:		tl_config.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "sol_bindings.h"
 #include "tl_config.h"
@@ -16,7 +8,6 @@
 TL_CONFIG   g_TLConfig;
 static char szLoadFileName[256] = {0};
 static char szSaveFilePath[256] = {0};
-
 
 BOOL LoadTLConfig(const char *pcszFileName)
 {

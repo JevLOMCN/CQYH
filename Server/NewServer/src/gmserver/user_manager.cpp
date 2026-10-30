@@ -1,12 +1,3 @@
-/********************************************************************
-	created:	3:12:2013   17:28
-	file:		user_manager.cpp
-	author:		Allan Tao
-	
-	purpose:	gm tool manager
-*********************************************************************/
-
-
 #include "stdafx.h"
 #include "user_manager.h"
 #include "gm_svr_def.h"
@@ -21,7 +12,6 @@ CUserManager  &CUserManager::GetInstance()
 {
     return m_Instance;
 }
-
 
 CUserManager::CUserManager()
 {
@@ -63,7 +53,6 @@ Exit0:
     return FALSE;
 }
 
-
 INT32 CUserManager::LoginUser(UINT32 dwTLSessionID, UINT32 dwIP, const char *pcszName, const char *pcszPwd)
 {
     INT32       nResult = errUnknownError;
@@ -99,7 +88,6 @@ INT32 CUserManager::LoginUser(UINT32 dwTLSessionID, UINT32 dwIP, const char *pcs
         pTLUser->SetLD();
     }
         
-
     return errSuccess;
 Exit0:
     return nResult;
@@ -132,7 +120,6 @@ BOOL CUserManager::LogoutUser(UINT32 dwTLUserID)
 Exit0:
     return FALSE;
 }
-
 
 BOOL CUserManager::_IsExistLD(CTLUser *pTLUser)
 {
@@ -184,6 +171,3 @@ void CUserManager::_DelLDUser(CTLUser *pTLUser)
 Exit0:
     return;
 }
-
-
-

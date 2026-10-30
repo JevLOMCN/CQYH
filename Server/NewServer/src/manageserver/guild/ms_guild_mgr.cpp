@@ -1,11 +1,3 @@
-/********************************************************************
-created:	7:4:2013   15:23
-file:		ms_guild_mgr.cpp
-author:		Allan Tao
-
-purpose:	Guild logic, including guild lists and sorted queries
-*********************************************************************/
-
 #include "stdafx.h"
 #include "ms_guild_mgr.h"
 
@@ -31,9 +23,7 @@ purpose:	Guild logic, including guild lists and sorted queries
 
 using namespace std;
 
-
 CMsGuildMgr CMsGuildMgr::ms_Instance_;
-
 
 CMsGuildMgr::CMsGuildMgr()
 {
@@ -44,7 +34,6 @@ CMsGuildMgr::~CMsGuildMgr()
 {
     memset(m_pRoot, 0, sizeof(m_pRoot));
 }
-
 
 CMsGuildMgr & CMsGuildMgr::GetInstance()
 {
@@ -185,9 +174,6 @@ BOOL CMsGuildMgr::_SortLadder()
 
     return TRUE;
 }
-
-
-
 
 BOOL InsertToTNDList(GUILD_RESOURCE_STAT *pList, INT32 nListNum, UINT32 dwGuildID, UINT32 dwValue)
 {
@@ -366,7 +352,6 @@ BOOL CMsGuildMgr::Init()
         LOG_PROCESS_ERROR(nRetCode);
     }
 
-
     nRetCode = CManageServer::GetInstance().GetSqlMgr().SyncExecSqlStmt(mysqlSelectGuild, ::LoadGuild, NULL, "");
     LOG_PROCESS_ERROR(nRetCode);
 
@@ -399,7 +384,6 @@ BOOL CMsGuildMgr::Init()
         LOG_PROCESS_ERROR(nRetCode);
     }
     
-
 	return TRUE;
 Exit0:
 	return FALSE;
@@ -596,10 +580,8 @@ BOOL CMsGuildMgr::MainLoop()
 		}
 	}
 
-
 	return TRUE;
 }
-
 
 BOOL CMsGuildMgr::InsertGuildIntoLvlRank(CMsGuild *poMsGuild)
 {
@@ -703,8 +685,6 @@ BOOL CMsGuildMgr::DelEnemy(INT32 dwGuildID, INT32 dwEnemyID)
 
     return TRUE;
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////
 BOOL CMsGuildMgr::AddWarData(INT32 nGroupID, UINT32 dwIntruderID, UINT32 dwDefenderID, UINT32 dwTime)
@@ -849,7 +829,6 @@ BOOL CMsGuildMgr::IsWarRelation(UINT32 dwGuildID1, UINT32 dwGuildID2)
     return FALSE;
 }
 
-
 BOOL CMsGuildMgr::ClearWarData()
 {
     INT32       nRetCode = 0;
@@ -933,9 +912,7 @@ MS_GUILD_WAR_DATA* CMsGuildMgr::NextWarData()
     return NULL;
 }
 
-
 //////////////////////////////////////////////////////////////////////////
-
 
 CMsGuild *CMsGuildMgr::GetFirstGuildOnLvlRank()
 {
@@ -1137,7 +1114,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CMsGuildMgr::SyncAllGuildDataToGS(UINT32 dwGSSessionID)
 {
     CMsGuild    *poMsGuild = NULL;
@@ -1160,7 +1136,6 @@ BOOL CMsGuildMgr::SyncAllGuildDataToGS(UINT32 dwGSSessionID)
     }
     return TRUE;
 }
-
 
 BOOL CMsGuildMgr::SyncGuildDataToClient(MS_ONLINE_ROLE_DATA* pstOnlineRole, UINT32 dwGuildID)
 {
@@ -1194,7 +1169,6 @@ BOOL CMsGuildMgr::SyncGuildDataToClient(MS_ONLINE_ROLE_DATA* pstOnlineRole, UINT
 Exit0:
 	return FALSE;
 }
-
 
 INT32 CMsGuildMgr::PreCreateGuild(UINT32 dwNewGuildID, MS_ONLINE_ROLE_DATA &onlineRoleData, const char *pcszGuildName, const char *pcszAnnounce, INT32 nIsNeedToConsume)
 {
@@ -1300,7 +1274,6 @@ Exit0:
 	return nResult;
 }
 
-
 BOOL CMsGuildMgr::DestroyGuild(CMsGuild *poMsGuild)
 {
     INT32   nRetCode = errGuildFailed;
@@ -1363,9 +1336,6 @@ CMsGuild * CMsGuildMgr::FindGuildByName(const char *pcszGuildName)
 Exit0:
 	return NULL;
 }
-
-
-
 
 //BOOL CMsGuildMgr::_GuildApplicationWashOut(UINT32 dwCurrentTime, UINT32 dwCheckTime)
 //{
@@ -1577,7 +1547,3 @@ BOOL GuildSyncResChange(UINT32 dwNpcID, UINT32 dwGuildID, BOOL bAdd, INT32 nResT
 {
     return CMessageHandler::GetInstance().DoGSGuildChangeRes(dwNpcID, dwGuildID, bAdd, nResType, nChangeCount, nCtxType);
 }
-
-
-
-

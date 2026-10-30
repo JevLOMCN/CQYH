@@ -1,12 +1,3 @@
-/********************************************************************
-	created:	5:12:2013   10:25
-	file:		result.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
-
 #include "stdafx.h"
 #include "gm_exchange_ui.h"
 #include "detail.h"
@@ -15,7 +6,6 @@
 #include "message_handler.h"
 #include "server_mgr.h"
 #include <memory>
-
 
 CDetailDialog::CDetailDialog(INT32 nGroupID, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
@@ -26,8 +16,6 @@ CDetailDialog::CDetailDialog(INT32 nGroupID, QWidget *parent, Qt::WindowFlags fl
 
     connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(Exit()));
     connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(CancelSystemOrder()));
-
-
 }
 
 CDetailDialog::~CDetailDialog()

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	2:9:2013   17:41
-	file:		guild_welfare.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "guild_welfare_data.h"
 #include "read_data_helper.h"

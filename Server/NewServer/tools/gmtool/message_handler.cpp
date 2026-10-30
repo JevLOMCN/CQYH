@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	6:8:2013   13:33
-	file:		message_handler.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "message_handler.h"
 #include "gm_session_events.h"
@@ -40,9 +32,7 @@
 #include "gm_version.h"
 #include "ld_widget.h"
 
-
 using namespace InternalMessage;
-
 
 void CMessageHandler::OnAccepted(ISocketAcceptor* pSocketAcceptor, ISocketSession* pSocketSession)
 {

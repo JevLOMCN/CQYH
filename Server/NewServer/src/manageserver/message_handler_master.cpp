@@ -3,7 +3,6 @@
 #include "m2c_message.h"
 #include "message_handler.h"
 
-
 #include "manageserver.h"
 #include "master/master_mgr.h"
 #include "./onlinerole/online_role_data_mgr.h"
@@ -14,8 +13,6 @@
 #include "game_world_config.h"
 
 using namespace ExternalMessage;
-
-
 
 void CMessageHandler::OnClientMstTeacherIgnore(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, MS_ONLINE_ROLE_DATA* pstOnlineRole)
 {
@@ -1361,11 +1358,3 @@ Exit0:
         m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
     return FALSE;
 }
-
-
-
-
-
-
-
-

@@ -814,8 +814,6 @@ Exit0:
     return FALSE;
 }
 
-
-
 BOOL CB_DBPreQueryRoleID(std::list<void*>& rResult, void* pUserData)
 {
     INT32       nRetCode = 0;
@@ -890,7 +888,6 @@ BOOL CB_DBQueryRoleID(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
 
 BOOL CB_DBQueryGuildID(std::list<void*>& rResult, void* pUserData)
 {
@@ -982,8 +979,6 @@ BOOL CB_DBQueryGMForbid(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
-
 
 //BOOL CB_DBForbiddenChat(std::list<void*>& rResult, void* pUserData)
 //{
@@ -1105,7 +1100,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CB_DBLoadRole(std::list<void*>& rResult, void* pUserData)
 {
     INT32       nRetCode = 0;
@@ -1192,7 +1186,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CB_DBLoadMail(std::list<void*>& rResult, void* pUserData)
 {
     INT32           nRetCode = 0;
@@ -1252,7 +1245,6 @@ BOOL CB_DBLoadMail(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
 
 BOOL CB_DBRoleExeCmd(std::list<void*>& rResult, void* pUserData)
 {
@@ -1417,8 +1409,6 @@ BOOL CB_DBQueryNameToID(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
-
 
 BOOL CB_DBQueryExchangeLog(std::list<void*>& rResult, void* pUserData)
 {
@@ -1702,14 +1692,6 @@ BOOL CB_DBQuerySysExchangeLogInfo(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
-
-
-
-
-
-
-
 
 // log
 BOOL CB_DBQueryLogRoleLogin(std::list<void*>& rResult, void* pUserData)
@@ -2151,11 +2133,3 @@ BOOL CB_DBQueryLogQuest(std::list<void*>& rResult, void* pUserData)
 Exit0:
     return FALSE;
 }
-
-
-
-
-
-
-
-

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	19:11:2013   19:18
-	file:		ms_guild_member.cpp
-	author:		Allan Tao
-	
-	purpose:	ms guild member class
-*********************************************************************/
-
 #include "stdafx.h"
 #include "ms_guild_member.h"
 #include "ms_guild_mgr.h"
@@ -14,8 +6,6 @@
 #include "message_handler.h"
 #include "db/ms_sql_stmt_list.h"
 #include "sql_mgr.h"
-
-
 
 CMsGuildMember::CMsGuildMember() : 
 m_dwGuildID(INVALID_OBJECT_ID),
@@ -174,7 +164,6 @@ BOOL CMsGuildMember::SetDrawSalaryTime(UINT32 dwTime)
     return TRUE;
 }
 
-
 BOOL CMsGuildMember::_Save()
 {
     return CManageServer::GetInstance().GetSqlMgr().AsyncExecSqlStmt(mysqlUpdateGMember, NULL, NULL, "ucucduddud", m_byPosition, 
@@ -193,4 +182,3 @@ BOOL CMsGuildMember::SavePow()
 Exit0:
     return FALSE;
 }
-

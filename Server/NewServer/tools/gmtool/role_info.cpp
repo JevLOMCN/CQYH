@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	25:12:2013   16:14
-	file:		role_info.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include <format>
 #include <string>

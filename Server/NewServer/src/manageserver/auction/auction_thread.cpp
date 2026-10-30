@@ -643,5 +643,3 @@ Exit0:
     if (sr)
         delete sr;
 }
-
-

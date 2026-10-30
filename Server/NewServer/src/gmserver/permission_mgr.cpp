@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	17:12:2013   18:15
-	file:		permission_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "permission_mgr.h"
 #include "script_mgr.h"

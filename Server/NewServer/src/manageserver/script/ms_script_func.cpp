@@ -1,10 +1,3 @@
-/********************************************************************
-	created:	31:5:2013   10:27
-	file:		script_func.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
 #include "stdafx.h"
 #include "ms_script_func.h"
 
@@ -646,4 +639,3 @@ LUA_FUNC g_LuaScriptFuncTable[] =
     { "create_guild",               lua_create_guild },
 	{ 0, 0 },
 };
-
