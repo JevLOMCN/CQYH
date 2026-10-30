@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "PosLog.h"
 #include "PosLogDlg.h"
+#include <memory>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -56,7 +57,7 @@ BOOL CPosLogApp::InitInstance()
 
 	// Create the shell manager, in case the dialog contains
 	// any shell tree view or shell list view controls.
-	CShellManager *pShellManager = new CShellManager;
+	const auto shell_manager=std::make_unique<CShellManager>();
 
 	// Activate "Windows Native" visual manager for enabling themes in MFC controls
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
@@ -70,8 +71,14 @@ BOOL CPosLogApp::InitInstance()
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-	m_pMainWnd = &CPosLogDlg::GetInstance();
-	INT_PTR nResponse = CPosLogDlg::GetInstance().DoModal();
+	CPosLogDlg dialog;
+    m_pMainWnd=&dialog;
+    struct MainWindowReference
+    {
+        CWinApp& app;CWnd* window;
+        ~MainWindowReference(){if(app.m_pMainWnd==window)app.m_pMainWnd=nullptr;}
+    } main_window_reference{*this,&dialog};
+    INT_PTR nResponse=dialog.DoModal();
 	if (nResponse == IDOK)
 	{
 		// TODO: Place code here to handle when the dialog is
@@ -86,12 +93,6 @@ BOOL CPosLogApp::InitInstance()
 	{
 		TRACE(traceAppMsg, 0, "Warning: dialog creation failed, so application is terminating unexpectedly.\n");
 		TRACE(traceAppMsg, 0, "Warning: if you are using MFC controls on the dialog, you cannot #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS.\n");
-	}
-
-	// Delete the shell manager created above.
-	if (pShellManager != NULL)
-	{
-		delete pShellManager;
 	}
 
 	// Since the dialog has been closed, return FALSE so that we exit the

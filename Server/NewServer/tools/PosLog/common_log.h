@@ -1,61 +1,32 @@
-#ifndef common_log_h__
-#define common_log_h__
+#pragma once
+#include <compare>
+#include <cstddef>
+#include <cstdint>
+#include <expected>
+#include <filesystem>
+#include <iosfwd>
+#include <map>
+#include <optional>
+#include <string>
+#include <vector>
 
-#define MAX_FIELD_LEN	(1024)
-#define POINT_PER_CM	(1LL << 10)
-
-enum ELogField
+namespace poslog
 {
-	lfTime = 0,
-	lfAreaID,
-	lfGroupID,
-	lfRoleID,
-	lfSceneTempID,
-	lfSceneID,
-	lfX,
-	lfY,
-	lfZ,
-
-	lfCount
-};
-
-enum ETimeField
+inline constexpr std::int64_t points_per_cm=1024;
+inline constexpr std::int64_t max_scene_width=points_per_cm*128*2048;
+inline constexpr std::int32_t projection_extent=153600;
+struct Position { std::int32_t x{},y{};bool operator==(const Position&) const=default; };
+struct GroupKey
 {
-	tfYear = 0,
-	tfMonth,
-	tfDay,
-	tfHour,
-	tfMin,
-	tfSec,
-
-	tfCount
+    unsigned hour{};
+    std::uint32_t scene{};
+    auto operator<=>(const GroupKey&) const=default;
 };
-
-struct line_data
-{
-	int line_idx;
-	int time_value[tfCount];
-	int scene_temp_id;
-
-	__int64 x;
-	__int64 y;
-};
-
-struct log_context;
-
-typedef bool(*process_field_func)(int field_idx, int line_idx, const char* field_value, line_data* ld, log_context* context);
-typedef bool(*process_line_func)(int line_idx, const line_data* ld, log_context* context);
-typedef bool(*process_over_func)(log_context* context);
-
-struct log_context
-{
-	process_field_func _field_func;
-	process_line_func _line_func;
-	process_over_func _over_func;
-
-};
-
-bool load_file(const char* file_name, log_context* context);
-
-#endif // common_log_h__
-
+using Groups=std::map<GroupKey,std::vector<Position>>;
+struct LogData { Groups groups;std::size_t rows{},outside_scene{}; };
+struct Pixel { std::uint32_t column{},row{};bool operator==(const Pixel&) const=default; };
+std::optional<Position> project(std::int64_t x,std::int64_t y);
+std::optional<Pixel> pixel(Position point,std::uint32_t width,std::uint32_t height);
+std::expected<LogData,std::string> parse_log(std::istream& input);
+std::expected<LogData,std::string> load_log(const std::filesystem::path& filename);
+}

@@ -188,7 +188,7 @@ if(CQYH_BUILD_MFC_TOOLS AND MSVC)
         DEFINITIONS _UNICODE UNICODE
         LIBS cqyh::zlib)
 
-    cqyh_add_tool(PosLog OUTPUT PosLog64 GUI MFC PCH_DIR ${_tools_dir}/PosLog
+    cqyh_add_tool(PosLog OUTPUT PosLog64 GUI MFC STRICT PCH_DIR ${_tools_dir}/PosLog
         SOURCES
             PosLog/bmp_file.cpp
             PosLog/common_log.cpp
