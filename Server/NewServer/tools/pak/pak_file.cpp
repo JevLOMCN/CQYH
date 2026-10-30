@@ -1,1269 +1,655 @@
 #include "stdafx.h"
 #include "pak_file.h"
 
+#include <algorithm>
+#include <cstring>
+#include <filesystem>
+#include <format>
+#include <limits>
+#include <span>
+#include <stdexcept>
 #include <sys/stat.h>
-#include <direct.h>
+#include <type_traits>
 
-#include "zlib.h"
-#include "pak_def.h"
-#include "md5.h"
 #include "hash.h"
-#include "string_ex.h"
+#include "md5.h"
+#include "zlib.h"
 
-#define MAX_FILE_NAME_LEN		(128)
-#define MAX_FILE_COUNT_IN_PAK	(1024 * 128)
-#define MAX_PAK_CHUNK_COUNT		(1024 * 128 * 8)
-#define INVALID_PAK_FILE_INDEX		(-1)
-
-CPakFile::CPakFile()
+namespace
 {
-	m_pFile = NULL;
-	memset(m_szFileName, 0, sizeof(m_szFileName));
-	m_bUpdateHashTable = FALSE;
+namespace fs = std::filesystem;
+constexpr std::size_t max_name = 128;
+constexpr std::size_t max_files = 128 * 1024;
+constexpr std::size_t max_chunks = 8 * max_files;
+constexpr std::size_t max_metadata = max_files * sizeof(PAK_FILE_INFO) + max_chunks * sizeof(PAK_CHUNK_INFO);
+static_assert(sizeof(PAK_FILE_HEADER) == 52 && sizeof(PAK_FILE_INFO) == 80 && sizeof(PAK_CHUNK_INFO) == 8);
+static_assert(std::is_trivially_copyable_v<PAK_FILE_HEADER> && std::is_trivially_copyable_v<PAK_FILE_INFO>);
 
-	m_pHeader = NULL;
-	m_puHashTable = NULL;
-	m_pszNameBuffer = NULL;
-	m_pFileInfoList = NULL;
-	m_pChunkInfoList = NULL;
-	m_pnChunkOffsetList = NULL;
-	m_nChunkCount = 0;
+void check(bool condition, const char* message)
+{
+    if (!condition)
+        throw std::runtime_error(message);
+}
+
+template<class F>
+BOOL attempt(F&& operation)
+{
+    try
+    {
+        operation();
+        return TRUE;
+    }
+    catch (const std::exception& error)
+    {
+        std::fprintf(stderr, "pak: %s\n", error.what());
+        return FALSE;
+    }
+}
+
+UINT32 narrow(std::uint64_t value)
+{
+    check(value <= std::numeric_limits<UINT32>::max(), "Archive exceeds the 32-bit PAK format");
+    return static_cast<UINT32>(value);
+}
+
+UINT32 position(FILE* file)
+{
+    const auto offset = _ftelli64(file);
+    check(offset >= 0, "Cannot get archive position");
+    return narrow(offset);
+}
+
+void seek(FILE* file, std::uint64_t offset)
+{
+    check(_fseeki64(file, narrow(offset), SEEK_SET) == 0, "Cannot seek in archive");
+}
+
+UINT32 file_size(FILE* file)
+{
+    check(_fseeki64(file, 0, SEEK_END) == 0, "Cannot seek to archive end");
+    return position(file);
+}
+
+void read(FILE* file, void* data, std::size_t size)
+{
+    check(size == 0 || std::fread(data, 1, size, file) == size, "Truncated archive data");
+}
+
+void write(FILE* file, const void* data, std::size_t size)
+{
+    check(size == 0 || std::fwrite(data, 1, size, file) == size, "Cannot write archive data");
+}
+
+std::vector<char> read_region(FILE* file, UINT32 offset, UINT32 size, UINT32 total)
+{
+    check(offset <= total && size <= total - offset, "Archive section is outside the file");
+    std::vector<char> data(size);
+    seek(file, offset);
+    read(file, data.data(), data.size());
+    return data;
+}
+
+std::vector<char> compressed(std::span<const char> source)
+{
+    uLongf size = compressBound(narrow(source.size()));
+    std::vector<char> result(size);
+    check(compress(reinterpret_cast<Bytef*>(result.data()), &size,
+        reinterpret_cast<const Bytef*>(source.data()), narrow(source.size())) == Z_OK, "Compression failed");
+    result.resize(size);
+    return result;
+}
+
+std::vector<char> decompressed(std::span<const char> source, std::size_t limit)
+{
+    // Metadata compression ratios are not limited to the old fixed factor of four.
+    std::vector<char> result(std::min<std::size_t>(1024, limit));
+    for (;;)
+    {
+        uLongf size = narrow(result.size());
+        const int status = uncompress(reinterpret_cast<Bytef*>(result.data()), &size,
+            reinterpret_cast<const Bytef*>(source.data()), narrow(source.size()));
+        if (status == Z_OK)
+        {
+            result.resize(size);
+            return result;
+        }
+        check(status == Z_BUF_ERROR && result.size() < limit, "Invalid or oversized compressed metadata");
+        result.resize(std::min(limit, std::max<std::size_t>(1, result.size() * 2)));
+    }
+}
+
+template<class T>
+T consume(std::span<const char>& bytes)
+{
+    check(bytes.size() >= sizeof(T), "Truncated file or chunk record");
+    T record;
+    std::memcpy(&record, bytes.data(), sizeof(T));
+    bytes = bytes.subspan(sizeof(T));
+    return record;
+}
+
+template<class T>
+void append(std::vector<char>& bytes, const T& record)
+{
+    const auto data = std::as_bytes(std::span(&record, 1));
+    const auto begin = reinterpret_cast<const char*>(data.data());
+    bytes.insert(bytes.end(), begin, begin + data.size());
+}
+
+void digest(UINT8 (&result)[16], std::span<const char> bytes)
+{
+    calc_md5(result, reinterpret_cast<UINT8*>(const_cast<char*>(bytes.data())), narrow(bytes.size()));
+}
+
+struct Md5Deleter
+{
+    void operator()(md5_ctx* context) const noexcept
+    {
+        UINT8 ignored[16];
+        md5_final(ignored, context);
+    }
+};
 }
 
 CPakFile::~CPakFile()
 {
-	Close();
+    Close();
 }
 
-BOOL CPakFile::_Alloc(void)
+void CPakFile::Reset() noexcept
 {
-	_Free();
-
-	m_pHeader = (PAK_FILE_HEADER*)malloc(sizeof(*m_pHeader));
-	LOG_PROCESS_ERROR(m_pHeader);
-	memset(m_pHeader, 0, sizeof(*m_pHeader));
-
-	m_puHashTable = (unsigned int*)malloc(sizeof(*m_puHashTable) * MAX_FILE_COUNT_IN_PAK);
-	LOG_PROCESS_ERROR(m_puHashTable);
-	memset(m_puHashTable, INVALID_FILE_POS, 
-		sizeof(*m_puHashTable) * MAX_FILE_COUNT_IN_PAK);
-
-	m_pszNameBuffer = (char*)malloc(sizeof(*m_pszNameBuffer) * MAX_FILE_COUNT_IN_PAK * MAX_FILE_NAME_LEN);
-	LOG_PROCESS_ERROR(m_pszNameBuffer);
-	memset(m_pszNameBuffer, 0, sizeof(*m_pszNameBuffer) * MAX_FILE_COUNT_IN_PAK * MAX_FILE_NAME_LEN);
-
-	m_pFileInfoList = (PAK_FILE_INFO*)malloc(sizeof(*m_pFileInfoList) * MAX_FILE_COUNT_IN_PAK);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	memset(m_pFileInfoList, 0, sizeof(*m_pFileInfoList) * MAX_FILE_COUNT_IN_PAK);
-
-	m_pChunkInfoList = (PAK_CHUNK_INFO*)malloc(sizeof(*m_pChunkInfoList) * MAX_PAK_CHUNK_COUNT);
-	LOG_PROCESS_ERROR(m_pChunkInfoList);
-	memset(m_pChunkInfoList, 0, sizeof(*m_pChunkInfoList) * MAX_PAK_CHUNK_COUNT);
-
-	m_pnChunkOffsetList = (int*)malloc(sizeof(*m_pnChunkOffsetList) * MAX_FILE_COUNT_IN_PAK);
-	LOG_PROCESS_ERROR(m_pnChunkOffsetList);
-	memset(m_pnChunkOffsetList, 0, sizeof(*m_pnChunkOffsetList) * MAX_FILE_COUNT_IN_PAK);
-
-	m_nChunkCount = 0;
-
-	return TRUE;
-Exit0:
-	_Free();
-
-	return FALSE;
+    m_file.reset();
+    m_header = {};
+    m_entries.clear();
+    m_hash_table.clear();
+    m_fallback_name.clear();
+    m_open = m_dirty = m_hash_dirty = m_write_failed = false;
 }
 
-BOOL CPakFile::_Free(void)
+CPakFile::Entry& CPakFile::At(int index)
 {
-	m_nChunkCount = 0;
-	SAFE_FREE(m_pnChunkOffsetList);
-	SAFE_FREE(m_pChunkInfoList);
-	SAFE_FREE(m_pFileInfoList);
-	SAFE_FREE(m_pszNameBuffer);
-	SAFE_FREE(m_puHashTable);
-	SAFE_FREE(m_pHeader);
-
-	return TRUE;
+    check(m_open && index >= 0 && static_cast<std::size_t>(index) < m_entries.size(), "Invalid PAK file index");
+    return m_entries[index];
 }
 
-BOOL CPakFile::_UpdateHashTable(void)
+void CPakFile::UpdateHashTable()
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-
-	if (m_bUpdateHashTable)
-	{
-		memset(m_puHashTable, INVALID_FILE_POS, 
-			sizeof(*m_puHashTable) * MAX_FILE_COUNT_IN_PAK);
-
-		for (int nFileIndex = 0; nFileIndex < m_pHeader->nFileCount; nFileIndex++)
-		{
-			PAK_FILE_INFO* pFileInfo = m_pFileInfoList + nFileIndex;
-
-			// update hash value
-			int nPos = pFileInfo->dwNameHashA % m_pHeader->nFileCount;
-			int nTryIndex = 0;
-			for (; nTryIndex < m_pHeader->nFileCount; nTryIndex++)
-			{
-				if (m_puHashTable[nPos] == INVALID_FILE_POS)
-				{
-					m_puHashTable[nPos] = nFileIndex;
-					pFileInfo->dwHashTableIndex = nPos;
-					break;
-				}
-
-				nPos++;
-				if (nPos >= m_pHeader->nFileCount)
-					nPos = 0;
-			}
-			LOG_PROCESS_ERROR(nTryIndex < m_pHeader->nFileCount);
-		}
-	}
-	m_bUpdateHashTable = FALSE;
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    if (!m_hash_dirty)
+        return;
+    m_hash_table.assign(m_entries.size(), INVALID_FILE_POS);
+    for (std::size_t i = 0; i < m_entries.size(); ++i)
+    {
+        auto& info = m_entries[i].info;
+        auto slot = info.dwNameHashA % m_entries.size();
+        while (m_hash_table[slot] != INVALID_FILE_POS)
+            slot = (slot + 1) % m_entries.size();
+        m_hash_table[slot] = static_cast<UINT32>(i);
+        info.dwHashTableIndex = static_cast<UINT32>(slot);
+    }
+    m_hash_dirty = false;
 }
 
-BOOL CPakFile::Create(const char* pcszFileName)
+BOOL CPakFile::Create(const char* file_name)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	size_t uSize = 0;
-
-	LOG_PROCESS_ERROR(pcszFileName);
-
-	// if opened, return FALSE
-	LOG_PROCESS_ERROR(pcszFileName[0] != 0);
-
-	nRetCode = _Alloc();
-	LOG_PROCESS_ERROR(nRetCode);
-
-	// open the file
-	m_pFile = fopen(pcszFileName, "wb+");
-	LOG_PROCESS_ERROR(m_pFile);
-
-	// set file header
-	m_pHeader->dwTag = PAK_FILE_TAG;
-	m_pHeader->dwVersion = PAK_FILE_VERSION;
-	m_pHeader->dwDataOffset = sizeof(*m_pHeader);
-
-	uSize = fwrite(m_pHeader, 1, sizeof(*m_pHeader), m_pFile);
-	LOG_PROCESS_ERROR(uSize == sizeof(*m_pHeader));
-
-	strxcpy(m_szFileName, pcszFileName, MAX_PATH - 1);
-
-	bResult = TRUE;
-Exit0:
-	if (!bResult)
-	{
-		Close();
-	}
-
-	return bResult;
+    if (m_open)
+        return FALSE;
+    Reset();
+    const auto result = attempt([&]
+    {
+        check(file_name && *file_name, "Missing archive filename");
+        m_file.reset(std::fopen(file_name, "wb+"));
+        check(bool(m_file), "Cannot create archive");
+        m_header.dwTag = PAK_FILE_TAG;
+        m_header.dwVersion = PAK_FILE_VERSION;
+        m_header.dwDataOffset = sizeof(m_header);
+        write(m_file.get(), &m_header, sizeof(m_header));
+        m_open = m_dirty = m_hash_dirty = true;
+    });
+    if (!result)
+        Reset();
+    return result;
 }
 
-BOOL CPakFile::Open(const char* pcszFileName)
+BOOL CPakFile::Open(const char* file_name)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = FALSE;
-	size_t uSize = 0;
-	char* pszBuffer = NULL;
-	char* pszNameBuffer = NULL;
-	char* pszFileInfoBuffer = NULL;
-	char* pszTempFileInfoBuffer = NULL;
-	UINT32 dwFileInfoSize = 0;
+    if (m_open)
+        return FALSE;
+    Reset();
+    const auto result = attempt([&]
+    {
+        check(file_name && *file_name, "Missing archive filename");
+        m_file.reset(std::fopen(file_name, "rb+"));
+        check(bool(m_file), "Cannot open archive");
+        const auto total = file_size(m_file.get());
+        seek(m_file.get(), 0);
+        read(m_file.get(), &m_header, sizeof(m_header));
+        check(m_header.dwTag == PAK_FILE_TAG && m_header.dwVersion == PAK_FILE_VERSION, "Unsupported PAK header");
+        check(m_header.nFileCount >= 0 && m_header.nFileCount <= max_files, "Invalid archive file count");
+        check(m_header.dwDataOffset >= sizeof(m_header) && m_header.dwDataOffset <= total, "Invalid data offset");
+        check(m_header.dwFileNameSize <= max_name * max_files, "Oversized archive name buffer");
+        check(m_header.dwFileInfoSize <= compressBound(max_metadata), "Oversized archive metadata");
 
-	LOG_PROCESS_ERROR(pcszFileName);
-
-	// if opened, return FALSE
-	LOG_PROCESS_ERROR(m_szFileName[0] == 0);
-
-	// alloc objects
-	nRetCode = _Alloc();
-	LOG_PROCESS_ERROR(nRetCode);
-
-	// open the file
-	m_pFile = fopen(pcszFileName, "rb+");
-	PROCESS_ERROR(m_pFile);
-
-	// read file header
-	uSize = fread(m_pHeader, 1, sizeof(*m_pHeader), m_pFile);
-	LOG_PROCESS_ERROR(uSize == sizeof(*m_pHeader));
-
-	// check version
-	LOG_PROCESS_ERROR(m_pHeader->dwTag == PAK_FILE_TAG);
-	LOG_PROCESS_ERROR(m_pHeader->dwVersion == PAK_FILE_VERSION);
-
-	// read hash table
-	if (!(m_pHeader->dwPackageFlag & PackageFlag_NoHashTable))
-	{
-		nRetCode = fseek(m_pFile, m_pHeader->dwHashTableOffset, SEEK_SET);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-		uSize = fread(m_puHashTable, sizeof(*m_puHashTable), m_pHeader->nFileCount, m_pFile);
-		LOG_PROCESS_ERROR(uSize == m_pHeader->nFileCount);
-	}
-	else
-	{
-		m_bUpdateHashTable = TRUE;
-	}
-
-	// if has name buffer, read it
-	if (!(m_pHeader->dwPackageFlag & PackageFlag_NoNameBuffer))
-	{
-		pszNameBuffer = (char*)malloc(sizeof(*pszNameBuffer) * m_pHeader->dwFileNameSize);
-		LOG_PROCESS_ERROR(pszNameBuffer);
-
-		if (m_pHeader->dwPackageFlag & PackageFlag_NameBufferCompressed)
-		{
-			pszBuffer = (char*)malloc(sizeof(*pszBuffer) * m_pHeader->dwNameBufferSize);
-			LOG_PROCESS_ERROR(pszBuffer);
-
-			nRetCode = fseek(m_pFile, m_pHeader->dwNameBufferOffset, SEEK_SET);
-			LOG_PROCESS_ERROR(nRetCode == 0);
-
-			uSize = fread(pszBuffer, sizeof(*pszBuffer), (size_t)m_pHeader->dwNameBufferSize, m_pFile);
-			LOG_PROCESS_ERROR(uSize == m_pHeader->dwNameBufferSize);
-
-			uSize = sizeof(*pszNameBuffer) * m_pHeader->dwFileNameSize;
-			nRetCode = uncompress((UINT8*)pszNameBuffer, (ULONG*)(&uSize), (UINT8*)pszBuffer, m_pHeader->dwNameBufferSize);
-			LOG_PROCESS_ERROR(nRetCode == Z_OK);
-
-			SAFE_FREE(pszBuffer);
-		}
-		else
-		{
-			// check whether sizes matches
-			LOG_PROCESS_ERROR(m_pHeader->dwFileNameSize * sizeof(*pszNameBuffer) == 
-				m_pHeader->dwNameBufferSize);
-
-			nRetCode = fseek(m_pFile, m_pHeader->dwNameBufferOffset, SEEK_SET);
-			LOG_PROCESS_ERROR(nRetCode == 0);
-
-			uSize = fread(pszNameBuffer, sizeof(*pszNameBuffer), m_pHeader->dwFileNameSize, m_pFile);
-			LOG_PROCESS_ERROR(uSize == m_pHeader->dwFileNameSize);
-		}
-
-		// process name buffer
-		LOG_PROCESS_ERROR(m_pszNameBuffer);
-
-		int nFileNameIndex = 0;
-		int nNameBufferIndex = 0;
-		for (int nIndex = 0; nIndex < m_pHeader->dwFileNameSize; nIndex++)
-		{
-			m_pszNameBuffer[nFileNameIndex * MAX_FILE_NAME_LEN + nNameBufferIndex] = pszNameBuffer[nIndex];
-			nNameBufferIndex++;
-
-			if (pszNameBuffer[nIndex] == 0)
-			{
-				// disallow empty file name
-				LOG_PROCESS_ERROR(m_pszNameBuffer[nFileNameIndex * MAX_FILE_NAME_LEN] != 0);
-
-				nNameBufferIndex = 0;
-				nFileNameIndex++;
-
-				// check the count of file name
-				LOG_PROCESS_ERROR(nFileNameIndex < MAX_FILE_COUNT_IN_PAK);
-			}
-		}
-
-		LOG_PROCESS_ERROR(nFileNameIndex == m_pHeader->nFileCount);
-		SAFE_FREE(pszNameBuffer);
-	}
-
-	// read file info list
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-
-	dwFileInfoSize = m_pHeader->dwFileInfoSize;
-	pszFileInfoBuffer = (char*)malloc(dwFileInfoSize);
-	LOG_PROCESS_ERROR(pszFileInfoBuffer);
-
-	nRetCode = fseek(m_pFile, m_pHeader->dwFileInfoOffset, SEEK_SET);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	uSize = fread(pszFileInfoBuffer, 1, (size_t)m_pHeader->dwFileInfoSize, m_pFile);
-	LOG_PROCESS_ERROR(uSize == m_pHeader->dwFileInfoSize);
-
-	if (m_pHeader->dwPackageFlag & PackageFlag_FileInfoCompressed)
-	{
-		pszTempFileInfoBuffer = (char*)malloc(m_pHeader->dwFileInfoSize * 4);
-		LOG_PROCESS_ERROR(pszTempFileInfoBuffer);
-
-		dwFileInfoSize = m_pHeader->dwFileInfoSize * 4;
-		nRetCode = uncompress((UINT8*)pszTempFileInfoBuffer, (ULONG*)(&dwFileInfoSize), (UINT8*)pszFileInfoBuffer, m_pHeader->dwFileInfoSize);
-		LOG_PROCESS_ERROR(nRetCode == Z_OK);
-
-		SAFE_FREE(pszFileInfoBuffer);
-		pszFileInfoBuffer = pszTempFileInfoBuffer;
-		pszTempFileInfoBuffer = NULL;
-	}
-
-	// process file info list
-	char* pszPointer = pszFileInfoBuffer;
-	int nFileIndex = 0;
-	while (pszPointer - pszFileInfoBuffer < dwFileInfoSize)
-	{
-		PAK_FILE_INFO* pFileInfo = 
-			(PAK_FILE_INFO*)pszPointer;
-
-		m_pnChunkOffsetList[nFileIndex] = m_nChunkCount;
-
-		memcpy(m_pFileInfoList + nFileIndex, pFileInfo, sizeof(*pFileInfo));
-
-		pszPointer += sizeof(*pFileInfo);
-		LOG_PROCESS_ERROR(pszPointer - pszFileInfoBuffer <= dwFileInfoSize);
-
-		nFileIndex++;
-
-		for (int nChunkIndex = 0; nChunkIndex < pFileInfo->nDataChunkCount; nChunkIndex++)
-		{
-			PAK_CHUNK_INFO* pChunkInfo =
-				(PAK_CHUNK_INFO*)pszPointer;
-
-			memcpy(m_pChunkInfoList + m_nChunkCount, pChunkInfo, sizeof(*pChunkInfo));
-
-			pszPointer += sizeof(*pChunkInfo);
-			LOG_PROCESS_ERROR(pszPointer - pszFileInfoBuffer <= dwFileInfoSize);
-
-			m_nChunkCount++;
-			LOG_PROCESS_ERROR(m_nChunkCount < MAX_PAK_CHUNK_COUNT);
-		}
-	}
-
-	// copy file name which means the file is loaded successfully
-	strxcpy(m_szFileName, pcszFileName, MAX_PATH - 1);
-
-	bResult = TRUE;
-
-Exit0:
-	if (!bResult)
-		Close();
-
-	SAFE_FREE(pszBuffer);
-	SAFE_FREE(pszNameBuffer);
-	SAFE_FREE(pszFileInfoBuffer);
-
-	return bResult;
+        std::vector<char> names;
+        if (!(m_header.dwPackageFlag & PackageFlag_NoNameBuffer))
+        {
+            check(m_header.dwNameBufferSize <= compressBound(max_name * max_files), "Oversized compressed names");
+            names = read_region(m_file.get(), m_header.dwNameBufferOffset, m_header.dwNameBufferSize, total);
+            if (m_header.dwPackageFlag & PackageFlag_NameBufferCompressed)
+                names = decompressed(names, max_name * max_files);
+            check(names.size() == m_header.dwFileNameSize, "Archive name buffer size mismatch");
+        }
+        auto metadata = read_region(m_file.get(), m_header.dwFileInfoOffset, m_header.dwFileInfoSize, total);
+        if ((m_header.dwPackageFlag & PackageFlag_FileInfoCompressed) && !metadata.empty())
+            metadata = decompressed(metadata, max_metadata);
+        std::span<const char> cursor(metadata);
+        std::size_t chunk_count = 0;
+        m_entries.reserve(m_header.nFileCount);
+        for (int index = 0; index < m_header.nFileCount; ++index)
+        {
+            Entry entry;
+            entry.info = consume<PAK_FILE_INFO>(cursor);
+            const auto& info = entry.info;
+            check(info.nDataChunkCount >= 0 && info.nDataChunkCount <= max_chunks - chunk_count, "Invalid archive chunk count");
+            chunk_count += info.nDataChunkCount;
+            if (!(m_header.dwPackageFlag & PackageFlag_NoNameBuffer))
+            {
+                check(info.dwFileNameOffset < names.size(), "Invalid archive name offset");
+                const std::string_view tail(names.data() + info.dwFileNameOffset, names.size() - info.dwFileNameOffset);
+                const auto end = tail.find('\0');
+                check(end > 0 && end < max_name, "Invalid or unterminated archive name");
+                entry.name = tail.substr(0, end);
+            }
+            entry.chunks.reserve(info.nDataChunkCount);
+            std::uint64_t offset = std::uint64_t(m_header.dwDataOffset) + info.dwChunkStartOffset;
+            const auto stored_size = info.dwFileFlag & FileFlag_NoCompressed ? info.dwOriginalSize : info.dwCompressedSize;
+            check(offset <= total && stored_size <= total - offset, "Invalid archive data range");
+            std::uint64_t chunk_bytes = 0;
+            for (int i = 0; i < info.nDataChunkCount; ++i)
+            {
+                const auto chunk = consume<PAK_CHUNK_INFO>(cursor);
+                check(std::uint64_t(m_header.dwDataOffset) + chunk.dwChunkOffset == offset, "Invalid archive chunk offset");
+                offset += chunk.dwChunkSize;
+                check(offset <= total, "Truncated archive chunk");
+                chunk_bytes += chunk.dwChunkSize;
+                entry.chunks.push_back(chunk);
+            }
+            check(chunk_bytes == stored_size, "Archive chunks do not match the stored file size");
+            m_entries.push_back(std::move(entry));
+        }
+        check(cursor.empty(), "Unexpected trailing metadata records");
+        // Rebuild with the existing filename hash algorithm; never trust file-provided indices.
+        m_hash_dirty = true;
+        UpdateHashTable();
+        m_open = true;
+    });
+    if (!result)
+        Reset();
+    return result;
 }
 
-BOOL CPakFile::Close(void)
+BOOL CPakFile::Close()
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	size_t uSize = 0;
-	char* pszBuffer = NULL;
-	char* pszFileInfoBuffer = NULL;
-	char* pszTempFileInfoBuffer = NULL;
-
-	// if opened, process hash table, name buffer and file info list
-	if (m_szFileName[0] != 0)
-	{
-		LOG_PROCESS_ERROR(m_pHeader);
-		LOG_PROCESS_ERROR(m_pFileInfoList);
-		LOG_PROCESS_ERROR(m_pszNameBuffer);
-		LOG_PROCESS_ERROR(m_pChunkInfoList);
-		LOG_PROCESS_ERROR(m_pnChunkOffsetList);
-		char* pszNameBuffer = m_pszNameBuffer;
-
-		m_bUpdateHashTable = TRUE;
-		nRetCode = _UpdateHashTable();
-		LOG_PROCESS_ERROR(nRetCode);
-
-		size_t uFileInfoBufferSize = sizeof(*m_pFileInfoList) * m_pHeader->nFileCount +
-			sizeof(*m_pChunkInfoList) * m_nChunkCount;
-		uFileInfoBufferSize = uFileInfoBufferSize / 2 * 3;
-		pszFileInfoBuffer = (char*)malloc(uFileInfoBufferSize);
-		LOG_PROCESS_ERROR(pszFileInfoBuffer);
-
-		char* pszPointer = pszFileInfoBuffer;
-		int nChunkCount = 0;
-
-		for (int nFileIndex = 0; nFileIndex < m_pHeader->nFileCount; nFileIndex++)
-		{
-			PAK_FILE_INFO* pFileInfo = m_pFileInfoList + nFileIndex;
-
-			// update file info
-			pFileInfo->dwFileNameOffset = pszNameBuffer - m_pszNameBuffer;
-
-			// update name buffer
-			int nIndex = 0;
-			while (nIndex < MAX_FILE_NAME_LEN && m_pszNameBuffer[nFileIndex * MAX_FILE_NAME_LEN + nIndex] != 0)
-			{
-				*pszNameBuffer = m_pszNameBuffer[nFileIndex * MAX_FILE_NAME_LEN + nIndex];
-				pszNameBuffer++;
-				nIndex++;
-			}
-
-			*pszNameBuffer = 0;
-			pszNameBuffer++;
-
-			// update file info buffer
-			memcpy(pszPointer, pFileInfo, sizeof(*pFileInfo));
-
-			pszPointer += sizeof(*pFileInfo);
-			LOG_PROCESS_ERROR(pszPointer - pszFileInfoBuffer <= uFileInfoBufferSize);
-
-			for (int nChunkIndex = 0; nChunkIndex < pFileInfo->nDataChunkCount; nChunkIndex++)
-			{
-				LOG_PROCESS_ERROR(m_pnChunkOffsetList[nFileIndex] + nChunkIndex <
-					MAX_PAK_CHUNK_COUNT);
-				PAK_CHUNK_INFO* pChunkInfo =
-					m_pChunkInfoList + m_pnChunkOffsetList[nFileIndex] + nChunkIndex;
-
-				memcpy(pszPointer, pChunkInfo, sizeof(*pChunkInfo));
-
-				pszPointer += sizeof(*pChunkInfo);
-				LOG_PROCESS_ERROR(pszPointer - pszFileInfoBuffer <= uFileInfoBufferSize);
-			}
-
-			nChunkCount += pFileInfo->nDataChunkCount;
-			LOG_PROCESS_ERROR(nChunkCount <= m_nChunkCount);
-		}
-
-		if (m_pHeader->dwPackageFlag & PackageFlag_NoNameBuffer)
-			m_pHeader->dwFileNameSize = 0;
-		else
-			m_pHeader->dwFileNameSize = pszNameBuffer - m_pszNameBuffer;
-
-		uFileInfoBufferSize = pszPointer - pszFileInfoBuffer;
-		if ((m_pHeader->dwPackageFlag & PackageFlag_FileInfoCompressed) && uFileInfoBufferSize > 0)
-		{
-			pszTempFileInfoBuffer = (char*)malloc(uFileInfoBufferSize * 3 / 2);
-			LOG_PROCESS_ERROR(pszTempFileInfoBuffer);
-
-			size_t uCompressedSize = uFileInfoBufferSize * 3 / 2;
-			nRetCode = compress((UINT8*)pszTempFileInfoBuffer, (unsigned long*)&uCompressedSize, (UINT8*)pszFileInfoBuffer, uFileInfoBufferSize);
-			LOG_PROCESS_ERROR(nRetCode == Z_OK);
-
-			SAFE_FREE(pszFileInfoBuffer);
-			pszFileInfoBuffer = pszTempFileInfoBuffer;
-			pszTempFileInfoBuffer = NULL;
-			uFileInfoBufferSize = uCompressedSize;
-		}
-
-		// Get the end of the pak file which may be appended
-		nRetCode = fseek(m_pFile, 0, SEEK_END);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-		size_t uFileSize = ftell(m_pFile);
-		size_t uEndOffset = 0;
-		if (m_pHeader->dwPackageFlag & PackageFlag_NoHashTable &&
-			m_pHeader->dwPackageFlag & PackageFlag_NoNameBuffer)
-		{
-			uSize = m_pHeader->dwFileInfoSize;
-			if (m_pHeader->dwFileInfoOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwFileInfoOffset;
-			else
-				uEndOffset = uFileSize;
-		}
-		else if (m_pHeader->dwPackageFlag & PackageFlag_NoHashTable)
-		{
-			uSize = m_pHeader->dwNameBufferSize + m_pHeader->dwFileInfoSize;
-			if (m_pHeader->dwNameBufferOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwNameBufferOffset;
-			else if (m_pHeader->dwFileInfoOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwFileInfoOffset;
-			else
-				uEndOffset = uFileSize;
-		}
-		else if (m_pHeader->dwPackageFlag & PackageFlag_NoNameBuffer)
-		{
-			uSize = m_pHeader->dwHashTableSize + m_pHeader->dwFileInfoSize;
-			if (m_pHeader->dwHashTableOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwHashTableOffset;
-			else if (m_pHeader->dwFileInfoOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwFileInfoOffset;
-			else
-				uEndOffset = uFileSize;
-		}
-		else
-		{
-			uSize = m_pHeader->dwHashTableSize + m_pHeader->dwNameBufferSize + m_pHeader->dwFileInfoSize;
-			if (m_pHeader->dwHashTableOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwHashTableOffset;
-			else if (m_pHeader->dwNameBufferOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwNameBufferOffset;
-			else if (m_pHeader->dwFileInfoOffset + uSize == uFileSize)
-				uEndOffset = m_pHeader->dwFileInfoOffset;
-			else
-				uEndOffset = uFileSize;
-		}
-
-		nRetCode = fseek(m_pFile, uEndOffset, SEEK_SET);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-		// write hash table
-		if (m_pHeader->dwPackageFlag & PackageFlag_NoHashTable)
-		{
-			m_pHeader->dwHashTableOffset = 0;
-			m_pHeader->dwHashTableSize = 0;
-		}
-		else
-		{
-			m_pHeader->dwHashTableOffset = ftell(m_pFile);
-			m_pHeader->dwHashTableSize = sizeof(*m_puHashTable) * m_pHeader->nFileCount;
-			uSize = fwrite(m_puHashTable, sizeof(*m_puHashTable), m_pHeader->nFileCount, m_pFile);
-			LOG_PROCESS_ERROR(uSize == m_pHeader->nFileCount);
-		}
-
-		// write name buffer
-		if (m_pHeader->dwPackageFlag & PackageFlag_NoNameBuffer)
-		{
-			m_pHeader->dwNameBufferOffset = 0;
-			m_pHeader->dwNameBufferSize = 0;
-		}
-		else
-		{
-			if (m_pHeader->dwPackageFlag & PackageFlag_NameBufferCompressed)
-			{
-				size_t uBufferSize = sizeof(*m_pszNameBuffer) * m_pHeader->dwFileNameSize;
-				if (uBufferSize < ONE_CHUNK_SIZE)
-					uBufferSize = ONE_CHUNK_SIZE;
-				pszBuffer = (char*)malloc(uBufferSize);
-				LOG_PROCESS_ERROR(pszBuffer);
-
-				size_t uCompressedSize = uBufferSize;
-				nRetCode = compress((UINT8*)pszBuffer, (unsigned long*)&uCompressedSize, (UINT8*)m_pszNameBuffer, sizeof(*m_pszNameBuffer) * m_pHeader->dwFileNameSize);
-				LOG_PROCESS_ERROR(nRetCode == Z_OK);
-
-				m_pHeader->dwNameBufferOffset = ftell(m_pFile);
-				m_pHeader->dwNameBufferSize = uCompressedSize;
-
-				uSize = fwrite(pszBuffer, 1, uCompressedSize, m_pFile);
-				LOG_PROCESS_ERROR(uSize == uCompressedSize);
-
-				SAFE_FREE(pszBuffer);
-			}
-			else
-			{
-				m_pHeader->dwNameBufferOffset = ftell(m_pFile);
-				m_pHeader->dwNameBufferSize = sizeof(*m_pszNameBuffer) * m_pHeader->dwFileNameSize;
-
-				uSize = fwrite(m_pszNameBuffer, sizeof(*m_pszNameBuffer), m_pHeader->dwFileNameSize, m_pFile);
-				LOG_PROCESS_ERROR(uSize == m_pHeader->dwFileNameSize);
-			}
-		}
-
-		// write file info and chunk info
-		m_pHeader->dwFileInfoOffset = ftell(m_pFile);
-		m_pHeader->dwFileInfoSize = uFileInfoBufferSize;
-
-		uSize = fwrite(pszFileInfoBuffer, 1, uFileInfoBufferSize, m_pFile);
-		LOG_PROCESS_ERROR(uSize == uFileInfoBufferSize);
-
-		// write header
-		nRetCode = fseek(m_pFile, 0, SEEK_SET);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-		uSize = fwrite(m_pHeader, 1, sizeof(*m_pHeader), m_pFile);
-		LOG_PROCESS_ERROR(uSize == sizeof(*m_pHeader));
-	}
-
-	bResult = TRUE;
-Exit0:
-	if (m_pFile)
-	{
-		fclose(m_pFile);
-		m_pFile = NULL;
-	}
-
-	_Free();
-
-	memset(m_szFileName, 0, sizeof(m_szFileName));
-
-	SAFE_FREE(pszBuffer);
-	SAFE_FREE(pszFileInfoBuffer);
-	SAFE_FREE(pszTempFileInfoBuffer);
-
-	return bResult;
+    auto result = attempt([&]
+    {
+        check(!m_write_failed, "An earlier archive write failed");
+        if (!m_open || !m_dirty)
+            return;
+        UpdateHashTable();
+        std::vector<char> names;
+        std::vector<char> metadata;
+        for (auto& entry : m_entries)
+        {
+            entry.info.dwFileNameOffset = narrow(names.size());
+            names.insert(names.end(), entry.name.begin(), entry.name.end());
+            names.push_back('\0');
+            append(metadata, entry.info);
+            for (const auto& chunk : entry.chunks)
+                append(metadata, chunk);
+        }
+        check(metadata.size() <= max_metadata, "Too many archive records");
+        if ((m_header.dwPackageFlag & PackageFlag_FileInfoCompressed) && !metadata.empty())
+            metadata = compressed(metadata);
+        if (m_header.dwPackageFlag & PackageFlag_NoNameBuffer)
+            names.clear();
+        m_header.dwFileNameSize = narrow(names.size());
+        if (m_header.dwPackageFlag & PackageFlag_NameBufferCompressed)
+            names = compressed(names);
+        const auto total = file_size(m_file.get());
+        const std::uint64_t old_size = std::uint64_t(m_header.dwHashTableSize) + m_header.dwNameBufferSize + m_header.dwFileInfoSize;
+        auto end = total;
+        for (const auto start : {m_header.dwHashTableOffset, m_header.dwNameBufferOffset, m_header.dwFileInfoOffset})
+        {
+            if (start != 0 && std::uint64_t(start) + old_size == total)
+            {
+                end = start;
+                break;
+            }
+        }
+        seek(m_file.get(), end);
+        m_header.dwHashTableOffset = m_header.dwHashTableSize = 0;
+        if (!(m_header.dwPackageFlag & PackageFlag_NoHashTable))
+        {
+            m_header.dwHashTableOffset = position(m_file.get());
+            m_header.dwHashTableSize = narrow(m_hash_table.size() * sizeof(UINT32));
+            write(m_file.get(), m_hash_table.data(), m_header.dwHashTableSize);
+        }
+        m_header.dwNameBufferOffset = m_header.dwNameBufferSize = 0;
+        if (!(m_header.dwPackageFlag & PackageFlag_NoNameBuffer))
+        {
+            m_header.dwNameBufferOffset = position(m_file.get());
+            m_header.dwNameBufferSize = narrow(names.size());
+            write(m_file.get(), names.data(), names.size());
+        }
+        m_header.dwFileInfoOffset = position(m_file.get());
+        m_header.dwFileInfoSize = narrow(metadata.size());
+        write(m_file.get(), metadata.data(), metadata.size());
+        narrow(position(m_file.get()));
+        seek(m_file.get(), 0);
+        write(m_file.get(), &m_header, sizeof(m_header));
+    });
+    if (m_file && std::fclose(m_file.release()) != 0)
+        result = FALSE;
+    Reset();
+    return result;
 }
 
-BOOL CPakFile::IsOpened(void)
+BOOL CPakFile::IsOpened()
 {
-	return m_szFileName[0] != 0;
+    return m_open;
 }
 
-BOOL CPakFile::SetPackageFlag(BOOL bHasHashTable, BOOL bHasNameBuffer, BOOL bCompressNameBuffer, BOOL bCompressFileInfo)
+BOOL CPakFile::SetPackageFlag(BOOL hash, BOOL names, BOOL compress_names, BOOL compress_info)
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-	LOG_PROCESS_ERROR(m_pHeader);
-
-	m_pHeader->dwPackageFlag = 0;
-
-	if (!bHasHashTable)
-		m_pHeader->dwPackageFlag |= PackageFlag_NoHashTable;
-	if (!bHasNameBuffer)
-		m_pHeader->dwPackageFlag |= PackageFlag_NoNameBuffer;
-	if (bCompressNameBuffer)
-		m_pHeader->dwPackageFlag |= PackageFlag_NameBufferCompressed;
-	if (bCompressFileInfo)
-		m_pHeader->dwPackageFlag |= PackageFlag_FileInfoCompressed;
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    if (!m_open)
+        return FALSE;
+    m_header.dwPackageFlag = (hash ? 0 : PackageFlag_NoHashTable) |
+        (names ? 0 : PackageFlag_NoNameBuffer) | (compress_names ? PackageFlag_NameBufferCompressed : 0) |
+        (compress_info ? PackageFlag_FileInfoCompressed : 0);
+    m_dirty = true;
+    return TRUE;
 }
 
-BOOL CPakFile::AddFile(const char* pcszPakFileName, const char* pcszFileName)
+BOOL CPakFile::AddFile(const char* package_name, const char* disk_name)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	size_t uSize = 0;
-	FILE* pAddFile = NULL;
-	char* pszBuffer = NULL;
-
-	LOG_PROCESS_ERROR(pcszFileName);
-	LOG_PROCESS_ERROR(pcszPakFileName);
-
-	// If not opened, return FALSE
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-	LOG_PROCESS_ERROR(FindFile(pcszPakFileName) == INVALID_PAK_FILE_INDEX);
-
-	// open the file
-	pAddFile = fopen(pcszFileName, "rb");
-	LOG_PROCESS_ERROR(pAddFile);
-
-	// get file size
-	nRetCode = fseek(pAddFile, 0, SEEK_END);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	size_t uFileSize = ftell(pAddFile);
-
-	// malloc buffer to read
-	pszBuffer = (char*)malloc(uFileSize);
-	LOG_PROCESS_ERROR(pszBuffer);
-
-	// read the whole file
-	nRetCode = fseek(pAddFile, 0, SEEK_SET);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	uSize = fread(pszBuffer, 1, uFileSize, pAddFile);
-	LOG_PROCESS_ERROR(uSize == uFileSize);
-
-	// get file information
-	int fd = fileno(pAddFile);
-	LOG_PROCESS_ERROR(fd != -1);
-
-	struct stat FileStat;
-	nRetCode = fstat(fd, &FileStat);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	nRetCode = AddFileFromData(pcszPakFileName, FileStat.st_ctime, 
-		FileStat.st_mtime, pszBuffer, uFileSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	bResult = TRUE;
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	if (pAddFile)
-		fclose(pAddFile);
-
-	return bResult;
+    return attempt([&]
+    {
+        check(disk_name, "Missing input filename");
+        cqyh::CFilePtr file(std::fopen(disk_name, "rb"));
+        check(bool(file), "Cannot open input file");
+        const auto size = file_size(file.get());
+        seek(file.get(), 0);
+        std::vector<char> bytes(size);
+        read(file.get(), bytes.data(), bytes.size());
+        struct _stat64 info{};
+        check(_fstat64(_fileno(file.get()), &info) == 0, "Cannot read file timestamps");
+        check(AddFileFromData(package_name, info.st_ctime, info.st_mtime,
+            bytes.empty() ? "" : bytes.data(), bytes.size()), "Cannot add input file");
+    });
 }
 
-BOOL CPakFile::AddFileFromPak(const char* pcszPakFileName, CPakFile* pPakFile, int nFileIndex)
+BOOL CPakFile::AddFileFromData(const char* package_name, time_t created, time_t modified, const char* data, size_t size)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	char* pszBuffer = NULL;
-
-	LOG_PROCESS_ERROR(pcszPakFileName);
-	LOG_PROCESS_ERROR(pPakFile);
-	LOG_PROCESS_ERROR(pPakFile->IsOpened());
-	LOG_PROCESS_ERROR(pPakFile->m_pHeader);
-	LOG_PROCESS_ERROR(pPakFile->m_pFileInfoList);
-	LOG_PROCESS_ERROR(pPakFile->m_pChunkInfoList);
-	LOG_PROCESS_ERROR(pPakFile->m_pnChunkOffsetList);
-
-	PAK_FILE_INFO* pFileInfo = 
-		pPakFile->m_pFileInfoList + nFileIndex;
-
-	LOG_PROCESS_ERROR(pPakFile->m_pnChunkOffsetList[nFileIndex] < MAX_PAK_CHUNK_COUNT);
-	PAK_CHUNK_INFO* pChunkInfo = 
-		pPakFile->m_pChunkInfoList + pPakFile->m_pnChunkOffsetList[nFileIndex];
-
-	size_t uDataSize = 0;
-	if (pFileInfo->dwFileFlag & FileFlag_NoCompressed)
-		uDataSize = pFileInfo->dwOriginalSize;
-	else
-		uDataSize = pFileInfo->dwCompressedSize;
-
-	pszBuffer = (char*)malloc(uDataSize);
-	LOG_PROCESS_ERROR(pszBuffer);
-
-	nRetCode = fseek(pPakFile->m_pFile, pPakFile->m_pHeader->dwDataOffset + pFileInfo->dwChunkStartOffset, SEEK_SET);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	size_t uSize = fread(pszBuffer, 1, uDataSize, pPakFile->m_pFile);
-	LOG_PROCESS_ERROR(uSize == uDataSize);
-
-	nRetCode = _AddFileFromRawData(pcszPakFileName, pFileInfo, pChunkInfo, pszBuffer, uDataSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	SAFE_FREE(pszBuffer);
-
-	bResult = TRUE;
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	return bResult;
+    return attempt([&]
+    {
+        check(m_open && package_name && *package_name && (data || size == 0), "Invalid archive input");
+        check(std::strlen(package_name) < max_name && m_entries.size() < max_files, "Archive name or file limit exceeded");
+        check(FindFile(package_name) == INVALID_PAK_FILE_INDEX, "Duplicate archive filename");
+        Entry entry;
+        entry.name = package_name;
+        auto& info = entry.info;
+        info.dwCreateTime = static_cast<UINT32>(created);
+        info.dwModifyTime = static_cast<UINT32>(modified);
+        info.dwOriginalSize = narrow(size);
+        info.dwChunkSize = narrow(size < ONE_CHUNK_SIZE ? size : DEFAULT_CHUNK_SIZE);
+        hash_file_name(package_name, &info.dwNameHashA, &info.dwNameHashB);
+        digest(info.md5OriginDataHash, {data, size});
+        const auto chunk_count = size == 0 ? 0 : 1 + (size - 1) / info.dwChunkSize;
+        std::size_t existing_chunks = 0;
+        for (const auto& existing : m_entries)
+            existing_chunks += existing.chunks.size();
+        check(chunk_count <= max_chunks - existing_chunks, "Too many archive chunks");
+        entry.chunks.reserve(chunk_count);
+        if (m_entries.size() == m_entries.capacity())
+            m_entries.reserve(std::min(max_files, std::max<std::size_t>(16, m_entries.size() * 2)));
+        std::unique_ptr<md5_ctx, Md5Deleter> context(md5_init());
+        check(bool(context), "Cannot create MD5 context");
+        const auto end = file_size(m_file.get());
+        check(end >= m_header.dwDataOffset, "Invalid archive data offset");
+        info.dwChunkStartOffset = end - m_header.dwDataOffset;
+        std::uint64_t stored_size = 0;
+        // Keep compression scratch storage bounded by one chunk, even for large input files.
+        for (std::size_t offset = 0; offset < size;)
+        {
+            const auto count = std::min<std::size_t>(info.dwChunkSize, size - offset);
+            auto chunk = compressed({data + offset, count});
+            const auto chunk_offset = narrow(std::uint64_t(info.dwChunkStartOffset) + stored_size);
+            stored_size += chunk.size();
+            narrow(std::uint64_t(end) + stored_size);
+            narrow(std::uint64_t(m_header.dwDataSize) + stored_size);
+            md5_update(context.get(), reinterpret_cast<UINT8*>(chunk.data()), narrow(chunk.size()));
+            m_write_failed = true;
+            write(m_file.get(), chunk.data(), chunk.size());
+            entry.chunks.push_back({chunk_offset, narrow(chunk.size())});
+            offset += count;
+        }
+        md5_final(info.md5CompressedDataHash, context.release());
+        info.dwCompressedSize = narrow(stored_size);
+        info.nDataChunkCount = static_cast<INT32>(entry.chunks.size());
+        m_header.dwDataSize = narrow(std::uint64_t(m_header.dwDataSize) + stored_size);
+        m_entries.push_back(std::move(entry));
+        m_header.nFileCount = static_cast<INT32>(m_entries.size());
+        m_dirty = m_hash_dirty = true;
+        m_write_failed = false;
+    });
 }
 
-BOOL CPakFile::AddFileFromData(const char* pcszPakFileName, time_t CreateTime, 
-							   time_t ModifyTime, const char* pszFileData, size_t uDataSize)
+BOOL CPakFile::AddRaw(const char* package_name, const Entry& source, const std::vector<char>& bytes)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	size_t uSize = 0;
-	char* pszBuffer = NULL;
-	md5_ctx* pCtx= NULL;
-
-	LOG_PROCESS_ERROR(pcszPakFileName);
-	LOG_PROCESS_ERROR(pszFileData);
-
-	// if not opened, return FALSE
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_puHashTable);
-	LOG_PROCESS_ERROR(m_pszNameBuffer);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(m_pnChunkOffsetList);
-	LOG_PROCESS_ERROR(m_pHeader->nFileCount < MAX_FILE_COUNT_IN_PAK);
-
-	LOG_PROCESS_ERROR(FindFile(pcszPakFileName) == INVALID_PAK_FILE_INDEX);
-
-	// save file info
-	PAK_FILE_INFO* pFileInfo = m_pFileInfoList + m_pHeader->nFileCount;
-
-	memset(pFileInfo, 0, sizeof(*pFileInfo));
-
-	// file time
-	pFileInfo->dwCreateTime = CreateTime;
-	pFileInfo->dwModifyTime = ModifyTime;
-	pFileInfo->dwOriginalSize = uDataSize;
-
-	// calculate chunk size
-	size_t uChunkSize = 0;
-	if (uDataSize < ONE_CHUNK_SIZE)
-		uChunkSize = uDataSize;
-	else
-		uChunkSize = DEFAULT_CHUNK_SIZE;
-	pFileInfo->dwChunkSize = uChunkSize;
-
-	// calculate hash values of file name
-	hash_file_name(pcszPakFileName, &pFileInfo->dwNameHashA, &pFileInfo->dwNameHashB);
-
-	// save file name
-	LOG_PROCESS_ERROR(strlen(pcszPakFileName) < MAX_FILE_NAME_LEN);
-	strxcpy(m_pszNameBuffer + m_pHeader->nFileCount * MAX_FILE_NAME_LEN, pcszPakFileName, MAX_FILE_NAME_LEN - 1);
-
-	// calculate MD5 value of original file
-	calc_md5(pFileInfo->md5OriginDataHash, (UINT8*)pszFileData, uDataSize);
-
-	// set chunk start offset to the end of pak file
-	nRetCode = fseek(m_pFile, 0, SEEK_END);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	pFileInfo->dwChunkStartOffset = ftell(m_pFile) - m_pHeader->dwDataOffset;
-	m_pnChunkOffsetList[m_pHeader->nFileCount] = m_nChunkCount;
-
-	// write file data to pak file
-
-	if (uDataSize < uChunkSize)
-		pFileInfo->dwFileFlag = FileFlag_NoCompressed;
-
-	if (pFileInfo->dwFileFlag & FileFlag_NoCompressed)
-	{
-		// calculate chunk count and chunk info
-		if (uDataSize % uChunkSize == 0)
-			pFileInfo->nDataChunkCount = uDataSize / uChunkSize;
-		else
-			pFileInfo->nDataChunkCount = uDataSize / uChunkSize + 1;
-
-		LOG_PROCESS_ERROR(m_nChunkCount + pFileInfo->nDataChunkCount < MAX_PAK_CHUNK_COUNT);
-		for (int nChunkIndex = 0; nChunkIndex < pFileInfo->nDataChunkCount; nChunkIndex++)
-		{
-			m_pChunkInfoList[m_nChunkCount + nChunkIndex].dwChunkSize = pFileInfo->dwChunkSize;
-			m_pChunkInfoList[m_nChunkCount + nChunkIndex].dwChunkOffset = 
-				ftell(m_pFile) + nChunkIndex * pFileInfo->dwChunkSize - m_pHeader->dwDataOffset;
-		}
-		m_nChunkCount += pFileInfo->nDataChunkCount;
-		if ((uDataSize % uChunkSize) != 0)
-			m_pChunkInfoList[m_nChunkCount - 1].dwChunkSize = uDataSize % uChunkSize;
-
-		uSize = fwrite(pszFileData, 1, uDataSize, m_pFile);
-		LOG_PROCESS_ERROR(uSize == uDataSize);
-
-		m_pHeader->dwDataSize += uSize;
-	}
-	else
-	{
-		size_t uBufferSize = uChunkSize < ONE_CHUNK_SIZE ? ONE_CHUNK_SIZE : uChunkSize;
-		pszBuffer = (char*)malloc(uBufferSize);
-		LOG_PROCESS_ERROR(pszBuffer);
-
-		size_t uTotalProcessedSize = 0;
-		size_t uTotalCompressedSize = 0;
-
-		pCtx = md5_init();
-		LOG_PROCESS_ERROR(pCtx);
-
-		while (uTotalProcessedSize < uDataSize)
-		{
-			size_t uProcessedSize = (uDataSize - uTotalProcessedSize) < uChunkSize ? 
-				(uDataSize - uTotalProcessedSize) : uChunkSize;
-
-			size_t uCompressedSize = uBufferSize;
-			nRetCode = compress((UINT8*)pszBuffer, (unsigned long*)&uCompressedSize, (UINT8*)pszFileData + uTotalProcessedSize, uProcessedSize);
-			LOG_PROCESS_ERROR(nRetCode == Z_OK);
-
-			md5_update(pCtx, (UINT8*)pszBuffer, uCompressedSize);
-
-			m_pChunkInfoList[m_nChunkCount].dwChunkSize = uCompressedSize;
-			m_pChunkInfoList[m_nChunkCount].dwChunkOffset = ftell(m_pFile) - m_pHeader->dwDataOffset;
-			m_nChunkCount++;
-			pFileInfo->nDataChunkCount++;
-
-			uSize = fwrite(pszBuffer, 1, uCompressedSize, m_pFile);
-			LOG_PROCESS_ERROR(uSize == uCompressedSize);
-
-			uTotalCompressedSize += uCompressedSize;
-			uTotalProcessedSize += uProcessedSize;
-		}
-		LOG_PROCESS_ERROR(uTotalProcessedSize == uDataSize);
-
-		md5_final(pFileInfo->md5CompressedDataHash, pCtx);
-
-		pFileInfo->dwCompressedSize = uTotalCompressedSize;
-		m_pHeader->dwDataSize += uTotalCompressedSize;
-	}
-
-	m_bUpdateHashTable = TRUE;
-	m_pHeader->nFileCount++;
-
-	bResult = TRUE;
-
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	return bResult;
+    return attempt([&]
+    {
+        check(m_open && package_name && *package_name && std::strlen(package_name) < max_name, "Invalid destination name");
+        auto index = FindFile(package_name);
+        if (index != INVALID_PAK_FILE_INDEX && !(m_entries[index].info.dwFileFlag & FileFlag_Deleted) &&
+            m_entries[index].info.dwOriginalSize == source.info.dwOriginalSize &&
+            std::ranges::equal(m_entries[index].info.md5OriginDataHash, source.info.md5OriginDataHash))
+            return;
+        check(index != INVALID_PAK_FILE_INDEX || m_entries.size() < max_files, "Too many archive files");
+        Entry entry = source;
+        entry.name = package_name;
+        if (index == INVALID_PAK_FILE_INDEX && m_entries.size() == m_entries.capacity())
+            m_entries.reserve(std::min(max_files, std::max<std::size_t>(16, m_entries.size() * 2)));
+        std::size_t chunk_count = entry.chunks.size();
+        for (std::size_t i = 0; i < m_entries.size(); ++i)
+        {
+            if (index == INVALID_PAK_FILE_INDEX || i != static_cast<std::size_t>(index))
+                chunk_count += m_entries[i].chunks.size();
+        }
+        check(chunk_count <= max_chunks, "Too many archive chunks");
+        const auto end = file_size(m_file.get());
+        check(end >= m_header.dwDataOffset, "Invalid archive data offset");
+        narrow(std::uint64_t(end) + bytes.size());
+        entry.info.dwChunkStartOffset = end - m_header.dwDataOffset;
+        auto offset = entry.info.dwChunkStartOffset;
+        for (auto& chunk : entry.chunks)
+        {
+            chunk.dwChunkOffset = offset;
+            offset = narrow(std::uint64_t(offset) + chunk.dwChunkSize);
+        }
+        const auto data_size = narrow(std::uint64_t(m_header.dwDataSize) + bytes.size());
+        m_write_failed = true;
+        write(m_file.get(), bytes.data(), bytes.size());
+        m_write_failed = false;
+        if (index == INVALID_PAK_FILE_INDEX)
+            m_entries.push_back(std::move(entry));
+        else
+            m_entries[index] = std::move(entry);
+        m_header.dwDataSize = data_size;
+        m_header.nFileCount = static_cast<INT32>(m_entries.size());
+        m_dirty = m_hash_dirty = true;
+    });
 }
 
-BOOL CPakFile::_AddFileFromRawData(const char* pcszPakFileName, 
-								   const PAK_FILE_INFO* pFileInfo, 
-								   const PAK_CHUNK_INFO* pChunkInfo,
-								   const char* pszFileData, size_t uDataSize)
+BOOL CPakFile::AddFileFromPak(const char* package_name, CPakFile* source, int index)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	size_t uSize = 0;
-	char* pszBuffer = NULL;
-	PAK_FILE_INFO* pDestFileInfo = NULL;
-
-	LOG_PROCESS_ERROR(pcszPakFileName);
-	LOG_PROCESS_ERROR(pFileInfo);
-	LOG_PROCESS_ERROR(pChunkInfo);
-	LOG_PROCESS_ERROR(pszFileData);
-	LOG_PROCESS_ERROR((pFileInfo->dwFileFlag & FileFlag_Deleted) == 0);
-
-	// if not opened, return FALSE
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_puHashTable);
-	LOG_PROCESS_ERROR(m_pszNameBuffer);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(m_pChunkInfoList);
-	LOG_PROCESS_ERROR(m_pnChunkOffsetList);
-
-	int nFileIndex = FindFile(pcszPakFileName);
-	if (nFileIndex == INVALID_PAK_FILE_INDEX)
-	{
-		LOG_PROCESS_ERROR(m_pHeader->nFileCount < MAX_FILE_COUNT_IN_PAK);
-		nFileIndex = m_pHeader->nFileCount;
-	}
-	else
-	{
-		if (m_pFileInfoList[nFileIndex].dwOriginalSize == pFileInfo->dwOriginalSize)
-		{
-			BOOL bSame = TRUE;
-			for (int nIndex = 0; nIndex < 16; nIndex++)
-			{
-				if (m_pFileInfoList[nFileIndex].md5OriginDataHash[nIndex] !=
-					pFileInfo->md5OriginDataHash[nIndex])
-				{
-					bSame = FALSE;
-					break;
-				}
-			}
-			if (bSame)
-				goto Exit1;
-		}
-	}
-	pDestFileInfo = m_pFileInfoList + nFileIndex;
-
-	// save file name
-	LOG_PROCESS_ERROR(strlen(pcszPakFileName) < MAX_FILE_NAME_LEN);
-	strxcpy(m_pszNameBuffer + nFileIndex * MAX_FILE_NAME_LEN, pcszPakFileName, MAX_FILE_NAME_LEN - 1);
-
-	// save file info
-	memcpy(pDestFileInfo, pFileInfo, sizeof(*pFileInfo));
-
-	// set chunk start offset to the end of pak file
-	nRetCode = fseek(m_pFile, 0, SEEK_END);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	pDestFileInfo->dwChunkStartOffset = ftell(m_pFile) - m_pHeader->dwDataOffset;
-
-	// save chunk info
-	m_pnChunkOffsetList[nFileIndex] = m_nChunkCount;
-
-	LOG_PROCESS_ERROR(m_nChunkCount + pFileInfo->nDataChunkCount < MAX_PAK_CHUNK_COUNT);
-	memcpy(m_pChunkInfoList + m_nChunkCount, pChunkInfo, sizeof(*pChunkInfo) * pFileInfo->nDataChunkCount);
-
-	size_t uChunkOffset = pDestFileInfo->dwChunkStartOffset;
-	for (int nChunkIndex = 0; nChunkIndex < pFileInfo->nDataChunkCount; nChunkIndex++)
-	{
-		m_pChunkInfoList[m_nChunkCount + nChunkIndex].dwChunkOffset = uChunkOffset;
-		uChunkOffset += m_pChunkInfoList[m_nChunkCount + nChunkIndex].dwChunkSize;
-	}
-
-	// write file data to pak file
-	uSize = fwrite(pszFileData, 1, uDataSize, m_pFile);
-	LOG_PROCESS_ERROR(uSize == uDataSize);
-	LOG_PROCESS_ERROR(m_pHeader->dwDataOffset + uChunkOffset == ftell(m_pFile));
-
-	m_nChunkCount += pFileInfo->nDataChunkCount;
-	m_pHeader->dwDataSize += uSize;
-	if (nFileIndex == m_pHeader->nFileCount)
-		m_pHeader->nFileCount++;
-	m_bUpdateHashTable = TRUE;
-
-Exit1:
-	bResult = TRUE;
-
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	return bResult;
+    return attempt([&]
+    {
+        check(source && source != this, "Invalid source archive");
+        const auto& entry = source->At(index);
+        check(!(entry.info.dwFileFlag & FileFlag_Deleted), "Cannot copy a deleted entry");
+        const auto size = entry.info.dwFileFlag & FileFlag_NoCompressed ? entry.info.dwOriginalSize : entry.info.dwCompressedSize;
+        auto bytes = read_region(source->m_file.get(), narrow(std::uint64_t(source->m_header.dwDataOffset) +
+            entry.info.dwChunkStartOffset), size, file_size(source->m_file.get()));
+        check(AddRaw(package_name, entry, bytes), "Cannot copy archive entry");
+    });
 }
 
-BOOL CPakFile::DelFile(const char* pcszPakFileName)
+int CPakFile::FindFile(const char* package_name)
 {
-	int nFileIndex = FindFile(pcszPakFileName);
-	PROCESS_ERROR(nFileIndex != INVALID_PAK_FILE_INDEX);
-
-	m_pFileInfoList[nFileIndex].dwFileFlag |= FileFlag_Deleted;
-
-	return TRUE;
-
-Exit0:
-
-	return FALSE;
+    if (!m_open || !package_name || m_entries.empty())
+        return INVALID_PAK_FILE_INDEX;
+    int result = INVALID_PAK_FILE_INDEX;
+    attempt([&]
+    {
+        UpdateHashTable();
+        UINT32 hash_a, hash_b;
+        hash_file_name(package_name, &hash_a, &hash_b);
+        auto slot = hash_a % m_entries.size();
+        for (std::size_t tried = 0; tried < m_entries.size(); ++tried)
+        {
+            const auto index = m_hash_table[slot];
+            if (m_entries[index].info.dwNameHashB == hash_b)
+            {
+                result = static_cast<int>(index);
+                break;
+            }
+            slot = (slot + 1) % m_entries.size();
+        }
+    });
+    return result;
 }
 
-int CPakFile::FindFile(const char* pcszPakFileName)
+BOOL CPakFile::DelFile(const char* package_name)
 {
-	int nResult = INVALID_PAK_FILE_INDEX;
-	int nRetCode = 0;
-
-	LOG_PROCESS_ERROR(pcszPakFileName);
-
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pszNameBuffer);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-
-	nRetCode = _UpdateHashTable();
-	LOG_PROCESS_ERROR(nRetCode);
-
-	if (m_pHeader->nFileCount > 0)
-	{
-		UINT32 dwHashA, dwHashB;
-		hash_file_name(pcszPakFileName, &dwHashA, &dwHashB);
-
-		int nPos = dwHashA % m_pHeader->nFileCount;
-		int nTryIndex = 0;
-		int nFileIndex = m_puHashTable[nPos];
-		for (; nTryIndex < m_pHeader->nFileCount; nTryIndex++)
-		{
-			if (m_pFileInfoList[nFileIndex].dwNameHashB == dwHashB)
-				break;
-			nPos++;
-			if (nPos >= m_pHeader->nFileCount)
-				nPos = 0;
-			nFileIndex = m_puHashTable[nPos];
-		}
-		PROCESS_ERROR(nTryIndex < m_pHeader->nFileCount);
-
-		nResult = nFileIndex;
-	}
-
-Exit0:
-
-	return nResult;
+    const int index = FindFile(package_name);
+    if (index == INVALID_PAK_FILE_INDEX)
+        return FALSE;
+    m_entries[index].info.dwFileFlag |= FileFlag_Deleted;
+    m_dirty = true;
+    return TRUE;
 }
 
-int CPakFile::GetFileCount(void)
+int CPakFile::GetFileCount()
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-
-	return m_pHeader->nFileCount;
-Exit0:
-	return -1;
+    return m_open ? static_cast<int>(m_entries.size()) : -1;
 }
 
-size_t CPakFile::GetFileSize(int nFileIndex)
+size_t CPakFile::GetFileSize(int index)
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	return m_pFileInfoList[nFileIndex].dwOriginalSize;
-
-Exit0:
-
-	return 0;
+    size_t result = 0;
+    attempt([&] { result = At(index).info.dwOriginalSize; });
+    return result;
 }
 
-const char* CPakFile::GetFileName(int nFileIndex)
+const char* CPakFile::GetFileName(int index)
 {
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-	LOG_PROCESS_ERROR(m_pHeader);
-
-	if (m_pHeader->dwPackageFlag & PackageFlag_NoNameBuffer)
-	{
-		static char s_szFileName[MAX_FILE_NAME_LEN];
-
-		LOG_PROCESS_ERROR(m_pFileInfoList);
-		snprintf(s_szFileName, MAX_FILE_NAME_LEN, "%08X_%08X.dat", m_pFileInfoList[nFileIndex].dwNameHashA, m_pFileInfoList[nFileIndex].dwNameHashB);
-
-		return s_szFileName;
-	}
-	else
-	{
-		LOG_PROCESS_ERROR(m_pszNameBuffer);
-
-		return m_pszNameBuffer + nFileIndex * MAX_FILE_NAME_LEN;
-	}
-
-Exit0:
-
-	return NULL;
+    const char* result = nullptr;
+    attempt([&]
+    {
+        const auto& entry = At(index);
+        if (m_header.dwPackageFlag & PackageFlag_NoNameBuffer)
+        {
+            m_fallback_name = std::format("{:08X}_{:08X}.dat", entry.info.dwNameHashA, entry.info.dwNameHashB);
+            result = m_fallback_name.c_str();
+        }
+        else
+            result = entry.name.c_str();
+    });
+    return result;
 }
 
-BOOL CPakFile::GetFileHashValue(int nFileIndex, unsigned long& rulHashValueA, unsigned long& rulHashValueB)
+BOOL CPakFile::GetFileHashValue(int index, unsigned long& hash_a, unsigned long& hash_b)
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	rulHashValueA = m_pFileInfoList[nFileIndex].dwNameHashA;
-	rulHashValueB = m_pFileInfoList[nFileIndex].dwNameHashB;
-
-	return TRUE;
-
-Exit0:
-
-	return FALSE;
+    return attempt([&] { const auto& info = At(index).info; hash_a = info.dwNameHashA; hash_b = info.dwNameHashB; });
 }
 
-BOOL CPakFile::IsDeletedFile(int nFileIndex)
+BOOL CPakFile::IsDeletedFile(int index)
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	return (m_pFileInfoList[nFileIndex].dwFileFlag & FileFlag_Deleted) != 0;
-
-Exit0:
-
-	return FALSE;
+    bool deleted = false;
+    attempt([&] { deleted = (At(index).info.dwFileFlag & FileFlag_Deleted) != 0; });
+    return deleted;
 }
 
-BOOL CPakFile::GetFileMD5Value(int nFileIndex, unsigned char ucMD5Value[16])
+BOOL CPakFile::GetFileMD5Value(int index, unsigned char result[16])
 {
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	memcpy(ucMD5Value, m_pFileInfoList[nFileIndex].md5OriginDataHash, 16);
-
-	return TRUE;
-
-Exit0:
-
-	return FALSE;
+    return attempt([&]
+    {
+        check(result, "Missing MD5 output buffer");
+        std::ranges::copy(At(index).info.md5OriginDataHash, result);
+    });
 }
 
-BOOL CPakFile::ReadFileData(int nFileIndex, char* pszFileData, size_t uDataSize)
+BOOL CPakFile::ReadFileData(int index, char* data, size_t size)
 {
-	int nRetCode = 0;
-	size_t uSize = 0;
-	char* pszBuffer = NULL;
-
-	LOG_PROCESS_ERROR(pszFileData);
-
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(m_pChunkInfoList);
-	LOG_PROCESS_ERROR(m_pnChunkOffsetList);
-
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	PAK_FILE_INFO* pFileInfo = m_pFileInfoList + nFileIndex;
-	LOG_PROCESS_ERROR(uDataSize <= pFileInfo->dwOriginalSize);
-
-	nRetCode = fseek(m_pFile, m_pHeader->dwDataOffset + pFileInfo->dwChunkStartOffset, SEEK_SET);
-	LOG_PROCESS_ERROR(nRetCode == 0);
-
-	if (pFileInfo->dwFileFlag & FileFlag_NoCompressed)
-	{
-		uSize = fread(pszFileData, 1, uDataSize, m_pFile);
-		LOG_PROCESS_ERROR(uSize == uDataSize);
-	}
-	else
-	{
-		size_t uTotalDecompressedSize = 0;
-		pszBuffer = (char*)malloc(ONE_CHUNK_SIZE);
-
-		LOG_PROCESS_ERROR(m_pnChunkOffsetList[nFileIndex] < MAX_PAK_CHUNK_COUNT);
-		PAK_CHUNK_INFO* pChunkInfo = 
-			m_pChunkInfoList + m_pnChunkOffsetList[nFileIndex];
-
-		for (int nChunkIndex = 0; nChunkIndex < pFileInfo->nDataChunkCount; nChunkIndex++)
-		{
-			LOG_PROCESS_ERROR(ftell(m_pFile) == (pChunkInfo[nChunkIndex].dwChunkOffset + m_pHeader->dwDataOffset));
-			LOG_PROCESS_ERROR(pChunkInfo[nChunkIndex].dwChunkSize < ONE_CHUNK_SIZE);
-
-			uSize = fread(pszBuffer, 1, pChunkInfo[nChunkIndex].dwChunkSize, m_pFile);
-			LOG_PROCESS_ERROR(uSize == pChunkInfo[nChunkIndex].dwChunkSize);
-
-			size_t uDecompressedSize = uDataSize - uTotalDecompressedSize;
-			nRetCode = uncompress((UINT8*)pszFileData + uTotalDecompressedSize, (ULONG*)&uDecompressedSize, 
-				(UINT8*)pszBuffer, pChunkInfo[nChunkIndex].dwChunkSize);
-			LOG_PROCESS_ERROR(nRetCode == Z_OK);
-
-			uTotalDecompressedSize += uDecompressedSize;
-		}
-		LOG_PROCESS_ERROR(uTotalDecompressedSize == uDataSize);
-	}
-
-	SAFE_FREE(pszBuffer);
-
-	return TRUE;
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	return FALSE;
+    return attempt([&]
+    {
+        const auto& entry = At(index);
+        const auto& info = entry.info;
+        check((data || size == 0) && size <= info.dwOriginalSize, "Invalid output buffer size");
+        seek(m_file.get(), std::uint64_t(m_header.dwDataOffset) + info.dwChunkStartOffset);
+        if (info.dwFileFlag & FileFlag_NoCompressed)
+        {
+            read(m_file.get(), data, size);
+            return;
+        }
+        check(size == info.dwOriginalSize, "Compressed files require a complete output buffer");
+        std::size_t written = 0;
+        for (const auto& chunk : entry.chunks)
+        {
+            std::vector<char> bytes(chunk.dwChunkSize);
+            read(m_file.get(), bytes.data(), bytes.size());
+            uLongf count = narrow(size - written);
+            check(uncompress(reinterpret_cast<Bytef*>(data + written), &count,
+                reinterpret_cast<const Bytef*>(bytes.data()), narrow(bytes.size())) == Z_OK, "Invalid compressed file data");
+            written += count;
+        }
+        check(written == size, "Decompressed file size mismatch");
+    });
 }
 
-BOOL CPakFile::VerifyFile(int nFileIndex)
+BOOL CPakFile::VerifyFile(int index)
 {
-	int nRetCode = 0;
-	char* pszBuffer = NULL;
-	unsigned char ucMD5Value[16];
-
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	pszBuffer = (char*)malloc(m_pFileInfoList[nFileIndex].dwOriginalSize);
-	LOG_PROCESS_ERROR(pszBuffer);
-
-	nRetCode = ReadFileData(nFileIndex, pszBuffer, m_pFileInfoList[nFileIndex].dwOriginalSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	calc_md5(ucMD5Value, (UINT8*)pszBuffer, m_pFileInfoList[nFileIndex].dwOriginalSize);
-
-	for (int nIndex = 0; nIndex < 16; nIndex++)
-	{
-		LOG_PROCESS_ERROR(ucMD5Value[nIndex] == m_pFileInfoList[nFileIndex].md5OriginDataHash[nIndex]);
-	}
-
-	SAFE_FREE(pszBuffer);
-
-	return TRUE;
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	return FALSE;
+    return attempt([&]
+    {
+        const auto& entry = At(index);
+        std::vector<char> bytes(entry.info.dwOriginalSize);
+        check(ReadFileData(index, bytes.data(), bytes.size()), "Cannot read file for verification");
+        UINT8 actual[16];
+        digest(actual, bytes);
+        check(std::ranges::equal(actual, entry.info.md5OriginDataHash), "File MD5 mismatch");
+    });
 }
 
-BOOL CPakFile::ExtractFile(int nFileIndex)
+BOOL CPakFile::ExtractFile(int index)
 {
-	BOOL bResult = FALSE;
-	int nRetCode = 0;
-	char szDirName[MAX_FILE_NAME_LEN] = {0};
-	FILE* pFile = NULL;
-	char* pszBuffer = NULL;
-
-	LOG_PROCESS_ERROR(m_szFileName[0] != 0);
-
-	LOG_PROCESS_ERROR(m_pHeader);
-	LOG_PROCESS_ERROR(m_pFileInfoList);
-	LOG_PROCESS_ERROR(m_pszNameBuffer);
-
-	LOG_PROCESS_ERROR(nFileIndex >= 0 && nFileIndex < m_pHeader->nFileCount);
-
-	PAK_FILE_INFO* pFileInfo = m_pFileInfoList + nFileIndex;
-	const char* pcszFileName = m_pszNameBuffer + nFileIndex * MAX_FILE_NAME_LEN;
-
-	memset(szDirName, 0, sizeof(szDirName));
-	for (int nIndex = 0; nIndex < strlen(pcszFileName); nIndex++)
-	{
-		if (pcszFileName[nIndex] == L'/' || pcszFileName[nIndex] == L'\\')
-		{
-			mkdir(szDirName);
-		}
-		szDirName[nIndex] = pcszFileName[nIndex];
-	}
-
-	if (pcszFileName[0] == 0)
-	{
-		snprintf(szDirName, MAX_FILE_NAME_LEN, "%08X_%08X.dat", pFileInfo->dwNameHashA, pFileInfo->dwNameHashB);
-		pcszFileName = szDirName;
-	}
-
-	pFile = fopen(pcszFileName, "wb");
-	LOG_PROCESS_ERROR(pFile);
-
-	pszBuffer = (char*)malloc(pFileInfo->dwOriginalSize);
-	LOG_PROCESS_ERROR(pszBuffer);
-
-	nRetCode = ReadFileData(nFileIndex, pszBuffer, pFileInfo->dwOriginalSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	size_t uSize = fwrite(pszBuffer, 1, pFileInfo->dwOriginalSize, pFile);
-	LOG_PROCESS_ERROR(uSize == pFileInfo->dwOriginalSize);
-
-	bResult = TRUE;
-Exit0:
-	SAFE_FREE(pszBuffer);
-
-	if (pFile)
-		fclose(pFile);
-
-	return bResult;
+    return attempt([&]
+    {
+        const auto& entry = At(index);
+        const auto* stored_name = GetFileName(index);
+        check(stored_name, "Cannot get extraction filename");
+        const fs::path name(stored_name);
+        check(!name.empty() && !name.has_root_path() && name.string().find(':') == std::string::npos, "Invalid extraction path");
+        for (const auto& component : name)
+            check(component != "..", "Extraction path escapes its destination");
+        const auto root = fs::current_path();
+        const auto destination = fs::weakly_canonical(root / name);
+        const auto relative = destination.lexically_relative(root);
+        check(!relative.empty() && *relative.begin() != "..", "Extraction path escapes its destination");
+        std::vector<char> bytes(entry.info.dwOriginalSize);
+        check(ReadFileData(index, bytes.data(), bytes.size()), "Cannot read file for extraction");
+        fs::create_directories(destination.parent_path());
+        cqyh::CFilePtr file(_wfopen(destination.c_str(), L"wb"));
+        check(bool(file), "Cannot create extracted file");
+        write(file.get(), bytes.data(), bytes.size());
+        check(std::fclose(file.release()) == 0, "Cannot close extracted file");
+    });
 }

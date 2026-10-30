@@ -137,19 +137,21 @@ cqyh_add_tool(certserver OUTPUT certserver64 PCH_DIR ${_tools_dir}/certserver
     INCLUDES ${_tools_dir}/certserver
     LIBS baselib cqyh::net cqyh::zlib cqyh::syslibs)
 
-cqyh_add_tool(pak OUTPUT pak64 PCH_DIR ${_tools_dir}/pak
+cqyh_add_tool(pak OUTPUT pak64 STRICT PCH_DIR ${_tools_dir}/pak
     SOURCES
         pak/pak.cpp
         pak/pak_file.cpp
         pak/stdafx.cpp
     INCLUDES ${_tools_dir}/pak
+    DEFINITIONS NOMINMAX
     LIBS baselib cqyh::zlib cqyh::syslibs)
 
-cqyh_add_tool(update_string_map OUTPUT update_string_map64 PCH_DIR ${_tools_dir}/update_string_map
+cqyh_add_tool(update_string_map OUTPUT update_string_map64 STRICT PCH_DIR ${_tools_dir}/update_string_map
     SOURCES
         update_string_map/stdafx.cpp
         update_string_map/update_string_map.cpp
-    INCLUDES ${_tools_dir}/update_string_map)
+    INCLUDES ${_tools_dir}/update_string_map
+    DEFINITIONS NOMINMAX WIN32_LEAN_AND_MEAN)
 
 cqyh_add_tool(account_logout OUTPUT account_logout64 PCH_DIR ${_tools_dir}/account_logout/account_logout/account_logout
     SOURCES
@@ -158,7 +160,7 @@ cqyh_add_tool(account_logout OUTPUT account_logout64 PCH_DIR ${_tools_dir}/accou
     INCLUDES ${_tools_dir}/account_logout/account_logout/account_logout
     LIBS baselib cqyh::syslibs)
 
-cqyh_add_tool(gmtool_label_version OUTPUT gmtool_label_version64
+cqyh_add_tool(gmtool_label_version OUTPUT gmtool_label_version64 STRICT
     SOURCES gmtool_label_version/gmtool_label_version/main.cpp
     DEFINITIONS _LABEL _CRT_SECURE_NO_WARNINGS)
 

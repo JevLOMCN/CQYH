@@ -1,67 +1,65 @@
 #ifndef _PAK_FILE_H_
 #define _PAK_FILE_H_
 
+#include <array>
+#include <string>
+#include <vector>
+
+#include "file_owner.h"
 #include "pak_def.h"
 
-/************************************************************************/
-/* Note: This PAK file class does NOT support larger than 4GB file.     */
-/************************************************************************/
-
-struct PAK_FILE_HEADER;
-struct PAK_FILE_INFO;
-struct PAK_CHUNK_INFO;
-
+// The on-disk structures and filename hashes retain the original 32-bit PAK format.
 class CPakFile
 {
 public:
-	CPakFile();
-	virtual ~CPakFile();
+    CPakFile() = default;
+    virtual ~CPakFile();
+    CPakFile(const CPakFile&) = delete;
+    CPakFile& operator=(const CPakFile&) = delete;
 
-	BOOL Create(const char* pcszFileName);
-	BOOL Open(const char* pcszFileName);
-	BOOL Close(void);
-
-	BOOL IsOpened(void);
-	BOOL SetPackageFlag(BOOL bHasHashTable, BOOL bHasNameBuffer, BOOL bCompressNameBuffer, BOOL bCompressFileInfo);
-
-	BOOL AddFile(const char* pcszPakFileName, const char* pcszFileName);
-	BOOL DelFile(const char* pcszPakFileName);
-	int FindFile(const char* pcszPakFileName);
-
-	BOOL AddFileFromPak(const char* pcszPakFileName, CPakFile* pTGPFile, int nFileIndex);
-	BOOL AddFileFromData(const char* pcszPakFileName, time_t CreateTime, 
-		time_t ModifyTime, const char* pszFileData, size_t uDataSize);
-
-	int GetFileCount(void);
-	size_t GetFileSize(int nFileIndex);
-	const char* GetFileName(int nFileIndex);
-	BOOL GetFileHashValue(int nFileIndex, unsigned long& rulHashValueA, unsigned long& rulHashValueB);
-	BOOL IsDeletedFile(int nFileIndex);
-	BOOL GetFileMD5Value(int nFileIndex, unsigned char ucMD5Value[16]);
-	BOOL ReadFileData(int nFileIndex, char* pszFileData, size_t uDataSize);
-	BOOL VerifyFile(int nFileIndex);
-	BOOL ExtractFile(int nFileIndex);
+    BOOL Create(const char* file_name);
+    BOOL Open(const char* file_name);
+    BOOL Close();
+    BOOL IsOpened();
+    BOOL SetPackageFlag(BOOL hash_table, BOOL names, BOOL compress_names, BOOL compress_info);
+    BOOL AddFile(const char* package_name, const char* disk_name);
+    BOOL DelFile(const char* package_name);
+    int FindFile(const char* package_name);
+    BOOL AddFileFromPak(const char* package_name, CPakFile* source, int index);
+    BOOL AddFileFromData(const char* package_name, time_t created, time_t modified,
+        const char* data, size_t size);
+    int GetFileCount();
+    size_t GetFileSize(int index);
+    const char* GetFileName(int index);
+    BOOL GetFileHashValue(int index, unsigned long& hash_a, unsigned long& hash_b);
+    BOOL IsDeletedFile(int index);
+    BOOL GetFileMD5Value(int index, unsigned char digest[16]);
+    BOOL ReadFileData(int index, char* data, size_t size);
+    BOOL VerifyFile(int index);
+    BOOL ExtractFile(int index);
 
 private:
-	FILE*				m_pFile;
-	char				m_szFileName[MAX_PATH];
-	BOOL				m_bUpdateHashTable;
+    struct Entry
+    {
+        PAK_FILE_INFO info{};
+        std::string name;
+        std::vector<PAK_CHUNK_INFO> chunks;
+    };
 
-	PAK_FILE_HEADER*	m_pHeader;	
-	unsigned int*		m_puHashTable;
-	char*				m_pszNameBuffer;
-	PAK_FILE_INFO*		m_pFileInfoList;
-	PAK_CHUNK_INFO* 	m_pChunkInfoList;
-	int					m_nChunkCount;
-	int*				m_pnChunkOffsetList;
+    cqyh::CFilePtr m_file;
+    PAK_FILE_HEADER m_header{};
+    std::vector<Entry> m_entries;
+    std::vector<UINT32> m_hash_table;
+    std::string m_fallback_name;
+    bool m_open = false;
+    bool m_dirty = false;
+    bool m_hash_dirty = false;
+    bool m_write_failed = false;
 
-	BOOL _Alloc(void);
-	BOOL _Free(void);
-	BOOL _AddFileFromRawData(const char* pcszPakFileName, 
-		const PAK_FILE_INFO* pFileInfo, 
-		const PAK_CHUNK_INFO* pChunkInfo,
-		const char* pszFileData, size_t uDataSize);
-	BOOL _UpdateHashTable(void);
+    void Reset() noexcept;
+    void UpdateHashTable();
+    Entry& At(int index);
+    BOOL AddRaw(const char* package_name, const Entry& source, const std::vector<char>& bytes);
 };
 
-#endif	// _PAK_FILE_H_
+#endif // _PAK_FILE_H_

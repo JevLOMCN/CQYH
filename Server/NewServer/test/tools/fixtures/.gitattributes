@@ -1,0 +1,4 @@
+# These inputs freeze the original server logger's CRLF bytes.
+analysis-*.txt -text
+cash-original-format.txt -text
+export-original-*.txt -text
