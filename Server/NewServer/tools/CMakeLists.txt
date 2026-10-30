@@ -162,12 +162,12 @@ cqyh_add_tool(update_string_map OUTPUT update_string_map64 STRICT PCH_DIR ${_too
     INCLUDES ${_tools_dir}/update_string_map
     DEFINITIONS NOMINMAX WIN32_LEAN_AND_MEAN)
 
-cqyh_add_tool(account_logout OUTPUT account_logout64 PCH_DIR ${_tools_dir}/account_logout/account_logout/account_logout
+cqyh_add_tool(account_logout OUTPUT account_logout64 STRICT
     SOURCES
         account_logout/account_logout/account_logout/account_logout.cpp
         account_logout/account_logout/account_logout/main.cpp
     INCLUDES ${_tools_dir}/account_logout/account_logout/account_logout
-    LIBS baselib cqyh::syslibs)
+    DEFINITIONS NOMINMAX)
 
 cqyh_add_tool(gmtool_label_version OUTPUT gmtool_label_version64 STRICT
     SOURCES gmtool_label_version/gmtool_label_version/main.cpp

@@ -1,16 +1,4 @@
-#ifndef _ACCOUNT_LOGOUT_AFX_H_
-#define _ACCOUNT_LOGOUT_AFX_H_
+#pragma once
 
-
-#include <stdio.h>
-#include <tchar.h>
-
-#include "std_type.h"
-#include "process_error.h"
-#include "string_ex.h"
-
-#include <list>
-#include <map>
-#include <set>
-
-#endif // !_ACCOUNT_LOGOUT_AFX_H_
+// Retained for historical project references. The standard-library-only sources
+// include their headers directly and no longer use a precompiled header.

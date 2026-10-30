@@ -249,6 +249,17 @@ cqyh_copy_runtime_dlls(test_tool_cert_runtime)
 add_test(NAME tool_cert_runtime COMMAND test_tool_cert_runtime "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/cert runtime")
 set_tests_properties(tool_cert_runtime PROPERTIES TIMEOUT 60)
 
+add_executable(test_tool_account_logout test_account_logout.cpp
+    ../../tools/account_logout/account_logout/account_logout/account_logout.cpp)
+cqyh_target_defaults(test_tool_account_logout)
+target_include_directories(test_tool_account_logout PRIVATE ../../tools/account_logout/account_logout/account_logout)
+add_test(NAME tool_account_logout COMMAND "${CMAKE_COMMAND}"
+    "-DACCOUNT_TEST=$<TARGET_FILE:test_tool_account_logout>"
+    "-DACCOUNT_TOOL=$<TARGET_FILE:account_logout>"
+    "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/account logout"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/test_account_logout.cmake")
+set_tests_properties(tool_account_logout PROPERTIES TIMEOUT 60)
+
 add_executable(test_tool_gm_file_transform test_gm_file_transform.cpp
     ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
 cqyh_target_defaults(test_tool_gm_file_transform STRICT)
