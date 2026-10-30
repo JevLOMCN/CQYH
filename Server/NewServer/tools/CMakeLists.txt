@@ -69,17 +69,19 @@ endfunction()
 
 # --- console tools on top of the server libraries -------------------------------------------------------------
 
-cqyh_add_tool(guardserver OUTPUT guardserver64 PCH_DIR ${_tools_dir}/guardserver
+cqyh_add_tool(guardserver OUTPUT guardserver64 STRICT PCH_DIR ${_tools_dir}/guardserver
     SOURCES
         guardserver/cmd_mgr.cpp
         guardserver/gd_message_handler.cpp
         guardserver/gd_session_mgr.cpp
         guardserver/guardserver.cpp
+        guardserver/guard_files.cpp
+        guardserver/guard_deploy.cpp
         guardserver/main.cpp
         guardserver/process_mgr.cpp
         guardserver/stdafx.cpp
     INCLUDES ${_tools_dir}/guardserver
-    DEFINITIONS WIN32_LEAN_AND_MEAN
+    DEFINITIONS WIN32_LEAN_AND_MEAN NOMINMAX
     LIBS baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs shlwapi)
 
 cqyh_add_tool(exportdb OUTPUT exportdb64 STRICT PCH_DIR ${_tools_dir}/exportdb

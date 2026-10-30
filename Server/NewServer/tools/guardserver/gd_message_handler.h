@@ -1,5 +1,7 @@
 #ifndef _GUARD_MESSAGE_HANDLER_H_
 #define _GUARD_MESSAGE_HANDLER_H_
+#include <array>
+#include "guard_files.h"
 
 #include "net.h"
 #include "internal_message_header.h"
@@ -35,6 +37,8 @@ public:
     BOOL UnInit(void);
     static CGDMessageHandler& GetInstance(void);    
     BOOL CheckAllClose(void);
+    bool HasIncomingFile() const noexcept { return m_incomingFile.busy(); }
+    void BeginShutdown() noexcept { m_receiving = false; m_incomingFile.abort(); }
 
 public:
     /************************************************************************/
@@ -102,8 +106,6 @@ private:
         UINT16 wBufferIndex, UINT16 wBufferTotal,
         UINT16 wFileIndex, UINT16 wFileTotal);
 	/************************************************************************/
-	BOOL _GenerateDeployBatFile(const char* pzName, const char* pszVersionPath, const char* pszServerRunPath);
-	BOOL _GenerateHotUpdateBatFile(const char* pzName, const char* pszPatchPath, const char* pszServerRunPath);
 
 private:
     BOOL _SendGT(UINT32 dwGTSessionID, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset = 0);
@@ -126,12 +128,11 @@ private:
     IPacketAllocator*                   m_pPacketAllocator;
     static CGDMessageHandler            ms_Instance;
 
-	FILE*								m_pRecvFileHandle;
-	CHAR								m_szRecvFilePath[PATH_LEN];
-	INT32								m_nRecvBufferIndex;
+    guard_files::IncomingFile m_incomingFile;
+    bool m_receiving = false;
 
     typedef void (CGDMessageHandler::*GUARD_MESSAGE_FUNC)(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession);
-	GUARD_MESSAGE_FUNC               m_GuardMessageFuncList[InternalMessage::m2a_end];
+	std::array<GUARD_MESSAGE_FUNC, InternalMessage::m2a_end> m_GuardMessageFuncList{};
 };
 
 #endif  // _MESSAGE_HANDLER_H_

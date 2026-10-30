@@ -1,10 +1,14 @@
 #include "stdafx.h"
+#include <chrono>
+#include <thread>
 #include "guardserver.h"
-
-#include "shellapi.h"
-#include "shlwapi.h"
+#include "guard_deploy.h"
 
 #include <algorithm>
+#include <filesystem>
+#include <format>
+#include <ranges>
+#include <span>
 
 //#include "version.h"
 //#include "net.h"
@@ -21,12 +25,6 @@
 #include "cmd_mgr.h"
 #include "guard_config.h"
 #include "global_config.h"	//LoadGuardConfig
-#include "dir.h"
-#include "ifile.h"
-
-#include "direct.h"
-#include "shellapi.h"
-#include "shlwapi.h"
 
 //#include "report.h"
 //#include "statis_info.h"
@@ -45,8 +43,6 @@ const char* s_szFixTail =
 const char* s_szEmptyLine =
 "                                                                     ";
 
-static char s_szCmd[1024]={0};
-static INT32 s_nCmdLen = 0;
 
 CGuardServer CGuardServer::ms_Instance;
 CGuardServer::CGuardServer()
@@ -69,6 +65,9 @@ CGuardServer& CGuardServer::GetInstance(void)
 
 BOOL CGuardServer::Init(INetEventHandler* poNetEventHandler)
 {
+    if (m_pNet || m_pSocketAcceptor || !poNetEventHandler) return FALSE;
+    m_console.clear();
+    m_lastScreenTick = 0;
     INT32 nRetCode = 0;
     UINT32 dwAddr;
     m_bRun = TRUE;
@@ -91,7 +90,7 @@ BOOL CGuardServer::Init(INetEventHandler* poNetEventHandler)
     IntranetInitParam.nRecvBufSize = g_GuardConfig.Net.nRecvBufSize;
     IntranetInitParam.nPacketBufferSize = g_GuardConfig.Net.nPacketBufferSize;
 	IntranetInitParam.nDisconnectTimeout = g_GuardConfig.nShareMemDisconnectTimeout;
-    m_pNet = g_CreateNetInterface(netSimple, &m_PacketAllocator, poNetEventHandler, &IntranetInitParam);
+    m_pNet = guard_runtime::NetOwner{g_CreateNetInterface(netSimple, &m_PacketAllocator, poNetEventHandler, &IntranetInitParam), {netSimple, &g_DestroyNetInterface}};
 #else
     SimpleInitParam.nMaxAcceptor = g_GuardConfig.Net.nMaxAcceptor;
     SimpleInitParam.nMaxConnector = g_GuardConfig.Net.nMaxConnector;
@@ -99,11 +98,11 @@ BOOL CGuardServer::Init(INetEventHandler* poNetEventHandler)
     SimpleInitParam.nSendBufSize = g_GuardConfig.Net.nSendBufSize;
     SimpleInitParam.nRecvBufSize = g_GuardConfig.Net.nRecvBufSize;
     SimpleInitParam.nPacketBufferSize = g_GuardConfig.Net.nPacketBufferSize;
-    m_pNet = g_CreateNetInterface(netSimple, &m_PacketAllocator, poNetEventHandler, &SimpleInitParam);
+    m_pNet = guard_runtime::NetOwner{g_CreateNetInterface(netSimple, &m_PacketAllocator, poNetEventHandler, &SimpleInitParam), {netSimple, &g_DestroyNetInterface}};
 #endif
     LOG_PROCESS_ERROR(m_pNet);
 
-    m_pSocketAcceptor = m_pNet->CreateAcceptor();
+    m_pSocketAcceptor = guard_runtime::AcceptorOwner{m_pNet->CreateAcceptor(), {m_pNet.get()}};
     LOG_PROCESS_ERROR(m_pSocketAcceptor);
 
     dwAddr = inet_addr(g_GuardConfig.szAddress);
@@ -127,39 +126,22 @@ Exit0:
     return FALSE;
 }
 
+void CGuardServer::StopBackgroundWork()
+{
+    m_deployment.stop();
+    m_logCleanup.stop();
+    m_szProcessingVersion[0] = m_szProcessingPatch[0] = '\0';
+    m_roLogFolderEntries.clear();
+}
+
 BOOL CGuardServer::UnInit(void)
 {
-    INT32 nRetCode = 0;
-
-    if (m_pSocketAcceptor)
-    {
-        nRetCode = m_pSocketAcceptor->Close();
-        LOG_CHECK_ERROR(nRetCode);
-
-        nRetCode = m_pNet->DestroyAcceptor(m_pSocketAcceptor);
-        LOG_CHECK_ERROR(nRetCode);
-
-        m_pSocketAcceptor = NULL;
-    }
-
-    if (m_pNet)
-    {
-        nRetCode = m_pNet->UnInit();
-        LOG_CHECK_ERROR(nRetCode);
-
-#if defined(WIN32)
-        nRetCode = g_DestroyNetInterface(netSimple, m_pNet);
-#elif defined(__linux__)
-        nRetCode = g_DestroyNetInterface(netSimple, m_pNet);
-#endif
-        LOG_CHECK_ERROR(nRetCode);
-        m_pNet = NULL;
-    }
-
-    nRetCode = m_PacketAllocator.UnInit();
-    LOG_CHECK_ERROR(nRetCode);
-
-    return TRUE; 
+    m_bRun = false;
+    StopBackgroundWork();
+    m_pSocketAcceptor.reset();
+    m_pNet.reset();
+    m_console.clear();
+    return m_PacketAllocator.UnInit();
 }
 
 BOOL CGuardServer::Close(void)
@@ -168,127 +150,60 @@ BOOL CGuardServer::Close(void)
     return TRUE;
 }
 
-#define CHECK_DISK_SPACE_INTERVAL (10 * 1000)
-#define ASYNC_DELETE_RESULT_FILENAME "ASYNC_DELETE_RESULT.TEXT"
-
-BOOL _AsyncDeleteDirectory(const char *dirName)
+namespace
 {
-	INT32 nRetCode = 0;
-
-	char szParam[MAX_PATH] = { 0 };
-	sprintf(szParam, "/C \"echo %s 1>%s  && rmdir /S /Q %s && del /Q /F %s\"",
-		dirName, ASYNC_DELETE_RESULT_FILENAME, dirName, ASYNC_DELETE_RESULT_FILENAME);
-	INF("cmd.exe %s", szParam);
-	nRetCode = (INT32)ShellExecute(NULL, "open", "cmd.exe", szParam, NULL, SW_HIDE);
-	LOG_CHECK_ERROR(nRetCode > 32);
-
-	return TRUE;
-Exit0:
-	return FALSE;
+constexpr UINT64 check_disk_space_interval = 10'000;
 }
 
-BOOL CGuardServer::_AsyncEraseOldestLogSubFolders(std::string strSubFolderName)
+BOOL CGuardServer::_AsyncEraseOldestLogSubFolders(std::string name)
+try
 {
-	INT32 nRetCode = 0;
-
-	ULARGE_INTEGER FreeBytes;
-	char szLog[256] = { 0 };
-
-	// delete
-	std::string path = std::string();
-	path = g_GuardConfig.szServerRunPath + std::string("\\log\\") + strSubFolderName;
-
-	nRetCode = _AsyncDeleteDirectory(path.c_str());
-	if (nRetCode)
-	{
-		// remove directory
-		nRetCode = RemoveDirectory(path.c_str());
-		LOG_CHECK_ERROR(nRetCode);
-
-		// 
-		snprintf(szLog, sizeof(szLog), "asnyc deleting files under %s", path.c_str());
-		CRI(szLog);
-		REPORT(1, szLog);
-		GD_ALERT_MT(szLog);
-
-		// leave a mark
-		path += std::string("_cleard_by_guard");
-		nRetCode = g_CreateDirectory(path.c_str(), TRUE);
-		LOG_CHECK_ERROR(nRetCode);
-	}
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    const std::filesystem::path runDirectory{g_GuardConfig.szServerRunPath};
+    const auto path = runDirectory / "log" / name;
+    return m_logCleanup.start(path,
+        [runDirectory, name = std::move(name)](std::stop_token stop) {
+            return guard_files::erase_log_folder(runDirectory, name, stop);
+        });
+}
+catch (const std::exception& error)
+{
+    CRI("cannot start log cleanup: %s", error.what());
+    return FALSE;
 }
 
-struct CFileDeleter
+void CGuardServer::_PollLogCleanup()
 {
-	std::string FolderPath;
-
-	BOOL RequireDirectory()	{ return FALSE; }
-
-	BOOL operator()(const char* szFileName)
-	{
-		std::string path = std::string();
-		path = FolderPath + std::string("\\") + szFileName;
-
-		DeleteFile(path.c_str());
-
-		return TRUE;
-	}
-};
-
-BOOL CGuardServer::_EraseOldestLogSubFolders(std::string strSubFolderName)
-{
-	INT32 nRetCode = 0;
-
-	ULARGE_INTEGER FreeBytes;
-	char szLog[256] = { 0 };
-
-	// delete
-	std::string path = std::string();
-	path = g_GuardConfig.szServerRunPath + std::string("\\log\\") + strSubFolderName;
-
-	CFileDeleter op;
-	op.FolderPath = path;
-	nRetCode = g_DirectoryTraverse(path.c_str(), op);
-	if (nRetCode)
-	{
-		// remove directory
-		nRetCode = RemoveDirectory(path.c_str());
-		LOG_CHECK_ERROR(nRetCode);
-	}
-
-	// 
-	snprintf(szLog, sizeof(szLog), "deleting files under %s", path.c_str());
-	CRI(szLog);
-	REPORT(1, szLog);
-	GD_ALERT_MT(szLog);
-
-	// leave a mark
-	path += std::string("_cleard_by_guard");
-	nRetCode = g_CreateDirectory(path.c_str(), TRUE);
-	LOG_CHECK_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    if (auto completion = m_logCleanup.poll())
+    {
+        const auto path = completion->path.string();
+        const auto message = completion->result
+            ? std::format("deleted {} log entries under {}", *completion->result, path)
+            : std::format("failed to clean log folder {}: {}", path, completion->result.error().message());
+        CRI("%s", message.c_str());
+        REPORT(1, "%s", message.c_str());
+        GD_ALERT_MT("%s", message.c_str());
+        // A failure remains eligible on the next disk check, rather than being
+        // silently discarded from the cache and marked as a successful cleanup.
+        if (!completion->result) m_roLogFolderEntries.clear();
+    }
 }
 
 BOOL CGuardServer::MainLoop(void)
 {
 	INT32 nRetCode = 0;
-	FILE* fp = NULL;
-	ULARGE_INTEGER FreeBytes;
+    UINT64 qwEndTick = 0;
 	INT32 nLogCleanThreshold = g_GuardConfig.nLogCleanThreshold;
 	nLogCleanThreshold = nLogCleanThreshold > 0 ? nLogCleanThreshold : 16; // unit: GByte
 
     UINT64 qwStartTick = GetTickCountEx();
-    static UINT64 s_qwLastUpdateTick = 0;
 
+    if (!m_pNet) return FALSE;
     nRetCode = m_pNet->MainLoop();
     LOG_PROCESS_ERROR(nRetCode);
+
+    // During graceful shutdown only deliver transport completion callbacks.
+    // Do not run commands, process restarts, pings, or filesystem jobs again.
+    if (!m_bRun) return TRUE;
 
     nRetCode = CGDSessionMgr::GetInstance().MainLoop();
     LOG_PROCESS_ERROR(nRetCode);
@@ -303,105 +218,50 @@ BOOL CGuardServer::MainLoop(void)
 	nRetCode = ProcessHotUpdatePatch();
 	LOG_CHECK_ERROR(nRetCode);
 	
-	BOOL bCheckDiskSpace = FALSE;
-	if (qwStartTick - m_qwLatestTickCheckDiskSpace > CHECK_DISK_SPACE_INTERVAL)
-	{
-		bCheckDiskSpace = TRUE;
-		m_qwLatestTickCheckDiskSpace = qwStartTick;
-	}
-	else
-	{
-		//// disk space check
-		//if (fp = fopen(ASYNC_DELETE_RESULT_FILENAME, "r"))
-		//{
-		//	fclose(fp);
-		//	fp = NULL;
-		//	// deleting, do nothing
-		//}
-		//else
-		//{
-		//	bCheckDiskSpace = TRUE;
-		//}
-	}
-
-	if (bCheckDiskSpace)
-	{
-		nRetCode = GetDiskFreeSpaceEx(g_GuardConfig.szServerRunPath, &FreeBytes, NULL, NULL);
-		if (nRetCode)// not zero
-		{
-			if (FreeBytes.QuadPart <= 1024LL * 1024 * 1024 * nLogCleanThreshold)
-			{
-				if (m_roLogFolderEntries.empty())
-				{
-					nRetCode = _GetLogSubFolders(g_GuardConfig.szServerRunPath);
-					LOG_CHECK_ERROR(nRetCode);
-				}
-
-				if (!m_roLogFolderEntries.empty())
-				{
-					char szLog[256] = { 0 };
-					snprintf(szLog, sizeof(szLog), "server path %s disk space less than %d G, now clear some oldest log folders", g_GuardConfig.szServerRunPath, nLogCleanThreshold);
-					CRI(szLog);
-					REPORT(1, szLog);
-					GD_ALERT_MT(szLog);
-
-					//nRetCode = _AsyncEraseOldestLogSubFolders(*(m_roLogFolderEntries.begin()));
-					nRetCode = _EraseOldestLogSubFolders(*(m_roLogFolderEntries.begin()));
-					LOG_CHECK_ERROR(nRetCode);
-
-					m_roLogFolderEntries.erase(m_roLogFolderEntries.begin());
-				}
-			}
-		}
-	}
-
-    if (kbhit())
+    _PollLogCleanup();
+    if (m_bRun && !m_logCleanup.busy() &&
+        (qwStartTick < m_qwLatestTickCheckDiskSpace ||
+         qwStartTick - m_qwLatestTickCheckDiskSpace > check_disk_space_interval))
     {
-        char ch = getch();
-        if (ch == '\r')
+        m_qwLatestTickCheckDiskSpace = qwStartTick;
+        std::error_code error;
+        const auto space = std::filesystem::space(g_GuardConfig.szServerRunPath, error);
+        if (error)
+            CRI("cannot query server disk space: %s", error.message().c_str());
+        else if (space.available <= std::uintmax_t{1024} * 1024 * 1024 * nLogCleanThreshold)
         {
-			nRetCode = CCmdMgr::GetInstance().ExecOPCmd(s_szCmd);
-			LOG_CHECK_ERROR(nRetCode);
-
-            s_nCmdLen = 0;
-            s_szCmd[s_nCmdLen] = 0;
-            
-        }
-        else if(ch == '\b')
-        {
-            s_nCmdLen--;
-            if(s_nCmdLen >= 0 && s_nCmdLen < sizeof(s_szCmd) )
-                s_szCmd[s_nCmdLen] = 0;
-            else
-                s_nCmdLen = 0;
-        }
-        else if(ch > 0)
-        {
-            if ( s_nCmdLen + 1 >= sizeof(s_szCmd) )
+            if (m_roLogFolderEntries.empty())
+                _GetLogSubFolders(g_GuardConfig.szServerRunPath);
+            if (!m_roLogFolderEntries.empty())
             {
-                s_nCmdLen = 0;
+                if (_AsyncEraseOldestLogSubFolders(m_roLogFolderEntries.front()))
+                    m_roLogFolderEntries.erase(m_roLogFolderEntries.begin());
             }
-            s_szCmd[s_nCmdLen++] = ch;
-            s_szCmd[s_nCmdLen] = 0;
         }
-        else
-        {
+    }
 
+    extern BOOL g_bStartFromCmd;
+    if (g_bStartFromCmd && kbhit())
+    {
+        if (auto line = m_console.push(getch()))
+        {
+            if (line->overflow) ERR("console command exceeds %zu bytes", guard_runtime::ConsoleInput::capacity);
+            else if (!line->text.empty()) LOG_CHECK_ERROR(CCmdMgr::GetInstance().ExecOPCmd(line->text.c_str()));
         }
         PrintCmdPrompt();
     }
 
-    if (qwStartTick - s_qwLastUpdateTick > 500)
+    if (qwStartTick - m_lastScreenTick > 500)
 	{
 		g_MainloopStatisInfo();
 
-        _UpdateScreen();
-        s_qwLastUpdateTick = qwStartTick;
+        if (g_bStartFromCmd) _UpdateScreen();
+        m_lastScreenTick = qwStartTick;
     }
 
-    UINT64 qwEndTick = GetTickCountEx();
+    qwEndTick = GetTickCountEx();
     if (qwEndTick - qwStartTick < (1000 / GAME_FPS))
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     else
         CRI("too slow main loop %d", (INT32)(qwEndTick - qwStartTick));
 
@@ -413,7 +273,8 @@ Exit0:
 BOOL CGuardServer::PrintCmdPrompt()
 {
     printf("\r%s", s_szEmptyLine);
-    printf("\rcmd:%s", s_szCmd);
+    const auto text = m_console.text();
+    printf("\rcmd:%.*s", static_cast<int>(text.size()), text.data());
 
     return TRUE;
 }
@@ -462,59 +323,26 @@ Exit0:
     return;
 }
 
-struct CLogSubFolderCollector
+BOOL CGuardServer::_GetLogSubFolders(const char* runDirectory)
 {
-	std::vector<std::string> &m_roLogFolderEntries;
-	CLogSubFolderCollector(std::vector<std::string> &oEntries):m_roLogFolderEntries(oEntries){}
-
-	BOOL RequireDirectory()	{ return TRUE; }
-
-	BOOL operator()(const char* szVersionEntryName)
-	{
-		INT32 nRetCode = 0;
-		INT32 nYear = -1;
-		INT32 nMonth = -1;
-		INT32 nDay = -1;
-		PROCESS_ERROR(strlen(szVersionEntryName) == strlen("2015_07_01") );
-
-		nRetCode = sscanf(szVersionEntryName, "%04d_%02d_%02d", &nYear, &nMonth, &nDay);
-		PROCESS_ERROR(nRetCode == 3);
-
-		m_roLogFolderEntries.push_back(szVersionEntryName);
-	Exit0:
-		return TRUE;
-	}
-};
-
-BOOL CGuardServer::_GetLogSubFolders(const char* pszTargetDir)
-{
-	INT32 nRetCode = 0;
-	char szDir[MAX_PATH] = {0};
-	snprintf(szDir, sizeof(szDir),"%s\\log", pszTargetDir);
-
-	m_roLogFolderEntries.clear();
-	CLogSubFolderCollector stChecker(m_roLogFolderEntries);
-
-	nRetCode = g_DirectoryExists(szDir);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	nRetCode = g_DirectoryTraverse(szDir, stChecker);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	sort(m_roLogFolderEntries.begin(), m_roLogFolderEntries.end());
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    m_roLogFolderEntries.clear();
+    auto names = guard_files::log_folders(runDirectory);
+    if (!names)
+    {
+        CRI("cannot enumerate log folders: %s", names.error().message().c_str());
+        return FALSE;
+    }
+    m_roLogFolderEntries = std::move(*names);
+    return TRUE;
 }
 
 BOOL CGuardServer::_PrintProcessContent()
 {
 	char stSessionContent[256] = { 0 };
 
-	CProcessMgr::CSprocessList& rList = CProcessMgr::GetInstance().GetProcesses();
+	const auto& rList = CProcessMgr::GetInstance().GetProcesses();
 
-	for (CProcessMgr::CSprocessListItr itr = rList.begin(); itr != rList.end(); ++itr)
+	for (auto itr = rList.begin(); itr != rList.end(); ++itr)
 	{
 		LOG_PROCESS_ERROR(itr->byType >= stMS && itr->byType < stClient);
 
@@ -523,8 +351,8 @@ BOOL CGuardServer::_PrintProcessContent()
 		{
 			bConnected = CGDSessionMgr::GetInstance().CheckSocketConnected(itr->byType, itr->bySessionID);
 		}
-		char* szState = bConnected ? "normal" : "unconnect";
-		char* szMode = itr->bAuto ? "auto" : "manul";
+		const char* szState = bConnected ? "normal" : "unconnect";
+		const char* szMode = itr->bAuto ? "auto" : "manul";
 
 		snprintf(stSessionContent, sizeof(stSessionContent), s_szFixLineContent,
 			itr->dwProcessID, GetServerShortName(itr->byType), itr->bySessionID, szState, szMode);
@@ -565,238 +393,194 @@ Exit0:
 
 BOOL CGuardServer::ReloadConfig()
 {
-	int nRetCode = 0;
-	char szTmpPath[PATH_LEN] = {0};
-
-	INF("ReloadConfig(), g_GuardConfig.szServerRunPath before reload: %s", g_GuardConfig.szServerRunPath);
-
-	nRetCode = LoadGuardConfig("guard_config.lua");
-	LOG_PROCESS_ERROR(nRetCode);
-
-	if (PathIsRelative(g_GuardConfig.szServerRunPath))
-	{
-		snprintf(szTmpPath, sizeof(szTmpPath),"%s", g_GuardConfig.szServerRunPath);
-		snprintf(g_GuardConfig.szServerRunPath, sizeof(g_GuardConfig.szServerRunPath), "%s\\%s", _getcwd(NULL, 0), szTmpPath);
-	}
-	//if (PathIsRelative(g_GuardConfig.szServerVersionPath))
-	//{
-	//	snprintf(szTmpPath, sizeof(szTmpPath), "%s", g_GuardConfig.szServerVersionPath);
-	//	snprintf(g_GuardConfig.szServerVersionPath, sizeof(g_GuardConfig.szServerVersionPath), "%s\\%s", _getcwd(NULL, 0), szTmpPath);
-	//}
-	//if (PathIsRelative(g_GuardConfig.szServerPatchPath))
-	//{
-	//	snprintf(szTmpPath, sizeof(szTmpPath), "%s", g_GuardConfig.szServerPatchPath);
-	//	snprintf(g_GuardConfig.szServerPatchPath, sizeof(g_GuardConfig.szServerPatchPath), "%s\\%s", _getcwd(NULL, 0), szTmpPath);
-	//}
-	snprintf(g_GuardConfig.szServerVersionPath, sizeof(g_GuardConfig.szServerVersionPath), "%s\\%s", _getcwd(NULL, 0), "version");
-	snprintf(g_GuardConfig.szServerPatchPath, sizeof(g_GuardConfig.szServerPatchPath), "%s\\%s", _getcwd(NULL, 0), "patch");
-
-	if (!g_DirectoryExists(g_GuardConfig.szServerRunPath))
-	{
-		nRetCode = g_CreateDirectory(g_GuardConfig.szServerRunPath, TRUE);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-	if (!g_DirectoryExists(g_GuardConfig.szServerVersionPath))
-	{
-		nRetCode = g_CreateDirectory(g_GuardConfig.szServerVersionPath, TRUE);
-	}
-	if (!g_DirectoryExists(g_GuardConfig.szServerPatchPath))
-	{
-		nRetCode = g_CreateDirectory(g_GuardConfig.szServerPatchPath, TRUE);
-	}
-
-	snprintf(szTmpPath, sizeof(szTmpPath), "%s\\log", g_GuardConfig.szServerRunPath);
-	SetDumpFolder(szTmpPath);
-
-	INF("g_GuardConfig.szServerRunPath after reload: %s", g_GuardConfig.szServerRunPath);
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    if (DeploymentBusy()) return FALSE;
+    // Lua fills the existing POD configuration. Restore it if loading or path
+    // validation fails, so callers never observe half of a new configuration.
+    struct Rollback
+    {
+        GUARD_CONFIG previous = g_GuardConfig;
+        bool committed = false;
+        ~Rollback() { if (!committed) g_GuardConfig = previous; }
+    } rollback;
+    m_logCleanup.stop();
+    m_roLogFolderEntries.clear();
+    try
+    {
+        if (!LoadGuardConfig("guard_config.lua")) return FALSE;
+        namespace fs = std::filesystem;
+        const auto guardDirectory = fs::current_path();
+        const auto runView = std::span{g_GuardConfig.szServerRunPath};
+        const auto end = std::ranges::find(runView, '\0');
+        if (end == runView.end() || end == runView.begin()) return FALSE;
+        const fs::path configuredRun{std::string(runView.begin(), end)};
+        const auto runDirectory = fs::absolute(configuredRun).lexically_normal();
+        const auto versionDirectory = guardDirectory / "version";
+        const auto patchDirectory = guardDirectory / "patch";
+        const auto copyPath = [](auto& output, const fs::path& path) {
+            const auto value = path.string();
+            if (value.size() >= std::size(output)) return false;
+            std::ranges::copy(value, output);
+            output[value.size()] = '\0';
+            return true;
+        };
+        if (!copyPath(g_GuardConfig.szServerRunPath, runDirectory) ||
+            !copyPath(g_GuardConfig.szServerVersionPath, versionDirectory) ||
+            !copyPath(g_GuardConfig.szServerPatchPath, patchDirectory) ||
+            !copyPath(g_GuardConfig.szGuardPath, guardDirectory)) return FALSE;
+        const auto logDirectory = (runDirectory / "log").string();
+        if (logDirectory.size() >= PATH_LEN) return FALSE;
+        for (const auto& directory : {runDirectory, versionDirectory, patchDirectory})
+            fs::create_directories(directory);
+        SetDumpFolder(logDirectory.c_str());
+        rollback.committed = true;
+        INF("g_GuardConfig.szServerRunPath after reload: %s", g_GuardConfig.szServerRunPath);
+        return TRUE;
+    }
+    catch (const std::exception& error)
+    {
+        CRI("cannot reload guard configuration: %s", error.what());
+        return FALSE;
+    }
 }
 
-BOOL CGuardServer::FetchCurrentVersion( char* pcszCurrentVersion, int nLen  )
+BOOL CGuardServer::FetchCurrentVersion(char* output, int length)
 {
-    INT32 nRetCode = 0;
-	FILE* pFileHandle = NULL;
-
-	char szCurrentVersionFilePath[PATH_LEN] = { 0 };
-	snprintf(szCurrentVersionFilePath, sizeof(szCurrentVersionFilePath), "%s\\%s", g_GuardConfig.szGuardPath, CURRENT_VERSION_FILE_NAME);
-    char szFileContent[128] = {0};
-
-    LOG_PROCESS_ERROR( pcszCurrentVersion );
-
-    // open file
-	pFileHandle = fopen(szCurrentVersionFilePath, "r+t");
-    LOG_PROCESS_ERROR(pFileHandle != NULL); 
-
-    nRetCode = fread(szFileContent, sizeof(char), sizeof(szFileContent), pFileHandle);
-    LOG_PROCESS_ERROR(nRetCode > 0);
-	szFileContent[nRetCode] = '\0';
-
-    nRetCode = fclose(pFileHandle);
-    pFileHandle = NULL;
-    LOG_PROCESS_ERROR(nRetCode == 0);
-
-    nRetCode = strlen(szFileContent);
-    for (int i=0; i<nRetCode; ++i)
+    if (!output || length <= 0) return FALSE;
+    output[0] = '\0';
+    try
     {
-		if (szFileContent[i] == '\n' || szFileContent[i] == '\r' || szFileContent[i] == ' ')
+        auto tag = guard_files::read_tag(std::filesystem::path(g_GuardConfig.szGuardPath) / CURRENT_VERSION_FILE_NAME);
+        if (!tag || !*tag || (**tag).size() >= static_cast<std::size_t>(length)) return FALSE;
+        std::ranges::copy(**tag, output);
+        output[(**tag).size()] = '\0';
+        return TRUE;
+    }
+    catch (const std::exception& error)
+    {
+        CRI("cannot read current version: %s", error.what());
+        return FALSE;
+    }
+}
+
+BOOL CGuardServer::StartDeployment(bool patch, const char* filename)
+try
+{
+    if (!filename || DeploymentBusy() || CGDMessageHandler::GetInstance().HasIncomingFile()) return FALSE;
+    const std::string name{filename};
+    if (name.size() > 127 || !guard_files::leaf_name(name) ||
+        std::ranges::any_of(name, [](unsigned char value) { return value <= ' '; })) return FALSE;
+    if (!patch)
+    {
+        if (!guard_files::same_tag(std::filesystem::path(name).extension().string(), ".zip") ||
+            CProcessMgr::GetInstance().CountRuningProcessByType(stAll) != 0) return FALSE;
+        const auto source = std::filesystem::path(g_GuardConfig.szServerVersionPath) / (name + "-guard_area_config.lua");
+        const auto destination = std::filesystem::path(g_GuardConfig.szGuardPath) / "guardconfig" / "guard_area_config.lua";
+        for (const auto suffix : {"", "-area_config.lua", "-gmsecurityconfig.lua"})
+            if (!guard_files::regular_file(std::filesystem::path(g_GuardConfig.szServerVersionPath) / (name + suffix))) return FALSE;
+        std::error_code permissionsError;
+        if (std::filesystem::exists(destination, permissionsError))
         {
-            szFileContent[i] = '\0';
-            break;
+            if (!guard_files::regular_file(destination)) return FALSE;
+            std::filesystem::permissions(destination, std::filesystem::perms::owner_write,
+                std::filesystem::perm_options::add, permissionsError);
+        }
+        if (permissionsError) return FALSE;
+        if (auto installed = guard_files::copy_file(source, destination, [this] { return ReloadConfig() != FALSE; }); !installed)
+        {
+            CRI("cannot install guard deployment configuration: %s", installed.error().message().c_str());
+            return FALSE;
         }
     }
-    strxcpy(pcszCurrentVersion, szFileContent, nLen);
-
+    guard_deploy::Request request{g_GuardConfig.szGuardPath, g_GuardConfig.szServerVersionPath,
+        g_GuardConfig.szServerPatchPath, g_GuardConfig.szServerRunPath, name};
+    const auto resultPath = request.guard / (patch ? HOT_UPDATE_PATCH_RESULT_FILE_NAME : DEPLOY_RESULT_FILE_NAME);
+    std::error_code error;
+    if (std::filesystem::exists(resultPath, error))
+    {
+        if (!guard_files::regular_file(resultPath) || !std::filesystem::remove(resultPath, error)) return FALSE;
+    }
+    if (error) return FALSE;
+    if (!m_deployment.start(name, [patch, request = std::move(request)](std::stop_token stop) mutable {
+        return patch ? guard_deploy::patch(std::move(request), stop) : guard_deploy::version(std::move(request), stop);
+    })) return FALSE;
+    m_deploymentIsPatch = patch;
+    if (patch) SetProcessingPatch(name.c_str());
+    else SetProcessingVersion(name.c_str());
     return TRUE;
-Exit0:
-	if (pFileHandle)
-	{
-		nRetCode = fclose(pFileHandle);
-		pFileHandle = NULL;
-	}
-    strxcpy(pcszCurrentVersion, "", nLen);
+}
+catch (const std::exception& error)
+{
+    CRI("cannot start deployment worker: %s", error.what());
     return FALSE;
+}
+
+BOOL CGuardServer::_ProcessOperationResult(bool patch)
+{
+    auto* processing = patch ? m_szProcessingPatch : m_szProcessingVersion;
+    if (!*processing) return TRUE;
+    const std::string requested{processing};
+    const auto acknowledge = [patch](INT32 result, const std::string& info) {
+        auto& handler = CGDMessageHandler::GetInstance();
+        return patch ? handler.DoMTHotUpdatePatchAck(result, info.c_str())
+                     : handler.DoMTDeployServerVersionAck(result, info.c_str());
+    };
+    if (m_deployment.busy() && m_deploymentIsPatch == patch)
+    {
+        auto completion = m_deployment.poll();
+        if (!completion) return TRUE;
+        if (!completion->result)
+        {
+            processing[0] = '\0';
+            const auto reason = completion->result.error().message();
+            CRI("deployment %s failed: %s", requested.c_str(), reason.c_str());
+            GD_ERROR_MT("deployment %s failed: %s", requested.c_str(), reason.c_str());
+            acknowledge(errCritical, requested);
+            return FALSE;
+        }
+    }
+    INT32 result = errCritical;
+    std::string info = requested;
+    try
+    {
+        const auto path = std::filesystem::path(g_GuardConfig.szGuardPath) /
+            (patch ? HOT_UPDATE_PATCH_RESULT_FILE_NAME : DEPLOY_RESULT_FILE_NAME);
+        auto tag = guard_files::consume_tag(path);
+        if (tag && !*tag) return TRUE;
+        // A terminal result (including a malformed result) is acknowledged once.
+        // Preserve the requested name for patch reload/acknowledgement failures.
+        processing[0] = '\0';
+        if (!tag)
+            CRI("cannot read deployment result: %s", tag.error().message().c_str());
+        else
+        {
+            info = **tag;
+            if (!guard_files::same_tag(requested, info))
+                result = patch ? errCritical : errUnknownError;
+            else
+            {
+                info = requested;
+                LOG_CHECK_ERROR(CGDMessageHandler::GetInstance().DoMTSyncProcessSummary());
+                result = patch && !CCmdMgr::GetInstance().ExecOPCmd("reload") ? errGMGSExecute : errSuccess;
+            }
+        }
+    }
+    catch (const std::exception& error)
+    {
+        processing[0] = '\0';
+        CRI("cannot process deployment result: %s", error.what());
+    }
+    const auto sent = acknowledge(result, info);
+    return sent && result == errSuccess;
 }
 
 BOOL CGuardServer::ProcessDeployServerVersion()
 {
-	INT32 nRetCode = 0;
-	FILE* pFileHandle = NULL;
-
-	char szResultFilePath[PATH_LEN] = { 0 };
-	snprintf(szResultFilePath, sizeof(szResultFilePath), "%s\\%s", ".", DEPLOY_RESULT_FILE_NAME);
-	char szResultContent[COMMON_NAME_LEN] = {0};
-
-	PROCESS_SUCCESS(m_szProcessingVersion[0] == 0);
-
-    // open file
-	{
-
-		pFileHandle = fopen(szResultFilePath, "rb");
-	    PROCESS_SUCCESS(pFileHandle == NULL); 
-
-	    nRetCode = fread(szResultContent, 1, sizeof(szResultContent), pFileHandle);
-	    LOG_PROCESS_ERROR(nRetCode > 0);
-
-        nRetCode = fclose(pFileHandle);
-        pFileHandle = NULL;
-        LOG_PROCESS_ERROR(nRetCode == 0);
-    }
-
-    //LOG_PROCESS_ERROR(strnicmp(m_szTargetVersion, szVersion, strlen(m_szTargetVersion)) == 0);
-    if(strnicmp(m_szProcessingVersion, szResultContent, strlen(m_szProcessingVersion)) == 0)
-    {
-		//nRetCode = ReloadConfig(); // move ahead
-		//LOG_PROCESS_ERROR(nRetCode);
-
-		nRetCode = CGDMessageHandler::GetInstance().DoMTSyncProcessSummary();
-		LOG_CHECK_ERROR(nRetCode);
-
-		nRetCode = _unlink(szResultFilePath);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-        nRetCode = CGDMessageHandler::GetInstance().DoMTDeployServerVersionAck(errSuccess, m_szProcessingVersion);
-        LOG_PROCESS_ERROR(nRetCode);
-
-        memset(m_szProcessingVersion, 0, sizeof(m_szProcessingVersion));
-	}
-    else
-    {
-		nRetCode = _unlink(szResultFilePath);
-        LOG_PROCESS_ERROR(nRetCode == 0);
-
-		nRetCode = CGDMessageHandler::GetInstance().DoMTDeployServerVersionAck(errUnknownError, szResultContent);
-        LOG_PROCESS_ERROR(nRetCode);
-
-        //memset(m_szTargetVersion, 0, sizeof(m_szTargetVersion));
-    }
-
-Exit1:
-	return TRUE;
-Exit0:
-	if(pFileHandle)
-	{
-		nRetCode = fclose(pFileHandle);
-		LOG_CHECK_ERROR(nRetCode == 0);
-    }
-
-    nRetCode = CGDMessageHandler::GetInstance().DoMTDeployServerVersionAck(errCritical, m_szProcessingVersion);
-    LOG_CHECK_ERROR(nRetCode);
-
-	return FALSE;
+    return _ProcessOperationResult(false);
 }
 
 BOOL CGuardServer::ProcessHotUpdatePatch()
 {
-	INT32 nRetCode = 0;
-	INT32 nResult = errUnknownError;
-	FILE* pFileHandle = NULL;
-	char szPatchResultFile[PATH_LEN] = { 0 };
-	snprintf(szPatchResultFile, sizeof(szPatchResultFile), "%s\\%s", g_GuardConfig.szGuardPath, HOT_UPDATE_PATCH_RESULT_FILE_NAME);
-	char szResultContent[128] = { 0 };
-
-	PROCESS_SUCCESS(m_szProcessingPatch[0] == 0);
-
-	// open file
-	{
-		pFileHandle = fopen(szPatchResultFile, "rb");
-		PROCESS_SUCCESS(pFileHandle == NULL);
-
-		nRetCode = fread(szResultContent, 1, sizeof(szResultContent), pFileHandle);
-		LOG_PROCESS_ERROR(nRetCode > 0);
-
-		nRetCode = fclose(pFileHandle);
-		pFileHandle = NULL;
-		LOG_PROCESS_ERROR(nRetCode == 0);
-	}
-
-	//LOG_PROCESS_ERROR(strnicmp(m_szTargetVersion, szVersion, strlen(m_szTargetVersion)) == 0);
-	if (strnicmp(m_szProcessingPatch, szResultContent, strlen(m_szProcessingPatch)) == 0)
-	{
-		memset(m_szProcessingPatch, 0, sizeof(m_szProcessingPatch));
-
-		nRetCode = _unlink(szPatchResultFile);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-		//nRetCode = ReloadConfig(); // hot patch only affect server but not guard self
-		//LOG_PROCESS_ERROR_RET_CODE(nRetCode, errGMExecuteFailed);
-
-		nRetCode = CGDMessageHandler::GetInstance().DoMTSyncProcessSummary();
-		LOG_CHECK_ERROR(nRetCode);
-
-		nRetCode = CCmdMgr::GetInstance().ExecOPCmd("reload");
-		LOG_PROCESS_ERROR_RET_CODE(nRetCode, errGMGSExecute);
-
-		nRetCode = CGDMessageHandler::GetInstance().DoMTHotUpdatePatchAck(errSuccess, m_szProcessingPatch);
-		LOG_PROCESS_ERROR(nRetCode);
-
-	}
-	else
-	{
-		nRetCode = _unlink(szPatchResultFile);
-		LOG_PROCESS_ERROR(nRetCode == 0);
-
-		nRetCode = CGDMessageHandler::GetInstance().DoMTHotUpdatePatchAck(errCritical, szResultContent);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-
-Exit1:
-	return TRUE;
-Exit0:
-	if (pFileHandle)
-	{
-		nRetCode = fclose(pFileHandle);
-		LOG_CHECK_ERROR(nRetCode == 0);
-
-		pFileHandle = NULL;
-	}
-
-	nRetCode = CGDMessageHandler::GetInstance().DoMTHotUpdatePatchAck(nResult, m_szProcessingPatch);
-	LOG_CHECK_ERROR(nRetCode);
-
-	return nResult;
+    return _ProcessOperationResult(true);
 }
 
 
@@ -920,7 +704,7 @@ INT32 main(INT32 argc, TCHAR** argv)
         nRetCode = CGuardServer::GetInstance().MainLoop();
         LOG_PROCESS_ERROR(nRetCode);
 
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     CGDSessionMgr::GetInstance().CloseAllSocketSession();
@@ -929,7 +713,7 @@ INT32 main(INT32 argc, TCHAR** argv)
         nRetCode = CGuardServer::GetInstance().MainLoop();
         LOG_PROCESS_ERROR(nRetCode);
 
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     // exit

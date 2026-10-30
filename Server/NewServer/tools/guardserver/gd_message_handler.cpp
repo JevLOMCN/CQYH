@@ -9,12 +9,16 @@
 #include "guardserver.h"
 #include "process_mgr.h"
 #include "cmd_mgr.h"
-#include "direct.h"
-#include "dir.h"
-#include "ifile.h"
+#include "guard_packets.h"
 #include "statis_info.h"
 #include "process_option.h"
-#include "shellapi.h"
+#include <filesystem>
+#include <algorithm>
+#include <cstring>
+#include <memory>
+#include <format>
+#include <limits>
+#include <utility>
 
 using namespace InternalMessage;
 CGDMessageHandler CGDMessageHandler::ms_Instance;
@@ -51,127 +55,66 @@ Exit0:
 
 void CGDMessageHandler::OnRecv(ISocketSession* pSocketSession, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize)
 {
-    MESSAGE_HEADER* pHeader = (MESSAGE_HEADER*)pPacketBuffer;
-    LOG_PROCESS_ERROR(pHeader);
-
-    LOG_PROCESS_ERROR(pSocketSession);
-    LOG_PROCESS_ERROR(pPacketBuffer);
-
-    LOG_PROCESS_ERROR(m_GuardMessageFuncList[pHeader->wMsg]);
-
-    (this->*m_GuardMessageFuncList[pHeader->wMsg])(pPacketBuffer, dwSize, pSocketSession);
-
-	if (pPacketBuffer)
-		m_pPacketAllocator->Free(pPacketBuffer);
-    return;
-Exit0:
-    if (pHeader)
-        CRI("unknown internal message id %d size %d", pHeader->wMsg, dwSize);
-    else
-        CRI("unknown internal message with null pointer");
-    if (pPacketBuffer)
-        m_pPacketAllocator->Free(pPacketBuffer);
-    if (pSocketSession)
-        pSocketSession->Close();
-
-    return;
-}
-
-void CGDMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemoteShutdown)
-{
-    INT32 nRetCode = 0;
-    ServerSession* pSession = NULL;
-
-    LOG_PROCESS_ERROR(pSocketSession);
-
-    pSession = (ServerSession*)pSocketSession->GetUserData();
-    if(!pSession)
+    // Keep the allocator used to accept this packet even if a handler changes
+    // its own initialization state. Ownership lasts through the callback.
+    const auto release = [allocator = m_pPacketAllocator](PACKET_BUFFER* packet) {
+        if (allocator) allocator->Free(packet);
+    };
+    const std::unique_ptr<PACKET_BUFFER, decltype(release)> packet{pPacketBuffer, release};
+    MESSAGE_HEADER header{};
+    if (m_receiving && m_pPacketAllocator && pSocketSession && packet && dwSize >= sizeof(header))
     {
-        nRetCode = CGDSessionMgr::GetInstance().RemoveServerSession(pSocketSession);
-		LOG_PROCESS_ERROR(nRetCode);
-    }
-    else
-	{
-		// notify MT before set NULL
-		nRetCode = CProcessMgr::GetInstance().SyncProcessInfo(epsUnonnect, pSession->dwProcessID);
-		LOG_CHECK_ERROR(nRetCode);
-
-		pSession->pSocketSession = NULL;
-        pSession->dwProcessID = 0;
-        pSession->qwTimer = (UINT64)(~0);
-
-        switch (pSession->dwType)
+        std::memcpy(&header, packet.get(), sizeof(header));
+        if (header.wMsg < m_GuardMessageFuncList.size())
         {
-        case stDB:
+            if (const auto handler = m_GuardMessageFuncList[header.wMsg];
+                handler && guard_packets::valid(header.wMsg, {packet.get(), dwSize}))
             {
-                CRI("DB disconnected");
+                try
+                {
+                    (this->*handler)(packet.get(), dwSize, pSocketSession);
+                    return;
+                }
+                catch (const std::exception& error) { ERR("guard message %u failed: %s", header.wMsg, error.what()); }
+                catch (...) { ERR("guard message %u threw an exception", header.wMsg); }
             }
-            break;
-        case stLS:
-            {
-                CRI("LS disconnected");
-            }
-            break;
-        case stMS:
-            {
-                CRI("MS disconnected");
-            }
-            break;
-        case stGT:
-            {
-                SGTSession* pGTSession = (SGTSession*)pSession;
-                CRI("GT %d disconnected", pGTSession->dwSessionID);
-            }
-            break;
-        case stGS:
-            {
-                SGSSession* pGSSession = (SGSSession*)pSession;
-                CRI("GS %d disconnected", pGSSession->dwSessionID);
-            }
-            break;
-        case stMG:
-            {
-                SMGSession* pMGSession = (SMGSession*)pSession;
-				CRI("MG %d disconnected", pMGSession->dwSessionID);
-            }
-            break;
-		case stBS:
-			{
-				CRI("BS disconnected");
-			}
-			break;
-		case stDL:
-			{
-				CRI("DL disconnected");
-			}
-			break;
-		case stMT:
-			{
-				CRI("MT disconnected");
-			}
-			break;
-		case stMM:
-			CRI("MM disconnected");
-			break;
-        default:
-            LOG_PROCESS_ERROR(FALSE);
-            break;
         }
     }
+    CRI("invalid internal message id %u size %u", header.wMsg, dwSize);
+    if (pSocketSession) pSocketSession->Close();
+}
 
-    return;
-Exit0:
-    return;
+void CGDMessageHandler::OnDisconnected(ISocketSession* socket, BOOL)
+{
+    if (!socket) return;
+    m_incomingFile.abort(socket);
+    auto* record = static_cast<ServerSession*>(socket->GetUserData());
+    socket->SetUserData(nullptr);
+    if (!record)
+    {
+        CGDSessionMgr::GetInstance().RemoveServerSession(socket);
+        return;
+    }
+    if (record->pSocketSession != socket) return;
+    const auto previous = *record;
+    // Sending the notification may synchronously register a replacement. Clear
+    // the old record first and never write through it after that callback.
+    record->pSocketSession = nullptr;
+    record->dwProcessID = 0;
+    record->qwTimer = (std::numeric_limits<UINT64>::max)();
+    record->eState = epsUnonnect;
+    record->bClosing = false;
+    if (previous.dwProcessID)
+        LOG_CHECK_ERROR(CProcessMgr::GetInstance().SyncProcessInfo(epsUnonnect, previous.dwProcessID));
+    const auto* name = previous.dwType == stMT ? "MT" : GetServerShortName(previous.dwType);
+    CRI("%s %u disconnected", name ? name : "unknown", previous.dwSessionID);
 }
 
 CGDMessageHandler::CGDMessageHandler()
 {
     m_pNet = NULL;
     m_pPacketAllocator = NULL;
-	m_pRecvFileHandle = NULL;
-	m_nRecvBufferIndex = 0;
-	memset(m_szRecvFilePath, 0, sizeof(m_szRecvFilePath));
-	memset(m_GuardMessageFuncList, 0, sizeof(m_GuardMessageFuncList));
+	m_GuardMessageFuncList.fill(nullptr);
 }
 
 CGDMessageHandler::~CGDMessageHandler()
@@ -181,14 +124,26 @@ CGDMessageHandler::~CGDMessageHandler()
 
 BOOL CGDMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator)
 {
+    if (m_pNet || m_pPacketAllocator) return FALSE;
     LOG_PROCESS_ERROR(pNet);
     LOG_PROCESS_ERROR(pPacketAllocator);
 
-	m_nRecvBufferIndex = 0;
-	m_pRecvFileHandle = NULL;
-	memset(m_szRecvFilePath, 0, sizeof(m_szRecvFilePath));
+    try
+    {
+        const auto directory = std::filesystem::current_path().string();
+        if (directory.size() >= sizeof(g_GuardConfig.szGuardPath)) return FALSE;
+        std::ranges::copy(directory, g_GuardConfig.szGuardPath);
+        g_GuardConfig.szGuardPath[directory.size()] = '\0';
+    }
+    catch (const std::exception& error)
+    {
+        CRI("cannot initialize guard directory: %s", error.what());
+        return FALSE;
+    }
+
     m_pNet = pNet;
     m_pPacketAllocator = pPacketAllocator;
+    m_receiving = true;
 
     //All
     //////////////////////////////////////////////////////////////////////////////////////
@@ -207,8 +162,6 @@ BOOL CGDMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator)
 	m_GuardMessageFuncList[n2u_hot_update_patch] = &CGDMessageHandler::OnMTHotUpdatePatch;
     /////////////////////////////////////////////////////////////////////////////////////
 
-	memset(g_GuardConfig.szGuardPath, 0, sizeof(g_GuardConfig.szGuardPath));
-	snprintf(g_GuardConfig.szGuardPath, sizeof(g_GuardConfig.szGuardPath), "%s", _getcwd(NULL, 0));
 
     return TRUE;
 Exit0:
@@ -217,14 +170,12 @@ Exit0:
 
 BOOL CGDMessageHandler::UnInit(void)
 {
-    INT32 nRetCode = 0;
-	if(m_pRecvFileHandle)
-	{
-		nRetCode = fclose(m_pRecvFileHandle);
-		LOG_CHECK_ERROR(nRetCode);
-	}
-	
-	return TRUE;
+    BeginShutdown();
+    m_incomingFile.abort();
+    m_pNet = nullptr;
+    m_pPacketAllocator = nullptr;
+    m_GuardMessageFuncList.fill(nullptr);
+    return TRUE;
 }
 
 CGDMessageHandler& CGDMessageHandler::GetInstance(void)
@@ -233,6 +184,7 @@ CGDMessageHandler& CGDMessageHandler::GetInstance(void)
 }
 
 BOOL CGDMessageHandler::_SendGT(UINT32 dwGTSessionID, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
     INT32 nRetCode = 0;
 
@@ -246,8 +198,19 @@ BOOL CGDMessageHandler::_SendGT(UINT32 dwGTSessionID, PACKET_BUFFER* pPacketBuff
 Exit0:
     return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendGS(UINT32 dwGSSessionID, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
     INT32 nRetCode = 0;
 
@@ -262,8 +225,19 @@ BOOL CGDMessageHandler::_SendGS(UINT32 dwGSSessionID, PACKET_BUFFER* pPacketBuff
 Exit0:
     return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendLS(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
     INT32 nRetCode = 0;
 
@@ -277,8 +251,19 @@ BOOL CGDMessageHandler::_SendLS(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
     return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendDB(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
     INT32 nRetCode = 0;
 
@@ -292,8 +277,19 @@ BOOL CGDMessageHandler::_SendDB(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
     return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendMS(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
     INT32 nRetCode = 0;
 
@@ -307,8 +303,19 @@ BOOL CGDMessageHandler::_SendMS(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
     return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendBS(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
 	INT32 nRetCode = 0;
 
@@ -322,8 +329,19 @@ BOOL CGDMessageHandler::_SendBS(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
 	return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendDL(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {	
 	INT32 nRetCode = 0;
 
@@ -337,8 +355,19 @@ BOOL CGDMessageHandler::_SendDL(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
 	return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendMT(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
 	INT32 nRetCode = 0;
 
@@ -352,8 +381,19 @@ BOOL CGDMessageHandler::_SendMT(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
 	return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendGM(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
     INT32 nRetCode = 0;
 
@@ -367,8 +407,19 @@ BOOL CGDMessageHandler::_SendGM(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 Exit0:
     return FALSE;
 }
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
+}
 
 BOOL CGDMessageHandler::_SendMM(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
+try
 {
 	INT32 nRetCode = 0;
 
@@ -381,6 +432,16 @@ BOOL CGDMessageHandler::_SendMM(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT
 	return TRUE;
 Exit0:
 	return FALSE;
+}
+catch (const std::exception& error)
+{
+    ERR("guard send failed: %s", error.what());
+    return FALSE;
+}
+catch (...)
+{
+    ERR("guard send threw an exception");
+    return FALSE;
 }
 
 BOOL CGDMessageHandler::_BroadcastGT(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset)
@@ -588,6 +649,7 @@ BOOL CGDMessageHandler::DoMTUpdateStatisInfo(void)
 {
     INT32 nRetCode = 0;
     U2N_UPDATE_STATIS_INFO* pMsg = NULL;
+    stStatisInfoShm* pShm = nullptr;
     CGDSessionMgr &rSessionMgr = CGDSessionMgr::GetInstance();
 
     pMsg = (U2N_UPDATE_STATIS_INFO*)m_pPacketAllocator->Alloc(sizeof(U2N_UPDATE_STATIS_INFO));
@@ -596,7 +658,7 @@ BOOL CGDMessageHandler::DoMTUpdateStatisInfo(void)
     pMsg->wMsg = u2n_update_statis_info;       
     pMsg->bConnected = TRUE;
 
-    stStatisInfoShm * pShm = g_GetStatisInfoShm();
+    pShm = g_GetStatisInfoShm();
     LOG_PROCESS_ERROR( pShm ); 
     memcpy( &pMsg->oStatisInfo, &pShm->oInfo, sizeof(pMsg->oStatisInfo) );
 
@@ -822,92 +884,70 @@ Exit0:
     return FALSE;
 }
 
-BOOL CGDMessageHandler::DoMTNotify(UINT8 bySvrType, UINT8 bySvrID, UINT8 byLevel, INT32 nErrorCode, const char* szContent, ...)
+BOOL CGDMessageHandler::DoMTNotify(UINT8 type, UINT8 id, UINT8 level, INT32 error, const char* format, ...)
 {
-	INT32 nRetCode = 0;
-
-	char szInfo[4096] = { 0 };
-	va_list valist;
-	va_start(valist, szContent);
-	vsnprintf(szInfo, sizeof(szInfo), szContent, valist);
-	va_end(valist);
-
-	INT32 nSize = sizeof(U2N_NOTIFY) + strlen(szInfo) + 1;
-
-	U2N_NOTIFY* pMsg = (U2N_NOTIFY*)(m_pPacketAllocator->Alloc(nSize));
-	LOG_PROCESS_ERROR(pMsg);
-
-	memset(pMsg, 0, sizeof(U2N_NOTIFY));
-	pMsg->wMsg = u2n_notify;
-	pMsg->bySvrID = bySvrID;
-	pMsg->bySvrType = bySvrType;
-	pMsg->byLevel = byLevel;
-	pMsg->nErrorCode = nErrorCode;
-	strxcpy(pMsg->szContent, szInfo, strlen(szInfo) + 1);
-
-	CRI("DoMTNotify: %s", szInfo);
-	nRetCode = _SendMT((PACKET_BUFFER*)pMsg, nSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+    if (!m_pPacketAllocator || !format) return FALSE;
+    std::array<char, 4096> text{};
+    va_list args;
+    va_start(args, format);
+    std::vsnprintf(text.data(), text.size(), format, args);
+    va_end(args);
+    const auto length = std::char_traits<char>::length(text.data());
+    const auto size = sizeof(U2N_NOTIFY) + length + 1;
+    const auto free = [allocator = m_pPacketAllocator](PACKET_BUFFER* p) { allocator->Free(p); };
+    std::unique_ptr<PACKET_BUFFER, decltype(free)> packet{m_pPacketAllocator->Alloc(static_cast<INT32>(size)), free};
+    if (!packet) return FALSE;
+    U2N_NOTIFY header{};
+    header.wMsg = u2n_notify;
+    header.bySvrType = type;
+    header.bySvrID = id;
+    header.byLevel = level;
+    header.nErrorCode = error;
+    std::memcpy(packet.get(), &header, sizeof(header));
+    std::memcpy(packet.get() + sizeof(header), text.data(), length + 1);
+    CRI("DoMTNotify: %s", text.data());
+    if (!_SendMT(packet.get(), static_cast<UINT32>(size))) return FALSE;
+    packet.release();
+    return TRUE;
 }
 
-BOOL CGDMessageHandler::DoMTError(INT32 nErrorCode, const char* szContent, ...)
+BOOL CGDMessageHandler::DoMTError(INT32 error, const char* format, ...)
 {
-	INT32 nRetCode = 0;
-
-	char szInfo[4096] = { 0 };
-	va_list valist;
-	va_start(valist, szContent);
-	vsnprintf(szInfo, sizeof(szInfo), szContent, valist);
-	va_end(valist);
-
-	INT32 nSize = sizeof(U2N_ERROR) + strlen(szInfo) + 1;
-
-	U2N_ERROR* pMsg = (U2N_ERROR*)(m_pPacketAllocator->Alloc(nSize));
-	LOG_PROCESS_ERROR(pMsg);
-
-	memset(pMsg, 0, sizeof(U2N_ERROR));
-	pMsg->wMsg = u2n_error;
-	pMsg->nErrorCode = nErrorCode;
-	strxcpy(pMsg->szErrorInfo, szInfo, strlen(szInfo) + 1);
-
-	CRI("DoMTError: %s", szInfo);
-	nRetCode = _SendMT((PACKET_BUFFER*)pMsg, nSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+    if (!m_pPacketAllocator || !format) return FALSE;
+    U2N_ERROR message{};
+    message.wMsg = u2n_error;
+    message.nErrorCode = error;
+    va_list args;
+    va_start(args, format);
+    std::vsnprintf(message.szErrorInfo, sizeof(message.szErrorInfo), format, args);
+    va_end(args);
+    const auto free = [allocator = m_pPacketAllocator](PACKET_BUFFER* p) { allocator->Free(p); };
+    std::unique_ptr<PACKET_BUFFER, decltype(free)> packet{m_pPacketAllocator->Alloc(sizeof(message)), free};
+    if (!packet) return FALSE;
+    std::memcpy(packet.get(), &message, sizeof(message));
+    CRI("DoMTError: %s", message.szErrorInfo);
+    if (!_SendMT(packet.get(), sizeof(message))) return FALSE;
+    packet.release();
+    return TRUE;
 }
 
-BOOL CGDMessageHandler::DoMTUpdateCmdAck(INT32 nErrorCode, const char* szResult)
+BOOL CGDMessageHandler::DoMTUpdateCmdAck(INT32 error, const char* result)
 {
-	INT32 nRetCode = 0;
-	INT32 nSize = sizeof(U2N_UPDATE_CMD_ACK) + strlen(szResult) + 1;
-
-	U2N_UPDATE_CMD_ACK* pMsg = (U2N_UPDATE_CMD_ACK*)(m_pPacketAllocator->Alloc(nSize));
-	LOG_PROCESS_ERROR(pMsg);
-
-	memset(pMsg, 0, sizeof(U2N_UPDATE_CMD_ACK));
-	pMsg->wMsg = u2n_exec_cmd_ack;
-	pMsg->nErrorCode = nErrorCode;
-	strxcpy(pMsg->szResult, szResult, strlen(szResult) + 1);
-
-	nRetCode = _SendMT((PACKET_BUFFER*)pMsg, nSize);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return TRUE;
-Exit0:
-	if (pMsg)
-		m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
-	return FALSE;
+    if (!m_pPacketAllocator || !result) return FALSE;
+    const auto text = std::string_view{result}.substr(0, MAX_MESSAGE_SIZE - sizeof(U2N_UPDATE_CMD_ACK) - 1);
+    const auto size = sizeof(U2N_UPDATE_CMD_ACK) + text.size() + 1;
+    const auto free = [allocator = m_pPacketAllocator](PACKET_BUFFER* p) { allocator->Free(p); };
+    std::unique_ptr<PACKET_BUFFER, decltype(free)> packet{m_pPacketAllocator->Alloc(static_cast<INT32>(size)), free};
+    if (!packet) return FALSE;
+    U2N_UPDATE_CMD_ACK header{};
+    header.wMsg = u2n_exec_cmd_ack;
+    header.nErrorCode = error;
+    std::memcpy(packet.get(), &header, sizeof(header));
+    std::memcpy(packet.get() + sizeof(header), text.data(), text.size());
+    packet.get()[size - 1] = '\0';
+    if (!_SendMT(packet.get(), static_cast<UINT32>(size))) return FALSE;
+    packet.release();
+    return TRUE;
 }
 
 BOOL CGDMessageHandler::DoMTRegristerAck(INT32 nErrorCode, const char* szVersion, INT32 nMsgVersion, const char* szBuildVersion)
@@ -1038,197 +1078,117 @@ Exit0:
 
 void CGDMessageHandler::OnAllPing(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
-    ServerSession* pSession = (ServerSession*)pSocketSession->GetUserData();
-    if(pSession)
-		pSession->qwTimer = GetTickCountEx() + g_GuardConfig.nPingGuardTimeout;
+    CGDSessionMgr::GetInstance().RefreshServerSession(pSocketSession);
 
     return;
 }
 
-void CGDMessageHandler::OnProcessRegrister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+namespace
 {
-    INT32 nRetCode = 0;
-
-    A2U_REGRISTER* pMsg = (A2U_REGRISTER*)pPacketBuffer;
-    CGDSessionMgr& rSessionMgr = CGDSessionMgr::GetInstance();
-    UINT64 qwCurrentTick = GetTickCountEx();
-
-	LOG_PROCESS_ERROR(pMsg->bySessionID > 0);
-
-    ServerSession* pSession = (ServerSession*)pSocketSession->GetUserData();
-    LOG_PROCESS_ERROR(pSession == NULL);
-    
-    nRetCode = rSessionMgr.RemoveServerSession(pSocketSession);
-    LOG_PROCESS_ERROR(nRetCode);
-    
-    switch(pMsg->byType)
+ServerSession* registrationSlot(CGDSessionMgr& sessions, UINT8 type, UINT8 id)
+{
+    if (id == 0) return nullptr;
+    switch (type)
     {
-    case stLS:
-        {
-            SLSSession& oLSSession = rSessionMgr.GetLSSession();
-            oLSSession.pSocketSession = pSocketSession;
-            oLSSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-            oLSSession.eState = epsNormal;
-			oLSSession.dwSessionID = pMsg->bySessionID;
+    case stGT: return sessions.GetGTSession(id);
+    case stGS: return sessions.GetGSSession(id);
+    case stMG: return sessions.GetMGSession(id);
+    default: if (id != 1) return nullptr;
+    }
+    switch (type)
+    {
+    case stMS: return &sessions.GetMSSession();
+    case stLS: return &sessions.GetLSSession();
+    case stDB: return &sessions.GetDBSession();
+    case stBS: return &sessions.GetBSSession();
+    case stDL: return &sessions.GetDLSession();
+    case stGM: return &sessions.GetGMSession();
+    case stMM: return &sessions.GetMMSession();
+    default: return nullptr;
+    }
+}
 
-            pSocketSession->SetUserData(&oLSSession);
-            INF("ls registered successfully, pid = %d", pMsg->dwProcessID);
-        }
-        break;
-    case stMS:
-        {
-            SMSSession& oMSSession = rSessionMgr.GetMSSession();
-            oMSSession.pSocketSession = pSocketSession;
-			oMSSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-			oMSSession.eState = epsNormal;
-			oMSSession.dwSessionID = pMsg->bySessionID;
+UINT64 registrationDeadline()
+{
+    const auto now = GetTickCountEx();
+    const auto duration = static_cast<UINT64>(g_GuardConfig.nServerPingTimeout);
+    const auto maximum = (std::numeric_limits<UINT64>::max)();
+    return duration > maximum - now ? maximum : now + duration;
+}
 
-            pSocketSession->SetUserData(&oMSSession);
-			INF("ms registered successfully, pid = %d", pMsg->dwProcessID);
-        }
-        break;
-    case stDB:
-        {
-            SDBSession& oDBSession = rSessionMgr.GetDBSession();
-            oDBSession.pSocketSession = pSocketSession;
-			oDBSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-			oDBSession.eState = epsNormal;
-			oDBSession.dwSessionID = pMsg->bySessionID;
+// Detach the old socket before Close: disconnect delivery may be synchronous or
+// delayed, and must never clear a replacement record's address or timer.
+bool retireConnection(ServerSession& slot)
+{
+    auto* previous = std::exchange(slot.pSocketSession, nullptr);
+    if (!previous) return true;
+    slot.qwTimer = (std::numeric_limits<UINT64>::max)();
+    slot.eState = epsUnonnect;
+    slot.dwProcessID = 0;
+    slot.bClosing = false;
+    previous->SetUserData(nullptr);
+    bool closed = false;
+    try { closed = previous->Close() != FALSE; }
+    catch (...) { ERR("old guard connection close threw an exception"); }
+    // Close may already have delivered destruction callbacks even on failure.
+    // Never restore a borrowed pointer after calling it.
+    // A reentrant registration has priority over the caller's stale snapshot.
+    return closed && !slot.pSocketSession;
+}
 
-			pSocketSession->SetUserData(&oDBSession);
-			INF("db registered successfully, pid = %d", pMsg->dwProcessID);
-		}
-		break;
-	case stBS:
-	{
-		SBSSession& oBSSession = rSessionMgr.GetBSSession();
-		oBSSession.pSocketSession = pSocketSession;
-		oBSSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		oBSSession.eState = epsNormal;
-		oBSSession.dwSessionID = pMsg->bySessionID;
+std::string addressOf(ISocketSession& socket)
+{
+    UINT32 address = 0;
+    UINT16 port = 0;
+    if (!socket.GetRemoteAddress(address, port)) return "unknown";
+    in_addr ip{};
+    ip.s_addr = address;
+    const auto* text = inet_ntoa(ip);
+    return text ? std::string{text} : std::string{"unknown"};
+}
+}
 
-		pSocketSession->SetUserData(&oBSSession);
-		INF("bs registered successfully, pid = %d", pMsg->dwProcessID);
-	}
-		break;
-	case stDL:
-	{
-		SDLSession& oDLSession = rSessionMgr.GetDLSession();
-		oDLSession.pSocketSession = pSocketSession;
-		oDLSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		oDLSession.eState = epsNormal;
-		oDLSession.dwSessionID = pMsg->bySessionID;
-
-		pSocketSession->SetUserData(&oDLSession);
-		INF("dl registered successfully, pid = %d", pMsg->dwProcessID);
-	}
-		break;
-	case stGT:
-	{
-		SGTSession* poGTSession = rSessionMgr.GetGTSession(pMsg->bySessionID);
-		LOG_PROCESS_ERROR(poGTSession);
-
-		poGTSession->pSocketSession = pSocketSession;
-		poGTSession->qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		poGTSession->eState = epsNormal;
-		poGTSession->dwSessionID = pMsg->bySessionID;
-
-		pSocketSession->SetUserData(poGTSession);
-		INF("gt %d registered successfully, pid = %d", poGTSession->dwSessionID, pMsg->dwProcessID);
-	}
-		break;
-	case stGS:
-	{
-		SGSSession* poGSSession = rSessionMgr.GetGSSession(pMsg->bySessionID);
-		LOG_PROCESS_ERROR(poGSSession);
-
-		poGSSession->pSocketSession = pSocketSession;
-		poGSSession->qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		poGSSession->eState = epsNormal;
-		poGSSession->dwSessionID = pMsg->bySessionID;
-
-		pSocketSession->SetUserData(poGSSession);
-		INF("gs %d registered successfully, pid = %d", poGSSession->dwSessionID, pMsg->dwProcessID);
-	}
-		break;
-	case stGM:
-	{
-		SGMSession& rGMSession = rSessionMgr.GetGMSession();
-		rGMSession.pSocketSession = pSocketSession;
-		rGMSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		rGMSession.eState = epsNormal;
-		rGMSession.dwSessionID = pMsg->bySessionID;
-
-		pSocketSession->SetUserData(&rGMSession);
-		INF("gm registered successfully, pid = %d", pMsg->dwProcessID);
-	}
-		break;
-	case stMM:
-	{
-		SMMSession& rMMSession = rSessionMgr.GetMMSession();
-		rMMSession.pSocketSession = pSocketSession;
-		rMMSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		rMMSession.eState = epsNormal;
-		rMMSession.dwSessionID = pMsg->bySessionID;
-
-		pSocketSession->SetUserData(&rMMSession);
-		INF("mm registered successfully, pid = %d", pMsg->dwProcessID);
-
-		break;
-	}
-	case stMG:
-	{
-		SMGSession* pMGSession = rSessionMgr.GetMGSession(pMsg->bySessionID);
-		pMGSession->pSocketSession = pSocketSession;
-		pMGSession->qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-		pMGSession->eState = epsNormal;
-		pMGSession->dwSessionID = pMsg->bySessionID;
-
-		pSocketSession->SetUserData(pMGSession);
-		INF("mg %d registered successfully, pid = %d", pMsg->bySessionID, pMsg->dwProcessID);
-
-		break;
-	}
-	default:
-		LOG_PROCESS_ERROR(FALSE);
-		break;
-	}
-
-	pSession = (ServerSession*)pSocketSession->GetUserData();
-	LOG_PROCESS_ERROR(pSession);
-
-	pSession->dwProcessID = pMsg->dwProcessID;
-	if (CProcessMgr::GetInstance().IsProcessRuningByID(pMsg->dwProcessID))
-	{
-		//pSession->bAuto = TRUE;
-	}
-	else
-	{
-		//pSession->bAuto = FALSE;
-		nRetCode = CProcessMgr::GetInstance().AddProcessInfo(pMsg->byType, pMsg->dwProcessID, 0, FALSE);
-		LOG_CHECK_ERROR(nRetCode);
-	}
-
-	nRetCode = CProcessMgr::GetInstance().SetProcessInfo(pMsg->dwProcessID, pMsg->byType, pMsg->bySessionID);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	nRetCode = CProcessMgr::GetInstance().SyncProcessInfo(epsNormal, pMsg->dwProcessID);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	return;
-Exit0:
-	CRI("OnProcessRegrister fail, type is %d, PID = %d, session =%d", pMsg->byType, pMsg->dwProcessID, pMsg->bySessionID);
-	return;
+void CGDMessageHandler::OnProcessRegrister(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
+{
+    const auto message = *guard_packets::read<A2U_REGRISTER>({packet, size});
+    auto& sessions = CGDSessionMgr::GetInstance();
+    auto* slot = registrationSlot(sessions, message.byType, message.bySessionID);
+    if (!slot || !message.dwProcessID || socket->GetUserData() || g_GuardConfig.nServerPingTimeout < 0)
+    {
+        ERR("invalid process registration type %u session %u", message.byType, message.bySessionID);
+        socket->Close();
+        return;
+    }
+    auto& processes = CProcessMgr::GetInstance();
+    if ((!processes.IsProcessRuningByID(message.dwProcessID) &&
+        !processes.AddProcessInfo(message.byType, message.dwProcessID, 0, FALSE)) ||
+        !processes.SetProcessInfo(message.dwProcessID, message.byType, message.bySessionID) ||
+        !sessions.RemoveServerSession(socket) || !retireConnection(*slot))
+    {
+        ERR("process registration failed for PID %u", message.dwProcessID);
+        socket->Close();
+        return;
+    }
+    slot->pSocketSession = socket;
+    slot->qwTimer = registrationDeadline();
+    slot->eState = epsNormal;
+    slot->dwSessionID = message.bySessionID;
+    slot->dwProcessID = message.dwProcessID;
+    slot->bClosing = false;
+    socket->SetUserData(slot);
+    INF("%s %u registered successfully, pid = %u", GetServerShortName(message.byType),
+        message.bySessionID, message.dwProcessID);
+    LOG_CHECK_ERROR(processes.SyncProcessInfo(epsNormal, message.dwProcessID));
 }
 
 void CGDMessageHandler::GDAlertMT(const char* szContent, ...)
 {
 	INT32 nRetCode = 0;
 	const tm_ex* pNow = NULL;
+    char szInfo[4096] = { 0 };
 
 	PROCESS_ERROR(CGDSessionMgr::GetInstance().GetMTSession().pSocketSession);
 
-	char szInfo[4096] = { 0 };
 	va_list valist;
 	va_start(valist, szContent);
 	vsnprintf(szInfo, sizeof(szInfo), szContent, valist);
@@ -1245,632 +1205,196 @@ Exit0:
 	return;
 }
 
-void CGDMessageHandler::OnAllNotify(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CGDMessageHandler::OnAllNotify(PACKET_BUFFER* packet, UINT32 size, ISocketSession*)
 {
-	INT32 nRetCode = 0;
-	WIN32_FIND_DATA FileData;
-	const tm_ex* pNow = NULL;
-
-	char szBuffer[4096] = { 0 };
-	INT32 nBufferOffset = 0;
-	FILE* poReportFileHandle = NULL;
-
-	A2U_NOTIFY * pPkg = (A2U_NOTIFY*)pPacketBuffer;
-	LOG_PROCESS_ERROR(pPkg);
-
-	// 1 make content
-	pNow = localtime_ex();
-	nBufferOffset = snprintf(szBuffer, sizeof(szBuffer),
-		"NOTIFY_%d [%s:%d] %d-%02d-%02d %02d:%02d:%02d.%03d %s",
-		pPkg->byLevel,  // szLevel
-		GetServerShortName(pPkg->bySvrType), pPkg->bySvrID,
-		pNow->tm_year, pNow->tm_mon, pNow->tm_mday,
-		pNow->tm_hour, pNow->tm_min, pNow->tm_sec, pNow->tm_msec,
-		pPkg->szContent);
-	INF(szBuffer);
-
-	// 2 notify MT
-	nRetCode = DoMTNotify(pPkg->bySvrType, pPkg->bySvrID, pPkg->byLevel, pPkg->nErrorCode, "%s", szBuffer);
-	LOG_CHECK_ERROR(nRetCode);
-
-Exit0:
-	if (poReportFileHandle)
-	{
-		fclose(poReportFileHandle);
-		poReportFileHandle = NULL;
-	}
-	return;
+    const guard_packets::Bytes bytes{packet, size};
+    A2U_NOTIFY message{};
+    std::memcpy(&message, bytes.data(), sizeof(message));
+    const auto content = *guard_packets::tail<A2U_NOTIFY>(bytes);
+    const auto now = *localtime_ex();
+    const auto* serverName = GetServerShortName(message.bySvrType);
+    auto description = std::format("NOTIFY_{} [{}:{}] {}-{:02}-{:02} {:02}:{:02}:{:02}.{:03} {}",
+        message.byLevel, serverName ? serverName : "(null)", message.bySvrID,
+        now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec, now.tm_msec, content);
+    // Preserve the notification's legacy display/forwarding limit.
+    if (description.size() > 4095) description.resize(4095);
+    INF("%s", description.c_str());
+    LOG_CHECK_ERROR(DoMTNotify(message.bySvrType, message.bySvrID, message.byLevel,
+        message.nErrorCode, "%s", description.c_str()));
 }
 
-void CGDMessageHandler::OnMSCommandAck(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CGDMessageHandler::OnMSCommandAck(PACKET_BUFFER* packet, UINT32 size, ISocketSession*)
 {
-	INT32 nRetCode = 0;
-	M2U_COMMAND_RESPONSE * pPkg = (M2U_COMMAND_RESPONSE*) pPacketBuffer;
-	LOG_PROCESS_ERROR(pPkg);
-
-	nRetCode = DoMTUpdateCmdAck( errSuccess, pPkg->szResult);
-	LOG_PROCESS_ERROR( nRetCode );
-
-Exit0:
-	return;
+    const std::string result{*guard_packets::tail<M2U_COMMAND_RESPONSE>({packet, size})};
+    LOG_CHECK_ERROR(DoMTUpdateCmdAck(errSuccess, result.c_str()));
 }
 
-void CGDMessageHandler::OnMTRegrister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
+void CGDMessageHandler::OnMTRegrister(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
 {
-    INT32 nRetCode = 0;
-    ServerSession* pSession = NULL;
-    char pcszInfo[PATH_LEN] = {0};
-
-	N2U_REGRISTER* pMsg = (N2U_REGRISTER*)pPacketBuffer;
-	CGDSessionMgr& rSessionMgr = CGDSessionMgr::GetInstance();
-	UINT64 qwCurrentTick = GetTickCountEx();
-
-    struct in_addr newAddr = {0};
-    UINT32 dwRemoteAddr = 0; 
-    UINT16 wRemotePort = 0; 
-    LOG_PROCESS_ERROR( pSocketSession );
-    nRetCode = pSocketSession->GetRemoteAddress(dwRemoteAddr, wRemotePort);
-    LOG_CHECK_ERROR( nRetCode ); 
-    newAddr.s_addr = dwRemoteAddr;
-
-    pSession = (ServerSession*)pSocketSession->GetUserData();
-    LOG_PROCESS_ERROR(pSession == NULL);
-
-	nRetCode = rSessionMgr.RemoveServerSession(pSocketSession);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	if (strnicmp(pMsg->szName, g_GuardConfig.szMTUser, strlen(g_GuardConfig.szMTUser)) != 0 ||
-		strnicmp(pMsg->szPwd, g_GuardConfig.szMTPwd, strlen(g_GuardConfig.szMTPwd)) != 0)
-	{
-		GD_ERROR_MT("name or password don't match!");
-		LOG_PROCESS_ERROR(FALSE);
-	}
-
-    SMTSession& oMTSession = rSessionMgr.GetMTSession();
-    //LOG_PROCESS_ERROR( oMTSession.eState != egssNormal  );
-    //LOG_PROCESS_ERROR( oMTSession.qwTimer != 0xFFFFFFFF  );
-    if( oMTSession.pSocketSession != NULL && oMTSession.pSocketSession != pSocketSession ) 
+    const auto message = *guard_packets::read<N2U_REGRISTER>({packet, size});
+    const auto name = *guard_packets::text(message.szName);
+    const auto password = *guard_packets::text(message.szPwd);
+    const auto configuredName = guard_packets::text(g_GuardConfig.szMTUser);
+    const auto configuredPassword = guard_packets::text(g_GuardConfig.szMTPwd);
+    if (!configuredName || !configuredPassword || !guard_files::same_tag(name, *configuredName) ||
+        !guard_files::same_tag(password, *configuredPassword) || socket->GetUserData() ||
+        g_GuardConfig.nServerPingTimeout < 0)
     {
-        struct in_addr oldAddr = {0};
-        UINT32 dwOldRemoteAddr = 0; 
-        UINT16 wOldRemotePort = 0; 
-        nRetCode = oMTSession.pSocketSession->GetRemoteAddress(dwOldRemoteAddr, wOldRemotePort);
-        LOG_CHECK_ERROR( nRetCode ); 
-        oldAddr.s_addr = dwOldRemoteAddr;
-
-		snprintf(pcszInfo, sizeof(pcszInfo), "kick off old MT from %s, because new MT from %s login", inet_ntoa(oldAddr), inet_ntoa(newAddr));
-		CRI(pcszInfo);
-		GD_ERROR_MT(pcszInfo);
-
-        nRetCode = DoMTRegristerAck(errLoginRepeat, pcszInfo, MAINTAIN_TOOLS_MSG_VERSION, MAINTAIN_TOOLS_BUILD_VERSION);
-        LOG_CHECK_ERROR(nRetCode);
-
-		oMTSession.pSocketSession->Close();
+        GD_ERROR_MT("name or password don't match, or registration state is invalid");
+        socket->Close();
+        return;
     }
-
-	// set new MT session
-	oMTSession.pSocketSession = pSocketSession;
-	oMTSession.qwTimer = qwCurrentTick + g_GuardConfig.nServerPingTimeout;
-	oMTSession.eState = epsNormal;
-
-	pSocketSession->SetUserData(&oMTSession);
-
-	snprintf(pcszInfo, sizeof(pcszInfo), "set new session: MT from %s", inet_ntoa(newAddr));
-	INF(pcszInfo);
-
-	// reply new MT
-    nRetCode = CGuardServer::GetInstance().FetchCurrentVersion(pcszInfo, sizeof(pcszInfo));
-    LOG_CHECK_ERROR(nRetCode);
-
-	nRetCode = DoMTRegristerAck(errSuccess, pcszInfo, MAINTAIN_TOOLS_MSG_VERSION, MAINTAIN_TOOLS_BUILD_VERSION);
-	LOG_CHECK_ERROR(nRetCode);
-
-	nRetCode = DoMTSyncProcessSummary();
-	LOG_CHECK_ERROR(nRetCode);
-
-	nRetCode = CProcessMgr::GetInstance().SyncAllProcessInfo();
-	LOG_CHECK_ERROR(nRetCode);
-
-    INF("MT Register Success from %s:%d", inet_ntoa(newAddr), wRemotePort );
-	return;
-Exit0:
-	if(pSocketSession)
-		pSocketSession->Close();
-}
-
-void CGDMessageHandler::OnMTExecCmd(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
-{
-	INT32 nRetCode = 0;
-	char szInfo[256] = { 0 };
-	N2U_UPDATE_CMD* pMsg = (N2U_UPDATE_CMD*)pPacketBuffer;
-
-	LOG_PROCESS_ERROR(pMsg->szCmd[0] != '\0' );
-
-	if (pMsg->szCmd[0] == '.') // lua gm command
-	{
-		nRetCode = CCmdMgr::GetInstance().ExecGMCmd(pMsg->szCmd);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-	else
-	{
-		nRetCode = CCmdMgr::GetInstance().ExecOPCmd(pMsg->szCmd);
-		LOG_PROCESS_ERROR(nRetCode);
-
-		_snprintf(szInfo, sizeof(szInfo), "ExecCmd [%s] issue ok", pMsg->szCmd);
-		nRetCode = CGDMessageHandler::GetInstance().DoMTUpdateCmdAck(errSuccess, szInfo);
-		LOG_CHECK_ERROR(nRetCode);
-	}
-
-	return;
-Exit0:
-	_snprintf(szInfo, sizeof(szInfo), "ExecCmd [%s] issue failed", pMsg->szCmd);
-	nRetCode = DoMTUpdateCmdAck(nRetCode, szInfo );
-	LOG_CHECK_ERROR(nRetCode);// LOG_PROCESS_ERROR will result in infinite loop
-
-	return;
-}
-
-BOOL CGDMessageHandler::_GenerateHotUpdateBatFile(const char* pzName, const char* pszPatchPath, const char* pszServerRunPath)
-{
-	FILE *fp = NULL;
-	char szResultFilePath[PATH_LEN] = { 0 };
-	snprintf(szResultFilePath, sizeof(szResultFilePath), "%s\\%s", ".", HOT_UPDATE_PATCH_RESULT_FILE_NAME);
-
-	fp = fopen(pzName, "w+");
-	LOG_PROCESS_ERROR(fp);
-
-	fprintf(fp, "set PatchFileName=%%1\r\n");
-
-	fprintf(fp, "attrib -R %s\\data \r\n", pszServerRunPath);
-	fprintf(fp, "del /F/Q %s\\data\\commonconfig_patch*.pak \r\n", pszServerRunPath);
-	fprintf(fp, "del /F/Q %s\\data\\globalconfig_patch*.pak \r\n", pszServerRunPath);
-	fprintf(fp, "copy %s\\%%PatchFileName%% %s\\data\\ /Y \r\n", pszPatchPath, pszServerRunPath);
-	fprintf(fp, "IF NOT %%ERRORLEVEL%% == 0 ( echo \"error: copy %%PatchFileName%% to data failed!\" > %s && GOTO :EOF )\r\n\r\n", szResultFilePath);
-	//
-	fprintf(fp, "del /f/q version_exclude.txt\r\n");
-
-	// 5 finish
-	fprintf(fp, "echo %%PatchFileName%% > %s\r\n", szResultFilePath);
-	fprintf(fp, "echo %%PatchFileName%% > %s \r\n", CURRENT_PATCH_FILE_NAME);		// leave a tag in ServerRunPath
-	fprintf(fp, "echo %%PatchFileName%% > %s\\%s \r\n\r\n", g_GuardConfig.szGuardPath, CURRENT_PATCH_FILE_NAME);		// and do the same in GuardPath
-
-	fclose(fp);
-	return TRUE;
-
-Exit0:
-	if (fp)
-	{
-		fclose(fp);
-		fp = NULL;
-	}
-	return FALSE;
-}
-
-BOOL CGDMessageHandler::_GenerateDeployBatFile(const char* pzName, const char* pszVersionPath, const char* pszServerRunPath)
-{
-	FILE *fp = NULL;
-
-	char szDeployResultFile[PATH_LEN] = { 0 };
-	snprintf(szDeployResultFile, sizeof(szDeployResultFile), "%s\\%s", g_GuardConfig.szGuardPath, DEPLOY_RESULT_FILE_NAME);
-
-	fp = fopen(pzName, "w+");
-	LOG_PROCESS_ERROR(fp);
-
-	fprintf(fp, "set VersionFileName=%%1\r\n");
-	fprintf(fp, "set VersionNo=%%VersionFileName:.zip=%%\r\n\r\n");
-
-	fprintf(fp, "IF NOT EXIST %s ( echo \"error: VersionPath %s not exist!\" > %s && GOTO :EOF)\r\n", pszVersionPath, pszVersionPath, szDeployResultFile);
-	fprintf(fp, "IF NOT EXIST %s ( echo \"error: ServerRunPath %s not exist!\" > %s && GOTO :EOF)\r\n", pszServerRunPath, pszServerRunPath, szDeployResultFile);
-
-	//// 0 for guard self, update ..\\guardconfig\\guard_area_config.lua
-	//fprintf(fp, "IF NOT EXIST guardconfig (  echo \"error: guardconfig %s not exist!\" > %s && GOTO :EOF)\r\n");
-	//fprintf(fp, "attrib -R guardconfig\\guard_area_config.lua\r\n");
-	//fprintf(fp, "copy %s\\%%VersionFileName%%-guard_area_config.lua guardconfig\\guard_area_config.lua /Y\r\n", pszVersionPath);
-	//fprintf(fp, "IF NOT %%ERRORLEVEL%% == 0 ( echo \"error: copy %%VersionFileName%%-guard_area_config.lua failed!\" > %s && GOTO :EOF)\r\n", szDeployResultFile);
-
-	// 1
-	fprintf(fp, "cd %s\r\n", pszVersionPath);
-
-	fprintf(fp, "..\\7z.exe -y x %%VersionFileName%%\r\n");
-	fprintf(fp, "IF NOT EXIST %%VersionNo%% ( echo \"error: 7z unzip %%VersionFileName%% failed!\" > %s && GOTO :EOF)\r\n", szDeployResultFile);
-
-	// 2 update globalconfig\\area_config.lua
-	fprintf(fp, "IF NOT EXIST %%VersionNo%%\\globalconfig ( mkdir %%VersionNo%%\\globalconfig )\r\n");
-	fprintf(fp, "attrib -R  %%VersionNo%%\\globalconfig\\area_config.lua \r\n");
-	fprintf(fp, "copy %%VersionFileName%%-area_config.lua %%VersionNo%%\\globalconfig\\area_config.lua /Y\r\n");
-	fprintf(fp, "IF NOT %%ERRORLEVEL%% == 0 ( echo \"error: copy %%VersionFileName%%-area_config.lua failed!\" > %s && GOTO :EOF)\r\n", szDeployResultFile);
-
-	fprintf(fp, "copy %%VersionFileName%%-gmsecurityconfig.lua %%VersionNo%%\\globalconfig\\gmsecurityconfig.lua /Y\r\n");
-	fprintf(fp, "IF NOT %%ERRORLEVEL%% == 0 ( echo \"error: copy %%VersionFileName%%-gmsecurityconfig.lua failed!\" > %s && GOTO :EOF)\r\n", szDeployResultFile);
-	//
-	fprintf(fp, "cd ..\r\n\r\n");
-
-	////////////////////
-	fprintf(fp, "cd %s\r\n\r\n", pszServerRunPath);	// below all output in pszServerRunPath
-
-	// 3 delete old file
-	fprintf(fp, "call :try_del dbserver\r\n");
-	fprintf(fp, "call :try_del manageserver\r\n");
-	fprintf(fp, "call :try_del gameserver\r\n");
-	fprintf(fp, "call :try_del gateserver\r\n");
-	fprintf(fp, "call :try_del datalogserver\r\n");
-	fprintf(fp, "call :try_del loginserver\r\n");
-	fprintf(fp, "call :try_del balanceserver\r\n");
-	fprintf(fp, "call :try_del gmserver\r\n");
-
-	fprintf(fp, "call :try_del cache /S/Q\r\n");
-	fprintf(fp, "call :try_del data\r\n");
-	fprintf(fp, "del /Q gpkitsvr64.dll\r\n");
-	fprintf(fp, "del /Q SdoBase.dll\r\n");
-	fprintf(fp, "del /Q sotsapi\r\n");
-	//fprintf(fp, "del /Q global_config.lua\r\n");	// guard used
-	// remove patch file
-	fprintf(fp, "call :try_del globalconfig /S/Q \r\n");
-	//fprintf(fp, "call :del_exclude globalconfig area_config.lua \r\n");
-	fprintf(fp, "call :try_del commonconfig /S/Q \r\n");
-	//
-	fprintf(fp, "IF NOT %%ERRORLEVEL%% == 0 ( echo \"error: remove server folder failed!\" > %s && GOTO :EOF )\r\n", szDeployResultFile);
-	fprintf(fp, "\r\n");
-
-	// 4 copy
-	fprintf(fp, "echo placeholder > version_exclude.txt\r\n");
-	//fprintf(fp, "echo lua64_d.dll		>> version_exclude.txt\r\n");	// not to copy guard relevant files
-	//fprintf(fp, "echo lua64.dll		>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo msvcp120d.dll	>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo msvcp120.dll	>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo msvcr120d.dll	>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo msvcr120.dll	>> version_exclude.txt\r\n");
-	fprintf(fp, "echo %%VersionNo%%\\_GUARD		>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo guardserver\\guardserver64.exe	>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo guardserver\\guardserver64.pdb	>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo guardserver\\guardserver64_d.exe	>> version_exclude.txt\r\n");
-	//fprintf(fp, "echo guardserver\\guardserver64_d.pdb	>> version_exclude.txt\r\n");
-	//
-	fprintf(fp, "xcopy %s\\%%VersionNo%%\\* . /E/I/R/Y /EXCLUDE:version_exclude.txt\r\n", pszVersionPath);// pszServerRunPath
-	fprintf(fp, "IF NOT %%ERRORLEVEL%% == 0 ( echo \"error: xcopy all files outer failed!\" > %s && GOTO :EOF )\r\n\r\n", szDeployResultFile);
-	//
-	fprintf(fp, "del /f/q version_exclude.txt\r\n");
-
-	// 5 finish
-	fprintf(fp, "echo %%VersionFileName%% > %s\r\n", szDeployResultFile);
-	fprintf(fp, "echo %%VersionFileName%% > %s \r\n", CURRENT_VERSION_FILE_NAME);	// leave a tag in ServerRunPath
-	fprintf(fp, "echo %%VersionFileName%% > %s\\%s \r\n\r\n", g_GuardConfig.szGuardPath, CURRENT_VERSION_FILE_NAME);		// and do the same in GuardPath
-	// remove all version files but this version
-	fprintf(fp, "call :del_exclude %s %%VersionNo%% \r\n", pszVersionPath);
-
-	// 8 delete bat self
-	//fprintf(fp, ":done\r\n", );
-	//fprintf(fp, "\tdel /f/q %0\r\n", );
-	fprintf(fp, "goto :EOF\r\n\r\n");
-
-	// 9 func define
-	fprintf(fp, ":try_del\r\n");
-	fprintf(fp, "\tsetlocal\r\n");
-	fprintf(fp, "\tIF EXIST %%1 ( del /F/S/Q %%1 & rd /S/Q %%1 )\r\n");// to defend bug in windows
-	fprintf(fp, "\tendlocal&goto :EOF\r\n");
-
-	fprintf(fp, ":del_exclude\r\n");	// %1 target dir, %2 exclude file prefix
-	fprintf(fp, "setlocal \r\n");
-	fprintf(fp, "IF NOT EXIST %%1 (GOTO :EOF)\r\n");
-	fprintf(fp, "mkdir %%1-%%2 \r\n");
-	fprintf(fp, "move /Y %%1\\%%2* %%1-%%2\\ \r\n");	// move file
-	fprintf(fp, "move /Y %%1\\%%2  %%1-%%2\\ \r\n");	// move folder
-	//fprintf(fp, "rd %%1 /S/Q & ping -n 1 127.0.0.1 > null & if exist %%1 (rd %%1 /S/Q )\r\n");				// to defend bug in windows
-	fprintf(fp, "del /F/S/Q %%1 & rd /S/Q %%1\r\n");
-	fprintf(fp, "mkdir %%1 \r\n");
-	fprintf(fp, "xcopy %%1-%%2\\* %%1\\  /E/I/R/Y \r\n");
-	fprintf(fp, "del /F/S/Q %%1-%%2 & rd /S/Q %%1-%%2\r\n");
-	fprintf(fp, "endlocal&goto :EOF\r\n");
-
-	fclose(fp);
-
-	return TRUE;
-Exit0:
-	if (fp)
-	{
-		fclose(fp);
-		fp = NULL;
-	}
-	return FALSE;
-}
-
-void CGDMessageHandler::OnMTDeployServerVersion(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
-{
-	INT32 nRetCode = 0;
-	char szErrorLog[256] = {0};
-	N2U_DEPLOY_SERVER_VERSION* pMsg = (N2U_DEPLOY_SERVER_VERSION*)pPacketBuffer;
-	INT32 nRuningProcessCount = 0;
-
-	sprintf(szErrorLog, "system internal error");
-
-	nRuningProcessCount = CProcessMgr::GetInstance().CountRuningProcessByType(stAll);
-	if ( nRuningProcessCount > 0)
-	{
-		sprintf(szErrorLog, "deploying is not allowed because some processes still running");
-		CRI(szErrorLog);
-		LOG_PROCESS_ERROR(FALSE);
-	}
-
-	//// 1 reload Guard self first
-	//char szParam[PATH_LEN] = { 0 };
-	//snprintf(szParam, sizeof(szParam), "/C \"attrib -R guardconfig\\guard_area_config.lua && copy %s\\%s-guard_area_config.lua guardconfig\\guard_area_config.lua /Y\"", g_GuardConfig.szServerVersionPath, pMsg->szVersion);
-	//nRetCode = (INT32)ShellExecute(NULL, "open", "cmd.exe", szParam, NULL, SW_HIDE);// _getcwd(NULL, 0)
-	//LOG_PROCESS_ERROR(nRetCode > 32);
-
-	char szSrcPath[PATH_LEN] = { 0 };
-	char szDstPath[PATH_LEN] = { 0 };
-	snprintf(szSrcPath, sizeof(szSrcPath), "%s\\%s-guard_area_config.lua", g_GuardConfig.szServerVersionPath, pMsg->szVersion);
-	snprintf(szDstPath, sizeof(szDstPath), "guardconfig\\guard_area_config.lua");
-
-	DWORD dwAttrs = GetFileAttributes(szDstPath);
-	LOG_PROCESS_ERROR(dwAttrs != INVALID_FILE_ATTRIBUTES);
-	if (dwAttrs & FILE_ATTRIBUTE_READONLY)
-	{
-		SetFileAttributes(szDstPath, dwAttrs & (~FILE_ATTRIBUTE_READONLY) );
-	}
-
-	if (CopyFile(szSrcPath, szDstPath, FALSE))
-	{
-		nRetCode = CGuardServer::GetInstance().ReloadConfig();
-		if (!nRetCode)
-		{
-			sprintf(szErrorLog, "guard server ReloadConfig failed!");
-			LOG_PROCESS_ERROR(FALSE);
-		}
-	}
-	else
-	{
-		sprintf(szErrorLog, "copy file from %s to %s failed!", szSrcPath, szDstPath);
-		LOG_PROCESS_ERROR(FALSE);
-	}
-
-	// 2  
-	nRetCode = g_DirectoryExists(g_GuardConfig.szServerRunPath);
-	if (!nRetCode)
-	{
-		INF("szServerRunPath %s not exist, now create it", g_GuardConfig.szServerRunPath);
-		g_CreateDirectory(g_GuardConfig.szServerRunPath, TRUE);
-	}
-	if (!g_DirectoryExists(g_GuardConfig.szServerRunPath))
-	{
-		sprintf(szErrorLog, "szServerRunPath %s don't exist and create it failed!", g_GuardConfig.szServerRunPath);
-		LOG_PROCESS_ERROR(FALSE);
-	}
-
-	// 3
-	const char* szBatFile = "deploy_server_generated.bat";
-	//if (pFile = fopen(szBatFile, "r"))
-	//	fclose(pFile);
-	//else
-	{
-		nRetCode = _GenerateDeployBatFile(szBatFile, g_GuardConfig.szServerVersionPath, g_GuardConfig.szServerRunPath);
-		if (!nRetCode)
-		{
-			sprintf(szErrorLog, "generate bat file failed!");
-			LOG_PROCESS_ERROR(FALSE);
-		}
-	}
-
-	char szParam[PATH_LEN] = { 0 };
-	sprintf(szParam, "%s > deploy_version.log", pMsg->szVersion);
-	nRetCode = (INT32)ShellExecute(NULL, "open", szBatFile, szParam, NULL, SW_HIDE);// _getcwd(NULL, 0)
-	if (nRetCode <= 32)
-	{
-		sprintf(szErrorLog, "ShellExecute %s %s Failed!", szBatFile, szParam);
-		LOG_PROCESS_ERROR(FALSE);
-	}
-
-	// 4
-	CGuardServer::GetInstance().SetProcessingVersion(pMsg->szVersion);  // used to verify when async checking
-	return;
-
-Exit0:
-
-	CRI(szErrorLog);
-	GD_ERROR_MT(szErrorLog);
-
-	nRetCode = DoMTDeployServerVersionAck(errCritical, pMsg->szVersion);
-	LOG_CHECK_ERROR(nRetCode);
-
-	return;
-}
-
-void CGDMessageHandler::OnMTHotUpdatePatch(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
-{
-	INT32 nRetCode = 0;
-	N2U_HOT_UPDATE_PATCH* pMsg = (N2U_HOT_UPDATE_PATCH*)pPacketBuffer;
-	char szParam[PATH_LEN] = { 0 };
-	FILE *pFile = NULL;
-
-	const char* szBatFile = "hot_update_patch_generated.bat";
-
-	if (pFile = fopen(szBatFile, "r"))
-		fclose(pFile);
-	else
-	{
-		nRetCode = _GenerateHotUpdateBatFile(szBatFile, g_GuardConfig.szServerPatchPath, g_GuardConfig.szServerRunPath);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-
-	sprintf(szParam, "%s > hot_update_patch.log", pMsg->szPatch);
-	//nRetCode = (INT32)
-	ShellExecute(NULL, "open", szBatFile, szParam, NULL, SW_HIDE);
-	//LOG_PROCESS_ERROR(nRetCode > 32);
-
-	CGuardServer::GetInstance().SetProcessingPatch(pMsg->szPatch); 
-	return;
-Exit0:
-	nRetCode = DoMTHotUpdatePatchAck(errUnknownError, pMsg->szPatch);
-	LOG_CHECK_ERROR(nRetCode);
-
-	return;
-}
-
-void CGDMessageHandler::OnMTSendFiles(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
-{
-	char szErrorLog[256] = {0};
-    INT32 nRetCode = 0;
-	CHAR *pszTargetFolderPath = NULL;
-
-	sprintf(szErrorLog, "system internal error");
-
-    N2U_SEND_FILES* pMsg = (N2U_SEND_FILES*)pPacketBuffer;
-    LOG_PROCESS_ERROR( pMsg );
-
-    if(pMsg->wBufferIndex == 0)
+    auto& sessions = CGDSessionMgr::GetInstance();
+    auto& slot = sessions.GetMTSession();
+    if (!sessions.RemoveServerSession(socket)) { socket->Close(); return; }
+    const auto newAddress = addressOf(*socket);
+    if (slot.pSocketSession)
     {
-        LOG_CHECK_ERROR( NULL==m_pRecvFileHandle );
-        if(m_pRecvFileHandle)
+        const auto info = std::format("kick off old MT from {}, because new MT from {} login",
+            addressOf(*slot.pSocketSession), newAddress);
+        CRI("%s", info.c_str());
+        GD_ERROR_MT("%s", info.c_str());
+        LOG_CHECK_ERROR(DoMTRegristerAck(errLoginRepeat, info.c_str(), MAINTAIN_TOOLS_MSG_VERSION, MAINTAIN_TOOLS_BUILD_VERSION));
+        if (!retireConnection(slot)) { socket->Close(); return; }
+    }
+    slot.pSocketSession = socket;
+    slot.qwTimer = registrationDeadline();
+    slot.eState = epsNormal;
+    slot.dwProcessID = 0;
+    slot.bClosing = false;
+    socket->SetUserData(&slot);
+    INF("set new session: MT from %s", newAddress.c_str());
+    std::array<char, PATH_LEN> version{};
+    LOG_CHECK_ERROR(CGuardServer::GetInstance().FetchCurrentVersion(version.data(), static_cast<int>(version.size())));
+    LOG_CHECK_ERROR(DoMTRegristerAck(errSuccess, version.data(), MAINTAIN_TOOLS_MSG_VERSION, MAINTAIN_TOOLS_BUILD_VERSION));
+    LOG_CHECK_ERROR(DoMTSyncProcessSummary());
+    LOG_CHECK_ERROR(CProcessMgr::GetInstance().SyncAllProcessInfo());
+    INF("MT Register Success from %s", newAddress.c_str());
+}
+
+void CGDMessageHandler::OnMTExecCmd(PACKET_BUFFER* packet, UINT32 size, ISocketSession*)
+{
+    const std::string command{*guard_packets::tail<N2U_UPDATE_CMD>({packet, size})};
+    BOOL result = FALSE;
+    if (!command.empty())
+    {
+        result = command.front() == '.' ? CCmdMgr::GetInstance().ExecGMCmd(command.c_str())
+            : CCmdMgr::GetInstance().ExecOPCmd(command.c_str());
+        if (result && command.front() == '.') return; // MS provides the GM result.
+    }
+    auto info = std::format("ExecCmd [{}] issue {}", command, result ? "ok" : "failed");
+    if (info.size() > 255) info.resize(255);
+    LOG_CHECK_ERROR(DoMTUpdateCmdAck(result ? errSuccess : result, info.c_str()));
+}
+
+void CGDMessageHandler::OnMTDeployServerVersion(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
+{
+    std::string name;
+    if (packet && socket && size == sizeof(N2U_DEPLOY_SERVER_VERSION))
+    {
+        const auto& message = *reinterpret_cast<const N2U_DEPLOY_SERVER_VERSION*>(packet);
+        const auto end = std::find(std::begin(message.szVersion), std::end(message.szVersion), '\0');
+        if (end != std::end(message.szVersion)) name.assign(std::begin(message.szVersion), end);
+    }
+    if (!name.empty() && CGuardServer::GetInstance().StartDeployment(false, name.c_str())) return;
+    CRI("could not start deployment: %s", name.c_str());
+    GD_ERROR_MT("could not start deployment: %s", name.c_str());
+    LOG_CHECK_ERROR(DoMTDeployServerVersionAck(errCritical, name.c_str()));
+}
+
+void CGDMessageHandler::OnMTHotUpdatePatch(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
+{
+    std::string name;
+    if (packet && socket && size == sizeof(N2U_HOT_UPDATE_PATCH))
+    {
+        const auto& message = *reinterpret_cast<const N2U_HOT_UPDATE_PATCH*>(packet);
+        const auto end = std::find(std::begin(message.szPatch), std::end(message.szPatch), '\0');
+        if (end != std::end(message.szPatch)) name.assign(std::begin(message.szPatch), end);
+    }
+    if (!name.empty() && CGuardServer::GetInstance().StartDeployment(true, name.c_str())) return;
+    CRI("could not start patch installation: %s", name.c_str());
+    GD_ERROR_MT("could not start patch installation: %s", name.c_str());
+    LOG_CHECK_ERROR(DoMTHotUpdatePatchAck(errUnknownError, name.c_str()));
+}
+
+void CGDMessageHandler::OnMTSendFiles(PACKET_BUFFER* packet, UINT32 size, ISocketSession* socket)
+{
+    std::string name;
+    UINT16 bufferIndex = 0, bufferTotal = 0, fileIndex = 0, fileTotal = 0;
+    const auto fail = [&](const char* reason) {
+        if (socket) m_incomingFile.abort(socket);
+        CRI("file transfer failed: %s", reason);
+        GD_ERROR_MT("%s", reason);
+        LOG_CHECK_ERROR(DoMTSendFilesAck(-1, name.c_str(), bufferIndex, bufferTotal, fileIndex, fileTotal));
+    };
+    // The maintenance tool sends the complete fixed-size N2U_SEND_FILES record.
+    // Validate that contract before inspecting its fields or payload.
+    if (!packet || !socket || size != sizeof(N2U_SEND_FILES))
+    {
+        fail("invalid file packet size");
+        return;
+    }
+    const auto& message = *reinterpret_cast<const N2U_SEND_FILES*>(packet);
+    bufferIndex = message.wBufferIndex; bufferTotal = message.wBufferTotal;
+    fileIndex = message.wFileIndex; fileTotal = message.wFileTotal;
+    const auto end = std::find(std::begin(message.szFileName), std::end(message.szFileName), '\0');
+    if (end == std::end(message.szFileName) || message.wBufferSize > sizeof(message.szBuffer))
+    {
+        fail("invalid filename or chunk length");
+        return;
+    }
+    try
+    {
+        name.assign(std::begin(message.szFileName), end);
+        if (CGuardServer::GetInstance().DeploymentBusy())
         {
-            nRetCode = fclose(m_pRecvFileHandle);
-            m_pRecvFileHandle = NULL;
-            LOG_PROCESS_ERROR(nRetCode == 0);
+            fail("file transfer is unavailable during deployment"); return;
         }
-
-        //create version folder if need
-        WIN32_FIND_DATA FileData; 
-
-        // Note: escape char '\' in m_szVersionPath
-		switch (pMsg->nFileType)
-		{
-		case etftVersion:
-			pszTargetFolderPath = g_GuardConfig.szServerVersionPath;
-			break;
-		case etftPatch:
-			pszTargetFolderPath = g_GuardConfig.szServerPatchPath;
-			break;
-		case etftConfig:
-			pszTargetFolderPath = g_GuardConfig.szServerVersionPath;
-			break;
-		default:
-			sprintf(szErrorLog, "invalid send file type! %d", pMsg->nFileType);
-			LOG_PROCESS_ERROR(FALSE);
-		}
-
-		{
-			HANDLE hFind = FindFirstFile(pszTargetFolderPath, &FileData);
-			if (hFind == INVALID_HANDLE_VALUE)
-			{
-				nRetCode = CreateDirectory(pszTargetFolderPath, NULL);
-				LOG_PROCESS_ERROR(nRetCode);
-			}
-			else
-			{
-				FindClose(hFind);
-				if (!(FileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					sprintf(szErrorLog, "%s exist but not a directory!", pszTargetFolderPath);
-					LOG_PROCESS_ERROR(FALSE);
-				}
-			}
-			hFind = FindFirstFile(pszTargetFolderPath, &FileData);
-			LOG_PROCESS_ERROR((hFind != INVALID_HANDLE_VALUE));
-
-			snprintf(m_szRecvFilePath, sizeof(m_szRecvFilePath), "%s\\%s", pszTargetFolderPath, pMsg->szFileName);
-		}
-        m_pRecvFileHandle = fopen(m_szRecvFilePath, "wb");
-        LOG_PROCESS_ERROR(m_pRecvFileHandle);
-
-        m_nRecvBufferIndex = 0;
+        const char* root = nullptr;
+        switch (message.nFileType)
+        {
+        case etftVersion: case etftConfig: root = g_GuardConfig.szServerVersionPath; break;
+        case etftPatch: root = g_GuardConfig.szServerPatchPath; break;
+        default: fail("invalid file type"); return;
+        }
+        const guard_files::UploadChunk chunk{name, message.nFileType, fileIndex, fileTotal,
+            bufferIndex, bufferTotal, std::span{message.szBuffer, message.wBufferSize}};
+        auto received = m_incomingFile.receive(root, chunk, socket);
+        if (!received) { fail(received.error().message().c_str()); return; }
+        if (!*received) return; // Preserve the final-chunk-only acknowledgement contract.
+        const auto& uploaded = **received;
+        if (uploaded.type == etftConfig)
+        {
+            char version[128]{};
+            if (!CGuardServer::GetInstance().FetchCurrentVersion(version, sizeof(version)) ||
+                !guard_files::leaf_name(version))
+            {
+                fail("cannot identify current version for configuration installation"); return;
+            }
+            const auto versionCopy = uploaded.path.parent_path() / (std::string(version) + "-" + name);
+            const bool guardConfig = guard_files::same_tag(name, "guard_area_config.lua");
+            const auto target = guardConfig
+                ? std::filesystem::path(g_GuardConfig.szGuardPath) / "guardconfig" / name
+                : std::filesystem::path(g_GuardConfig.szServerRunPath) / "globalconfig" / name;
+            std::error_code installationError;
+            auto copied = guard_files::copy_file(uploaded.path, versionCopy, [&] {
+                auto installed = guardConfig
+                    ? guard_files::copy_file(uploaded.path, target, [] {
+                        return CGuardServer::GetInstance().ReloadConfig() != FALSE;
+                    })
+                    : guard_files::copy_file(uploaded.path, target);
+                if (!installed) installationError = installed.error();
+                return installed.has_value();
+            });
+            if (!copied)
+            {
+                fail((installationError ? installationError : copied.error()).message().c_str()); return;
+            }
+        }
+        LOG_CHECK_ERROR(DoMTSendFilesAck(errSuccess, name.c_str(), bufferIndex, bufferTotal, fileIndex, fileTotal));
     }
-
-    LOG_PROCESS_ERROR(m_nRecvBufferIndex == pMsg->wBufferIndex);
-    LOG_PROCESS_ERROR(m_pRecvFileHandle);
-
-    nRetCode = fwrite(pMsg->szBuffer, 1, pMsg->wBufferSize, m_pRecvFileHandle);
-    LOG_PROCESS_ERROR(nRetCode == pMsg->wBufferSize);
-    m_nRecvBufferIndex++;
-
-    if( pMsg->wBufferIndex + 1 == pMsg->wBufferTotal )  // the last buffer
-    {
-        nRetCode = fflush(m_pRecvFileHandle);
-        LOG_PROCESS_ERROR(nRetCode == 0);
-
-        nRetCode = fclose(m_pRecvFileHandle);
-        m_pRecvFileHandle = NULL;
-        LOG_PROCESS_ERROR(nRetCode == 0);
-		LOG_PROCESS_ERROR(g_IsFileExist(m_szRecvFilePath));
-
-		if (pMsg->nFileType == etftConfig )
-		{
-			CHAR szVersionName[PATH_LEN] = { 0 };
-			nRetCode = CGuardServer::GetInstance().FetchCurrentVersion(szVersionName, sizeof(szVersionName));
-			LOG_PROCESS_ERROR(nRetCode);
-
-			char szParam[PATH_LEN] = { 0 };
-
-			// overwrite version file
-			sprintf(szParam, "/C \"copy /Y %s %s\\%s-%s 1>overwrite_version.log\"", m_szRecvFilePath, pszTargetFolderPath, szVersionName, pMsg->szFileName);
-			nRetCode = (INT32)ShellExecute(NULL, "open", "cmd.exe", szParam, NULL, SW_HIDE);// _getcwd(NULL, 0)
-			if (nRetCode <= 32)
-			{
-				sprintf(szErrorLog, "ShellExecute overwrite_version error :cmd.exe %s %d", szParam, nRetCode);
-				LOG_PROCESS_ERROR(FALSE);
-			}
-
-			if (strcmp(pMsg->szFileName, "guard_area_config.lua") == 0)
-			{
-				//directly move to guard run path
-				CHAR szRealTargetPath[PATH_LEN] = { 0 };
-				snprintf(szRealTargetPath, sizeof(szRealTargetPath), "%s\\guardconfig\\", _getcwd(NULL, 0));
-				sprintf(szParam, "/C \"copy /Y %s %s 1>guard_deploy.log\"", m_szRecvFilePath, szRealTargetPath);
-				nRetCode = (INT32)ShellExecute(NULL, "open", "cmd.exe", szParam, NULL, SW_HIDE);// _getcwd(NULL, 0)
-				if (nRetCode <= 32)
-				{
-					sprintf(szErrorLog, "ShellExecute guard_deploy error :cmd.exe %s %d", szParam, nRetCode);
-					LOG_PROCESS_ERROR(FALSE);
-				}
-
-				nRetCode = CGuardServer::GetInstance().ReloadConfig();// NOTE: maybe change g_GuardConfig.szServerRunPath
-				if (!nRetCode)
-				{
-					sprintf(szErrorLog, "guard ReloadConfig failed!");
-					LOG_PROCESS_ERROR(FALSE);
-				}
-			}
-			else
-			{
-				//directly move to server run path
-				CHAR szRealTargetPath[PATH_LEN] = { 0 };
-				snprintf(szRealTargetPath, sizeof(szRealTargetPath), "%s\\globalconfig\\", g_GuardConfig.szServerRunPath);
-				sprintf(szParam, "/C \"copy /Y %s %s 1>server_deploy.log\"", m_szRecvFilePath, szRealTargetPath);
-				nRetCode = (INT32)ShellExecute(NULL, "open", "cmd.exe", szParam, NULL, SW_HIDE);// _getcwd(NULL, 0)
-				if (nRetCode <= 32)
-				{
-					sprintf(szErrorLog, "ShellExecute direct_deploy error :cmd.exe %s %d", szParam, nRetCode);
-					LOG_PROCESS_ERROR(FALSE);
-				}
-			}
-		}
-		memset(m_szRecvFilePath, 0, sizeof(m_szRecvFilePath));
-
-        nRetCode = DoMTSendFilesAck(errSuccess, pMsg->szFileName, 
-            pMsg->wBufferIndex, pMsg->wBufferTotal, pMsg->wFileIndex, pMsg->wFileTotal);
-        LOG_PROCESS_ERROR(nRetCode);
-    }
-
-    return;
-Exit0:
-    if(m_pRecvFileHandle)
-    {
-        nRetCode = fclose(m_pRecvFileHandle);
-        LOG_CHECK_ERROR(nRetCode == 0);
-
-        m_pRecvFileHandle = NULL;
-        m_nRecvBufferIndex = 0;
-        memset(m_szRecvFilePath, 0, sizeof(m_szRecvFilePath));
-    }
-
-	CRI(szErrorLog);
-	GD_ERROR_MT(szErrorLog);
-
-	nRetCode = DoMTSendFilesAck(-1, pMsg->szFileName,
-        pMsg->wBufferIndex, pMsg->wBufferTotal, pMsg->wFileIndex, pMsg->wFileTotal);
-    LOG_CHECK_ERROR(nRetCode);
-
-    return;
+    catch (const std::exception& error) { fail(error.what()); }
 }
-
 
 BOOL CGDMessageHandler::DoMTSendFilesAck(INT32 nErrorCode, const char* szFileName, 
                                       UINT16 wBufferIndex, UINT16 wBufferTotal,

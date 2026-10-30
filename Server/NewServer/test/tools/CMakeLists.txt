@@ -115,6 +115,112 @@ add_test(NAME tool_export_roles COMMAND test_tool_export_roles
     "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/export roles" "${CMAKE_CURRENT_SOURCE_DIR}/fixtures")
 set_tests_properties(tool_export_roles PROPERTIES TIMEOUT 90)
 
+add_executable(test_tool_guard_sessions ../../tools/guardserver/guard_files.cpp test_guard_sessions.cpp ../../tools/guardserver/gd_session_mgr.cpp)
+cqyh_target_defaults(test_tool_guard_sessions)
+target_include_directories(test_tool_guard_sessions PRIVATE ../../tools/guardserver ../../inc ../../inc/baselib ../../inc/net
+    "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/fusion/inc" "${CQYH_SERVER_DIR}/Common/message")
+target_compile_definitions(test_tool_guard_sessions PRIVATE NOMINMAX)
+target_link_libraries(test_tool_guard_sessions PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_guard_sessions)
+add_test(NAME tool_guard_sessions COMMAND test_tool_guard_sessions)
+set_tests_properties(tool_guard_sessions PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_commands test_guard_commands.cpp)
+cqyh_target_defaults(test_tool_guard_commands)
+target_include_directories(test_tool_guard_commands PRIVATE ../../tools/guardserver)
+add_test(NAME tool_guard_commands COMMAND test_tool_guard_commands)
+set_tests_properties(tool_guard_commands PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_dispatch test_guard_dispatch.cpp ../../tools/guardserver/cmd_mgr.cpp
+    ../../tools/guardserver/guard_files.cpp
+    ../../tools/guardserver/gd_session_mgr.cpp ../../src/net/packet_allocator.cpp)
+cqyh_target_defaults(test_tool_guard_dispatch)
+target_include_directories(test_tool_guard_dispatch PRIVATE ../../tools/guardserver ../../inc ../../inc/baselib ../../inc/net
+    "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/fusion/inc" "${CQYH_SERVER_DIR}/Common/message")
+target_compile_definitions(test_tool_guard_dispatch PRIVATE NOMINMAX)
+target_link_libraries(test_tool_guard_dispatch PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_guard_dispatch)
+add_test(NAME tool_guard_dispatch COMMAND test_tool_guard_dispatch)
+set_tests_properties(tool_guard_dispatch PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_processes ../../tools/guardserver/guard_files.cpp test_guard_processes.cpp ../../tools/guardserver/process_mgr.cpp
+    ../../tools/guardserver/gd_session_mgr.cpp)
+cqyh_target_defaults(test_tool_guard_processes)
+target_include_directories(test_tool_guard_processes PRIVATE ../../tools/guardserver ../../inc ../../inc/baselib ../../inc/net
+    "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/fusion/inc" "${CQYH_SERVER_DIR}/Common/message")
+target_compile_definitions(test_tool_guard_processes PRIVATE NOMINMAX)
+# Only this fixture target receives aliases; the production guard uses real APIs.
+if(MSVC)
+    target_compile_options(test_tool_guard_processes PRIVATE "/FI${CMAKE_CURRENT_SOURCE_DIR}/fake_guard_process_api.h")
+endif()
+target_link_libraries(test_tool_guard_processes PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_guard_processes)
+add_test(NAME tool_guard_processes COMMAND test_tool_guard_processes)
+set_tests_properties(tool_guard_processes PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_native_handles test_guard_native_handles.cpp)
+cqyh_target_defaults(test_tool_guard_native_handles)
+target_include_directories(test_tool_guard_native_handles PRIVATE ../../tools/guardserver)
+target_compile_definitions(test_tool_guard_native_handles PRIVATE NOMINMAX)
+target_link_libraries(test_tool_guard_native_handles PRIVATE psapi)
+add_test(NAME tool_guard_native_handles COMMAND test_tool_guard_native_handles)
+set_tests_properties(tool_guard_native_handles PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_files test_guard_files.cpp ../../tools/guardserver/guard_files.cpp)
+cqyh_target_defaults(test_tool_guard_files)
+target_include_directories(test_tool_guard_files PRIVATE ../../tools/guardserver)
+target_compile_definitions(test_tool_guard_files PRIVATE NOMINMAX)
+add_test(NAME tool_guard_files COMMAND test_tool_guard_files
+    "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/guard files")
+set_tests_properties(tool_guard_files PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_results ../../tools/guardserver/guard_deploy.cpp test_guard_results.cpp
+    ../../tools/guardserver/guard_files.cpp ../../tools/guardserver/guardserver.cpp
+    ../../tools/guardserver/gd_message_handler.cpp ../../tools/guardserver/gd_session_mgr.cpp
+    ../../tools/guardserver/process_mgr.cpp ../../tools/guardserver/cmd_mgr.cpp)
+cqyh_target_defaults(test_tool_guard_results)
+target_include_directories(test_tool_guard_results PRIVATE ../../tools/guardserver
+    ../../inc ../../inc/baselib ../../inc/net "${CQYH_SERVER_DIR}/Common/define"
+    "${CQYH_SERVER_DIR}/Common/fusion/inc" "${CQYH_SERVER_DIR}/Common/message")
+target_compile_definitions(test_tool_guard_results PRIVATE NOMINMAX)
+target_link_libraries(test_tool_guard_results PRIVATE baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs shlwapi)
+cqyh_copy_runtime_dlls(test_tool_guard_results)
+add_test(NAME tool_guard_results COMMAND test_tool_guard_results
+    "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/guard results")
+set_tests_properties(tool_guard_results PROPERTIES TIMEOUT 30)
+
+add_executable(guard_deploy_child guard_deploy_child.cpp)
+cqyh_target_defaults(guard_deploy_child)
+add_executable(test_tool_guard_deploy test_guard_deploy.cpp
+    ../../tools/guardserver/guard_files.cpp ../../tools/guardserver/guard_deploy.cpp)
+cqyh_target_defaults(test_tool_guard_deploy)
+target_include_directories(test_tool_guard_deploy PRIVATE ../../tools/guardserver)
+target_compile_definitions(test_tool_guard_deploy PRIVATE NOMINMAX)
+add_dependencies(test_tool_guard_deploy guard_deploy_child)
+add_test(NAME tool_guard_deploy COMMAND test_tool_guard_deploy
+    "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/guard deployment"
+    "$<TARGET_FILE:guard_deploy_child>" "${CQYH_SERVER_DIR}/NewServer/bin/_GUARD/7z.exe")
+set_tests_properties(tool_guard_deploy PROPERTIES TIMEOUT 90)
+
+add_executable(test_tool_guard_runtime test_guard_runtime.cpp
+    ../../tools/guardserver/guard_files.cpp ../../src/net/packet_allocator.cpp)
+cqyh_target_defaults(test_tool_guard_runtime)
+target_include_directories(test_tool_guard_runtime PRIVATE ../../tools/guardserver
+    ../../inc ../../inc/baselib ../../inc/net "${CQYH_SERVER_DIR}/Common/define"
+    "${CQYH_SERVER_DIR}/Common/fusion/inc" "${CQYH_SERVER_DIR}/Common/message")
+target_compile_definitions(test_tool_guard_runtime PRIVATE NOMINMAX)
+target_link_libraries(test_tool_guard_runtime PRIVATE baselib fusion cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_guard_runtime)
+add_test(NAME tool_guard_runtime COMMAND test_tool_guard_runtime
+    "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/guard runtime")
+set_tests_properties(tool_guard_runtime PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_guard_console test_guard_console.cpp)
+cqyh_target_defaults(test_tool_guard_console)
+target_include_directories(test_tool_guard_console PRIVATE ../../tools/guardserver)
+add_test(NAME tool_guard_console COMMAND test_tool_guard_console)
+set_tests_properties(tool_guard_console PROPERTIES TIMEOUT 30)
+
 add_executable(test_tool_gm_file_transform test_gm_file_transform.cpp
     ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
 cqyh_target_defaults(test_tool_gm_file_transform STRICT)
