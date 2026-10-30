@@ -1,8 +1,20 @@
+<div align="center">
+
 # Legend Eternal (CQYH) – Source Code
 
-The 2016 Shanda Games *Legend Eternal* (传奇永恒 / CQYH) source code: the Unreal Engine 3 client and the server, split into `Client` and `Server`.
+The 2016 Shanda Games **Legend Eternal** (传奇永恒 / CQYH) source code: the Unreal Engine 3 client and the server, split into `Client` and `Server`.
+
+</div>
 
 > **The client assets are not in this repository.** The game content and prebuilt binaries (about 64 GB) are too large for GitHub and are hosted separately. See [Client assets](#client-assets-required-to-build-and-run-the-client) below.
+
+---
+
+<p align="center">
+    <img src="https://eternalmir.co.uk/images/Logo/logo-transparent.png" width="360" height="192">
+</p>
+
+---
 
 ## Client assets (required to build and run the client)
 
