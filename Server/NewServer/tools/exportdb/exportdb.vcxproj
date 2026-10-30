@@ -178,4 +178,8 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 
+  <PropertyGroup>
+    <CQYHCMakeTarget>exportdb</CQYHCMakeTarget>
+  </PropertyGroup>
+  <Import Project="../../../cmake/ToolCMake.targets" />
 </Project>

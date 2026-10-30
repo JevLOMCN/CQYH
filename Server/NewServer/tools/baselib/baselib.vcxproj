@@ -298,4 +298,12 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
+  <PropertyGroup>
+    <CQYHCMakeTarget>baselib</CQYHCMakeTarget>
+    <CQYHCMakeLibrary>true</CQYHCMakeLibrary>
+    <CQYHCMakeRequiresTools>false</CQYHCMakeRequiresTools>
+    <CQYHCMakeProjectDirectory>NewServer\src\baselib</CQYHCMakeProjectDirectory>
+    <CQYHCMakeOutputName>baselib</CQYHCMakeOutputName>
+  </PropertyGroup>
+  <Import Project="../../../cmake/ToolCMake.targets" />
 </Project>

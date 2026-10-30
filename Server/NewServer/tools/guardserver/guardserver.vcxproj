@@ -272,4 +272,8 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 
+  <PropertyGroup>
+    <CQYHCMakeTarget>guardserver</CQYHCMakeTarget>
+  </PropertyGroup>
+  <Import Project="../../../cmake/ToolCMake.targets" />
 </Project>

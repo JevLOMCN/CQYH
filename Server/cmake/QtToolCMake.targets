@@ -2,61 +2,14 @@
   <!-- Preserve the per-tool projects for navigation, but use the maintained CMake
        target for build/generation. In particular, never regenerate tracked UI
        headers with the old Qt4/Qt5.3 custom commands. -->
+  <!-- Clean this target only; never clean its shared libraries or the source tree. -->
+  <!-- Compatibility adapter; all tool projects share ToolCMake.targets. -->
   <PropertyGroup>
-    <CQYHQtServerRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</CQYHQtServerRoot>
-    <CQYHToolsBuildDirectory Condition="'$(CQYHToolsBuildDirectory)' == ''">$(CQYHQtServerRoot)\build</CQYHToolsBuildDirectory>
-    <CQYHToolsBuildDirectory>$([System.IO.Path]::GetFullPath('$(CQYHToolsBuildDirectory)'))</CQYHToolsBuildDirectory>
-    <CQYHQtCacheText Condition="Exists('$(CQYHToolsBuildDirectory)\CMakeCache.txt')">$([System.IO.File]::ReadAllText('$(CQYHToolsBuildDirectory)\CMakeCache.txt'))</CQYHQtCacheText>
-    <CQYHQtCorePackage>$([System.Text.RegularExpressions.Regex]::Match('$(CQYHQtCacheText)', '(?m)^Qt5Core_DIR:[^=]*=([^\r\n]*)').Groups[1].Value)</CQYHQtCorePackage>
-    <CQYHQtCacheHome>$([System.Text.RegularExpressions.Regex]::Match('$(CQYHQtCacheText)', '(?m)^CMAKE_HOME_DIRECTORY:INTERNAL=([^\r\n]*)').Groups[1].Value)</CQYHQtCacheHome>
-    <CQYHQtCacheHome Condition="'$(CQYHQtCacheHome)' != ''">$([System.IO.Path]::GetFullPath('$(CQYHQtCacheHome)'))</CQYHQtCacheHome>
-    <CQYHQtRoot Condition="'$(CQYHQtRoot)' == '' and '$(CQYHQtCorePackage)' != ''">$([System.IO.Path]::GetFullPath('$(CQYHQtCorePackage)\..\..\..'))</CQYHQtRoot>
-    <CQYHQtRoot Condition="'$(CQYHQtRoot)' == ''">$(QTDIR)</CQYHQtRoot>
-    <CQYHCMakeExecutable Condition="'$(CQYHCMakeExecutable)' == '' and Exists('$(VSInstallDir)Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe')">$(VSInstallDir)Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe</CQYHCMakeExecutable>
-    <CQYHCMakeExecutable Condition="'$(CQYHCMakeExecutable)' == ''">cmake.exe</CQYHCMakeExecutable>
-    <CQYHQtGeneratedProject>$(CQYHToolsBuildDirectory)\NewServer\tools\$(CQYHQtToolTarget).vcxproj</CQYHQtGeneratedProject>
-    <CQYHQtLegacyTargetPath>$(TargetPath)</CQYHQtLegacyTargetPath>
-    <OutDir>$(CQYHToolsBuildDirectory)\NewServer\tools\$(Configuration)\</OutDir>
-    <OutDir Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(CQYHQtCacheText)', '(?m)^CQYH_OUTPUT_TO_BIN:BOOL=(ON|TRUE|1)\r?$'))">$(CQYHQtServerRoot)\NewServer\bin\$(CQYHQtToolTarget)\</OutDir>
-    <TargetName>$(CQYHQtToolTarget)64</TargetName>
-    <TargetName Condition="'$(Configuration)' == 'Debug'">$(CQYHQtToolTarget)64_d</TargetName>
-    <TargetPath>$(OutDir)$(TargetName).exe</TargetPath>
-    <LocalDebuggerCommand Condition="'$(LocalDebuggerCommand)' == '' or '$(LocalDebuggerCommand)' == '$(CQYHQtLegacyTargetPath)'">$(TargetPath)</LocalDebuggerCommand>
-    <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(OutDir)</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerEnvironment Condition="'$(CQYHQtRoot)' != '' and '$(LocalDebuggerEnvironment)' == ''">QT_QPA_PLATFORM_PLUGIN_PATH=$(CQYHQtRoot)\plugins\platforms</LocalDebuggerEnvironment>
+    <CQYHCMakeTarget Condition="'$(CQYHCMakeTarget)' == ''">$(CQYHQtToolTarget)</CQYHCMakeTarget>
+    <CQYHCMakeRequiresQt>true</CQYHCMakeRequiresQt>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <ConformanceMode>true</ConformanceMode>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <PreprocessorDefinitions>NOMINMAX;_HAS_EXCEPTIONS=1;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CQYHToolsBuildDirectory)\NewServer\tools\$(CQYHQtToolTarget)_autogen\include_$(Configuration);$(CQYHQtRoot)\include;$(CQYHQtRoot)\include\QtCore;$(CQYHQtRoot)\include\QtGui;$(CQYHQtRoot)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <Target Name="CQYHQtValidate">
-    <Error Condition="'$(Platform)' != 'x64'" Text="The maintained Server tool build is x64. Select the x64 project configuration." />
-    <Error Condition="!Exists('$(CQYHToolsBuildDirectory)\CMakeCache.txt')" Text="Configure the Server CMake build first, or set CQYHToolsBuildDirectory to an existing build directory. See Server/BUILD.md." />
-    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(CQYHQtCacheText)', '(?m)^CMAKE_PROJECT_NAME:STATIC=CQYHServer\r?$'))" Text="CQYHToolsBuildDirectory must contain a CQYHServer CMake build." />
-    <Error Condition="'$(CQYHQtCacheHome)' != '$(CQYHQtServerRoot)'" Text="CQYHToolsBuildDirectory must be configured from this Server source tree." />
-    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(CQYHQtCacheText)', '(?m)^CMAKE_GENERATOR_PLATFORM:INTERNAL=x64(?:,[^\r\n]*)?\r?$'))" Text="The configured Server build must use the x64 Visual Studio platform." />
-    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(CQYHQtCacheText)', '(?m)^CQYH_BUILD_TOOLS:BOOL=(ON|TRUE|1)\r?$')) or !$([System.Text.RegularExpressions.Regex]::IsMatch('$(CQYHQtCacheText)', '(?m)^CQYH_BUILD_QT_TOOLS:BOOL=(ON|TRUE|1)\r?$'))" Text="Enable CQYH_BUILD_TOOLS and CQYH_BUILD_QT_TOOLS in the configured Server build." />
-    <Error Condition="!Exists('$(CQYHQtRoot)\bin\moc.exe')" Text="The configured Qt5 SDK is unavailable. Reconfigure CMake with the current Qt SDK prefix." />
-    <Error Condition="!Exists('$(CQYHQtGeneratedProject)')" Text="Configure the Server with a Visual Studio x64 generator and CQYH_BUILD_QT_TOOLS=ON; the maintained Qt tool target is missing." />
-  </Target>
-  <Target Name="CQYHQtBuild">
-    <Exec Command="&quot;$(CQYHCMakeExecutable)&quot; --build &quot;$(CQYHToolsBuildDirectory)&quot; --config &quot;$(Configuration)&quot; --target &quot;$(CQYHQtToolTarget)&quot; --parallel 1 -- /nr:false" />
-  </Target>
-  <Target Name="CQYHQtClean">
-    <!-- Clean this target only; never clean its shared libraries or the source tree. -->
-    <MSBuild Projects="$(CQYHQtGeneratedProject)" Targets="Clean" Properties="Configuration=$(Configuration);Platform=x64;BuildProjectReferences=false" BuildInParallel="false" />
-  </Target>
-  <Target Name="Build" DependsOnTargets="CQYHQtValidate;CQYHQtBuild" />
-  <Target Name="Rebuild" DependsOnTargets="CQYHQtValidate;CQYHQtClean;CQYHQtBuild" />
-  <Target Name="Clean" DependsOnTargets="CQYHQtValidate;CQYHQtClean" />
-  <Target Name="ClCompile" DependsOnTargets="CQYHQtValidate;CQYHQtBuild" />
-  <Target Name="CustomBuild" DependsOnTargets="CQYHQtValidate;CQYHQtBuild" />
-  <Target Name="ResourceCompile" DependsOnTargets="CQYHQtValidate;CQYHQtBuild" />
-  <Target Name="Link" DependsOnTargets="CQYHQtValidate;CQYHQtBuild" />
+  <Import Project="ToolCMake.targets" />
+  <Target Name="CQYHQtValidate" DependsOnTargets="CQYHToolValidate" />
+  <Target Name="CQYHQtBuild" DependsOnTargets="CQYHToolValidate;CQYHToolBuild" />
+  <Target Name="CQYHQtClean" DependsOnTargets="CQYHToolValidate;CQYHToolClean" />
 </Project>

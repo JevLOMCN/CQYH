@@ -21,8 +21,9 @@ cmake --build --preset vs2022-debug        (or vs2022-release)
 ctest --preset vs2022-debug                (runs transport, Lua bindings and optional MySQL tests)
 ```
 
-Executables are written to `NewServer/bin/<server>/<server>64[_d].exe`, where the configs and scripts are, exactly as
+Server executables are written to `NewServer/bin/<server>/<server>64[_d].exe`, where the configs and scripts are, exactly as
 the old projects did. Pass `-DCQYH_OUTPUT_TO_BIN=OFF` to keep them in the build directory instead.
+Tool executables use `<build>/NewServer/tools/<tool>/<configuration>/` regardless of this option.
 
 ## Things worth knowing
 
@@ -395,39 +396,97 @@ Use the SDK path on your machine when configuring another checkout. `qmake -quer
 QT_VERSION` verifies the installation. GM tool and maintenance tool use this SDK through
 CMake AUTOMOC/AUTOUIC; no Qt Visual Studio extension or in-source generation is required.
 
-## Standalone Qt project entry points
+## Standalone tool project entry points
 
-CMake remains the build system for GM tool and maintenance tool. Their existing
-`.vcxproj` files retain their identities and source/filter views, but Build,
-Rebuild, Clean and individual compile/generation entry points delegate to their
-configured CMake targets through `cmake/QtToolCMake.targets`. Old in-source Qt
-generation commands, obsolete project references and missing generated-file items
-are removed. Existing tracked generated files remain untouched as passive browse
-items. The SDK and current generated include paths come from the CMake cache;
-there is no hard-coded Qt5.3 installation path.
+All 17 `.vcxproj` files under `NewServer/tools` delegate compilation to CMake
+through `cmake/ToolCMake.targets`. Their GUIDs, source/filter views, existing
+comments and native resources are retained. Build, Rebuild, Clean, individual
+C++/resource/custom-build actions, Link, Lib and MASM entry points use the same
+configured CMake target. Legacy pre/post-build commands are outside the delegated
+build pipeline; CMake owns dependencies, output copying and Qt generation.
+The legacy IDE fast up-to-date shortcut is disabled so CMake checks its complete
+dependency graph; CMake still decides which files actually need rebuilding.
 
-Configure a Visual Studio x64 Server build with Qt5 first, as described above. The
-entry points default to `Server/build`; select another configured directory with
-the `CQYHToolsBuildDirectory` MSBuild property, for example:
+Most projects select the corresponding tool name. The nested Encrypt project
+selects `encrypt`, and `MaintainTool` selects `maintaintool`. The archived library
+projects select the maintained Server implementations: `tools/baselib` builds
+`baselib`, while `tools/net` builds `net_core` and its required split Lua archives.
+They do not compile the archived library copies or restore the former monolithic
+network archive. CMake-generated projects remain the complete dependency graph.
+
+The 16 per-tool `.sln` files reference existing CMake-backed project entry points.
+Deleted source-tree fusion, gameworld, baselib and net projects are no longer listed
+as solution dependencies; CMake resolves those libraries from the selected build.
+Certserver, pak, cash_accounting and update_string_map have modern `.vcxproj`
+wrappers retaining their original project GUIDs; their `.vcproj` files remain
+archival. The maintenance solution retains the valid guardserver project and
+orders its build after maintenance so the two CMake invocations do not overlap.
+
+Select **x64** with Debug or Release. The previously Win32-only common_log, PosLog
+and version-label projects now expose x64 configurations too. Direct Win32 project
+builds are rejected before compilation. Old solution configuration names are retained
+as aliases to valid x64 project configurations, including Win32/Mixed Platforms names. Existing Final Debug and Final Release choices in the guard
+and library projects map to CMake Debug and Release. Other supported CMake
+configurations can be selected with `CQYHCMakeConfiguration`.
+
+Configure this Server tree with a Visual Studio x64 generator first. The standalone
+entry points use `Server/build` by default. For VS 2026 and the local Qt SDK:
 
 ```powershell
-MSBuild Server/NewServer/tools/gmtool/gmtool.vcxproj /t:Build /p:Configuration=Release /p:Platform=x64 /p:CQYHToolsBuildDirectory=D:/Programming/CPlusPlus/CQYH/Server/build/cxx23-modernization
+cmake -S Server -B Server/build -G "Visual Studio 18 2026" -A x64 -DCMAKE_PREFIX_PATH="D:/Programming/CPlusPlus/CQYH/Server/build/dependencies/Qt/5.15.2/msvc2019_64"
+MSBuild Server/NewServer/tools/common_log/common_log.vcxproj /t:Build /p:Configuration=Release /p:Platform=x64
 ```
 
-`CQYHCMakeExecutable` can override the executable; otherwise the entry point uses
-Visual Studio's bundled CMake, then `cmake.exe` on PATH. Debugger output follows
-the configured CMake output location. Existing debugger working-directory settings
-are retained; application configurations are still needed to run the tools.
-Missing/foreign caches, a different source tree, disabled Qt/tool targets, a missing
-SDK and Win32 configurations fail before delegation. Clean affects only the selected
-generated target, including its owned executable/intermediates, rather than shared
-libraries or tracked generated headers. Use the generated CMake solution for the
-complete Server dependency graph; older solution/project collections are historical.
+Use the Qt SDK path on your machine. With this default layout, opening a tool
+solution and building requires no directory override. A different configured Server
+build can still be selected with the `CQYHToolsBuildDirectory` MSBuild property.
+A newly configured directory rebuilds its own object files and dependencies.
 
-Both entry points build Debug/Release. Target-only clean/rebuild, graph build and
-generation delegation were checked. All 53 tracked generated files and 14 shared
-library artifacts retained their hashes after those checks. No production tool was
-launched during this integration validation.
+Tool executables, copied runtime DLLs, linker symbols and import outputs go under
+`Server/build/NewServer/tools/<tool>/<configuration>/` with the default build directory.
+For example:
+
+```text
+Server/build/NewServer/tools/gmtool/Debug/gmtool64_d.exe
+Server/build/NewServer/tools/gmtool/Release/gmtool64.exe
+Server/build/NewServer/tools/maintaintool/Debug/maintaintool64_d.exe
+```
+
+All tools share one CMake cache in `Server/build`. Shared libraries, object files
+and Qt-generated files keep their CMake-managed locations. Projects in
+`NewServer/src` retain their existing output paths; `CQYH_OUTPUT_TO_BIN` controls
+server executable placement only.
+
+`CQYHCMakeExecutable` can override the executable; otherwise the entry point uses
+Visual Studio's bundled CMake, then `cmake.exe` on PATH. The default application
+debugger command and working directory follow the tool's output folder.
+Existing explicit debugger commands/working directories are retained; application
+configurations are still needed to run the tools.
+
+Application projects require `CQYH_BUILD_TOOLS=ON`; the two Qt projects additionally
+require `CQYH_BUILD_QT_TOOLS=ON` and the configured Qt5 SDK. Encrypt and PosLog
+require `CQYH_BUILD_MFC_TOOLS=ON` and MFC. Library entry points do not require the
+tools option. Missing/foreign caches, a different source tree, missing targets,
+disabled required options and unsupported platforms/configurations fail before
+delegation. Clean affects only the selected generated target, including its own
+executable/intermediates, rather than its shared dependencies or tracked headers.
+
+GM/maintenance project source views retain the existing passive generated files;
+CMake AUTOMOC/AUTOUIC generates active headers in the build directory. SDK paths
+come from the CMake cache. `cmake/QtToolCMake.targets` remains a compatibility
+adapter for older imports that set `CQYHQtToolTarget`.
+
+All 17 project entry points were checked in Debug and Release. All 16 tool
+solutions load and build in both configurations, and every solution project path,
+GUID and configuration mapping is validated. Legacy solution aliases and the
+maintenance/guard parallel graph build are checked as well. Additional checks cover target-only Clean/Rebuild (with shared-library
+hashes preserved), direct compile/resource/library/assembly actions, legacy Final
+configuration mappings, graph build and the Qt compatibility adapter. Nine
+invalid platform/cache/option cases reject before compilation. Project GUIDs,
+source items and existing project comments are preserved; no C++ implementation
+or resource files changed for these entry-point and solution-loading updates.
+Close and reopen an existing Visual Studio solution after updating it so cached
+unavailable-project nodes are discarded; deleting user settings/caches is unnecessary.
 
 ## Guardserver file handling
 

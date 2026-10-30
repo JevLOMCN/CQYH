@@ -60,8 +60,15 @@ function(cqyh_add_tool tgt)
         target_link_libraries(${tgt} PRIVATE ${A_LIBS})
     endif()
 
-    cqyh_server_output(${tgt} ${A_OUTPUT})
-    set_target_properties(${tgt} PROPERTIES FOLDER "Tools")
+    # Keep tool-owned binaries and symbols together while sharing the build's libraries.
+    set(_tool_output_dir "${CMAKE_BINARY_DIR}/NewServer/tools/${tgt}/$<CONFIG>")
+    set_target_properties(${tgt} PROPERTIES
+        OUTPUT_NAME ${A_OUTPUT}
+        RUNTIME_OUTPUT_DIRECTORY "${_tool_output_dir}"
+        ARCHIVE_OUTPUT_DIRECTORY "${_tool_output_dir}"
+        PDB_OUTPUT_DIRECTORY "${_tool_output_dir}"
+        FOLDER "Tools")
+    cqyh_copy_runtime_dlls(${tgt})
     if(A_EXCLUDE_FROM_ALL)
         set_target_properties(${tgt} PROPERTIES EXCLUDE_FROM_ALL ON EXCLUDE_FROM_DEFAULT_BUILD ON)
     endif()

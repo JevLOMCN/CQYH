@@ -449,7 +449,8 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <PropertyGroup>
-    <CQYHQtToolTarget>gmtool</CQYHQtToolTarget>
+    <CQYHCMakeTarget>gmtool</CQYHCMakeTarget>
+    <CQYHCMakeRequiresQt>true</CQYHCMakeRequiresQt>
   </PropertyGroup>
-  <Import Project="../../../cmake/QtToolCMake.targets" />
+  <Import Project="../../../cmake/ToolCMake.targets" />
 </Project>

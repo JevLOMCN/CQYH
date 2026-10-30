@@ -4,50 +4,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "guardserver", "guardserver.vcxproj", "{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9} = {2D78E948-F420-4DFC-A682-BD04A85E9AE9}
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB} = {7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "baselib", "..\..\src\baselib\baselib.vcxproj", "{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fusion", "..\..\..\Common\fusion\src\fusion.vcxproj", "{2D78E948-F420-4DFC-A682-BD04A85E9AE9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB} = {7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}
-	EndProjectSection
 EndProject
 Global
+
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 		Final Debug|x64 = Final Debug|x64
 		Final Release|x64 = Final Release|x64
-		Release|x64 = Release|x64
 	EndGlobalSection
+
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Debug|x64.ActiveCfg = Debug|x64
 		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Debug|x64.Build.0 = Debug|x64
+		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Release|x64.ActiveCfg = Release|x64
+		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Release|x64.Build.0 = Release|x64
 		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Final Debug|x64.ActiveCfg = Final Debug|x64
 		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Final Debug|x64.Build.0 = Final Debug|x64
 		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Final Release|x64.ActiveCfg = Final Release|x64
 		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Final Release|x64.Build.0 = Final Release|x64
-		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Release|x64.ActiveCfg = Release|x64
-		{F5FE03F3-31CB-4785-9DF9-9C964E6EC44C}.Release|x64.Build.0 = Release|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Debug|x64.ActiveCfg = Debug|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Debug|x64.Build.0 = Debug|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Final Debug|x64.ActiveCfg = Final Debug|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Final Debug|x64.Build.0 = Final Debug|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Final Release|x64.ActiveCfg = Final Release|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Final Release|x64.Build.0 = Final Release|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Release|x64.ActiveCfg = Release|x64
-		{7FC53F49-2F00-4121-81C3-0D1B3EFF16EB}.Release|x64.Build.0 = Release|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Debug|x64.ActiveCfg = Debug|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Debug|x64.Build.0 = Debug|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Final Debug|x64.ActiveCfg = Final Debug|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Final Debug|x64.Build.0 = Final Debug|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Final Release|x64.ActiveCfg = Final Release|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Final Release|x64.Build.0 = Final Release|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Release|x64.ActiveCfg = Release|x64
-		{2D78E948-F420-4DFC-A682-BD04A85E9AE9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

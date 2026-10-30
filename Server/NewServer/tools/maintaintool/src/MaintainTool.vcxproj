@@ -231,7 +231,8 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <PropertyGroup>
-    <CQYHQtToolTarget>maintaintool</CQYHQtToolTarget>
+    <CQYHCMakeTarget>maintaintool</CQYHCMakeTarget>
+    <CQYHCMakeRequiresQt>true</CQYHCMakeRequiresQt>
   </PropertyGroup>
-  <Import Project="../../../../cmake/QtToolCMake.targets" />
+  <Import Project="../../../../cmake/ToolCMake.targets" />
 </Project>

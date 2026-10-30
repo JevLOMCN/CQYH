@@ -242,4 +242,9 @@
       <UserProperties RESOURCE_FILE="encrypt.rc" />
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup>
+    <CQYHCMakeTarget>encrypt</CQYHCMakeTarget>
+    <CQYHCMakeRequiresMfc>true</CQYHCMakeRequiresMfc>
+  </PropertyGroup>
+  <Import Project="../../../../../cmake/ToolCMake.targets" />
 </Project>

@@ -1,24 +1,32 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "update_string_map", "update_string_map.vcproj", "{A4129F85-4DCA-4537-8D51-A3FFF130618B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "update_string_map", "update_string_map.vcxproj", "{A4129F85-4DCA-4537-8D51-A3FFF130618B}"
 EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
 		SccNumberOfProjects = 2
 		SccLocalPath0 = .
-		SccProjectUniqueName1 = update_string_map.vcproj
+		SccProjectUniqueName1 = update_string_map.vcxproj
 		SccLocalPath1 = .
 	EndGlobalSection
+
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
+
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Debug|Win32.Build.0 = Debug|Win32
-		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Release|Win32.ActiveCfg = Release|Win32
-		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Release|Win32.Build.0 = Release|Win32
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Debug|x64.ActiveCfg = Debug|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Debug|x64.Build.0 = Debug|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Release|x64.ActiveCfg = Release|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Release|x64.Build.0 = Release|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Debug|Win32.ActiveCfg = Debug|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Debug|Win32.Build.0 = Debug|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Release|Win32.ActiveCfg = Release|x64
+		{A4129F85-4DCA-4537-8D51-A3FFF130618B}.Release|Win32.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

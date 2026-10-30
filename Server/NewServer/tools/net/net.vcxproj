@@ -513,4 +513,12 @@
     <ClCompile Include="script\bindings\internal\internal_manage_to_login_bindings.cpp" />
     <ClInclude Include="script\bindings\registration.h" />
   </ItemGroup>
+  <PropertyGroup>
+    <CQYHCMakeTarget>net_core</CQYHCMakeTarget>
+    <CQYHCMakeLibrary>true</CQYHCMakeLibrary>
+    <CQYHCMakeRequiresTools>false</CQYHCMakeRequiresTools>
+    <CQYHCMakeProjectDirectory>NewServer\src\net</CQYHCMakeProjectDirectory>
+    <CQYHCMakeOutputName>net</CQYHCMakeOutputName>
+  </PropertyGroup>
+  <Import Project="../../../cmake/ToolCMake.targets" />
 </Project>
