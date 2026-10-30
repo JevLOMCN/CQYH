@@ -474,5 +474,3 @@ void CMTMessageHandler::OnGDSendFilesAck(PACKET_BUFFER* packet, UINT32, ISocketS
     if (!CTransmitFileMgr::GetInstance().Acknowledge(session->dwArea, session->dwIp, message))
         ERR("ignoring acknowledgement that does not match the current file transfer");
 }
-
-

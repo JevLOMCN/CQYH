@@ -29,7 +29,6 @@
 //#include "report.h"
 //#include "statis_info.h"
 
-
 const char* s_szFixHeader = 
 "********       ********        ********        ********        ********\n"\
 "   id            type          session           state            mode \n";
@@ -42,7 +41,6 @@ const char* s_szFixTail =
 
 const char* s_szEmptyLine =
 "                                                                     ";
-
 
 CGuardServer CGuardServer::ms_Instance;
 CGuardServer::CGuardServer()
@@ -583,7 +581,6 @@ BOOL CGuardServer::ProcessHotUpdatePatch()
     return _ProcessOperationResult(true);
 }
 
-
 /*
 
 BOOL _InitServer(void)
@@ -732,4 +729,3 @@ Exit0:
 }
 
 */
-

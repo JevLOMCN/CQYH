@@ -389,4 +389,3 @@ void MGSysLogError(MG_CLIENT_SESSION* pstSession, const char* szFucntionName)
 Exit0:
 	return;
 }
-

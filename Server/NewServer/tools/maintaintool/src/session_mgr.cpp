@@ -248,4 +248,3 @@ catch (const std::exception& error)
     return FALSE;
 }
 catch (...) { ERR("maintain session poll threw an exception"); return FALSE; }
-

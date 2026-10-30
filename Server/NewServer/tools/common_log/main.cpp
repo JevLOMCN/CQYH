@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     }
     try
     {
-        if (load_file(argc == 2 ? argv[1] : "d:\\log\\anticheat111.txt", anticheat_init()))
+		if (load_file(argc == 2 ? argv[1] : "d:\\log\\anticheat111.txt", anticheat_init())) //Don't think this should be hardcoded, maybe pull from config file or command line argument -Jev
             return EXIT_SUCCESS;
         std::cerr << "common_log: cannot read or process the log\n";
     }
