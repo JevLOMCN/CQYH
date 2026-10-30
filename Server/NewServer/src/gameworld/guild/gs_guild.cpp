@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	13:11:2013   10:37
-	file:		gs_guild.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "gs_guild.h"
 
@@ -22,7 +14,6 @@
 #include "scene.h"
 #include "scene_file_mgr.h"
 #include "guild_activity.h"
-
 
 CGSGuild::CGSGuild() : 
 m_dwID(INVALID_OBJECT_ID),

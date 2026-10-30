@@ -1291,7 +1291,6 @@ int SNDACALLBACK BillingCallback(EMsgDirection eMsgType, unsigned int dwRpcId, i
         WRN("UnProcessed billingservice Msg: %s", msg_name);
     }
 
-
     return 0;
 
 Exit0:

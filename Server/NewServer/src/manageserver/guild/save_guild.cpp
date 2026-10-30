@@ -3,7 +3,6 @@
 #include "ms_guild.h"
 #include "zlib.h"
 
-
 BOOL CMsGuild::CheckDBDataLength()
 {
     GUILD_DB_BASE       *pBase = NULL;
@@ -29,7 +28,6 @@ BOOL CMsGuild::CheckDBDataLength()
         == GUILD_MAX_WELFARE_AURA_COUNT);
     LOG_PROCESS_ERROR(sizeof(m_arrWelfareAuraLvl) / sizeof(m_arrWelfareAuraLvl[0])
         == GUILD_MAX_WELFARE_AURA_COUNT);
-
 
     return TRUE;
 Exit0:
@@ -429,5 +427,3 @@ BOOL CMsGuildStorage::SaveStorageHistory(char *pData, UINT32 &dwSize)
 Exit0:
     return FALSE;
 }
-
-

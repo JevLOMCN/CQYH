@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	19:12:2013   16:16
-	file:		cmd_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "cmd_mgr.h"
 #include "tl_user.h"
@@ -24,7 +16,6 @@
 #include "permission_mgr.h"
 
 CCmdMgr  CCmdMgr::m_Instance;
-
 
 CCmdMgr& CCmdMgr::GetInstance()
 {
@@ -222,9 +213,6 @@ Exit0:
     return;
 }
 
-
-
-
 CRoleNameParse::CRoleNameParse()
 {
 
@@ -234,7 +222,6 @@ CRoleNameParse::~CRoleNameParse()
 {
 
 }
-
 
 BOOL CRoleNameParse::Init()
 {
@@ -257,8 +244,6 @@ BOOL CRoleNameParse::Uninit()
 Exit0:
     return FALSE;
 }
-
-
 
 BOOL CRoleNameParse::AddNameList(const char *pBuffer, UINT32 dwLength)
 {
@@ -333,6 +318,3 @@ Exit0:
         va_end(valist);
     return FALSE;
 }
-
-
-

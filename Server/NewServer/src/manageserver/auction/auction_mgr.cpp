@@ -1204,4 +1204,3 @@ UINT32 CAuctionMgr::SEED_FINDER::FindSeed()
 Exit0:
     return 0;
 }
-

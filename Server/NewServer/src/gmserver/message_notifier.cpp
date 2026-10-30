@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	20:11:2013   15:18
-	file:		message_notifier.cpp
-	author:		Allan Tao
-	
-	purpose:	gmtool = user
-*********************************************************************/
-
 #include "stdafx.h"
 #include "message_notifier.h"
 //#include "gm_message_handler.h"
@@ -13,8 +5,6 @@
 BOOL CMessageNotifier::SendToUser(UINT32 dwClientSessionID, PACKET_BUFFER* pData, UINT32 dwSize)
 {
     INT32 nRetCode = 0;
-
-
 
     return TRUE;
 Exit0:
@@ -24,7 +14,6 @@ Exit0:
 BOOL CMessageNotifier::SendToUsers(UINT32 dwGTSessionID, UINT32 dwClientSessionIDList[], INT32 nSessionCount, PACKET_BUFFER* pData, UINT32 dwSize)
 {
     INT32 nRetCode = 0;
-
 
     return TRUE;
 Exit0:

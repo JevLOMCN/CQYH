@@ -8,7 +8,6 @@ CLDListener & CLDListener::GetInstance()
     return m_Instance;
 }
 
-
 CLDListener::CLDListener()
 {
 
@@ -19,7 +18,6 @@ CLDListener::~CLDListener()
 
 }
 
-
 BOOL CLDListener::Init()
 {
     return TRUE;
@@ -29,7 +27,6 @@ BOOL CLDListener::UnInit()
 {
     return TRUE;
 }
-
 
 BOOL CLDListener::_IsExistLD(UINT32 dwUserID)
 {
@@ -102,5 +99,3 @@ void CLDListener::UnRegisterGroupID(UINT32 dwUserID)
 Exit0:
     return;
 }
-
-

@@ -1,16 +1,5 @@
-/********************************************************************
-	created:	20:12:2013   14:11
-	file:		tl_user.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
-
 #include "stdafx.h"
 #include "tl_user.h"
-
-
 
 CTLUser::CTLUser() : 
 m_dwUserID(0),
@@ -63,9 +52,3 @@ BOOL CTLUser::UnInit()
 Exit0:
     return FALSE;
 }
-
-
-
-
-
-

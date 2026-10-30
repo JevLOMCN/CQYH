@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	20:12:2013   14:01
-	file:		db_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "db_mgr.h"
 #include "server_config.h"
@@ -23,7 +15,6 @@
 
 CDBMgr   CDBMgr::m_Instance;
 
-
 CDBMgr&  CDBMgr::GetInstance()
 {
     return m_Instance;
@@ -38,7 +29,6 @@ CDBMgr::~CDBMgr()
 {
 
 }
-
 
 BOOL CDBMgr::Init()
 {
@@ -217,7 +207,6 @@ Exit0:
     return {};
 }
 
-
 cqyh::MysqlPtr CDBMgr::GetLogMysql( )
 {
     cqyh::MysqlPtr connection;
@@ -286,7 +275,6 @@ Exit0:
     return {};
 }
 
-
 BOOL CDBMgr::MainLoop()
 {
     INT32       nRetCode = 0;
@@ -302,7 +290,6 @@ BOOL CDBMgr::MainLoop()
 
     return TRUE;
 }
-
 
 BOOL CDBMgr::PreQueryRoleID(CMD_DATA_BASE *pCmd)
 {
@@ -730,7 +717,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CDBMgr::RoleExeGMCmd(CMD_DATA_BASE *pCmd)
 {
     std::unique_ptr<UINT32> pCmdID;
@@ -928,6 +914,3 @@ BOOL CDBMgr::QuerySysExchangeLog(CMD_DATA_BASE* pCmd)
 Exit0:
     return FALSE;
 }
-
-
-

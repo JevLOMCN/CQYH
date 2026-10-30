@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	20:11:2013   13:24
-	file:		gmserver.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "gmserver.h"
 
@@ -62,10 +54,6 @@ static char    s_szLuaScript[] =
 "	return _G[tablename][indexname];\n" \
 "end\n";
 
-
-
-
-
 class CCertMessageHandler : public INetEventHandler
 {
 public:
@@ -100,14 +88,12 @@ public:
     char*   m_pMathTable;
 };
 
-
 CGmServer   CGmServer::ms_Instance;
 
 //extern int sol_common_open(lua_State* L);
 extern int sol_gm_def_open(lua_State* L);
 extern int sol_gm_security_open(lua_State* L);
 extern int sol_enum_str_open(lua_State* L);
-
 
 CGmServer::CGmServer()
 {
@@ -163,7 +149,6 @@ BOOL CGmServer::Init(INetEventHandler *poNetEventHandler)
     m_poNet = g_CreateNetInterface(netSimple, &m_PacketAllocator, poNetEventHandler, &SimpleInitParam);
 #endif
     LOG_PROCESS_ERROR(m_poNet);
-
 
     //strxcpy(m_dbsetting.szServerAddr, g_ServerConfig.DB.szDBIPAddress, DB_SETTING_STRING_LEN);
     //strxcpy(m_dbsetting.szLoginName, g_ServerConfig.DB.szDBAccount, DB_SETTING_STRING_LEN);
@@ -377,8 +362,6 @@ Exit0:
     return FALSE;
 }
 
-
-
 #ifdef _WIN32
 void _signal_handler(int sig)
 {
@@ -386,7 +369,6 @@ void _signal_handler(int sig)
     signal(SIGBREAK, _signal_handler);
 }
 #endif  // _WIN32
-
 
 BOOL _InitGMScript()
 {
@@ -451,7 +433,6 @@ Exit0:
         ERR("GetEnumString failed, enum name[%s]", pcszEnumName);
     return szName;
 }
-
 
 BOOL _InitServer()
 {
@@ -532,7 +513,6 @@ BOOL _InitServer()
 
     nRetCode = COrderMgr::GetInstance().Init();
     LOG_PROCESS_ERROR(nRetCode);
-
 
 #ifdef _WIN32
     signal(SIGINT, _signal_handler);
@@ -703,9 +683,3 @@ Exit0:
 
     return 0;
 }
-
-
-
-
-
-

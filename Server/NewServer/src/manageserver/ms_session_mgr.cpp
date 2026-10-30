@@ -436,7 +436,6 @@ Exit1:
 	return TRUE;
 }
 
-
 BOOL CMSSessionMgr::CloseAllSession()
 {
 	if (m_LSSession.pSocketSession)

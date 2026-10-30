@@ -176,5 +176,4 @@ void register_char_definitions(lua_State* L)
     role_rune_root_namespace["rrrNormal"] = static_cast<lua_Number>(rrrNormal);
     role_rune_root_namespace["rrrAdvanced"] = static_cast<lua_Number>(rrrAdvanced);
 }
-
 }

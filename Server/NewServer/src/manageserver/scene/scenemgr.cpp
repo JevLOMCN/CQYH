@@ -1,15 +1,3 @@
-// SHANDA GAMES PROPRIETARY INFORMATION
-//
-// This software is supplied under the terms of a license agreement or
-// nondisclosure agreement with Shanda Games and may not 
-// be copied or disclosed except in accordance with the terms of that 
-// agreement.
-//
-//      Copyright (c) 1999-2010 Shanda Games.
-//      All Rights Reserved.
-//
-// Shanda Games Limited, Shanghai, China, 201203
-// http://www.shandagames.com
 #include "stdafx.h"
 #include "scenemgr.h"
 
@@ -26,7 +14,6 @@ CSceneMgr::CSceneMgr()
 {
 
 }
-
 
 CSceneMgr:: ~CSceneMgr()
 {

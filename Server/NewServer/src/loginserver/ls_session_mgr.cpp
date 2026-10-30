@@ -222,7 +222,6 @@ Exit1:
     return TRUE;
 }
 
-
 BOOL CLSSessionMgr::CloseAllSession()
 {
     if (m_MSSession.bConnected && m_MSSession.pSocketSession)

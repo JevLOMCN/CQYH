@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	30:6:2014   11:11
-	file:		arena_handler.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include <time.h>
 #include "message_handler.h"

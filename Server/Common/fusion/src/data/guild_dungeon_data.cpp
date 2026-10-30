@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	15:10:2013   13:46
-	file:		guild_dungeon_data.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "guild_dungeon_data.h"
 #include "math_ex.h"

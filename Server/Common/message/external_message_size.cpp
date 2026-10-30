@@ -4128,4 +4128,3 @@ const char* g_szC2SMessageName[] = {
 #endif // !SHIPPING_PC_GAME
 
 INT32 g_nMessageVersion = (2730706173);
-

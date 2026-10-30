@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	21:11:2013   10:00
-	file:		message_handler.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "message_handler.h"
 
@@ -242,8 +234,6 @@ void CMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemot
 Exit0:
     return;
 }
-
-
 
 CMessageHandler::CMessageHandler()
 {
@@ -511,7 +501,6 @@ Exit0:
     return FALSE;
 }
 
-/************************************************************************/
 // To GD
 
 BOOL CMessageHandler::DoGDRegister()
@@ -600,8 +589,6 @@ Exit0:
     return FALSE;
 }
 
-
-
 void CMessageHandler::OnAllPing(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
     SGMSession  *pGMSession = (SGMSession*)pSocketSession->GetUserData();
@@ -615,8 +602,6 @@ Exit0:
         pSocketSession->Close();
     return ;
 }
-
-
 
 // From MS
 void CMessageHandler::OnMSRegister(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
@@ -991,11 +976,6 @@ void CMessageHandler::OnMSGMStrCmdLog(PACKET_BUFFER* pPacketBuffer, UINT32 dwSiz
         LOG_PROCESS_ERROR(nRetCode);
     }
 
-
-
-
-
-
     return;
 Exit0:
     return;
@@ -1023,7 +1003,7 @@ void CMessageHandler::OnMSDelMail(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, I
     snprintf(pCmd->szLog, MAX_GM_LOG_LENGTH, "%s Del Mail[%u] ||", pCmd->szLog, pMsg->dwMailID);
     pCmd->eCmdState = GM_LS_MS_DEL_MAIL_ACK;
 
-    LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "删除邮件失败");
+    LOG_ECHO_ERROR(pCmd->nResult == errSuccess, pTLUser->GetSessionID(), "Failed to delete mail.");
 
     pMailInfo = (MailInfo*)pMsg->szBuffer;
     if (pMailInfo->ma.byAttachType == ATTACHTYPE_SIMPLE)
@@ -1216,11 +1196,6 @@ Exit0:
     return;
 }
 
-
-
-
-
-
 void CMessageHandler::OnTLRegister(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession)
 {
     INT32       nRetCode = 0;
@@ -1293,10 +1268,10 @@ void CMessageHandler::OnTLVerify(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, IS
     LOG_PROCESS_ERROR(pIP);
 
     nRetCode = CPermissionMgr::GetInstance().CheckIP(dwIP);
-    LOG_ECHO_ERROR(nRetCode, pTLSession->dwSessionID, "IP限制");
+    LOG_ECHO_ERROR(nRetCode, pTLSession->dwSessionID, "IP restriction.");
 
     nRetCode = CPermissionMgr::GetInstance().GetUserID(pMsg->szName, pMsg->szPwd);
-    LOG_ECHO_ERROR(nRetCode != 0, pTLSession->dwSessionID, "账号名密码错误");
+    LOG_ECHO_ERROR(nRetCode != 0, pTLSession->dwSessionID, "Incorrect username or password.");
 
     bLD = CPermissionMgr::GetInstance().IsLD(pMsg->szName, pMsg->szPwd);
     
@@ -1352,8 +1327,8 @@ void CMessageHandler::OnTLLogin(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, ISo
     LOG_PROCESS_ERROR(pTLSession->pSocketSession);
     LOG_PROCESS_ERROR(pTLSession->eState == egmssNormal);
 
-    LOG_ECHO_ERROR(pMsg->nVersion == GM_MAJOR_VERSION, pTLSession->dwSessionID, "工具版本错误");
-    LOG_ECHO_ERROR(pMsg->nDependVersion == GM_DEPEND_VERSION, pTLSession->dwSessionID, "工具数据库版本错误");
+    LOG_ECHO_ERROR(pMsg->nVersion == GM_MAJOR_VERSION, pTLSession->dwSessionID, "Incorrect tool version");
+    LOG_ECHO_ERROR(pMsg->nDependVersion == GM_DEPEND_VERSION, pTLSession->dwSessionID, "Incorrect tool database version");
 
     nRetCode = pTLSession->pSocketSession->GetRemoteAddress(dwIP, wPort);
     LOG_PROCESS_ERROR(nRetCode);
@@ -1363,16 +1338,16 @@ void CMessageHandler::OnTLLogin(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, ISo
     LOG_PROCESS_ERROR(pIP);
 
     nRetCode = CPermissionMgr::GetInstance().CheckIP(dwIP);
-    LOG_ECHO_ERROR(nRetCode, pTLSession->dwSessionID, "不在IP白名单内");
+    LOG_ECHO_ERROR(nRetCode, pTLSession->dwSessionID, "IP not in whitelist");
 
     dwTLUserID = CPermissionMgr::GetInstance().GetUserID(pMsg->szName, pMsg->szPwd);
-    LOG_ECHO_ERROR(dwTLUserID, pTLSession->dwSessionID, "账号密码错误或用户名不存在");
+    LOG_ECHO_ERROR(dwTLUserID, pTLSession->dwSessionID, "Incorrect username or password");
 
     pUserData = CUserManager::GetInstance().FindUserByID(dwTLUserID);
-    LOG_ECHO_ERROR(pUserData == NULL, pTLSession->dwSessionID, "账号在其他地方登陆");
+    LOG_ECHO_ERROR(pUserData == NULL, pTLSession->dwSessionID, "Account is logged in from another location");
 
     nRetCode = CUserManager::GetInstance().LoginUser(pTLSession->dwSessionID, dwIP, pMsg->szName, pMsg->szPwd);
-    LOG_ECHO_ERROR(nRetCode, pTLSession->dwSessionID, "登陆失败");
+    LOG_ECHO_ERROR(nRetCode, pTLSession->dwSessionID, "Login failed");
 
     pTLSession->dwTLUserID = dwTLUserID;
 
@@ -1513,10 +1488,10 @@ void CMessageHandler::OnTLQueryRoleData(CTLUser *pTLUser, const char *pcData)
     LOG_PROCESS_ERROR(pTLUser);
 
     poRole = CGameWorld::GetInstance().FindRole(pMsg->dwRoleID);
-    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "角色正在被使用,稍后再试");
+    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "Role is currently in use, please try again later");
 
     pCmd = (CMD_QUERY_ROLE_DATA*)CCmdMgr::GetInstance().NewCmd(GM_CMD_QUERY_ROLE_DATA);
-    LOG_ECHO_ERROR(pCmd, pTLUser->GetSessionID(), "内存耗尽");
+    LOG_ECHO_ERROR(pCmd, pTLUser->GetSessionID(), "Memory exhausted");
 
     pCmd->dwTLUserID = pTLUser->GetID();
     pCmd->eCmdType = GM_CMD_QUERY_ROLE_DATA;
@@ -1877,16 +1852,16 @@ void CMessageHandler::OnTLLoadRole(CTLUser *pTLUser, const char *pcData)
     LOG_PROCESS_ERROR(pTLUser);
 
     poRole = CGameWorld::GetInstance().FindRole(pMsg->dwRoleID);
-    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "角色正在被使用,稍后再试");
+    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "Role is currently in use, please try again later");
 
     pCmd = (CMD_LOAD_ROLE*)CCmdMgr::GetInstance().NewCmd(GM_CMD_LOAD_ROLE);
-    LOG_ECHO_ERROR(pCmd, pTLUser->GetSessionID(), "内存耗尽");
+    LOG_ECHO_ERROR(pCmd, pTLUser->GetSessionID(), "Memory exhausted");
 
     nRetCode = CGMRoleMgr::GetInstance().CheckRoleExist(pMsg->dwRoleID);
-    LOG_ECHO_ERROR(nRetCode == FALSE, pTLUser->GetSessionID(), "游戏角色数据已被使用");
+    LOG_ECHO_ERROR(nRetCode == FALSE, pTLUser->GetSessionID(), "Role data is already in use");
 
     nRetCode = CGMRoleMgr::GetInstance().AddRole(pMsg->dwRoleID, pTLUser->GetID());
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "锁定角色失败");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to lock role");
 
     pCmd->dwTLUserID = pTLUser->GetID();
     pCmd->eCmdType = GM_CMD_LOAD_ROLE;
@@ -1903,7 +1878,7 @@ void CMessageHandler::OnTLLoadRole(CTLUser *pTLUser, const char *pcData)
     LOG_PROCESS_ERROR(pCmd->poRole);
 
     nRetCode = CKernel::GetInstance().PushCmd(pCmd);
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "队列插入失败");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to insert into queue");
 
     INF("TLUserID[%u] cmdID[%u] load role[%u] data begin", pTLUser->GetID(), pCmd->dwSerialID, pCmd->dwRoleID);
 
@@ -1937,21 +1912,21 @@ void CMessageHandler::OnTLModifyRole(CTLUser *pTLUser, const char *pcData)
     LOG_PROCESS_ERROR(pTLUser);
 
     poRole = CGameWorld::GetInstance().FindRole(pMsg->dwRoleID);
-    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "角色正在被使用,稍后再试");
+    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "Role is currently in use, please try again later");
 
     if (pMsg->dwTargetRoleID)
     {
         poRole = CGameWorld::GetInstance().FindRole(pMsg->dwTargetRoleID);
-        LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "道具转移目标角色正在被使用,稍后再试");
+        LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "Target role for item transfer is currently in use, please try again later");
     }
 
     nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pMsg->dwRoleID, pTLUser->GetID());
-    LOG_ECHO_ERROR(nRetCode == TRUE, pTLUser->GetSessionID(), "游戏角色数据未被锁定");
+    LOG_ECHO_ERROR(nRetCode == TRUE, pTLUser->GetSessionID(), "Role data is not locked");
 
     if (pMsg->dwTargetRoleID != 0)
     {
         nRetCode = CGMRoleMgr::GetInstance().AddRole(pMsg->dwTargetRoleID, pTLUser->GetID());
-        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "锁定目标角色失败， 目标角色被其他用户操作");
+        LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to lock target role, target role is being operated by another user");
     }
 
     pModifyCmd = (CMD_MODIFY_ROLE*)CCmdMgr::GetInstance().NewCmd(GM_CMD_MODIFY_ROLE);
@@ -2022,10 +1997,10 @@ void CMessageHandler::OnTLReleaseRole(CTLUser *pTLUser, const char *pcData)
     LOG_PROCESS_ERROR(pTLUser);
 
     nRetCode = CGMRoleMgr::GetInstance().CheckRoleLock(pMsg->dwRoleID, pTLUser->GetID());
-    LOG_ECHO_ERROR(nRetCode == TRUE, pTLUser->GetSessionID(), "游戏角色数据未被锁定");
+    LOG_ECHO_ERROR(nRetCode == TRUE, pTLUser->GetSessionID(), "Role data is not locked");
 
     nRetCode = CGMRoleMgr::GetInstance().DelRole(pMsg->dwRoleID, pTLUser->GetID());
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "解锁角色数据失败");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to unlock role data");
 
     INF("TL:[%u] Role[%u] Release Role Data Success", pTLUser->GetID(), pMsg->dwRoleID);
 
@@ -2082,13 +2057,13 @@ void CMessageHandler::OnTLRoleExeCmd(CTLUser *pTLUser, const char *pcData)
     LOG_PROCESS_ERROR(pTLUser);
 
     poRole = CGameWorld::GetInstance().FindRole(pMsg->dwRoleID);
-    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "角色正在被使用,稍后再试");
+    LOG_ECHO_ERROR(poRole == NULL, pTLUser->GetSessionID(), "Role is currently in use, please try again later");
 
     nRetCode = CGMRoleMgr::GetInstance().CheckRoleExist(pMsg->dwRoleID);
-    LOG_ECHO_ERROR(nRetCode == FALSE, pTLUser->GetSessionID(), "游戏角色数据已被使用");
+    LOG_ECHO_ERROR(nRetCode == FALSE, pTLUser->GetSessionID(), "Role data has been used");
 
     nRetCode = CGMRoleMgr::GetInstance().AddRole(pMsg->dwRoleID, pTLUser->GetID());
-    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "锁定角色失败");
+    LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to lock role");
 
     pRoleExeCmd = (CMD_ROLE_EXE_GM_CMD*)CCmdMgr::GetInstance().NewCmd(GM_CMD_ROLE_EXE_GM_CMD);
     LOG_PROCESS_ERROR(pRoleExeCmd);
@@ -2121,7 +2096,6 @@ Exit0:
     }
     return;
 }
-
 
 void CMessageHandler::OnTLSelectGroup(CTLUser *pTLUser, const char *pcData)
 {
@@ -2291,11 +2265,6 @@ Exit0:
     return;
 }
 
-
-
-
-
-//
 BOOL CMessageHandler::DoMSRegisterAck( )
 {
     GM2M_REGISTER_ACK   * pMsg{};
@@ -2685,7 +2654,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CMessageHandler::DoMSAddSystemOrder(UINT32 dwTLUserID, INT32 nGroupID, INT32 nPrice, INT32 nCount)
 {
     INT32   nRetCode = 0;
@@ -2776,8 +2744,6 @@ Exit0:
         m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
     return FALSE;
 }
-
-
 
 BOOL CMessageHandler::DoTLRegisterAck(UINT32 dwTLSessionID, INT32 nResult)
 {
@@ -3656,5 +3622,3 @@ Exit0:
         m_pPacketAllocator->Free((PACKET_BUFFER*)pMsg);
     return FALSE;
 }
-
-

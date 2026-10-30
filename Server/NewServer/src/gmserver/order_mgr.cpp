@@ -11,7 +11,6 @@ COrderMgr & COrderMgr::GetInstance()
     return m_Instance;
 }
 
-
 COrderMgr::COrderMgr()
 {
 
@@ -21,7 +20,6 @@ COrderMgr::~COrderMgr()
 {
 
 }
-
 
 BOOL COrderMgr::Init()
 {
@@ -33,7 +31,6 @@ BOOL COrderMgr::UnInit()
 {
     return TRUE;
 }
-
 
 BOOL COrderMgr::MainLoop()
 {
@@ -53,20 +50,7 @@ BOOL COrderMgr::MainLoop()
         }
     }
 
-    
-
-
-
     ++m_nTickCount;
-
-    
 
     return TRUE;
 }
-
-
-    
-
-
-
-

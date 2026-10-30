@@ -1,15 +1,6 @@
-/********************************************************************
-	created:	25:3:2013   15:51
-	file:		master_award.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "read_data_helper.h"
 #include "master_gift.h"
-
 
 BOOL MS_MASTER_GIFT_TEMPLATE::ReadLine(INT32& rnID, const char*& rpcszName, MS_MASTER_GIFT_TEMPLATE* pData, CTabFile* pTabConfig, INT32 nRow)
 {

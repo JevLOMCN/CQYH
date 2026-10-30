@@ -1,5 +1,4 @@
 //  Allan Tao[5.8.2014] 
-
 #include "stdafx.h"
 #include "ms_post_process_data.h"
 
@@ -146,9 +145,3 @@ BOOL g_ProcessGuildAchiCdtn(GUILD_ACHI_CDTN *pData, BOOL bInit)
 Exit0:
     return FALSE;
 }
-
-
-
-
-
-

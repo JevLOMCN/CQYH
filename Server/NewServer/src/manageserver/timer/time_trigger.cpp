@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	4:9:2013   11:03
-	file:		time_trigger.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "time_trigger.h"
 #include "manageserver.h"
@@ -112,7 +104,3 @@ BOOL CTimeTrigger::DeleteTrigger(BASE_TRIGGER_NODE *pTriggerNode)
 {
 	return CBaseList::Remove(pTriggerNode);
 }
-
-
-
-

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	24:12:2013   14:54
-	file:		gm_role_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "gm_role_mgr.h"
 #include "gm_session_mgr.h"
@@ -15,17 +7,7 @@
 #include "server_config.h"
 #include <time.h>
 
-
-
-
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//////////////////////////////////////////////////////////////////////////
-
-
 CGMRoleMgr   CGMRoleMgr::m_Instance;
-
 
 CGMRoleMgr::CGMRoleMgr()
 {
@@ -41,7 +23,6 @@ CGMRoleMgr& CGMRoleMgr::GetInstance()
 {
     return m_Instance;
 }
-
 
 BOOL CGMRoleMgr::Init()
 {
@@ -133,7 +114,3 @@ BOOL CGMRoleMgr::DelRoleByUserID(UINT32 dwTLUserID)
     
     return TRUE;
 }
-
-
-
-

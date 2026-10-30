@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	20:11:2013   16:18
-	file:		gm_session_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "statis_info.h"
 #include "gm_session_mgr.h"
@@ -18,7 +10,6 @@
 #include "gm_log.h"
 
 CGMSessionMgr CGMSessionMgr::ms_Instance;
-
 
 CGMSessionMgr::CGMSessionMgr()
 {
@@ -244,6 +235,3 @@ BOOL CGMSessionMgr::CloseAllSession()
 
     return TRUE;
 }
-
-
-

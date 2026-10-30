@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	27:6:2014   10:51
-	file:		arena.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "arena.h"
 #include "game_world.h"

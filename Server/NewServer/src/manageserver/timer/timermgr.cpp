@@ -295,4 +295,3 @@ BOOL CTimerMgr::MainLoop()
 Exit1:
 	return TRUE;
 }
-

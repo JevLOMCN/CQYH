@@ -1,13 +1,3 @@
-/********************************************************************
-	created:	4:3:2014   14:28
-	file:		gm_log.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
-
-
 #include "stdafx.h"
 #include "gm_log.h"
 #include <time.h>
@@ -180,7 +170,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CGMLog::WriteLog(const char *pcszUserName, const char *pcszCmdStr, const char *format, ...)
 {
     INT32       nRetCode = 0;
@@ -262,7 +251,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL CGMLog::WriteLogData(INT32 nFileType, const char *pcszBuffer)
 {
     INT32       nRetCode = 0;
@@ -282,11 +270,3 @@ BOOL CGMLog::WriteLogData(INT32 nFileType, const char *pcszBuffer)
 Exit0:
     return FALSE;
 }
-
-
-
-
-
-
-
-

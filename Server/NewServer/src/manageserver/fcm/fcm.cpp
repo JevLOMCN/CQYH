@@ -71,8 +71,6 @@ BOOL CFcmMgr::MainLoop()
                 CMessageHandler::GetInstance().DoClientFcmState(role->dwCliSessionID, cb->nOnlineMinutes, cb->nOfflineMinutes);
             }
         }
-
-
     }
 
     return TRUE;

@@ -403,8 +403,6 @@ BOOL CMailMgr::SendSystemMail(MS_ROLE_DATA* receiver, INT32 nMailTemplateID)
     mail_data = CDataManager<MAIL_TEMPLATE_DATA>::GetInstance().GetData(nMailTemplateID);
     LOG_PROCESS_ERROR(mail_data);
 
-
-
     if (mail_data->m_nItemID && mail_data->m_nItemCount)
         return SendSystemMailWithSimpleAttach(receiver, mail_data->m_szMailSubject, mail_data->m_szMailContent, mail_data->m_nItemID, mail_data->m_nItemCount);
     else
@@ -572,7 +570,6 @@ Exit0:
     return FALSE;
 }
 
-
 INT64 CMailMgr::PrintMemoryStat(void)
 {
     INT64 llTotalSize = (INT64)m_MailPool.GetUsedSize() * sizeof(MailInfo);
@@ -581,7 +578,6 @@ INT64 CMailMgr::PrintMemoryStat(void)
 
     return llTotalSize;
 }
-
 
 //Read each message and check whether AttachLocked is 1
 //0 means normal; continue to the next message
@@ -767,7 +763,6 @@ BOOL CMailMgr::_ProcessLockedAttach(std::list<void*>& rResult, void* pUserData)
                         break;
                     }
                 }
-
                 break;
             }
         }

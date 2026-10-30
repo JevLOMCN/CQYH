@@ -24,10 +24,7 @@
 #include "./db/ms_sql_stmt_list.h"
 #include "sql_mgr.h"
 
-
 CMasterMgr CMasterMgr::ms_Instance_;
-
-
 
 CMasterMgr::CMasterMgr()
 {
@@ -109,11 +106,9 @@ BOOL CMasterMgr::Uninit()
     return TRUE;
 }
 
-
 //////////////////////////////////////////////////////////////////////////
 // master
 //////////////////////////////////////////////////////////////////////////
-
 
 BOOL CMasterMgr::BeMaster(MS_ROLE_DATA *pRole)
 {
@@ -361,8 +356,6 @@ Exit0:
     return nResult;
 }
 
-
-
 MS_TEACHER_DATA* CMasterMgr::GetTeacherData(UINT32 dwTeacherID)
 {
     TEACHER_MAP::iterator   iter = m_mapTeacher.find(dwTeacherID);
@@ -441,7 +434,6 @@ INT32 CMasterMgr::GetStudentNum(UINT32 dwTeacherID)
 Exit0:
     return -1;
 }
-
 
 void CMasterMgr::AddCZ_i(INT32 nSvrGroup, UINT64 qwID, INT32 nLevel, BOOL isSave)
 {
@@ -531,7 +523,6 @@ BOOL CMasterMgr::UpdateCZ(UINT32 dwRole1, MS_ONLINE_ROLE_DATA &onlineRole, INT32
 Exit0:
     return FALSE;
 }
-
 
 BOOL CMasterMgr::LoadTeacherData(UINT32 dwTeacherID)
 {
@@ -645,7 +636,6 @@ BOOL CMasterMgr::_UpdateCZToMysql(UINT64 qwID, INT32 nCZ)
 Exit0:
     return FALSE;
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 // recruit
@@ -1364,7 +1354,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL SyncMasterDataToGS(MS_ONLINE_ROLE_DATA &onlineRoleData)
 {
     INT32 nRetCode = 0;
@@ -1407,7 +1396,6 @@ Exit0:
     return FALSE;
 }
 
-
 BOOL RoleDel(MS_ONLINE_ROLE_DATA &onlineRoleData)
 {
     return FALSE;
@@ -1426,13 +1414,3 @@ INT32   GetMasterCD(INT32 nLevel)
 Exit0:
     return 0;
 }
-
-
-
-
-
-
-
-
-
-

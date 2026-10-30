@@ -21,7 +21,6 @@ CPreSaveList::~CPreSaveList()
 
 }
 
-
 BOOL CPreSaveList::Init()
 {
     INT32       nRetCode = 0;
@@ -112,8 +111,6 @@ BOOL CPreSaveList::MainLoop()
     return TRUE;
 } 
 
-
-
 BOOL CPreSaveList::SaveToList(INT32 nType, UINT32 dwObjID)
 {
     ID_NODE     *pNode = NULL;
@@ -134,7 +131,6 @@ Exit1:
 Exit0:
     return FALSE;
 }
-
 
 BOOL CPreSaveList::_SaveToList(ID_NODE *pNode)
 {
@@ -211,6 +207,3 @@ BOOL CPreSaveList::_Save(INT32 nType, UINT32 dwID)
 Exit0:
     return FALSE;
 }
-
-
-

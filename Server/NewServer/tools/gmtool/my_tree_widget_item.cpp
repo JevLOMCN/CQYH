@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	19:8:2013   15:43
-	file:		my_tree_widget_item.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
 #include "stdafx.h"
 #include "my_tree_widget_item.h"
 

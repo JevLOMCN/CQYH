@@ -12,8 +12,6 @@
 #include <time.h>
 #include "gm_svr_def.h"
 
-
-
 CRoleDataMgr CRoleDataMgr::ms_Instance;
 
 CRoleDataMgr::CRoleDataMgr()

@@ -6,7 +6,6 @@
 #include "manageserver.h"
 #include <limits>
 
-
 CMSWorkerThread::CMSWorkerThread()
 {
     m_mysql = cqyh::MysqlPtr{};
@@ -127,7 +126,6 @@ Exit0:
     INF("DB Reconnection Failed.");
     return FALSE;
 }
-
 
 DB_OPERATION_RESULT* CMSWorkerThread::GetResult()
 {

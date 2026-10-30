@@ -161,7 +161,6 @@ Exit0:
     return 0;
 }
 
-
 BOOL  CTeam::DelMember(UINT32 dwRoleID)
 {
     MS_ROLE_DATA* poRoleData = NULL;

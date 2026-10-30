@@ -426,5 +426,3 @@ BOOL CMsGuildStorage::LoadStorageHistory_v1(const char *pcData, UINT32 dwSize)
 Exit0:
     return FALSE;
 }
-
-

@@ -256,7 +256,6 @@ Exit0:
 	return FALSE;
 }
 
-
 BOOL CBattleQueueMgr::StartQueue(SBattleQueueInfo* stBattleQueueInfo)
 {
 	INT32 nRetCode = 0;
@@ -414,7 +413,6 @@ Exit0:
 	return FALSE;
 }
 
-
 BOOL CBattleQueueMgr::_AddtoCurBattle(UINT32 dwID, UINT32 dwRoleCount, UINT32 dwMatch)
 {
 	INT32 dwSceneTempID = 0;
@@ -460,7 +458,6 @@ BOOL CBattleQueueMgr::_AddtoCurBattle(UINT32 dwID, UINT32 dwRoleCount, UINT32 dw
 Exit0:
 	return FALSE;
 }
-
 
 BOOL CBattleQueueMgr::_AddtoNewBattle(SBattleQueueInfo* stBattleQueueInfo)
 {
@@ -670,7 +667,6 @@ Exit1:
 Exit0:
 	return FALSE;
 }
-
 
 BOOL CBattleQueueMgr::_EnterBattle(SCENE_INFO* pstEnterScene, UINT8 bySide, UINT32 dwID)
 {
@@ -886,6 +882,3 @@ BOOL CBattleQueueMgr::CTraverseSceneDataForBattle::operator()(const SCENE_DATA* 
 	
 	return TRUE;
 }
-
-
-

@@ -1,11 +1,3 @@
-/********************************************************************
-	created:	15:4:2013   15:47
-	file:		guild_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	GS guild management class
-*********************************************************************/
-
 #include "stdafx.h"
 #include "guild_mgr.h"
 
