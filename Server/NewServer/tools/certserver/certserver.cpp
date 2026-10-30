@@ -1,262 +1,242 @@
 #include "stdafx.h"
-
-#include <math.h>
 #include "math_ex.h"
+#include "cert_math.h"
 #include "packet_allocator.h"
 #include "cert_message_handler.h"
 
-CPacketAllocator        g_PacketAllocator;
-INet*                   g_pNet;
+#include <atomic>
+#include <chrono>
+#include <filesystem>
+#include <format>
+#include <memory>
+#include <mutex>
+#include <stdexcept>
+#include <system_error>
+#include <thread>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-BOOL Install();
-BOOL Uninstall();
-void WINAPI ServiceMain();
-void WINAPI ServiceCtrlHandler(DWORD dwOpcode);
-char g_szServiceName[] = "certification server";
-BOOL g_bStop = FALSE;
-SERVICE_STATUS_HANDLE g_hServiceStatus;
-SERVICE_STATUS g_status;
-
-static const INT32 s_nAdjacentX[DT_DIRECTION_8_COUNT] =
+namespace
 {
-	1,		//	DT_EAST,
-	1,		//	DT_SOUTH_EAST,
-	0,		//  DT_SOUTH,
-	-1,		//  DT_SOUTH_WEST,
-	-1,		//  DT_WEST,
-	-1,		//  DT_NORTH_WEST,
-	0,		//  DT_NORTH,
-	1		//  DT_NORTH_EAST,
-};
+char serviceName[] = "certification server";
+constexpr wchar_t serviceNameWide[] = L"certification server";
+std::atomic_bool stopRequested{false};
+std::atomic<DWORD> serviceError{NO_ERROR};
+std::mutex statusMutex;
+SERVICE_STATUS_HANDLE statusHandle = nullptr;
+SERVICE_STATUS status{};
 
-static const INT32 s_nAdjacentY[DT_DIRECTION_8_COUNT] =
+bool reportStatus(DWORD state, DWORD error = NO_ERROR)
 {
-	0,		//	DT_EAST,
-	1,		//	DT_SOUTH_EAST,
-	1,		//  DT_SOUTH,
-	1,		//  DT_SOUTH_WEST,
-	0,		//  DT_WEST,
-	-1,		//  DT_NORTH_WEST,
-	-1,		//  DT_NORTH,
-	-1		//  DT_NORTH_EAST,
-};
-
-static const INT32 s_nAdjList[DT_DIRECTION_8_COUNT][6] =
-{
-	{ 3, DT_NORTH_EAST, DT_EAST, DT_SOUTH_EAST },							// DT_EAST,
-	{ 5, DT_NORTH_EAST, DT_EAST, DT_SOUTH_EAST, DT_SOUTH, DT_SOUTH_WEST },	// DT_SOUTH_EAST,
-	{ 3, DT_SOUTH_EAST, DT_SOUTH, DT_SOUTH_WEST },							// DT_SOUTH,
-	{ 5, DT_SOUTH_EAST, DT_SOUTH, DT_SOUTH_WEST, DT_WEST, DT_NORTH_WEST },	// DT_SOUTH_WEST,
-	{ 3, DT_SOUTH_WEST, DT_WEST, DT_NORTH_WEST },							// DT_WEST,
-	{ 5, DT_SOUTH_WEST, DT_WEST, DT_NORTH_WEST, DT_NORTH, DT_NORTH_EAST },	// DT_NORTH_WEST,
-	{ 3, DT_NORTH_WEST, DT_NORTH, DT_NORTH_EAST },							// DT_NORTH,
-	{ 5, DT_NORTH_WEST, DT_NORTH, DT_NORTH_EAST, DT_EAST, DT_SOUTH_EAST },	// DT_NORTH_EAST,
-};
-
-void Init()
-{
-    g_hServiceStatus = NULL;
-    g_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-    g_status.dwCurrentState = SERVICE_STOPPED;
-    g_status.dwControlsAccepted = SERVICE_ACCEPT_STOP;
-    g_status.dwWin32ExitCode = 0;
-    g_status.dwServiceSpecificExitCode = 0;
-    g_status.dwCheckPoint = 0;
-    g_status.dwWaitHint = 0;
+    const std::lock_guard lock{statusMutex};
+    if (!statusHandle) return false;
+    if (state == SERVICE_STOP_PENDING && status.dwCurrentState == SERVICE_STOPPED) return false;
+    if (stopRequested && (state == SERVICE_START_PENDING || state == SERVICE_RUNNING))
+        state = SERVICE_STOP_PENDING;
+    status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+    status.dwCurrentState = state;
+    status.dwControlsAccepted = state == SERVICE_RUNNING ? SERVICE_ACCEPT_STOP : 0;
+    status.dwWin32ExitCode = error;
+    status.dwServiceSpecificExitCode = 0;
+    const bool pending = state == SERVICE_START_PENDING || state == SERVICE_STOP_PENDING;
+    status.dwCheckPoint = pending ? status.dwCheckPoint + 1 : 0;
+    status.dwWaitHint = pending ? 10'000 : 0;
+    return SetServiceStatus(statusHandle, &status) != FALSE;
 }
 
-BOOL Install(void)
+struct ServiceCloser
 {
-    INT32 nRetCode = 0;
-    SC_HANDLE hSCM = NULL;
-    SC_HANDLE hService = NULL;
-    char szFilePath[MAX_PATH];
+    void operator()(SC_HANDLE handle) const noexcept { CloseServiceHandle(handle); }
+};
+using ServiceOwner = std::unique_ptr<std::remove_pointer_t<SC_HANDLE>, ServiceCloser>;
 
-    nRetCode = GetModuleFileName(NULL, szFilePath, MAX_PATH);
-    LOG_PROCESS_ERROR(nRetCode);
+std::filesystem::path executablePath()
+{
+    std::vector<wchar_t> buffer(256);
+    for (;;)
+    {
+        const auto count = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (!count) throw std::system_error(GetLastError(), std::system_category(), "GetModuleFileNameW");
+        if (count < buffer.size()) return std::filesystem::path{std::wstring(buffer.data(), count)};
+        if (buffer.size() >= 32'768) throw std::length_error("cert executable path exceeds Windows limit");
+        buffer.resize(buffer.size() * 2);
+    }
+}
 
-    hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    LOG_PROCESS_ERROR(hSCM);
+template<class Work>
+void cleanup(bool& success, const char* name, Work&& work) noexcept
+{
+    try
+    {
+        if (work()) return;
+        ERR("cert cleanup failed: %s", name);
+    }
+    catch (const std::exception& error) { ERR("cert cleanup %s: %s", name, error.what()); }
+    catch (...) { ERR("cert cleanup threw: %s", name); }
+    success = false;
+}
 
-    hService = CreateService(hSCM, g_szServiceName, g_szServiceName,
-        SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
-        SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-        szFilePath, NULL, NULL, "", NULL, NULL);
-    LOG_PROCESS_ERROR(hService);
+struct NetCloser
+{
+    bool* success;
+    void operator()(INet* net) const noexcept
+    {
+        cleanup(*success, "network shutdown", [&] { return net->UnInit(); });
+        cleanup(*success, "network destruction", [&] { return g_DestroyNetInterface(netSimple, net); });
+    }
+};
+struct AcceptorCloser
+{
+    INet* net;
+    bool* success;
+    void operator()(ISocketAcceptor* acceptor) const noexcept
+    {
+        cleanup(*success, "acceptor close", [&] { return acceptor->Close(); });
+        cleanup(*success, "acceptor destruction", [&] { return net->DestroyAcceptor(acceptor); });
+    }
+};
 
-    CloseServiceHandle(hService);
-    CloseServiceHandle(hSCM);
+struct Runtime
+{
+    bool success = true;
+    bool finished = false;
+    bool logAttempted = false, allocatorAttempted = false, handlerAttempted = false;
+    CPacketAllocator packets;
+    std::unique_ptr<INet, NetCloser> net{nullptr, {&success}};
+    std::unique_ptr<ISocketAcceptor, AcceptorCloser> acceptor{nullptr, {nullptr, &success}};
+    ~Runtime() { shutdown(); }
 
-    return TRUE;
-Exit0:
-    if (hService)
-        CloseServiceHandle(hService);
-    if (hSCM)
-        CloseServiceHandle(hSCM);
-    return FALSE;
+    bool shutdown() noexcept
+    {
+        if (std::exchange(finished, true)) return success;
+        g_MessageHandler.BeginShutdown();
+        acceptor.reset();
+        net.reset(); // Handler and packet pool outlive all network callbacks.
+        if (handlerAttempted) cleanup(success, "message handler", [] { return g_MessageHandler.UnInit(); });
+        if (allocatorAttempted) cleanup(success, "packet allocator", [&] { return packets.UnInit(); });
+        if (logAttempted) cleanup(success, "logger", [] { return CLog::GetInstance().UnInit(); });
+        return success;
+    }
+};
+
+bool initialize(Runtime& runtime)
+{
+    runtime.logAttempted = true;
+    if (!CLog::GetInstance().Init("cert_server", lltAll, lotAll, FALSE, FALSE, TRUE)) return false;
+    cert::initialize_math_table(g_MathTable);
+    runtime.allocatorAttempted = true;
+    if (!runtime.packets.Init(1024, 256)) return false;
+    SIMPLE_INIT_PARAM parameters{1, 1, 32, 1024 * 1024, 1024 * 1024, 4};
+    runtime.net.reset(g_CreateNetInterface(netSimple, &runtime.packets, &g_MessageHandler, &parameters));
+    if (!runtime.net) return false;
+    runtime.handlerAttempted = true;
+    if (!g_MessageHandler.Init(runtime.net.get(), &runtime.packets)) return false;
+    runtime.acceptor = decltype(runtime.acceptor){runtime.net->CreateAcceptor(), {runtime.net.get(), &runtime.success}};
+    if (!runtime.acceptor || !runtime.acceptor->Open(0, 8111)) return false;
+    INF("opened CS listen port at 0.0.0.0:8111");
+    INF("CS initialized successfully");
+    return true;
+}
+
+bool serve()
+{
+    using namespace std::chrono_literals;
+    Runtime runtime;
+    bool success = false;
+    try
+    {
+        if (initialize(runtime))
+        {
+            success = reportStatus(SERVICE_RUNNING);
+            while (success && !stopRequested)
+            {
+                success = runtime.net->MainLoop() != FALSE;
+                if (success) std::this_thread::sleep_for(1ms);
+            }
+        }
+    }
+    catch (const std::exception& error) { success = false; ERR("cert runtime failed: %s", error.what()); }
+    catch (...) { success = false; ERR("cert runtime threw an exception"); }
+    return runtime.shutdown() && success;
+}
+}
+
+BOOL Install()
+{
+    const auto binary = std::format(L"\"{}\"", executablePath().wstring());
+    const ServiceOwner scm{OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CREATE_SERVICE)};
+    if (!scm) return FALSE;
+    const ServiceOwner service{CreateServiceW(scm.get(), serviceNameWide, serviceNameWide,
+        SERVICE_QUERY_STATUS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
+        binary.c_str(), nullptr, nullptr, L"", nullptr, nullptr)};
+    return service != nullptr;
 }
 
 BOOL Uninstall()
 {
-    INT32 nRetCode = 0;
-    SC_HANDLE hSCM = NULL;
-    SC_HANDLE hService = NULL;
-
-    hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    LOG_PROCESS_ERROR(hSCM);
-
-    hService = OpenService(hSCM, g_szServiceName, SERVICE_STOP | DELETE);
-    LOG_PROCESS_ERROR(hService);
-
-    nRetCode = ControlService(hService, SERVICE_CONTROL_STOP, &g_status);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    nRetCode = DeleteService(hService);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    CloseServiceHandle(hService);
-    CloseServiceHandle(hSCM);
-
-    return TRUE;
-Exit0:
-    if (hService)
-        CloseServiceHandle(hService);
-    if (hSCM)
-        CloseServiceHandle(hSCM);
-
-    return FALSE;
+    const ServiceOwner scm{OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT)};
+    if (!scm) return FALSE;
+    const ServiceOwner service{OpenServiceW(scm.get(), serviceNameWide, SERVICE_STOP | DELETE)};
+    if (!service) return FALSE;
+    SERVICE_STATUS result{};
+    if (!ControlService(service.get(), SERVICE_CONTROL_STOP, &result) &&
+        GetLastError() != ERROR_SERVICE_NOT_ACTIVE) return FALSE;
+    return DeleteService(service.get());
 }
 
-void init_math_table(void)
+void WINAPI ServiceCtrlHandler(DWORD control)
 {
-    memset(&g_MathTable, 0, sizeof(g_MathTable));
-
-    for (int nDirection = 0; nDirection < MAX_DIRECTION_COUNT; nDirection++)
+    if (control == SERVICE_CONTROL_STOP)
     {
-        g_MathTable.nSinTable[nDirection] = (INT32)floor(sin((double)nDirection * 2 * PI / MAX_DIRECTION_COUNT) * SIN_COS_NUMBER + 0.5f);
-        g_MathTable.nCosTable[nDirection] = (INT32)floor(cos((double)nDirection * 2 * PI / MAX_DIRECTION_COUNT) * SIN_COS_NUMBER + 0.5f);
+        stopRequested = true;
+        reportStatus(SERVICE_STOP_PENDING);
     }
-
-    for (int nDirection = 0; nDirection < MAX_DIRECTION_COUNT/4; nDirection++)
+    else if (control == SERVICE_CONTROL_INTERROGATE)
     {
-        g_MathTable.nSinSquareTable[nDirection] = g_MathTable.nSinTable[nDirection] * g_MathTable.nSinTable[nDirection];
-    }
-
-    for(int i = 0; i < MAX_SQUARE; i++)
-    {
-        g_MathTable.wSqrtTable[i] = (UINT16)floor(sqrt((double)i) + 0.5f);
-    }
-
-	memcpy(g_MathTable.nAdjacentX, s_nAdjacentX, sizeof(g_MathTable.nAdjacentX));
-	memcpy(g_MathTable.nAdjacentY, s_nAdjacentY, sizeof(g_MathTable.nAdjacentY));
-	memcpy(g_MathTable.nAdjList, s_nAdjList, sizeof(g_MathTable.nAdjList));
-}
-
-void WINAPI ServiceCtrlHandler(DWORD dwCtrl)
-{
-    switch (dwCtrl)
-    {
-    case SERVICE_CONTROL_STOP:
-        g_bStop = TRUE;
-        break;
-    default:
-        break;
+        const std::lock_guard lock{statusMutex};
+        if (statusHandle) SetServiceStatus(statusHandle, &status);
     }
 }
 
-void WINAPI ServiceMain()
+void WINAPI ServiceMain(DWORD, LPSTR*)
 {
-    INT32 nRetCode = 0;
-    SIMPLE_INIT_PARAM SimpleInitParam;
-    ISocketAcceptor* pAcceptor = NULL;
-
-    nRetCode = CLog::GetInstance().Init("cert_server", 
-        lotAll, lltAll, FALSE, FALSE, TRUE);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    g_hServiceStatus = RegisterServiceCtrlHandler(g_szServiceName, ServiceCtrlHandler);
-    LOG_PROCESS_ERROR(g_hServiceStatus);
-
-    g_status.dwCurrentState = SERVICE_START_PENDING;
-    g_status.dwControlsAccepted = SERVICE_ACCEPT_STOP;//This must be used or the service cannot be controlled
-
-    SetServiceStatus(g_hServiceStatus, &g_status);
-
-    g_status.dwWin32ExitCode = S_OK;
-    g_status.dwCheckPoint = 0;
-    g_status.dwWaitHint = 0;
-    g_status.dwCurrentState = SERVICE_RUNNING;
-    SetServiceStatus(g_hServiceStatus, &g_status);
-
-    init_math_table();
-
-    nRetCode = g_PacketAllocator.Init(1024, 256);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    SimpleInitParam.nMaxAcceptor = 1;
-    SimpleInitParam.nMaxConnector = 1;
-    SimpleInitParam.nMaxSessionCount = 32;
-    SimpleInitParam.nSendBufSize = 1024 * 1024 * 1;
-    SimpleInitParam.nRecvBufSize = 1024 * 1024 * 1;
-    SimpleInitParam.nPacketBufferSize = 4;
-
-    g_pNet = g_CreateNetInterface(netSimple, &g_PacketAllocator, &g_MessageHandler, &SimpleInitParam);
-    LOG_PROCESS_ERROR(g_pNet);
-
-    nRetCode = g_MessageHandler.Init(g_pNet, &g_PacketAllocator);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    pAcceptor = g_pNet->CreateAcceptor();
-    LOG_PROCESS_ERROR(pAcceptor);
-
-    nRetCode = pAcceptor->Open(0, 8111);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    INF("opened CS listen port at 0.0.0.0:8111");
-    INF("CS initialized successfully");
-
-    while (!g_bStop)
+    const auto handle = RegisterServiceCtrlHandlerA(serviceName, ServiceCtrlHandler);
+    if (!handle)
     {
-        g_pNet->MainLoop();
-        Sleep(1);
+        serviceError = ERROR_PROCESS_ABORTED;
+        return;
     }
-
-Exit0:
-    g_status.dwCurrentState = SERVICE_STOPPED;
-    SetServiceStatus(g_hServiceStatus, &g_status);
-
-    INF("CS exited");
-
-    CLog::GetInstance().UnInit();
-
-    return;
+    {
+        const std::lock_guard lock{statusMutex};
+        statusHandle = handle;
+    }
+    const bool success = reportStatus(SERVICE_START_PENDING) && serve();
+    const DWORD error = success ? NO_ERROR : ERROR_PROCESS_ABORTED;
+    serviceError = error;
+    if (!reportStatus(SERVICE_STOPPED, error)) serviceError = ERROR_PROCESS_ABORTED;
+    const std::lock_guard lock{statusMutex};
+    statusHandle = nullptr;
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR     lpCmdLine,
-                     int       nCmdShow)
+int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR command, int)
 {
-    Init();
-
-    SERVICE_TABLE_ENTRY st[] =
+    stopRequested = false;
+    serviceError = NO_ERROR;
     {
-        { g_szServiceName, (LPSERVICE_MAIN_FUNCTION)ServiceMain },
-        { NULL, NULL }
-    };
-
-    if (stricmp(lpCmdLine, "/install") == 0)
-    {
-        Install();
+        const std::lock_guard lock{statusMutex};
+        statusHandle = nullptr;
+        status = {};
+        status.dwCurrentState = SERVICE_STOPPED;
     }
-    else if (stricmp(lpCmdLine, "/uninstall") == 0)
+    try
     {
-        Uninstall();
+        if (_stricmp(command, "/install") == 0) return Install() ? 0 : 1;
+        if (_stricmp(command, "/uninstall") == 0) return Uninstall() ? 0 : 1;
+        SERVICE_TABLE_ENTRYA table[]{{serviceName, ServiceMain}, {nullptr, nullptr}};
+        return StartServiceCtrlDispatcherA(table) && serviceError == NO_ERROR ? 0 : 1;
     }
-    else
-    {
-        StartServiceCtrlDispatcher(st);
-    }
-
-    return 0;
+    catch (const std::exception& error) { ERR("cert entry failed: %s", error.what()); }
+    catch (...) { ERR("cert entry threw an exception"); }
+    return 1;
 }

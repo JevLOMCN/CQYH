@@ -1,105 +1,120 @@
 #include "stdafx.h"
 #include "cert_message_handler.h"
-
 #include "math_ex.h"
 #include "zlib.h"
 #include "cer_message.h"
-#include "packet_allocator.h"
 
-CCertMessageHandler CCertMessageHandler::ms_Instance;
+#include <cstring>
+#include <limits>
+#include <memory>
+#include <utility>
+
 CCertMessageHandler g_MessageHandler;
-
-char                g_szMathTableData[1024 * 1024 * 16];
-UINT32              g_dwMathTableSize = 0;
-
 using namespace InternalMessage;
 
-void CCertMessageHandler::OnAccepted(ISocketAcceptor* pSocketAcceptor, ISocketSession* pSocketSession)
+namespace
 {
-    INT32 nRetCode = 0;
-    UINT32 dwAddr;
-    UINT16 wPort;
-    struct in_addr addr;
-
-    LOG_PROCESS_ERROR(pSocketSession);
-
-    pSocketSession->GetRemoteAddress(dwAddr, wPort);
-    addr.S_un.S_addr = dwAddr;
-    INF("connected from %s:%d", inet_ntoa(addr), wPort);
-
-    CER_SYNC_CERTIFICATION* pMsg = (CER_SYNC_CERTIFICATION*)m_pPacketAllocator->Alloc(sizeof(CER_SYNC_CERTIFICATION) + g_dwMathTableSize);
-    LOG_PROCESS_ERROR(pMsg);
-
-    pMsg->wMsg = cer_sync_certification;
-    pMsg->byKey = 206;
-    memcpy(pMsg->szMathTable, &g_szMathTableData, g_dwMathTableSize);
-
-    nRetCode = pSocketSession->Send((PACKET_BUFFER*)pMsg, sizeof(CER_SYNC_CERTIFICATION) + g_dwMathTableSize, 0);
-    LOG_PROCESS_ERROR(nRetCode);
-
-Exit0:
-    if (pSocketSession)
-        pSocketSession->Close();
-
-    return;
+struct CloseConnection
+{
+    ISocketSession* socket;
+    ~CloseConnection()
+    {
+        if (!socket) return;
+        try { LOG_CHECK_ERROR(socket->Close()); }
+        catch (...) { ERR("cert connection close threw an exception"); }
+    }
+};
 }
 
-void CCertMessageHandler::OnConnected(ISocketSession* pSocketSession)
+void CCertMessageHandler::OnAccepted(ISocketAcceptor*, ISocketSession* socket)
+try
 {
-    if (pSocketSession)
-        pSocketSession->Close();
+    const CloseConnection close{socket};
+    if (!socket || !m_accepting || !m_pPacketAllocator) return;
+    UINT32 address = 0;
+    UINT16 port = 0;
+    if (socket->GetRemoteAddress(address, port))
+    {
+        in_addr ip{};
+        ip.s_addr = address;
+        INF("connected from %s:%u", inet_ntoa(ip), port);
+    }
+    const auto free = [allocator = m_pPacketAllocator](PACKET_BUFFER* packet) { allocator->Free(packet); };
+    std::unique_ptr<PACKET_BUFFER, decltype(free)> packet{
+        m_pPacketAllocator->Alloc(static_cast<INT32>(m_certificate.size())), free};
+    if (!packet) { ERR("cert packet allocation failed"); return; }
+    std::memcpy(packet.get(), m_certificate.data(), m_certificate.size());
+    const auto size = static_cast<INT32>(m_certificate.size());
+    if (socket->Send(packet.get(), size, 0) != size)
+    {
+        ERR("cert packet send failed");
+        return;
+    }
+    packet.release(); // Native Send consumes the packet on success.
+}
+catch (const std::exception& error) { ERR("cert connection failed: %s", error.what()); }
+catch (...) { ERR("cert connection threw an exception"); }
+
+void CCertMessageHandler::OnConnected(ISocketSession* socket)
+{
+    const CloseConnection close{socket};
 }
 
-void CCertMessageHandler::OnRecv(ISocketSession* pSocketSession, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize)
+void CCertMessageHandler::OnRecv(ISocketSession* socket, PACKET_BUFFER* buffer, UINT32)
 {
-    if (pSocketSession)
-        pSocketSession->Close();
+    const CloseConnection close{socket};
+    const auto free = [allocator = m_pPacketAllocator](PACKET_BUFFER* packet) {
+        if (allocator) allocator->Free(packet);
+    };
+    const std::unique_ptr<PACKET_BUFFER, decltype(free)> packet{buffer, free};
 }
 
-void CCertMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemoteShutdown)
-{ 
-}
+void CCertMessageHandler::OnDisconnected(ISocketSession*, BOOL) {}
 
-CCertMessageHandler::CCertMessageHandler()
+CCertMessageHandler::CCertMessageHandler() : m_pNet(nullptr), m_pPacketAllocator(nullptr) {}
+CCertMessageHandler::~CCertMessageHandler() { UnInit(); }
+
+BOOL CCertMessageHandler::Init(INet* net, IPacketAllocator* allocator)
+try
 {
-    m_pNet = NULL;
-    m_pPacketAllocator = NULL;
-}
-
-CCertMessageHandler::~CCertMessageHandler()
-{
-    UnInit();
-}
-
-BOOL CCertMessageHandler::Init(INet* pNet, IPacketAllocator* pPacketAllocator)
-{
-    INT32 nRetCode = 0;
-
-    LOG_PROCESS_ERROR(pNet);
-    LOG_PROCESS_ERROR(pPacketAllocator);
-
-    m_pNet = pNet;
-    m_pPacketAllocator = pPacketAllocator;
-
-    g_dwMathTableSize = sizeof(g_szMathTableData);
-    nRetCode = compress((Bytef*)g_szMathTableData, (uLongf*)&g_dwMathTableSize, (const Bytef*)&g_MathTable, sizeof(g_MathTable));
-    LOG_PROCESS_ERROR(g_dwMathTableSize < MAX_MESSAGE_SIZE);
-
+    if (!net || !allocator || m_pNet || m_pPacketAllocator) return FALSE;
+    static_assert(sizeof(g_MathTable) <= (std::numeric_limits<uLong>::max)());
+    // The protocol can only carry one packet; reject incompressible tables
+    // instead of reserving a permanent 16 MiB global scratch buffer.
+    std::vector<char> compressed(MAX_MESSAGE_SIZE - sizeof(CER_SYNC_CERTIFICATION));
+    uLongf length = static_cast<uLongf>(compressed.size());
+    const int result = compress(reinterpret_cast<Bytef*>(compressed.data()), &length,
+        reinterpret_cast<const Bytef*>(&g_MathTable), static_cast<uLong>(sizeof(g_MathTable)));
+    if (result != Z_OK || length == 0 || length > compressed.size())
+    {
+        ERR("cert table compression failed: %d", result);
+        return FALSE;
+    }
+    std::vector<char> certificate(sizeof(CER_SYNC_CERTIFICATION) + length);
+    CER_SYNC_CERTIFICATION header{};
+    header.wMsg = cer_sync_certification;
+    header.byKey = 206;
+    std::memcpy(certificate.data(), &header, sizeof(header));
+    std::memcpy(certificate.data() + sizeof(header), compressed.data(), length);
+    m_certificate = std::move(certificate);
+    m_pNet = net;
+    m_pPacketAllocator = allocator;
+    m_accepting = true;
     return TRUE;
-Exit0:
-
+}
+catch (const std::exception& error)
+{
+    ERR("cert initialization failed: %s", error.what());
     return FALSE;
 }
 
-BOOL CCertMessageHandler::UnInit(void)
+BOOL CCertMessageHandler::UnInit()
 {
-    m_pNet = NULL;
-    m_pPacketAllocator = NULL;
-
+    BeginShutdown();
+    m_pNet = nullptr;
+    m_pPacketAllocator = nullptr;
+    m_certificate.clear();
     return TRUE;
 }
 
-CCertMessageHandler& CCertMessageHandler::GetInstance(void)
-{
-    return ms_Instance;
-}
+CCertMessageHandler& CCertMessageHandler::GetInstance() { return g_MessageHandler; }

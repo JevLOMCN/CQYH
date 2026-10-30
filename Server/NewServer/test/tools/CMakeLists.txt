@@ -221,6 +221,34 @@ target_include_directories(test_tool_guard_console PRIVATE ../../tools/guardserv
 add_test(NAME tool_guard_console COMMAND test_tool_guard_console)
 set_tests_properties(tool_guard_console PROPERTIES TIMEOUT 30)
 
+add_executable(test_tool_cert_packets test_cert_packets.cpp ../../tools/certserver/cert_message_handler.cpp)
+cqyh_target_defaults(test_tool_cert_packets)
+target_include_directories(test_tool_cert_packets PRIVATE ../../tools/certserver ../../inc ../../inc/baselib ../../inc/net ../../3rd/zlib
+    "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/message" "${CQYH_SERVER_DIR}/Common/fusion/inc")
+target_compile_definitions(test_tool_cert_packets PRIVATE NOMINMAX)
+target_link_libraries(test_tool_cert_packets PRIVATE baselib cqyh::zlib cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_cert_packets)
+add_test(NAME tool_cert_packets COMMAND test_tool_cert_packets)
+set_tests_properties(tool_cert_packets PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_cert_math test_cert_math.cpp ../../tools/certserver/cert_math.cpp)
+cqyh_target_defaults(test_tool_cert_math)
+target_include_directories(test_tool_cert_math PRIVATE ../../tools/certserver ../../inc ../../inc/baselib ../../inc/net)
+target_compile_definitions(test_tool_cert_math PRIVATE NOMINMAX)
+add_test(NAME tool_cert_math COMMAND test_tool_cert_math)
+set_tests_properties(tool_cert_math PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_cert_runtime test_cert_runtime.cpp ../../tools/certserver/cert_math.cpp
+    ../../tools/certserver/cert_message_handler.cpp)
+cqyh_target_defaults(test_tool_cert_runtime)
+target_include_directories(test_tool_cert_runtime PRIVATE ../../tools/certserver ../../inc ../../inc/baselib ../../inc/net ../../3rd/zlib
+    "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/message" "${CQYH_SERVER_DIR}/Common/fusion/inc")
+target_compile_definitions(test_tool_cert_runtime PRIVATE NOMINMAX)
+target_link_libraries(test_tool_cert_runtime PRIVATE baselib cqyh::zlib cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_cert_runtime)
+add_test(NAME tool_cert_runtime COMMAND test_tool_cert_runtime "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/cert runtime")
+set_tests_properties(tool_cert_runtime PROPERTIES TIMEOUT 60)
+
 add_executable(test_tool_gm_file_transform test_gm_file_transform.cpp
     ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
 cqyh_target_defaults(test_tool_gm_file_transform STRICT)

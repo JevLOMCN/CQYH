@@ -136,12 +136,14 @@ cqyh_add_tool(cash_accounting OUTPUT cash_accounting64 STRICT PCH_DIR ${_tools_d
     DEFINITIONS NOMINMAX
     LIBS baselib cqyh::mysql cqyh::syslibs)
 
-cqyh_add_tool(certserver OUTPUT certserver64 PCH_DIR ${_tools_dir}/certserver
+cqyh_add_tool(certserver OUTPUT certserver64 GUI STRICT PCH_DIR ${_tools_dir}/certserver
     SOURCES
+        certserver/cert_math.cpp
         certserver/cert_message_handler.cpp
         certserver/certserver.cpp
         certserver/stdafx.cpp
     INCLUDES ${_tools_dir}/certserver
+    DEFINITIONS NOMINMAX
     LIBS baselib cqyh::net cqyh::zlib cqyh::syslibs)
 
 cqyh_add_tool(pak OUTPUT pak64 STRICT PCH_DIR ${_tools_dir}/pak

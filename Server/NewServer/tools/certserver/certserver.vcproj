@@ -341,6 +341,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cert_math.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -388,6 +392,10 @@
 			</File>
 			<File
 				RelativePath=".\cert_message_handler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cert_math.h"
 				>
 			</File>
 			<File
