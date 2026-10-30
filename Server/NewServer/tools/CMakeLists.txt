@@ -211,21 +211,22 @@ endif()
 
 if(CQYH_BUILD_QT_TOOLS)
     find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)
-    if(Qt5_FOUND)
-        set(CMAKE_AUTOMOC ON)
-        set(CMAKE_AUTOUIC ON)
-        set(CMAKE_AUTORCC ON)
-        set(_qt_libs Qt5::Core Qt5::Gui Qt5::Widgets)
-        set(_qt_exclude)
-    else()
-        # Keep the projects visible in the solution so the sources can be browsed, but do not build them.
-        message(STATUS "Qt5 not found - gmtool and maintaintool are listed but excluded from the build "
-                       "(set CMAKE_PREFIX_PATH to your Qt5 install to build them)")
-        set(_qt_libs)
-        set(_qt_exclude EXCLUDE_FROM_ALL)
+    if(NOT Qt5_FOUND)
+        message(FATAL_ERROR
+            "Qt5 Core, Gui and Widgets development packages are required for GMTool and MaintainTool.\n"
+            "Install a Qt5 SDK matching your compiler and architecture (MSVC x64 on Windows).\n"
+            "Set CMAKE_PREFIX_PATH to the SDK root, for example:\n"
+            "  cmake -S Server -B Server/build -DCMAKE_PREFIX_PATH=\"C:/Qt/5.15.2/msvc2019_64\"\n"
+            "Or set Qt5_DIR to the SDK's lib/cmake/Qt5 directory.\n"
+            "Use your local SDK path; runtime DLLs alone do not include development headers.\n"
+            "To build without the Qt tools, configure with -DCQYH_BUILD_QT_TOOLS=OFF.")
     endif()
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
+    set(_qt_libs Qt5::Core Qt5::Gui Qt5::Widgets)
 
-    cqyh_add_tool(gmtool OUTPUT gmtool64 GUI STRICT ${_qt_exclude} PCH_DIR ${_tools_dir}/gmtool
+    cqyh_add_tool(gmtool OUTPUT gmtool64 GUI STRICT PCH_DIR ${_tools_dir}/gmtool
         SOURCES
             gmtool-encrypt/Encrypt/encrypt/base.cpp
             gmtool/cmd_manager.cpp gmtool/data_mgr.cpp gmtool/gm_data_packets.cpp gmtool/gm_role_data.cpp
@@ -245,7 +246,7 @@ if(CQYH_BUILD_QT_TOOLS)
         DEFINITIONS GMTOOL QT_DLL
         LIBS ${_qt_libs} baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs)
 
-    cqyh_add_tool(maintaintool OUTPUT maintaintool64 GUI STRICT ${_qt_exclude} PCH_DIR ${_tools_dir}/maintaintool/src
+    cqyh_add_tool(maintaintool OUTPUT maintaintool64 GUI STRICT PCH_DIR ${_tools_dir}/maintaintool/src
         SOURCES
             maintaintool/src/main.cpp
             maintaintool/src/maintaintool.cpp

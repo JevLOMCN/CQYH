@@ -442,6 +442,13 @@ solution and building requires no directory override. A different configured Ser
 build can still be selected with the `CQYHToolsBuildDirectory` MSBuild property.
 A newly configured directory rebuilds its own object files and dependencies.
 
+CMake uses standard `find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)` lookup.
+Set `CMAKE_PREFIX_PATH` to your Qt SDK root, or `Qt5_DIR` to its `lib/cmake/Qt5`
+directory. The SDK must match your compiler and architecture and contain development
+headers; runtime DLLs alone are insufficient. If Qt tools are enabled but the required
+packages cannot be found, configuration stops with SDK path instructions. Configure
+with `-DCQYH_BUILD_QT_TOOLS=OFF` to build without GMTool and MaintainTool.
+
 Tool executables, copied runtime DLLs, linker symbols and import outputs go under
 `Server/build/NewServer/tools/<tool>/<configuration>/` with the default build directory.
 Qt tool builds also copy the matching SDK's Windows platform plugin into
