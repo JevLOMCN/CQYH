@@ -8,23 +8,20 @@
 #include "mt_config.h"
 #include "string_ex.h"
 #include "server_def.h"
+#include "session_state.h"
 
 #include <list>
+#include <cstdint>
+#include <filesystem>
+#include <expected>
+#include <string>
 static const UINT32 G_FILE_SEND_BLOCK = 32*1024;
-
-enum E_MT_CONNECT_STATE
-{
-	emctUnConnect = 0,
-	emctConnecting,
-	emctConnected,
-	emctNormal,
-	emctTotal
-};
 
 struct SRemoteGuardSession;
 struct stProcessStatisInfo;
 struct stStatisProcess;
 struct SProcessInfo;
+namespace maintain { struct History; }
 
 class MaintainTool : public QMainWindow
 {
@@ -46,6 +43,7 @@ public:
 
 	BOOL Init();
 	BOOL UnInit();
+    BOOL StartPolling();
 
     BOOL CheckAreaExpanded(INT32 nIndex);
 	//BOOL GetAreaIpList(UINT32 dwAreaID, UINT32& nMaxCount, UINT32* dwIplst);
@@ -58,9 +56,9 @@ public:
 
 	BOOL UpdateGuardStatisInfoByIp(INT32 nAreaID, UINT32 dwIp, UINT32 dwPID);
 	BOOL UpdateGuardStatisInfo(UINT32 dwAreaID, UINT32 dwIP);
-	BOOL SnapShootGuardStatisInfoByIp(INT32 nAreaID, UINT32 dwIp, UINT32 dwPID, char* pszOutStr);
+    std::expected<std::string, std::string> SnapShootGuardStatisInfoByIp(INT32 area, UINT32 ip, UINT32 pid);
 	BOOL SnapShootGuardStatisInfo();
-	BOOL SnapShootGuardStatisInfoCurrentByIp(INT32 nAreaID, UINT32 dwIp, UINT32 dwPID, char* pszOutStr);
+    std::expected<std::string, std::string> SnapShootGuardStatisInfoCurrentByIp(INT32 area, UINT32 ip, UINT32 pid);
 	BOOL SnapShootGuardStatisInfoCurrent();
 	BOOL BeginHibernateGuardStatisInfoByIp(INT32 nAreaID, UINT32 dwIp, UINT32 dwPID, UINT8 byType, UINT32 dwSessionID);
 	BOOL ProcessHibernateGuardStatisInfoByIp(stStatisProcess* pStatisInfo, SProcessInfo* poInfo);
@@ -86,31 +84,34 @@ public:
 private:
 	Ui::MaintainToolClass ui;
 
-	char	            m_szUserName[32];
-	char	            m_szPassword[32];
-	BOOL	            m_bLogin;
+	char	            m_szUserName[32]{};
+	char	            m_szPassword[32]{};
+	BOOL	            m_bLogin = FALSE;
 
-	char	            m_szCurCmd[64];
-	INT32	            m_nWaitCmdCount;
-	BOOL	            m_bCmdResult;
-	char	            m_szVersionPath[256];
-	char	            m_szPatchPath[256];
-    QGraphicsScene*     m_pGraphicsScene;
+    std::string m_currentCommand;
+	INT32	            m_nWaitCmdCount = 0;
+	BOOL	            m_bCmdResult = TRUE;
+    std::filesystem::path m_versionPath, m_patchPath;
+    QGraphicsScene*     m_pGraphicsScene = nullptr; // QObject child.
+    bool m_active = false, m_polling = false, m_refreshing = false, m_rendering = false;
+    int m_timer = 0;
+    void DrainLog(std::uint64_t generation);
 
-	static MaintainTool MaintainTool::ms_Instance;
+	static MaintainTool* ms_Instance;
 
 private:
-	BOOL _ReloadAreaConfig();
-
-	BOOL _RefreshAreaInfo();
+    BOOL _RefreshAreaInfo(bool reloadSessions = false);
 	BOOL _RefreshServerVersion();
 	BOOL _RefreshServerPatch();
 
 	BOOL _CheckGuardStateByIp(INT32 nAreaID, UINT32 dwIp);
+    void SendFiles(INT32 type);
+    BOOL WriteSnapshot(bool summary);
 	QTreeWidgetItem* _GetGuardWidget(INT32 nAreaID, UINT32 dwIp);
 	QTreeWidgetItem* _GetAreaWidget(INT32 nAreaID);
 	BOOL _HasUpdatedWholeArea(INT32 nAreaID, UINT32 dwIp, const char* pcszVersion);
-    void _UpdateMonitor(QGraphicsScene* pGraphicsScene, stProcessStatisInfo* poInfo, INT32 nProcessIndex, INT32 nStatisIndex);
+    void _UpdateMonitor(QGraphicsScene* scene, const maintain::History& history);
+    BOOL RenderStatistics(INT32 area, UINT32 ip, UINT32 pid);
 
 public slots:
 	void Login(void);

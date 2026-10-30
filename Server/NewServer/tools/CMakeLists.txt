@@ -237,12 +237,15 @@ if(CQYH_BUILD_QT_TOOLS)
         DEFINITIONS GMTOOL QT_DLL
         LIBS ${_qt_libs} baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs)
 
-    cqyh_add_tool(maintaintool OUTPUT maintaintool64 GUI ${_qt_exclude} PCH_DIR ${_tools_dir}/maintaintool/src
+    cqyh_add_tool(maintaintool OUTPUT maintaintool64 GUI STRICT ${_qt_exclude} PCH_DIR ${_tools_dir}/maintaintool/src
         SOURCES
             maintaintool/src/main.cpp
             maintaintool/src/maintaintool.cpp
+            maintaintool/src/maintain_files.cpp
+            maintaintool/src/maintain_stats.cpp
             maintaintool/src/message_handler.cpp
             maintaintool/src/session_mgr.cpp
+            maintaintool/src/session_ui.cpp
             maintaintool/src/stdafx.cpp
             maintaintool/src/transmit_file_mgr.cpp
         INCLUDES ${_tools_dir}/maintaintool/src

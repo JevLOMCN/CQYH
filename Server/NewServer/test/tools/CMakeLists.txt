@@ -260,6 +260,30 @@ add_test(NAME tool_account_logout COMMAND "${CMAKE_COMMAND}"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/test_account_logout.cmake")
 set_tests_properties(tool_account_logout PROPERTIES TIMEOUT 60)
 
+add_executable(test_tool_maintain_sessions test_maintain_sessions.cpp ../../tools/maintaintool/src/session_mgr.cpp)
+cqyh_target_defaults(test_tool_maintain_sessions)
+target_include_directories(test_tool_maintain_sessions PRIVATE ../../tools/maintaintool/src ../../inc ../../inc/baselib ../../inc/net
+    "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/fusion/inc")
+target_compile_definitions(test_tool_maintain_sessions PRIVATE NOMINMAX)
+target_link_libraries(test_tool_maintain_sessions PRIVATE baselib cqyh::syslibs)
+cqyh_copy_runtime_dlls(test_tool_maintain_sessions)
+add_test(NAME tool_maintain_sessions COMMAND test_tool_maintain_sessions "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/maintain sessions")
+set_tests_properties(tool_maintain_sessions PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_maintain_files test_maintain_files.cpp ../../tools/maintaintool/src/maintain_files.cpp)
+cqyh_target_defaults(test_tool_maintain_files)
+target_include_directories(test_tool_maintain_files PRIVATE ../../tools/maintaintool/src)
+add_test(NAME tool_maintain_files COMMAND test_tool_maintain_files "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/maintain files")
+set_tests_properties(tool_maintain_files PROPERTIES TIMEOUT 30)
+
+add_executable(test_tool_maintain_stats test_maintain_stats.cpp ../../tools/maintaintool/src/maintain_stats.cpp)
+cqyh_target_defaults(test_tool_maintain_stats)
+target_include_directories(test_tool_maintain_stats PRIVATE ../../tools/maintaintool/src ../../inc/baselib
+    "${CQYH_SERVER_DIR}/Common/define")
+target_compile_definitions(test_tool_maintain_stats PRIVATE NOMINMAX)
+add_test(NAME tool_maintain_stats COMMAND test_tool_maintain_stats)
+set_tests_properties(tool_maintain_stats PROPERTIES TIMEOUT 30)
+
 add_executable(test_tool_gm_file_transform test_gm_file_transform.cpp
     ../../tools/gmtool-encrypt/Encrypt/encrypt/base.cpp)
 cqyh_target_defaults(test_tool_gm_file_transform STRICT)
@@ -270,6 +294,33 @@ set_tests_properties(tool_gm_file_transform PROPERTIES TIMEOUT 30)
 if(CQYH_BUILD_QT_TOOLS)
     find_package(Qt5 COMPONENTS Core Gui Widgets QUIET)
     if(Qt5_FOUND)
+        add_executable(test_tool_maintain_model test_maintain_model.cpp test_maintain_url_handler.h
+            ../../tools/maintaintool/src/maintain_files.cpp
+            ../../tools/maintaintool/src/maintain_stats.cpp
+            ../../tools/maintaintool/src/maintaintool.cpp ../../tools/maintaintool/src/message_handler.cpp
+            ../../tools/maintaintool/src/session_mgr.cpp ../../tools/maintaintool/src/session_ui.cpp
+            ../../tools/maintaintool/src/transmit_file_mgr.cpp)
+        cqyh_target_defaults(test_tool_maintain_model)
+        set_target_properties(test_tool_maintain_model PROPERTIES AUTOMOC ON AUTOUIC ON)
+        target_include_directories(test_tool_maintain_model PRIVATE ../../tools/maintaintool/src ../../inc ../../inc/baselib ../../inc/net
+            "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/message" "${CQYH_SERVER_DIR}/Common/fusion/inc")
+        target_compile_definitions(test_tool_maintain_model PRIVATE NOMINMAX)
+        target_link_libraries(test_tool_maintain_model PRIVATE Qt5::Core Qt5::Gui Qt5::Widgets baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs)
+        cqyh_copy_runtime_dlls(test_tool_maintain_model)
+        get_target_property(_maintain_qt_core Qt5::Core IMPORTED_LOCATION_RELEASE)
+        get_filename_component(_maintain_qt_bin "${_maintain_qt_core}" DIRECTORY)
+        add_test(NAME tool_maintain_model COMMAND test_tool_maintain_model "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/maintain model")
+        set_tests_properties(tool_maintain_model PROPERTIES TIMEOUT 60
+            ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QPA_PLATFORM_PLUGIN_PATH=${_maintain_qt_bin}/../plugins/platforms")
+        add_executable(test_tool_maintain_runtime test_maintain_runtime.cpp)
+        cqyh_target_defaults(test_tool_maintain_runtime)
+        target_include_directories(test_tool_maintain_runtime PRIVATE ../../tools/maintaintool/src ../../inc ../../inc/baselib ../../inc/net
+            ../../3rd/lua/include "${CQYH_SERVER_DIR}/Common/define" "${CQYH_SERVER_DIR}/Common/message" "${CQYH_SERVER_DIR}/Common/fusion/inc")
+        target_compile_definitions(test_tool_maintain_runtime PRIVATE NOMINMAX)
+        target_link_libraries(test_tool_maintain_runtime PRIVATE Qt5::Core Qt5::Gui Qt5::Widgets cqyh::syslibs)
+        cqyh_copy_runtime_dlls(test_tool_maintain_runtime)
+        add_test(NAME tool_maintain_runtime COMMAND test_tool_maintain_runtime)
+        set_tests_properties(tool_maintain_runtime PROPERTIES TIMEOUT 30)
     endif()
 endif()
 

@@ -1,206 +1,251 @@
-#include "stdafx.h"
+#include <winsock2.h>
+#include "std_type.h"
+#include "process_error.h"
 #include "session_mgr.h"
-
-//#include "sdtime.h"
 #include "net.h"
+#include "mt_config.h"
+#include "maintain_files.h"
 
-#include "message_handler.h"
-#include "maintaintool.h"
+#include <algorithm>
+#include <bit>
+#include <charconv>
+#include <chrono>
+#include <limits>
+#include <optional>
+#include <span>
+#include <string_view>
+#include <utility>
+
+namespace
+{
+constexpr auto never = (std::numeric_limits<UINT64>::max)();
+struct Flag
+{
+    bool& value;
+    explicit Flag(bool& flag) : value(flag) { value = true; }
+    ~Flag() { value = false; }
+};
+std::optional<UINT32> address(std::span<const char> field)
+{
+    const auto end = std::ranges::find(field, '\0');
+    if (end == field.end()) return {};
+    return maintain::parse_address({field.data(), static_cast<std::size_t>(end - field.begin())});
+}
+bool validTiming(const MAINTAIN_CONFIG& config = g_MTConfig)
+{
+    return config.nPingTimeout >= 0 && config.nReconnectTime >= 0 && config.nServerPingInterval >= 0;
+}
+bool closeSocket(ISocketSession* socket)
+{
+    try { return socket->Close() != FALSE; }
+    catch (const std::exception& error) { ERR("maintain socket close failed: %s", error.what()); }
+    catch (...) { ERR("maintain socket close threw an exception"); }
+    return false;
+}
+}
 
 CSessionMgr CSessionMgr::ms_Instance;
-CSessionMgr::CSessionMgr()
+CSessionMgr::CSessionMgr() : CSessionMgr(maintain::make_session_hooks()) {}
+CSessionMgr::CSessionMgr(maintain::SessionHooks hooks, Clock clock)
+    : m_hooks(std::move(hooks)), m_clock(std::move(clock)) {}
+CSessionMgr::~CSessionMgr() { UnInit(); }
+CSessionMgr& CSessionMgr::GetInstance() { return ms_Instance; }
+UINT64 CSessionMgr::SteadyTick()
 {
-    m_pNet = NULL;
+    return static_cast<UINT64>(std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count());
 }
-
-CSessionMgr::~CSessionMgr()
+UINT64 CSessionMgr::Now() { return m_clock(); }
+UINT64 CSessionMgr::Deadline(INT32 milliseconds)
 {
-    UnInit();
+    const auto now = Now();
+    const auto duration = static_cast<UINT64>((std::max)(milliseconds, 0));
+    return duration > never - now ? never : now + duration;
 }
-
-BOOL CSessionMgr::Init(INet* pNet)
+BOOL CSessionMgr::Init(INet* net)
 {
-    LOG_PROCESS_ERROR(pNet);
-    m_dwLastPingTick = 0;
-
-    m_pNet = pNet;
-
-	return Reload();
-Exit0:
+    if (!net || m_pNet || m_reloading || m_closing || m_polling || !m_clock ||
+        !m_hooks.expanded || !m_hooks.changed || !m_hooks.ping) return FALSE;
+    m_pNet = net;
+    m_stopping = false;
+    if (Reload()) return TRUE;
+    m_pNet = nullptr;
+    m_stopping = true;
+    return FALSE;
+}
+BOOL CSessionMgr::Reload()
+{
+    return Reload(g_MTConfig);
+}
+BOOL CSessionMgr::Reload(const MAINTAIN_CONFIG& candidate)
+try
+{
+    if (!m_pNet || m_stopping || m_reloading || m_closing || !validTiming(candidate)) return FALSE;
+    const Flag reloading{m_reloading};
+    auto next = std::make_unique<Slots>();
+    for (std::size_t area = 1; area < next->size(); ++area)
+    {
+        const auto& configuration = candidate.AreaConfig[area];
+        if (!configuration.nAreaID) continue;
+        if (configuration.nAreaID != static_cast<INT32>(area)) return FALSE;
+        for (std::size_t guard = 1; guard < (*next)[area].size(); ++guard)
+        {
+            const auto& configured = configuration.guardList[guard];
+            if (!configured.szAddress[0]) continue;
+            const auto ip = address(configured.szAddress);
+            if (!ip || configured.nPort <= 0 || configured.nPort > 65535) return FALSE;
+            for (std::size_t previous = 1; previous < guard; ++previous)
+                if ((*next)[area][previous].dwIp == *ip) return FALSE;
+            auto& session = (*next)[area][guard];
+            session.dwArea = static_cast<UINT32>(area);
+            session.dwIp = *ip;
+            session.wPort = static_cast<UINT16>(configured.nPort);
+            session.poStatisInfo = std::make_unique<stProcessStatisInfo>();
+        }
+    }
+    auto* const net = m_pNet;
+    const auto generation = m_generation;
+    // Keep live state untouched until every endpoint and allocation is valid.
+    if (!CloseAll(false) || m_pNet != net || m_stopping || m_generation != generation) return FALSE;
+    if (m_sessions) *m_sessions = std::move(*next); // Stable record addresses across reloads.
+    else m_sessions = std::move(next);
+    m_lastPing = 0;
+    ++m_generation;
+    return TRUE;
+}
+catch (const std::exception& error)
+{
+    ERR("cannot reload maintain sessions: %s", error.what());
     return FALSE;
 }
 
-BOOL CSessionMgr::Reload()
+void CSessionMgr::Reset()
 {
-	CloseAllSession();
-
-	memset(&m_RemoteGDSession, 0, sizeof(m_RemoteGDSession));
-	for (INT32 i = 1; i < MAX_AREA_COUNT; ++i)
-	{
-		if (g_MTConfig.AreaConfig[i].areaID > 0)
-		{
-			LOG_PROCESS_ERROR(g_MTConfig.AreaConfig[i].areaID == i);
-			for (INT32 j = 1; j < MAX_GUARD_COUNT_PER_AREA; ++j)
-			{
-				if (g_MTConfig.AreaConfig[i].guardList[j].szAddress[0] == 0)
-				{
-					break;
-				}
-				else
-				{
-					UINT32 dwTargetIP = inet_addr(g_MTConfig.AreaConfig[i].guardList[j].szAddress);
-					LOG_PROCESS_ERROR(dwTargetIP != 0);
-
-					m_RemoteGDSession[i][j].dwIp = dwTargetIP;
-
-					m_RemoteGDSession[i][j].wPort = g_MTConfig.AreaConfig[i].guardList[j].nPort;
-					m_RemoteGDSession[i][j].dwArea = g_MTConfig.AreaConfig[i].areaID;
-
-					m_RemoteGDSession[i][j].pSocketSession = NULL;
-					m_RemoteGDSession[i][j].dwTimer = 0;
-
-					LOG_PROCESS_ERROR(m_RemoteGDSession[i][j].poStatisInfo == NULL);
-					m_RemoteGDSession[i][j].poStatisInfo = new stProcessStatisInfo;
-					LOG_PROCESS_ERROR(m_RemoteGDSession[i][j].poStatisInfo);
-					memset(m_RemoteGDSession[i][j].poStatisInfo, 0, sizeof(stProcessStatisInfo));
-
-					memset(m_RemoteGDSession[i][j].lstProcess, 0, sizeof(m_RemoteGDSession[i][j].lstProcess));
-				}
-			}
-		}
-	}
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    if (m_sessions)
+        for (auto& area : *m_sessions) for (auto& session : area) session = SRemoteGuardSession{};
+    m_lastPing = 0;
+    m_deferredClear = false;
 }
-
-BOOL CSessionMgr::UnInit(void)
+BOOL CSessionMgr::UnInit()
 {
-    INT32 nRetCode = 0;
-
-    return TRUE;
+    m_stopping = true;
+    m_pNet = nullptr;
+    ++m_generation;
+    if (m_closing) { m_deferredClear = true; return TRUE; }
+    const bool success = CloseAll(false);
+    Reset();
+    return success;
 }
-
-CSessionMgr& CSessionMgr::GetInstance(void)
+SRemoteGuardSession* CSessionMgr::GetRemoteGDSession(INT32 area, UINT32 ip)
 {
-    return ms_Instance;
+    if (!m_pNet || !m_sessions || area <= 0 || area >= MAX_AREA_COUNT || !ip) return nullptr;
+    auto& row = (*m_sessions)[area];
+    const auto entries = std::span(row).subspan(1);
+    const auto found = std::ranges::find(entries, ip, &SRemoteGuardSession::dwIp);
+    return found == entries.end() ? nullptr : &*found;
 }
-
-SRemoteGuardSession* CSessionMgr::GetRemoteGDSession(INT32 nAreaID, UINT32 dwIp)
+bool CSessionMgr::Close(SRemoteGuardSession& session, bool notify)
 {
-	LOG_PROCESS_ERROR( nAreaID > 0 && nAreaID < MAX_AREA_COUNT );
-
-	if(g_MTConfig.AreaConfig[nAreaID].areaID > 0)
-	{
-		for(INT32 j = 1; j < MAX_GUARD_COUNT_PER_AREA; ++j)
-		{
-			if(m_RemoteGDSession[nAreaID][j].dwIp == dwIp)
-				return &m_RemoteGDSession[nAreaID][j];
-		}
-	}
-
-Exit0:
-	return NULL;
+    auto* const socket = std::exchange(session.pSocketSession, nullptr);
+    session.bConnected = FALSE;
+    session.closing = false;
+    session.dwTimer = never;
+    session.lstProcess.clear(); // Closes owned hibernation streams.
+    if (!socket) return true;
+    socket->SetUserData(nullptr);
+    bool success = closeSocket(socket);
+    if (notify && m_pNet && !m_stopping && !m_reloading)
+        success = m_hooks.changed(session, emctUnConnect) && success;
+    return success;
 }
-
-BOOL CSessionMgr::MainLoop(void)
+bool CSessionMgr::CloseAll(bool notify)
 {
-	UINT32 dwCurrentTick = GetTickCount();
-
-    if (dwCurrentTick > m_dwLastPingTick + g_MTConfig.nServerPingInterval)
-    {
-		//CMessageHandler::GetInstance().DoAllPing();
-		DoAllPing();
-
-        m_dwLastPingTick = dwCurrentTick;
-    }
-
-	for(INT32 nAreaID = 1; nAreaID < MAX_AREA_COUNT; ++nAreaID)
-	{
-		for(INT32 nGuardIndex = 1; nGuardIndex < MAX_GUARD_COUNT_PER_AREA; ++nGuardIndex)
-		{
-			SRemoteGuardSession& rSession = m_RemoteGDSession[nAreaID][nGuardIndex];
-			if (rSession.pSocketSession && rSession.bConnected && rSession.dwTimer < dwCurrentTick)
-			{
-				struct in_addr addr;
-				addr.s_addr = rSession.dwIp;
-				CRI("remote guard (%s) ping time out", inet_ntoa(addr));
-				
-				rSession.pSocketSession->Close();
-				rSession.dwTimer = 0xFFFFFFFF;
-			}
-			else if(rSession.dwIp > 0 && rSession.dwTimer < dwCurrentTick && rSession.pSocketSession == NULL)
-			{
-                if ( MaintainTool::GetInstance().CheckAreaExpanded( nAreaID ))
-                {
-                    struct in_addr addr;
-                    addr.s_addr = rSession.dwIp;
-                    CRI("try to connect guard (%s)", inet_ntoa(addr));
-
-                    rSession.pSocketSession = m_pNet->Connect(rSession.dwIp, rSession.wPort);
-                    LOG_PROCESS_ERROR(rSession.pSocketSession);
-
-                    rSession.pSocketSession->SetUserData((VOID*)&rSession);
-                    rSession.dwTimer = GetTickCount() + g_MTConfig.nPingTimeout;
-
-                    MaintainTool::GetInstance().UpdateGuardConnectInfo(&rSession, emctConnecting, NULL);
-                }
-			}
-		}
-		
-	}
-
-Exit0:
-    return TRUE;
+    if (m_closing) return true;
+    const Flag closing{m_closing};
+    bool success = true;
+    if (m_sessions)
+        for (auto& area : *m_sessions) for (auto& session : area)
+        {
+            try { success = Close(session, notify) && success; }
+            catch (const std::exception& error) { ERR("cannot close maintain session: %s", error.what()); success = false; }
+            catch (...) { ERR("maintain session close threw an exception"); success = false; }
+        }
+    if (m_deferredClear) Reset();
+    return success;
 }
-
 BOOL CSessionMgr::CloseAllSession()
 {
-	INT32 nRetCode = 0;
-
-	CRI("close all guard session");
-	for(INT32 i = 1; i < MAX_AREA_COUNT; ++i)
-	{
-		for(INT32 j = 1; j < MAX_GUARD_COUNT_PER_AREA; ++j)
-		{
-			SRemoteGuardSession& rSession = m_RemoteGDSession[i][j];
-			if (rSession.pSocketSession)
-			{
-				struct in_addr addr;
-				addr.s_addr = rSession.dwIp;
-				CRI("close guard (%s) session", inet_ntoa(addr));
-
-				rSession.pSocketSession->Close();
-				rSession.dwTimer = 0xFFFFFFFF;
-			}
-		}
-	}
-	
-	return TRUE;
-Exit0:
-	return FALSE;
+    ++m_generation;
+    return CloseAll(true);
 }
-
 BOOL CSessionMgr::DoAllPing()
+try
 {
-	INT32 nRetCode = 0;
-	PACKET_BUFFER* pMsg = NULL;
-	CSessionMgr &rSessionMgr = CSessionMgr::GetInstance();
-
-	for (INT32 i = 1; i < MAX_AREA_COUNT; ++i)
-	{
-		for (INT32 j = 1; j < MAX_GUARD_COUNT_PER_AREA; ++j)
-		{
-			SRemoteGuardSession* pRemoteGuardSession = &m_RemoteGDSession[i][j];
-			if (pRemoteGuardSession && pRemoteGuardSession->pSocketSession && pRemoteGuardSession->bConnected)
-			{
-				nRetCode = CMTMessageHandler::GetInstance().DoPing(pRemoteGuardSession);
-				LOG_CHECK_ERROR(nRetCode);
-			}
-		}
-	}
-
-	return TRUE;
+    if (!m_pNet || m_stopping || !m_sessions) return FALSE;
+    bool success = true;
+    const auto generation = m_generation;
+    for (auto& area : *m_sessions) for (auto& session : area)
+    {
+        if (session.pSocketSession && session.bConnected && !session.closing)
+            success = m_hooks.ping(session) && success;
+        if (generation != m_generation || !m_pNet || m_stopping) return success;
+    }
+    return success;
 }
+catch (const std::exception& error) { ERR("maintain ping failed: %s", error.what()); return FALSE; }
+catch (...) { ERR("maintain ping threw an exception"); return FALSE; }
+BOOL CSessionMgr::MainLoop()
+try
+{
+    if (!m_pNet || m_stopping || !m_sessions || !validTiming()) return FALSE;
+    if (m_polling || m_reloading || m_closing) return TRUE;
+    const Flag polling{m_polling};
+    const auto now = Now();
+    const auto generation = m_generation;
+    bool success = true;
+    if (now < m_lastPing || now - m_lastPing > static_cast<UINT64>(g_MTConfig.nServerPingInterval))
+    {
+        success = DoAllPing() != FALSE;
+        if (generation != m_generation || !m_pNet || m_stopping) return success;
+        m_lastPing = now;
+    }
+    for (auto& area : *m_sessions) for (auto& session : area)
+    {
+        if (session.pSocketSession && session.dwTimer < now)
+        {
+            success = Close(session, true) && success;
+            if (generation != m_generation || !m_pNet || m_stopping) return success;
+            session.dwTimer = Deadline(g_MTConfig.nReconnectTime);
+        }
+        else if (session.dwIp && !session.pSocketSession && session.dwTimer < now &&
+            m_hooks.expanded(static_cast<INT32>(session.dwArea)))
+        {
+            if (generation != m_generation || !m_pNet || m_stopping) return success;
+            auto* const net = m_pNet;
+            session.dwTimer = Deadline(g_MTConfig.nReconnectTime);
+            auto* const socket = net->Connect(session.dwIp, session.wPort);
+            if (generation != m_generation || m_pNet != net || m_stopping)
+            {
+                if (socket) { socket->SetUserData(nullptr); closeSocket(socket); }
+                return success;
+            }
+            session.dwTimer = Deadline(socket ? g_MTConfig.nPingTimeout : g_MTConfig.nReconnectTime);
+            if (!socket) { success = false; continue; }
+            session.pSocketSession = socket;
+            session.bConnected = FALSE;
+            session.closing = false;
+            socket->SetUserData(&session);
+            success = m_hooks.changed(session, emctConnecting) && success;
+            if (generation != m_generation || !m_pNet || m_stopping) return success;
+        }
+        if (generation != m_generation || !m_pNet || m_stopping) return success;
+    }
+    return success;
+}
+catch (const std::exception& error)
+{
+    ERR("maintain session poll failed: %s", error.what());
+    return FALSE;
+}
+catch (...) { ERR("maintain session poll threw an exception"); return FALSE; }
 

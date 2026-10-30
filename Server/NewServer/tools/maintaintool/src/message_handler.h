@@ -1,5 +1,6 @@
 #ifndef _MESSAGE_HANDLER_H_
 #define _MESSAGE_HANDLER_H_
+#include <array>
 
 #include "net.h"
 #include "internal_message_header.h"
@@ -22,6 +23,7 @@ public:
 
     BOOL Init(INet* pNet, IPacketAllocator* pPacketAllocator);
     BOOL UnInit(void);
+    void BeginShutdown() noexcept { m_receiving = false; }
     static CMTMessageHandler& GetInstance(void);    
 
 public:
@@ -55,18 +57,13 @@ private:
 	void OnGDError(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession);
 
 private:
-    //BOOL _SendRemoteGD(UINT32 dwIp, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset = 0);
-	BOOL _SendRemoteGD(SRemoteGuardSession* pRemoteGDSession, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset = 0);
-
-    BOOL _BroadcastRemoteGD(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, INT32 nOffset = 0);
-
-private:
     INet*                               m_pNet;
     IPacketAllocator*                   m_pPacketAllocator;
     static CMTMessageHandler				ms_Instance;
 
     typedef void (CMTMessageHandler::*GUARD_REMOTE_MESSAGE_FUNC)(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession);
-	GUARD_REMOTE_MESSAGE_FUNC           m_RemoteGuardMessageFuncList[InternalMessage::m2a_end];
+    std::array<GUARD_REMOTE_MESSAGE_FUNC, InternalMessage::m2a_end> m_RemoteGuardMessageFuncList{};
+    bool m_receiving = false;
 };
 
 #endif  // _MESSAGE_HANDLER_H_
