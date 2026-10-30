@@ -444,6 +444,9 @@ A newly configured directory rebuilds its own object files and dependencies.
 
 Tool executables, copied runtime DLLs, linker symbols and import outputs go under
 `Server/build/NewServer/tools/<tool>/<configuration>/` with the default build directory.
+Qt tool builds also copy the matching SDK's Windows platform plugin into
+`platforms/` beside the executable. Keep Qt DLLs and plugins from the same SDK
+and configuration; the archived Qt 5.3 plugins cannot load with Qt 5.15 binaries.
 For example:
 
 ```text

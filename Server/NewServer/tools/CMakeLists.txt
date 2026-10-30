@@ -258,4 +258,16 @@ if(CQYH_BUILD_QT_TOOLS)
             maintaintool/src/transmit_file_mgr.cpp
         INCLUDES ${_tools_dir}/maintaintool/src
         LIBS ${_qt_libs} baselib cqyh::net cqyh::lua cqyh::zlib fusion cqyh::syslibs)
+
+    # Qt loads platform plugins dynamically, so TARGET_RUNTIME_DLLS cannot find them.
+    if(WIN32 AND Qt5_FOUND)
+        foreach(_qt_tool IN ITEMS gmtool maintaintool)
+            add_custom_command(TARGET ${_qt_tool} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${_qt_tool}>/platforms"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>"
+                    "$<TARGET_FILE_DIR:${_qt_tool}>/platforms/"
+                VERBATIM)
+        endforeach()
+    endif()
 endif()
