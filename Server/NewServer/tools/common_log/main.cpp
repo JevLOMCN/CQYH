@@ -1,12 +1,26 @@
 #include "stdafx.h"
-#include "common_log.h"
 #include "anticheat_log.h"
 
-int main(int argc, char** argv)
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+
+int main(int argc, char* argv[])
 {
-	log_context* ctx = anticheat_init();
-
-	bool ret = load_file("d:\\log\\anticheat111.txt", ctx);
-
-	return 0;
+    if (argc > 2)
+    {
+        std::cerr << "Usage: common_log [anticheat-log]\n";
+        return EXIT_FAILURE;
+    }
+    try
+    {
+        if (load_file(argc == 2 ? argv[1] : "d:\\log\\anticheat111.txt", anticheat_init()))
+            return EXIT_SUCCESS;
+        std::cerr << "common_log: cannot read or process the log\n";
+    }
+    catch (const std::exception& error)
+    {
+        std::cerr << "common_log: " << error.what() << '\n';
+    }
+    return EXIT_FAILURE;
 }

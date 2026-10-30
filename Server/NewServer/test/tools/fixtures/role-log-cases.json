@@ -1,0 +1,711 @@
+[
+  {
+    "name": "balanced",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t10\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t130\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "mismatch",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t10\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t140\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 1,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=100, logout_money=140, check_money=130, diff_money=30 ***"
+    ]
+  },
+  {
+    "name": "subtract",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t10\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t70\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "non-gold",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t2\t200\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "at-start",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:00\t0\t0\t1\t1\tAdd\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t120\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 1,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "at-end",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:20\t0\t0\t1\t1\tAdd\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t120\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 1,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "advance-boundary",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:20\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t10\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t110\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t120\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 3
+    },
+    "details": []
+  },
+  {
+    "name": "after-end",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t100\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "before-first",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:01\t0\t0\t1\t1\tAdd\t1\t100\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t10\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:10\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t110\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "several-intervals",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t110\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t130\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 3
+    },
+    "details": []
+  },
+  {
+    "name": "one-snapshot",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t10\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 1
+    },
+    "details": []
+  },
+  {
+    "name": "two-days",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t10\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t100\n"
+    },
+    "second": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-02 00:00:10\t0\t0\t1\t1\tAdd\t1\t20\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-02 00:00:15\t0\t0\t1\t1\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-02 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t130\n"
+    },
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 2
+    },
+    "details": []
+  },
+  {
+    "name": "generated-0",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t35\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t0\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t21\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t9\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t46\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t23\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t36\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t21\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t36\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t45\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t31\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t10\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t16\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t5\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t9\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t2\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t1\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t2\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t18\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t10\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t10\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1025\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1016\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1016\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1007\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t985\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t995\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t970\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1021\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1029\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t997\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1046\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t988\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-1",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t2\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t37\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t32\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t1\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t47\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t4\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t44\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t33\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t28\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t44\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t21\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t8\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t5\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t12\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t5\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t19\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t12\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t15\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t19\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1006\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1044\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t963\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1047\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t998\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1017\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1096\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t984\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1033\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1125\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t944\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-2",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t31\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t44\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t38\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t38\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t49\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t43\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t46\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t39\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t22\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t9\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t3\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t11\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t3\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t18\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t16\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t12\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t13\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t17\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t14\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t14\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t6\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t972\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1033\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t959\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t916\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1034\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1024\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t947\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1036\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t995\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1072\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t992\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-3",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t16\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t14\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t3\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t48\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t22\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t6\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t29\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t47\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t38\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t7\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t6\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t17\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t8\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t14\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t10\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t4\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t11\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t12\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t9\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t977\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t980\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1019\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t999\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1039\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1039\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t980\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t988\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t990\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t987\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t972\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-4",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t25\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t16\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t9\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t2\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t12\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t13\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t4\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t24\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t48\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t9\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t3\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t16\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t15\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t11\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t6\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t14\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t10\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t15\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t13\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t11\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t11\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1028\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t999\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1030\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1013\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t973\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1007\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1020\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t962\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1044\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t983\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t965\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 1,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=962, logout_money=965, check_money=964, diff_money=2 ***"
+    ]
+  },
+  {
+    "name": "generated-5",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t41\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t35\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t8\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t13\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t26\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t39\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t0\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t31\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t18\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t36\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t17\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t13\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t10\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t7\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t9\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t3\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t17\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t19\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t5\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t14\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t15\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1054\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t975\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1020\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1048\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t940\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1056\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1065\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t890\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1074\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1069\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t922\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1071\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 3,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=890, logout_money=922, check_money=921, diff_money=31 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1056, logout_money=1074, check_money=1073, diff_money=17 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=1074, logout_money=1071, check_money=1072, diff_money=-2 ***"
+    ]
+  },
+  {
+    "name": "generated-6",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t21\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t8\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t29\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t36\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t16\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t30\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t32\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t0\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t46\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t36\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t10\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t6\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t15\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t7\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t9\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t19\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t13\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t4\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t10\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t0\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t1\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1015\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t993\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1005\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t995\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1031\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1041\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1012\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t996\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1030\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t977\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1031\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1019\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 5,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=1012, logout_money=977, check_money=976, diff_money=-36 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1031, logout_money=996, check_money=995, diff_money=-36 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=996, logout_money=1031, check_money=1032, diff_money=36 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1005, logout_money=1041, check_money=1040, diff_money=35 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1041, logout_money=1030, check_money=1031, diff_money=-10 ***"
+    ]
+  },
+  {
+    "name": "generated-7",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t25\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t14\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t16\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t36\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t44\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t26\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t49\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t32\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t4\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t16\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t10\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t19\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t4\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t2\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t14\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t5\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t8\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t9\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t17\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t0\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t17\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t965\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t967\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t979\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t990\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t969\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t946\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1032\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t984\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t930\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1028\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t951\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 6,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=979, logout_money=946, check_money=945, diff_money=-34 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=946, logout_money=930, check_money=931, diff_money=-15 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=967, logout_money=990, check_money=989, diff_money=22 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=990, logout_money=1032, check_money=1033, diff_money=43 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=1009, check_money=1008, diff_money=8 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1009, logout_money=969, check_money=970, diff_money=-39 ***"
+    ]
+  },
+  {
+    "name": "generated-8",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t49\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t48\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t40\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t6\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t1\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t42\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t20\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t32\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t11\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t16\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t13\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t16\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t12\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t17\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t1\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t19\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t8\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t13\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t964\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t969\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t948\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t961\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t952\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t991\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t992\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t901\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t997\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t991\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t922\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t968\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 4,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=964, logout_money=961, check_money=960, diff_money=-4 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=961, logout_money=992, check_money=993, diff_money=32 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=969, check_money=968, diff_money=-32 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=969, logout_money=952, check_money=953, diff_money=-16 ***"
+    ]
+  },
+  {
+    "name": "generated-9",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t34\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t23\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t15\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t41\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t35\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t35\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t40\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t36\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t46\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t45\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t4\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t14\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t8\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t6\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t5\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t0\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t0\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t3\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t10\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t12\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t981\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1015\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t987\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1027\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1052\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t952\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1025\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1012\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t988\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1068\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1047\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t996\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 2,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=981, check_money=980, diff_money=-20 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=981, logout_money=1027, check_money=1028, diff_money=47 ***"
+    ]
+  },
+  {
+    "name": "generated-10",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t28\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t46\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t10\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t36\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t42\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t42\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t30\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t22\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t39\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t1\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t14\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t13\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t4\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t18\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t16\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t12\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t0\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t18\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1014\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t989\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t967\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1006\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t948\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t983\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1030\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t974\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1019\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t996\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1013\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1002\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-11",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t34\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t8\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t49\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t0\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t17\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t32\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t40\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t16\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t31\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t15\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t22\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t11\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t18\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t16\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t12\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t16\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t8\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t6\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t13\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t4\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t18\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t8\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t9\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1045\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t974\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1028\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t990\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1019\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t982\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t937\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1007\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1031\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t930\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t994\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-12",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t5\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t9\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t47\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t28\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t45\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t8\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t30\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t23\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t32\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t11\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t9\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t5\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t5\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t15\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t19\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t11\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t12\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t13\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t10\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t986\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1014\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t958\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1024\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1006\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t983\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t990\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t986\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1019\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t954\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t969\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t998\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-13",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t36\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t27\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t17\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t32\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t29\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t39\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t3\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t29\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t42\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t45\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t25\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t3\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t3\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t9\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t0\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t0\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t5\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t6\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t16\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t6\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1029\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t986\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t986\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1063\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t966\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t947\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1060\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t939\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t910\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1021\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t898\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t913\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-14",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t4\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t34\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t8\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t2\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t33\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t19\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t17\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t30\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t21\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t24\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t19\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t4\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t11\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t19\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t14\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t19\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t4\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t7\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t14\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t11\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t977\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1030\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1012\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t980\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1042\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1028\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t966\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1027\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1052\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t922\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1042\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1087\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-15",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t36\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t26\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t33\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t19\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t23\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t43\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t33\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t0\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t43\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t12\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t14\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t9\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t7\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t14\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t17\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t8\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t14\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t976\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1027\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1026\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1018\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1033\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1007\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1002\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1038\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t978\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1018\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1046\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 1,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=978, logout_money=1008, check_money=1007, diff_money=29 ***"
+    ]
+  },
+  {
+    "name": "generated-16",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t36\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t45\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t10\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t12\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t26\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t30\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t48\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t38\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t29\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t49\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t24\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t24\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t1\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t8\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t4\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t7\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t0\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t14\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t3\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t3\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t3\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t18\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1035\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t947\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1016\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1051\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t988\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1039\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1099\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t964\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1072\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1145\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t938\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1077\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 3,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=964, logout_money=938, check_money=937, diff_money=-27 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1039, logout_money=1072, check_money=1071, diff_money=32 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=1072, logout_money=1077, check_money=1078, diff_money=6 ***"
+    ]
+  },
+  {
+    "name": "generated-17",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t48\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t49\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t31\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t9\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t42\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t47\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t5\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t21\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t42\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t34\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t17\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t34\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t0\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t8\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t18\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t16\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t2\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t2\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t4\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t11\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1048\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t943\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t987\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1041\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t916\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t953\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1034\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t894\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1005\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t871\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1045\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 5,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=1034, logout_money=1005, check_money=1004, diff_money=-30 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=916, logout_money=894, check_money=893, diff_money=-23 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=894, logout_money=871, check_money=872, diff_money=-22 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=987, logout_money=953, check_money=952, diff_money=-35 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=953, logout_money=1000, check_money=1001, diff_money=48 ***"
+    ]
+  },
+  {
+    "name": "generated-18",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t1\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t1\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t14\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t10\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t21\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t42\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t16\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t19\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t41\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t45\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t1\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t6\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t2\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t9\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t3\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t17\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t1\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t16\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t10\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1007\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1013\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1001\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t994\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1027\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t979\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1061\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1051\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t924\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 6,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1001, logout_money=1027, check_money=1026, diff_money=25 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=1027, logout_money=1061, check_money=1062, diff_money=35 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1007, logout_money=1008, check_money=1007, diff_money=0 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1008, logout_money=1008, check_money=1009, diff_money=1 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=1013, check_money=1012, diff_money=12 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1013, logout_money=994, check_money=995, diff_money=-18 ***"
+    ]
+  },
+  {
+    "name": "generated-19",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t31\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t11\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t17\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t0\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t46\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t43\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t19\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t30\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t40\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t21\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t0\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t7\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t2\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t1\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t2\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t1\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t4\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t14\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t2\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t11\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t13\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t12\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t5\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t11\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t967\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1011\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t985\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t969\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t968\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t928\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t947\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t927\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t955\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t914\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t932\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t937\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 4,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=967, logout_money=969, check_money=968, diff_money=1 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=969, logout_money=947, check_money=948, diff_money=-21 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=1011, check_money=1010, diff_money=10 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1011, logout_money=968, check_money=969, diff_money=-42 ***"
+    ]
+  },
+  {
+    "name": "generated-20",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t5\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t24\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t44\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t40\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t4\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t38\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t23\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t38\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t47\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t37\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t43\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t7\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t18\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t16\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t5\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t18\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t3\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t1\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t9\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t14\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t14\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t2\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t11\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t998\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t994\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t972\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t952\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t980\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t931\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t976\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t964\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t999\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1054\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t968\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 2,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=998, check_money=997, diff_money=-3 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=998, logout_money=952, check_money=953, diff_money=-45 ***"
+    ]
+  },
+  {
+    "name": "generated-21",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t20\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t0\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t47\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t5\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t37\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t0\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t16\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t26\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t49\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t3\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t27\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t36\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t1\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t11\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t0\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t14\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t10\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t12\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t16\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t18\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t11\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1022\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t999\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1036\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1017\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1022\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1046\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1013\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1079\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1028\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1048\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1032\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-22",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t11\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t43\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t22\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t37\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t24\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t11\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t47\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t26\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t16\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t11\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t20\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t30\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t5\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t3\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t18\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t17\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t19\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t17\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t15\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t15\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t12\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t19\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t2\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t994\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t954\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1004\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1014\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t997\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1032\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1046\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t956\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1036\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1059\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t955\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-23",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t38\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t45\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t41\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t14\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t48\n2020-01-01 00:00:50\t0\t0\t1\t1\tSub\t1\t3\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t43\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t38\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t39\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t6\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t12\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t14\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t3\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t15\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t18\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t19\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t14\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t6\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t18\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t8\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t15\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t6\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t976\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1010\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t970\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1035\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1015\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t936\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1026\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t985\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t880\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t995\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1006\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t898\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-24",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t16\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t35\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t31\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t18\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t19\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t20\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t27\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t31\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t23\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t48\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t33\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t18\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t7\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t16\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t10\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t6\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t14\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t1\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t11\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t14\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t4\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t16\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t17\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t998\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1042\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1047\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t970\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1029\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1041\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t998\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t987\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1078\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t987\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1051\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1028\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-25",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t43\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t28\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t6\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t40\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t44\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t46\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t2\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t9\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t0\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t39\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t44\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t40\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t9\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t4\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t6\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t14\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t9\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t10\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t11\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t5\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t12\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t19\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t15\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t966\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1024\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1006\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t932\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t994\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1061\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t924\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t992\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1056\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t873\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1055\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1031\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 0,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": []
+  },
+  {
+    "name": "generated-26",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t30\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t30\n2020-01-01 00:00:10\t0\t0\t3\t3\tSub\t1\t1\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t19\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t36\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t33\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t32\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t20\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t36\n2020-01-01 00:01:10\t0\t0\t1\t1\tAdd\t1\t47\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t4\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t43\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t3\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t6\n2020-01-01 00:00:15\t0\t0\t3\t3\tAdd\t1\t9\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t13\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t0\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t14\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t11\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t10\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t2\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t6\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t973\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t976\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1008\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t967\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1005\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t975\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1013\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t974\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1021\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1053\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t968\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t985\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 1,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=1021, logout_money=985, check_money=984, diff_money=-37 ***"
+    ]
+  },
+  {
+    "name": "generated-27",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tAdd\t1\t42\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t21\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t11\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t43\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t6\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t1\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t19\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t26\n2020-01-01 00:00:50\t0\t0\t3\t3\tSub\t1\t46\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t39\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t30\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t12\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tSub\t1\t4\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t16\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t9\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t10\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t15\n2020-01-01 00:00:55\t0\t0\t1\t1\tAdd\t1\t9\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t15\n2020-01-01 00:00:55\t0\t0\t3\t3\tAdd\t1\t3\n2020-01-01 00:01:15\t0\t0\t1\t1\tAdd\t1\t17\n2020-01-01 00:01:15\t0\t0\t2\t2\tAdd\t1\t5\n2020-01-01 00:01:15\t0\t0\t3\t3\tSub\t1\t7\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1038\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t974\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t995\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1072\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t958\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1100\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t917\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t967\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1078\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t893\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t971\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 3,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=917, logout_money=893, check_money=892, diff_money=-25 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1009, logout_money=967, check_money=966, diff_money=-43 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=967, logout_money=971, check_money=972, diff_money=5 ***"
+    ]
+  },
+  {
+    "name": "generated-28",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t37\n2020-01-01 00:00:10\t0\t0\t2\t2\tSub\t1\t2\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t3\n2020-01-01 00:00:30\t0\t0\t1\t1\tSub\t1\t24\n2020-01-01 00:00:30\t0\t0\t2\t2\tSub\t1\t39\n2020-01-01 00:00:30\t0\t0\t3\t3\tSub\t1\t36\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t31\n2020-01-01 00:00:50\t0\t0\t2\t2\tSub\t1\t17\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t4\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t25\n2020-01-01 00:01:10\t0\t0\t2\t2\tSub\t1\t29\n2020-01-01 00:01:10\t0\t0\t3\t3\tAdd\t1\t14\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t11\n2020-01-01 00:00:15\t0\t0\t2\t2\tAdd\t1\t11\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t14\n2020-01-01 00:00:35\t0\t0\t1\t1\tAdd\t1\t16\n2020-01-01 00:00:35\t0\t0\t2\t2\tSub\t1\t7\n2020-01-01 00:00:35\t0\t0\t3\t3\tSub\t1\t5\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t7\n2020-01-01 00:00:55\t0\t0\t2\t2\tSub\t1\t4\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t10\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t19\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t11\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t6\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t974\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1009\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t989\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t966\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t963\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t949\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t990\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t943\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t942\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t947\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t902\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t962\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 5,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=990, logout_money=947, check_money=946, diff_money=-44 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=963, logout_money=943, check_money=942, diff_money=-21 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=943, logout_money=902, check_money=903, diff_money=-40 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=989, logout_money=949, check_money=948, diff_money=-41 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=949, logout_money=942, check_money=943, diff_money=-6 ***"
+    ]
+  },
+  {
+    "name": "generated-29",
+    "data": {
+      "Money": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:10\t0\t0\t1\t1\tSub\t1\t30\n2020-01-01 00:00:10\t0\t0\t2\t2\tAdd\t1\t23\n2020-01-01 00:00:10\t0\t0\t3\t3\tAdd\t1\t28\n2020-01-01 00:00:30\t0\t0\t1\t1\tAdd\t1\t3\n2020-01-01 00:00:30\t0\t0\t2\t2\tAdd\t1\t20\n2020-01-01 00:00:30\t0\t0\t3\t3\tAdd\t1\t24\n2020-01-01 00:00:50\t0\t0\t1\t1\tAdd\t1\t0\n2020-01-01 00:00:50\t0\t0\t2\t2\tAdd\t1\t18\n2020-01-01 00:00:50\t0\t0\t3\t3\tAdd\t1\t9\n2020-01-01 00:01:10\t0\t0\t1\t1\tSub\t1\t21\n2020-01-01 00:01:10\t0\t0\t2\t2\tAdd\t1\t13\n2020-01-01 00:01:10\t0\t0\t3\t3\tSub\t1\t40\n",
+      "gmmoney": "Time\tA\tB\tSource\tTarget\tAction\tType\tAmount\n2020-01-01 00:00:15\t0\t0\t1\t1\tAdd\t1\t7\n2020-01-01 00:00:15\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:00:15\t0\t0\t3\t3\tSub\t1\t2\n2020-01-01 00:00:35\t0\t0\t1\t1\tSub\t1\t2\n2020-01-01 00:00:35\t0\t0\t2\t2\tAdd\t1\t5\n2020-01-01 00:00:35\t0\t0\t3\t3\tAdd\t1\t15\n2020-01-01 00:00:55\t0\t0\t1\t1\tSub\t1\t19\n2020-01-01 00:00:55\t0\t0\t2\t2\tAdd\t1\t19\n2020-01-01 00:00:55\t0\t0\t3\t3\tSub\t1\t1\n2020-01-01 00:01:15\t0\t0\t1\t1\tSub\t1\t19\n2020-01-01 00:01:15\t0\t0\t2\t2\tSub\t1\t5\n2020-01-01 00:01:15\t0\t0\t3\t3\tAdd\t1\t0\n",
+      "RoleLogout_Basic": "Time\tField1\tField2\tField3\tField4\tField5\tField6\tField7\tField8\tField9\tField10\tField11\tField12\tField13\n2020-01-01 00:00:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1000\n2020-01-01 00:00:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t977\n2020-01-01 00:00:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1018\n2020-01-01 00:00:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1027\n2020-01-01 00:00:40\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t978\n2020-01-01 00:00:40\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1044\n2020-01-01 00:00:40\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1065\n2020-01-01 00:01:00\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t960\n2020-01-01 00:01:00\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1080\n2020-01-01 00:01:00\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1073\n2020-01-01 00:01:20\t0\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t919\n2020-01-01 00:01:20\t0\t0\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1088\n2020-01-01 00:01:20\t0\t0\t3\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1033\n"
+    },
+    "second": null,
+    "expected": {
+      "errors": 6,
+      "discarded": 0,
+      "total": 15
+    },
+    "details": [
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=978, logout_money=960, check_money=959, diff_money=-19 ***",
+      "ROLE_DETAIL *** log data error, role_id=1, last_logout_time=2020-01-01 00:01:00, logout_time=2020-01-01 00:01:20, last_logout_money=960, logout_money=919, check_money=920, diff_money=-40 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1018, logout_money=1044, check_money=1043, diff_money=25 ***",
+      "ROLE_DETAIL *** log data error, role_id=2, last_logout_time=2020-01-01 00:00:40, logout_time=2020-01-01 00:01:00, last_logout_money=1044, logout_money=1080, check_money=1081, diff_money=37 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:00, logout_time=2020-01-01 00:00:20, last_logout_money=1000, logout_money=1027, check_money=1026, diff_money=26 ***",
+      "ROLE_DETAIL *** log data error, role_id=3, last_logout_time=2020-01-01 00:00:20, logout_time=2020-01-01 00:00:40, last_logout_money=1027, logout_money=1065, check_money=1066, diff_money=39 ***"
+    ]
+  }
+]

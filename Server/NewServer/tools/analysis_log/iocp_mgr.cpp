@@ -1,144 +1,156 @@
 #include "stdafx.h"
 #include "iocp_mgr.h"
 
-#define MAX_STREAM_RESULT_COUNT     (1024 * 1024 * 16)
+#include <condition_variable>
+#include <exception>
+#include <list>
+#include <mutex>
+#include <utility>
 
-CIocpMgr CIocpMgr::ms_Instance;
-extern INT32 g_nStartIndex;
-extern UINT32 g_dwMark;
-
-extern BOOL _ReadFileData(IOCP_TASK* pTask);
-extern void _ProcessFile(IOCP_TASK* pTask);
-
-CIocpMgr::CIocpMgr()
+namespace log_analysis
 {
-	m_hIOCP = NULL;
-	memset(m_ThreadList, 0, sizeof(m_ThreadList));
-	m_nSubmitCount = m_nFetchCount = 0;
+struct Workers::State
+{
+    std::mutex mutex;
+    std::condition_variable work_ready;
+    std::condition_variable result_ready;
+    std::list<Pointer> pending;
+    std::list<Pointer> active;
+    std::list<Pointer> completed;
+    Processor processor;
+    std::size_t outstanding = 0;
+    bool accepting = true;
+};
+
+Workers::~Workers()
+{
+    Stop();
 }
 
-CIocpMgr::~CIocpMgr()
+bool Workers::Start(std::size_t count, Processor processor) noexcept
 {
-	UnInit();
+    if (m_state.load() || count == 0 || count > 256 || !processor)
+        return false;
+    std::shared_ptr<State> state;
+    try
+    {
+        state = std::make_shared<State>();
+        state->processor = processor;
+        // Reuse the member container: MSVC's checked vector constructor may allocate
+        // inside a noexcept constructor, before a local rollback guard can exist.
+        m_threads.reserve(count);
+        for (std::size_t i = 0; i < count; ++i)
+            m_threads.emplace_back([state](std::stop_token stop) { Run(state, stop); });
+        m_state.store(std::move(state));
+        return true;
+    }
+    catch (...)
+    {
+        if (state)
+        {
+            {
+                std::scoped_lock lock(state->mutex);
+                state->accepting = false;
+            }
+            state->work_ready.notify_all();
+        }
+        for (auto& thread : m_threads)
+            thread.request_stop();
+        m_threads.clear();
+        return false;
+    }
 }
 
-BOOL CIocpMgr::Init(void)
+void Workers::Stop() noexcept
 {
-	INT32 nRetCode = 0;
-	DWORD dwThreadID = 0;
-
-	m_hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
-	LOG_PROCESS_ERROR(m_hIOCP);
-
-	for (INT32 nIndex = 0; nIndex < IOCP_THREAD_COUNT; nIndex++)
-	{
-		m_ThreadList[nIndex] = CreateThread(NULL, 0, _IocpThreadFunc, (void*)nIndex, 0, &dwThreadID);
-		LOG_PROCESS_ERROR(m_ThreadList[nIndex]);
-
-		nRetCode = SetThreadPriority(m_ThreadList[nIndex], THREAD_PRIORITY_HIGHEST);
-		LOG_PROCESS_ERROR(nRetCode);
-
-		nRetCode = m_ResultList[nIndex].Init(MAX_STREAM_RESULT_COUNT);
-		LOG_PROCESS_ERROR(nRetCode);
-	}
-
-	m_nSubmitCount = m_nFetchCount = 0;
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    const auto state = m_state.exchange({});
+    if (!state)
+        return;
+    {
+        std::scoped_lock lock(state->mutex);
+        state->accepting = false;
+        state->outstanding -= state->pending.size();
+        state->pending.clear();
+    }
+    for (auto& thread : m_threads)
+        thread.request_stop();
+    state->work_ready.notify_all();
+    state->result_ready.notify_all();
+    m_threads.clear(); // Join before releasing active records and the shared state.
 }
 
-BOOL CIocpMgr::UnInit(void)
+bool Workers::Submit(Pointer task) noexcept
 {
-
-	return TRUE;
+    const auto state = m_state.load();
+    if (!state || !task)
+        return false;
+    try
+    {
+        {
+            std::scoped_lock lock(state->mutex);
+            if (!state->accepting)
+                return false;
+            state->pending.push_back(std::move(task));
+            ++state->outstanding;
+        }
+        state->work_ready.notify_one();
+        return true;
+    }
+    catch (...) { return false; }
 }
 
-BOOL CIocpMgr::SubmitTask(IOCP_TASK* pTask)
+Workers::Pointer Workers::WaitResult()
 {
-	INT32 nRetCode = 0;
-
-	pTask->dwSubmitTick = GetTickCount64();
-
-	nRetCode = PostQueuedCompletionStatus(m_hIOCP, 0, NULL, pTask);
-	LOG_PROCESS_ERROR(nRetCode);
-
-	m_nSubmitCount++;
-
-//	INF("submit %s", pTask->szFilePath);
-
-	return TRUE;
-Exit0:
-	return FALSE;
+    const auto state = m_state.load();
+    if (!state)
+        return {};
+    std::unique_lock lock(state->mutex);
+    state->result_ready.wait(lock, [&]
+    { return !state->completed.empty() || !state->accepting || state->outstanding == 0; });
+    if (state->completed.empty())
+        return {};
+    auto result = std::move(state->completed.front());
+    state->completed.pop_front();
+    --state->outstanding;
+    if (state->outstanding == 0)
+        state->result_ready.notify_all();
+    return result;
 }
 
-IOCP_TASK* CIocpMgr::FetchResult(void)
+std::size_t Workers::Pending() const
 {
-	for (INT32 nIndex = 0; nIndex < IOCP_THREAD_COUNT; nIndex++)
-	{
-		if (!m_ResultList[nIndex].IsEmpty())
-		{
-			m_nFetchCount++;
-			IOCP_TASK* pResult = (IOCP_TASK*)m_ResultList[nIndex].Pop();
-			_ProcessFile(pResult);
-
-			pResult->dwFetchTick = GetTickCount64();
-
-			return pResult;
-		}
-	}
-	return NULL;
+    const auto state = m_state.load();
+    if (!state)
+        return 0;
+    std::scoped_lock lock(state->mutex);
+    return state->outstanding;
 }
 
-INT32 CIocpMgr::GetUncompletedTaskCount(void)
+void Workers::Run(const std::shared_ptr<State>& state, std::stop_token stop)
 {
-	return m_nSubmitCount - m_nFetchCount;
+    for (;;)
+    {
+        std::unique_lock lock(state->mutex);
+        state->work_ready.wait(lock, [&]
+        { return !state->pending.empty() || !state->accepting || stop.stop_requested(); });
+        if (!state->accepting || stop.stop_requested())
+            return;
+        const auto record = state->pending.begin();
+        state->active.splice(state->active.end(), state->pending, record);
+        Task& task = **record;
+        lock.unlock();
+        try { state->processor(task, stop); }
+        catch (const std::exception& error)
+        {
+            task.failed = true;
+            try { task.diagnostic = error.what(); } catch (...) { }
+        }
+        catch (...) { task.failed = true; }
+        lock.lock();
+        // Splice the existing node so publishing a result cannot fail an allocation.
+        state->completed.splice(state->completed.end(), state->active, record);
+        lock.unlock();
+        state->result_ready.notify_one();
+    }
 }
-
-DWORD WINAPI CIocpMgr::_IocpThreadFunc(void* pParam)
-{
-	INT32 nRetCode = 0;
-	BOOL bOperateResult = FALSE;
-	BOOL bStop = FALSE;
-	INT32 nThreadIndex = (INT32)pParam;
-	CIocpMgr* pThis = (CIocpMgr*)&CIocpMgr::GetInstance();
-
-	while (!bStop)
-	{
-		DWORD* lpCompletionKey = NULL;
-		DWORD dwIoSize = 0;
-		IOCP_TASK* pTask = NULL;
-
-		bOperateResult = GetQueuedCompletionStatus(pThis->m_hIOCP, &dwIoSize,
-			(PULONG_PTR)&lpCompletionKey, (LPOVERLAPPED*)&pTask, INFINITE);
-		if (!bOperateResult && pTask == NULL)
-		{
-			bStop = TRUE;
-			continue;
-		}
-
-		if (pTask->hFile == INVALID_HANDLE_VALUE)
-		{
-			nRetCode = _ReadFileData(pTask);
-			if (!nRetCode)
-			{
-				nRetCode = pThis->m_ResultList[nThreadIndex].Push(pTask);
-				LOG_PROCESS_ERROR(nRetCode);
-			}
-		}
-		else if (pTask->pFileData)
-		{
-			nRetCode = pThis->m_ResultList[nThreadIndex].Push(pTask);
-			LOG_PROCESS_ERROR(nRetCode);
-		}
-
-		continue;
-	Exit0:
-		continue;
-	}
-
-	WRN("Iocp work thread quit");
-
-	return 0;
 }

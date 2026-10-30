@@ -21,12 +21,18 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="analysis_records.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="iocp_mgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="analysis_records.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="analysis_log.cpp">

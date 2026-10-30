@@ -94,30 +94,30 @@ cqyh_add_tool(exportdb OUTPUT exportdb64 PCH_DIR ${_tools_dir}/exportdb
         ${CQYH_SERVER_DIR}/NewServer/src/manageserver
     LIBS gameworld baselib cqyh::net cqyh::lua cqyh::sol2 cqyh::zlib cqyh::gpk cqyh::mysql fusion cqyh::syslibs)
 
-cqyh_add_tool(analysis_log OUTPUT analysis_log64 PCH_DIR ${_tools_dir}/analysis_log
+cqyh_add_tool(analysis_log OUTPUT analysis_log64 STRICT PCH_DIR ${_tools_dir}/analysis_log
     SOURCES
         analysis_log/analysis_log.cpp
+        analysis_log/analysis_records.cpp
         analysis_log/iocp_mgr.cpp
         analysis_log/stdafx.cpp
-    INCLUDES ${_tools_dir}/analysis_log
-    LIBS baselib cqyh::syslibs shlwapi)
+    INCLUDES ${_tools_dir}/analysis_log)
 
-cqyh_add_tool(common_log OUTPUT common_log64 PCH_DIR ${_tools_dir}/common_log
+cqyh_add_tool(common_log OUTPUT common_log64 STRICT PCH_DIR ${_tools_dir}/common_log
     SOURCES
         common_log/anticheat_log.cpp
         common_log/common_log.cpp
         common_log/main.cpp
         common_log/stdafx.cpp
     INCLUDES ${_tools_dir}/common_log
-    DEFINITIONS _CRT_SECURE_NO_WARNINGS
-    LIBS baselib cqyh::syslibs)
+    DEFINITIONS _CRT_SECURE_NO_WARNINGS)
 
-cqyh_add_tool(RoleLogCheck OUTPUT RoleLogCheck64 PCH_DIR ${_tools_dir}/RoleLogCheck/RoleLogCheck
+cqyh_add_tool(RoleLogCheck OUTPUT RoleLogCheck64 STRICT PCH_DIR ${_tools_dir}/RoleLogCheck/RoleLogCheck
     SOURCES
         RoleLogCheck/RoleLogCheck/main.cpp
         RoleLogCheck/RoleLogCheck/rolelogcheck.cpp
         RoleLogCheck/RoleLogCheck/stdafx.cpp
     INCLUDES ${_tools_dir}/RoleLogCheck/RoleLogCheck
+    DEFINITIONS NOMINMAX
     LIBS baselib cqyh::lua cqyh::zlib fusion cqyh::syslibs)
 
 cqyh_add_tool(cash_accounting OUTPUT cash_accounting64 PCH_DIR ${_tools_dir}/cash_accounting/cash_accounting

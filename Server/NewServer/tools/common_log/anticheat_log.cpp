@@ -1,153 +1,151 @@
 #include "stdafx.h"
 #include "anticheat_log.h"
+
+#include <algorithm>
+#include <array>
+#include <charconv>
+#include <chrono>
+#include <cstdio>
 #include <map>
 #include <string>
+#include <string_view>
 
-struct anticheat_map_data
+namespace
 {
-	char role_name[32];
-	int action_time;
-	int generate_time;
-	int action_type;
+struct anticheat_line_data : line_data
+{
+    std::string role_name;
+    std::chrono::sys_seconds action_time{};
+    anticheat_action_type action_type = aca_invalid;
+    bool has_time = false;
+    bool has_action = false;
+    bool has_name = false;
 };
 
-struct anticheat_line_data
+struct anticheat_log_context : log_context
 {
-	line_data default_line_data;
-	anticheat_map_data mp_data;
+    std::size_t start_count = 0;
+    std::size_t generate_count = 0;
+    std::size_t success_count = 0;
+    std::size_t failed_count = 0;
+    std::size_t timeout_count = 0;
+    std::map<std::string, std::chrono::sys_seconds, std::less<>> pending;
+    anticheat_line_data current;
 };
 
-struct anticheat_log_context
+bool read_time(std::string_view text, anticheat_line_data& line)
 {
-	log_context default_log_context;
-	int start_count;
-	int generate_count;
-	int success_count;
-	int failed_count;
-	int timeout_count;
-	std::map<std::string, anticheat_map_data> result_map;
-	anticheat_line_data ld;
-};
-
-
-anticheat_log_context anticheat_ctx;
-
-bool anticheat_process_field(int field_idx, int line_idx, const char* field_value, log_context* context)
-{
-	anticheat_log_context* ac_log_context = (anticheat_log_context*)context;
-	anticheat_line_data* ac_line_data = (anticheat_line_data*)context->ld;
-
-	if (field_idx == ac_time)
-	{
-		int tm_fld_idx = 0;
-		char val[8] = { 0 };
-		int k = 0;
-
-		for (int i = 0; i <= strlen(field_value); i++)
-		{
-			if (field_value[i] == ' ' || field_value[i] == '-' || field_value[i] == ':' || field_value[i] == 0)
-			{
-				ac_line_data->default_line_data.time_value[tm_fld_idx] = atoi(val);
-				memset(val, 0, sizeof(val));
-				tm_fld_idx++;
-				k = 0;
-			}
-			else
-				val[k++] = field_value[i];
-		}
-	}
-	else if (field_idx == ac_name)
-	{
-		strncpy(ac_line_data->mp_data.role_name, field_value, 32);
-	}
-	else if (field_idx == ac_action)
-	{
-		ac_line_data->mp_data.action_time = 3600 * ac_line_data->default_line_data.time_value[tfHour] + 60 * ac_line_data->default_line_data.time_value[tfMin] + ac_line_data->default_line_data.time_value[tfSec];
-
-		if (strcmp(field_value, "generate") == 0)
-		{
-			ac_log_context->generate_count++;
-			ac_line_data->mp_data.generate_time = 3600 * ac_line_data->default_line_data.time_value[tfHour] + 60 * ac_line_data->default_line_data.time_value[tfMin] + ac_line_data->default_line_data.time_value[tfSec];
-			ac_line_data->mp_data.action_type = aca_generate;
-		}
-		else if (strcmp(field_value, "success") == 0)
-		{
-			ac_log_context->success_count++;
-			ac_line_data->mp_data.action_type = aca_succsss;
-		}
-		else if (strcmp(field_value, "failed") == 0)
-		{
-			ac_log_context->failed_count++;
-			ac_line_data->mp_data.action_type = aca_failed;
-		}
-		else if (strcmp(field_value, "kick") == 0)
-		{
-			ac_log_context->failed_count++;
-			ac_line_data->mp_data.action_type = aca_failed;
-		}
-		else if (strcmp(field_value, "start") == 0)
-		{
-			ac_log_context->start_count++;
-			ac_line_data->mp_data.action_type = aca_started;
-		}
-	}
-
-	return true;
-}
-
-bool anticheat_process_line(int line_idx, log_context* context)
-{
-	anticheat_log_context* ac_log_context = (anticheat_log_context*)context;
-	anticheat_line_data* ac_line_data = (anticheat_line_data*)context->ld;
-
-	{
-		std::map<std::string, anticheat_map_data>::iterator itr = ac_log_context->result_map.find(ac_line_data->mp_data.role_name);
-		if(itr == ac_log_context->result_map.end())
-		{
-			if (ac_line_data->mp_data.action_type != aca_generate)
-				return false;
-
-			return ac_log_context->result_map.insert(std::make_pair(std::string(ac_line_data->mp_data.role_name), ac_line_data->mp_data)).second;
-		}
-		else
-		{
-			anticheat_map_data& rld = itr->second;
-
-			if (ac_line_data->mp_data.action_type == aca_failed && ac_line_data->mp_data.action_time - rld.generate_time >= 600)
-				ac_log_context->timeout_count++;
-
-			ac_log_context->result_map.erase(itr);
-		}
-	}
-
-	memset(ac_line_data, 0, sizeof(anticheat_line_data));
-
-	return true;
+    std::array<int, tfCount> values{};
+    constexpr std::array separators{'-', '-', ' ', ':', ':'};
+    for (std::size_t i = 0; i < values.size(); ++i)
+    {
+        if (text.empty())
+            return false;
+        const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), values[i]);
+        if (error != std::errc{})
+            return false;
+        text.remove_prefix(end - text.data());
+        if (i < separators.size())
+        {
+            if (text.empty() || text.front() != separators[i])
+                return false;
+            text.remove_prefix(1);
+        }
+    }
+    using namespace std::chrono;
+    if (!text.empty() || values[tfYear] < 1 || values[tfYear] > 32767 ||
+        values[tfMonth] < 1 || values[tfMonth] > 12 || values[tfDay] < 1 || values[tfDay] > 31 ||
+        values[tfHour] < 0 || values[tfHour] > 23 || values[tfMin] < 0 || values[tfMin] > 59 ||
+        values[tfSec] < 0 || values[tfSec] > 59)
+        return false;
+    const year_month_day date{year{values[tfYear]}, month{static_cast<unsigned>(values[tfMonth])},
+        day{static_cast<unsigned>(values[tfDay])}};
+    if (!date.ok())
+        return false;
+    std::ranges::copy(values, line.time_value);
+    line.action_time = sys_days{date} + hours{values[tfHour]} + minutes{values[tfMin]} + seconds{values[tfSec]};
+    return true;
 }
 
 bool anticheat_end_func(log_context* context)
 {
-	anticheat_log_context* ctx = (anticheat_log_context*)context;
-
-	printf("process end, start: %d, generate: %d, success: %d, failed: %d include timeout: %d", ctx->start_count, ctx->generate_count, ctx->success_count, ctx->failed_count, ctx->timeout_count);
-
-	return true;
+    const auto& state = *static_cast<anticheat_log_context*>(context);
+    std::printf("process end, start: %zu, generate: %zu, success: %zu, failed: %zu include timeout: %zu",
+        state.start_count, state.generate_count, state.success_count, state.failed_count, state.timeout_count);
+    return true;
+}
 }
 
-log_context* anticheat_init(void)
+bool anticheat_process_field(int field_index, int, const char* value, log_context* context)
 {
-	memset(&anticheat_ctx.default_log_context, 0, sizeof(log_context));
-	memset(&anticheat_ctx.ld, 0, sizeof(anticheat_line_data));
-	anticheat_ctx.generate_count = 0;
-	anticheat_ctx.success_count = 0;
-	anticheat_ctx.failed_count = 0;
-	anticheat_ctx.timeout_count = 0;
-
-	anticheat_ctx.default_log_context.ld = (line_data*)&anticheat_ctx.ld;
-	anticheat_ctx.default_log_context.field_func = anticheat_process_field;
-	anticheat_ctx.default_log_context.line_func = anticheat_process_line;
-	anticheat_ctx.default_log_context.end_func = anticheat_end_func;
-
-	return (log_context*)&anticheat_ctx;
+    if (!context || !value)
+        return false;
+    auto& state = *static_cast<anticheat_log_context*>(context);
+    auto& line = state.current;
+    if (field_index == ac_time)
+    {
+        line = {};
+        line.has_time = read_time(value, line);
+        return line.has_time;
+    }
+    if (field_index == ac_name)
+    {
+        line.role_name = value;
+        line.has_name = !line.role_name.empty();
+        return line.has_name;
+    }
+    if (field_index == ac_action)
+    {
+        const std::string_view action(value);
+        line.has_action = true;
+        if (action == "generate")
+            line.action_type = aca_generate;
+        else if (action == "success")
+            line.action_type = aca_succsss;
+        else if (action == "failed" || action == "kick")
+            line.action_type = aca_failed;
+        else if (action == "start")
+            line.action_type = aca_started;
+    }
+    return true;
 }
 
+bool anticheat_process_line(int, log_context* context)
+{
+    auto& state = *static_cast<anticheat_log_context*>(context);
+    const auto& line = state.current;
+    if (!line.has_time || !line.has_action || !line.has_name)
+        return false;
+    switch (line.action_type)
+    {
+    case aca_generate: ++state.generate_count; break;
+    case aca_succsss: ++state.success_count; break;
+    case aca_failed: ++state.failed_count; break;
+    case aca_started: ++state.start_count; break;
+    default: break;
+    }
+    const auto found = state.pending.find(line.role_name);
+    if (found == state.pending.end())
+    {
+        if (line.action_type == aca_generate)
+            state.pending.emplace(line.role_name, line.action_time);
+    }
+    else
+    {
+        if (line.action_type == aca_failed && line.action_time - found->second >= std::chrono::minutes{10})
+            ++state.timeout_count;
+        state.pending.erase(found);
+    }
+    return true;
+}
+
+log_context* anticheat_init()
+{
+    static anticheat_log_context state;
+    state = {};
+    state.ld = &state.current;
+    state.field_func = anticheat_process_field;
+    state.line_func = anticheat_process_line;
+    state.end_func = anticheat_end_func;
+    return &state;
+}
