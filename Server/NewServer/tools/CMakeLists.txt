@@ -217,15 +217,15 @@ if(CQYH_BUILD_QT_TOOLS)
         set(_qt_exclude EXCLUDE_FROM_ALL)
     endif()
 
-    cqyh_add_tool(gmtool OUTPUT gmtool64 GUI ${_qt_exclude} PCH_DIR ${_tools_dir}/gmtool
+    cqyh_add_tool(gmtool OUTPUT gmtool64 GUI STRICT ${_qt_exclude} PCH_DIR ${_tools_dir}/gmtool
         SOURCES
             gmtool-encrypt/Encrypt/encrypt/base.cpp
-            gmtool/cmd_data.cpp gmtool/cmd_manager.cpp gmtool/cmd_manager_message.cpp gmtool/data_mgr.cpp
+            gmtool/cmd_manager.cpp gmtool/data_mgr.cpp gmtool/gm_data_packets.cpp gmtool/gm_role_data.cpp
             gmtool/delete_item.cpp gmtool/detail.cpp gmtool/exchange_limit.cpp gmtool/executing.cpp
-            gmtool/forbidden_chat.cpp gmtool/gm_item_info.cpp gmtool/gm_log.cpp gmtool/gm_manager.cpp
+            gmtool/forbidden_chat.cpp gmtool/gm_item_info.cpp gmtool/gm_log.cpp gmtool/gm_manager.cpp gmtool/gm_application.cpp gmtool/gm_runtime.cpp gmtool/gm_runtime_native.cpp gmtool/gm_configuration.cpp
             gmtool/gmtool.cpp gmtool/group_select.cpp gmtool/item_tree_widget_item.cpp gmtool/kick_user.cpp
             gmtool/ld_widget.cpp gmtool/loader.cpp gmtool/logic.cpp gmtool/mail.cpp gmtool/main.cpp
-            gmtool/message_handler.cpp gmtool/move_position.cpp gmtool/my_tree_widget_item.cpp
+            gmtool/message_handler.cpp gmtool/gm_receive.cpp gmtool/gm_send.cpp gmtool/gm_name_queries.cpp gmtool/gm_reports.cpp gmtool/gm_role_files.cpp gmtool/gm_bulk_queries.cpp gmtool/gm_role_replies.cpp gmtool/gm_exchange_stats.cpp gmtool/gm_exchange_replies.cpp gmtool/gm_log_data.cpp gmtool/gm_log_view.cpp gmtool/gm_log_receive.cpp gmtool/gm_session_events.cpp gmtool/move_position.cpp gmtool/my_tree_widget_item.cpp
             gmtool/role_gm_cmd.cpp gmtool/role_info.cpp gmtool/server_list.cpp gmtool/server_mgr.cpp
             gmtool/session_mgr.cpp gmtool/stdafx.cpp gmtool/svr_select.cpp gmtool/svr_tree_widget_item.cpp
             gmtool/ui_exchange_history.cpp gmtool/view_friend.cpp gmtool/view_guild.cpp

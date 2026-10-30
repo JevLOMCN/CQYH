@@ -2,7 +2,8 @@
 #ifndef GM_ITEM_INFO_H_
 #define GM_ITEM_INFO_H_
 
-#include <QtWidgets/QMainWindow>
+#include "../qt_cpp23.h"
+#include <QtWidgets/QDialog>
 #include "ui_gm_item_info.h"
 
 
@@ -15,7 +16,8 @@ public:
     ~CGMItemInfo();
 
 
-    void ShowInfo(const char *pcszBuffer, BOOL bBiggerFont);
+    void ShowInfo(const char *pcszBuffer, bool bBiggerFont);
+    void ShowInfo(const QString& text, bool biggerFont);
 
 
 public slots:

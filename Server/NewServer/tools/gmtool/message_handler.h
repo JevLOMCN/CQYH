@@ -10,11 +10,17 @@
 #define _H_MESSAGE_HANDLER_H_
 
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+#include "std_type.h"
 #include "net.h"
+#include <array>
+#include <span>
+#include <memory>
 //#include "message_notifier.h"
 #include "internal_message_header.h"
 
-struct CMD_DATA_BASE;
 
 class CMessageHandler : public INetEventHandler
 {
@@ -30,8 +36,9 @@ public:
 
     static CMessageHandler &GetInstance();
 
-    BOOL Init(INet *pNet, IPacketAllocator *pPacketAllocator);
+    BOOL Init(INet *pNet, IPacketAllocator *pPacketAllocator,std::shared_ptr<void> lifetime={});
     BOOL UnInit();
+    void ReleaseAllocator(IPacketAllocator* allocator);
 
 public:
     void OnAllPing(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, ISocketSession *pSocketSession);
@@ -112,16 +119,19 @@ protected:
     void OnGMSetExchangeLimitAck(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, ISocketSession *pSocketSession);
 
 private:
-    BOOL _SendGM(UINT32 dwSessionID, PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, INT32 nOffSet = 0);
-    BOOL _BroadcastGM(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, INT32 nOffSet = 0);
+    BOOL _SendGM(UINT32 session, std::span<const char> packet);
+    BOOL _BroadcastGM(std::span<const char> packet);
 
 private:
-    INet*                               m_pNet;
-    IPacketAllocator*                   m_pPacketAllocator;
+    INet*                               m_pNet = nullptr;
+    IPacketAllocator*                   m_pPacketAllocator = nullptr;
+    bool                                m_accepting = false;
+    UINT64                              m_generation = 0;
+    std::shared_ptr<void>                m_lifetime;
     static CMessageHandler              ms_Instance;
 
     typedef void (CMessageHandler::*MESSAGE_FUNC)(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, ISocketSession* pSocketSession);
-    MESSAGE_FUNC                        m_MessageFuncList[InternalMessage::max_message_count];
+    std::array<MESSAGE_FUNC, InternalMessage::max_message_count> m_MessageFuncList{};
 
 };
 

@@ -1,28 +1,12 @@
-/********************************************************************
-	created:	19:2:2014   10:42
-	file:		data_mgr.cpp
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
-
-#include "stdafx.h"
 #include "data_mgr.h"
-#include "string_ex.h"
 
-
+#include <algorithm>
+#include <cstring>
 
 CDataMgr CDataMgr::m_Instance;
 
-CDataMgr::CDataMgr() 
-{
-}
-
-CDataMgr::~CDataMgr()
-{
-
-}
+CDataMgr::CDataMgr() = default;
+CDataMgr::~CDataMgr() = default;
 
 CDataMgr& CDataMgr::GetInstance()
 {
@@ -31,140 +15,127 @@ CDataMgr& CDataMgr::GetInstance()
 
 BOOL CDataMgr::Init()
 {
-    INT32       nRetCode = 0;
-
-    nRetCode = m_RolePool.Init(128);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    m_ItemMap->clear();
-
+    UnInit();
+    m_initialized = true;
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
 BOOL CDataMgr::UnInit()
 {
-    INT32       nRetCode = 0;
-
-    nRetCode = m_RolePool.UnInit();
-    LOG_CHECK_ERROR(nRetCode);
-
+    m_initialized = false;
+    m_Roles.clear();
+    for (std::size_t session = 0; session < m_ItemMap.size(); ++session)
+    {
+        m_ItemMap[session].clear();
+    }
+    m_AnnounceList.clear();
     return TRUE;
 }
 
-
-// role data
-GM_ROLE_DATA* CDataMgr::NewRole(UINT32 dwRoleID)
+GM_ROLE_DATA* CDataMgr::StoreRole(UINT32 role_id, gm::RoleDocument document)
 {
-    INT32       nRetCode = 0;
-    GM_ROLE_DATA *pRole = m_RolePool.Find(dwRoleID);
-    if (pRole)
-    {
-        nRetCode = DeleteRole(pRole);
-        LOG_PROCESS_ERROR(nRetCode);
-    }
-
-    pRole = m_RolePool.New(dwRoleID);
-    LOG_PROCESS_ERROR(pRole);
-    pRole->dwRoleID = dwRoleID;
-    return pRole;
-Exit0:
-    return NULL;
+    if (!m_initialized)
+        return nullptr;
+    // Allocate before replacing the old entry. Other roles retain their
+    // addresses as the standard map grows.
+    auto role = std::make_unique<GM_ROLE_DATA>();
+    role->dwRoleID = role_id;
+    role->document = std::move(document);
+    auto* result = role.get();
+    m_Roles.insert_or_assign(role_id, std::move(role));
+    return result;
 }
 
-BOOL CDataMgr::DeleteRole(GM_ROLE_DATA* pRole)
+BOOL CDataMgr::DeleteRole(GM_ROLE_DATA* role)
 {
-    LOG_PROCESS_ERROR(pRole);
-    return m_RolePool.Delete(pRole);
-Exit0:
-    return FALSE;
+    if (!role || !m_initialized)
+        return FALSE;
+    // Compare owned addresses without dereferencing a foreign/stale pointer.
+    const auto found = std::ranges::find_if(m_Roles, [role](const auto& entry) { return entry.second.get() == role; });
+    if (found == m_Roles.end())
+        return FALSE;
+    m_Roles.erase(found);
+    return TRUE;
 }
 
 BOOL CDataMgr::ClearRole()
 {
-    INT32       nRetCode = 0;
-    nRetCode = m_RolePool.UnInit();
-    LOG_PROCESS_ERROR(nRetCode);
-
-    nRetCode = m_RolePool.Init(128);
-    LOG_PROCESS_ERROR(nRetCode);
-
+    if (!m_initialized)
+        return FALSE;
+    m_Roles.clear();
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
-GM_ROLE_DATA* CDataMgr::FindRole(UINT32 dwRoleID)
+GM_ROLE_DATA* CDataMgr::FindRole(UINT32 role_id)
 {
-    GM_ROLE_DATA *pRole = m_RolePool.Find(dwRoleID);
-    if (pRole)
-        return pRole;
-    return NULL;
+    const auto found = m_Roles.find(role_id);
+    return found == m_Roles.end() ? nullptr : found->second.get();
 }
 
-// item template
-void CDataMgr::ClearItemMap(UINT32 dwSessionID)
+void CDataMgr::ClearItemMap(UINT32 session)
 {
-    LOG_PROCESS_ERROR(dwSessionID < MAX_GM_SESSION_COUNT);
-    m_ItemMap[dwSessionID].clear();
-Exit0:
-    return;
+    if (session >= m_ItemMap.size())
+        return;
+    m_ItemMap[session].clear();
 }
 
-BOOL CDataMgr::AddItem(UINT32 dwSessionID, UINT32 dwItemID, const char *pcszName)
+BOOL CDataMgr::ApplyItems(UINT32 session, bool clear, std::span<const ITEM_TEMPLATE_DATA> items)
 {
-    ITEM_TEMPLATE_DATA  data;
-
-    LOG_PROCESS_ERROR(pcszName);
-    LOG_PROCESS_ERROR(dwSessionID < MAX_GM_SESSION_COUNT);
-
-    data.dwTempID = dwItemID;
-    strxcpy(data.szName, pcszName, sizeof(data.szName));
-
-    m_ItemMap[dwSessionID].insert(std::make_pair(data.dwTempID, data));
-
-    return TRUE;
-Exit0:
-    return FALSE;
-}
-
-void CDataMgr::ItemMapBegin(UINT32 dwSessionID)
-{
-    m_ItemMap_Cursor[dwSessionID] = m_ItemMap[dwSessionID].begin();
-}
-
-ITEM_TEMPLATE_DATA* CDataMgr::ItemMapNext(UINT32 dwSessionID)
-{
-    ITEM_MAP::iterator iter = m_ItemMap_Cursor[dwSessionID];
-
-    PROCESS_ERROR(iter != m_ItemMap[dwSessionID].end());
-
-    ++m_ItemMap_Cursor[dwSessionID];
-
-    return &(iter->second);
-Exit0:
-    return NULL;
-}
-
-
-
-// announce
-BOOL CDataMgr::DelAnnounceFromList(UINT32 dwAnnounceSerial)
-{
-    for (INT32 i = 0; i < m_AnnounceList.nCount; ++i)
+    if (!m_initialized || session >= m_ItemMap.size())
+        return FALSE;
+    ITEM_MAP staged;
+    for (const auto& item : items)
     {
-        if (m_AnnounceList.data[i].dwSerial == dwAnnounceSerial)
-        {
-            m_AnnounceList.data[i].dwIntervalTime = m_AnnounceList.data[m_AnnounceList.nCount - 1].dwIntervalTime;
-            m_AnnounceList.data[i].dwRepeatNum = m_AnnounceList.data[m_AnnounceList.nCount - 1].dwRepeatNum;
-            m_AnnounceList.data[i].dwSerial = m_AnnounceList.data[m_AnnounceList.nCount - 1].dwSerial;
-            strxcpy(m_AnnounceList.data[i].szText, m_AnnounceList.data[m_AnnounceList.nCount - 1].szText, sizeof(m_AnnounceList.data[i].szText));
-            --m_AnnounceList.nCount;
-            break;
-        }
+        if (!std::memchr(item.szName, 0, sizeof(item.szName)))
+            return FALSE;
+        staged.try_emplace(item.dwTempID, item);
     }
 
+    auto& destination = m_ItemMap[session];
+    if (clear)
+    {
+        destination.swap(staged);
+    }
+    else
+        destination.merge(staged); // First value wins, as with legacy insert().
+    return TRUE;
+}
+
+std::vector<ITEM_TEMPLATE_DATA> CDataMgr::GetItems(UINT32 session) const
+{
+    if (!m_initialized || session >= m_ItemMap.size())
+        return {};
+    std::vector<ITEM_TEMPLATE_DATA> result;
+    result.reserve(m_ItemMap[session].size());
+    for (const auto& [id, item] : m_ItemMap[session])
+        result.push_back(item);
+    return result;
+}
+
+BOOL CDataMgr::ReplaceAnnounceList(std::span<const TL_ANNOUNCE_DATA> records)
+{
+    if (!m_initialized)
+        return FALSE;
+    for (const auto& record : records)
+    {
+        if (record.nSvrID <= 0 || record.nGroupID < 0 || record.nGroupID >= MAX_SERVER_GROUP_COUNT ||
+            !std::memchr(record.szText, 0, sizeof(record.szText)))
+            return FALSE;
+    }
+    std::vector<TL_ANNOUNCE_DATA> staged(records.begin(), records.end());
+    m_AnnounceList.swap(staged);
+    return TRUE;
+}
+
+BOOL CDataMgr::DelAnnounceFromList(UINT32 serial)
+{
+    const auto found = std::ranges::find(m_AnnounceList, serial, &TL_ANNOUNCE_DATA::dwSerial);
+    if (found != m_AnnounceList.end())
+    {
+        // Move the entire record, including server/group identity.
+        *found = m_AnnounceList.back();
+        m_AnnounceList.pop_back();
+    }
     return TRUE;
 }
 

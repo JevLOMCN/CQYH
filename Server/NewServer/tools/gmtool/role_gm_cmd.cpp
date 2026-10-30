@@ -1,79 +1,32 @@
 #include "stdafx.h"
 #include "role_gm_cmd.h"
-#include <QtWidgets/QMessageBox>
-#include "gm_manager.h"
+#include "gm_ui.h"
 
-CRoleGMCmd::CRoleGMCmd(QWidget *parent, Qt::WindowFlags flags)
-    : QDialog(parent, flags)
+CRoleGMCmd::CRoleGMCmd(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent,flags)
 {
     ui.setupUi(this);
-
-    memset(m_Buffer, 0, sizeof(m_Buffer));
-    memset(m_Reason, 0, sizeof(m_Reason));
-    m_bExe = FALSE;
-
-    connect(ui.okButton, SIGNAL(clicked()), this, SLOT(OK()));
-    connect(ui.exitButton, SIGNAL(clicked()), this, SLOT(Exit()));
-
-
-
+    m_status=new QLabel(this);
+    m_status->setObjectName(QStringLiteral("roleCommandStatus"));
+    m_status->setTextFormat(Qt::PlainText);m_status->setWordWrap(true);m_status->hide();
+    ui.gridLayout->addWidget(m_status,ui.gridLayout->rowCount(),0,1,2);
+    connect(ui.okButton,&QPushButton::clicked,this,&CRoleGMCmd::OK);
+    connect(ui.exitButton,&QPushButton::clicked,this,&CRoleGMCmd::Exit);
 }
-
-CRoleGMCmd::~CRoleGMCmd()
-{
-
-}
-
+CRoleGMCmd::~CRoleGMCmd()=default;
 
 void CRoleGMCmd::OK()
 {
-    INT32       nRetCode = 0;
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认执行该GM指令？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    if (ui.textEdit->toPlainText().toUtf8().length() < 2 || ui.textEdit_2->toPlainText().toUtf8().length() < 2)
+    if (m_bExe || m_confirming) return;
+    gm::UiAction action(*this,m_confirming);
+    const QPointer<CRoleGMCmd> alive(this);
+    auto text=gm::text_field(ui.textEdit->toPlainText(),MAX_GM_COMMAND_LEN,QStringLiteral("指令"),2);
+    auto reason=gm::text_field(ui.textEdit_2->toPlainText(),GM_REASON_LEN,QStringLiteral("原因"),2);
+    if (!text || !reason)
     {
-        QMessageBox::warning(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("内容不能为空!"));
-        return;
+        m_status->setText(!text ? text.error() : reason.error());m_status->show();return;
     }
-
-    if (ui.textEdit_2->toPlainText().toUtf8().length() > GM_REASON_LEN - 1)
-    {
-        QMessageBox::warning(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("原因过长!"));
-        return;
-    }
-
-    strncpy(m_Buffer, ui.textEdit->toPlainText().toUtf8(), sizeof(m_Buffer) - 1);
-    strncpy(m_Reason, ui.textEdit_2->toPlainText().toUtf8(), sizeof(m_Reason) - 1);
-
-    //m_Buffer[sizeof(m_Buffer) - 1] = '\0';
-
-    m_bExe = TRUE;
-
-    done(0);
+    if (!gm::confirm_action(*this,QStringLiteral("确认执行该GM指令？")) || !alive) return;
+    m_Buffer=std::move(*text);m_Reason=std::move(*reason);m_bExe=true;
+    accept();
 }
-
-void CRoleGMCmd::Exit()
-{
-    done(0);
-}
-
-
-void CRoleGMCmd::timerEvent(QTimerEvent* event)
-{
-    INT32       nRetCode = 0;
-
-    nRetCode = CGMManager::GetInstance().MainLoop();
-    if (!nRetCode)
-    {
-        nRetCode = CGMManager::GetInstance().UnInit();
-        LOG_CHECK_ERROR(nRetCode);
-        QMessageBox::critical(this, "critical", "Application error, will exit!", QMessageBox::Yes);
-        close();
-    }
-}
-
-
-
+void CRoleGMCmd::Exit() { reject(); }

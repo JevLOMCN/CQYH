@@ -1,135 +1,39 @@
-/********************************************************************
-	created:	5:8:2013   15:26
-	file:		gm_manager.h
-	author:		Allan Tao
-	
-	purpose:	
-*********************************************************************/
-
-#ifndef _H_GM_MANAGER_H_
-#define _H_GM_MANAGER_H_
-
-//#include "sdthread.h"
-#include "packet_allocator.h"
+#pragma once
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+#include "std_type.h"
 #include "predefine.h"
-#include <list>
 #include "string_def.h"
-//#include "message_notifier.h"
-
-
-class gmtool;
-class loader;
-
-
-struct ROLE_DATA 
-{
-    INT32   nSvrID;
-    //CRole   *poRole;
-
-    ROLE_DATA(INT32 svrID):
-    nSvrID(svrID)
-    {
-
-    }
-};
-
-BOOL IsRoleDataEqual(ROLE_DATA &data1, ROLE_DATA &data2);
-
-struct SERVER_DATA 
-{
-    BOOL        byIsLogin;
-    UINT32      dwSessionID;
-};
-
-
+#include "gm_runtime.h"
+#include <array>
+#include <memory>
 
 class CGMManager
 {
 protected:
     CGMManager();
     virtual ~CGMManager();
-
-    static CGMManager   m_Instance;
+    static CGMManager m_Instance;
 public:
-    static CGMManager &GetInstance();
-
+    static CGMManager& GetInstance();
     BOOL Init();
     BOOL UnInit();
-
     BOOL MainLoop();
-
-    gmtool          *GetGMToolDialog();
-
-    void    SetGMDialogState(GM_DIALOG_STATE nGMDialogState);
-    GM_DIALOG_STATE   GetGMDialogState();
-
-    const char *GetUserName();
-    const char *GetUserPwd();
-    void    SetUserName(const char *pcszName);
-    void    SetUserPwd(const char *pcszPwd);
-
-
-
-protected:
-    //BOOL    _CheckGMConfig();
-
-    
-    CPacketAllocator    m_PacketAllocator;
-    //CMessageNotifier    m_Notifier;
-    INet                *m_pNet;
-
-    char        m_szUserName[ROLE_NAME_LEN];
-    char        m_szUserPwd[GM_TOOL_PASSWORD_LEN];
-
-    GM_DIALOG_STATE       m_eGMDialogState;
-
-    struct RELOGIN_DATA
-    {
-        INT32   nSvrID;
-        INT32   nReloginTime;
-    };
-    typedef std::list<INT32>    SVRID_LIST;
-    typedef std::list<RELOGIN_DATA>   RELOGIN_DATA_LIST;
-
-    SVRID_LIST          m_PreloginList;
-    SVRID_LIST          m_LoginList;
-    SVRID_LIST::iterator    m_LoginListIter;
-    RELOGIN_DATA_LIST   m_ReloginList;
-
-    //////////////////////////////////////////////////////////////////////////
-
-    SVRID_LIST          m_PreExecuteList;
-    SVRID_LIST::iterator    m_PreExecuteListIter;
-
-    typedef std::list<ROLE_DATA>    ROLE_LIST;
-    ROLE_LIST           m_PreExecuteRoleList;
-    //////////////////////////////////////////////////////////////////////////
-    
-
-
+    bool IsRunning() const {return m_runtime!=nullptr;}
+    bool IsRetiring() const {return m_gate->retiring;}
+    bool CleanupSucceeded() const {return m_gate->cleanup_ok;}
+    void SetGMDialogState(GM_DIALOG_STATE state);
+    GM_DIALOG_STATE GetGMDialogState();
+    const char* GetUserName();
+    const char* GetUserPwd();
+    void SetUserName(const char* name);
+    void SetUserPwd(const char* password);
+private:
+    std::shared_ptr<gm::RuntimeGate> m_gate=std::make_shared<gm::RuntimeGate>();
+    std::shared_ptr<gm::Runtime> m_runtime;
+    bool m_starting=false,m_stopping=false,m_looping=false,m_cancelStart=false;
+    std::array<char,USER_NAME_LEN> m_szUserName{};
+    std::array<char,GM_TOOL_PASSWORD_LEN> m_szUserPwd{};
+    GM_DIALOG_STATE m_eGMDialogState=DIALOG_NONE;
 };
-
-
-
-
-
-
-
-
-
-
-#endif//_H_GM_MANAGER_H_
-
-
-
-
-
-
-
-
-
-
-
-
-
-

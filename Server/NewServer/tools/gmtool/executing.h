@@ -23,14 +23,7 @@ public:
     CExecuting(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~CExecuting();
 
-    virtual void timerEvent(QTimerEvent* event);
-
-
-
-
 private:
-    int     m_nTimeID;
-
     Ui::ExecutingDialog ui;
 };
 

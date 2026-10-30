@@ -40,11 +40,12 @@ BOOL CServerMgr::UpdateSelectServer()
     INT32       nRetCode = 0;
     GM_SESSION  *pGMSession = NULL;
 
-    ResetSelectedServer();    
+    ResetSelectedServer();
+    if (!gm::current_main_window()) return TRUE;
 
     for (INT32 nIndex = 0; nIndex < MAX_GM_SESSION_COUNT; ++nIndex)
     {
-        nRetCode = g_gmtool.IsServerSelected(nIndex);
+        nRetCode = gm::main_window().IsServerSelected(nIndex);
         if (nRetCode == FALSE)
             continue;
 

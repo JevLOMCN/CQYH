@@ -10,7 +10,17 @@
 #define _H_CMD_MANAGER_H_
 
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+#include "std_type.h"
 #include <list>
+#include <functional>
+#include <expected>
+#include <filesystem>
+#include <optional>
+#include <string>
+#include <string_view>
 //#include "object_pool.h"
 #include "predefine.h"
 #include "cmd_data.h"
@@ -36,14 +46,14 @@ public:
     BOOL    UnInit();
     BOOL    MainLoop();
 
-    BOOL        Success(CMD_BASE *pCmd);
-    BOOL        Washout(CMD_BASE *pCmd);
+    BOOL        Success(CommandPtr pCmd);
+    BOOL        Washout(CommandPtr pCmd);
 
-    CMD_BASE*   NewCmd(INT32 nType);
-    BOOL        DelCmd(CMD_BASE *pCmd);
+    CommandPtr  NewCmd(INT32 nType);
+    BOOL        DelCmd(CommandPtr pCmd);
 
     BOOL        AddSvr(UINT32 dwSvrID);
-    void        ClearSvrList()           { m_PreExecuteSvrList.clear(); }
+    void        ClearSvrList()           { m_PreExecuteSvrList.clear(); m_Cursor = 0; }
     UINT32      GetSvrNum()                 { return m_PreExecuteSvrList.size(); }
     UINT32      First();
     UINT32      Next();
@@ -54,23 +64,27 @@ public:
     void        SetResult(INT32 nResult)     { m_nResult = nResult; }
 
 public:
-    BOOL        PreQuery(INT32 nCmdType, const char *pcszRoleName, CMD_BASE *pCmd);
+    BOOL        PreQuery(INT32 nCmdType, const char *pcszRoleName, CommandPtr pCmd);
+    std::expected<void, std::string> ReceivePreQuery(UINT32 session, UINT32 role, std::string_view name);
+    std::expected<void, std::string> ReceiveBulkReply(INT32 kind, UINT32 session, UINT32 role, INT32 result);
     BOOL        QueryRoleID(INT32 nType, const char *pcszName);
-    BOOL        QueryRoleData(CMD_BASE *pCmd);
-    BOOL        ForbidChat(CMD_BASE *pCmd);
-    BOOL        FreezeRole(CMD_BASE *pCmd);
-    BOOL        KickRole(CMD_BASE *pCmd);
-    BOOL        SendMail(CMD_BASE *pCmd);
+    BOOL        QueryRoleData(CommandPtr pCmd);
+    BOOL        ForbidChat(CommandPtr pCmd);
+    BOOL        FreezeRole(CommandPtr pCmd);
+    BOOL        KickRole(CommandPtr pCmd);
+    BOOL        SendMail(CommandPtr pCmd);
     BOOL        SendAnnounce(INT32 nGroupID, UINT32 dwBeginTime, INT32 nIntervalTime, INT32 nRepeatNum, const char *pcszAnnounce);
     BOOL        QueryAnnounceList(INT32 nGroupID);
-    BOOL        DelAnnounce(INT32 nGroupID, INT32 nAnnounceSerial);
+    BOOL        DelAnnounce(INT32 nGroupID, UINT32 nAnnounceSerial);
     BOOL        QueryNameToID(std::map<INT32, ROLE_NAME_DATA> &map);
+    std::expected<void, std::string> ReceiveNameToID(UINT32 session, INT32 index, UINT32 role,
+        const std::filesystem::path& report);
     BOOL        SendGMStrCmd(const char *pcszCmdStr);
 
-    BOOL        LoadRoleData(CMD_BASE *pCmd);
+    BOOL        LoadRoleData(CommandPtr pCmd);
     BOOL        ModifyRole(UINT32 dwRoleID, UINT32 dwTargetRoleID, INT32 nLength, const char *pcszData, const char *pcszReason);
 
-    BOOL        ExeRoleGMCmd(CMD_BASE *pCmd);
+    BOOL        ExeRoleGMCmd(CommandPtr pCmd);
 
 
     // log
@@ -78,10 +92,12 @@ public:
 
 
     // cmd 
-    CMD_BASE*   GetCurrentCmd()     { return m_pCmd; }
+    CommandPtr GetCurrentCmd() const { return m_pCmd; }
     BOOL        SetExeServerNum(INT32 nSvrNum);
     BOOL        IsCmdExecuting(BOOL isModifyRoleCmd = FALSE);
     void        CmdEnd();
+    using Clock = std::chrono::steady_clock;
+    void SetClock(std::function<Clock::time_point()> clock);
 
 
 private:
@@ -89,10 +105,16 @@ private:
     INT32           m_nResult;
     BOOL            m_IsCmdComplete;
 
-    CMD_BASE    *m_pCmd;
+    CommandPtr m_pCmd;
+    struct Continuation { CommandPtr owner; std::function<BOOL()> run; };
+    std::optional<Continuation> m_continuation;
+    bool m_initialized = false;
+    std::function<Clock::time_point()> m_now = Clock::now;
+    Clock::time_point DeadlineAfter(std::chrono::seconds timeout) const;
+    BOOL Submit(CommandPtr command, std::chrono::seconds timeout, std::function<BOOL()> send);
 
-    typedef     std::list<UINT32>        SVR_LIST;
-    SVR_LIST::iterator      m_Cursor;
+    typedef std::vector<UINT32> SVR_LIST;
+    std::size_t m_Cursor = 0;
     SVR_LIST    m_PreExecuteSvrList;
 };
 

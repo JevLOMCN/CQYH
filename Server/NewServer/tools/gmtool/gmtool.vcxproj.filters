@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="ui class Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
@@ -85,88 +85,82 @@
     <ClCompile Include="view_guild.cpp">
       <Filter>ui class Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_gmtool.cpp">
+    <None Include="GeneratedFiles\qrc_gmtool.cpp">
       <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_delete_item.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_delete_item.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_executing.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_executing.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_forbidden_chat.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_forbidden_chat.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gmtool.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_gmtool.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_group_select.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_group_select.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_kick_user.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_kick_user.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_loader.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_loader.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_mail.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_mail.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_move_position.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_move_position.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_role_info.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_role_info.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_view_friend.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_view_friend.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_view_guild.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_view_guild.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_delete_item.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_delete_item.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_executing.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_executing.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_forbidden_chat.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_forbidden_chat.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gmtool.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_gmtool.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_group_select.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_group_select.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_kick_user.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_kick_user.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_loader.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_loader.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_mail.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_mail.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_move_position.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_move_position.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_role_info.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_role_info.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_view_friend.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_view_friend.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_view_guild.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_view_guild.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="cmd_data.cpp">
-      <Filter>kernel</Filter>
-    </ClCompile>
+    </None>
     <ClCompile Include="cmd_manager.cpp">
-      <Filter>kernel</Filter>
-    </ClCompile>
-    <ClCompile Include="cmd_manager_message.cpp">
       <Filter>kernel</Filter>
     </ClCompile>
     <ClCompile Include="data_mgr.cpp">
@@ -176,6 +170,15 @@
       <Filter>kernel</Filter>
     </ClCompile>
     <ClCompile Include="gm_manager.cpp">
+      <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_configuration.cpp">
+      <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_data_packets.cpp">
+      <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_role_data.cpp">
       <Filter>kernel</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -217,288 +220,389 @@
     <ClCompile Include="gm_item_info.cpp">
       <Filter>ui class Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gm_item_info.cpp">
+    <None Include="GeneratedFiles\Debug\moc_gm_item_info.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
+    </None>
     <ClCompile Include="ld_widget.cpp">
       <Filter>ui class Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_role_gm_cmd.cpp">
+    <None Include="GeneratedFiles\Debug\moc_role_gm_cmd.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_ld_widget.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_ld_widget.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_ld_widget.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_ld_widget.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gm_item_info.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_gm_item_info.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_role_gm_cmd.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_role_gm_cmd.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
+    </None>
     <ClCompile Include="ui_exchange_history.cpp">
       <Filter>kernel\ui</Filter>
     </ClCompile>
     <ClCompile Include="detail.cpp">
       <Filter>ui class Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_detail.cpp">
+    <None Include="GeneratedFiles\Debug\moc_detail.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_detail.cpp">
+    </None>
+    <None Include="GeneratedFiles\Release\moc_detail.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
+    </None>
     <ClCompile Include="exchange_limit.cpp">
       <Filter>ui class Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_exchange_limit.cpp">
+    <None Include="GeneratedFiles\Release\moc_exchange_limit.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_exchange_limit.cpp">
+    </None>
+    <None Include="GeneratedFiles\Debug\moc_exchange_limit.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="delete_item.h">
+    <ClInclude Include="delete_item.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="executing.h">
+    </ClInclude>
+    <ClInclude Include="executing.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="forbidden_chat.h">
+    </ClInclude>
+    <ClInclude Include="forbidden_chat.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gmtool.h">
+    </ClInclude>
+    <ClInclude Include="gmtool.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="group_select.h">
+    </ClInclude>
+    <ClInclude Include="group_select.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="kick_user.h">
+    </ClInclude>
+    <ClInclude Include="kick_user.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="loader.h">
+    </ClInclude>
+    <ClInclude Include="loader.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="mail.h">
+    </ClInclude>
+    <ClInclude Include="mail.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="move_position.h">
+    </ClInclude>
+    <ClInclude Include="move_position.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="role_info.h">
+    </ClInclude>
+    <ClInclude Include="role_info.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="svr_select.h">
+    </ClInclude>
+    <ClInclude Include="svr_select.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="view_friend.h">
+    </ClInclude>
+    <ClInclude Include="view_friend.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="view_guild.h">
+    </ClInclude>
+    <ClInclude Include="view_guild.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="delete_item.ui">
+    </ClInclude>
+    <None Include="delete_item.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="executing.ui">
+    </None>
+    <None Include="executing.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="forbidden_chat.ui">
+    </None>
+    <None Include="forbidden_chat.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gmtool.ui">
+    </None>
+    <None Include="gmtool.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="group_select.ui">
+    </None>
+    <None Include="group_select.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="kick_user.ui">
+    </None>
+    <None Include="kick_user.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="loader.ui">
+    </None>
+    <None Include="loader.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="mail.ui">
+    </None>
+    <None Include="mail.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="move_position.ui">
+    </None>
+    <None Include="move_position.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="role_info.ui">
+    </None>
+    <None Include="role_info.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="svr_select.ui">
+    </None>
+    <None Include="svr_select.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="view_friend.ui">
+    </None>
+    <None Include="view_friend.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="view_guild.ui">
+    </None>
+    <None Include="view_guild.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gmtool.qrc">
+    </None>
+    <None Include="gmtool.qrc">
       <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_delete_item.h">
+    </None>
+    <ClInclude Include="GeneratedFiles\ui_delete_item.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_executing.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_executing.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_forbidden_chat.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_forbidden_chat.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_gmtool.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_gmtool.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_group_select.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_group_select.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_kick_user.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_kick_user.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_loader.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_loader.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_mail.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_mail.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_move_position.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_move_position.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_role_info.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_role_info.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_svr_select.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_svr_select.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_view_friend.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_view_friend.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_view_guild.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_view_guild.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\inc\gm\gm_def.h">
+    </ClInclude>
+    <ClInclude Include="..\..\inc\gm\gm_def.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="cmd_data.h">
+    </ClInclude>
+    <ClInclude Include="cmd_data.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="cmd_manager.h">
+    </ClInclude>
+    <ClInclude Include="cmd_manager.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="data_mgr.h">
+    </ClInclude>
+    <ClInclude Include="data_mgr.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gm_log.h">
+    </ClInclude>
+    <ClInclude Include="gm_log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_manager.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gm_manager.h">
-      <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="message_handler.h">
+    </ClInclude>
+    <ClInclude Include="message_handler.h">
       <Filter>kernel\message</Filter>
-    </CustomBuild>
-    <CustomBuild Include="session_mgr.h">
+    </ClInclude>
+    <ClInclude Include="session_mgr.h">
       <Filter>kernel\message</Filter>
-    </CustomBuild>
-    <CustomBuild Include="item_tree_widget_item.h">
+    </ClInclude>
+    <ClInclude Include="item_tree_widget_item.h">
       <Filter>kernel\ui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="my_tree_widget_item.h">
+    </ClInclude>
+    <ClInclude Include="my_tree_widget_item.h">
       <Filter>kernel\ui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="svr_tree_widget_item.h">
+    </ClInclude>
+    <ClInclude Include="svr_tree_widget_item.h">
       <Filter>kernel\ui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="base_role.h">
+    </ClInclude>
+    <ClInclude Include="base_role.h">
       <Filter>kernel\other</Filter>
-    </CustomBuild>
-    <CustomBuild Include="predefine.h">
+    </ClInclude>
+    <ClInclude Include="predefine.h">
       <Filter>kernel\other</Filter>
-    </CustomBuild>
-    <CustomBuild Include="stdafx.h">
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
       <Filter>kernel\other</Filter>
-    </CustomBuild>
-    <CustomBuild Include="str_def.h">
+    </ClInclude>
+    <ClInclude Include="str_def.h">
       <Filter>kernel\other</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\gmtool-encrypt\encrypt\encrypt\base.h">
+    </ClInclude>
+    <ClInclude Include="..\gmtool-encrypt\encrypt\encrypt\base.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gmtool_def.h">
+    </ClInclude>
+    <ClInclude Include="gmtool_def.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="logic.h">
+    </ClInclude>
+    <ClInclude Include="logic.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="server_list.h">
+    </ClInclude>
+    <ClInclude Include="server_list.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="server_mgr.h">
+    </ClInclude>
+    <ClInclude Include="server_mgr.h">
       <Filter>kernel</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\inc\gm\gm_version.h">
+    </ClInclude>
+    <ClInclude Include="..\..\inc\gm\gm_version.h">
       <Filter>version</Filter>
-    </CustomBuild>
-    <CustomBuild Include="role_gm_cmd.h">
+    </ClInclude>
+    <ClInclude Include="role_gm_cmd.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="resource.h">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="role_gm_cmd.ui">
+    </ClInclude>
+    <None Include="role_gm_cmd.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_role_gm_cmd.h">
+    </None>
+    <ClInclude Include="GeneratedFiles\ui_role_gm_cmd.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gm_item_info.ui">
+    </ClInclude>
+    <None Include="gm_item_info.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gm_item_info.h">
+    </None>
+    <ClInclude Include="gm_item_info.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_gm_item_info.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_gm_item_info.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ld_widget.h">
+    </ClInclude>
+    <ClInclude Include="ld_widget.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ld_widget.ui">
+    </ClInclude>
+    <None Include="ld_widget.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_ld_widget.h">
+    </None>
+    <ClInclude Include="GeneratedFiles\ui_ld_widget.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="detail.ui">
+    </ClInclude>
+    <None Include="detail.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="detail.h">
+    </None>
+    <ClInclude Include="detail.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneratedFiles\ui_detail.h">
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_detail.h">
       <Filter>Generated Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="exchange_limit.ui">
+    </ClInclude>
+    <None Include="exchange_limit.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="exchange_limit.h">
+    </None>
+    <ClInclude Include="exchange_limit.h">
       <Filter>ui class Files</Filter>
-    </CustomBuild>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gmtool.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ui_exchange_history.h">
+    <ClInclude Include="exchange_history_widget.h">
       <Filter>kernel\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_configuration.h">
+      <Filter>kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_data_packets.h">
+      <Filter>kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_role_data.h">
+      <Filter>kernel</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_exchange_limit.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gm_receive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_send.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_name_queries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_reports.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_role_files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_bulk_queries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_role_replies.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_log_data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_log_receive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_session_events.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_runtime_native.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_log_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_exchange_stats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gm_exchange_replies.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="gm_packet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_receive_packets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_reports.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_role_files.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_log_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_log_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_exchange_stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_exchange_replies.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_session_events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_command_reply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_runtime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gm_exchange_ui.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,7 +1,16 @@
 #include "stdafx.h"
 #include "gmtool.h"
+#include "loader.h"
+#include "gm_log_view.h"
+#include "gm_exchange_stats.h"
+#include <QtCore/QPointer>
+#include "gm_reports.h"
+#include "gm_role_files.h"
+#include "gm_ui.h"
+#include <limits>
 #include <QtWidgets//QApplication>
-#include <QtWidgets/QMessageBox>
+#include <QtCore/QTextCodec>
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFileDialog>
 #include "forbidden_chat.h"
 #include "kick_user.h"
@@ -45,8 +54,7 @@
 #define TIME_FOREVER_INDEX     (4)
 
 
-QApplication app(__argc, __argv);
-gmtool g_gmtool;
+
 
 
 gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
@@ -95,11 +103,11 @@ gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
     connect(ui.toolButton, SIGNAL(clicked()), this, SLOT(OpenFile()));
     connect(ui.roleGMCmdhButton, SIGNAL(clicked()), this, SLOT(RoleGMCmd()));
 
-    m_pQueryIDRadioGroup = new QButtonGroup;
+    m_pQueryIDRadioGroup = new QButtonGroup(this);
     m_pQueryIDRadioGroup->addButton(ui.radioButton_query_1, GM_QUERY_BY_ROLE_NAME);
     m_pQueryIDRadioGroup->addButton(ui.radioButton_query_2, GM_QUERY_BY_USER_NAME);
 
-    m_pQueryRoleRadioGroup = new QButtonGroup;
+    m_pQueryRoleRadioGroup = new QButtonGroup(this);
     m_pQueryRoleRadioGroup->addButton(ui.radioButton_queryByID, 1);
     m_pQueryRoleRadioGroup->addButton(ui.radioButton_queryByFile, 2);
 
@@ -117,20 +125,20 @@ gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
     connect(ui.kickRoleButton, SIGNAL(clicked()), this, SLOT(KickRole()));
     connect(ui.mailButton, SIGNAL(clicked()), this, SLOT(Mail()));
     connect(ui.toolButton_2, SIGNAL(clicked()), this, SLOT(OpenFile_2()));
-    m_pRadioGroup = new QButtonGroup;
+    m_pRadioGroup = new QButtonGroup(this);
     m_pRadioGroup->addButton(ui.radioButton_5, 1);
     m_pRadioGroup->addButton(ui.radioButton_6, 2);
 
-    m_pFCRadioGroup = new QButtonGroup;
+    m_pFCRadioGroup = new QButtonGroup(this);
     m_pFCRadioGroup->addButton(ui.fc1_radioButton, 1);
     m_pFCRadioGroup->addButton(ui.fc2_radioButton, 2);
 
     ui.fc1_comboBox->clear();
-    ui.fc1_comboBox->insertItem(TIME_ONE_HOUR_INDEX, QString::fromLocal8Bit("1小时"));
-    ui.fc1_comboBox->insertItem(TIME_ONE_DAY_INDEX, QString::fromLocal8Bit("1天"));
-    ui.fc1_comboBox->insertItem(TIME_THREE_DAY_INDEX, QString::fromLocal8Bit("3天"));
-    ui.fc1_comboBox->insertItem(TIME_SEVEN_DAY_INDEX, QString::fromLocal8Bit("7天"));
-    ui.fc1_comboBox->insertItem(TIME_FOREVER_INDEX, QString::fromLocal8Bit("永久"));
+    ui.fc1_comboBox->insertItem(TIME_ONE_HOUR_INDEX, QStringLiteral("1小时"));
+    ui.fc1_comboBox->insertItem(TIME_ONE_DAY_INDEX, QStringLiteral("1天"));
+    ui.fc1_comboBox->insertItem(TIME_THREE_DAY_INDEX, QStringLiteral("3天"));
+    ui.fc1_comboBox->insertItem(TIME_SEVEN_DAY_INDEX, QStringLiteral("7天"));
+    ui.fc1_comboBox->insertItem(TIME_FOREVER_INDEX, QStringLiteral("永久"));
 
 
     // tag 4
@@ -153,12 +161,12 @@ gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
     ui.dateTimeEdit_log_2->setDateTime(qDataTime);
 
     ui.logComboBox->clear();
-    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGIN, QString::fromLocal8Bit("账号登入登出"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGOUT, QString::fromLocal8Bit("角色登出"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_ITEM, QString::fromLocal8Bit("道具流转"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_MONEY, QString::fromLocal8Bit("货币流转"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_QUEST, QString::fromLocal8Bit("角色任务"));
-    ui.logComboBox->insertItem(GM_LOG_QUERY_GM, QString::fromLocal8Bit("gm指令日志"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGIN, QStringLiteral("账号登入登出"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_ROLE_LOGOUT, QStringLiteral("角色登出"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_ITEM, QStringLiteral("道具流转"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_MONEY, QStringLiteral("货币流转"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_QUEST, QStringLiteral("角色任务"));
+    ui.logComboBox->insertItem(GM_LOG_QUERY_GM, QStringLiteral("gm指令日志"));
 
     connect(ui.logComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(ChangeInputType(int)));
     connect(ui.searchButton_log, SIGNAL(clicked()), this, SLOT(LogSearch()));
@@ -183,27 +191,30 @@ gmtool::gmtool(QWidget *parent, Qt::WindowFlags flags)
 
 gmtool::~gmtool()
 {
-
-}
-
-void gmtool::timerEvent(QTimerEvent* event)
-{
-    INT32       nRetCode = 0;
-
-    nRetCode = CGMManager::GetInstance().MainLoop();
-    if (!nRetCode)
+    if (gm::current_main_window() == this)
     {
-        nRetCode = CGMManager::GetInstance().UnInit();
-        LOG_CHECK_ERROR(nRetCode);
-        QMessageBox::critical(this, "critical", "Application error, will exit!", QMessageBox::Yes);
-        close();
+        gm::detach_main_window(this);
+        CGMManager::GetInstance().UnInit();
     }
-
-    if (m_pLDWidget)
-        m_pLDWidget->MainLoop();
-
 }
 
+CLDWidget* gmtool::GetLDWidget() { return m_pLDWidget.data(); }
+
+void gmtool::timerEvent(QTimerEvent*)
+{
+    if (gm::current_main_window() != this) return;
+    const QPointer<gmtool> alive(this);
+    auto& manager=CGMManager::GetInstance();
+    if(!manager.MainLoop())
+    {
+        if(!alive)return;
+        manager.UnInit();
+        if (auto* login = gm::current_login_dialog()) login->reject();
+        if (!alive) return;
+        ui.statusBar->showMessage(QStringLiteral("Application error, will exit!"));close();return;
+    }
+    if(alive && manager.IsRunning() && m_pLDWidget) m_pLDWidget->MainLoop();
+}
 
 void gmtool::Ok()
 {
@@ -226,83 +237,53 @@ void gmtool::ClearLog()
 }
 
 
-void gmtool::Login()
+void gmtool::Login() { SessionAction(true); }
+void gmtool::Logout() { SessionAction(false); }
+
+void gmtool::SessionAction(bool login)
 {
-    INT32       nRetCode = 0;
-    GM_SESSION  *pGMSession = NULL;
-
-    for (INT32 nIndex = 0; nIndex < MAX_GM_SESSION_COUNT; ++nIndex)
+    if (m_sessionSubmitting || gm::current_main_window() != this) return;
+    const QPointer<gmtool> alive(this);
+    m_sessionSubmitting = true;
+    struct Reset
     {
-        if (m_arrItemPoint[nIndex])
-        {
-            Qt::CheckState state = m_arrItemPoint[nIndex]->checkState(0);
-            if (state == Qt::Checked)
-            {
-                pGMSession = CSessionMgr::GetInstance().GetGMSession(m_arrItemPoint[nIndex]->GetSessionID());
-                LOG_PROCESS_ERROR(pGMSession);
-
-                nRetCode = CMessageHandler::GetInstance().DoLoginToGM(m_arrItemPoint[nIndex]->GetSessionID(), CGMManager::GetInstance().GetUserName(), CGMManager::GetInstance().GetUserPwd());
-                if (nRetCode == FALSE)
-                {
-                    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("未链接上服务器，无法登陆"), QMessageBox::Yes);
-                    return;
-                }
-
-                nRetCode = CGMLog::GetInstance().Log("登陆服务器[%s]....", QString::fromUtf8(pGMSession->szGMName).toLocal8Bit().data());
-                LOG_PROCESS_ERROR(nRetCode);
-                break;      // Process only one server per iteration. Allan Tao [5.3.2014]
-            }
-        }
-    }
-
-    return ;
-Exit0:
-    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("登陆失败，请稍后重试或联系开发人员"), QMessageBox::Yes);
-    return;
-}
-
-void gmtool::Logout()
-{
-    INT32           nRetCode = 0;
-    GM_SESSION      *pGMSession = NULL;
-
-    for (INT32 nIndex = 0; nIndex < MAX_GM_SESSION_COUNT; ++nIndex)
+        QPointer<gmtool> owner;
+        bool* active;
+        ~Reset() { if (owner) *active = false; }
+    } reset{this, &m_sessionSubmitting};
+    for (UINT32 id = 0; id < MAX_GM_SESSION_COUNT; ++id)
     {
-        if (m_arrItemPoint[nIndex])
+        if (!m_arrItemPoint[id] || m_arrItemPoint[id]->checkState(0) != Qt::Checked) continue;
+        const auto* session = CSessionMgr::GetInstance().GetGMSession(id);
+        if (!CGMManager::GetInstance().IsRunning() || !session || !session->pSocketSession ||
+            session->nConnectState != SESSION_CONNECTED ||
+            session->eState != (login ? GM_SVR_STATE_REGISTERED : GM_SVR_STATE_LOGIN))
         {
-            Qt::CheckState state = m_arrItemPoint[nIndex]->checkState(0);
-            if (state == Qt::Checked)
-            {
-                pGMSession = CSessionMgr::GetInstance().GetGMSession(m_arrItemPoint[nIndex]->GetSessionID());
-                LOG_PROCESS_ERROR(pGMSession);
-
-                CDataMgr::GetInstance().ClearItemMap(nIndex);
-
-                nRetCode = CMessageHandler::GetInstance().DoLogoutToGM(m_arrItemPoint[nIndex]->GetSessionID());
-                if (nRetCode == FALSE)
-                {
-                    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("未链接上服务器，无法登陆"), QMessageBox::Yes);
-                    return;
-                }
-
-                nRetCode = CGMLog::GetInstance().Log("登出服务器[%s]....", QString::fromUtf8(pGMSession->szGMName).toLocal8Bit().data());
-                LOG_PROCESS_ERROR(nRetCode);
-
-                break;      // Process only one server per iteration. Allan Tao [5.3.2014]
-            }
+            ui.statusBar->showMessage(QStringLiteral("服务器状态不可用，请稍后重试"));
+            return;
         }
+        const auto name = session->name;
+        const std::string account(CGMManager::GetInstance().GetUserName());
+        const std::string password(CGMManager::GetInstance().GetUserPwd());
+        bool sent = false;
+        try
+        {
+            sent = (login ? CMessageHandler::GetInstance().DoLoginToGM(id, account.c_str(), password.c_str()) :
+                CMessageHandler::GetInstance().DoLogoutToGM(id)) != FALSE;
+        }
+        catch (...) { sent = false; }
+        if (!alive) return;
+        if (!sent) { ui.statusBar->showMessage(QStringLiteral("发送失败，请稍后重试")); return; }
+        CGMLog::GetInstance().Log("{}服务器[{}]....", login ? "登陆" : "登出",
+            QString::fromUtf8(name.c_str()).toLocal8Bit().constData());
+        return; // The legacy UI operates on the first selected server.
     }
-
-    return ;
-Exit0:
-    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("登陆失败，请稍后重试或联系开发人员"), QMessageBox::Yes);
-    return;
+    ui.statusBar->showMessage(QStringLiteral("请先选择服务器"));
 }
 
 void gmtool::SecondInit(int nIndex)
 {
     INT32       nRetCode = 0;
-    ITEM_TEMPLATE_DATA  *pTemplate = NULL;
     // index 0 - n
     if (nIndex == 1)
     {
@@ -320,28 +301,26 @@ void gmtool::SecondInit(int nIndex)
         }
         if (MAX_GM_SESSION_COUNT == dwSessionID)
         {
-            //QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择执行区服"), QMessageBox::Yes);
+            //QMessageBox::critical(this, "critical", QStringLiteral("请选择执行区服"), QMessageBox::Yes);
             return;
         }
 
         INF("second init begin item map");
         ui.mailItem_comboBox->clear();
         INT32 i = 1;
-        CDataMgr::GetInstance().ItemMapBegin(dwSessionID);
-        while (pTemplate = CDataMgr::GetInstance().ItemMapNext(dwSessionID))
+        for (const auto& item : CDataMgr::GetInstance().GetItems(dwSessionID))
         {
             QString     str;
             
-            str.append(pTemplate->szName);
+            str.append(item.szName);
 
             str.append(" - ");
             
             char        szNum[64] = { 0 };
-            gm_itoa(pTemplate->dwTempID, szNum);
+            gm_itoa(item.dwTempID, szNum);
 
             str.append(szNum);
 
-            //str.setNum(pTemplate->dwTempID, 10);
 
             ui.mailItem_comboBox->insertItem(i, str);
             ++i;
@@ -431,317 +410,134 @@ void gmtool::SetFocusRoleIDByFile()
 
 void gmtool::QueryRoleID()
 {
-    INT32       nRetCode = 0;
-    INT32       nSelectRadioID = -1;
-    char        szName[128] = { 0 };
-
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(false);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    const auto kind=m_pQueryIDRadioGroup->checkedId();
+    if (kind!=GM_QUERY_BY_ROLE_NAME && kind!=GM_QUERY_BY_USER_NAME)
+    { ui.statusBar->showMessage(QStringLiteral("请选择查询类型"));return; }
+    const auto name=gm::text_field(kind==GM_QUERY_BY_ROLE_NAME ? ui.lineEdit_query_1->text() : ui.lineEdit_query_2->text(),
+        USER_NAME_LEN,QStringLiteral("查询名称"));
+    if (!name) { ui.statusBar->showMessage(name.error());return; }
     ui.treeWidget_queryroleid->clear();
-
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsServerSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择执行区服"), QMessageBox::Yes);
-        return;
-    }
-
-    if (-1 == m_pQueryIDRadioGroup->checkedId())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择要查询的日志"), QMessageBox::Yes);
-        return;
-    }
-
-    nSelectRadioID = m_pQueryIDRadioGroup->checkedId();
-    if (nSelectRadioID == GM_QUERY_BY_ROLE_NAME)
-        strxcpy(szName, ui.lineEdit_query_1->text().toUtf8(), sizeof(szName));
-    else if (nSelectRadioID == GM_QUERY_BY_USER_NAME)
-        strxcpy(szName, ui.lineEdit_query_2->text().toUtf8(), sizeof(szName));
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择查询类型"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    if (0 == strlen(szName))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请输入正确的名字"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    nRetCode = CCmdManager::GetInstance().QueryRoleID(nSelectRadioID, szName);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    return;
-Exit0:
-    return;
+    if (!alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,false))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    const auto sent=manager.QueryRoleID(kind,name->c_str());
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
 
 void gmtool::QueryRoleData()
 {
-    INT32       nRetCode = 0;
-    char        szRoleName[ROLE_NAME_LEN] = { 0 };
-    GM_SESSION  *pGMSession = NULL;
-    CMD_BASE    *pCmd = NULL;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    if (ui.radioButton_queryByID->isChecked())
-    {
-        if (ui.lineEdit_queryByid->text().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请正确填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        strxcpy(szRoleName, ui.lineEdit_queryByid->text().toUtf8(), ROLE_NAME_LEN);
-
-        ui.treeWidget->clear();
-        CDataMgr::GetInstance().ClearRole();
-
-        pCmd = CCmdManager::GetInstance().NewCmd(CMD_QUERY_ROLE_DATA);
-        LOG_PROCESS_ERROR(pCmd);
-
-        pCmd->nType = CMD_QUERY_ROLE_DATA;
-        pCmd->nSvrNum = 0;
-        strxcpy(((QUERY_ROLE_DATA*)pCmd)->szRoleName, szRoleName, ROLE_NAME_LEN);
-        ((QUERY_ROLE_DATA*)pCmd)->dwRoleID = 0;
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_QUERY_ROLE_DATA, szRoleName, pCmd);
-        LOG_CHECK_ERROR(nRetCode);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-
-    }
-    else if (ui.radioButton_queryByFile->isChecked())
-    {
-        //nRetCode = _ReadRoleIDFromFile(ui.lineEdit_queryByFile->text().toUtf8(), roleIDList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        return;
-    }
-
-    return;
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("请选择单个角色名"));return; }
+    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+    if (!name) { ui.statusBar->showMessage(name.error());return; }
+    auto command=std::static_pointer_cast<QUERY_ROLE_DATA>(manager.NewCmd(CMD_QUERY_ROLE_DATA));
+    if (!gm::copy_field(command->szRoleName,*name)) return;
+    ui.treeWidget->clear();
+    if (!alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    CDataMgr::GetInstance().ClearRole();
+    const auto sent=manager.PreQuery(CMD_QUERY_ROLE_DATA,name->c_str(),command);
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
 
 void gmtool::ViewRoleData()
 {
-    INT32       nRetCode = 0;
-    GM_SESSION  *pGMSession = NULL;
-
-    nRetCode = CCmdManager::GetInstance().IsCmdExecuting();
-    if (nRetCode)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    CMyTreeWidgetItem * pItem = (CMyTreeWidgetItem*)ui.treeWidget->currentItem();
-    if (pItem)
-    {
-        CRoleInfo   *pRoleInfo = new CRoleInfo(0, pItem->GetID());
-        pRoleInfo->show();
-    }
-
-    return;
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    if (CCmdManager::GetInstance().IsCmdExecuting())
+    { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto* item=ui.treeWidget->currentItem();
+    bool valid=false;
+    const auto role=item ? item->data(2,Qt::UserRole).toUInt(&valid) : 0;
+    if (!valid || !role || !CDataMgr::GetInstance().FindRole(role))
+    { ui.statusBar->showMessage(QStringLiteral("请选择有效的角色数据"));return; }
+    const QPointer<CRoleInfo> dialog=new CRoleInfo(0,role,FALSE,this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 }
 
 void gmtool::ModifyRoleData()
 {
-    INT32       nRetCode = 0;
-    typedef std::list<UINT32>   ROLEID_LIST;
-    ROLEID_LIST roleIDList;
-    UINT32      dwRoleID = 0;
-    char        szRoleName[ROLE_NAME_LEN] = { 0 };
-
-    nRetCode = CCmdManager::GetInstance().IsCmdExecuting();
-    if (nRetCode)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    // clear role cache
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("请选择单个角色名"));return; }
+    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+    if (!name) { ui.statusBar->showMessage(name.error());return; }
+    if (!gm::confirm_action(*this,QStringLiteral("请确认角色“%1”处于离线状态，否则可能导致数据不一致。继续修改？")
+        .arg(QString::fromUtf8(name->c_str()))) || !alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    auto command=std::static_pointer_cast<LOAD_ROLE_DATA>(manager.NewCmd(CMD_LOAD_ROLE_DATA));
+    if (!gm::copy_field(command->szRoleName,*name)) return;
     ui.treeWidget->clear();
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("请确认角色处于离线状态！否则将导致玩家数据不一致"));
-    if (nCheckEnum == QMessageBox::Yes)
-    {
-        if (ui.radioButton_queryByID->isChecked())
-        {
-            if (ui.lineEdit_queryByid->text().toUtf8().length() <= 0)
-            {
-                QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-                return;
-            }
-
-            strxcpy(szRoleName, ui.lineEdit_queryByid->text().toUtf8(), ROLE_NAME_LEN);
-
-            LOAD_ROLE_DATA *pCmd = (LOAD_ROLE_DATA*)CCmdManager::GetInstance().NewCmd(CMD_LOAD_ROLE_DATA);
-            LOG_PROCESS_ERROR(pCmd);
-
-            pCmd->nType = CMD_LOAD_ROLE_DATA;
-            pCmd->nSvrNum = 0;
-            strxcpy(((LOAD_ROLE_DATA*)pCmd)->szRoleName, szRoleName, ROLE_NAME_LEN);
-            ((LOAD_ROLE_DATA*)pCmd)->dwRoleID = 0;
-
-            nRetCode = CCmdManager::GetInstance().PreQuery(CMD_LOAD_ROLE_DATA, szRoleName, pCmd);
-            LOG_CHECK_ERROR(nRetCode);
-            if (nRetCode == FALSE)
-            {
-                QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-                LOG_PROCESS_ERROR(FALSE);
-            }
-        }
-        else if (ui.radioButton_queryByFile->isChecked())
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("角色ID 数量过多"), QMessageBox::Yes);
-            return;
-        }
-        else
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入类型"), QMessageBox::Yes);
-            return;
-        }
-    }
-    else
-    {
-        return;
-    }
-
-    return;
-Exit0:
-    return;
+    if (!alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    const auto sent=manager.PreQuery(CMD_LOAD_ROLE_DATA,name->c_str(),command);
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
 
-void gmtool::OpenFile()
+void gmtool::OpenFile() { PickRoleFile(true); }
+void gmtool::PickRoleFile(bool primary)
 {
-    ui.lineEdit_queryByFile->clear();
-    QFileDialog *pFileDialog = new QFileDialog(this);
-    if (pFileDialog == NULL)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("打开文件对话框失败"), QMessageBox::Yes);
-        return;
-    }
-
-    pFileDialog->setWindowTitle(QString::fromLocal8Bit("选择文件"));
-    pFileDialog->setDirectory(".");
-    if (pFileDialog->exec() == QDialog::Accepted)
-    {
-        QString path = pFileDialog->selectedFiles()[0];
-        ui.lineEdit_queryByFile->setText(path);
-    }
-    else
-    {
-        QMessageBox::information(this, "critical", QString::fromLocal8Bit("未选择文件"), QMessageBox::Yes);
-        return;
-    }
-
-    delete pFileDialog;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    const QPointer<QLineEdit> destination(primary ? ui.lineEdit_queryByFile : ui.lineEdit);
+    gm::DialogScope scope(new QFileDialog(this));
+    const auto dialog=scope.Get();
+    dialog->setObjectName(QStringLiteral("gmRoleFileDialog"));
+    dialog->setOption(QFileDialog::DontUseNativeDialog);
+    dialog->setWindowTitle(QStringLiteral("选择文件"));dialog->setDirectory(QStringLiteral("."));
+    dialog->setFileMode(QFileDialog::ExistingFile);
+    if (dialog->exec()!=QDialog::Accepted || !alive || !dialog || !destination) return;
+    const auto files=dialog->selectedFiles();
+    if (!files.isEmpty()) destination->setText(files.front());
 }
 
 void gmtool::RoleGMCmd()
 {
-    INT32       nRetCode = 0;
-    typedef std::list<UINT32>   ROLEID_LIST;
-    ROLEID_LIST roleIDList;
-    UINT32      dwRoleID = 0;
-    char        szRoleName[ROLE_NAME_LEN] = { 0 };
-
-    nRetCode = CCmdManager::GetInstance().IsCmdExecuting();
-    if (nRetCode)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    if (ui.radioButton_queryByID->isChecked())
-    {
-        if (ui.lineEdit_queryByid->text().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        strxcpy(szRoleName, ui.lineEdit_queryByid->text().toUtf8(), ROLE_NAME_LEN);
-    }
-    else if (ui.radioButton_queryByFile->isChecked())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("角色ID 数量过多"), QMessageBox::Yes);
-        return;
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入类型"), QMessageBox::Yes);
-        return;
-    }
-
-    CRoleGMCmd      exe;
-    exe.exec();
-
-    if (exe.IsExeCmd())
-    {
-        EXE_ROLE_CMD *pCmd = (EXE_ROLE_CMD*)CCmdManager::GetInstance().NewCmd(CMD_EXE_ROLE_GM_CMD);
-        LOG_PROCESS_ERROR(pCmd);
-
-        pCmd->nType = CMD_EXE_ROLE_GM_CMD;
-        pCmd->nSvrNum = 0;
-        strxcpy(((EXE_ROLE_CMD*)pCmd)->szRoleName, szRoleName, ROLE_NAME_LEN);
-        strxcpy(((EXE_ROLE_CMD*)pCmd)->szReason, exe.GetReason(), 2048);
-        strxcpy(((EXE_ROLE_CMD*)pCmd)->szGM, exe.GetBuffer(), MAX_GM_COMMAND_LEN);
-        ((EXE_ROLE_CMD*)pCmd)->dwRoleID = 0;
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_EXE_ROLE_GM_CMD, szRoleName, pCmd);
-        LOG_CHECK_ERROR(nRetCode);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    if (!ui.radioButton_queryByID->isChecked()) { ui.statusBar->showMessage(QStringLiteral("请选择单个角色名"));return; }
+    const auto name=gm::text_field(ui.lineEdit_queryByid->text(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+    if (!name) { ui.statusBar->showMessage(name.error());return; }
+    gm::DialogScope scope(new CRoleGMCmd(this));
+    const auto dialog=scope.Get();
+    if (dialog->exec()!=QDialog::Accepted || !alive || !dialog || !dialog->IsExeCmd()) return;
+    const std::string text(dialog->GetBuffer()),reason(dialog->GetReason());
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    auto command=std::static_pointer_cast<EXE_ROLE_CMD>(manager.NewCmd(CMD_EXE_ROLE_GM_CMD));
+    if (!gm::copy_field(command->szRoleName,*name) || !gm::copy_field(command->szGM,text) ||
+        !gm::copy_field(command->szReason,reason)) return;
+    const auto sent=manager.PreQuery(CMD_EXE_ROLE_GM_CMD,name->c_str(),command);
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
-
 
 // tag 2
 void gmtool::SetFocusRoleIDByEdit2()
@@ -761,830 +557,203 @@ void gmtool::SetFocusForbidChat()
 
 
 
-void gmtool::ForBiddenChat()
+void gmtool::ForBiddenChat() { BulkAction(CMD_FORBIDDEN_CHAT); }
+void gmtool::UnforbidChat() { BulkAction(CMD_FORBIDDEN_CHAT,true); }
+void gmtool::FreezeRole() { BulkAction(CMD_FREEZE_ROLE); }
+void gmtool::UnfreezeRole() { BulkAction(CMD_FREEZE_ROLE,true); }
+void gmtool::KickRole() { BulkAction(CMD_KICK_ROLE); }
+void gmtool::Mail() { BulkAction(CMD_SEND_MAIL); }
+
+void gmtool::BulkAction(INT32 kind,bool revoke)
 {
-    INT32       nRetCode = 0;
-    INT32       nIndex = 0;
-    INT64       llTime = 0;
-    ROLE_RESULT     roleres;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认禁言？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    if (ui.fc1_radioButton->isChecked())
-    {
-        nIndex = ui.fc1_comboBox->currentIndex();
-        if (nIndex == TIME_ONE_HOUR_INDEX)
-            llTime = 3600;
-        else if (nIndex == TIME_ONE_DAY_INDEX)
-            llTime = 86400;
-        else if (nIndex == TIME_THREE_DAY_INDEX)
-            llTime = 86400 * 3;
-        else if (nIndex == TIME_SEVEN_DAY_INDEX)
-            llTime = 86400 * 7;
-        else if (nIndex == TIME_FOREVER_INDEX)
-            llTime = FOREVER_TIME;
-        else
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("输入错误"), QMessageBox::Yes);
-            return;
-        }
-    }
-    else if (ui.fc2_radioButton->isCheckable())
-    {
-        llTime = ui.forbiddenChatTimeEdit->text().toLong();
-        if (llTime == -1)
-            llTime = FOREVER_TIME;
-        else if (llTime == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("参数错误"), QMessageBox::Yes);
-            return;
-        }
-        else
-        {
-            llTime *= 60;
-            if (llTime > 1000000000)
-                llTime = FOREVER_TIME;
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择禁言时间"), QMessageBox::Yes);
-        return;
-    }
-
-    FORBIDDEN_CHAT *pCmd = (FORBIDDEN_CHAT*)CCmdManager::GetInstance().NewCmd(CMD_FORBIDDEN_CHAT);
-    LOG_PROCESS_ERROR(pCmd);
-
-    pCmd->nType = CMD_FORBIDDEN_CHAT;
-    pCmd->nSvrNum = 0;
-    pCmd->llTime = llTime;
-    pCmd->roleList.clear();
-    pCmd->roleResList.clear();
-    memset(pCmd->szFileName, 0, sizeof(pCmd->szFileName));
-
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    std::list<ROLE_RESULT> roles;
+    std::filesystem::path report_path;
     if (ui.radioButton_6->isChecked())
     {
-        if (ui.textEdit_RoleID->toPlainText().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        roleres.dwRoleID = 0;
-        roleres.nResult = errUnknownError;
-        strxcpy(roleres.szRoleName, ui.textEdit_RoleID->toPlainText().toUtf8(), ROLE_NAME_LEN);
-        pCmd->roleList.push_back(roleres);
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FORBIDDEN_CHAT, roleres.szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
+        const auto name=gm::text_field(ui.textEdit_RoleID->toPlainText(),ROLE_NAME_LEN,QStringLiteral("角色名"));
+        if (!name) { ui.statusBar->showMessage(name.error());return; }
+        ROLE_RESULT row{};row.nResult=errUnknownError;
+        if (!gm::copy_field(row.szRoleName,*name)) return;
+        roles.push_back(row);
     }
-    else if (ui.radioButton_queryByFile->isCheckable())
+    else if (ui.radioButton_5->isChecked())
     {
-        strxcpy(pCmd->szFileName, ui.lineEdit->text().toUtf8(), sizeof(pCmd->szFileName));
-
-        nRetCode = _ReadRoleFromFile(pCmd->szFileName, pCmd->roleList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        if (pCmd->roleList.size() == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有效角色名数量为0"), QMessageBox::Yes);
-            return;
-        }
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FORBIDDEN_CHAT, pCmd->roleList.begin()->szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
+        const auto filename=gm::text_field(ui.lineEdit->text(),std::numeric_limits<std::size_t>::max(),QStringLiteral("文件名"));
+        if (!filename) { ui.statusBar->showMessage(filename.error());return; }
+        report_path=gm::utf8_path(*filename);
+        auto batch=gm::read_role_batch(report_path);
+        if (!batch) { ui.statusBar->showMessage(QString::fromUtf8(batch.error().c_str()));return; }
+        if (batch->empty()) { ui.statusBar->showMessage(QStringLiteral("有效角色名数量为0"));return; }
+        roles=std::move(*batch);
     }
-    else
+    else { ui.statusBar->showMessage(QStringLiteral("请选择角色输入方式"));return; }
+    UINT32 duration=0;
+    if (!revoke && (kind==CMD_FORBIDDEN_CHAT || kind==CMD_FREEZE_ROLE))
     {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入方式"), QMessageBox::Yes);
-        return;
+        if (ui.fc1_radioButton->isChecked())
+        {
+            using namespace std::chrono;
+            constexpr std::array<seconds,5> presets{hours{1},days{1},days{3},days{7},seconds{FOREVER_TIME}};
+            const auto index=ui.fc1_comboBox->currentIndex();
+            if (index<0 || static_cast<std::size_t>(index)>=presets.size())
+            { ui.statusBar->showMessage(QStringLiteral("请选择有效时间"));return; }
+            duration=static_cast<UINT32>(presets[index].count());
+        }
+        else if (ui.fc2_radioButton->isChecked())
+        {
+            const auto minutes=gm::numeric_field<INT64>(ui.forbiddenChatTimeEdit->text(),QStringLiteral("分钟数"));
+            if (!minutes) { ui.statusBar->showMessage(minutes.error());return; }
+            const auto seconds=gm::minute_duration(*minutes,FOREVER_TIME);
+            if (!seconds) { ui.statusBar->showMessage(QStringLiteral("分钟数须为正整数，永久请填 -1"));return; }
+            duration=*seconds;
+        }
+        else { ui.statusBar->showMessage(QStringLiteral("请选择时间"));return; }
     }
-
-    return ;
-Exit0:
-    return;
+    const auto make=[&]<class T>()
+    {
+        auto command=std::static_pointer_cast<T>(manager.NewCmd(kind));
+        command->report_path=std::move(report_path);command->roleList=std::move(roles);
+        if constexpr (requires { command->llTime; }) command->llTime=duration;
+        return command;
+    };
+    CommandPtr command;
+    QString question;
+    switch (kind)
+    {
+    case CMD_FORBIDDEN_CHAT:
+        command=make.operator()<FORBIDDEN_CHAT>();question=revoke ? QStringLiteral("确认解除禁言？") : QStringLiteral("确认禁言？");break;
+    case CMD_FREEZE_ROLE:
+        command=make.operator()<FREEZE_ROLE>();question=revoke ? QStringLiteral("确认解除封号？") : QStringLiteral("确认封号？");break;
+    case CMD_KICK_ROLE:
+        command=make.operator()<KICK_ROLE>();question=QStringLiteral("确认强制角色下线？");break;
+    case CMD_SEND_MAIL:
+    {
+        const auto item=gm::numeric_field<UINT32>(ui.lineEdit_mail_2->text(),QStringLiteral("道具ID"),true);
+        const auto count=gm::numeric_field<INT32>(ui.lineEdit_mail_3->text(),QStringLiteral("道具数量"),true);
+        if (!item || !count) { ui.statusBar->showMessage(!item ? item.error() : count.error());return; }
+        if (*count<0 || ((*item==0)!=(*count==0)))
+        { ui.statusBar->showMessage(QStringLiteral("道具ID和数量须同时为0或同时为正数"));return; }
+        // Empty subject/body are valid legacy wire values, including attachment-only mail.
+        const auto subject=gm::text_field(ui.lineEdit_mail_1->text(),MAIL_SUBJECT_LEN,QStringLiteral("标题"),0);
+        const auto content=gm::text_field(ui.textEdit_mail->toPlainText(),MAIL_CONTENT_LEN,QStringLiteral("内容"),0);
+        const auto reason=gm::text_field(ui.mailReasonEdit->toPlainText(),GM_REASON_LEN,QStringLiteral("原因"),*item ? 1 : 0);
+        if (!subject || !content || !reason)
+        { ui.statusBar->showMessage(!subject ? subject.error() : !content ? content.error() : reason.error());return; }
+        auto mail=make.operator()<SEND_MAIL>();mail->dwItemID=*item;mail->nItemNum=*count;
+        if (!gm::copy_field(mail->szTitle,*subject) || !gm::copy_field(mail->szContent,*content) || !gm::copy_field(mail->szReason,*reason)) return;
+        command=std::move(mail);question=QStringLiteral("确认发送邮件？");break;
+    }
+    default: return;
+    }
+    const auto submit=[&]<class T>()
+    {
+        const auto typed=std::static_pointer_cast<T>(command);
+        const auto name=std::string(typed->roleList.front().szRoleName);
+        question+=QStringLiteral("（%1 个角色）").arg(static_cast<qulonglong>(typed->roleList.size()));
+        if (!gm::confirm_action(*this,question) || !alive) return;
+        if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+        { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+        const auto sent=manager.PreQuery(kind,name.c_str(),command);
+        if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
+    };
+    switch (kind)
+    {
+    case CMD_FORBIDDEN_CHAT: submit.operator()<FORBIDDEN_CHAT>();break;
+    case CMD_FREEZE_ROLE: submit.operator()<FREEZE_ROLE>();break;
+    case CMD_KICK_ROLE: submit.operator()<KICK_ROLE>();break;
+    case CMD_SEND_MAIL: submit.operator()<SEND_MAIL>();break;
+    }
 }
 
-void gmtool::UnforbidChat()
+void gmtool::OpenFile_2() { PickRoleFile(false); }
+
+BOOL gmtool::_SelectGroup(INT32& group)
 {
-    INT32       nRetCode = 0;
-    ROLE_RESULT     roleres;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认解除禁言？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    FORBIDDEN_CHAT *pCmd = (FORBIDDEN_CHAT*)CCmdManager::GetInstance().NewCmd(CMD_FORBIDDEN_CHAT);
-    LOG_PROCESS_ERROR(pCmd);
-
-    pCmd->nType = CMD_FORBIDDEN_CHAT;
-    pCmd->nSvrNum = 0;
-    pCmd->llTime = 0;
-    pCmd->roleList.clear();
-    pCmd->roleResList.clear();
-    memset(pCmd->szFileName, 0, sizeof(pCmd->szFileName));
-
-    if (ui.radioButton_6->isChecked())
-    {
-        if (ui.textEdit_RoleID->toPlainText().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        roleres.dwRoleID = 0;
-        roleres.nResult = errUnknownError;
-        strxcpy(roleres.szRoleName, ui.textEdit_RoleID->toPlainText().toUtf8(), ROLE_NAME_LEN);
-        pCmd->roleList.push_back(roleres);
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FORBIDDEN_CHAT, roleres.szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else if (ui.radioButton_queryByFile->isCheckable())
-    {
-        strxcpy(pCmd->szFileName, ui.lineEdit->text().toUtf8(), sizeof(pCmd->szFileName));
-
-        nRetCode = _ReadRoleFromFile(pCmd->szFileName, pCmd->roleList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        if (pCmd->roleList.size() == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有效角色名数量为0"), QMessageBox::Yes);
-            return;
-        }
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FORBIDDEN_CHAT, pCmd->roleList.begin()->szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入方式"), QMessageBox::Yes);
-        return;
-    }
-
-    return;
-Exit0:
-    return;
-}
-
-
-void gmtool::FreezeRole()
-{
-    INT32       nRetCode = 0;
-    INT64       llTime = 0;
-    INT32       nIndex = 0;
-    ROLE_RESULT     roleres;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认封号？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    if (ui.fc1_radioButton->isChecked())
-    {
-        nIndex = ui.fc1_comboBox->currentIndex();
-        if (nIndex == TIME_ONE_HOUR_INDEX)
-            llTime = 3600;
-        else if (nIndex == TIME_ONE_DAY_INDEX)
-            llTime = 86400;
-        else if (nIndex == TIME_THREE_DAY_INDEX)
-            llTime = 86400 * 3;
-        else if (nIndex == TIME_SEVEN_DAY_INDEX)
-            llTime = 86400 * 7;
-        else if (nIndex == TIME_FOREVER_INDEX)
-            llTime = FOREVER_TIME;
-        else
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("输入错误"), QMessageBox::Yes);
-            return;
-        }
-    }
-    else if (ui.fc2_radioButton->isChecked())
-    {
-        llTime = ui.forbiddenChatTimeEdit->text().toLong();
-        if (llTime == -1)
-            llTime = FOREVER_TIME;
-        else
-        {
-            llTime *= 60;
-            if (llTime > 1000000000)
-                llTime = FOREVER_TIME;
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择冻结时间"), QMessageBox::Yes);
-        return;
-    }
-
-
-    FREEZE_ROLE *pCmd = (FREEZE_ROLE*)CCmdManager::GetInstance().NewCmd(CMD_FREEZE_ROLE);
-    LOG_PROCESS_ERROR(pCmd);
-
-    pCmd->nType = CMD_FREEZE_ROLE;
-    pCmd->nSvrNum = 0;
-    pCmd->llTime = llTime;
-    pCmd->roleList.clear();
-    pCmd->roleResList.clear();
-    memset(pCmd->szFileName, 0, sizeof(pCmd->szFileName));
-
-    if (ui.radioButton_6->isChecked())
-    {
-        if (ui.textEdit_RoleID->toPlainText().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        roleres.dwRoleID = 0;
-        roleres.nResult = errUnknownError;
-        strxcpy(roleres.szRoleName, ui.textEdit_RoleID->toPlainText().toUtf8(), ROLE_NAME_LEN);
-        pCmd->roleList.push_back(roleres);
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FREEZE_ROLE, roleres.szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else if (ui.radioButton_queryByFile->isCheckable())
-    {
-        strxcpy(pCmd->szFileName, ui.lineEdit->text().toUtf8(), sizeof(pCmd->szFileName));
-
-        nRetCode = _ReadRoleFromFile(pCmd->szFileName, pCmd->roleList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        if (pCmd->roleList.size() == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有效角色名数量为0"), QMessageBox::Yes);
-            return;
-        }
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FREEZE_ROLE, pCmd->roleList.begin()->szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入方式"), QMessageBox::Yes);
-        return;
-    }
-
-    return;
-Exit0:
-    return;
-}
-
-void gmtool::UnfreezeRole()
-{
-    INT32       nRetCode = 0;
-    ROLE_RESULT     roleres;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认解除封号？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    FREEZE_ROLE *pCmd = (FREEZE_ROLE*)CCmdManager::GetInstance().NewCmd(CMD_FREEZE_ROLE);
-    LOG_PROCESS_ERROR(pCmd);
-
-    pCmd->nType = CMD_FREEZE_ROLE;
-    pCmd->nSvrNum = 0;
-    pCmd->llTime = 0;
-    pCmd->roleList.clear();
-    pCmd->roleResList.clear();
-    memset(pCmd->szFileName, 0, sizeof(pCmd->szFileName));
-
-    if (ui.radioButton_6->isChecked())
-    {
-        if (ui.textEdit_RoleID->toPlainText().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        roleres.dwRoleID = 0;
-        roleres.nResult = errUnknownError;
-        strxcpy(roleres.szRoleName, ui.textEdit_RoleID->toPlainText().toUtf8(), ROLE_NAME_LEN);
-        pCmd->roleList.push_back(roleres);
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FREEZE_ROLE, roleres.szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else if (ui.radioButton_queryByFile->isCheckable())
-    {
-        strxcpy(pCmd->szFileName, ui.lineEdit->text().toUtf8(), sizeof(pCmd->szFileName));
-
-        nRetCode = _ReadRoleFromFile(pCmd->szFileName, pCmd->roleList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        if (pCmd->roleList.size() == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有效角色名数量为0"), QMessageBox::Yes);
-            return;
-        }
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_FREEZE_ROLE, pCmd->roleList.begin()->szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入方式"), QMessageBox::Yes);
-        return;
-    }
-
-    return;
-Exit0:
-    return;
-}
-
-void gmtool::KickRole()
-{
-    INT32       nRetCode = 0;
-    ROLE_RESULT     roleres;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认强制角色下线？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    KICK_ROLE *pCmd = (KICK_ROLE*)CCmdManager::GetInstance().NewCmd(CMD_KICK_ROLE);
-    LOG_PROCESS_ERROR(pCmd);
-
-    pCmd->nType = CMD_KICK_ROLE;
-    pCmd->nSvrNum = 0;
-    pCmd->roleList.clear();
-    pCmd->roleResList.clear();
-    memset(pCmd->szFileName, 0, sizeof(pCmd->szFileName));
-
-    if (ui.radioButton_6->isChecked())
-    {
-        if (ui.textEdit_RoleID->toPlainText().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        roleres.dwRoleID = 0;
-        roleres.nResult = errUnknownError;
-        strxcpy(roleres.szRoleName, ui.textEdit_RoleID->toPlainText().toUtf8(), ROLE_NAME_LEN);
-        pCmd->roleList.push_back(roleres);
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_KICK_ROLE, roleres.szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else if (ui.radioButton_queryByFile->isCheckable())
-    {
-        strxcpy(pCmd->szFileName, ui.lineEdit->text().toUtf8(), sizeof(pCmd->szFileName));
-
-        nRetCode = _ReadRoleFromFile(pCmd->szFileName, pCmd->roleList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        if (pCmd->roleList.size() == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有效角色名数量为0"), QMessageBox::Yes);
-            return;
-        }
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_KICK_ROLE, pCmd->roleList.begin()->szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入方式"), QMessageBox::Yes);
-        return;
-    }
-    return;
-Exit0:
-    return;
-}
-
-void gmtool::Mail()
-{
-    INT32       nRetCode = 0;
-    ROLE_RESULT     roleres;
-    BOOL        bParam = FALSE;
-    char    szTitle[MAIL_SUBJECT_LEN] = { 0 };
-    char    szContent[MAIL_CONTENT_LEN] = { 0 };
-    char    szReason[COMMON_NAME_LEN] = { 0 };
-    UINT32  dwItemID = 0;
-    INT32   nItemNum = 0;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认发送邮件？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    dwItemID = ui.lineEdit_mail_2->text().toULong();
-    nItemNum = ui.lineEdit_mail_3->text().toLong();
-    strxcpy(szTitle, ui.lineEdit_mail_1->text().toUtf8(), sizeof(szTitle));
-    strxcpy(szContent, ui.textEdit_mail->toPlainText().toUtf8(), sizeof(szContent));
-    strxcpy(szReason, ui.mailReasonEdit->toPlainText().toUtf8(), sizeof(szReason));
-
-    if (dwItemID > 0 && nItemNum > 0)
-        bParam = TRUE;
-    if (dwItemID == 0 && nItemNum == 0)
-        bParam = TRUE;
-    if (0 == strlen(szTitle) || 0 == strlen(szContent))
-        bParam = TRUE;
-
-    if (bParam == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请输入正确的参数"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    if (dwItemID > 0 && strlen(szReason) <= 0)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请输入原因"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    if (strlen(szReason) > GM_REASON_LEN - 1)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("原因过长!"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    SEND_MAIL *pCmd = (SEND_MAIL*)CCmdManager::GetInstance().NewCmd(CMD_SEND_MAIL);
-    LOG_PROCESS_ERROR(pCmd);
-
-    pCmd->nType = CMD_SEND_MAIL;
-    pCmd->nSvrNum = 0;
-    pCmd->dwItemID = dwItemID;
-    pCmd->nItemNum = nItemNum;
-    strxcpy(pCmd->szTitle, szTitle, sizeof(pCmd->szTitle));
-    strxcpy(pCmd->szContent, szContent, sizeof(pCmd->szContent));
-    memset(pCmd->szReason, 0, sizeof(pCmd->szReason));
-    strxcpy(pCmd->szReason, szReason, sizeof(pCmd->szReason));
-    pCmd->roleList.clear();
-    pCmd->roleResList.clear();
-
-    if (ui.radioButton_6->isChecked())
-    {
-        if (ui.textEdit_RoleID->toPlainText().toUtf8().length() <= 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写角色名"), QMessageBox::Yes);
-            return;
-        }
-
-        roleres.dwRoleID = 0;
-        roleres.nResult = errUnknownError;
-        strxcpy(roleres.szRoleName, ui.textEdit_RoleID->toPlainText().toUtf8(), ROLE_NAME_LEN);
-        pCmd->roleList.push_back(roleres);
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_SEND_MAIL, roleres.szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else if (ui.radioButton_queryByFile->isCheckable())
-    {
-        strxcpy(pCmd->szFileName, ui.lineEdit->text().toUtf8(), sizeof(pCmd->szFileName));
-
-        nRetCode = _ReadRoleFromFile(pCmd->szFileName, pCmd->roleList);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色ID文件失败"), QMessageBox::Yes);
-            return;
-        }
-
-        if (pCmd->roleList.size() == 0)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("有效角色名数量为0"), QMessageBox::Yes);
-            return;
-        }
-
-        nRetCode = CCmdManager::GetInstance().PreQuery(CMD_SEND_MAIL, pCmd->roleList.begin()->szRoleName, pCmd);
-        if (nRetCode == FALSE)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-            LOG_PROCESS_ERROR(FALSE);
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择角色ID输入方式"), QMessageBox::Yes);
-        return;
-    }
-
-    return;
-Exit0:
-    return;
-}
-
-void gmtool::OpenFile_2()
-{
-    ui.lineEdit->clear();
-
-    QFileDialog *pFileDialog = new QFileDialog(this);
-    if (pFileDialog == NULL)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("打开文件对话框失败"), QMessageBox::Yes);
-        return;
-    }
-
-    pFileDialog->setWindowTitle(QString::fromLocal8Bit("选择文件"));
-    pFileDialog->setDirectory(".");
-    if (pFileDialog->exec() == QDialog::Accepted)
-    {
-        QString path = pFileDialog->selectedFiles()[0];
-        ui.lineEdit->setText(path);
-    }
-    else
-    {
-        QMessageBox::information(this, "critical", QString::fromLocal8Bit("未选择文件"), QMessageBox::Yes);
-        return;
-    }
-
-    delete pFileDialog;
-}
-
-
-
-// tag 4
-BOOL gmtool::_SelectGroup(INT32 &nGroupID)
-{
-    INT32       nRetCode = 0;
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    LOG_PROCESS_ERROR(nRetCode);
-
-    nGroupID = ui.comboBox->currentIndex();
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    if (!CServerMgr::GetInstance().IsSingleSelected()) return FALSE;
+    const auto index=ui.comboBox->currentIndex();
+    if (index<0 || index>=MAX_SERVER_GROUP_COUNT) return FALSE;
+    group=index;return TRUE;
 }
 
 void gmtool::AnnounceFunc()
 {
-    INT32       nRetCode = 0;
-    UINT32      dwBeginTime = 0;
-    INT32       nIntervalTime = 0;
-    INT32       nRepeatNum = 0;
-    char        szAnnounce[GM_ANNOUNCE_LENGTH] = { 0 };
-    INT32       nAnnounceLength = 0;
-    INT32       nGroupID = 0;
-
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsServerSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认发送公告？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    nRetCode = _SelectGroup(nGroupID);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return ;
-    }
-
-    dwBeginTime = ui.dateTimeEdit_announce->dateTime().toTime_t();
-    dwBeginTime /= 60;
-    dwBeginTime *= 60;
-    nIntervalTime = ui.lineEdit_announce_1->text().toLong();
-    nRepeatNum = ui.lineEdit_announce_2->text().toLong();
-    strxcpy(szAnnounce, ui.textEdit_announce->toPlainText().toUtf8(), sizeof(szAnnounce));
-
-    nRetCode = FilterUtf8EnterKey(szAnnounce);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    nAnnounceLength = strlen(szAnnounce);
-    if (nIntervalTime <= 0 || nRepeatNum <= 0 || 0 == nAnnounceLength)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("参数不对"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    if (nAnnounceLength >= GM_ANNOUNCE_LENGTH)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("公告过长，可能会截断"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    nRetCode = CCmdManager::GetInstance().SendAnnounce(nGroupID, dwBeginTime, nIntervalTime, nRepeatNum, szAnnounce);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    return;
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    INT32 group;
+    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("请选择有效分组"));return; }
+    const auto date=ui.dateTimeEdit_announce->dateTime();const auto epoch=date.toSecsSinceEpoch();
+    if (!date.isValid() || epoch<0 || static_cast<UINT64>(epoch)>std::numeric_limits<UINT32>::max())
+    { ui.statusBar->showMessage(QStringLiteral("公告时间超出协议范围"));return; }
+    const auto begin=static_cast<UINT32>(std::chrono::floor<std::chrono::minutes>(std::chrono::seconds{epoch}).count()*60);
+    const auto interval=gm::numeric_field<INT32>(ui.lineEdit_announce_1->text(),QStringLiteral("间隔秒数"));
+    const auto repeats=gm::numeric_field<INT32>(ui.lineEdit_announce_2->text(),QStringLiteral("循环次数"));
+    if (!interval || !repeats) { ui.statusBar->showMessage(!interval ? interval.error() : repeats.error());return; }
+    if (*interval<=0 || *repeats<=0) { ui.statusBar->showMessage(QStringLiteral("间隔和循环次数须为正数"));return; }
+    auto text=gm::text_field(ui.textEdit_announce->toPlainText(),GM_ANNOUNCE_LENGTH,QStringLiteral("公告"));
+    if (!text) { ui.statusBar->showMessage(text.error());return; }
+    gm::normalize_line_breaks(std::span<char>(*text));
+    if (!gm::confirm_action(*this,QStringLiteral("确认发送公告？")) || !alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true) || ui.comboBox->currentIndex()!=group)
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    const auto sent=manager.SendAnnounce(group,begin,*interval,*repeats,text->c_str());
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
 
 void gmtool::GetAnnounceList()
 {
-    INT32       nRetCode = 0;
-    INT32       nGroupID = 0;
-
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return; 
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = _SelectGroup(nGroupID);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    INT32 group;
+    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("请选择有效分组"));return; }
     ui.announceWidget->clear();
+    if (!alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true) || ui.comboBox->currentIndex()!=group)
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
     CDataMgr::GetInstance().ClearAnnounceList();
-
-    nRetCode = CCmdManager::GetInstance().QueryAnnounceList(nGroupID);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    return;
-Exit0:
-    return;
+    const auto sent=manager.QueryAnnounceList(group);
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
 
 void gmtool::DelAnnounce()
 {
-    INT32       nRetCode = 0;
-    UINT32      dwSessionID = 0;
-    INT32       nSelectSvrNum = 0;
-    INT32       nAnnounceSerial = -1;
-    GM_SESSION  *pGMSession = NULL;
-    DEL_ANNOUNCE   *pAnnounceCmd = NULL;
-    INT32       nGroupID = 0;
-
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认删除公告？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    nRetCode = _SelectGroup(nGroupID);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    // get announce serial
-    CMyTreeWidgetItem*pTreeWidgetItem = (CMyTreeWidgetItem*)ui.announceWidget->currentItem();
-    if (pTreeWidgetItem)
-        nAnnounceSerial = pTreeWidgetItem->GetID();
-    
-    if (-1 == nAnnounceSerial)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请选择要删除的公告"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    nRetCode = CCmdManager::GetInstance().DelAnnounce(nGroupID, nAnnounceSerial);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    return;
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    INT32 group;
+    if (!_SelectGroup(group)) { ui.statusBar->showMessage(QStringLiteral("请选择有效分组"));return; }
+    const auto* selected=ui.announceWidget->currentItem();
+    bool valid=false;const auto serial=selected ? selected->data(0,Qt::UserRole).toUInt(&valid) : 0;
+    bool server_valid=false;const auto server=selected ? selected->data(0,Qt::UserRole+1).toInt(&server_valid) : 0;
+    const auto* session=CSessionMgr::GetInstance().GetGMSession(peers->front().id);
+    if (!valid || !server_valid || !session || server!=session->nSvrID)
+    { ui.statusBar->showMessage(QStringLiteral("请选择当前区服的公告"));return; }
+    if (!gm::confirm_action(*this,QStringLiteral("确认删除公告 %1？").arg(serial)) || !alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true) || ui.comboBox->currentIndex()!=group)
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    const auto sent=manager.DelAnnounce(group,serial);
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
-
-
-
-
 
 // tag 2
 void gmtool::ChangeInputType(int nIndex)
@@ -1670,208 +839,119 @@ void gmtool::ChangeInputType(int nIndex)
 
 void gmtool::LogSearch()
 {
-    INT32       nRetCode  = 0;
-    UINT32      dwBeginTime = 0;
-    UINT32      dwEndTime = 0;
-    char        szQueryStr[1024] = { 0 };
-    INT32       nLogType = GM_LOG_QUERY_NONE;
-    
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    LOG_PROCESS_ERROR(nRetCode);
-
-    nRetCode = _PreDealGameLogFile();
-    if (!nRetCode)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("无法创建指定log输出文件"), QMessageBox::Yes);
-        return;
-    }
-
-    nLogType = ui.logComboBox->currentIndex();
-    dwBeginTime = ui.dateTimeEdit_log_1->dateTime().toTime_t();
-    dwEndTime = ui.dateTimeEdit_log_2->dateTime().toTime_t();
-
-    nRetCode = _SerializeQueryLogStr(nLogType, szQueryStr);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("日志类型错误"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    nRetCode = CCmdManager::GetInstance().QueryLog(nLogType, dwBeginTime , dwEndTime, szQueryStr);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
+    if (m_logSubmitting) return;
+    m_logSubmitting=true;
+    const QPointer<gmtool> alive(this);
+    struct Reset { QPointer<gmtool> owner;~Reset(){if (owner) owner->m_logSubmitting=false;} } reset{alive};
+    if (CCmdManager::GetInstance().IsCmdExecuting() || !CServerMgr::GetInstance().IsSingleSelected())
+    { ui.statusBar->showMessage(QStringLiteral("请选择单一区服并等待当前命令完成"));return; }
+    const auto type=ui.logComboBox->currentIndex();
+    const auto query=_SerializeQueryLogStr(type);
+    const auto begin=ui.dateTimeEdit_log_1->dateTime(),end=ui.dateTimeEdit_log_2->dateTime();
+    const auto window=gm::exchange_window(begin.toSecsSinceEpoch(),end.toSecsSinceEpoch());
+    if (!query) { ui.statusBar->showMessage(QString::fromUtf8(query.error().c_str()));return; }
+    if (!begin.isValid() || !end.isValid() || !window)
+    { ui.statusBar->showMessage(QStringLiteral("请选择有效且有序的日期范围"));return; }
+    if (!_PreDealGameLogFile()) { ui.statusBar->showMessage(QStringLiteral("无法创建指定日志输出文件"));return; }
+    // Clear before issuing: a synchronous reply must remain visible after Submit returns.
     ui.textEdit->clear();
-
-    return;
-Exit0:
-    if (m_pCmd)
-        CCmdManager::GetInstance().DelCmd(m_pCmd);
-    return ;
+    if (!alive) return;
+    ui.statusBar->clearMessage();
+    const auto sent=CCmdManager::GetInstance().QueryLog(type,window->begin,window->end,query->c_str());
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败，请重试"));
 }
 
-BOOL gmtool::PutsGameLog(INT32 nLogType, BOOL bTruncated, INT32 nLength, const char *pcszBuffer)
+BOOL gmtool::PutsGameLog(INT32,BOOL truncated,INT32 length,const char* bytes)
 {
-    INT32       nCount = 0;
-    INT32       nWriteFileLength = 0;
-    FILE        *pf = NULL;
-
-    LOG_PROCESS_ERROR(pcszBuffer);
-
-    ui.textEdit->append(QString::fromUtf8(pcszBuffer));
-
-    // output to file
-    pf = fopen("../output.txt", "a+");
-    LOG_PROCESS_ERROR(pf);
-
-    nWriteFileLength = fwrite(pcszBuffer, 1, strlen(pcszBuffer), pf);
-    LOG_PROCESS_ERROR(nWriteFileLength == strlen(pcszBuffer));
-
-    fclose(pf);
-
-    if (bTruncated == TRUE)
-    {
-        QMessageBox::warning(this, "Warning", QString::fromLocal8Bit("查询数据过长，请缩短查询范围"), QMessageBox::Yes);
-    }
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    if (!bytes || length<1 || length>0xFFFF || (truncated!=FALSE && truncated!=TRUE)) return FALSE;
+    const QPointer<gmtool> alive(this);
+    const auto shown=gm::show_game_log(*ui.textEdit,{bytes,static_cast<std::size_t>(length)},std::filesystem::path("..")/"output.txt");
+    if (!alive) return shown.has_value();
+    if (!shown) ui.statusBar->showMessage(QString::fromUtf8(shown.error().c_str()));
+    else if (truncated) ui.statusBar->showMessage(QStringLiteral("查询数据过长，请缩短查询范围"));
+    else ui.statusBar->clearMessage();
+    return shown.has_value();
 }
-
 
 // tag 6
 void gmtool::QueryNameToID()
 {
-    INT32       nRetCode = 0;
-    std::map<INT32, ROLE_NAME_DATA> RoleNameMap;
-
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = _ReadRoleNameFromFile(ui.queryfile_lineEdit->text().toUtf8(), RoleNameMap);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("读取角色名文件失败"), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CCmdManager::GetInstance().QueryNameToID(RoleNameMap);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    return;
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    const auto path=gm::text_field(ui.queryfile_lineEdit->text(),std::numeric_limits<std::size_t>::max(),QStringLiteral("文件名"));
+    if (!path) { ui.statusBar->showMessage(path.error());return; }
+    auto names=gm::read_name_queries(gm::utf8_path(*path));
+    if (!names) { ui.statusBar->showMessage(QString::fromUtf8(names.error().c_str()));return; }
+    if (names->empty()) { ui.statusBar->showMessage(QStringLiteral("文件无有效角色名"));return; }
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    const auto sent=manager.QueryNameToID(*names);
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
 
-// tag 7
 void gmtool::SendGMStrCmd()
 {
-    INT32       nRetCode = 0;
-    char        szStr[MAX_GM_COMMAND_LEN] = { 0 };
-
-    if (CCmdManager::GetInstance().IsCmdExecuting())
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("命令执行中..."), QMessageBox::Yes);
-        return;
-    }
-
-    nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("一次只能执行一个区服"), QMessageBox::Yes);
-        return;
-    }
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认执行该gm指令？"));
-    if (nCheckEnum != QMessageBox::Yes)
-        return;
-
-    strxcpy(szStr, ui.textEdit_gmStrCmd->toPlainText().toUtf8(), sizeof(szStr));
-    if (0 == strlen(szStr))
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请输入gm指令"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    nRetCode = CCmdManager::GetInstance().SendGMStrCmd(szStr);
-    if (nRetCode == FALSE)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-        LOG_PROCESS_ERROR(FALSE);
-    }
-
-    return;
-Exit0:
-    return;
+    if (m_actionSubmitting || gm::current_main_window()!=this) return;
+    gm::UiAction action(*this,m_actionSubmitting);
+    const QPointer<gmtool> alive(this);
+    auto& manager=CCmdManager::GetInstance();
+    if (manager.IsCmdExecuting()) { ui.statusBar->showMessage(QStringLiteral("命令执行中..."));return; }
+    const auto peers=gm::selected_peers(true);
+    if (!peers) { ui.statusBar->showMessage(peers.error());return; }
+    const auto text=gm::text_field(ui.textEdit_gmStrCmd->toPlainText(),MAX_GM_COMMAND_LEN,QStringLiteral("GM指令"));
+    if (!text) { ui.statusBar->showMessage(text.error());return; }
+    if (!gm::confirm_action(*this,QStringLiteral("确认执行该GM指令？")) || !alive) return;
+    if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
+    { ui.statusBar->showMessage(QStringLiteral("执行状态已变化，请重试"));return; }
+    const auto sent=manager.SendGMStrCmd(text->c_str());
+    if (alive && !sent) ui.statusBar->showMessage(QStringLiteral("发送命令失败"));
 }
-
-
-
 
 BOOL gmtool::Init()
 {
-    g_pRoleInfo = NULL;
-
-    for (UINT32 dwSessionID = 0; dwSessionID < MAX_GM_SESSION_COUNT; ++dwSessionID)
+    std::vector<std::pair<UINT32, std::unique_ptr<CSvrTreeWidgetItem>>> prepared;
+    for (UINT32 id = 0; id < MAX_GM_SESSION_COUNT; ++id)
     {
-        GM_SESSION *pGMSession = CSessionMgr::GetInstance().GetGMSession(dwSessionID);
-        if (pGMSession && pGMSession->dwType == stGM)
-        {
-            QBrush brush(QColor(255, 0, 0, 255));
-            brush.setStyle(Qt::SolidPattern);
-
-            m_arrItemPoint[dwSessionID] = new CSvrTreeWidgetItem;
-            m_arrItemPoint[dwSessionID]->SetSessionID(dwSessionID);
-
-            m_arrItemPoint[dwSessionID]->setCheckState(0, Qt::Unchecked);
-            m_arrItemPoint[dwSessionID]->setText(0, QString::fromUtf8(pGMSession->szGMName));
-            m_arrItemPoint[dwSessionID]->setForeground(0, brush);
-
-            ui.treeWidget_SvrList->addTopLevelItem(m_arrItemPoint[dwSessionID]);
-        }
+        const auto* session = CSessionMgr::GetInstance().GetGMSession(id);
+        if (!session || session->dwType != stGM) continue;
+        auto item = std::make_unique<CSvrTreeWidgetItem>();
+        item->SetSessionID(id);
+        item->setCheckState(0, Qt::Unchecked);
+        item->setText(0, QString::fromUtf8(session->name.c_str()));
+        item->setForeground(0, QBrush(QColor(255, 0, 0, 255), Qt::SolidPattern));
+        prepared.emplace_back(id, std::move(item));
     }
-
-    connect(ui.treeWidget_SvrList, &QTreeWidget::itemClicked, this, &gmtool::UpdateSelectedServer);
+    // Qt owns published tree items. Invalidate the borrowed cache before clearing them.
+    std::fill(std::begin(m_arrItemPoint), std::end(m_arrItemPoint), nullptr);
+    ui.treeWidget_SvrList->clear();
+    for (auto& [id, item] : prepared)
+    {
+        auto* raw = item.get();
+        ui.treeWidget_SvrList->addTopLevelItem(raw);
+        item.release();
+        m_arrItemPoint[id] = raw;
+    }
+    connect(ui.treeWidget_SvrList, &QTreeWidget::itemClicked, this,
+        &gmtool::UpdateSelectedServer, Qt::UniqueConnection);
     return TRUE;
 }
 
 BOOL gmtool::SetTitle()
 {
-    char        szNum[32] = { 0 };
-    char        szSubVersion[32] = { 0 };
-
-    setWindowTitle(QString::fromLocal8Bit("账号: ") + QString::fromLocal8Bit(CGMManager::GetInstance().GetUserName()) 
-        + QString::fromLocal8Bit("    版本号: ") + QString::fromLocal8Bit(gm_itoa(GM_MAJOR_VERSION, szNum))
-        + QString::fromLocal8Bit("---") + QString::fromLocal8Bit(gm_itoa(GM_MINOR_VERSION, szSubVersion)));
+    setWindowTitle(QStringLiteral("账号: %1    版本号: %2---%3")
+        .arg(QString::fromUtf8(CGMManager::GetInstance().GetUserName()))
+        .arg(GM_MAJOR_VERSION).arg(GM_MINOR_VERSION));
     return TRUE;
 }
 
 BOOL gmtool::IsServerSelected(UINT32 dwSessionID)
 {
+    {
     LOG_PROCESS_ERROR(dwSessionID < MAX_GM_SESSION_COUNT);
 
     if (!m_arrItemPoint[dwSessionID])
@@ -1882,6 +962,7 @@ BOOL gmtool::IsServerSelected(UINT32 dwSessionID)
         return FALSE;
 
     return TRUE;
+    }
 Exit0:
     return FALSE;
 }
@@ -1928,286 +1009,75 @@ Exit0:
     return FALSE;
 }
 
-BOOL gmtool::OutputLog(const char *pcszLog)
+BOOL gmtool::OutputLog(const char* text)
 {
-    char    szBuffer[1024] = { 0 };
-    time_t tCurTime = _time64(NULL);
-
-    struct tm*  pTM = localtime(&tCurTime);
-    LOG_PROCESS_ERROR(pTM);
-
-    LOG_PROCESS_ERROR(pcszLog);
-
-    snprintf(szBuffer, 1024, "%02d-%02d %02d:%02d:%02d %s", pTM->tm_mon+1, pTM->tm_mday, pTM->tm_hour, pTM->tm_min, pTM->tm_sec, pcszLog);
-
-    //ui.textBrowser->setPlainText(QString::fromLocal8Bit(pcszLog));
-    ui.textBrowser->append(QString::fromLocal8Bit(szBuffer));
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    return text ? OutputLog(std::string_view(text)) : FALSE;
+}
+BOOL gmtool::OutputLog(std::string_view text)
+{
+    return gm::show_tool_log(*ui.textBrowser,text,std::chrono::system_clock::now()).has_value();
+}
+BOOL gm::output_tool_log(std::string_view text)
+{
+    auto* window = gm::current_main_window();
+    return window ? window->OutputLog(text) : FALSE;
 }
 
 BOOL gmtool::OutputMessageBox(const char *pcszStr)
 {
-    LOG_PROCESS_ERROR(pcszStr);
-
-    QMessageBox::information(this, "", QString::fromLocal8Bit(pcszStr), QMessageBox::Yes);
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    if (!pcszStr) return FALSE;
+    const QPointer<gmtool> alive(this);
+    const auto* codec=QTextCodec::codecForName("GB18030");
+    const auto text=codec ? codec->toUnicode(pcszStr) : QString::fromLocal8Bit(pcszStr);
+    gm::message_dialog(*this,text,QDialogButtonBox::Ok,QDialogButtonBox::Ok,"gmInformationMessage");
+    return !alive.isNull();
 }
 
-BOOL gmtool::_ReadRoleFromFile(const char *pcszFileName, std::list<ROLE_RESULT> &list)
+BOOL gmtool::_ReadRoleFromFile(const char* filename, std::list<ROLE_RESULT>& roles)
 {
-    INT32       nRetCode = 0;
-    FILE        *pFile = NULL;
-    char        szRoleBuffer[ROLE_NAME_LEN] = { 0 };
-    INT32       nIndex = 1;
-
-    LOG_PROCESS_ERROR(pcszFileName);
-
-    // read string
-    pFile = fopen(pcszFileName, "r");
-    if (pFile == NULL)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("指定文件无法打开"), QMessageBox::Yes);
-        return FALSE;
-    }
-
-    list.clear();
-    while (NULL != fgets(szRoleBuffer, sizeof(szRoleBuffer), pFile))
-    {
-        INT32   nOffset = 0;
-        ROLE_RESULT  data;
-        data.dwRoleID = 0;
-        data.nResult = errUnknownError;
-
-        if (nIndex == 1)
-            nOffset = 3;
-
-        for (INT32 i = 0; i < ROLE_NAME_LEN; ++i)
-        {
-            if (szRoleBuffer[i + nOffset] == '\r' || szRoleBuffer[i + nOffset] == '\n')
-            {
-                data.szRoleName[i] = '\0';
-                break;
-            }
-            data.szRoleName[i] = szRoleBuffer[i + nOffset];
-        }
-        data.szRoleName[ROLE_NAME_LEN - 1] = '\0';
-
-        //strxcpy(data.szRoleName, szRoleBuffer, ROLE_NAME_LEN);
-        list.push_back(data);
-
-        memset(szRoleBuffer, 0, sizeof(szRoleBuffer));
-        nIndex++;
-    }
-
-    fclose(pFile);
-
+    if (!filename) return FALSE;
+    auto result = gm::read_role_batch(gm::utf8_path(filename));
+    if (!result) { OutputLog(result.error().c_str()); return FALSE; }
+    roles.swap(*result);
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
-BOOL gmtool::UpdateRoleResult(const char *pcszFileName, INT32 nType, std::list<ROLE_RESULT> &list)
+BOOL gmtool::UpdateRoleResult(const char* filename, INT32 kind, std::list<ROLE_RESULT>& roles)
 {
-    INT32       nRetCode = 0;
-    FILE        *pFile = NULL;
-    char        szRoleBuffer[ROLE_NAME_LEN] = { 0 };
-    INT32       nIndex = 1;
-    char        szFileNameBuffer[256] = { 0 };
-    INT32 i = 0;
-
-    LOG_PROCESS_ERROR(pcszFileName);
-    
-    //while (pcszFileName[i] != '\0')
-    //{
-    //    if (pcszFileName[i] == '.')
-    //    {
-    //        memcpy(szFileNameBuffer, pcszFileName, i);
-    //        strcat(szFileNameBuffer, "_result");
-    //        memcpy(szFileNameBuffer, pcszFileName + i, strlen(pcszFileName) - i);
-    //        break;
-    //    }
-    //    ++i;
-    //}
-    //if (strlen(szFileNameBuffer) == 0)
-    //{
-    //}
-        strxcpy(szFileNameBuffer, pcszFileName, sizeof(szFileNameBuffer));
-        if (nType == CMD_FORBIDDEN_CHAT)
-            strcat(szFileNameBuffer, "_chat_result");
-        else if (nType == CMD_FREEZE_ROLE)
-            strcat(szFileNameBuffer, "_freeze_result");
-        else if (nType == CMD_KICK_ROLE)
-            strcat(szFileNameBuffer, "_kickrole_result");
-        else if (nType == CMD_SEND_MAIL)
-            strcat(szFileNameBuffer, "_sendmail_result");
-        
-    // read string
-    pFile = fopen(szFileNameBuffer, "w");
-    if (pFile == NULL)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("指定文件无法打开"), QMessageBox::Yes);
-        return FALSE;
-    }
-
-    char BOM[] = { -17, -69, -65 };
-    fwrite(BOM, 1, 3, pFile);
-
-    {
-        const INT32 MAX_RES_BUFFER_LENGTH = 1024 * 1024;
-        INT32   nBufferLength = 0;
-        char    *pcBuffer = new char[MAX_RES_BUFFER_LENGTH];
-        LOG_PROCESS_ERROR(pcBuffer);
-
-        nBufferLength += snprintf(pcBuffer + nBufferLength, MAX_RES_BUFFER_LENGTH - nBufferLength, "RoleName\tRoleID\tResult \n");
-        for (std::list<ROLE_RESULT>::iterator iter = list.begin(); iter != list.end(); ++iter)
-        {
-            if (iter->nResult == errSuccess)
-                nBufferLength += snprintf(pcBuffer + nBufferLength, MAX_RES_BUFFER_LENGTH - nBufferLength, "%s\t%u\tsuccess \n", iter->szRoleName, iter->dwRoleID);
-            else 
-                nBufferLength += snprintf(pcBuffer + nBufferLength, MAX_RES_BUFFER_LENGTH - nBufferLength, "%s\t%u\tfailed \n", iter->szRoleName, iter->dwRoleID);
-        }
-        
-        fwrite(pcBuffer, 1, nBufferLength, pFile);
-
-        delete[] pcBuffer;
-        pcBuffer = NULL;
-    }
-
-    fclose(pFile);
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    if (!filename) return FALSE;
+    const auto result = gm::write_role_report(gm::utf8_path(filename), kind, roles);
+    if (!result) OutputLog(result.error().c_str());
+    return result.has_value();
 }
 
-BOOL gmtool::_ReadRoleIDFromFile(const char *pcszFileName, std::list<UINT32> &RoleIDList)
+BOOL gmtool::_ReadRoleIDFromFile(const char* filename, std::list<UINT32>& ids)
 {
-    INT32       nRetCode = 0;
-    const INT32 FILE_BUFFER_LENGTH = 1024 * 1024 * 10;
-    char        *pBuffer = NULL;
-    FILE        *pFile = NULL;
-    INT32       nFileLength = 0;
-
-    LOG_PROCESS_ERROR(pcszFileName);
-
-    // read string
-    pFile = fopen(pcszFileName, "r");
-    if (pFile == NULL)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("指定文件无法打开"), QMessageBox::Yes);
-        return FALSE;
-    }
-    
-    pBuffer = new char[FILE_BUFFER_LENGTH];
-    LOG_PROCESS_ERROR(pBuffer);
-
-    nFileLength = fread(pBuffer, 1, FILE_BUFFER_LENGTH, pFile);
-    if (nFileLength <= 0)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("文件打开错误"), QMessageBox::Yes);
-        return FALSE;
-    }
-    fclose(pFile);
-
-    // parse string
-    RoleIDList.clear();
-    nRetCode = ParseIDString(pBuffer, nFileLength, RoleIDList);
-    if (!nRetCode)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("角色ID 格式错误"), QMessageBox::Yes);
-        return FALSE;
-    }
-
-    delete[] pBuffer;
-    
+    if (!filename) return FALSE;
+    auto result = gm::read_role_ids(gm::utf8_path(filename));
+    if (!result) { OutputLog(result.error().c_str()); return FALSE; }
+    ids.swap(*result);
     return TRUE;
-Exit0:
-    if (pBuffer)
-        delete[] pBuffer;
-    return FALSE;
 }
 
-BOOL gmtool::_ReadRoleNameFromFile(const char *pcszFileName, std::map<INT32, ROLE_NAME_DATA> &RoleNameMap)
+BOOL gmtool::_ReadRoleNameFromFile(const char* filename, std::map<INT32, ROLE_NAME_DATA>& names)
 {
-    INT32       nRetCode = 0;
-    const INT32 FILE_BUFFER_LENGTH = 1024 * 1024 * 10;
-    char        *pBuffer = NULL;
-    FILE        *pFile = NULL;
-    INT32       nFileLength = 0;
-    char        szRoleBuffer[32] = { 0 };
-    INT32       nIndex = 1;
-    char        szFileNameBuffer[256] = { 0 };
-
-    LOG_PROCESS_ERROR(pcszFileName);
-
-    memcpy(szFileNameBuffer, "../", sizeof("../"));
-    strcat(szFileNameBuffer, pcszFileName);
-
-    // read string
-    pFile = fopen(szFileNameBuffer, "r");
-    if (pFile == NULL)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("指定文件无法打开"), QMessageBox::Yes);
-        return FALSE;
-    }
-
-    RoleNameMap.clear();
-    while (NULL != fgets(szRoleBuffer, sizeof(szRoleBuffer), pFile))
-    {
-        ROLE_NAME_DATA  data;
-        data.dwRoleID = 0;
-        strxcpy(data.szRoleName, szRoleBuffer, ROLE_NAME_LEN);
-        RoleNameMap.insert(std::make_pair(nIndex, data));
-
-        memset(szRoleBuffer, 0, sizeof(szRoleBuffer));
-        nIndex++;
-    }
-
-    fclose(pFile);
-
+    if (!filename) return FALSE;
+    const auto path = gm::utf8_path(filename);
+    auto result = gm::read_name_queries(path.is_absolute() ? path : std::filesystem::path("..") / path);
+    if (!result) { OutputLog(result.error().c_str()); return FALSE; }
+    names.swap(*result);
     return TRUE;
-Exit0:
-    return FALSE;
 }
-
-
 
 BOOL gmtool::_Tag2ReadRoleID(ROLEID_LIST& roleIDList)
 {
-    INT32       nRetCode = 0;
-
-    roleIDList.clear();
-    if (ui.radioButton_6->isChecked())
-    {
-        nRetCode = ParseIDString(ui.textEdit_RoleID->toPlainText().toUtf8(), ui.textEdit_RoleID->toPlainText().toUtf8().length(), roleIDList);
-        if (!nRetCode)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("角色ID 格式错误"), QMessageBox::Yes);
-            return FALSE;
-        }
-        if (roleIDList.size() > 10)
-        {
-            QMessageBox::critical(this, "critical", QString::fromLocal8Bit("角色ID 数量过多"), QMessageBox::Yes);
-            return FALSE;
-        }
-    }
-    else if (ui.radioButton_5->isChecked())
-    {
-        return FALSE;
-    }
-
-    if (roleIDList.size() == 0)
-    {
-        QMessageBox::critical(this, "critical", QString::fromLocal8Bit("未获取角色ID"), QMessageBox::Yes);
-        return FALSE;
-    }
-
+    if (!ui.radioButton_6->isChecked())
+    { ui.statusBar->showMessage(QStringLiteral("请选择角色ID输入方式"));return FALSE; }
+    const auto bytes=ui.textEdit_RoleID->toPlainText().toUtf8();
+    auto parsed=gm::parse_role_ids({bytes.constData(),static_cast<std::size_t>(bytes.size())});
+    if (!parsed) { ui.statusBar->showMessage(QStringLiteral("角色ID 格式错误或未获取角色ID"));return FALSE; }
+    if (parsed->size()>10) { ui.statusBar->showMessage(QStringLiteral("角色ID 数量过多"));return FALSE; }
+    roleIDList.swap(*parsed);
     return TRUE;
 }
 
@@ -2220,115 +1090,55 @@ void gmtool::_DisableTag5()
 
 BOOL gmtool::_PreDealGameLogFile()
 {
-    FILE    *pf = fopen("../output.txt", "wb");
-    LOG_PROCESS_ERROR(pf);
-
-    fclose(pf);
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    return gm::clear_game_log(std::filesystem::path("..")/"output.txt").has_value();
 }
 
-BOOL gmtool::_SerializeQueryLogStr(INT32 nLogType, char *pcszQueryStr)
+std::expected<std::string,std::string> gmtool::_SerializeQueryLogStr(INT32 type)
 {
-    char        szSndaID[65] = { 0 };
-    UINT32      dwRoleID = 0;
-    UINT32      dwTargetRoleID = 0;
-    UINT32      dwItemID = 0;
-    UINT64      qwGuid = 0;
-    INT32       nMoneyType = 0;
-    INT32       nQuestID = 0;
-
-    LOG_PROCESS_ERROR(pcszQueryStr);
-
-    switch (nLogType)
-    {
-    case GM_LOG_QUERY_ROLE_LOGIN:
-    {
-        strxcpy(szSndaID, ui.lineEdit_log_0->text().toUtf8(), sizeof(szSndaID));
-        sprintf(pcszQueryStr, "%s", szSndaID);
-    }
-        break;
-    case GM_LOG_QUERY_ROLE_LOGOUT:
-    {
-        dwRoleID = ui.lineEdit_log_1->text().toULong();
-        sprintf(pcszQueryStr, "%u", dwRoleID);
-    }
-        break;
-    case GM_LOG_QUERY_ITEM:
-    {
-        dwRoleID = ui.lineEdit_log_1->text().toULong();
-        dwItemID = ui.lineEdit_log_2->text().toULong();
-        qwGuid = ui.lineEdit_log_3->text().toULongLong();
-
-        sprintf(pcszQueryStr, "%u %u %llu", dwRoleID, dwItemID, qwGuid);
-    }
-        break;
-    case GM_LOG_QUERY_MONEY:
-    {
-        dwRoleID = ui.lineEdit_log_1->text().toULong();
-        dwTargetRoleID = ui.lineEdit_log_4->text().toULong();
-        nMoneyType = ui.lineEdit_log_5->text().toInt();
-
-        sprintf(pcszQueryStr, "%u %u %d", dwRoleID, dwTargetRoleID, nMoneyType);
-    }
-        break;
-    case GM_LOG_QUERY_QUEST:
-    {
-        dwRoleID = ui.lineEdit_log_1->text().toULong();
-        nQuestID = ui.lineEdit_log_6->text().toInt();
-
-        sprintf(pcszQueryStr, "%u %d", dwRoleID, nQuestID);
-    }
-        break;
-    default:
-        LOG_PROCESS_ERROR(FALSE);
-        break;
-    }
-
-    return TRUE;
-Exit0:
-    return FALSE;
+    const std::array fields{ui.lineEdit_log_0->text().toUtf8(),ui.lineEdit_log_1->text().toUtf8(),ui.lineEdit_log_2->text().toUtf8(),
+        ui.lineEdit_log_3->text().toUtf8(),ui.lineEdit_log_4->text().toUtf8(),ui.lineEdit_log_5->text().toUtf8(),ui.lineEdit_log_6->text().toUtf8()};
+    gm::LogQueryFields views;
+    for (std::size_t index=0;index<fields.size();++index) views[index]={fields[index].constData(),static_cast<std::size_t>(fields[index].size())};
+    return gm::serialize_log_query(type,views);
 }
-
 
 BOOL gmtool::UpdateAnnounceList()
 {
-    GM_SVR  *pSvr = NULL;
-
-    TL_ANNOUNCE_LIST    &rList = CDataMgr::GetInstance().GetAnnounceList();
-
-    ui.announceWidget->clear();
-
-    for (INT32 i = 0; i < rList.nCount; ++i)
+    const auto records = CDataMgr::GetInstance().GetAnnounceList();
+    std::vector<std::unique_ptr<CMyTreeWidgetItem>> items;
+    items.reserve(records.size());
+    for (const auto& record : records)
     {
-        CMyTreeWidgetItem   *pTreeItem = new CMyTreeWidgetItem;
-        char        szNum[20] = { 0 };
-
-        pTreeItem->SetID(rList.data[i].dwSerial);
-
-        pSvr = GetServer(rList.data[i].nSvrID);
-        LOG_CHECK_ERROR(pSvr);
-        if (pSvr)
+        if (record.nGroupID < 0 || record.nGroupID >= MAX_SERVER_GROUP_COUNT ||
+            !std::memchr(record.szText, 0, sizeof(record.szText))) return FALSE;
+        auto item = std::make_unique<CMyTreeWidgetItem>();
+        item->SetID(static_cast<INT32>(record.dwSerial));
+        item->setData(0, Qt::UserRole, record.dwSerial);
+        item->setData(0, Qt::UserRole+1, record.nSvrID);
+        QString group = QStringLiteral("未找到组名");
+        if (record.nGroupID == 0) group = QStringLiteral("全区");
+        else if (const auto* server = GetServer(record.nSvrID))
         {
-            if (rList.data[i].nGroupID == 0)
-                pTreeItem->setText(0, QString::fromLocal8Bit("全区"));
-            else
-                pTreeItem->setText(0, QString::fromUtf8(pSvr->groupList[rList.data[i].nGroupID].szGroupName));
+            const auto& name = server->groupList[record.nGroupID].szGroupName;
+            const auto* end = static_cast<const char*>(std::memchr(name, 0, sizeof(name)));
+            if (!end) return FALSE;
+            group = QString::fromUtf8(name, static_cast<int>(end-name));
         }
-        else
-        {
-            pTreeItem->setText(0, QString::fromLocal8Bit("未找到组名"));
-        }
-
-        pTreeItem->setText(1, QString(gm_itoa(rList.data[i].dwIntervalTime, szNum)).toLocal8Bit());
-        pTreeItem->setText(2, QString(gm_itoa(rList.data[i].dwRepeatNum, szNum)).toLocal8Bit());
-        pTreeItem->setText(3, QString::fromUtf8(rList.data[i].szText));
-
-        ui.announceWidget->addTopLevelItem(pTreeItem);
+        item->setText(0, group);
+        item->setText(1, QString::number(record.dwIntervalTime));
+        item->setText(2, QString::number(record.dwRepeatNum));
+        item->setText(3, QString::fromUtf8(record.szText));
+        items.push_back(std::move(item));
     }
-
+    const QPointer<gmtool> alive(this);
+    ui.announceWidget->clear();
+    if (!alive) return FALSE;
+    for (auto& item : items)
+    {
+        ui.announceWidget->addTopLevelItem(item.get());
+        item.release();
+        if (!alive) return FALSE;
+    }
     return TRUE;
 }
 
@@ -2347,105 +1157,69 @@ Exit0:
     return FALSE;
 }
 
-BOOL gmtool::AddQueryRoleIDResult(INT32 nAreaID, UINT32 dwRoleID, const char *pcszRoleName, const char *pcszUserName)
+BOOL gmtool::AddQueryRoleIDResult(INT32 area, UINT32 role, const char* name, const char* account)
 {
-    CMyTreeWidgetItem   *pTreeItem = new CMyTreeWidgetItem;
-    char        szNum[20] = { 0 };
-
-    pTreeItem->setText(0, QString(gm_itoa(nAreaID,szNum)).toLocal8Bit());
-    pTreeItem->setText(1, QString(gm_itoa(dwRoleID,szNum)).toLocal8Bit());
-    pTreeItem->setText(2, QString::fromUtf8(pcszRoleName));
-    pTreeItem->setText(3, QString::fromUtf8(pcszUserName));
-
-    ui.treeWidget_queryroleid->addTopLevelItem(pTreeItem);
-
+    if (!name || !account) return FALSE;
+    auto item = std::make_unique<CMyTreeWidgetItem>();
+    item->setText(0, QString::number(area));
+    item->setText(1, QString::number(role));
+    item->setText(2, QString::fromUtf8(name));
+    item->setText(3, QString::fromUtf8(account));
+    ui.treeWidget_queryroleid->addTopLevelItem(item.get());
+    item.release();
     return TRUE;
 }
 
-BOOL gmtool::AddQueryRoleDataResult(INT32 nAreaID, BOOL bIsOnline, GM_ROLE_DATA* pRole)
+BOOL gmtool::AddQueryRoleDataResult(INT32 area, BOOL online, GM_ROLE_DATA* role)
 {
-    INT32   nRetCode = 0;
-    char    szName[ROLE_NAME_LEN] = { 0 };
-    INT32   nGroupID = -1;
-    INT32   nSex = 0;
-    INT32   nClass = 0;
-    INT32   nLevel = 0;
-    UINT32  dwDeleteTime = 0;
-    CMyTreeWidgetItem   *pTreeItem = NULL;
-    char    szSaveTime[21] = { 0 };
-
-    LOG_PROCESS_ERROR(pRole);
-
-    pTreeItem = new CMyTreeWidgetItem;
-
-    INT32   nLength = 0;
-
-    while (nLength < pRole->nLength)
+    if (!role)
+        return FALSE;
+    const auto role_id = role->dwRoleID;
+    const auto document = role->document;
+    std::string name, save_time;
+    INT32 group = -1, sex = 0, role_class = 0, level = 0;
+    UINT32 deleted = 0;
+    for (const auto& record : document)
     {
-        GM_ROLE_SLOT    *pRoleSlot = (GM_ROLE_SLOT*)(pRole->szData + nLength);
-        if (pRoleSlot->wRoleType == GM_ROLE_BASE_DATA)
+        if (record.type != GM_ROLE_BASE_DATA)
+            continue;
+        switch (record.base)
         {
-            switch (pRoleSlot->wBaseDataType)
-            {
-            case GM_RBD_NAME:
-                strxcpy(szName, pRoleSlot->szData, ROLE_NAME_LEN);
-                break;
-            case GM_RBD_GROUPID:
-                nGroupID = *((INT32*)pRoleSlot->szData);
-                break;
-            case GM_RBD_DELETETIME:
-                dwDeleteTime = *((UINT32*)pRoleSlot->szData);
-                break;
-            case GM_RBD_CLASS:
-                nClass = *((INT32*)pRoleSlot->szData);
-                break;
-            case GM_RBD_SEX:
-                nSex = *((INT32*)pRoleSlot->szData);
-                break;
-            case GM_RBD_LEVEL:
-                nLevel = *((INT32*)pRoleSlot->szData);
-                break;
-            case GM_RBD_LAST_LOGOUT_TIME:
-                strxcpy(szSaveTime, pRoleSlot->szData, 21);
-                break;
-            default:
-                break;
-            }
+        case GM_RBD_NAME: name = record.text(); break;
+        case GM_RBD_GROUPID: group = record.value<INT32>(); break;
+        case GM_RBD_DELETETIME: deleted = record.value<UINT32>(); break;
+        case GM_RBD_CLASS: role_class = record.value<INT32>(); break;
+        case GM_RBD_SEX: sex = record.value<INT32>(); break;
+        case GM_RBD_LEVEL: level = record.value<INT32>(); break;
+        case GM_RBD_LAST_LOGOUT_TIME: save_time = record.text(); break;
+        default: break;
         }
-
-        nLength += pRoleSlot->wLength;
     }
-   
-    nRetCode = DisplayBaseInfoWidgetItem(pTreeItem, nAreaID, nGroupID, pRole->dwRoleID, bIsOnline, szSaveTime, dwDeleteTime, szName, nSex, nClass, nLevel);
-    LOG_PROCESS_ERROR(nRetCode);
-
-    ui.treeWidget->addTopLevelItem(pTreeItem);
-
+    auto item = std::make_unique<CMyTreeWidgetItem>();
+    if (!DisplayBaseInfoWidgetItem(item.get(), area, group, role_id, online, save_time.c_str(), deleted,
+                                  name.c_str(), sex, role_class, level))
+        return FALSE;
+    const QPointer<gmtool> alive(this);
+    ui.treeWidget->addTopLevelItem(item.release());
+    if (!alive) return FALSE;
+    ui.treeWidget->resizeColumnToContents(2);
+    if (!alive) return FALSE;
+    ui.treeWidget->resizeColumnToContents(6);
     return TRUE;
-Exit0:
-    if (pTreeItem)
-        delete pTreeItem;
-    return FALSE;
 }
 
-BOOL gmtool::LoadRoleData(UINT32 dwSessionID, UINT32 dwRoleID)
+BOOL gmtool::LoadRoleData(UINT32 session, UINT32 role_id)
 {
-    CRoleInfo   *pRoleInfo = NULL;
-    
-    pRoleInfo = new CRoleInfo(dwSessionID, dwRoleID, 1);
-    g_pRoleInfo = pRoleInfo;
-
-    pRoleInfo->exec();
-
-    return TRUE;
-Exit0:
-    if (pRoleInfo)
+    if (g_pRoleInfo) return FALSE;
+    QPointer<CRoleInfo> dialog = new CRoleInfo(session, role_id, TRUE, this);
+    g_pRoleInfo = dialog;
+    struct Clear
     {
-        delete pRoleInfo;
-        g_pRoleInfo = NULL;
-    }
-        
-    return FALSE;
+        QPointer<CRoleInfo> dialog;
+        ~Clear() { if (dialog && g_pRoleInfo == dialog.data()) g_pRoleInfo = nullptr; delete dialog.data(); }
+    } clear{dialog};
+    dialog->exec();
+    return TRUE;
 }
 
 BOOL gmtool::SetLDMode()
@@ -2457,56 +1231,39 @@ BOOL gmtool::SetLDMode()
         ui.tabWidget->removeTab(0);
     }
 
-    CLDWidget   *pLDWidget = new CLDWidget(ui.tabWidget);
-
-    if (pLDWidget)
-    {
-        ui.tabWidget->addTab(pLDWidget, QString());
-        m_pLDWidget = pLDWidget;
-    }
+    if (!m_pLDWidget)
+        m_pLDWidget = new CLDWidget(ui.tabWidget);
+    ui.tabWidget->addTab(m_pLDWidget, QString());
 
     return TRUE;
 }
 
-BOOL gmtool::ServerLogin(INT32 nSvrID)
+BOOL gmtool::ServerLogin(INT32 server_id)
 {
-
-
-
-    // tag 4
-    INT32       nServerListIndex = 0;
+    const auto& servers = g_TLConfig.ServerList.arrGMList;
+    const auto found = std::ranges::find_if(servers, [server_id](const auto& server) {
+        return server.nSvrID == server_id;
+    });
+    if (found == std::end(servers)) return FALSE;
+    QStringList groups{QStringLiteral("全区")};
+    for (INT32 index = 1; index < MAX_SERVER_GROUP_COUNT; ++index)
+    {
+        const auto& name = found->groupList[index].szGroupName;
+        const auto* end = static_cast<const char*>(std::memchr(name, 0, sizeof(name)));
+        if (!end) return FALSE;
+        groups.push_back(QStringLiteral("%1 - ").arg(index) + QString::fromUtf8(name, static_cast<int>(end - name)));
+    }
+    const QPointer<gmtool> alive(this);
     ui.comboBox->clear();
-
-    for (; nServerListIndex < GM_MAX_SERVER_COUNT; ++nServerListIndex)
+    if (!alive) return FALSE;
+    for (const auto& group : groups)
     {
-        if (g_TLConfig.ServerList.arrGMList[nServerListIndex].nSvrID == nSvrID)
-            break;
+        ui.comboBox->addItem(group);
+        if (!alive) return FALSE;
     }
-    LOG_PROCESS_ERROR(GM_MAX_SERVER_COUNT != nServerListIndex);
-
-    ui.comboBox->insertItem(0, QString::fromLocal8Bit("全区"));
-    for (INT32 nIndex = 1; nIndex < MAX_SERVER_GROUP_COUNT; ++nIndex)
-    {
-        QString a;
-        a = QString::number(nIndex) + QString::fromLocal8Bit(" - ");
-        if (0 == strlen(g_TLConfig.ServerList.arrGMList[nServerListIndex].groupList[nIndex].szGroupName))
-        {
-            ui.comboBox->insertItem(nIndex, a);
-        }
-        else
-        {
-            ui.comboBox->insertItem(nIndex, a + QString::fromUtf8(g_TLConfig.ServerList.arrGMList[nServerListIndex].groupList[nIndex].szGroupName));
-        }
-    }
-
-
-    // ld_widget
-    if (g_gmtool.GetLDWidget())
-        g_gmtool.GetLDWidget()->ServerLogin(nSvrID);
-
+    const QPointer<CLDWidget> exchange(m_pLDWidget);
+    if (exchange) exchange->ServerLogin(server_id);
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
 BOOL gmtool::LogoutServer(UINT32 dwSessionID)
@@ -2523,46 +1280,13 @@ BOOL gmtool::LogoutServer(UINT32 dwSessionID)
 
 
 
-BOOL ParseIDString(const char *pBuffer, UINT32 dwLength, std::list<UINT32> &list)
+BOOL ParseIDString(const char* buffer, UINT32 length, std::list<UINT32>& ids)
 {
-    char        szRoleID[12] = { 0 };
-
-    LOG_PROCESS_ERROR(pBuffer);
-
-    list.clear();
-
-    for (INT32 i = 0; i < dwLength; ++i)
-    {
-        if ((pBuffer[i] < '0' || pBuffer[i] > '9') && pBuffer[i] != ' ')
-            return FALSE;
-    }
-
-    for (INT32 i = 0, j = 0; i < dwLength; ++i)
-    {
-        if (j >= 12)
-            return FALSE;
-
-        szRoleID[j] = pBuffer[i];
-
-        if ((szRoleID[j] == ' ') || (i == dwLength - 1))
-        {
-            if (szRoleID[j] == ' ')
-                szRoleID[j] = '\0';
-
-            if (j > 0 || (szRoleID[j] >= '0' && szRoleID[j] <= '9'))
-                list.push_back(QString(szRoleID).toULong());
-            
-            j = 0;
-            memset(szRoleID, 0, sizeof(szRoleID));
-        }
-        else
-            ++j;
-
-    }
-
+    if (!buffer) return FALSE;
+    auto result = gm::parse_role_ids({buffer, length});
+    if (!result) return FALSE;
+    ids.swap(*result);
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
 
@@ -2570,3 +1294,11 @@ Exit0:
 
 
 
+
+BOOL gm::output_game_log(INT32 type,BOOL truncated,std::string_view text)
+{
+    if (text.size()>65534) return FALSE;
+    const std::string owned(text);
+    auto* window = gm::current_main_window();
+    return window ? window->PutsGameLog(type,truncated,static_cast<INT32>(owned.size()+1),owned.c_str()) : FALSE;
+}

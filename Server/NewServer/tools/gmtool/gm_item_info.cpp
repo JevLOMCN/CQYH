@@ -21,15 +21,17 @@ void CGMItemInfo::Exit()
     done(0);
 }
 
-void CGMItemInfo::ShowInfo(const char *pcszBuffer, BOOL bBiggerFont)
+void CGMItemInfo::ShowInfo(const char *pcszBuffer, bool bBiggerFont)
 {
-    LOG_PROCESS_ERROR(pcszBuffer);
+    if (!pcszBuffer)
+        return;
 
-    QTextDocument   *pDoc = new QTextDocument;
-    
-    LOG_PROCESS_ERROR(pDoc);
-    pDoc->setPlainText(QString::fromLocal8Bit(pcszBuffer));
-    ui.textEdit->setDocument(pDoc);
+    ShowInfo(QString::fromLocal8Bit(pcszBuffer), bBiggerFont);
+}
+
+void CGMItemInfo::ShowInfo(const QString& text, bool bBiggerFont)
+{
+    ui.textEdit->setPlainText(text);
 
     if (bBiggerFont)
     {
@@ -39,7 +41,6 @@ void CGMItemInfo::ShowInfo(const char *pcszBuffer, BOOL bBiggerFont)
         ui.textEdit->setFont(qft);
     }
 
-Exit0:
     return;
 }
 

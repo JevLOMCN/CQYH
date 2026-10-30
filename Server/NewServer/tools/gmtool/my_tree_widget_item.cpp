@@ -26,7 +26,7 @@ CMyTreeWidgetItem::~CMyTreeWidgetItem()
 
 }
 
-INT32 CMyTreeWidgetItem::GetSvrID()
+INT32 CMyTreeWidgetItem::GetSvrID() const
 {
     return m_nSvrID;
 }

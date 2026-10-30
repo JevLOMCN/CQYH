@@ -7,39 +7,61 @@
 *********************************************************************/
 
 #include "stdafx.h"
+#include <format>
+#include <string>
 #include "role_info.h"
 
 //#include <QInputDialog>
 //#include <QMainWindow>
-#include <QtWidgets/QMessageBox>
+#include <QtCore/QTextCodec>
+#include <QtCore/QSignalBlocker>
+#include "gm_ui.h"
 
-#include "session_mgr.h"
 #include "cmd_manager.h"
 #include "gm_manager.h"
-#include "item_tree_widget_item.h"
 #include "my_tree_widget_item.h"
-#include "gmtool.h"
 #include "message_handler.h"
 
 #include "data_mgr.h"
-#include "string_ex.h"
-#include "gm_log.h"
 #include "logic.h"
 #include "server_mgr.h"
 #include "gm_item_info.h"
 
 CRoleInfo   *g_pRoleInfo;
 
+namespace
+{
+QString legacy_text(const char* text)
+{
+    // Source narrow literals retain the protocol's GBK execution encoding;
+    // convert UI labels explicitly instead of depending on the desktop locale.
+    if (const auto* codec = QTextCodec::codecForName("GB18030"))
+        return codec->toUnicode(text);
+    return QString::fromLocal8Bit(text);
+}
+
+void erase_role_if_current(UINT32 id,const std::weak_ptr<const char>& reference)
+{
+    const auto lifetime=reference.lock();
+    auto* role=CDataMgr::GetInstance().FindRole(id);
+    if (lifetime && role && role->lifetime==lifetime) CDataMgr::GetInstance().DeleteRole(role);
+}
+}
+
 CRoleInfo::CRoleInfo(UINT32 dwSessionID, UINT32 dwRoleID, BOOL bIsModify, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
 {
     ui.setupUi(this);
+    m_editStatus = new QLabel(this);
+    m_editStatus->setObjectName("roleEditStatus");
+    m_editStatus->setWordWrap(true);
+    m_editStatus->setStyleSheet("color: #b00020;");
+    ui.gridLayout->addWidget(m_editStatus, ui.gridLayout->rowCount(), 0, 1, ui.gridLayout->columnCount());
+    m_editStatus->hide();
 
     m_bIsModify = bIsModify;
     m_dwSessionID = dwSessionID;
 
-    memset(m_pLabel, 0, sizeof(m_pLabel));
-    memset(m_pLineEdit, 0, sizeof(m_pLineEdit));
 
     connect(ui.baseDataTreeWidget, &QTreeWidget::itemDoubleClicked, this, &CRoleInfo::BaseDataModify);
     connect(ui.baseDataTreeWidget, &QTreeWidget::itemChanged, this, &CRoleInfo::BaseDataChanged);
@@ -58,9 +80,12 @@ CRoleInfo::CRoleInfo(UINT32 dwSessionID, UINT32 dwRoleID, BOOL bIsModify, QWidge
 
     m_dwRoleID = dwRoleID;
     m_dwTargetRoleID = 0;
+    if (const auto* session=CSessionMgr::GetInstance().GetGMSession(dwSessionID))
+        m_connectionLifetime=session->connection_lifetime;
+    if (const auto* role=CDataMgr::GetInstance().FindRole(dwRoleID))
+        m_roleLifetime=role->lifetime;
 
-    m_nLength = 0;
-    memset(m_SaveList, 0, sizeof(m_SaveList));
+    m_edits.clear();
 
     m_ItemMap.clear();
 
@@ -72,290 +97,188 @@ Exit0:
 
 CRoleInfo::~CRoleInfo()
 {
-
+    if (g_pRoleInfo == this)
+        g_pRoleInfo = nullptr;
 }
 
-char* CRoleInfo::GetReason(char *pszStr)
-{
-    LOG_PROCESS_ERROR(pszStr);
-    strxcpy(pszStr, ui.modifyRoleReasonEdit->toPlainText().toUtf8(), COMMON_NAME_LEN);
-    if (strlen(pszStr) <= 0)
-    {
-        QMessageBox::critical(this, "critical", "请填写修改原因!", QMessageBox::Yes);
-        return NULL;
-    }
 
-    return pszStr;
-Exit0:
-    return NULL;
+
+bool CRoleInfo::_AcceptEdit(const std::expected<void, std::string>& result)
+{
+    const QPointer<CRoleInfo> alive(this);
+    const QPointer<QLabel> status(m_editStatus);
+    if (result)
+    {
+        status->clear();
+        if (alive && status) status->hide();
+        return !alive.isNull();
+    }
+    status->setText(QString::fromUtf8(result.error().c_str()));
+    if (alive && status) status->show();
+    return false;
+}
+
+bool CRoleInfo::_ModelCurrent() const
+{
+    const auto lifetime=m_roleLifetime.lock();
+    const auto* role=CDataMgr::GetInstance().FindRole(m_dwRoleID);
+    return lifetime && role && role->lifetime==lifetime;
+}
+
+bool CRoleInfo::_EditSessionCurrent(bool selected) const
+{
+    const auto lifetime=m_connectionLifetime.lock();
+    const auto* session=CSessionMgr::GetInstance().GetGMSession(m_dwSessionID);
+    if (!lifetime || !session || session->connection_lifetime!=lifetime || !session->pSocketSession ||
+        session->nConnectState!=SESSION_CONNECTED || session->eState!=GM_SVR_STATE_LOGIN)
+        return false;
+    if (!selected) return true;
+    auto& servers=CServerMgr::GetInstance();
+    return servers.UpdateSelectServer() && servers.IsSingleSelected() && servers.GetSessionIDByIndex(0)==m_dwSessionID;
+}
+
+void CRoleInfo::_DeleteCurrentModel()
+{
+    erase_role_if_current(m_dwRoleID,m_roleLifetime);
 }
 
 void CRoleInfo::ReturnPos()
 {
-    GM_ROLE_SLOT    *pSlot = NULL;
-
-    if (m_bIsModify == FALSE)
+    if (!m_bIsModify || m_rendering || m_closed || m_submitting)
         return;
-
-    QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认修改数据？"));
-    if (nCheckEnum != QMessageBox::Yes)
+    gm::UiAction action(*this,m_submitting);
+    const QPointer<CRoleInfo> alive(this);
+    if (!gm::confirm_action(*this,QStringLiteral("确认修改数据？"),"roleEditConfirmation") || !alive)
         return;
-
-    pSlot = (GM_ROLE_SLOT*)(m_SaveList + m_nLength);
-    pSlot->wRoleType = GM_ROLE_BASE_DATA;
-    pSlot->wBaseDataType = GM_RBD_MAP_ID;
-
-    pSlot->wLength = 0;
-    pSlot->wLength += sizeof(GM_ROLE_SLOT);
-    m_nLength += pSlot->wLength;
-
-    ui.pushButton->setDisabled(true);
-
+    if (!_ModelCurrent()) { _AcceptEdit(std::unexpected("The cached role changed. Reopen the editor."));return; }
+    if (_AcceptEdit(m_edits.return_position()) && alive)
+        ui.pushButton->setDisabled(true);
 }
 
 void CRoleInfo::EndModify()
 {
-    INT32       nRetCode = 0;
-    UINT32      dwLength = 0;
-
-    if (m_bIsModify == TRUE)
+    if (m_closed || m_rendering || m_submitting)
+        return;
+    gm::UiAction action(*this,m_submitting);
+    const QPointer<CRoleInfo> alive(this);
+    const auto role_id=m_dwRoleID;
+    const auto model_lifetime=m_roleLifetime;
+    if (m_bIsModify)
     {
-        if (m_nLength != 0)
+        if (!_ModelCurrent() || !_EditSessionCurrent(!m_edits.bytes().empty()))
+        { _AcceptEdit(std::unexpected("The role or connection changed. Reopen the editor."));return; }
+        if (!m_edits.bytes().empty())
         {
-            nRetCode = CCmdManager::GetInstance().IsCmdExecuting(TRUE);
-            LOG_PROCESS_ERROR(nRetCode);
-
-            QMessageBox::StandardButton  nCheckEnum = QMessageBox::question(this, QString::fromLocal8Bit("注意"), QString::fromLocal8Bit("确认修改数据并退出修改窗口？"));
-            if (nCheckEnum == QMessageBox::Yes)
+            auto& manager=CCmdManager::GetInstance();
+            if (manager.IsCmdExecuting()) { _AcceptEdit(std::unexpected("Wait for the current command to finish."));return; }
+            const auto reason = ui.modifyRoleReasonEdit->toPlainText().toUtf8();
+            if (reason.isEmpty() || reason.size() >= GM_REASON_LEN || reason.contains('\0'))
             {
-                nRetCode = CServerMgr::GetInstance().IsSingleSelected();
-                LOG_PROCESS_ERROR(nRetCode);
-
-                if (ui.modifyRoleReasonEdit->toPlainText().toUtf8().length() <= 0)
-                {
-                    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("请填写修改原因!"), QMessageBox::Yes);
-                    return;
-                }
-
-                if (ui.modifyRoleReasonEdit->toPlainText().toUtf8().length() > GM_REASON_LEN - 1)
-                {
-                    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("原因过长!"), QMessageBox::Yes);
-                    return;
-                }
-
-                nRetCode = CCmdManager::GetInstance().ModifyRole(m_dwRoleID, m_dwTargetRoleID, m_nLength, m_SaveList, ui.modifyRoleReasonEdit->toPlainText().toUtf8());
-                if (nRetCode == FALSE)
-                {
-                    QMessageBox::critical(this, "critical", QString::fromLocal8Bit("发送命令失败"), QMessageBox::Yes);
-                    return;
-                }
+                _AcceptEdit(std::unexpected("Enter a nonempty reason within the field limit, without NUL characters."));
+                return;
             }
-            else
+            const auto view = m_edits.bytes();
+            const std::vector<char> payload(view.begin(), view.end());
+            const auto role=m_dwRoleID,target=m_dwTargetRoleID;
+            if (!gm::confirm_action(*this,QStringLiteral("确认修改数据并退出修改窗口？"),"roleEditConfirmation") || !alive)
+                return;
+            if (m_closed || manager.IsCmdExecuting() || !_ModelCurrent() || !_EditSessionCurrent(true))
+            { _AcceptEdit(std::unexpected("The execution state changed. Reopen the editor or retry."));return; }
+            BOOL sent=FALSE;
+            try { sent=manager.ModifyRole(role,target,static_cast<INT32>(payload.size()),payload.data(),reason.constData()); }
+            catch (...) { if (alive) _AcceptEdit(std::unexpected("The changes could not be sent. They remain available to retry."));return; }
+            if (!alive) { if (sent) erase_role_if_current(role_id,model_lifetime);return; }
+            if (!sent)
             {
+                _AcceptEdit(std::unexpected("The changes could not be sent. They remain available to retry."));
                 return;
             }
         }
         else
         {
-            nRetCode = CMessageHandler::GetInstance().DoReleaseRole(m_dwSessionID, m_dwRoleID);
+            BOOL released=FALSE;
+            try { released=CMessageHandler::GetInstance().DoReleaseRole(m_dwSessionID,m_dwRoleID); }
+            catch (...) { if (alive) _AcceptEdit(std::unexpected("The role could not be released. Retry or cancel the editor."));return; }
+            if (!alive) { if (released) erase_role_if_current(role_id,model_lifetime);return; }
+            if (!released)
+            { _AcceptEdit(std::unexpected("The role could not be released. Retry or cancel the editor."));return; }
         }
-
-        GM_ROLE_DATA    *pRole = CDataMgr::GetInstance().FindRole(m_dwRoleID);
-        if (pRole != NULL)
-            CDataMgr::GetInstance().DeleteRole(pRole);
-        
+        _DeleteCurrentModel();
     }
-
-    g_pRoleInfo = NULL;
-
+    m_closed = true;
+    if (g_pRoleInfo == this)
+        g_pRoleInfo = nullptr;
     done(0);
-    
-Exit0:
-    return;
 }
 
 void CRoleInfo::Exit()
 {
-    INT32       nRetCode = 0;
-    UINT32      dwLength = 0;
-
-    if (m_bIsModify == TRUE)
+    if (m_closed || m_submitting)
+        return;
+    gm::UiAction action(*this,m_submitting);
+    const QPointer<CRoleInfo> alive(this);
+    const auto role_id=m_dwRoleID;
+    const auto model_lifetime=m_roleLifetime;
+    m_closed = true;
+    if (g_pRoleInfo == this) g_pRoleInfo=nullptr;
+    if (m_bIsModify)
     {
-        nRetCode = CMessageHandler::GetInstance().DoReleaseRole(m_dwSessionID, m_dwRoleID);
-
-        GM_ROLE_DATA    *pRole = CDataMgr::GetInstance().FindRole(m_dwRoleID);
-        if (pRole != NULL)
-            CDataMgr::GetInstance().DeleteRole(pRole);
+        if (_ModelCurrent() && _EditSessionCurrent(false))
+        {
+            try { const auto released=CMessageHandler::GetInstance().DoReleaseRole(m_dwSessionID,m_dwRoleID);LOG_CHECK_ERROR(released); }
+            catch (...) { CRI("GM role release failed"); }
+            if (!alive) { erase_role_if_current(role_id,model_lifetime);return; }
+        }
+        _DeleteCurrentModel();
     }
-
-    g_pRoleInfo = NULL;
+    if (g_pRoleInfo == this)
+        g_pRoleInfo = nullptr;
     done(0);
 }
 
 void CRoleInfo::SetTargetRole()
 {
-    if (m_bIsModify == FALSE)
+    if (!m_bIsModify || m_rendering || m_closed || m_submitting)
         return;
-
-    m_dwTargetRoleID = ui.lineEdit->text().toULong();
-
+    bool valid = false;
+    const auto target = ui.lineEdit->text().toUInt(&valid);
+    if (!valid)
+    {
+        _AcceptEdit(std::unexpected("Enter a role ID within the unsigned 32-bit range."));
+        return;
+    }
+    m_dwTargetRoleID = target;
     ui.lineEdit->setDisabled(true);
-
 }
 
-void CRoleInfo::DelItem()
+void CRoleInfo::_RemoveSelected(QTreeWidget* tree, UINT16 type)
 {
-    GM_ROLE_SLOT    *pSlot = NULL;
-    UINT32          *pValue = NULL;
-
-    if (m_bIsModify == FALSE)
+    if (!m_bIsModify || m_rendering || m_closed || m_submitting)
         return;
-
-    CMyTreeWidgetItem*pTreeItem = (CMyTreeWidgetItem*)ui.itemWidget->currentItem();
-    LOG_PROCESS_ERROR(pTreeItem);
-
-    if (pTreeItem->isDisabled() == TRUE)
+    auto* item = static_cast<CMyTreeWidgetItem*>(tree->currentItem());
+    if (!item || item->isDisabled() || item->GetRoleType() != type)
         return;
-
-    pSlot = (GM_ROLE_SLOT*)(m_SaveList + m_nLength);
-    pSlot->wRoleType = pTreeItem->GetRoleType();
-    pValue = (UINT32 *)pSlot->szData;
-    *pValue = pTreeItem->GetID();
-
-    pSlot->wLength = sizeof(UINT32);
-
-    pSlot->wLength += sizeof(GM_ROLE_SLOT);
-    m_nLength += pSlot->wLength;
-
-    // ui
-    pTreeItem->setDisabled(TRUE);
-
-    ui.itemWidget->setItemSelected(pTreeItem, false);
-
-Exit0:
-    return;
+    if (!_AcceptEdit(m_edits.remove(type, static_cast<UINT32>(item->GetID()))))
+        return;
+    item->setDisabled(true);
+    item->setSelected(false);
 }
 
-void CRoleInfo::DelQuest()
-{
-    GM_ROLE_SLOT    *pSlot = NULL;
-    UINT32          *pQuestID = NULL;
-
-    if (m_bIsModify == FALSE)
-        return;
-
-    CMyTreeWidgetItem*pTreeItem = (CMyTreeWidgetItem*)ui.questWidget->currentItem();
-    LOG_PROCESS_ERROR(pTreeItem);
-
-    if (pTreeItem->isDisabled() == TRUE)
-        return;
-
-    pSlot = (GM_ROLE_SLOT*)(m_SaveList + m_nLength);
-    pSlot->wRoleType = pTreeItem->GetRoleType();
-
-    pQuestID = (UINT32 *)pSlot->szData;
-    *pQuestID = pTreeItem->GetID();
-    pSlot->wLength = sizeof(UINT32);
-
-    pSlot->wLength += sizeof(GM_ROLE_SLOT);
-    m_nLength += pSlot->wLength;
-
-    // ui
-    pTreeItem->setDisabled(TRUE);
-
-    ui.questWidget->setItemSelected(pTreeItem, false);
-
-Exit0:
-    return;
-}
-
-void CRoleInfo::DelMail()
-{
-    GM_ROLE_SLOT    *pSlot = NULL;
-    UINT32          *pMailID = NULL;
-
-    if (m_bIsModify == FALSE)
-        return;
-
-    CMyTreeWidgetItem*pTreeItem = (CMyTreeWidgetItem*)ui.mailTreeWidget->currentItem();
-    LOG_PROCESS_ERROR(pTreeItem);
-
-    if (pTreeItem->isDisabled() == TRUE)
-        return;
-
-    pSlot = (GM_ROLE_SLOT*)(m_SaveList + m_nLength);
-    pSlot->wRoleType = pTreeItem->GetRoleType();
-    pMailID = (UINT32 *)pSlot->szData;
-
-    *pMailID = pTreeItem->GetID();
-    pSlot->wLength = sizeof(UINT32);
-
-    pSlot->wLength += sizeof(GM_ROLE_SLOT);
-    m_nLength += pSlot->wLength;
-
-    // ui
-    pTreeItem->setDisabled(TRUE);
-
-    ui.mailTreeWidget->setItemSelected(pTreeItem, false);
-
-Exit0:
-    return;
-}
+void CRoleInfo::DelItem() { _RemoveSelected(ui.itemWidget, GM_ROLE_ITEM); }
+void CRoleInfo::DelQuest() { _RemoveSelected(ui.questWidget, GM_ROLE_QUEST); }
+void CRoleInfo::DelMail() { _RemoveSelected(ui.mailTreeWidget, GM_ROLE_MAIL); }
 
 void CRoleInfo::TakeItem()
 {
-    GM_ROLE_SLOT            *pSlot = NULL;
-    INT32       *pValue = NULL;
-    INT64       *pllValue = NULL;
-
-    if (m_bIsModify == FALSE)
+    if (!m_bIsModify || m_rendering || m_closed || m_submitting || !m_dwTargetRoleID)
         return;
-
-    if (m_dwTargetRoleID == 0)
+    auto* item = static_cast<CMyTreeWidgetItem*>(ui.itemWidget->currentItem());
+    if (!item || item->isDisabled() || item->GetRoleType() != GM_ROLE_ITEM)
         return;
-
-    CMyTreeWidgetItem*pTreeItem = (CMyTreeWidgetItem*)ui.itemWidget->currentItem();
-    LOG_PROCESS_ERROR(pTreeItem);
-
-    if (pTreeItem->isDisabled() == TRUE)
+    if (!_AcceptEdit(m_edits.take_item(static_cast<UINT32>(item->GetID()), static_cast<UINT64>(item->Get64ID()))))
         return;
-
-    pSlot = (GM_ROLE_SLOT*)(m_SaveList + m_nLength);
-    pSlot->wRoleType = GM_ROLE_TAKE_ITEM;
-
-    pValue = (INT32 *)pSlot->szData;
-    *pValue = pTreeItem->GetID();
-
-    pllValue = (INT64 *)(pSlot->szData + sizeof(INT32));
-    *pllValue = pTreeItem->Get64ID();
-
-    pSlot->wLength = sizeof(INT32);
-    pSlot->wLength += sizeof(INT64);
-    pSlot->wLength += sizeof(GM_ROLE_SLOT);
-
-    m_nLength += pSlot->wLength;
-
-    // ui
-    pTreeItem->setDisabled(TRUE);
-
-    ui.itemWidget->setItemSelected(pTreeItem, false);
-
-Exit0:
-    return;
-}
-
-void CRoleInfo::timerEvent(QTimerEvent* event)
-{
-    INT32       nRetCode = 0;
-
-    nRetCode = CGMManager::GetInstance().MainLoop();
-    if (!nRetCode)
-    {
-        nRetCode = CGMManager::GetInstance().UnInit();
-        LOG_CHECK_ERROR(nRetCode);
-        QMessageBox::critical(this, "critical", "Application error, will exit!", QMessageBox::Yes);
-        close();
-    }
+    item->setDisabled(true);
+    item->setSelected(false);
 }
 
 void CRoleInfo::reject()
@@ -365,133 +288,73 @@ void CRoleInfo::reject()
 
 void CRoleInfo::closeEvent(QCloseEvent *event)
 {
+    if (m_submitting) { event->ignore();return; }
     Exit();
 
     return ;
 }
 
-void CRoleInfo::BaseDataModify(QTreeWidgetItem * item, int column)
+void CRoleInfo::BaseDataModify(QTreeWidgetItem* raw, int column)
 {
-    if (m_bIsModify == FALSE)
+    if (!raw || !m_bIsModify || m_rendering || m_closed || m_submitting)
         return;
-    if (column == 0)
-    {
-        item->setFlags(item->flags() & ~(Qt::ItemIsEditable));
-    }
-    else if (column == 1)
-    {
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
-    }
+    const auto* item = static_cast<CMyTreeWidgetItem*>(raw);
+    const auto base = item->GetBaseDataType();
+    const bool editable = item->GetRoleType() == GM_ROLE_BASE_DATA &&
+        (base == GM_RBD_LEVEL || base == GM_RBD_GMLEVEL || base == GM_RBD_EXP || base == GM_RBD_PKVALUE ||
+         (base >= GM_RBD_MONEY_2 && base <= GM_RBD_MONEY_14));
+    auto flags = raw->flags();
+    if (column == 1 && editable)
+        flags |= Qt::ItemIsEditable;
+    else
+        flags &= ~Qt::ItemIsEditable;
+    raw->setFlags(flags);
 }
 
-void CRoleInfo::BaseDataChanged(QTreeWidgetItem * item, int column)
+void CRoleInfo::BaseDataChanged(QTreeWidgetItem* raw, int column)
 {
-    CMyTreeWidgetItem   *pTreeItem = (CMyTreeWidgetItem*)item;
-    if (column != 1)
+    if (!raw || column != 1 || !m_bIsModify || m_rendering || m_closed)
         return;
-
-    if (m_bIsModify == FALSE)
+    if (m_submitting)
+    {
+        const QSignalBlocker blocker(ui.baseDataTreeWidget);
+        raw->setText(1,raw->data(1,Qt::UserRole).toString());return;
+    }
+    gm::UiAction rendering(*this,m_rendering);
+    const QPointer<CRoleInfo> alive(this);
+    auto* item = static_cast<CMyTreeWidgetItem*>(raw);
+    if (item->GetRoleType() != GM_ROLE_BASE_DATA)
         return;
-
-    switch (pTreeItem->GetRoleType())
+    const auto base = static_cast<UINT16>(item->GetBaseDataType());
+    bool valid = false;
+    std::expected<void, std::string> result;
+    if (base == GM_RBD_EXP || base == GM_RBD_PKVALUE)
     {
-    case GM_ROLE_BASE_DATA:
+        const auto value = item->text(1).toUInt(&valid);
+        if (valid) result = m_edits.set_unsigned(base, value);
+    }
+    else if (base == GM_RBD_LEVEL || base == GM_RBD_GMLEVEL || (base >= GM_RBD_MONEY_2 && base <= GM_RBD_MONEY_14))
     {
-        GM_ROLE_SLOT    *pSlot = (GM_ROLE_SLOT*)(m_SaveList + m_nLength);
-        pSlot->wRoleType = pTreeItem->GetRoleType();
-        pSlot->wBaseDataType = pTreeItem->GetBaseDataType();
-
-        switch (pSlot->wBaseDataType)
-        {
-        case GM_RBD_ID:
-        case GM_RBD_NAME:
-        case GM_RBD_GROUPID:
-        case GM_RBD_DELETETIME:
-        case GM_RBD_LAST_LOGOUT_TIME:
-        case GM_RBD_FORBIDDEND_CHAT_TIME:
-        case GM_RBD_FREEZE_ROLE_TIME:
-        case GM_RBD_FREEZE_CHEAT_ROLE:
-        case GM_RBD_CLASS:
-        case GM_RBD_SEX:
-            break;
-        case GM_RBD_LEVEL:
-        {
-            INT32 * pLevel = (INT32*)pSlot->szData;
-            *pLevel = pTreeItem->text(column).toInt();
-            pSlot->wLength = sizeof(INT32);
-        }
-            break;
-        case GM_RBD_EXP:
-        {
-            UINT32 * pExp = (UINT32*)pSlot->szData;
-            *pExp = pTreeItem->text(column).toUInt();
-            pSlot->wLength = sizeof(UINT32);
-        }
-            break;
-        case GM_RBD_PKVALUE:
-        {
-            UINT32 * pPKValue = (UINT32*)pSlot->szData;
-            *pPKValue = pTreeItem->text(column).toUInt();
-            pSlot->wLength = sizeof(UINT32);
-        }
-            break;
-        case GM_RBD_GMLEVEL:
-        {
-            INT32 * pGMLevel = (INT32*)pSlot->szData;
-            *pGMLevel = pTreeItem->text(column).toInt();
-            pSlot->wLength = sizeof(INT32);
-        }
-            break;
-        case GM_RBD_MAP_ID:
-        case GM_RBD_X:
-        case GM_RBD_Y:
-        case GM_RBD_Z:
-            break;
-        case GM_RBD_MONEY_1:
-            break;
-        case GM_RBD_MONEY_2:
-        case GM_RBD_MONEY_3:
-        case GM_RBD_MONEY_4:
-        case GM_RBD_MONEY_5:
-        case GM_RBD_MONEY_6:
-        case GM_RBD_MONEY_7:
-        case GM_RBD_MONEY_8:
-        case GM_RBD_MONEY_9:
-        case GM_RBD_MONEY_10:
-        case GM_RBD_MONEY_11:
-        case GM_RBD_MONEY_12:
-        case GM_RBD_MONEY_13:
-        case GM_RBD_MONEY_14:
-        {
-            INT32 * pMoney = (INT32*)pSlot->szData;
-            *pMoney = pTreeItem->text(column).toInt();
-            pSlot->wLength = sizeof(INT32);
-        }
-            break;
-        default:
-            break;
-        }
-        pSlot->wLength += sizeof(GM_ROLE_SLOT);
-
-        m_nLength += pSlot->wLength;
+        const auto value = item->text(1).toInt(&valid);
+        if (valid) result = m_edits.set_signed(base, value);
     }
-        break;
-    case GM_ROLE_TITLE:
-    case GM_ROLE_SPELL:
-    case GM_ROLE_ITEM:
-    case GM_ROLE_QUEST:
-    case GM_ROLE_MAIL:
-    default:
-        LOG_PROCESS_ERROR(FALSE);
-        break;
+    else
+        return;
+    if (!valid || !result)
+    {
+        item->setText(1, item->data(1, Qt::UserRole).toString());
+        if (!valid)
+            result = std::unexpected("Enter an integer within this field's range.");
+        _AcceptEdit(result);
+        return;
     }
-
-Exit0:
-    return;
+    if (!_AcceptEdit(result) || !alive) return;
+    item->setData(1, Qt::UserRole, item->text(1));
 }
 
 void CRoleInfo::ShowItemInfo(QTreeWidgetItem * item, int column)
 {
+    std::string text;
     GM_ITEM_MAP::iterator iter;
     CMyTreeWidgetItem   *pTreeItem = (CMyTreeWidgetItem*)item;
     LOG_PROCESS_ERROR(pTreeItem);
@@ -499,376 +362,218 @@ void CRoleInfo::ShowItemInfo(QTreeWidgetItem * item, int column)
     iter = m_ItemMap.find(pTreeItem->Get64ID());
     LOG_PROCESS_ERROR(iter != m_ItemMap.end());
 
-    INT32   nLength = 0;
-    const   INT32 BUFFER_LENGTH = 1024 * 20;
-    char    *pBuffer = new char[BUFFER_LENGTH];
-    LOG_PROCESS_ERROR(pBuffer);
+    text += std::format("{}\t{}\n", "物品类型ID", iter->second.dwItemID);
+    text += std::format("{}\t{}\n", "物品ID", iter->second.qwGuid);
+    text += std::format("{}\t{}\n", "包裹", iter->second.wConSlot);
+    text += std::format("{}\t{}\n", "包裹位置", iter->second.wItemSlot);
+    text += std::format("{}\t{}\n", "道具类型", iter->second.nType);
+    text += std::format("{}\t{}\n", "道具子类型", iter->second.nSubType);
+    text += std::format("{}\t{}\n", "数量", iter->second.nNum);
+    text += std::format("{}\t{}\n", "绑定类型", iter->second.byBindType);
 
-    memset(pBuffer, 0, BUFFER_LENGTH);
+    text += std::format("{}\t{}\n", "鉴定类型", iter->second.byIdentified);
+    text += std::format("{}\t{}\n", "随机属性1", iter->second.wRandomAttrID[0]);
+    text += std::format("{}\t{}\n", "随机属性2", iter->second.wRandomAttrID[1]);
+    text += std::format("{}\t{}\n", "随机属性3", iter->second.wRandomAttrID[2]);
+    text += std::format("{}\t{}\n", "随机属性4", iter->second.wRandomAttrID[3]);
 
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "物品类型ID", iter->second.dwItemID);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%llu\n", "物品ID", iter->second.qwGuid);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "包裹", iter->second.wConSlot);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "包裹位置", iter->second.wItemSlot);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "道具类型", iter->second.nType);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "道具子类型", iter->second.nSubType);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "数量", iter->second.nNum);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "绑定类型", iter->second.byBindType);
+    text += std::format("{}\t{}\n", "签名", iter->second.dwRoleID);
+    text += std::format("{}\t{}\n", "已消费金币", iter->second.dwCostMoney);
+    text += std::format("{}\t{}\n", "幸运值", iter->second.byLuck);
 
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "鉴定类型", iter->second.byIdentified);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "随机属性1", iter->second.wRandomAttrID[0]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "随机属性2", iter->second.wRandomAttrID[1]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "随机属性3", iter->second.wRandomAttrID[2]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "随机属性4", iter->second.wRandomAttrID[3]);
+    text += std::format("{}\t{}\n", "武器升级次数", iter->second.byLevelupTimes);
+    text += std::format("{}\t{}\n", "武器升级物理点数", iter->second.byLevelupPhyPoint);
+    text += std::format("{}\t{}\n", "武器升级魔法点数", iter->second.byLevelupMagPoint);
+    text += std::format("{}\t{}\n", "武器升级道术点数", iter->second.byLevelupTaoPoint);
+    text += std::format("{}\t{}\n", "武器隐藏类型", iter->second.byLevelupTypeHidden);
+    text += std::format("{}\t{}\n", "武器隐藏点数", iter->second.byLevelupPointHidden);
 
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "签名", iter->second.dwRoleID);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "已消费金币", iter->second.dwCostMoney);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%d\n", "幸运值", iter->second.byLuck);
+    text += std::format("{}\t{}\n", "铸魂1", iter->second.wRune[0]);
+    text += std::format("{}\t{}\n", "铸魂2", iter->second.wRune[1]);
+    text += std::format("{}\t{}\n", "铸魂3", iter->second.wRune[2]);
+    text += std::format("{}\t{}\n", "铸魂4", iter->second.wRune[3]);
+    text += std::format("{}\t{}\n", "铸魂5", iter->second.wRune[4]);
+    text += std::format("{}\t{}\n", "铸魂6", iter->second.wRune[5]);
 
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "武器升级次数", iter->second.byLevelupTimes);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "武器升级物理点数", iter->second.byLevelupPhyPoint);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "武器升级魔法点数", iter->second.byLevelupMagPoint);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "武器升级道术点数", iter->second.byLevelupTaoPoint);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "武器隐藏类型", iter->second.byLevelupTypeHidden);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "武器隐藏点数", iter->second.byLevelupPointHidden);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "铸魂1", iter->second.wRune[0]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "铸魂2", iter->second.wRune[1]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "铸魂3", iter->second.wRune[2]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "铸魂4", iter->second.wRune[3]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "铸魂5", iter->second.wRune[4]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "铸魂6", iter->second.wRune[5]);
-
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%u\n", "插槽类型", iter->second.dwSocketCombination);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%d\n", "宝石ID1", iter->second.nSoulID[0]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%d\n", "宝石ID2", iter->second.nSoulID[1]);
-    nLength += snprintf(pBuffer + nLength, BUFFER_LENGTH - nLength, "%s\t%d\n", "宝石ID3", iter->second.nSoulID[2]);
+    text += std::format("{}\t{}\n", "插槽类型", iter->second.dwSocketCombination);
+    text += std::format("{}\t{}\n", "宝石ID1", iter->second.nSoulID[0]);
+    text += std::format("{}\t{}\n", "宝石ID2", iter->second.nSoulID[1]);
+    text += std::format("{}\t{}\n", "宝石ID3", iter->second.nSoulID[2]);
 
 
-    CGMItemInfo *pItemInfo = new CGMItemInfo(this);
+    {
+    auto *pItemInfo = new CGMItemInfo(this);
+    pItemInfo->setAttribute(Qt::WA_DeleteOnClose);
 
     LOG_PROCESS_ERROR(pItemInfo);
 
-    pItemInfo->ShowInfo(pBuffer, FALSE);
+    pItemInfo->ShowInfo(legacy_text(text.c_str()), FALSE);
 
-    pItemInfo->show();   
+    pItemInfo->show();
+    }
 
 Exit0:
-    if (pBuffer)
-    {
-        delete[] pBuffer;
-    }
-    
     return;
 }
 
-void CRoleInfo::_UpdateBaseData(GM_ROLE_SLOT *pSlot)
+void CRoleInfo::_UpdateBaseData(const gm::RoleRecord& record)
 {
-    LOG_PROCESS_ERROR(pSlot);
-
-    switch (pSlot->wBaseDataType)
+    QString value;
+    bool disabled = false;
+    switch (record.base)
     {
     case GM_RBD_ID:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, QString::number(*(UINT32*)(pSlot->szData)));
-        pTreeItem->setDisabled(true);
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
+        value = QString::number(record.value<UINT32>());
+        disabled = true;
         break;
     case GM_RBD_PKVALUE:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, QString::number(*(UINT32*)(pSlot->szData)));
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
-        break;
-    case GM_RBD_GMLEVEL:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, QString::number(*(INT32*)(pSlot->szData)));
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
+    case GM_RBD_EXP:
+        value = QString::number(record.value<UINT32>());
         break;
     case GM_RBD_DELETETIME:
     {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-        UINT32      dwDeleteTime = 0;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-
-        dwDeleteTime = *(UINT32*)(pSlot->szData);
-
-        QTimeZone   qtz(28800);
-
-        QDateTime   qdt;
-        qdt.setTime_t(dwDeleteTime);
-        qdt.setTimeZone(qtz);
-
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        if (dwDeleteTime > 0)
-            pTreeItem->setText(1, qdt.toString("yyyy-MM-dd hh:mm:ss"));
-        else
-            pTreeItem->setText(1, "0");
-        pTreeItem->setDisabled(true);
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
+        const auto deleted = record.value<UINT32>();
+        QDateTime date;
+        date.setTime_t(deleted);
+        date.setTimeZone(QTimeZone(28800));
+        value = deleted ? date.toString("yyyy-MM-dd hh:mm:ss") : "0";
+        disabled = true;
         break;
+    }
+    case GM_RBD_NAME:
     case GM_RBD_LAST_LOGOUT_TIME:
     case GM_RBD_FORBIDDEND_CHAT_TIME:
     case GM_RBD_FREEZE_ROLE_TIME:
     case GM_RBD_FREEZE_CHEAT_ROLE:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, pSlot->szData);
-        pTreeItem->setDisabled(true);
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
-        break;
-    case GM_RBD_NAME:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, QString::fromUtf8(pSlot->szData));
-        pTreeItem->setDisabled(true);
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
+        value = QString::fromUtf8(record.text().c_str());
+        disabled = true;
         break;
     case GM_RBD_GROUPID:
     case GM_RBD_CLASS:
     case GM_RBD_SEX:
     case GM_RBD_LEVEL:
-    case GM_RBD_EXP:
     case GM_RBD_MAP_ID:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, QString::number(*(INT32*)(pSlot->szData)));
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
-        break;
-    case GM_RBD_MONEY_1:
-        {
-            CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-            pTreeItem->SetRoleType(pSlot->wRoleType);
-            pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-            pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-            pTreeItem->setText(1, QString::number(*(INT32*)(pSlot->szData)));
-            pTreeItem->setDisabled(true);
-            ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-        }
-        break;
     case GM_RBD_MAP_SERIAL_ID:
-    case GM_RBD_MONEY_2:
-    case GM_RBD_MONEY_3:
-    case GM_RBD_MONEY_4:
-    case GM_RBD_MONEY_5:
-    case GM_RBD_MONEY_6:
-    case GM_RBD_MONEY_7:
-    case GM_RBD_MONEY_8:
-    case GM_RBD_MONEY_9:
-    case GM_RBD_MONEY_10:
-    case GM_RBD_MONEY_11:
-    case GM_RBD_MONEY_12:
-    case GM_RBD_MONEY_13:
-    case GM_RBD_MONEY_14:
-    {
-        CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-        pTreeItem->SetRoleType(pSlot->wRoleType);
-        pTreeItem->SetBaseDataType(pSlot->wBaseDataType);
-        pTreeItem->setText(0, QString::fromLocal8Bit(GetBaseDataName(pSlot->wBaseDataType)));
-        pTreeItem->setText(1, QString::number(*(INT32*)(pSlot->szData)));
-        ui.baseDataTreeWidget->addTopLevelItem(pTreeItem);
-    }
+    case GM_RBD_GMLEVEL:
+        value = QString::number(record.value<INT32>());
         break;
-    case GM_RBD_X:
-    case GM_RBD_Y:
-    case GM_RBD_Z:
+    default:
+        if (record.base < GM_RBD_MONEY_1 || record.base > GM_RBD_MONEY_14)
+            return;
+        value = QString::number(record.value<INT32>());
+        disabled = record.base == GM_RBD_MONEY_1;
         break;
-
-        default:
-            break;
     }
-
-Exit0:
-    return ;
+    auto item = std::make_unique<CMyTreeWidgetItem>();
+    item->SetRoleType(record.type);
+    item->SetBaseDataType(record.base);
+    item->setText(0, legacy_text(GetBaseDataName(record.base)));
+    item->setText(1, value);
+    item->setData(1, Qt::UserRole, value);
+    item->setDisabled(disabled);
+    ui.baseDataTreeWidget->addTopLevelItem(item.release());
 }
+
 
 void CRoleInfo::_Update()
 {
-    INT32           nRoleType = GM_ROLE_NONE;
-    INT32           nBaseDataType = GM_RBD_NONE;
-
-    char            szKey[128] = { 0 };
-    char            szValue[256] = { 0 };
-    char            szNum[32] = { 0 };
-
-    UINT32          dwQuestID = 0;
-
-
-    GM_ROLE_DATA    *pRole = CDataMgr::GetInstance().FindRole(m_dwRoleID);
-    if (!pRole)
+    if (m_rendering || m_closed)
         return;
-
+    const auto* role = CDataMgr::GetInstance().FindRole(m_dwRoleID);
+    if (!role)
+        return;
+    const auto document = role->document;
+    QScopedValueRollback<bool> rendering(m_rendering, true);
+    QSignalBlocker changes(ui.baseDataTreeWidget);
     ui.baseDataTreeWidget->clear();
     ui.questWidget->clear();
     ui.itemWidget->clear();
     ui.mailTreeWidget->clear();
-
-    for (INT32 i = 0; i < pRole->nLength;)
+    ui.spellTreeWidget->clear();
+    ui.titleTreeWidget->clear();
+    m_ItemMap.clear();
+    for (const auto& record : document)
     {
-        GM_ROLE_SLOT   *pData = (GM_ROLE_SLOT*)(pRole->szData + i);
-
-        switch (pData->wRoleType)
+        if (record.type == GM_ROLE_BASE_DATA)
         {
-        case GM_ROLE_BASE_DATA:
-        {
-            _UpdateBaseData(pData);
+            _UpdateBaseData(record);
+            continue;
         }
-            break;
+        auto item = std::make_unique<CMyTreeWidgetItem>();
+        item->SetRoleType(record.type);
+        switch (record.type)
+        {
         case GM_ROLE_SPELL:
         {
-            GM_ROLE_SPELL_SLOT  *pSpellSlot = (GM_ROLE_SPELL_SLOT*)pData->szData;
-            CMyTreeWidgetItem   *pTreeItem = new CMyTreeWidgetItem;
-
-            pTreeItem->SetRoleType(pData->wRoleType);
-            pTreeItem->SetID(pSpellSlot->nSpellID);
-            pTreeItem->Set64ID(pSpellSlot->nRuneID);
-
-            pTreeItem->setText(0, QString::fromUtf8(pSpellSlot->szName));
-            if (pSpellSlot->nEquipedIndex >= qssActiveBegin)
-            {
-                memset(szNum, 0, sizeof(szNum));
-                pTreeItem->setText(1, QString::fromLocal8Bit(gm_itoa(pSpellSlot->nEquipedIndex - qssActiveBegin + 1, szNum)));
-            }
-
-            ui.spellTreeWidget->addTopLevelItem(pTreeItem);
-        }
+            const auto spell = record.value<GM_ROLE_SPELL_SLOT>();
+            item->SetID(spell.nSpellID);
+            item->Set64ID(spell.nRuneID);
+            item->setText(0, QString::fromUtf8(spell.szName));
+            if (spell.nEquipedIndex >= qssActiveBegin)
+                item->setText(1, QString::number(static_cast<qlonglong>(spell.nEquipedIndex) - qssActiveBegin + 1));
+            ui.spellTreeWidget->addTopLevelItem(item.release());
             break;
+        }
         case GM_ROLE_TITLE:
         {
-            GM_ROLE_TITLE_SLOT  *pTitleSlot = (GM_ROLE_TITLE_SLOT*)pData->szData;
-            CMyTreeWidgetItem   *pTreeItem = new CMyTreeWidgetItem;
-
-            pTreeItem->SetRoleType(pData->wRoleType);
-            pTreeItem->SetID(pTitleSlot->nTemplateID);
-            
-            pTreeItem->setText(0, QString::fromUtf8(pTitleSlot->szName));
-            memset(szNum, 0, sizeof(szNum));
-            pTreeItem->setText(1, QString::fromLocal8Bit(gm_itoa(pTitleSlot->dwExpireTime, szNum)));
-            
-            ui.titleTreeWidget->addTopLevelItem(pTreeItem);
-        }
+            const auto title = record.value<GM_ROLE_TITLE_SLOT>();
+            item->SetID(title.nTemplateID);
+            item->setText(0, QString::fromUtf8(title.szName));
+            item->setText(1, QString::number(title.dwExpireTime));
+            ui.titleTreeWidget->addTopLevelItem(item.release());
             break;
+        }
         case GM_ROLE_ITEM:
         {
-            GM_ROLE_ITEM_SLOT   *pItemSlot = (GM_ROLE_ITEM_SLOT*)pData->szData;
-
-            CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-
-            pTreeItem->SetRoleType(pData->wRoleType);
-            pTreeItem->Set64ID(pItemSlot->qwGuid);
-            pTreeItem->SetID( (((UINT32)pItemSlot->wConSlot) << 16) + pItemSlot->wItemSlot);
-
-            memset(szNum, 0, sizeof(szNum));
-            pTreeItem->setText(0, QString::fromLocal8Bit(gm_itoa(pItemSlot->dwItemID, szNum)));
-            memset(szNum, 0, sizeof(szNum));
-            pTreeItem->setText(1, QString::fromLocal8Bit(gm_itoa64(pItemSlot->qwGuid, szNum)));
-            pTreeItem->setText(2, QString::fromUtf8(pItemSlot->szData));
-            pTreeItem->setText(3, QString::fromLocal8Bit(GetItemContainerString(pItemSlot->wConSlot)));
-            pTreeItem->setText(4, QString::fromLocal8Bit(GetItemTypeString(pItemSlot->nType)));
-            memset(szNum, 0, sizeof(szNum));
-            pTreeItem->setText(5, QString::fromLocal8Bit(gm_itoa64(pItemSlot->nNum, szNum)));
-
-            ui.itemWidget->addTopLevelItem(pTreeItem);
-
-            m_ItemMap.insert(std::make_pair(pItemSlot->qwGuid, *pItemSlot));
-        }
+            const auto attributes = record.value<GM_ROLE_ITEM_SLOT>();
+            item->Set64ID(attributes.qwGuid);
+            item->SetID((static_cast<UINT32>(attributes.wConSlot) << 16) | attributes.wItemSlot);
+            item->setText(0, QString::number(attributes.dwItemID));
+            item->setText(1, QString::number(static_cast<qulonglong>(attributes.qwGuid)));
+            item->setText(2, QString::fromUtf8(record.text(offsetof(GM_ROLE_ITEM_SLOT, szData)).c_str()));
+            item->setText(3, legacy_text(GetItemContainerString(attributes.wConSlot)));
+            item->setText(4, legacy_text(GetItemTypeString(attributes.nType)));
+            item->setText(5, QString::number(attributes.nNum));
+            m_ItemMap.try_emplace(attributes.qwGuid, attributes);
+            ui.itemWidget->addTopLevelItem(item.release());
             break;
-        case GM_ROLE_QUEST:
-        {
-            CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-            
-            dwQuestID = *((UINT32*)pData->szData);
-
-            pTreeItem->SetRoleType(pData->wRoleType);
-            pTreeItem->SetID(dwQuestID);
-
-            memset(szNum, 0, sizeof(szNum));
-            pTreeItem->setText(0, QString::fromLocal8Bit(gm_itoa(dwQuestID, szNum)));
-            pTreeItem->setText(1, QString::fromUtf8(pData->szData + sizeof(UINT32)));
-
-            ui.questWidget->addTopLevelItem(pTreeItem);
         }
+        case GM_ROLE_QUEST:
+            item->SetID(record.value<UINT32>());
+            item->setText(0, QString::number(record.value<UINT32>()));
+            item->setText(1, QString::fromUtf8(record.text(sizeof(UINT32)).c_str()));
+            ui.questWidget->addTopLevelItem(item.release());
             break;
         case GM_ROLE_MAIL:
         {
-            CMyTreeWidgetItem *pTreeItem = new CMyTreeWidgetItem;
-            GM_ROLE_MAIL_SLOT *pMailSlot = (GM_ROLE_MAIL_SLOT*)pData->szData;  
-
-            pTreeItem->SetRoleType(pData->wRoleType);
-            pTreeItem->SetID(pMailSlot->dwMailID);
-
-            pTreeItem->setText(0, QString::fromUtf8(pMailSlot->szData));
-            pTreeItem->setText(1, QString::fromLocal8Bit(cszMailTypeName[pMailSlot->nMailType]));
-            pTreeItem->setText(2, QString::fromLocal8Bit(cszMailIsNewName[pMailSlot->nState]));
-
-            pTreeItem->setText(3, QString::fromLocal8Bit(GetMailAttachType(pMailSlot->nAttachType)));
-
-            if (pMailSlot->nAttachType != 0)
+            const auto mail = record.value<GM_ROLE_MAIL_SLOT>();
+            item->SetID(mail.dwMailID);
+            item->setText(0, QString::fromUtf8(record.text(offsetof(GM_ROLE_MAIL_SLOT, szData)).c_str()));
+            item->setText(1, legacy_text(cszMailTypeName[mail.nMailType]));
+            item->setText(2, legacy_text(cszMailIsNewName[mail.nState]));
+            item->setText(3, legacy_text(GetMailAttachType(mail.nAttachType)));
+            if (mail.nAttachType)
             {
-                QString n;
-                pTreeItem->setText(4, n.setNum(pMailSlot->nItemID));
-                pTreeItem->setText(5, n.setNum(pMailSlot->nItemCount));
+                item->setText(4, QString::number(mail.nItemID));
+                item->setText(5, QString::number(mail.nItemCount));
             }
-
-            ui.mailTreeWidget->addTopLevelItem(pTreeItem);
-        }
+            ui.mailTreeWidget->addTopLevelItem(item.release());
             break;
+        }
         default:
             break;
         }
-        
-        i += pData->wLength;
     }
-
-    if (m_bIsModify == FALSE)
+    ui.baseDataTreeWidget->resizeColumnToContents(0);
+    ui.questWidget->resizeColumnToContents(0);
+    ui.itemWidget->resizeColumnToContents(0);
+    ui.itemWidget->resizeColumnToContents(1);
+    if (!m_bIsModify)
     {
         ui.delQuestButton->setDisabled(true);
         ui.delItemButton->setDisabled(true);
         ui.delMailButton->setDisabled(true);
+        ui.takeItemButton->setDisabled(true);
         ui.pushButton->setDisabled(true);
     }
-
-    return;
 }
-
-
-
-

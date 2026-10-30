@@ -7,6 +7,11 @@
 *********************************************************************/
 #ifndef GMTOOL_H
 #define GMTOOL_H
+#include "gm_application.h"
+#include <QtCore/QPointer>
+#include <string_view>
+#include <string>
+#include <expected>
 
 #include <QtWidgets/QMainWindow>
 #include "ui_gmtool.h"
@@ -48,6 +53,7 @@ public:
     BOOL    UpdateSvrNameColor(UINT32 dwSessionID, GM_SVR_STATE eState);
 
     BOOL    OutputLog(const char *pcszLog);
+    BOOL OutputLog(std::string_view text);
     BOOL    OutputMessageBox(const char *pcszStr);
 
     BOOL        UpdateAnnounceList();
@@ -58,7 +64,7 @@ public:
     BOOL        LoadRoleData(UINT32 dwSessionID, UINT32 dwRoleID);
 
     BOOL        SetLDMode();
-    CLDWidget   *GetLDWidget()      { return m_pLDWidget; }
+    CLDWidget   *GetLDWidget();
 
     BOOL        ServerLogin(INT32 nSvrID);
     BOOL        LogoutServer(UINT32 dwSessionID);
@@ -154,9 +160,12 @@ protected:
     //tag 5
     void    _DisableTag5();
     BOOL    _PreDealGameLogFile();
-    BOOL    _SerializeQueryLogStr(INT32 nLogType, char *pcszQueryStr);
+    std::expected<std::string,std::string> _SerializeQueryLogStr(INT32 type);
 
 private:
+    void SessionAction(bool login);
+    void PickRoleFile(bool primary);
+    void BulkAction(INT32 kind,bool revoke=false);
     Ui::gmtoolClass ui;
     
     QButtonGroup    *m_pQueryRoleRadioGroup;
@@ -168,7 +177,6 @@ private:
 
     CSvrTreeWidgetItem  *m_arrItemPoint[MAX_GM_SESSION_COUNT];
 
-    CMD_BASE    *m_pCmd;
 
 
     // tag 4
@@ -176,7 +184,10 @@ private:
 
 
     //
-    CLDWidget       *m_pLDWidget;
+    bool m_logSubmitting=false;
+    bool m_sessionSubmitting=false;
+    bool m_actionSubmitting=false;
+    QPointer<CLDWidget> m_pLDWidget;
 
 };
 
@@ -187,8 +198,7 @@ BOOL ParseIDString(const char *pBuffer, UINT32 dwLength, std::list<UINT32> &list
 //BOOL ParseNameString(const char *pBuffer, UINT32 dwLength, std::list<ROLE_NAME_DATA> &list);
 
 
-extern gmtool g_gmtool;
-extern QApplication app;
+
 
 
 

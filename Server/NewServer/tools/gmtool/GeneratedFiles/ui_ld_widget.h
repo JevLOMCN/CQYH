@@ -28,7 +28,7 @@
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include "ui_exchange_history.h"
+#include "exchange_history_widget.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -268,7 +268,7 @@ public:
         label = new QLabel(groupBox_4);
         label->setObjectName(QStringLiteral("label"));
         label->setMinimumSize(QSize(0, 150));
-        label->setMaximumSize(QSize(16777215, 120));
+        label->setMaximumSize(QSize(16777215, 16777215));
 
         verticalLayout->addWidget(label);
 
@@ -411,7 +411,7 @@ public:
         ___qtreewidgetitem1->setText(1, QApplication::translate("ld_widget", "\344\273\267\346\240\274", 0));
         ___qtreewidgetitem1->setText(0, QApplication::translate("ld_widget", "\347\261\273\345\236\213", 0));
         label_2->setText(QApplication::translate("ld_widget", "\344\272\244\346\230\223\347\233\230\345\217\243", 0));
-        label_8->setText(QApplication::translate("ld_widget", "TextLabel", 0));
+        label_8->setText(QString());
         groupBox_4->setTitle(QString());
         QTreeWidgetItem *___qtreewidgetitem2 = treeWidget_3->headerItem();
         ___qtreewidgetitem2->setText(3, QApplication::translate("ld_widget", "\347\261\273\345\236\213", 0));

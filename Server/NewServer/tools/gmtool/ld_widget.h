@@ -9,9 +9,16 @@
 #ifndef _H_LD_WIDGET_H_
 #define _H_LD_WIDGET_H_
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+#include "std_type.h"
+#include "../qt_cpp23.h"
 #include <QtWidgets/QWidget>
+#include <QtCore/QPointer>
+#include "gm_exchange_stats.h"
 #include "ui_ld_widget.h"
-#include "ui_exchange_history.h"
+#include "exchange_history_widget.h"
 #include "exchange_limit.h"
 
 
@@ -46,6 +53,9 @@ public:
 
 
     BOOL    MainLoop();
+    INT32 GetGroupID() const { return m_nGroupID; }
+    BOOL OrderDeleted(UINT64 order);
+    BOOL MainLoop(std::chrono::steady_clock::time_point tick,std::chrono::system_clock::time_point wall);
 
     BOOL    SetGroupID(INT32 nGroupID);
 
@@ -99,21 +109,18 @@ public slots:
 private:
     Ui::ld_widget ui;
 
-    CExchangeHistoryUI  *m_pExchangeHistoryUI;
-    CDetailDialog       *m_pDetailDialog;
-    CExchangeLimit      *m_pExchangeLimit;
+    QPointer<CDetailDialog> m_pDetailDialog;
+    QPointer<CExchangeLimit> m_pExchangeLimit;
 
     INT32       m_nGroupID;
-    INT32       m_nCurrentTime;
+    gm::ExchangePoll m_poll;
+    bool m_polling=false;
+    UINT64 m_view_generation=0;
 
-    INT64       m_llSysTotalMoney;
-    INT64       m_llSysTotalExchangeMoney;
-    INT64       m_llSysExchangeRMB;
-    INT64       m_llTotalMoney;
-    INT64       m_llTotalExchangeMoney;
-    INT64       m_llExchangeRMB;
-    double      m_lfAveragePriceToday;
-    double      m_lfAveragePriceLastHour;
+    gm::ExchangeStatistics m_statistics;
+    bool m_submitting=false;
+    bool CheckExchangeSelection();
+    void QueryOrderDetail(QTreeWidgetItem* item,QTreeWidget* tree,UINT8 type);
 };
 
 
