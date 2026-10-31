@@ -5,7 +5,14 @@ set_property(CACHE CQYH_CXX_STANDARD PROPERTY STRINGS 23)
 if(CQYH_CXX_STANDARD LESS 23)
     message(FATAL_ERROR "Server requires C++23 or newer; configure with -DCQYH_CXX_STANDARD=23")
 endif()
-set(CQYH_MSVC_COMPILE_PROCESSES 2 CACHE STRING "Maximum compiler workers per MSBuild target")
+# The sol2/Lua binding sources are heavy (up to ~1.5 GB and 20-50 s each), so scale with the machine but leave
+# headroom: MSBuild builds several targets at once, each with this many compiler workers.
+cmake_host_system_information(RESULT _cqyh_cores QUERY NUMBER_OF_LOGICAL_CORES)
+math(EXPR _cqyh_default_mp "${_cqyh_cores} / 4")
+if(_cqyh_default_mp LESS 2)
+    set(_cqyh_default_mp 2)
+endif()
+set(CQYH_MSVC_COMPILE_PROCESSES ${_cqyh_default_mp} CACHE STRING "Maximum compiler workers per MSBuild target")
 
 option(CQYH_OUTPUT_TO_BIN
        "Write server executables to NewServer/bin/<server>/ (where the Visual Studio projects put them and where the configs/scripts are found)"
