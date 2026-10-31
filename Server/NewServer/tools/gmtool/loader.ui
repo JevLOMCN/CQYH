@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>GM工具</string>
+   <string>GM Tool</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -35,7 +35,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>账号</string>
+    <string>Account</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -48,7 +48,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>密码</string>
+    <string>Password</string>
    </property>
   </widget>
   <widget class="QPushButton" name="loginButton">
@@ -67,7 +67,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>登陆</string>
+    <string>Login</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exitButton">
@@ -80,7 +80,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>退出</string>
+    <string>Logout</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="userNameEdit">
