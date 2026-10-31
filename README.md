@@ -28,9 +28,13 @@ It contains the cooked game content (`.upk`, `.udk`, `.pak`, `.bik` videos, the 
 
 **How to use it:**
 
-1. Download `Client Assets.7z` and extract it with [7-Zip](https://www.7-zip.org/).
-2. Extract it **into the `Client` folder of this repository**, so the folders merge: the archive uses the same relative paths as the repository (`client\UE3\MMOGame\CookedPC\...`, `client\UE3\Development\External\...` and so on).
-3. There is nothing to configure: the extracted files are already ignored by `Client/.gitignore` (see the "Client assets" block at the end of that file), so git will not pick them up.
+1. Clone this repository first. The repository already contains the Visual Studio 2022 upgrade of the client source.
+2. Download `Client Assets.7z` and extract it with [7-Zip](https://www.7-zip.org/).
+3. Extract it **into the `Client` folder of this repository**, so the folders merge: the archive uses the same relative paths as the repository (`client\UE3\MMOGame\CookedPC\...`, `client\UE3\Development\External\...` and so on).
+4. **Do not overwrite existing files.** The archive is the original, un-upgraded release, so some of its files exist in the repository in a newer, Visual Studio 2022 version. Overwriting them silently reverts the upgrade. When 7-Zip asks, choose **Skip** (*Do not overwrite*), or in the extract dialog set **Overwrite mode** to **Skip existing files**. Only the files that are missing from the repository (the assets) should be added.
+5. There is nothing else to configure: the extracted files are already ignored by `Client/.gitignore` (see the "Client assets" block at the end of that file), so git will not pick them up.
+
+> **Already extracted over the top and overwrote files?** The assets are ignored by git, so only the tracked source files were changed. In GitHub Desktop use *Changes → right-click → Discard changes* (or run `git restore .` inside `Client`) to put the upgraded versions back. Your extracted assets stay in place.
 
 Without the assets you can read and edit the source, but you cannot build or run the client.
 
@@ -179,9 +183,30 @@ The servers **and the tools** build with CMake (x64, C++23) from one solution, *
 The solution groups the projects into folders: `Servers`, `Tools`, `Tests` and `Dependencies` (`Libraries` for baselib, fusion, net and gameworld; `ThirdParty` for Lua and zlib).
 
 - The tools (`guardserver`, `exportdb`, `certserver`, `pak`, ...) are in the `Tools` folder. `gmtool` and `maintaintool` need Qt5: they are listed but excluded from the build until you configure with `-DCMAKE_PREFIX_PATH=<your Qt5 install>`. `encrypt` and `PosLog` need the MFC component of Visual Studio.
-- `Server\build\vs2022` is committed so the solution can be opened straight away, but it contains absolute paths from the machine that generated it. After cloning to another location, delete `build\vs2022\CMakeCache.txt` and run `cmake --preset vs2022` again. Add a source file to the matching `CMakeLists.txt` and re-run that command; do not edit the generated `.sln` or `.vcxproj` files, because they are overwritten.
-
+- **`Server\build\` is not committed.** It is generated output and contains absolute paths from the machine that made it (repository location, Qt install), so it is git-ignored. After cloning, run `cmake --preset vs2022` once to create `CQYHServer.sln`. Add a source file to the matching `CMakeLists.txt` and re-run that command; do not edit the generated `.sln` or `.vcxproj` files, because they are overwritten.
+- **Building `gmtool` / `maintaintool` (Qt 5.15.2, MSVC 2019 64-bit):** install Qt and point CMake at it, for example `cmake --preset vs2022 -DCMAKE_PREFIX_PATH="C:/Qt/5.15.2/msvc2019_64"` (use your own install path). Without it you get `Cannot open include file: 'QtCore/qglobal.h'`.
+- **`gmtool` needs its config folder next to the exe.** It reads `./config/gmtool_config.lua` from its working directory, and the build does not copy it. Copy `Server\NewServer\tools\gmtool\bin\bin\config` into the folder holding `gmtool64_d.exe` / `gmtool64.exe` (and run it from there), then edit the server names and IPs in `gmtool_config.lua`. Without it the tool logs `GM configuration: cannot open configuration file`.
 The client-facing network layer (gateserver, balanceserver, mgateserver) uses asio. `ctest --preset vs2022-debug` runs its integration test. Options, what is not covered (asimov, bteditor) and the GBK source-encoding note are in [`Server/BUILD.md`](Server/BUILD.md).
+
+---
+
+## Documentation guide
+
+The original release notes and design documents are in [`Documentation`](Documentation). Most are Chinese or machine-translated. These are the useful ones:
+
+| File / folder | What it covers |
+|---|---|
+| `Explanation of Frontend and Backend Files.txt` | The `Common` (old protocol) vs `Common1` (new protocol) split, the old-client / new-server mismatch, and the client compile tips (`GlobalMapInfo.cpp`, Shipping manifests). |
+| `Server-side - Runtime Environment.txt` | Running the server: `certserver` service, `server.reg`, `commonconfig.lua` / `dbconfig.lua` / `mmconfig.lua` / `nameserver.ini`, and the `guard_d.bat` commands (`start ar`, `start a`, `close`, `stop`). |
+| `Description of the Compilation Environment.txt` | Original toolchain (VS2013 server, VS2010 client, DirectX SDK June 2010) and the DirectX install fix. The repository now builds with Visual Studio 2022; see the sections above. |
+| `Tool Instructions - Map Editor.txt` | The prebuilt map editor and `DevLauncher.exe`; see also the editor section above. |
+| `Supplementary Notes.txt` | The seller's other files (SVN set, MySQL 5.1 and certserver package, a server virtual machine). |
+| `Database file/`, `Database Description/` | SQL dumps (with data, and raw tables only), field descriptions and connection notes. For the rebuilt server use the [modern schema](Database/mysql-modern/README.md). |
+| `Manifest Files/` | The four `PCLaunch` `.manifest` files needed for Shipping builds (copy into `client\UE3\Development\Src\Launch\Resources`). |
+| `NewServer/`, `Server/` | Server architecture (Balance, Login, Gate, Center, DB and Game servers), login and hop flows, build and deploy guides, coding standard, logging and movement/skill sync design. |
+| `Chuan Yongzhen Duan Doc/` | Notes from a developer who got the source building: known merge problems (`Common` vs `Common1`), a change log, game flow write-ups (login, create role, enter game, shop), skill logic, config field translations and team packet captures. |
+| `Client/` | UI texture optimisation material (PSD, Flash, slicing samples). |
+| `kismet_bin_fmt.xlsx`, `GameObjects.vsd`, `google_cppguide.xml` | Kismet binary format, game object diagram and the Google C++ style guide. |
 
 ---
 ## 🔗 Quick Links
