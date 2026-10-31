@@ -20,17 +20,9 @@ Client/client/UE3/Binaries/Win32/*.map
 Client/client/UE3/Binaries/Win32/*.ilk
 Client/client/UE3/Binaries/Win32/*.exp
 
-# CMake build trees (Visual Studio / Ninja) of the server
-Server/build/*
-!Server/build/vs2022/
-# The generated Visual Studio solution/projects are tracked; local VS state and compiled output are not.
-Server/build/vs2022/.vs/
-Server/build/vs2022/**/x64/
-Server/build/vs2022/**/Debug/
-Server/build/vs2022/**/Release/
-Server/build/vs2022/**/RelWithDebInfo/
-Server/build/vs2022/**/MinSizeRel/
-Server/build/vs2022/**/*.dir/
+# CMake build trees (Visual Studio / Ninja) of the server. Fully generated and contain
+# machine-specific absolute paths (repo location, Qt install); each dev runs cmake locally.
+Server/build/
 
 # Client: generated or local-run output (not source)
 Client/client/UE3/Engine/Shaders/WorkingDirectory/
