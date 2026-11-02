@@ -1783,7 +1783,9 @@ UBOOL FLightmassMaterialRenderer::CreateRenderTarget(EPixelFormat InFormat, INT 
 
 	if (RenderTarget == NULL)
 	{
-		RenderTarget = new UTextureRenderTarget2D();
+		// Use UObject construction: C++ value-initialization can zero the object
+		// metadata already installed by UObject::operator new on modern compilers.
+		RenderTarget = ConstructObject<UTextureRenderTarget2D>(UTextureRenderTarget2D::StaticClass());
 		check(RenderTarget);
 		RenderTarget->AddToRoot();
 		RenderTarget->ClearColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.0f);

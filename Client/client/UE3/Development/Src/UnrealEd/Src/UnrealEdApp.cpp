@@ -953,7 +953,8 @@ bool WxUnrealEdApp::OnInit()
 	const TCHAR* ParsedCmdLine = appCmdLine();
 
 	// If a map was loaded via command line, see if the user is attempting to do an automated build/submit
-	bDoAutomatedMapBuild = ParseParam( ParsedCmdLine, TEXT("AutomatedMapBuild") );
+	const UBOOL bRebuildMapData = ParseParam( ParsedCmdLine, TEXT("RebuildMapData") );
+	bDoAutomatedMapBuild = bRebuildMapData || ParseParam( ParsedCmdLine, TEXT("AutomatedMapBuild") );
 
 	if( !bDoAutomatedMapBuild ) 
 	{
@@ -1010,6 +1011,41 @@ bool WxUnrealEdApp::OnInit()
 		{
 			FEditorFileUtils::LoadSimpleMapAtStartup();
 		}
+	}
+
+	if ( bRebuildMapData )
+	{
+		if ( !bMapLoaded )
+		{
+			appErrorf(TEXT("RebuildMapData requires an existing source map on the command line."));
+		}
+		// Run the production-quality build without the Perforce submit path.
+		if ( !FEditorBuildUtils::EditorBuild(IDM_BUILD_ALL_SUBMIT) || GEditor->GetMapBuildCancelled() )
+		{
+			appErrorf(TEXT("RebuildMapData: build failed or was cancelled; maps were not saved."));
+		}
+		// Validate every loaded level before saving any. Only the actual build
+		// operations may clear the lighting and path invalidation flags.
+		for ( INT LevelIndex = 0; LevelIndex < GWorld->Levels.Num(); ++LevelIndex )
+		{
+			AWorldInfo* Info = GWorld->Levels(LevelIndex)->GetWorldInfo();
+			if ( Info->bMapNeedsLightingFullyRebuilt || !Info->bPathsRebuilt )
+			{
+				appErrorf(TEXT("RebuildMapData: %s still has unbuilt data (lighting=%d, paths=%d); maps were not saved."), *Info->GetPathName(), Info->bMapNeedsLightingFullyRebuilt, Info->bPathsRebuilt);
+			}
+		}
+		for ( INT LevelIndex = 0; LevelIndex < GWorld->Levels.Num(); ++LevelIndex )
+		{
+			ULevel* Level = GWorld->Levels(LevelIndex);
+			if ( !FEditorFileUtils::SaveLevel(Level) )
+			{
+				appErrorf(TEXT("RebuildMapData: could not save %s."), *Level->GetOutermost()->GetName());
+			}
+			debugf(TEXT("RebuildMapData: saved %s (lighting rebuilt, paths rebuilt)."), *Level->GetOutermost()->GetName());
+		}
+		debugf(TEXT("RebuildMapData: SUCCESS"));
+		appRequestExit(FALSE);
+		return 1;
 	}
 
 	GWarn->MapCheck_ShowConditionally();

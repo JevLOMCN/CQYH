@@ -686,7 +686,10 @@ public:
 
 	if( _module )
 	{
-		FreeLibrary(_module);	// added by zhaojun@snda
+		// The legacy widget DLL registers window callbacks which remain active
+		// until wxWidgets destroys its windows, after FApexManager is destroyed.
+		// Retain the load reference until process teardown to keep those callbacks
+		// executable; unloading here causes a shutdown access violation.
 		_module = NULL; // oscar@snda
 	}
   }

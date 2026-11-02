@@ -755,6 +755,19 @@ FStaticLightingSystem::FStaticLightingSystem(const FLightingBuildOptions& InOpti
 	if ( bLightingSuccessful )
 	{
 		GWorld->GetWorldInfo()->SetMapNeedsLightingFullyRebuilt( FALSE );
+		// A full streamed-world bake also replaces the sublevels' lighting data.
+		// Their invalidation flags must follow that successful build when saved.
+		if ( Options.bBuildActors && Options.bBuildBSP && !Options.bOnlyBuildSelected && !Options.bOnlyBuildVisibility )
+		{
+			for ( INT LevelIndex = 0; LevelIndex < GWorld->Levels.Num(); ++LevelIndex )
+			{
+				ULevel* Level = GWorld->Levels(LevelIndex);
+				if ( Options.ShouldBuildLightingForLevel(Level) )
+				{
+					Level->GetWorldInfo()->SetMapNeedsLightingFullyRebuilt(FALSE);
+				}
+			}
+		}
 	}
 
 	// Clean up old shadow-map and light-map data.

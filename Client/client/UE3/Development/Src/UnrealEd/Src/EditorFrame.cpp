@@ -2343,7 +2343,7 @@ void WxEditorFrame::OnClose( wxCloseEvent& InEvent )
 	UBOOL bPromptUserToSave = TRUE;
 	UBOOL bSaveMapPackages = TRUE;
 	UBOOL bSaveContentPackages = TRUE;
-	if( !FEditorFileUtils::SaveDirtyPackages( bPromptUserToSave, bSaveMapPackages, bSaveContentPackages ) && !GIsUnattended )
+	if( !GIsUnattended && !FEditorFileUtils::SaveDirtyPackages( bPromptUserToSave, bSaveMapPackages, bSaveContentPackages ) )
 	{
 		// Clear out any pending project changes.  The user canceled the save dialog.
 		PendingProjectExe.Empty();
