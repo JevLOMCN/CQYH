@@ -187,6 +187,9 @@
 /client/UE3/Development/Intermediate/UnrealBuildTool/Release/*.pdb
 /client/UE3/Development/Src/UnrealBuildTool/obj/Release/*.pdb
 /client/UE3/Binaries/Win32/*.pdb
+/client/UE3/Binaries/Win64/*.pdb
+/client/UE3/Binaries/Win32/*.exp
+/client/UE3/Binaries/Win64/*.exp
 /client/UE3/Development/Src/UnrealBuildTool/obj/Release/*.txt
 /client/UE3/Development/Intermediate/MMOGame/Win32/Shipping/*.bin
 /client/UE3/Development/Src/.vs
@@ -278,6 +281,43 @@
 /client/UE3/Binaries/Mac/
 /client/UE3/BinariesRelease/Mac/
 /_AutoBuild/edition/_CQ_S1/client_qa_build/
+
+# Debug/Release/Intermediate directories
+/client/SDOTest/Debug/
+/client/SDOTest/AODGame/Debug/
+client/UE3/Development/External/Intermediate/
+client/UE3/Development/External/GFXSrc/Apps/Tutorial/Section7.1/Win32_Msvc90_Debug/
+client/UE3/Development/External/libogg-1.2.2/win32/VS2010/Win32/Debug/
+client/UE3/Development/Src/Targets/Clean/Clean/obj/Debug/
+client/UE3/Development/Src/Targets/Clean/Clean/obj/Release/
+client/UE3/Development/Tools/AIProfiler/AIProfiler/obj/Debug/
+client/UE3/Development/Tools/ASE_Export/Debug/
+client/UE3/Development/Tools/ASE_Export/Release/
+client/UE3/Development/Tools/Builder/Controller/obj/Debug/
+client/UE3/Development/Tools/Builder/CISMonitor/obj/Debug/
+client/UE3/Development/Tools/UnrealLoc/obj/Release/
+client/UE3/Development/Tools/UnrealLoc/obj/BinariesRelease/
+client/UE3/Development/Tools/UnrealProp/UPDS_Service/bin/Debug/
+client/UE3/Development/Tools/UnrealProp/UPDS_Service/bin/Release/
+client/UE3/Development/Tools/UnrealProp/UPDS_Service/obj/Debug/
+client/UE3/Development/Tools/UnrealProp/UPDS_Service/obj/Release/
+client/UE3/Development/Tools/UnrealProp/UPMS_Service/obj/Debug/
+client/UE3/Development/Tools/UnrealProp/UPMS_Service/obj/Release/
+client/UE3/Development/Tools/UnSetup/Debug/
+client/UE3/Development/Tools/UnSetup/Release/
+client/UE3/Development/Tools/UnSetup/UnSetupNativeRedistWrapper/Debug/
+client/UE3/Development/Tools/UnSetup/UnSetupNativeRedistWrapper/Release/
+client/UE3/Development/Tools/UnSetup/UnSetupNativeWrapper/Debug/
+client/UE3/Development/Tools/UnSetup/UnSetupNativeWrapper/Release/
+client/ClientBuildServer/aod_pack/patchmake/nsis/KillProcDLL-bin/Debug/
+client/ClientBuildServer/aod_pack/SD_NSIS/KillProcDLL-bin/Debug/
+
+# zlib obj
+client/UE3/Development/External/zlib/Src/contrib/masmx86/*.obj
+client/UE3/Development/External/zlib/Src/contrib/masmx64/*.obj
+
+
+
 # Over GitHub's 100 MB file limit
 /client/UE3/Development/Documentation/UnrealEngine3.chm
 # Game data, art, video, compiled and prebuilt binary file types
@@ -313,3 +353,24 @@
 UpgradeLog*.htm
 UpgradeLog*.XML
 _UpgradeReport_Files/
+
+# Visual Studio
+*.vshost.exe.manifest
+*.aps
+*.ncb
+
+# C++ Debug symbols and IntelliSense
+*.pdb
+*.pch
+*.ipch
+ipch/
+
+# Python
+*.pyc
+__pycache__/
+
+# JetBrains IDE settings
+.idea/
+
+# Windows
+Thumbs.db
