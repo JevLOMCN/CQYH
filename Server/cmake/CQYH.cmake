@@ -83,6 +83,9 @@ function(cqyh_server_output tgt out_name)
         foreach(cfg DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
             set_target_properties(${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${cfg} "${dir}")
         endforeach()
+        # Servers load global_config.lua, globalconfig/ etc. relative to the working directory,
+        # which must be NewServer/bin rather than the per-server subfolder.
+        set_target_properties(${tgt} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CQYH_SERVER_DIR}/NewServer/bin")
     endif()
     cqyh_copy_runtime_dlls(${tgt})
 endfunction()

@@ -10,10 +10,12 @@ option(CQYH_BUILD_MFC_TOOLS "Build the MFC GUI tools (encrypt, PosLog); needs th
 
 set(_tools_dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# cqyh_add_tool(<name> OUTPUT <exe name> [GUI] [MFC] [STRICT] [EXCLUDE_FROM_ALL] [PCH_DIR <dir>]
+# cqyh_add_tool(<name> OUTPUT <exe name> [GUI] [MFC] [STRICT] [EXCLUDE_FROM_ALL] [PCH_DIR <dir>] [BIN_DIR <dir>] [FOLDER <sln folder>]
 #               SOURCES ... [INCLUDES ...] [DEFINITIONS ...] [LIBS ...])
+# FOLDER: Visual Studio solution folder (default "Tools"); the guard/cert servers use "Servers".
+# BIN_DIR: with CQYH_OUTPUT_TO_BIN, build into NewServer/bin/<dir> like the servers do.
 function(cqyh_add_tool tgt)
-    cmake_parse_arguments(A "GUI;MFC;STRICT;EXCLUDE_FROM_ALL" "OUTPUT;PCH_DIR" "SOURCES;INCLUDES;DEFINITIONS;LIBS" ${ARGN})
+    cmake_parse_arguments(A "GUI;MFC;STRICT;EXCLUDE_FROM_ALL" "OUTPUT;PCH_DIR;BIN_DIR;FOLDER" "SOURCES;INCLUDES;DEFINITIONS;LIBS" ${ARGN})
 
     if(A_GUI)
         add_executable(${tgt} WIN32 ${A_SOURCES})
@@ -62,12 +64,21 @@ function(cqyh_add_tool tgt)
 
     # Keep tool-owned binaries and symbols together while sharing the build's libraries.
     set(_tool_output_dir "${CMAKE_BINARY_DIR}/NewServer/tools/${tgt}/$<CONFIG>")
+    if(A_BIN_DIR AND CQYH_OUTPUT_TO_BIN)
+        set(_tool_output_dir "${CQYH_SERVER_DIR}/NewServer/bin/${A_BIN_DIR}")
+        # Same working directory as the servers: global_config.lua and globalconfig/ live in NewServer/bin.
+        set_target_properties(${tgt} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CQYH_SERVER_DIR}/NewServer/bin")
+    endif()
+    set(_tool_folder "Tools")
+    if(A_FOLDER)
+        set(_tool_folder "${A_FOLDER}")
+    endif()
     set_target_properties(${tgt} PROPERTIES
         OUTPUT_NAME ${A_OUTPUT}
         RUNTIME_OUTPUT_DIRECTORY "${_tool_output_dir}"
         ARCHIVE_OUTPUT_DIRECTORY "${_tool_output_dir}"
         PDB_OUTPUT_DIRECTORY "${_tool_output_dir}"
-        FOLDER "Tools")
+        FOLDER "${_tool_folder}")
     cqyh_copy_runtime_dlls(${tgt})
     if(A_EXCLUDE_FROM_ALL)
         set_target_properties(${tgt} PROPERTIES EXCLUDE_FROM_ALL ON EXCLUDE_FROM_DEFAULT_BUILD ON)
@@ -76,7 +87,7 @@ endfunction()
 
 # --- console tools on top of the server libraries -------------------------------------------------------------
 
-cqyh_add_tool(guardserver OUTPUT guardserver64 STRICT PCH_DIR ${_tools_dir}/guardserver
+cqyh_add_tool(guardserver OUTPUT guardserver64 STRICT BIN_DIR _GUARD FOLDER Servers PCH_DIR ${_tools_dir}/guardserver
     SOURCES
         guardserver/cmd_mgr.cpp
         guardserver/gd_message_handler.cpp
@@ -143,7 +154,7 @@ cqyh_add_tool(cash_accounting OUTPUT cash_accounting64 STRICT PCH_DIR ${_tools_d
     DEFINITIONS NOMINMAX
     LIBS baselib cqyh::mysql cqyh::syslibs)
 
-cqyh_add_tool(certserver OUTPUT certserver64 GUI STRICT PCH_DIR ${_tools_dir}/certserver
+cqyh_add_tool(certserver OUTPUT certserver64 GUI STRICT BIN_DIR certserver FOLDER Servers PCH_DIR ${_tools_dir}/certserver
     SOURCES
         certserver/cert_math.cpp
         certserver/cert_message_handler.cpp

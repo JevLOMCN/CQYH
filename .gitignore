@@ -32,3 +32,4 @@ Client/client/UE3/Development/Src/UnrealBuildTool/obj/Debug/
 # written by the script compiler (make); regenerated, and only when the compile has zero warnings
 Client/client/UE3/MMOGame/Script/Manifest.txt
 /Server/NewServer/tools/account_logout/account_logout/.vs
+/Client/client/UE3/Development/Src/Launch/.vs
