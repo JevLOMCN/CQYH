@@ -1099,7 +1099,7 @@ UBOOL MMOEquipManager::ReadWeaponRuneSkillData()
 		curCfg._SkillRuneID = skillRuneIdx;
 		curCfg._Level = appAtoi( tabFile->GetData( TEXT("Level"), i ) );
 		curCfg._IsRare = appAtoi( tabFile->GetData( TEXT("IsRare"), i ) ) > 0;
-		curCfg._RarePriority = appAtoi( tabFile->GetData( TEXT("Rarity"), i ) );
+		curCfg._RarePriority = appAtoi( tabFile->GetData( TEXT("Priority"), i ) );
 	}
 
 	delete tabFile;

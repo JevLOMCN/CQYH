@@ -3980,7 +3980,7 @@ INT UMakeCommandlet::Main( const FString& Params )
 		if (Success)
 		{
 			// oscar@snda ensure no warnings!!!
-			if(GWarn->Warnings.Num() <= 0
+			if((GWarn->Warnings.Num() <= 0 || ParseParam(appCmdLine(), TEXT("AllowScriptWarnings")))
 				&& GWarn->Errors.Num() <= 0)
 			{
 				//build manifest might fail

@@ -3344,13 +3344,13 @@ INT FEngineLoop::PreInit( const TCHAR* CmdLine )
 					warnf( TEXT("With %d error(s), %d warning(s)"), UniqueErrors.Num(), UniqueWarnings.Num() );
 				}
 				// oscar@snda
-				else if( GIsUCCMake && (UniqueWarnings.Num() != 0) )
+				else if( GIsUCCMake && (UniqueWarnings.Num() != 0) && !ParseParam(appCmdLine(), TEXT("AllowScriptWarnings")) )
 				{
 					SET_WARN_COLOR(COLOR_PURPLE);
 					warnf( TEXT("Success - %d error(s), %d warning(s), WARNING AS ERROR!"), UniqueErrors.Num(), UniqueWarnings.Num() );
 					ErrorLevel = 1;
 				}
-				else if( ( UniqueErrors.Num() == 0 ) && (UniqueWarnings.Num() == 0) )
+				else if( ( UniqueErrors.Num() == 0 ) && (UniqueWarnings.Num() == 0 || ParseParam(appCmdLine(), TEXT("AllowScriptWarnings"))) )
 				{
 					SET_WARN_COLOR(UniqueWarnings.Num() ? COLOR_YELLOW : COLOR_GREEN);
 					warnf( TEXT("Success - %d error(s), %d warning(s)"), UniqueErrors.Num(), UniqueWarnings.Num() );

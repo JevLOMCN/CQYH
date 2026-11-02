@@ -72,7 +72,7 @@ var(MMOServer) init string NameID		                                        <Disp
 var(MMOServer) int Level <ExportExcel="Both">;
 
 var(MMOServer) int GroupID		                                                <DisplayName="GroupID" | ExportExcel="Both">;
-var(MMOServer) private{private} init string DisplayName	                        <DisplayName="DisplayName" | ExportExcel="Both">;
+var(MMOServer) private{public} init string DisplayName	                        <DisplayName="DisplayName" | ExportExcel="Both">;
 var(MMOServer) ENPC_QUALITY Quality	                                            <DisplayName="Quality" | ExportExcel="Both">;
 //var(MMOServer) bool bPetCanAttack                                             <DisplayName="PetCanAttack" | ExportExcel="Both">;
 
