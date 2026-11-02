@@ -374,3 +374,10 @@ __pycache__/
 
 # Windows
 Thumbs.db
+
+# Generated runtime diagnostics and engine-native captures
+/client/UE3/Binaries/SwarmAgent.Options.xml
+/client/UE3/Binaries/SwarmCache/
+/client/UE3/MMOGame/Config/StringMap.txt.txt
+/client/UE3/MMOGame/ScreenShots/Win32/ScreenShot*.bmp
+/client/UE3/MMOGame/ScreenShots/Win64/ScreenShot*.bmp
