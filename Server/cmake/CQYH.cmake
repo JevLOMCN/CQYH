@@ -96,5 +96,28 @@ function(cqyh_copy_runtime_dlls tgt)
                 -P "${CQYH_SERVER_DIR}/cmake/CopyRuntimeDlls.cmake"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CQYH_MYSQL_RUNTIME_DLLS} $<TARGET_FILE_DIR:${tgt}>
             VERBATIM)
+
+        # The VC++ 2013 (v120) runtime the prebuilt DLLs and executables depend on; the repo ships both flavours.
+        set(redist "${CQYH_SERVER_DIR}/NewServer/bin")
+        foreach(crt msvcr120 msvcp120)
+            add_custom_command(TARGET ${tgt} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<IF:$<CONFIG:Debug>,${redist}/${crt}d.dll,${redist}/${crt}.dll>"
+                    "$<TARGET_FILE_DIR:${tgt}>"
+                VERBATIM)
+        endforeach()
+
+        # Vendor SDK DLLs whose import libs are linked but whose DLLs are not built here.
+        get_target_property(libs ${tgt} LINK_LIBRARIES)
+        if(libs MATCHES "cqyh::sdobase")
+            add_custom_command(TARGET ${tgt} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${redist}/SdoBase.dll" "$<TARGET_FILE_DIR:${tgt}>"
+                VERBATIM)
+        endif()
+        if(libs MATCHES "cqyh::fcm")
+            add_custom_command(TARGET ${tgt} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${redist}/fcmsdk_X64.dll" "$<TARGET_FILE_DIR:${tgt}>"
+                VERBATIM)
+        endif()
     endif()
 endfunction()
