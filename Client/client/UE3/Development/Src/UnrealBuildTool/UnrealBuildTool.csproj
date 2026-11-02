@@ -10,6 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UnrealBuildTool</RootNamespace>
     <AssemblyName>UnrealBuildTool</AssemblyName>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)..\..\Intermediate\UnrealBuildTool\obj\</BaseIntermediateOutputPath>
+    <UseSharedCompilation>false</UseSharedCompilation>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>

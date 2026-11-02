@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <AssemblyName>UnrealEdCSharp</AssemblyName>
@@ -16,6 +16,7 @@
     </SccProvider>
     <OutputType>Library</OutputType>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <RestorePackagesPath>$(MSBuildThisFileDirectory)..\..\Intermediate\NuGet</RestorePackagesPath>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -126,9 +127,9 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Office.Interop.Excel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022">
       <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
+    </PackageReference>
     <Reference Include="PresentationFramework.Classic" />
     <Reference Include="System" />
     <Reference Include="System.Core">

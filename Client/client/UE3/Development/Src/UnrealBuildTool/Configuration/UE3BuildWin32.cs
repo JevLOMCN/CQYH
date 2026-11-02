@@ -267,7 +267,7 @@ namespace UnrealBuildTool
 			}
 
 			// Link against D3DX
-            //@ del by showlong ×îÐ¡»¯±àÒëµÄÊ±ºòÒ²ÐèÒªÊ¹ÓÃD3DX¿â
+            //@ del by showlong ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ò²ï¿½ï¿½ÒªÊ¹ï¿½ï¿½D3DXï¿½ï¿½
 			//if( !UE3BuildConfiguration.bCompileLeanAndMeanUE3 )
             //@
 			{
@@ -319,7 +319,7 @@ namespace UnrealBuildTool
             FinalLinkEnvironment.AdditionalLibraries.Add( "X3DAudio.lib" );
             FinalLinkEnvironment.AdditionalLibraries.Add( "xapobase.lib" );
             FinalLinkEnvironment.AdditionalLibraries.Add( "XAPOFX.lib" );
-            //@ mdf by showlong ×îÐ¡»¯±àÒëµÄÊ±ºò£¬ÐèÒªNVTT½øÐÐÌùÍ¼´¦Àí
+            //@ mdf by showlong ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ÒªNVTTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
             if (!IsBuildingDedicatedServer())
             //if (!IsBuildingDedicatedServer() && !UE3BuildConfiguration.bCompileLeanAndMeanUE3)
             //@
@@ -791,10 +791,10 @@ namespace UnrealBuildTool
 
 				// Add required .NET Framework assemblies
 				{
-					// Pass the 4.0 reference assembly path as the assembly search path.
+					// Match the C# projects targeting .NET Framework 4.8 with modern Visual Studio.
 					GlobalCPPEnvironment.SystemDotNetAssemblyPaths.Add(
 						Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86 ) +
-						"/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.0" );
+						(VCToolChain.UseModernVisualStudio() ? "/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8" : "/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.0") );
 
 					GlobalCPPEnvironment.FrameworkAssemblyDependencies.Add( "System.dll" );
 					GlobalCPPEnvironment.FrameworkAssemblyDependencies.Add( "System.Data.dll" );

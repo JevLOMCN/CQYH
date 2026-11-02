@@ -32,8 +32,13 @@ namespace UnrealBuildTool
 			// Separate functions for linker.
 			Result += " /Gy";
 
-			// Relaxes floating point precision semantics to allow more optimization.
-			Result += " /fp:fast";
+			// Modern fast-math optimization produces incorrect lightmap colors in
+			// this legacy renderer. Keep predictable arithmetic for modern builds;
+			// the override is available for controlled profiling and comparisons.
+			string FloatingPointMode = Environment.GetEnvironmentVariable("UE3_FP_MODE") ?? (UseModernVisualStudio() ? "precise" : "fast");
+			if (FloatingPointMode != "fast" && FloatingPointMode != "precise")
+				throw new BuildException("UE3_FP_MODE must be fast or precise.");
+			Result += " /fp:" + FloatingPointMode;
 
 			// Compile into an .obj file, and skip linking.
 			Result += " /c";
@@ -664,6 +669,12 @@ namespace UnrealBuildTool
 				CompileAction.CommandArguments += string.Format(" \"{0}\"", RelativeForResourceCompiler(RCFile.AbsolutePath));
 
 				// Add the files included by the RC file as prerequisites of the action.
+				// RT_MANIFEST resources are not C preprocessor includes, so the
+				// include scanner otherwise misses manifest-only changes.
+				foreach (string Manifest in Directory.GetFiles(Path.GetDirectoryName(RCFile.AbsolutePath), "*.manifest"))
+				{
+					CompileAction.PrerequisiteItems.Add(FileItem.GetItemByPath(Manifest));
+				}
 				foreach (FileItem IncludedFile in Environment.GetIncludeDependencies(RCFile))
 				{
 					CompileAction.PrerequisiteItems.Add(IncludedFile);
@@ -671,6 +682,69 @@ namespace UnrealBuildTool
 			}
 
 			return Result;
+		}
+
+		// The supplied archives predate the modern CRT. Keep the originals intact and
+		// normalize only their compiler-version directive, as required by the runtime shims.
+		static string PrepareLegacyLibrary(string Library, LinkEnvironment Environment)
+		{
+			if (!UseModernVisualStudio()) return Library;
+			string Source = Library;
+			if (!File.Exists(Source))
+			{
+				foreach (string DirectoryPath in Environment.LibraryPaths)
+				{
+					string Candidate = Path.Combine(DirectoryPath, Library);
+					if (File.Exists(Candidate)) { Source = Candidate; break; }
+				}
+			}
+			if (!File.Exists(Source)) return Library;
+			Source = Path.GetFullPath(Source);
+			string ExternalRoot = Path.GetFullPath("../External") + Path.DirectorySeparatorChar;
+			if (!Source.StartsWith(ExternalRoot, StringComparison.OrdinalIgnoreCase)) return Library;
+			string Destination = Path.Combine("../Intermediate/LegacyLibraries", Source.Substring(ExternalRoot.Length));
+			if (File.Exists(Destination) && File.GetLastWriteTimeUtc(Destination) >= File.GetLastWriteTimeUtc(Source))
+				return Path.GetFullPath(Destination);
+			byte[] Bytes = File.ReadAllBytes(Source);
+			byte[] Marker = System.Text.Encoding.ASCII.GetBytes("_MSC_VER=1600");
+			bool Changed = false;
+			// The shipped Win32 Debug Scaleform archives contain CodeView records
+			// rejected by the modern PDB writer (LNK1318). Keep their code, but omit
+			// vendor debug sections; engine/game debug information remains enabled.
+			if (Source.IndexOf("GFXSrc\\Lib\\Win32\\Msvc10\\Debug\\", StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				for (int Member = 8; Member + 60 <= Bytes.Length; )
+				{
+					int Size;
+					if (!Int32.TryParse(System.Text.Encoding.ASCII.GetString(Bytes, Member + 48, 10).Trim(), out Size) || Size < 0 || Member + 60L + Size > Bytes.Length) break;
+					int ObjectStart = Member + 60;
+					if (Size >= 20 && BitConverter.ToUInt16(Bytes, ObjectStart) == 0x14c)
+					{
+						int Sections = BitConverter.ToUInt16(Bytes, ObjectStart + 2);
+						int Header = ObjectStart + 20 + BitConverter.ToUInt16(Bytes, ObjectStart + 16);
+						for (int Section = 0; Section < Sections && Header + 40 <= ObjectStart + Size; Section++, Header += 40)
+						{
+							if (System.Text.Encoding.ASCII.GetString(Bytes, Header, 7) != ".debug$") continue;
+							byte[] Name = System.Text.Encoding.ASCII.GetBytes(".ue3skip");
+							Array.Copy(Name, 0, Bytes, Header, 8);
+							uint Flags = BitConverter.ToUInt32(Bytes, Header + 36) | 0x800;
+							Array.Copy(BitConverter.GetBytes(Flags), 0, Bytes, Header + 36, 4);
+							Changed = true;
+						}
+					}
+					Member = ObjectStart + Size + (Size & 1);
+				}
+			}
+			for (int Index = 0; Index <= Bytes.Length - Marker.Length; Index++)
+			{
+				int Offset = 0;
+				while (Offset < Marker.Length && Bytes[Index + Offset] == Marker[Offset]) Offset++;
+				if (Offset == Marker.Length) { Bytes[Index + 10] = (byte)'9'; Changed = true; }
+			}
+			if (!Changed) return Library;
+			Directory.CreateDirectory(Path.GetDirectoryName(Destination));
+			File.WriteAllBytes(Destination, Bytes);
+			return Path.GetFullPath(Destination);
 		}
 
 		public static FileItem LinkFiles(LinkEnvironment LinkEnvironment)
@@ -697,6 +771,20 @@ namespace UnrealBuildTool
 			// Add the library paths to the argument list.
 			foreach (string LibraryPath in LinkEnvironment.LibraryPaths)
 			{
+				// FaceFX also requests libraries through #pragma comment(lib), rather
+				// than AdditionalLibraries. Put prepared copies first for those imports.
+				if (UseModernVisualStudio() &&
+					(LibraryPath.IndexOf("FaceFX", StringComparison.OrdinalIgnoreCase) >= 0 ||
+					 LibraryPath.IndexOf("ConvexDecomposition", StringComparison.OrdinalIgnoreCase) >= 0 ||
+					 LibraryPath.IndexOf("PhysX", StringComparison.OrdinalIgnoreCase) >= 0) && Directory.Exists(LibraryPath))
+				{
+					foreach (string Archive in Directory.GetFiles(LibraryPath, "*.lib"))
+					{
+						string Prepared = PrepareLegacyLibrary(Archive, LinkEnvironment);
+						if (Path.GetFullPath(Prepared) != Path.GetFullPath(Archive))
+							LinkAction.CommandArguments += string.Format(" /LIBPATH:\"{0}\"", Path.GetDirectoryName(Prepared));
+					}
+				}
 				LinkAction.CommandArguments += string.Format(" /LIBPATH:\"{0}\"", LibraryPath);
 			}
 
@@ -720,7 +808,9 @@ namespace UnrealBuildTool
 			}
 			foreach (string AdditionalLibrary in LinkEnvironment.AdditionalLibraries)
 			{
-				InputFileNames.Add(string.Format("\"{0}\"", AdditionalLibrary));
+				string Library = PrepareLegacyLibrary(AdditionalLibrary, LinkEnvironment);
+				InputFileNames.Add(string.Format("\"{0}\"", Library));
+				if (File.Exists(Library)) LinkAction.PrerequisiteItems.Add(FileItem.GetItemByPath(Library));
 			}
 			string ResponseFileName = Path.Combine( LinkEnvironment.OutputDirectory, Path.GetFileName( LinkEnvironment.OutputFilePath ) + ".response" );
 			LinkAction.CommandArguments += string.Format( " @\"{0}\"", ResponseFile.Create( ResponseFileName, InputFileNames ) );
@@ -728,9 +818,13 @@ namespace UnrealBuildTool
 			// Add the output file to the command-line.
 			LinkAction.CommandArguments += string.Format(" /OUT:\"{0}\"", OutputFile.AbsolutePath);
 
-				// Write the import library to the output directory for nFringe support.
+				// Keep modern linker scratch files out of the tracked runtime tree.
+				string ImportDirectory = UseModernVisualStudio()
+					? Path.GetFullPath(Path.Combine("../Intermediate/LinkArtifacts", LinkEnvironment.TargetPlatform.ToString()))
+					: LinkEnvironment.OutputDirectory;
+				Directory.CreateDirectory(ImportDirectory);
 				string ImportLibraryFilePath = Path.Combine(
-					LinkEnvironment.OutputDirectory,
+					ImportDirectory,
 					Path.GetFileNameWithoutExtension( OutputFile.AbsolutePath ) + ".lib"
 					);
 				FileItem ImportLibraryFile = FileItem.GetItemByPath( ImportLibraryFilePath );
@@ -806,6 +900,7 @@ namespace UnrealBuildTool
 //			BuildProjectAction.CommandArguments += " /nologo /verbosity:minimal";
 
 			// Add project
+			if (UseModernVisualStudio()) BuildProjectAction.CommandArguments += " /restore";
 			BuildProjectAction.CommandArguments += String.Format(" \"{0}\"", ProjectFileItem.AbsolutePath);
 
 			// We don't want to display all of the regular MSBuild output to the console
@@ -1089,6 +1184,13 @@ namespace UnrealBuildTool
 					else
 					{
 						TargetArchitecture = bHostIs64Bit ? "x64_x86" : "x86";
+					}
+					// Prefer the v143 toolset even when hosted by a newer Visual Studio.
+					// Old third-party libraries depend on this compiler generation.
+					string ToolsetsDirectory = Path.Combine(ModernVisualStudioInstallDir, "VC\\Tools\\MSVC");
+					if (Directory.Exists(ToolsetsDirectory) && Directory.GetDirectories(ToolsetsDirectory, "14.4*").Length > 0)
+					{
+						TargetArchitecture += " -vcvars_ver=14.4";
 					}
 					Utils.SetEnvironmentVariablesFromBatchFile( Path.Combine( ModernVisualStudioInstallDir, "VC\\Auxiliary\\Build\\vcvarsall.bat" ), TargetArchitecture );
 
