@@ -13,7 +13,7 @@ set(_tools_dir "${CMAKE_CURRENT_SOURCE_DIR}")
 # cqyh_add_tool(<name> OUTPUT <exe name> [GUI] [MFC] [STRICT] [EXCLUDE_FROM_ALL] [PCH_DIR <dir>] [BIN_DIR <dir>] [FOLDER <sln folder>]
 #               SOURCES ... [INCLUDES ...] [DEFINITIONS ...] [LIBS ...])
 # FOLDER: Visual Studio solution folder (default "Tools"); the guard/cert servers use "Servers".
-# BIN_DIR: with CQYH_OUTPUT_TO_BIN, build into NewServer/bin/<dir> like the servers do.
+# BIN_DIR: build into NewServer/bin/<dir> (the guard/cert servers run from there), regardless of CQYH_OUTPUT_TO_BIN.
 function(cqyh_add_tool tgt)
     cmake_parse_arguments(A "GUI;MFC;STRICT;EXCLUDE_FROM_ALL" "OUTPUT;PCH_DIR;BIN_DIR;FOLDER" "SOURCES;INCLUDES;DEFINITIONS;LIBS" ${ARGN})
 
@@ -64,7 +64,7 @@ function(cqyh_add_tool tgt)
 
     # Keep tool-owned binaries and symbols together while sharing the build's libraries.
     set(_tool_output_dir "${CMAKE_BINARY_DIR}/NewServer/tools/${tgt}/$<CONFIG>")
-    if(A_BIN_DIR AND CQYH_OUTPUT_TO_BIN)
+    if(A_BIN_DIR)
         set(_tool_output_dir "${CQYH_SERVER_DIR}/NewServer/bin/${A_BIN_DIR}")
         # Same working directory as the servers: global_config.lua and globalconfig/ live in NewServer/bin.
         set_target_properties(${tgt} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CQYH_SERVER_DIR}/NewServer/bin")
