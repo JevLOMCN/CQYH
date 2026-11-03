@@ -114,23 +114,11 @@ extern FMallocPtr	GMalloc;
 //
 // C++ style memory allocation.
 //
-FORCEINLINE void* operator new( size_t Size )
-{
-	return Lightmass::appMalloc( Size );
-}
+void* operator new( size_t Size );
 FORCEINLINE void* operator new( size_t Size, void* Ptr )
 {
 	return Ptr;
 }
-FORCEINLINE void operator delete( void* Ptr )
-{
-	Lightmass::appFree( Ptr );
-}
-FORCEINLINE void* operator new[]( size_t Size )
-{
-	return Lightmass::appMalloc( Size );
-}
-FORCEINLINE void operator delete[]( void* Ptr )
-{
-	Lightmass::appFree( Ptr );
-}
+void operator delete( void* Ptr );
+void* operator new[]( size_t Size );
+void operator delete[]( void* Ptr );

@@ -699,10 +699,18 @@ FRunnableThreadWin::FRunnableThreadWin(void)
  */
 FRunnableThreadWin::~FRunnableThreadWin(void)
 {
-	// Clean up our thread if it is still active
 	if (Thread != NULL)
 	{
-		Kill(TRUE);
+		// A joined thread can outlive its runnable; do not call Stop() on it.
+		if (WaitForSingleObject(Thread, 0) == WAIT_OBJECT_0)
+		{
+			CloseHandle(Thread);
+			Thread = NULL;
+		}
+		else
+		{
+			Kill(TRUE);
+		}
 	}
 }
 

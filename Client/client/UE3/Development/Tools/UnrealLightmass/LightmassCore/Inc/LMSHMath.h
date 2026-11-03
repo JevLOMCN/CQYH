@@ -239,6 +239,10 @@ public:
 /** Returns the value of the SH basis L,M at the point on the sphere defined by the unit vector Vector. */
 extern FSHVector SHBasisFunction(const FVector4& Vector);
 
+// Declare the mixed-type operator at namespace scope for standard lookup.
+class FSHVectorRGB;
+FSHVectorRGB operator*(const FSHVector& A, const FLinearColor& B);
+
 /** A vector of colored spherical harmonic coefficients. */
 class FSHVectorRGB
 {

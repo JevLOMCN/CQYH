@@ -257,6 +257,7 @@ public:
 class FSynchronizeFactory
 {
 public:
+	virtual ~FSynchronizeFactory() {}
 	/**
 	 * Creates a new critical section
 	 *
@@ -352,6 +353,7 @@ enum EThreadPriority
 class FRunnableThread
 {
 public:
+	virtual ~FRunnableThread() {}
 	/**
 	 * Changes the thread priority of the currently running thread
 	 *
@@ -415,6 +417,7 @@ public:
 class FThreadFactory
 {
 public:
+	virtual ~FThreadFactory() {}
 	/**
 	 * Creates the thread with the specified stack size and thread priority.
 	 *

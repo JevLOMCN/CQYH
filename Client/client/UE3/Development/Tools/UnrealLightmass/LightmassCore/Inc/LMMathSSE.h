@@ -563,7 +563,10 @@ FORCEINLINE VectorRegister VectorSelect( const VectorRegister& Vec1, const Vecto
  * @param Ptr			Unaligned memory pointer to the 4 BYTEs.
  * @return				VectorRegister( FLOAT(Ptr[0]), FLOAT(Ptr[1]), FLOAT(Ptr[2]), FLOAT(Ptr[3]) )
  */
-#define VectorLoadByte4( Ptr )			_mm_cvtpu8_ps( *((__m64*)Ptr) )
+FORCEINLINE VectorRegister VectorLoadByte4( const void* Ptr )
+{
+	return _mm_cvtepi32_ps(_mm_unpacklo_epi16(_mm_unpacklo_epi8(_mm_cvtsi32_si128(*(const INT*)Ptr), _mm_setzero_si128()), _mm_setzero_si128()));
+}
 
 /**
  * Loads 4 BYTEs from unaligned memory and converts them into 4 FLOATs in reversed order.
@@ -574,7 +577,7 @@ FORCEINLINE VectorRegister VectorSelect( const VectorRegister& Vec1, const Vecto
  */
 FORCEINLINE VectorRegister VectorLoadByte4Reverse( void* Ptr )
 {
-	VectorRegister Temp = _mm_cvtpu8_ps( *((__m64*)Ptr) );
+	VectorRegister Temp = VectorLoadByte4(Ptr);
 	return _mm_shuffle_ps( Temp, Temp, SHUFFLEMASK(3,2,1,0) );
 }
 

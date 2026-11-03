@@ -74,7 +74,7 @@ const TCHAR* appOutOfMemoryMessage(const TCHAR* AttemptedOperation, SIZE_T Reque
 	GlobalMemoryStatusEx(&MemStatus);
 
 	_stprintf(GOutOfMemoryString, 
-		TEXT("OUT OF MEMORY: %8s: %12u bytes (%12.2fMB)  requested, %12.2f of %12.2f MB of virtual memory free, %12.2f of %12.2f MB of physical memory free, %12.2f of %12.2f MB of page file free"), 
+		TEXT("OUT OF MEMORY: %8s: %12Iu bytes (%12.2fMB)  requested, %12.2f of %12.2f MB of virtual memory free, %12.2f of %12.2f MB of physical memory free, %12.2f of %12.2f MB of page file free"),
 		AttemptedOperation, 
 		RequestedSize, RequestedSize * CONVERT_TO_MB, 
 		MemStatus.ullAvailVirtual * CONVERT_TO_MB, MemStatus.ullTotalVirtual * CONVERT_TO_MB,
@@ -130,4 +130,22 @@ DWORD appMemCrc( const void* InData, SIZE_T Length, DWORD CRC )
 }
 
 
+}
+
+// Global allocation replacements must have one non-inline definition.
+void* operator new( size_t Size )
+{
+	return Lightmass::appMalloc( Size );
+}
+void operator delete( void* Ptr )
+{
+	Lightmass::appFree( Ptr );
+}
+void* operator new[]( size_t Size )
+{
+	return Lightmass::appMalloc( Size );
+}
+void operator delete[]( void* Ptr )
+{
+	Lightmass::appFree( Ptr );
 }
