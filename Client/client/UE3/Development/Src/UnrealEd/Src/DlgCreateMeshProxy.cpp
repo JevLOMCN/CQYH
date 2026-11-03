@@ -215,26 +215,26 @@ void WxDlgCreateMeshProxy::Setup()
 				ErrorText->Hide();
 				ErrorSizer->Add( ErrorText, 1, wxALIGN_CENTRE, BorderSize );
 			}
-			TopSizer->Add( ErrorSizer, 0, wxALIGN_CENTRE | wxALIGN_BOTTOM | wxALL, BorderSize );
+			TopSizer->Add( ErrorSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, BorderSize );
 
 			wxBoxSizer* ButtonSizer = new wxBoxSizer( wxHORIZONTAL );
 			{
 				MergeButton = new wxButton( this, ID_DLG_CREATEMESHPROXY_MERGE, *LocalizeUnrealEd( "MeshProxy_Merge" ) );
 				AllControls.AddItem( MergeButton );
-				ButtonSizer->Add( MergeButton, 1, wxALIGN_RIGHT, BorderSize );
+				ButtonSizer->Add( MergeButton, 1, 0, BorderSize );
 				MergeButton->Hide();
 				RemergeButton = new wxButton( this, ID_DLG_CREATEMESHPROXY_REMERGE, *LocalizeUnrealEd( "MeshProxy_Remerge" ) );
 				AllControls.AddItem( RemergeButton );
-				ButtonSizer->Add( RemergeButton, 1, wxALIGN_RIGHT, BorderSize );
+				ButtonSizer->Add( RemergeButton, 1, 0, BorderSize );
 				RemergeButton->Hide();
 				UnmergeButton = new wxButton( this, ID_DLG_CREATEMESHPROXY_UNMERGE, *LocalizeUnrealEd( "MeshProxy_Unmerge" ) );
 				AllControls.AddItem( UnmergeButton );
-				ButtonSizer->Add( UnmergeButton, 1, wxALIGN_RIGHT, BorderSize );
+				ButtonSizer->Add( UnmergeButton, 1, 0, BorderSize );
 				UnmergeButton->Hide();
 				wxButton* CancelButton = new wxButton( this, wxID_CANCEL, *LocalizeUnrealEd( TEXT("&Cancel") ) );
-				ButtonSizer->Add( CancelButton, 1, wxALIGN_RIGHT, BorderSize );
+				ButtonSizer->Add( CancelButton, 1, 0, BorderSize );
 			}
-			TopSizer->Add( ButtonSizer, 0, wxALIGN_RIGHT | wxALIGN_BOTTOM | wxALL, BorderSize );
+			TopSizer->Add( ButtonSizer, 0, wxALIGN_RIGHT | wxALL, BorderSize );
 		}
 
 		ClientSize = TopSizer->ComputeFittingClientSize( this );

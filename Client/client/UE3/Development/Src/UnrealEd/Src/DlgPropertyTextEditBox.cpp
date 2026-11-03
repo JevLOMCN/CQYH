@@ -46,10 +46,10 @@ WxDlgPropertyTextEditBox::WxDlgPropertyTextEditBox(class WxPropertyControl* InIt
 		wxSizer* ButtonSizer = new wxBoxSizer(wxHORIZONTAL);
 		{
 			ApplyButton = new wxButton(this, IDB_APPLY, *LocalizeUnrealEd("&Apply"));
-			ButtonSizer->Add(ApplyButton, 0, wxEXPAND | wxALIGN_RIGHT, 5);
+			ButtonSizer->Add(ApplyButton, 0, wxEXPAND, 5);
 			ButtonSizer->AddSpacer(5);
 			OKButton = new wxButton(this, IDB_OK, *LocalizeUnrealEd("&OK"));
-			ButtonSizer->Add(OKButton, 0, wxEXPAND | wxALIGN_RIGHT, 5);
+			ButtonSizer->Add(OKButton, 0, wxEXPAND, 5);
 		}
 		MainSizer->Add(ButtonSizer, 0, wxALIGN_RIGHT, 5);
 	}

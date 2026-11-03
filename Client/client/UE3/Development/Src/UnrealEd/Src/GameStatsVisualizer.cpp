@@ -69,7 +69,7 @@ bool WxVisualizerOptionsDialog::Create(UGameStatsVisualizer* InVisualizer)
 					wxSizer* ButtonSizer = CreateButtonSizer(wxOK);
 
 					//Add an OK button and the custom panel to the dialog
-					TopmostSizer->Add(OptionsPanel, 1, wxEXPAND|wxALIGN_CENTER|wxALL, 5);
+					TopmostSizer->Add(OptionsPanel, 1, wxEXPAND | wxALL, 5);
 					TopmostSizer->Add(ButtonSizer, 0, wxALIGN_CENTER|wxALL, 5);
 
 					TopmostSizer->SetMinSize(Width, Height);

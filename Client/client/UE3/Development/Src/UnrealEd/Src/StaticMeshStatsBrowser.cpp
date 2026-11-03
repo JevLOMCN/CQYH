@@ -105,7 +105,7 @@ void WxPrimitiveStatsBrowser::Create(INT DockID,const TCHAR* FriendlyName, wxWin
 		InsertColumn( PCSBC_RadiusMax,			*LocalizeUnrealEd("PrimitiveStatsBrowser_RadiusMax"), wxLIST_FORMAT_RIGHT			);
 		InsertColumn( PCSBC_RadiusAvg,			*LocalizeUnrealEd("PrimitiveStatsBrowser_RadiusAvg"), wxLIST_FORMAT_RIGHT			);
 	
-		MainSizer->Add(ToolsSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
+		MainSizer->Add(ToolsSizer, 0, wxALL, 2 );
 		MainSizer->Add(ListControl, 1, wxGROW|wxALL, 2 );
 
 		Layout();

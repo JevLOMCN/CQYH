@@ -5758,7 +5758,7 @@ bool WxTerrainEditor::PlaceControls()
     TotalWindowBoxSizer->Add(BrowserGroupSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
     wxBoxSizer* BrowserHorzSizer = new wxBoxSizer(wxHORIZONTAL);
     BrowserGroupSizer->Add(BrowserHorzSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
-    BrowserHorzSizer->Add(TerrainBrowserPanel, 500, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    BrowserHorzSizer->Add(TerrainBrowserPanel, 500, wxALL, 5);
     BrowserHorzSizer->Add(TerrainBrowserScrollBar, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
 	// BottomRow Button Grouping

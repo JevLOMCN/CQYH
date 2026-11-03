@@ -46,9 +46,9 @@ WxDlgSimplifyLOD::WxDlgSimplifyLOD( wxWindow* InParent, const TCHAR* DialogTitle
 		wxBoxSizer* ButtonSizer = new wxBoxSizer( wxHORIZONTAL );
 		{
 			wxButton* OkButton = new wxButton( this, wxID_OK, *LocalizeUnrealEd( TEXT("&OK") ) );
-			ButtonSizer->Add( OkButton, 1, wxALIGN_RIGHT, BorderSize );
+			ButtonSizer->Add( OkButton, 1, 0, BorderSize );
 			wxButton* CancelButton = new wxButton( this, wxID_CANCEL, *LocalizeUnrealEd( TEXT("&Cancel") ) );
-			ButtonSizer->Add( CancelButton, 1, wxALIGN_RIGHT, BorderSize );
+			ButtonSizer->Add( CancelButton, 1, 0, BorderSize );
 		}
 		TopSizer->Add( ButtonSizer, 0, wxALIGN_RIGHT | wxALL, BorderSize );
 	}

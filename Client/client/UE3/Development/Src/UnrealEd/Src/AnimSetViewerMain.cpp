@@ -3991,7 +3991,7 @@ void WxMorphTargetPane::LayoutWindows( const TArray<UMorphTarget*>& MorphTargetL
 		MorphTargetSizer->Add( MinText, 0, wxALIGN_CENTER|wxALL);
 		
 		MorphTargetWeightSliders(I) = new wxSlider( this, IDM_ANIMSET_MORPHTARGETWEIGHTS_START+I, 0, 0, 100, wxDefaultPosition, wxSize(150, 20));
-		MorphTargetSizer->Add( MorphTargetWeightSliders(I), 1, wxALIGN_CENTER|wxALL|wxLEFT|wxRIGHT|wxEXPAND);
+		MorphTargetSizer->Add( MorphTargetWeightSliders(I), 1, wxALIGN_CENTER | wxALL | wxLEFT | wxRIGHT);
 
 		wxStaticText * MaxText = new wxStaticText( this, -1, Max);
 		MorphTargetSizer->Add( MaxText, 0, wxALIGN_CENTER|wxALL, AnimSetViewer_ControlBorder);
@@ -4527,7 +4527,7 @@ WxAnimSetViewer::WxAnimSetViewer(wxWindow* InParent, wxWindowID InID, USkeletalM
 
 			// select all
 			wxCheckBox * SelectAll = new wxCheckBox(MorphPanel, IDM_ANIMSET_SELECTALLMORPHTARGETS, *LocalizeUnrealEd("SelectAllMorphTargets"));
-			MorphTargetOptionSizer->Add( SelectAll, 1, wxALIGN_RIGHT|wxALL|wxADJUST_MINSIZE, AnimSetViewer_ControlBorder);
+			MorphTargetOptionSizer->Add( SelectAll, 1, wxALL | wxADJUST_MINSIZE, AnimSetViewer_ControlBorder);
 
 			MorphPanelSizer->Add( MorphTargetOptionSizer );
 			// add space

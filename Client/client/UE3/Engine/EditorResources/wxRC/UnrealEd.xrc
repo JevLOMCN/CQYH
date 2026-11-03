@@ -780,13 +780,13 @@
                                         </object>
                                     </object>
                                     <object class="sizeritem">
-                                        <flag>wxALIGN_BOTTOM|wxALL</flag>
+                                        <flag>wxALL</flag>
                                         <border>0</border>
                                         <option>0</option>
                                         <object class="wxBoxSizer">
                                              <orient>wxHORIZONTAL</orient>
                                              <object class="sizeritem">
-                                                 <flag>wxALIGN_LEFT</flag>
+                                                 <flag></flag>
                                                  <border>5</border>
                                                  <option>1</option>
                                                  <object class="wxButton" name="IDPB_BUILD_FROM_PATH">
@@ -794,7 +794,7 @@
                                                  </object>
                                              </object>
                                              <object class="sizeritem">
-                                                 <flag>wxALIGN_RIGHT</flag>
+                                                 <flag></flag>
                                                  <border>5</border>
                                                  <object class="wxButton" name="IDPB_SCENE_INFO">
                                                       <label>SceneInfo</label>
@@ -876,7 +876,7 @@
 		<object class="wxBoxSizer">
 			<orient>wxHORIZONTAL</orient>
 			<object class="sizeritem">
-				<flag>wxGROW|wxALIGN_TOP|wxALL</flag>
+				<flag>wxGROW | wxALL</flag>
 				<border>5</border>
 				<option>1</option>
 				<object class="wxBoxSizer">
@@ -910,7 +910,7 @@
 		<object class="wxBoxSizer">
 			<orient>wxHORIZONTAL</orient>
 			<object class="sizeritem">
-				<flag>wxALIGN_TOP|wxGROW|wxALL</flag>
+				<flag>wxGROW | wxALL</flag>
 				<border>5</border>
 				<option>1</option>
 				<object class="wxBoxSizer">
@@ -961,7 +961,7 @@
 							<flag>wxALIGN_RIGHT|wxGROW|wxALL</flag>
 							<border>5</border>
 							<object class="sizeritem">
-								<flag>wxALIGN_LEFT|wxALL</flag>
+								<flag>wxALL</flag>
 								<border>5</border>
 								<object class="wxButton" name="ID_DLG_TEXTURE_RELOAD_TEXTURE">
 									<label>Reimport</label>
@@ -969,7 +969,7 @@
 								</object>
 							</object>
 							<object class="sizeritem">
-								<flag>wxALIGN_LEFT|wxALL</flag>
+								<flag>wxALL</flag>
 								<border>5</border>
 								<object class="wxButton" name="ID_DLG_TEXTURE_COMPRESS_TEXTURE">
 									<label>Compress Now</label>
@@ -979,7 +979,7 @@
 								<object class="wxBoxSizer">
 									<orient>wxHORIZONTAL</orient>
 									<object class="sizeritem">
-										<flag>wxALIGN_RIGHT|wxALL</flag>
+										<flag>wxALL</flag>
 										<border>5</border>
 										<object class="wxButton" name="wxID_OK">
 											<label>Close</label>
@@ -1253,7 +1253,7 @@
                         </object>
                     </object>
                     <object class="sizeritem">
-                        <flag>wxGROW|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <flag>wxGROW | wxALL</flag>
                         <border>5</border>
                         <option>1</option>
                         <object class="wxComboBox" name="IDEC_COMBOENTRY" subclass="WxComboBox">
@@ -2424,7 +2424,7 @@
                         </object>
                     </object>
                     <object class="sizeritem">
-                        <flag>wxGROW|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                        <flag>wxGROW | wxALL</flag>
                         <border>5</border>
                         <option>1</option>
                         <object class="wxComboBox" name="IDEC_COMBOENTRY" subclass="WxComboBox">

@@ -614,8 +614,8 @@ void WxTextureStatsBrowser::Create(INT DockID,const TCHAR* FriendlyName, wxWindo
 		// Create list control
 		ListControl = new WxListView( Panel, ID_TEXTURESTATSBROWSER_LISTCONTROL, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_HRULES | wxLC_VRULES );
 
-		MainSizer->Add( ToolsSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
-		MainSizer->Add( SearchSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
+		MainSizer->Add( ToolsSizer, 0, wxALL, 2 );
+		MainSizer->Add( SearchSizer, 0, wxALL, 2 );
 		MainSizer->Add( ListControl, 1, wxGROW|wxALL, 2);
 
 		Layout();

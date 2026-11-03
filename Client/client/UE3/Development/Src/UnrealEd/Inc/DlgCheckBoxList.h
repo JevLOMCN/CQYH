@@ -67,7 +67,7 @@ public:
 
 		//wrapper window for proper border drawing
 		wxPanel* BorderPanel = new wxPanel(this, -1);
-		MainVerticalSizer->Add(BorderPanel, 1, wxALIGN_TOP | wxALIGN_CENTER | wxGROW | wxALL, 0);
+		MainVerticalSizer->Add(BorderPanel, 1, wxEXPAND | wxALL, 0);
 		//Border Sizer
 		wxBoxSizer* BorderSizer = new wxBoxSizer(wxVERTICAL);
 		BorderPanel->SetSizer(BorderSizer);
@@ -99,7 +99,7 @@ public:
 				CurrentEntry.CheckBoxText = new wxStaticText(CheckListWindow, i, *CurrentEntry.EntryName);
 				CurrentEntry.CheckBoxText->Enable(!CurrentEntry.bDisabled);
 				CurrentEntry.CheckBoxText->SetOwnBackgroundColour(*wxWHITE);
-				INT wxFlags = wxALIGN_LEFT | wxALIGN_TOP | wxLEFT | wxRIGHT;
+				INT wxFlags = wxALIGN_LEFT | wxLEFT | wxRIGHT;
 				if (i == 0)
 				{
 					wxFlags |= wxTOP;
@@ -141,24 +141,24 @@ public:
 		RefreshAllChecks();
 
 		//add checklistwindow to border sizer
-		BorderSizer->Add(CheckListWindow, 1, wxALIGN_TOP | wxALIGN_CENTER | wxGROW | wxALL, 1);
+		BorderSizer->Add(CheckListWindow, 1, wxEXPAND | wxALL, 1);
 
 		//Button Sizer
 		wxBoxSizer* ButtonSizer = new wxBoxSizer(wxHORIZONTAL);
-		MainVerticalSizer->Add(ButtonSizer , 0, wxALIGN_BOTTOM | wxALIGN_LEFT, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+		MainVerticalSizer->Add(ButtonSizer, 0, wxALIGN_LEFT, 0);
 
 		//Check All
 		const INT CheckAllIndex = 0;
 		CheckAllButton = new wxButton();
 		CheckAllButton->Create(this, CheckAllIndex, *LocalizeUnrealEd("CheckBoxListWindow_CheckAll"));
-		ButtonSizer->Add(CheckAllButton, 1, wxALIGN_CENTER | wxALL, StandardCheckBoxListBorder);// | wxSHAPED | wxGROW | wxALL, 0);
+		ButtonSizer->Add(CheckAllButton, 1, wxALIGN_CENTER_VERTICAL | wxALL, StandardCheckBoxListBorder);
 		Connect(CheckAllIndex, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(WxCheckBoxListWindow::SelectAll));
 
 		//Uncheck All
 		const INT UncheckAllIndex = 1;
 		UncheckAllButton = new wxButton();
 		UncheckAllButton->Create(this, UncheckAllIndex, *LocalizeUnrealEd("CheckBoxListWindow_UncheckAll"));
-		ButtonSizer->Add(UncheckAllButton, 1, wxALIGN_CENTER  | wxALL, StandardCheckBoxListBorder);// | wxSHAPED | wxGROW | wxALL, 0);
+		ButtonSizer->Add(UncheckAllButton, 1, wxALIGN_CENTER_VERTICAL | wxALL, StandardCheckBoxListBorder);
 		Connect(UncheckAllIndex, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(WxCheckBoxListWindow::UnSelectAll));
 
 		Layout();
@@ -526,17 +526,17 @@ public:
 		//Main Label
 		wxStaticText* BodyLabel = new wxStaticText();
 		BodyLabel->Create(this, -1, *BodyText);
-		MainVerticalSizer->Add(BodyLabel, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT  | wxALL, StandardCheckBoxListBorder);
+		MainVerticalSizer->Add(BodyLabel, 0, wxALIGN_LEFT | wxALL, StandardCheckBoxListBorder);
 
 		//Check Box Window
 		check(CheckBoxListWindow);
 		CheckBoxListWindow->Create(this);
 		CheckBoxListWindow->EnableScrolling();
-		MainVerticalSizer->Add(CheckBoxListWindow, 1, wxALIGN_TOP | wxALIGN_CENTER | wxGROW | wxLEFT | wxRIGHT, StandardCheckBoxListBorder);
+		MainVerticalSizer->Add(CheckBoxListWindow, 1, wxEXPAND | wxLEFT | wxRIGHT, StandardCheckBoxListBorder);
 
 		//Create Buttons
 		wxBoxSizer* ButtonSizer = new wxBoxSizer(wxHORIZONTAL);
-		MainVerticalSizer->Add(ButtonSizer , 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxSHAPED | wxGROW, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+		MainVerticalSizer->Add(ButtonSizer, 0, wxEXPAND, 0);
 
 		for (int i = 0; i < ButtonEntries.Num(); ++i)
 		{
@@ -550,7 +550,7 @@ public:
 			//callback
 			Connect(CheckBoxListButtonBaseIndex + i, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(WxDlgCheckBoxList::OnButtonClicked) );
 			Connect(CheckBoxListButtonBaseIndex + i, wxEVT_UPDATE_UI, wxUpdateUIEventHandler( WxDlgCheckBoxList::OnButtonUpdateUIHelper ) );
-			ButtonSizer->Add(TempButton, 1, wxALIGN_RIGHT | wxALL, StandardCheckBoxListBorder);// | wxSHAPED | wxGROW | wxALL, 0);
+			ButtonSizer->Add(TempButton, 1, wxALL, StandardCheckBoxListBorder);
 			if (i==0)
 			{
 				TempButton->SetFocus();

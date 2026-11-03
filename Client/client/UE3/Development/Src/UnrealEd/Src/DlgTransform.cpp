@@ -32,19 +32,19 @@ WxDlgTransform::WxDlgTransform(wxWindow* InParent)
 			wxSizer* ZSizer = new wxBoxSizer(wxHORIZONTAL);
 			{
 				XLabel = new wxStaticText( this, wxID_STATIC, *LocalizeUnrealEd("X") );
-				XSizer->Add( XLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE|wxEXPAND, 5 );
+				XSizer->Add( XLabel, 0, wxALIGN_LEFT | wxALL | wxADJUST_MINSIZE | wxEXPAND, 5 );
 				XEdit = new wxTextCtrl( this, -1, TEXT(""), wxDefaultPosition, wxSize(-1, -1) );
-				XSizer->Add( XEdit, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+				XSizer->Add( XEdit, 0, wxGROW | wxALL, 5 );
 
 				YLabel = new wxStaticText( this, wxID_STATIC, *LocalizeUnrealEd("Y") );
-				YSizer->Add( YLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE|wxEXPAND, 5 );
+				YSizer->Add( YLabel, 0, wxALIGN_LEFT | wxALL | wxADJUST_MINSIZE | wxEXPAND, 5 );
 				YEdit = new wxTextCtrl( this, -1, TEXT(""), wxDefaultPosition, wxSize(-1, -1) );
-				YSizer->Add( YEdit, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+				YSizer->Add( YEdit, 0, wxGROW | wxALL, 5 );
 
 				ZLabel = new wxStaticText( this, wxID_STATIC, *LocalizeUnrealEd("Z") );
-				ZSizer->Add( ZLabel, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE|wxEXPAND, 5 );
+				ZSizer->Add( ZLabel, 0, wxALIGN_LEFT | wxALL | wxADJUST_MINSIZE | wxEXPAND, 5 );
 				ZEdit = new wxTextCtrl( this, -1, TEXT(""), wxDefaultPosition, wxSize(-1, -1) );
-				ZSizer->Add( ZEdit, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+				ZSizer->Add( ZEdit, 0, wxGROW | wxALL, 5 );
 			}
 			FieldSizer->Add( XSizer, 0, wxALL, 5 );
 			FieldSizer->Add( YSizer, 0, wxALL, 5 );

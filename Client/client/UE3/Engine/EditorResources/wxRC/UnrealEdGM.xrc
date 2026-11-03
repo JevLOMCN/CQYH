@@ -6,7 +6,7 @@
         <object class="wxBoxSizer">
             <orient>wxVERTICAL</orient>
             <object class="sizeritem">
-                <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                <flag>wxALIGN_LEFT | wxALL | wxADJUST_MINSIZE</flag>
                 <border>5</border>
                 <size>1,1</size>
                 <object class="wxStaticText" name="wxID_STATIC">

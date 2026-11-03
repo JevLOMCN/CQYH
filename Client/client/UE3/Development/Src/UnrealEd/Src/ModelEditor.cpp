@@ -834,10 +834,10 @@ WxModelViewer::WxModelViewer(wxWindow* InParent, wxWindowID InID, UObject* EditO
 	SkelMeshText = new wxStaticText(ResPanel1, -1, wxT("SkelMesh:"));
 	AnimTreeText = new wxStaticText(ResPanel1, -1, wxT("AnimTree:"));
 	PhyAssetText = new wxStaticText(ResPanel1, -1, wxT("PhysicAsset:"));
-	Sizer1->Add(AvatarNameText, 0, wxALIGN_CENTER|wxGROW, 4 );
-	Sizer1->Add(SkelMeshText, 0, wxALIGN_CENTER|wxGROW, 4 );
-	Sizer1->Add(AnimTreeText, 0, wxALIGN_CENTER|wxGROW, 4 );
-	Sizer1->Add(PhyAssetText, 0, wxALIGN_CENTER|wxGROW, 4 );
+	Sizer1->Add(AvatarNameText, 0, wxGROW, 4 );
+	Sizer1->Add(SkelMeshText, 0, wxGROW, 4 );
+	Sizer1->Add(AnimTreeText, 0, wxGROW, 4 );
+	Sizer1->Add(PhyAssetText, 0, wxGROW, 4 );
 
 	WeaponTypeComboBox = new wxComboBox(ResPanel2, IDM_MODEL_WEAPONTYPE, wxString(), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
 	Sizer2->Add(WeaponTypeComboBox, 0, wxEXPAND|wxALL, 4 );

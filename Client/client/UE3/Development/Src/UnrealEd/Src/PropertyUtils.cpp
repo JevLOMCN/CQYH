@@ -4548,7 +4548,7 @@ WxRangedSlider::WxRangedSlider(WxPropertyControl* InParent, class UPropertyInput
 	TextCtrl->Show(FALSE);
 
 	wxSizer* TextSizer = new wxBoxSizer(wxVERTICAL);
-	TextSizer->Add(TextCtrl, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+	TextSizer->Add(TextCtrl, 0, wxALIGN_LEFT);
 	SetSizer(TextSizer);
 }
 

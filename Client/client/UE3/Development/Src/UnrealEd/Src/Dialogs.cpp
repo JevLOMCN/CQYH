@@ -799,7 +799,7 @@ WxModelessPrompt::WxModelessPrompt( const FString& Prompt, const FString& Title 
 	wxTextCtrl* PromptText = new wxTextCtrl( TextPanel, wxID_ANY, *Prompt, wxDefaultPosition, wxSize( 550, 400 ), wxTE_MULTILINE | wxTE_READONLY );
 	TextSizer->Add( PromptText, 1, wxEXPAND | wxALL, 5 );
 
-	MainSizer->Add( TextPanel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT, 0 );
+	MainSizer->Add( TextPanel, 1, wxEXPAND | wxALIGN_LEFT, 0 );
 
 	// Create a simple OK button and sizer for it
 	wxSizer* ButtonSizer = CreateButtonSizer( wxOK );
@@ -884,7 +884,7 @@ WxSuppressableWarningDialog::WxSuppressableWarningDialog( const FString& InPromp
 	// Add the text panel to the sizer
 	//Bruce
 	//DialogSizer->Add(TextPanel, 1, wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT, 0 );
-	DialogSizer->Add(TextPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL, 0 );
+	DialogSizer->Add(TextPanel, 1, wxEXPAND, 0 );
 
 	// Create the sizer for the check box and ok buttons
 	wxBoxSizer* ButtonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -2194,7 +2194,7 @@ WxDlgTextEdit::WxDlgTextEdit()
 		{
 
 			TextEdit = new wxTextCtrl( this, IDEC_GROUP, TEXT(""), wxDefaultPosition, wxSize(300, 200), wxTE_MULTILINE);
-			InfoStaticBoxSizer->Add( TextEdit, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+			InfoStaticBoxSizer->Add( TextEdit, 0, wxGROW | wxALL | wxEXPAND, 5 );
 		}
 		VerticalSizer->Add(InfoStaticBoxSizer, 1, wxALIGN_TOP|wxALL|wxEXPAND, 5);
 
@@ -2202,10 +2202,10 @@ WxDlgTextEdit::WxDlgTextEdit()
 		{
 			wxButton* ButtonOK = new wxButton( this, wxID_OK, _("OK"), wxDefaultPosition, wxDefaultSize, 0 );
 			ButtonOK->SetDefault();
-			ButtonSizer->Add(ButtonOK, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+			ButtonSizer->Add(ButtonOK, 0, wxALL, 5);
 
 			wxButton* ButtonCancel = new wxButton( this, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-			ButtonSizer->Add(ButtonCancel, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+			ButtonSizer->Add(ButtonCancel, 0, wxALL, 5);
 		}
 		VerticalSizer->Add(ButtonSizer, 0, wxALIGN_TOP|wxALL, 5);
 
@@ -2416,7 +2416,7 @@ WxDlgModifierSettingValue::WxDlgModifierSettingValue()
 		wxBoxSizer* InfoStaticBoxSizer = new wxStaticBoxSizer(wxVERTICAL, this, _("Key"));
 		{
 			TextEdit = new wxTextCtrl( this, IDEC_GROUP, TEXT(""), wxDefaultPosition, wxSize(100, 20), wxTE_MULTILINE);
-			InfoStaticBoxSizer->Add( TextEdit, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+			InfoStaticBoxSizer->Add( TextEdit, 0, wxGROW | wxALL | wxEXPAND, 5 );
 		}
 		VerticalSizer->Add(InfoStaticBoxSizer, 1, wxALIGN_TOP|wxALL|wxEXPAND, 5);
 
@@ -2424,10 +2424,10 @@ WxDlgModifierSettingValue::WxDlgModifierSettingValue()
 		{
 			wxButton* ButtonOK = new wxButton( this, wxID_OK, _("OK"), wxDefaultPosition, wxDefaultSize, 0 );
 			ButtonOK->SetDefault();
-			ButtonSizer->Add(ButtonOK, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+			ButtonSizer->Add(ButtonOK, 0, wxALL, 5);
 
 			wxButton* ButtonCancel = new wxButton( this, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-			ButtonSizer->Add(ButtonCancel, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+			ButtonSizer->Add(ButtonCancel, 0, wxALL, 5);
 		}
 		VerticalSizer->Add(ButtonSizer, 0, wxALIGN_TOP|wxALL, 5);
 	}
@@ -2496,28 +2496,28 @@ WxDlgCameraToLocation::WxDlgCameraToLocation()
 				wxBoxSizer* InfoTextEditX = new wxStaticBoxSizer(wxHORIZONTAL, this, _("X:"));
 				{
 					TextEditX = new wxTextCtrl( this, IDEC_GROUP, TEXT("0.0"), wxDefaultPosition, wxSize(100, 20), wxTE_MULTILINE);
-					InfoTextEditX->Add( TextEditX, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+					InfoTextEditX->Add( TextEditX, 0, wxGROW | wxALL | wxEXPAND, 5 );
 				}
 				HSizerX->Add(InfoTextEditX, 1, wxEXPAND | wxALL, 2);
 
 				wxBoxSizer* InfoTextEditY = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Y:"));
 				{
 					TextEditY = new wxTextCtrl( this, IDEC_GROUP, TEXT("0.0"), wxDefaultPosition, wxSize(100, 20), wxTE_MULTILINE);
-					InfoTextEditY->Add( TextEditY, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+					InfoTextEditY->Add( TextEditY, 0, wxGROW | wxALL | wxEXPAND, 5 );
 				}
 				HSizerX->Add(InfoTextEditY, 1, wxEXPAND | wxALL, 2);
 
 				wxBoxSizer* InfoTextEditZ = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Z:"));
 				{
 					TextEditZ = new wxTextCtrl( this, IDEC_GROUP, TEXT("0.0"), wxDefaultPosition, wxSize(100, 20), wxTE_MULTILINE); 
-					InfoTextEditZ->Add( TextEditZ, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+					InfoTextEditZ->Add( TextEditZ, 0, wxGROW | wxALL | wxEXPAND, 5 );
 				}
 				HSizerX->Add(InfoTextEditZ, 1, wxEXPAND | wxALL, 2);
 
 				wxBoxSizer* VSizer = new wxBoxSizer(wxVERTICAL);
 				{
 					wxButton* FindButton = new wxButton(this, ID_CAMERA_TO_LOCATION, TEXT("Find-->"));
-					VSizer->Add(FindButton, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+					VSizer->Add(FindButton, 0, wxGROW | wxALL | wxEXPAND, 5 );
 				}
 				HSizerX->Add(VSizer, 1, wxEXPAND | wxALL, 2);
 			}
@@ -2529,14 +2529,14 @@ WxDlgCameraToLocation::WxDlgCameraToLocation()
 				wxBoxSizer* InfoTextEditXYZ = new wxStaticBoxSizer(wxHORIZONTAL, this, _("X, Y, Z:"));
 				{
 					TextEditXYZ = new wxTextCtrl( this, IDEC_GROUP, TEXT("0.0, 0.0, 0.0"), wxDefaultPosition, wxSize(700, 5), wxTE_MULTILINE);
-					InfoTextEditXYZ->Add( TextEditXYZ, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+					InfoTextEditXYZ->Add( TextEditXYZ, 0, wxGROW | wxALL | wxEXPAND, 5 );
 				}
 				HSizer->Add(InfoTextEditXYZ, 1, wxALIGN_TOP|wxALL|wxEXPAND, 5);
 
 				wxBoxSizer* VSizer = new wxBoxSizer(wxVERTICAL);
 				{
 					wxButton* FindButton = new wxButton(this, ID_CAMERA_TO_LOCATION_ANOTHER, TEXT("Find"));
-					VSizer->Add(FindButton, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+					VSizer->Add(FindButton, 0, wxGROW | wxALL | wxEXPAND, 5 );
 				}
 				HSizer->Add(VSizer, 1, wxEXPAND | wxALL, 2);
 			}
@@ -2781,9 +2781,9 @@ WxDlgGenericSlider::WxDlgGenericSlider( wxWindow* InParent )
 		wxBoxSizer* ButtonSizer = new wxBoxSizer( wxHORIZONTAL );
 		{
 			wxButton* OkButton = new wxButton( this, wxID_OK, *LocalizeUnrealEd( TEXT("&OK") ) );
-			ButtonSizer->Add( OkButton, 1, wxALIGN_RIGHT, BorderSize );
+			ButtonSizer->Add( OkButton, 1, 0, BorderSize );
 			wxButton* CancelButton = new wxButton( this, wxID_CANCEL, *LocalizeUnrealEd( TEXT("&Cancel") ) );
-			ButtonSizer->Add( CancelButton, 1, wxALIGN_RIGHT, BorderSize );
+			ButtonSizer->Add( CancelButton, 1, 0, BorderSize );
 		}
 		TopSizer->Add( ButtonSizer, 0, wxALIGN_RIGHT | wxALL, BorderSize );
 	}
@@ -4394,7 +4394,7 @@ void WxDlgEditPlayWorldURL::BuildUrlOptions (const FString& InStartURL)
 	wxStaticText* Label = new wxStaticText( this, -1, *LocalizeUnrealEd( TEXT("EditPlayWorldURLDlg_URLLabel") ), wxDefaultPosition, wxDefaultSize, 0 );
 	URLTextBox = new wxTextCtrl( this, -1, *InStartURL, wxDefaultPosition, wxSize(300,-1), 0 );
 	CommandlineTitleSizer->Add( Label, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	CommandlineSizer->Add( URLTextBox, 1, wxEXPAND | wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	CommandlineSizer->Add( URLTextBox, 1, wxEXPAND | wxALL, 5 );
 }
 
 static UBOOL PSVitaSupported( void )
@@ -4562,8 +4562,8 @@ void WxDlgEditPlayWorldURL::BuildResolutionOptions (const UBOOL bUseMobilePrevie
 	}
 
 	wxStaticText* ResolutionLabel = new wxStaticText(this, wxID_ANY, *LocalizeUnrealEd("BuildPlay_Resolution"));
-	ResolutionTitleSizer->Add( ResolutionLabel, 1, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 4 );
-	ResolutionSizer->Add( ResolutionComboBox, 1, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL, 4 );
+	ResolutionTitleSizer->Add( ResolutionLabel, 1, wxALL | wxALIGN_CENTER_VERTICAL, 4 );
+	ResolutionSizer->Add( ResolutionComboBox, 1, wxEXPAND | wxALL, 4 );
 }
 
 /** Builds UI for custom resolution */
@@ -4580,7 +4580,7 @@ void WxDlgEditPlayWorldURL::BuildCustomResolutionOptions (void)
 	/** X TextField. */
 	XSizeTextCtrl = new WxTextCtrl(this, IDM_BuildPlay_CustomResolutionWidth, TEXT(""));
 	XSizeTextCtrl->SetMaxLength(5);
-	CustomResolutionSizer->Add( XSizeTextCtrl, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT, 4 );
+	CustomResolutionSizer->Add( XSizeTextCtrl, 0, wxEXPAND | wxALL | wxALIGN_LEFT, 4 );
 
 	/** Multiply Size Label. */
 	wxStaticText* MultiplyLabel = new wxStaticText(this, wxID_ANY, *LocalizeUnrealEd("BuildPlay_Multiply"));
@@ -4589,7 +4589,7 @@ void WxDlgEditPlayWorldURL::BuildCustomResolutionOptions (void)
 	/** Y TextField. */
 	YSizeTextCtrl = new WxTextCtrl(this, IDM_BuildPlay_CustomResolutionHeight, TEXT(""));
 	YSizeTextCtrl->SetMaxLength(5);
-	CustomResolutionSizer->Add( YSizeTextCtrl, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT, 4 );
+	CustomResolutionSizer->Add( YSizeTextCtrl, 0, wxEXPAND | wxALL | wxALIGN_LEFT, 4 );
 }
 
 /** Builds UI for mobile orientation */
@@ -4606,14 +4606,14 @@ void WxDlgEditPlayWorldURL::BuildOrientationOptions (void)
 	//landscape radio button
 	LandscapeModeRadioButton = new wxRadioButton();
 	LandscapeModeRadioButton->Create( this, IDM_BuildPlay_Landscape, TEXT(""), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-	MobileOrientationSizer->Add( LandscapeModeRadioButton, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT , 4 );
+	MobileOrientationSizer->Add( LandscapeModeRadioButton, 0, wxEXPAND | wxALL | wxALIGN_LEFT , 4 );
 
 	//landscape image
 	WxBitmap LandscapeBitmap;
 	LandscapeBitmap.Load(TEXT("MobileLandscape.png"));
 	LandscapeStaticImage = new WxPassThroughStaticBitmap();
 	LandscapeStaticImage->Create(this, IDM_BuildPlay_Landscape, LandscapeBitmap);
-	MobileOrientationSizer->Add( LandscapeStaticImage, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT , 4 );
+	MobileOrientationSizer->Add( LandscapeStaticImage, 0, wxEXPAND | wxALL | wxALIGN_LEFT , 4 );
 
 	/** Landscape Label. */
 	wxStaticText* LandscapeLabel = new wxStaticText(this, wxID_ANY, *LocalizeUnrealEd("BuildPlay_Landscape"));
@@ -4622,14 +4622,14 @@ void WxDlgEditPlayWorldURL::BuildOrientationOptions (void)
 	//portrait radio button
 	PortraitModeRadioButton = new wxRadioButton();
 	PortraitModeRadioButton->Create( this, IDM_BuildPlay_Portrait, TEXT(""), wxDefaultPosition, wxDefaultSize);
-	MobileOrientationSizer->Add( PortraitModeRadioButton, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT , 4 );
+	MobileOrientationSizer->Add( PortraitModeRadioButton, 0, wxEXPAND | wxALL | wxALIGN_LEFT , 4 );
 
 	//portrait image
 	WxBitmap PortraitBitmap;
 	PortraitBitmap.Load(TEXT("MobilePortrait.png"));
 	PortaitStaticImage = new WxPassThroughStaticBitmap();
 	PortaitStaticImage->Create(this, IDM_BuildPlay_Portrait, PortraitBitmap);
-	MobileOrientationSizer->Add( PortaitStaticImage, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT , 4 );
+	MobileOrientationSizer->Add( PortaitStaticImage, 0, wxEXPAND | wxALL | wxALIGN_LEFT , 4 );
 
 	/** Portrait Label. */
 	wxStaticText* PortraitLabel = new wxStaticText(this, wxID_ANY, *LocalizeUnrealEd("BuildPlay_Portrait"));
@@ -4700,9 +4700,9 @@ void WxDlgEditPlayWorldURL::BuildMobileFeatureOptions (void)
 	SetFeaturesIndex(FeaturesIndex, TRUE);
 
 	wxStaticText* MobileFeaturesLabel = new wxStaticText(this, wxID_ANY, *LocalizeUnrealEd("BuildPlay_Features"));
-	MobileFeaturesTitleSizer->Add( MobileFeaturesLabel, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 4 );
+	MobileFeaturesTitleSizer->Add( MobileFeaturesLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 4 );
 
-	MobileFeaturesSizer->Add( FeaturesComboBox, 1, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL, 4 );
+	MobileFeaturesSizer->Add( FeaturesComboBox, 1, wxEXPAND | wxALL, 4 );
 }
 
 
@@ -4909,7 +4909,7 @@ wxBoxSizer* WxDlgEditPlayWorldURL::CreateNewSizer (wxSizer* ParentSizer, const I
 	check(ParentSizer);
 
 	wxBoxSizer* NewSizer = new wxBoxSizer( Orientation );
-	ParentSizer->Add( NewSizer, 0, wxEXPAND|wxALL|wxALIGN_CENTER_VERTICAL, 2 );
+	ParentSizer->Add( NewSizer, 0, wxEXPAND | wxALL, 2 );
 
 	NewSizer->SetMinSize(1, PlayWorldDialogMinSizerHeight);
 

@@ -4949,17 +4949,17 @@ WxFractureToolOptions::WxFractureToolOptions( WxStaticMeshEditor* InSME )
 
 					FString CompText = FString::Printf(TEXT("%3.1f"), CurrentPlaneBias.X);
 					XBiasEntry = new wxTextCtrl( this, ID_FRAC_XPLANEBIAS, *CompText, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-					PlaneBiasSizer->Add(XBiasEntry, 1, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 2);
+					PlaneBiasSizer->Add(XBiasEntry, 1, wxALIGN_CENTER_VERTICAL | wxALL | wxADJUST_MINSIZE, 2);
 					XBiasEntry->Connect(wxEVT_KILL_FOCUS, wxCommandEventHandler(WxFractureToolOptions::OnPlaneBiasLoseFocus), NULL, this);
 
 					CompText = FString::Printf(TEXT("%3.1f"), CurrentPlaneBias.Y);
 					YBiasEntry = new wxTextCtrl( this, ID_FRAC_YPLANEBIAS, *CompText, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-					PlaneBiasSizer->Add(YBiasEntry, 1, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 2);
+					PlaneBiasSizer->Add(YBiasEntry, 1, wxALIGN_CENTER_VERTICAL | wxALL | wxADJUST_MINSIZE, 2);
 					YBiasEntry->Connect(wxEVT_KILL_FOCUS, wxCommandEventHandler(WxFractureToolOptions::OnPlaneBiasLoseFocus), NULL, this);
 
 					CompText = FString::Printf(TEXT("%3.1f"), CurrentPlaneBias.Z);
 					ZBiasEntry = new wxTextCtrl( this, ID_FRAC_ZPLANEBIAS, *CompText, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-					PlaneBiasSizer->Add(ZBiasEntry, 1, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 2);
+					PlaneBiasSizer->Add(ZBiasEntry, 1, wxALIGN_CENTER_VERTICAL | wxALL | wxADJUST_MINSIZE, 2);
 					ZBiasEntry->Connect(wxEVT_KILL_FOCUS, wxCommandEventHandler(WxFractureToolOptions::OnPlaneBiasLoseFocus), NULL, this);
 				}
 				SliderGrid->Add(PlaneBiasSizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1);
@@ -4981,13 +4981,13 @@ WxFractureToolOptions::WxFractureToolOptions( WxStaticMeshEditor* InSME )
 				wxBoxSizer* RandomScaleSizer = new wxBoxSizer(wxHORIZONTAL);
 				{
 					XRandScaleEntry = new wxTextCtrl( this, -1, TEXT("1.0") );
-					RandomScaleSizer->Add(XRandScaleEntry, 1, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 2);
+					RandomScaleSizer->Add(XRandScaleEntry, 1, wxALIGN_CENTER_VERTICAL | wxALL | wxADJUST_MINSIZE, 2);
 
 					YRandScaleEntry = new wxTextCtrl( this, -1, TEXT("1.0") );
-					RandomScaleSizer->Add(YRandScaleEntry, 1, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 2);
+					RandomScaleSizer->Add(YRandScaleEntry, 1, wxALIGN_CENTER_VERTICAL | wxALL | wxADJUST_MINSIZE, 2);
 
 					ZRandScaleEntry = new wxTextCtrl( this, -1, TEXT("1.0") );
-					RandomScaleSizer->Add(ZRandScaleEntry, 1, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 2);
+					RandomScaleSizer->Add(ZRandScaleEntry, 1, wxALIGN_CENTER_VERTICAL | wxALL | wxADJUST_MINSIZE, 2);
 				}
 				SliderGrid->Add(RandomScaleSizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1);
 

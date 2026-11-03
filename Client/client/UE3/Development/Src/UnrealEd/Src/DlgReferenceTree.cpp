@@ -217,7 +217,7 @@ WxReferenceTreeDialog::WxReferenceTreeDialog( const TMap<UClass*, TArray<UGeneri
 
 	// Create main sizer for the dialog
 	wxBoxSizer* DialogSizer = new wxBoxSizer(wxVERTICAL);
-	DialogSizer->Add( TreePanel, 1, wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT, 0 );
+	DialogSizer->Add( TreePanel, 1, wxEXPAND | wxALIGN_LEFT, 0 );
 
 	SetSizerAndFit( DialogSizer );
 	Center();
@@ -814,7 +814,7 @@ WxLoadingResCallStackTreeDialog::WxLoadingResCallStackTreeDialog()
 
 	// Create main sizer for the dialog
 	wxBoxSizer* DialogSizer = new wxBoxSizer(wxVERTICAL);
-	DialogSizer->Add( TreePanel, 1, wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT, 0 );
+	DialogSizer->Add( TreePanel, 1, wxEXPAND | wxALIGN_LEFT, 0 );
 
 	SetSizerAndFit( DialogSizer );
 	Center();
