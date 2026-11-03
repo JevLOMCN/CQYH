@@ -741,17 +741,11 @@ class FCalculateAdaptedLumPixelShader : public FGlobalShader
 
 	}
 
-	//FShaderResourceParameter	AdaptedLum;
-	//FShaderResourceParameter	CurrentLum;
-	//FShaderParameter			ElapsedTime;
 	FShaderParameter			HDRLuminanceParameter;      // shan@snda
 public:
 	FCalculateAdaptedLumPixelShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
 		: FGlobalShader(Initializer)
 	{
-		//AdaptedLum.Bind( Initializer.ParameterMap, TEXT("AdaptedLum"), FALSE );
-		//CurrentLum.Bind( Initializer.ParameterMap, TEXT("CurrentLum"), FALSE );
-		//ElapsedTime.Bind( Initializer.ParameterMap, TEXT("g_fElapsedTime"), FALSE );
 		HDRLuminanceParameter.Bind(Initializer.ParameterMap,TEXT("HDRLuminanceParameter"),TRUE);
 	}
 
@@ -759,17 +753,8 @@ public:
 	{
 		//return FALSE;
 		UBOOL bShaderHasOutdatedParameters = FGlobalShader::Serialize(Ar);
-		Ar/*<<AdaptedLum<<CurrentLum<<ElapsedTime*/<<HDRLuminanceParameter;
+		Ar << HDRLuminanceParameter;
 		return bShaderHasOutdatedParameters;
-	}
-
-	void SetParameters( float fElapsedTime )
-	{
-		//FSamplerStateRHIParamRef TextureFilterPointClamp = TStaticSamplerState<SF_Point,AM_Clamp,AM_Clamp,AM_Clamp>::GetRHI();
-		//SetTextureParameterDirectly( GetPixelShader(), AdaptedLum, TextureFilterPointClamp, GSceneRenderTargets.GetLuminanceTexture() );
-		//SetTextureParameterDirectly( GetPixelShader(), CurrentLum, TextureFilterPointClamp, GSceneRenderTargets.GetAdaptedLuminanceTexture() );
-		//SetShaderValue( GetPixelShader(), ElapsedTime, fElapsedTime );
-		//SetPixelShaderValue(GetPixelShader(),HDRLuminanceParameter, LuminanceParameter );
 	}
 
 	FShaderParameter& GetLuminanceParameter() { return HDRLuminanceParameter; }
@@ -2009,7 +1994,6 @@ public:
 				GFilterVertexDeclaration.VertexDeclarationRHI, 
 				pVS, ((FCalculateAdaptedLumPixelShader*)*CalculateAdaptedLumHIPS), sizeof(FFilterVertex));
 
-			((FCalculateAdaptedLumPixelShader*)*CalculateAdaptedLumHIPS)->SetParameters( ((FSceneViewState*)View.State)->LastRenderTimeDelta );
 			//now only use pp Parameter
 			/*if ( GIsEditor && !bUseMatineeLuminanceParameter )
 			{
@@ -2048,6 +2032,23 @@ public:
 				);
 			
 			GSceneRenderTargets.FinishRenderingAdaptedLuminance();
+#if !FINAL_RELEASE
+			// Opt-in readback of the actual exposure inputs; never runs in normal play.
+			static const UBOOL bTraceHDR = ParseParam(appCmdLine(), TEXT("TraceHDR"));
+			static INT TraceHDRFrame = 0;
+			if (bTraceHDR && TraceHDRFrame <= 1800 && TraceHDRFrame++ % 600 == 0)
+			{
+				TArray<FFloat16Color> ExposurePixels;
+				RHIReadSurfaceFloatData(GSceneRenderTargets.GetAdaptedLuminanceSurface(), 0, 0, 0, 0, ExposurePixels, CubeFace_PosX);
+				if (ExposurePixels.Num())
+				{
+					const FLinearColor Exposure(ExposurePixels(0));
+					debugf(TEXT("HDRTrace: frame=%d authored=(%g,%g,%g,%g) texture=(%g,%g,%g,%g)"),
+						TraceHDRFrame - 1, LuminanceParameter.X, LuminanceParameter.Y, LuminanceParameter.Z, LuminanceParameter.W,
+						Exposure.R, Exposure.G, Exposure.B, Exposure.A);
+				}
+			}
+#endif
 		}
 		return &(GSceneRenderTargets.GetTextureByIndex(AdaptedLuminance));
 		

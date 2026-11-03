@@ -163,8 +163,8 @@ float W = 8.2;
 float3 ToneMapping(float3 ColorSrc, float4 ColorLuminance)
 {
 
-	float avg_luminance = ColorLuminance.a;//ColorLuminance.r;
-	float white_luminance = ColorLuminance.g;//ColorLuminance.g;//LuminanceThreshold.g;//min(ColorLuminance.g, 0.75f);
+	float avg_luminance = max(ColorLuminance.a, 1e-4f);//ColorLuminance.r;
+	float white_luminance = max(ColorLuminance.g, 1e-4f);//ColorLuminance.g;//LuminanceThreshold.g;//min(ColorLuminance.g, 0.75f);
 	float black_luminance = ColorLuminance.b;//HDRLuminanceParameter.x;//ColorLuminance.b;
 
 	float middle_gray = ColorLuminance.r;//ColorLuminance.r;//avg_luminance;
@@ -175,6 +175,12 @@ float3 ToneMapping(float3 ColorSrc, float4 ColorLuminance)
 
 	Lw -= black_luminance;
 
+	// Black pixels and the exact black point must not evaluate 0 / 0.
+	if (Lw <= 1e-6f)
+	{
+		return 0.0f;
+	}
+
 	float Ld = 0;
 
 	if (Lw > 0.0f)
@@ -184,7 +190,7 @@ float3 ToneMapping(float3 ColorSrc, float4 ColorLuminance)
 	}
 	
 	float3 ColorMapped = ColorSrc * Ld / Lw;
-	return ColorMapped;
+	return max(ColorMapped, 0.0f);
 
 //  	ColorSrc.rgb *= 0.055/(ColorLuminance.r + 0.001f);
 //  	ColorSrc.rgb /= (1.0f+ColorSrc);

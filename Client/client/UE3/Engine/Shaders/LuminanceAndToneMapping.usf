@@ -169,34 +169,14 @@ float4 ToneMapingHistogramImagePS( float2 UV : TEXCOORD0, float3 color: COLOR0 )
 	return float4( 1, UV.x, UV.y, 1 );
 }
 
-sampler2D AdaptedLum;
-sampler2D CurrentLum;
 float4 HDRLuminanceParameter;
-float    g_fElapsedTime;
-float4 CalculateAdaptedLumPS
-    (
-    in float2 vScreenPosition : TEXCOORD0
-    ) : COLOR
+float4 CalculateAdaptedLumPS(float2 vScreenPosition : TEXCOORD0) : COLOR
 {
-    float4 fAdaptedLum ;//= tex2D(AdaptedLum, float2(0.00001f, 0.00001f));
-    float4 fCurrentLum = tex2D(CurrentLum, float2(0.5f, 0.5f));
-	fAdaptedLum.g = HDRLuminanceParameter.z;
-	fAdaptedLum.b = HDRLuminanceParameter.x;
-	fAdaptedLum.a = HDRLuminanceParameter.y;
-	fAdaptedLum.r = HDRLuminanceParameter.w; 
-    
-	float4 temp = abs(fAdaptedLum - fCurrentLum);
-	temp = saturate( temp - 1.f );
-	if ( any(temp) )
-	{
-		fCurrentLum = fAdaptedLum;
-	}
-    // The user's adapted luminance level is simulated by closing the gap between
-    // adapted luminance and current luminance by 2% every frame, based on a
-    // 30 fps rate. This is not an accurate model of human adaptation, which can
-    // take longer than half an hour.
-    float4 fNewAdaptation = fCurrentLum + (fAdaptedLum - fCurrentLum) * ( 1 - pow( 0.98f, 30 * g_fElapsedTime ) );
-    return fNewAdaptation;
+    // The scene-reduction and temporal-adaptation inputs are no longer supplied
+    // by the renderer. Use the authored controls directly instead of sampling
+    // an unbound texture and blending with an unset frame-time constant.
+    // Preserve the legacy channel order consumed by ToneMapping.
+    return HDRLuminanceParameter.wzxy;
 }
 
 
