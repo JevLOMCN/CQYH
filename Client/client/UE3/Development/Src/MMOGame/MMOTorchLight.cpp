@@ -4,7 +4,19 @@ IMPLEMENT_CLASS(AMMOTorchLight)
 
 void AMMOTorchLight::PostBeginPlay()
 {
-	CurrentParameter = RandRange( 0, 0.25f/BrightnessFrequency ); 
+	Super::PostBeginPlay();
+	CurrentParameter = RandRange( 0, 0.25f/BrightnessFrequency );
+	LastUpdateWindTime = CurrentParameter;
+	// The persistent helper starts before streamed levels. Register here so
+	// torches receive the current authored day/night value as they enter play.
+	for (FActorIterator It; It; ++It)
+	{
+		AMMODayTimeHelper* Helper = Cast<AMMODayTimeHelper>(*It);
+		if (Helper)
+		{
+			Helper->InsetTorchLight(this);
+		}
+	}
 }
 
 void AMMOTorchLight::UpdateShining(FLOAT DeltaTime)

@@ -33,7 +33,6 @@ void AMMODayTimeHelper::PostBeginPlay()
 		AMMOTorchLight* pTorchLight = Cast<AMMOTorchLight>(*iter);
 		if ( pTorchLight )
 		{
-			DefaultTorchLightBrightness = TorchLightBrightness = pTorchLight->LightComponent->Brightness;
 			InsetTorchLight(pTorchLight);
 		}
 	}
@@ -97,7 +96,12 @@ void AMMODayTimeHelper::GetTorchLights()
 
 void AMMODayTimeHelper::InsetTorchLight( AMMOTorchLight *plithgt )
 {
-	TorchLights.Push(plithgt);
+	if (plithgt && !plithgt->bDeleteMe && !plithgt->IsPendingKill())
+	{
+		TorchLights.AddUniqueItem(plithgt);
+		// Streaming can introduce a torch after the last day/night transition.
+		plithgt->SetCurrentBrightness(TorchLightBrightness);
+	}
 }
 
 void AMMODayTimeHelper::ClearTorchLights()
@@ -107,13 +111,19 @@ void AMMODayTimeHelper::ClearTorchLights()
 
 void AMMODayTimeHelper::UpdateTorchLightsBrightness()
 {
-	if ( DefaultTorchLightBrightness != TorchLightBrightness )
+	// Do not rely only on the cached brightness: a streamed-in torch also needs
+	// the current state when the day/night value itself has not changed.
+	for (INT TorchIndex = TorchLights.Num() - 1; TorchIndex >= 0; --TorchIndex)
 	{
-		for ( int i = 0 ; i < TorchLights.Num() ; ++i )
+		AMMOTorchLight* Torch = TorchLights(TorchIndex);
+		if (!Torch || Torch->bDeleteMe || Torch->IsPendingKill())
 		{
-			TorchLights( i )->SetCurrentBrightness(TorchLightBrightness);// LightComponent->Brightness = TorchLightBrightness;
-
+			TorchLights.Remove(TorchIndex);
 		}
-		DefaultTorchLightBrightness = TorchLightBrightness;
+		else if (Torch->CurrentBrightness != TorchLightBrightness)
+		{
+			Torch->SetCurrentBrightness(TorchLightBrightness);
+		}
 	}
+	DefaultTorchLightBrightness = TorchLightBrightness;
 }
