@@ -65,7 +65,11 @@ function(cqyh_add_tool tgt)
     # Keep tool-owned binaries and symbols together while sharing the build's libraries.
     set(_tool_output_dir "${CMAKE_BINARY_DIR}/NewServer/tools/${tgt}/$<CONFIG>")
     if(A_BIN_DIR)
+        # No $<CONFIG> subfolder: the Visual Studio generator appends one unless every per-config directory is set.
         set(_tool_output_dir "${CQYH_SERVER_DIR}/NewServer/bin/${A_BIN_DIR}")
+        foreach(cfg DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+            set_target_properties(${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${cfg} "${_tool_output_dir}")
+        endforeach()
         # Same working directory as the servers: global_config.lua and globalconfig/ live in NewServer/bin.
         set_target_properties(${tgt} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CQYH_SERVER_DIR}/NewServer/bin")
     endif()

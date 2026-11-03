@@ -22,6 +22,7 @@ namespace
 char serviceName[] = "certification server";
 constexpr wchar_t serviceNameWide[] = L"certification server";
 std::atomic_bool stopRequested{false};
+std::atomic_bool consoleMode{false}; // "/console": run in the foreground instead of under the SCM
 std::atomic<DWORD> serviceError{NO_ERROR};
 std::mutex statusMutex;
 SERVICE_STATUS_HANDLE statusHandle = nullptr;
@@ -29,6 +30,7 @@ SERVICE_STATUS status{};
 
 bool reportStatus(DWORD state, DWORD error = NO_ERROR)
 {
+    if (consoleMode) return true;
     const std::lock_guard lock{statusMutex};
     if (!statusHandle) return false;
     if (state == SERVICE_STOP_PENDING && status.dwCurrentState == SERVICE_STOPPED) return false;
@@ -233,6 +235,11 @@ int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR command, int)
     {
         if (_stricmp(command, "/install") == 0) return Install() ? 0 : 1;
         if (_stricmp(command, "/uninstall") == 0) return Uninstall() ? 0 : 1;
+        if (_stricmp(command, "/console") == 0)
+        {
+            consoleMode = true;
+            return serve() ? 0 : 1;
+        }
         SERVICE_TABLE_ENTRYA table[]{{serviceName, ServiceMain}, {nullptr, nullptr}};
         return StartServiceCtrlDispatcherA(table) && serviceError == NO_ERROR ? 0 : 1;
     }
