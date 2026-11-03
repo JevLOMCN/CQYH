@@ -193,7 +193,7 @@ static TArray<FString> UnbuiltInteractionsLightLog;
 static TArray<FString> UnbuiltInteractionsPrimitiveLog;
 void ListUncachedStaticLightingInteractions(FOutputDevice& Ar)
 {
-	for( BYTE Index = 0; Index < UnbuiltInteractionsLightLog.Num(); Index++ )
+	for( INT Index = 0; Index < UnbuiltInteractionsLightLog.Num(); Index++ )
 	{
 		Ar.Logf( TEXT("Uncached static lighting interaction detected") );
 		Ar.Logf( *(FString(TEXT("    Light: ")) + UnbuiltInteractionsLightLog(Index)) );
@@ -282,6 +282,20 @@ FLightPrimitiveInteraction::FLightPrimitiveInteraction(
 					{
 						UnbuiltInteractionsLightLog.Empty();
 						UnbuiltInteractionsPrimitiveLog.Empty();
+					}
+					static const UBOOL bTraceLightingInvalidation = ParseParam(appCmdLine(), TEXT("TraceLightingInvalidation"));
+					if (bTraceLightingInvalidation && PrimitiveSceneInfo->Scene->NumUncachedStaticLightingInteractions < 32)
+					{
+						debugf(TEXT("LightingTrace: uncached Light=%s Primitive=%s"),
+							*LightSceneInfo->LightComponentName.ToString(), *PrimitiveSceneInfo->Component->GetFullName());
+						UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(PrimitiveSceneInfo->Component);
+						if (Mesh)
+						{
+							FLightMap* Map = Mesh->LODData.Num() ? Mesh->LODData(0).LightMap.GetReference() : NULL;
+							debugf(TEXT("LightingTrace: mesh=%s LODs=%d LightMap=%d LightGuids=%d ContainsLight=%d ShadowMaps=%d IrrelevantLights=%d LightGuid=%s LightmapGuid=%s"),
+								Mesh->StaticMesh ? *Mesh->StaticMesh->GetPathName() : TEXT("None"), Mesh->LODData.Num(), Map != NULL, Map ? Map->LightGuids.Num() : 0, Map ? Map->ContainsLight(LightSceneInfo->LightmapGuid) : FALSE,
+								Mesh->LODData.Num() ? Mesh->LODData(0).ShadowMaps.Num() : 0, Mesh->IrrelevantLights.Num(), *LightSceneInfo->LightGuid.String(), *LightSceneInfo->LightmapGuid.String());
+						}
 					}
 					// Keep track of uncached interactions for logging out later
 					UnbuiltInteractionsLightLog.Push( LightSceneInfo->LightComponentName.ToString() );

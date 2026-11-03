@@ -147,7 +147,11 @@ FStaticLightingSystem::FStaticLightingSystem(const FLightingBuildOptions& InOpti
 		}
 	}
 
-	if (SkippedLevels.Len() > 0)
+	if (SkippedLevels.Len() > 0 && GIsUnattended)
+	{
+		debugf(TEXT("Lighting build skips unselected or hidden levels: %s"), *SkippedLevels);
+	}
+	else if (SkippedLevels.Len() > 0)
 	{
 		// Warn when some levels are not visible and therefore will not be built, because that indicates that only a partial build will be done,
 		// Lighting will still be unbuilt for some areas when playing through the level.
@@ -474,7 +478,18 @@ FStaticLightingSystem::FStaticLightingSystem(const FLightingBuildOptions& InOpti
 						{
 							// Invalidate cached data without regenerating light guids
 							// The light guids are still being used in streaming levels that aren't being built
+							// Selected actors invalidate their own maps in this loop. A
+							// shared light must retain receivers in unselected levels.
+							const UBOOL bHadLightmaps = Light->LightComponent->bHasLightEverBeenBuiltIntoLightMap;
+							if (Options.bOnlyBuildSelectedLevels)
+							{
+								Light->LightComponent->bHasLightEverBeenBuiltIntoLightMap = FALSE;
+							}
 							Light->InvalidateLightingForRebuild(Options.bOnlyBuildVisibleLevels);
+							if (Options.bOnlyBuildSelectedLevels)
+							{
+								Light->LightComponent->bHasLightEverBeenBuiltIntoLightMap = bHadLightmaps;
+							}
 						}
 						else
 						{

@@ -834,6 +834,10 @@ void UActorComponent::MarkLightingRequiringRebuild()
 			{
 				if (WorldObj->GetWorldInfo())
 				{
+					if (!WorldObj->GetWorldInfo()->bMapNeedsLightingFullyRebuilt && ParseParam(appCmdLine(), TEXT("TraceLightingInvalidation")))
+					{
+						debugf(TEXT("LightingTrace: component invalidated lighting: %s"), *GetFullName());
+					}
 					WorldObj->GetWorldInfo()->SetMapNeedsLightingFullyRebuilt( TRUE );
 				}
 			}

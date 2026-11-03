@@ -1023,17 +1023,69 @@ bool WxUnrealEdApp::OnInit()
 		{
 			appErrorf(TEXT("RebuildMapData requires an existing source map on the command line."));
 		}
+		// A selected-level repair retains the surrounding world's shadow casters.
+		FString LightingLevelList;
+		if (Parse(ParsedCmdLine, TEXT("LightingLevels="), LightingLevelList))
+		{
+			FLightingBuildOptions Options;
+			Options.QualityLevel = Quality_Production;
+			Options.bOnlyBuildSelectedLevels = TRUE;
+			TArray<FString> LevelNames;
+			LightingLevelList.ParseIntoArray(&LevelNames, TEXT("+"), TRUE);
+			for (INT NameIndex = 0; NameIndex < LevelNames.Num(); ++NameIndex)
+			{
+				UBOOL Found = FALSE;
+				for (INT LevelIndex = 0; LevelIndex < GWorld->Levels.Num(); ++LevelIndex)
+				{
+					ULevel* Level = GWorld->Levels(LevelIndex);
+					if (appStricmp(*Level->GetOutermost()->GetName(), *LevelNames(NameIndex)) == 0)
+					{
+						Options.SelectedLevels.AddUniqueItem(Level);
+						Found = TRUE;
+					}
+				}
+				if (!Found) { appErrorf(TEXT("RebuildMapData: lighting level not loaded: %s"), *LevelNames(NameIndex)); }
+			}
+			if (!Options.SelectedLevels.Num()) { appErrorf(TEXT("RebuildMapData: LightingLevels must select at least one loaded level.")); }
+			// Match the build initialization normally performed by EditorBuild.
+			GEditor->SetMapBuildCancelled(FALSE);
+			GLightmassDebugOptions.Touch();
+			extern FSwarmDebugOptions GSwarmDebugOptions;
+			GSwarmDebugOptions.Touch();
+			StopRenderingThread();
+			GApp->DlgBuildProgress->ShowDialog(WxDlgBuildProgress::BUILDTYPE_Lighting);
+			GApp->DlgBuildProgress->MarkBuildStartTime();
+			debugf(TEXT("RebuildMapData: rebuilding lighting for %d selected levels with all loaded shadow casters."), Options.SelectedLevels.Num());
+			GUnrealEd->BuildLighting(Options);
+			StartRenderingThread();
+			GApp->DlgBuildProgress->Show(FALSE);
+		}
 		// Run the production-quality build without the Perforce submit path.
-		if ( !FEditorBuildUtils::EditorBuild(IDM_BUILD_ALL_SUBMIT) || GEditor->GetMapBuildCancelled() )
+		else if (!FEditorBuildUtils::EditorBuild(IDM_BUILD_ALL_SUBMIT))
+		{
+			appErrorf(TEXT("RebuildMapData: build failed; maps were not saved."));
+		}
+		if (GEditor->GetMapBuildCancelled())
 		{
 			appErrorf(TEXT("RebuildMapData: build failed or was cancelled; maps were not saved."));
 		}
-		// Validate every loaded level before saving any. Only the actual build
-		// operations may clear the lighting and path invalidation flags.
+		// Internal regression check: fail after the Swarm job has completed.
+		if (ParseParam(ParsedCmdLine, TEXT("VerifyMapBuildFailure")))
+		{
+			appErrorf(TEXT("VerifyMapBuildFailure: deliberate post-build failure; maps were not saved."));
+		}
+		// Navigation is built for the persistent world, including cross-level
+		// links. Streaming levels do not own independent path-build validity.
+		if (!GWorld->GetWorldInfo()->bPathsRebuilt)
+		{
+			appErrorf(TEXT("RebuildMapData: world paths are still unbuilt; maps were not saved."));
+		}
+		// Lighting validity is stored per level. Validate every loaded level
+		// before saving any; only the actual build may clear these flags.
 		for ( INT LevelIndex = 0; LevelIndex < GWorld->Levels.Num(); ++LevelIndex )
 		{
 			AWorldInfo* Info = GWorld->Levels(LevelIndex)->GetWorldInfo();
-			if ( Info->bMapNeedsLightingFullyRebuilt || !Info->bPathsRebuilt )
+			if ( Info->bMapNeedsLightingFullyRebuilt )
 			{
 				appErrorf(TEXT("RebuildMapData: %s still has unbuilt data (lighting=%d, paths=%d); maps were not saved."), *Info->GetPathName(), Info->bMapNeedsLightingFullyRebuilt, Info->bPathsRebuilt);
 			}
@@ -1045,7 +1097,7 @@ bool WxUnrealEdApp::OnInit()
 			{
 				appErrorf(TEXT("RebuildMapData: could not save %s."), *Level->GetOutermost()->GetName());
 			}
-			debugf(TEXT("RebuildMapData: saved %s (lighting rebuilt, paths rebuilt)."), *Level->GetOutermost()->GetName());
+			debugf(TEXT("RebuildMapData: saved %s (lighting rebuilt, world paths verified)."), *Level->GetOutermost()->GetName());
 		}
 		debugf(TEXT("RebuildMapData: SUCCESS"));
 		appRequestExit(FALSE);
@@ -1205,9 +1257,31 @@ public:
 	}
 };
 
+class WxVerifyMapLightingAfterLoad : public wxTimer
+{
+public:
+	virtual void Notify()
+	{
+		Stop();
+		GEditor->RedrawLevelEditingViewports(TRUE);
+		check(GWorld && GWorld->GetWorldInfo());
+		if (GWorld->GetWorldInfo()->bMapNeedsLightingFullyRebuilt)
+		{
+			appErrorf(TEXT("VerifyMapLightingAfterLoad: rendered reload reports unbuilt lighting."));
+		}
+		debugf(TEXT("VerifyMapLightingAfterLoad: SUCCESS"));
+		appRequestExit(FALSE);
+	}
+};
+
 int WxUnrealEdApp::OnRun()
 {
 	WxVerifyEditorDialogs Verification;
+	WxVerifyMapLightingAfterLoad LightingVerification;
+	if (ParseParam(appCmdLine(), TEXT("VerifyMapLightingAfterLoad")))
+	{
+		LightingVerification.Start(3000, true);
+	}
 	if (ParseParam(appCmdLine(), TEXT("VerifyEditorDialogs")))
 	{
 		Verification.Start(250, true);
