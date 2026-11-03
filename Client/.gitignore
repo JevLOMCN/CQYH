@@ -184,13 +184,12 @@
 /client/UE3/Development/Intermediate/MMOGame/Win32/Shipping/Launch/*.pdb
 /client/UE3/Development/Intermediate/MMOGame/Win32/Shipping/OnlineSubsystemPC/*.pdb
 /client/UE3/Development/Intermediate/MMOGame/Win32/Shipping/XAudio2/*.pdb
+/client/UE3/Development/Src/UnrealBuildTool/obj/
 /client/UE3/Development/Intermediate/UnrealBuildTool/Release/*.pdb
-/client/UE3/Development/Src/UnrealBuildTool/obj/Release/*.pdb
 /client/UE3/Binaries/Win32/*.pdb
 /client/UE3/Binaries/Win64/*.pdb
 /client/UE3/Binaries/Win32/*.exp
 /client/UE3/Binaries/Win64/*.exp
-/client/UE3/Development/Src/UnrealBuildTool/obj/Release/*.txt
 /client/UE3/Development/Intermediate/MMOGame/Win32/Shipping/*.bin
 /client/UE3/Development/Src/.vs
 /client/UE3/Development/Intermediate/BuildLogs
@@ -210,8 +209,6 @@
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/OnlineSubsystemPC/*.ubt
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/WinDrv/*.ubt
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/XAudio2/*.ubt
-/client/UE3/Development/Src/UnrealBuildTool/obj/Release/*.cache
-/client/UE3/Development/Src/UnrealBuildTool/obj/Release/*.exe
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/Core/*.obj
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/Core/*.pch
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/Core/*.pdb
@@ -244,8 +241,6 @@
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/XAudio2/*.obj
 /client/UE3/Development/Intermediate/MMOGame/Win64/Shipping/XAudio2/*.pdb
 /client/UE3/Development/Intermediate/Unused/*.log
-/client/UE3/Development/Src/UnrealBuildTool/obj/Shipping/*.cs
-/client/UE3/Development/Src/UnrealBuildTool/obj/Shipping/*.cache
 /NewServer/out/win64/nameserver/Debug
 /NewServer/src/nameserver/log
 /NewServer/src/nameserver/.vs
@@ -381,3 +376,14 @@ Thumbs.db
 /client/UE3/MMOGame/Config/StringMap.txt.txt
 /client/UE3/MMOGame/ScreenShots/Win32/ScreenShot*.bmp
 /client/UE3/MMOGame/ScreenShots/Win64/ScreenShot*.bmp
+
+# Generated Visual Studio browse databases and TBB version file
+/client/SDOTest/aod.opensdf
+/client/SDOTest/aod.sdf
+/client/UE3/Development/Src/UE3.opensdf
+/client/UE3/Development/Src/UE3.sdf
+/client/UE3/Development/External/GPK3.0.13/Demo1.0/CSAuthDemo/CSAuthTest.sdf
+/client/UE3/Development/External/IntelTBB-3.0/build/vsproject/makefile.sdf
+/client/UE3/Development/External/IntelTBB-3.0/build/vsproject/version_string.tmp
+/client/UE3/Development/External/nvtesslib/src/nvtess.sdf
+/client/UE3/Development/External/wxWidgets/src/jpeg/jpeg.opt
