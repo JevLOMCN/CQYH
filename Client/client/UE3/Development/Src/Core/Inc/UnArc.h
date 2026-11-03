@@ -74,6 +74,15 @@ public:
 #endif
 	}
 
+	// Always decodes, regardless of MMO_ENCRYPT_FILE_CONTENT: the retail .pak archives are encrypted even in non-shipping builds.
+	static void DecodeAlways( BYTE* pData, INT Length )
+	{
+		for ( INT i = 0; i < Length; ++i )
+		{
+			*( pData + i ) = GetInstance()->offsetDeCode[*( pData + i )];
+		}
+	}
+
 	static void Decode( BYTE* pData, INT Length )
 	{
 #if MMO_ENCRYPT_FILE_CONTENT
