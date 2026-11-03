@@ -37,3 +37,9 @@ Client/client/UE3/MMOGame/Script/Manifest.txt
 # Written by the launcher / login SDK whenever the client runs
 Client/client/UE3/0_CQYH.vimd5
 Client/client/UE3/SDO/temp/
+
+# Rewritten by every client/editor build or launch (kept locally, not source)
+Client/client/UE3/Binaries/UnrealEdCSharp.pdb
+Client/client/UE3/Binaries/Win32/*.exe.response
+Client/client/UE3/SDO/sdologin/config/message_new.cfg
+Client/client/UE3/SDO/sdologin/config/userinfo.cfg
