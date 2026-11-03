@@ -1594,7 +1594,9 @@ FLightInteraction FStaticMeshSceneProxy::FLODInfo::GetInteraction(const FLightSc
 			}
 		}
 		
-		if(Component->IrrelevantLights.ContainsItem(LightSceneInfo->LightGuid))
+		// Shadowless toggleable lights deliberately have no baked shadowmap.
+		if((LightSceneInfo->bStaticLighting || LightSceneInfo->bCastStaticShadow)
+			&& Component->IrrelevantLights.ContainsItem(LightSceneInfo->LightGuid))
 		{
 			return FLightInteraction::Irrelevant();
 		}
@@ -1700,6 +1702,11 @@ FLightInteraction FStaticMeshSceneProxy::FDecalLightCache::GetInteraction(const 
 	if(!Interaction)
 	{
 		Interaction = StaticLightInteractionMap.Find(LightSceneInfo->LightGuid);
+	}
+	if (Interaction && Interaction->GetType() == LIT_CachedIrrelevant
+		&& !LightSceneInfo->bStaticLighting && !LightSceneInfo->bCastStaticShadow)
+	{
+		return FLightInteraction::Uncached();
 	}
 	return Interaction ? *Interaction : FLightInteraction::Uncached();
 }

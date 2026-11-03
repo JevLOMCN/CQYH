@@ -1250,7 +1250,8 @@ void FStaticLightingSystem::CalculateDirectAreaLightingTextureMapping(
 					{
 						// Compute the incident lighting of the light on the vertex.
 						LightIntensity = Light->GetDirectIntensity(CurrentVertex.WorldPosition, FALSE);
-						if ((LightIntensity.R <= KINDA_SMALL_NUMBER) &&
+						// Shadow visibility for a toggleable light is independent of its bake-time intensity.
+						if (bUseStaticLighting && (LightIntensity.R <= KINDA_SMALL_NUMBER) &&
 							(LightIntensity.G <= KINDA_SMALL_NUMBER) &&
 							(LightIntensity.B <= KINDA_SMALL_NUMBER) &&
 							(LightIntensity.A <= KINDA_SMALL_NUMBER))

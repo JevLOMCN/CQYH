@@ -257,7 +257,8 @@ void FStaticMeshStaticLightingTextureMapping::Apply(FLightMapData2D* LightMapDat
 
 	// Build the list of statically irrelevant lights.
 	// TODO: This should be stored per LOD.
-	Primitive->IrrelevantLights.Empty();
+	// InvalidateLightingCache cleared this before the build. Accumulate across
+	// LODs: per-LOD light/shadow maps take precedence over this negative cache.
 	for(INT LightIndex = 0;LightIndex < Mesh->RelevantLights.Num();LightIndex++)
 	{
 		const ULightComponent* Light = Mesh->RelevantLights(LightIndex);
@@ -277,9 +278,11 @@ void FStaticMeshStaticLightingTextureMapping::Apply(FLightMapData2D* LightMapDat
 		}
 
 		// Add the light to the statically irrelevant light list if it is in the potentially relevant light list, but didn't contribute to the light-map or a shadow-map.
-		if(!bIsInLightMap && !bIsInShadowMap)
+		if(!bIsInLightMap && !bIsInShadowMap
+			&& (Light->UseStaticLighting(Primitive->bForceDirectLightMap) || (Light->CastShadows && Light->CastStaticShadows)))
 		{	
-			//Primitive->IrrelevantLights.AddUniqueItem(Light->LightGuid); //zhaojun@snda,这句语义没错，但导出数据时ComponentLODInfo.LightMap->LightGuids似乎不对，先统一不忽略光
+			// A baked light with no contribution is cached as irrelevant, not unbuilt.
+			Primitive->IrrelevantLights.AddUniqueItem(Light->LightGuid);
 		}
 	}
 
@@ -339,7 +342,8 @@ void FStaticMeshStaticLightingVertexMapping::Apply(FLightMapData1D* LightMapData
 
 	// Build the list of statically irrelevant lights.
 	// TODO: This should be stored per LOD.
-	Primitive->IrrelevantLights.Empty();
+	// InvalidateLightingCache cleared this before the build. Accumulate across
+	// LODs: per-LOD light/shadow maps take precedence over this negative cache.
 	for(INT LightIndex = 0;LightIndex < Mesh->RelevantLights.Num();LightIndex++)
 	{
 		const ULightComponent* Light = Mesh->RelevantLights(LightIndex);
@@ -359,7 +363,8 @@ void FStaticMeshStaticLightingVertexMapping::Apply(FLightMapData1D* LightMapData
 		}
 
 		// Add the light to the statically irrelevant light list if it is in the potentially relevant light list, but didn't contribute to the light-map or a shadow-map.
-		if(!bIsInLightMap && !bIsInShadowMap)
+		if(!bIsInLightMap && !bIsInShadowMap
+			&& (Light->UseStaticLighting(Primitive->bForceDirectLightMap) || (Light->CastShadows && Light->CastStaticShadows)))
 		{	
 			Primitive->IrrelevantLights.AddUniqueItem(Light->LightGuid);
 		}

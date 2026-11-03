@@ -105,9 +105,11 @@ void FLandscapeStaticLightingTextureMapping::Apply(FLightMapData2D* LightMapData
 		}
 
 		// Add the light to the statically irrelevant light list if it is in the potentially relevant light list, but didn't contribute to the light-map or a shadow-map.
-		if(!bIsInLightMap && !bIsInShadowMap)
+		if(!bIsInLightMap && !bIsInShadowMap
+			&& (Light->UseStaticLighting(LandscapeComponent->bForceDirectLightMap) || (Light->CastShadows && Light->CastStaticShadows)))
 		{	
-			//LandscapeComponent->IrrelevantLights.AddUniqueItem(Light->LightGuid);//zhaojun@snda,这句语义没错，但导出数据时ComponentLODInfo.LightMap->LightGuids似乎不对，先统一不忽略光
+			// Preserve the negative cache for fully occluded or noncontributing lights.
+			LandscapeComponent->IrrelevantLights.AddUniqueItem(Light->LightGuid);
 		}
 	}
 

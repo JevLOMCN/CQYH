@@ -451,7 +451,9 @@ class FLandscapeComponentSceneProxy : public FPrimitiveSceneProxy
 		// FLightCacheInterface
 		virtual FLightInteraction GetInteraction(const class FLightSceneInfo* LightSceneInfo) const
 		{
-			if( Component->IrrelevantLights.ContainsItem(LightSceneInfo->LightGuid) )
+			// Shadowless toggleable lights deliberately have no baked shadowmap.
+			if((LightSceneInfo->bStaticLighting || LightSceneInfo->bCastStaticShadow)
+				&& Component->IrrelevantLights.ContainsItem(LightSceneInfo->LightGuid))
 			{
 				return FLightInteraction::Irrelevant();
 			}
