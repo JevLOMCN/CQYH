@@ -157,3 +157,17 @@
 /NewServer/src/gameworld/script/x64/Debug
 /NewServer/tools/.vs
 /NewServer/tools/out/
+
+# Runtime DLLs the CMake build copies next to each server (the originals are tracked in NewServer/bin and NewServer/3rd)
+/NewServer/bin/*/msvcp120d.dll
+/NewServer/bin/*/msvcr120d.dll
+/NewServer/bin/*/SdoBase.dll
+/NewServer/bin/*/fcmsdk_X64.dll
+/NewServer/bin/_GUARD/libcrypto-3-x64.dll
+/NewServer/bin/_GUARD/libssl-3-x64.dll
+/NewServer/bin/_GUARD/libmysql.dll
+
+# Guard and cert server build output (the Debug folder holds a ~500 MB pdb)
+/NewServer/bin/_GUARD/Debug/
+/NewServer/bin/_GUARD/guardserver64_d.exe
+/NewServer/bin/certserver/

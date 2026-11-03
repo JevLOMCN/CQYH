@@ -33,3 +33,7 @@ Client/client/UE3/Development/Src/UnrealBuildTool/obj/Debug/
 Client/client/UE3/MMOGame/Script/Manifest.txt
 /Server/NewServer/tools/account_logout/account_logout/.vs
 /Client/client/UE3/Development/Src/Launch/.vs
+
+# Written by the launcher / login SDK whenever the client runs
+Client/client/UE3/0_CQYH.vimd5
+Client/client/UE3/SDO/temp/
