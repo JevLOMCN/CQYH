@@ -108,9 +108,10 @@ WxMaterialEditorToolBar::WxMaterialEditorToolBar(wxWindow* InParent, wxWindowID 
 	AddCheckTool(ID_MATERIALEDITOR_VIEWSOURCE, TEXT(""), ViewSourceB, ViewSourceB, *LocalizeUnrealEd("ToolTip_MaterialEditorViewSource"));
 	AddSeparator();
 
-	SearchControl.Create(this, ID_MATERIALEDITOR_SEARCH);
-	AddControl(&SearchControl);
-	SearchControl.SetSize(220, 30);
+	SearchControl = new WxSearchControlNextPrev();
+	SearchControl->Create(this, ID_MATERIALEDITOR_SEARCH);
+	AddControl(SearchControl);
+	SearchControl->SetSize(220, 30);
 	AddSeparator();
 
 	//request flattening of a texture

@@ -596,7 +596,7 @@ void FxFaceGraphWidget::OnPaint( wxPaintEvent& FxUnused(event) )
 				dc.SetPen( wxPen( wxColour( *wxWHITE ), 1, wxDOT ) );
 				dc.SetBrush( *wxTRANSPARENT_BRUSH );
 				dc.DrawRectangle( clientSelection );
-				dc.SetLogicalFunction( function );
+				dc.SetLogicalFunction( static_cast<decltype(dc.GetLogicalFunction())>(function) );
 			}
 		}
 		if( _mouseAction == MOUSE_STRETCHLINK && _linkStart )

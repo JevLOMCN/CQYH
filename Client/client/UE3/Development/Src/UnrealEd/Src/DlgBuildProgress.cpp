@@ -148,7 +148,9 @@ void WxDlgBuildProgress::SetBuildProgressPercent( INT ProgressNumerator, INT Pro
 			}
 
 			// No progress denominator, so use 'indeterminate mode'
+			#if !UE3_WX32
 			BuildProgress->SetIndeterminateMode();
+#endif
 
 			BuildProgress->Pulse();
 
@@ -157,7 +159,9 @@ void WxDlgBuildProgress::SetBuildProgressPercent( INT ProgressNumerator, INT Pro
 		}
 		else
 		{
+			#if !UE3_WX32
 			BuildProgress->SetDeterminateMode();
+#endif
 
   			if( BuildProgress->GetRange() != ProgressDenominator )
 			{

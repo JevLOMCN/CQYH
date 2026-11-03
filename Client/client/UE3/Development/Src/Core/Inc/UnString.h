@@ -9,6 +9,11 @@
 
 #include "Array.h"
 
+#if UE3_WX32
+class wxString;
+class wxCStrData;
+#endif
+
 #if IPHONE && __OBJC__
 #include <Foundation/Foundation.h>
 #endif
@@ -157,6 +162,22 @@ public:
 			appMemcpy( GetData(), Other.GetData(), ArrayNum*sizeof(TCHAR) );
 		}
 	}
+#if UE3_WX32
+	// wxWidgets 3 returns a string proxy from c_str(); explicit overloads
+	// avoid chained implicit conversions while keeping Core independent of wx.
+	FString(const wxString& In);
+	FString(const wxCStrData& In);
+	FString& operator=(const wxString& In);
+	FString& operator=(const wxCStrData& In);
+	FString& operator+=(const wxString& In);
+	FString& operator+=(const wxCStrData& In);
+	INT InStr(const wxString& In, UBOOL bSearchFromEnd=FALSE, UBOOL bIgnoreCase=FALSE, INT StartPosition=INDEX_NONE) const;
+	INT InStr(const wxCStrData& In, UBOOL bSearchFromEnd=FALSE, UBOOL bIgnoreCase=FALSE, INT StartPosition=INDEX_NONE) const;
+#if !TCHAR_IS_1_BYTE
+	FString& operator=(const ANSICHAR* In) { return operator=(FString(In)); }
+	INT InStr(const ANSICHAR* In, UBOOL bSearchFromEnd=FALSE, UBOOL bIgnoreCase=FALSE, INT StartPosition=INDEX_NONE) const { return InStr(FString(In), bSearchFromEnd, bIgnoreCase, StartPosition); }
+#endif
+#endif
 	FString( const TCHAR* In )
 	: TArray<TCHAR, FStringAllocator>( In && *In ? (appStrlen(In)+1) : 0 )
 	{
@@ -987,6 +1008,10 @@ public:
 	FFilename( const FString& Other )
 		: FString( Other )
 	{}
+#if UE3_WX32
+	FFilename(const wxString& In);
+	FFilename(const wxCStrData& In);
+#endif
 	FFilename( const TCHAR* In )
 		: FString( In )
 	{}

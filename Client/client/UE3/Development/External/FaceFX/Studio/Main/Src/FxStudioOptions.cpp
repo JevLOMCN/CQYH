@@ -485,7 +485,7 @@ void FxStudioOptionsDialog::CreateControls( void )
 	wxString timelineGridFormats[3] = {_("Seconds"), _("Milliseconds"), _("Frames")};
 
 	wxStaticBoxSizer* timeFormatSizer = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Time Grid Format")), wxVERTICAL);
-	wxFlexGridSizer* flexGrid = new wxFlexGridSizer(2,2);
+	wxFlexGridSizer* flexGrid = new wxFlexGridSizer(2,2,0);
 	flexGrid->Add(new wxStaticText(this, wxID_ANY, _("Curve editor time format:")), 0, wxALL, 5);
 	_timeGridFormatChoice = new wxChoice(this, ControlID_StudioOptionsDlgTimeGridFormatChoice,
 		wxDefaultPosition, wxDefaultSize, 5, gridFormats);

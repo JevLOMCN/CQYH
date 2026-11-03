@@ -115,6 +115,11 @@ namespace UnrealBuildTool
 		
 		    // Update project environment for the project CLR mode
 		    ProjectCPPEnvironment.CLRMode = ProjectDesc.CLRMode;
+
+            // wxWidgets 3 exposes managed unity-build collisions; compiling CLR
+            // sources separately preserves their independent event types.
+            bool UseUnity = BuildConfiguration.bUseUnityBuild &&
+                (String.IsNullOrEmpty(Environment.GetEnvironmentVariable("UE3_WX32_ROOT")) || ProjectDesc.CLRMode != CPPCLRMode.CLREnabled);
 		
 		    // Allow files to be included from the project's source directory.
 		    ProjectCPPEnvironment.IncludePaths.Add( Path.Combine( Path.GetDirectoryName( ProjectDesc.ProjectPath ), "Src" ) );
@@ -140,7 +145,13 @@ namespace UnrealBuildTool
 			    FileItem FileItem = FileItem.GetExistingItemByPath(Path.Combine(ProjectDirectory, ProjectFilePath));
 			    if (FileItem != null)
 			    {
-				    if (Extension == ".CPP")
+				    // The browser sources share types and must be compiled together.
+                    if (!UseUnity && !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("UE3_WX32_ROOT")) &&
+                        ProjectDesc.CLRMode == CPPCLRMode.CLREnabled &&
+                        String.Equals(Path.GetFileNameWithoutExtension(ProjectDesc.ProjectPath), "UnrealEdCLR", StringComparison.OrdinalIgnoreCase) &&
+                        String.Equals(Path.GetFileName(ProjectFilePath), "DataBrowserCLR.cpp", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (Extension == ".CPP")
 				    {
 					    CPPFiles.Add(FileItem);
 				    }
@@ -263,7 +274,7 @@ namespace UnrealBuildTool
                         PCHEnvironment.CompileEnvPCH != null)
                     {
                         List<FileItem> PCHCPPFiles = PCHEnvironment.SourceFiles;
-                        if (BuildConfiguration.bUseUnityBuild)
+                        if (UseUnity)
                         {
                             // unity files generated for only the set of files which share the same PCH environment
                             PCHCPPFiles = Unity.GenerateUnityCPPs(PCHCPPFiles, PCHEnvironment.CompileEnvPCH);
@@ -298,7 +309,7 @@ namespace UnrealBuildTool
                 // Compile the C++ source or the unity C++ files that don't use PCH.
                 if (NonPCHCPPFiles.Count > 0)
                 {
-                    if (BuildConfiguration.bUseUnityBuild)
+                    if (UseUnity)
                     {
                         NonPCHCPPFiles = Unity.GenerateUnityCPPs(NonPCHCPPFiles, ProjectCPPEnvironment);
                     }
@@ -309,7 +320,7 @@ namespace UnrealBuildTool
             else
             {
                 // Generate unity C++ files if requested.
-                if (BuildConfiguration.bUseUnityBuild)
+                if (UseUnity)
                 {
                     CPPFiles = Unity.GenerateUnityCPPs(CPPFiles, ProjectCPPEnvironment);
                 }

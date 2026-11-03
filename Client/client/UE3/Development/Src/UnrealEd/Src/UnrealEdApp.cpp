@@ -898,7 +898,11 @@ bool WxUnrealEdApp::OnInit()
 
 		// Send the tool tip settings to WxWidgets.  Note that values of -1 mean 'use defaults'.
 		wxToolTip::SetDelay( ToolTipDelayInMS );
+		#if UE3_WX32
+		wxToolTip::SetAutoPop( ToolTipDurationInMS );
+#else
 		wxToolTip::SetDisplayTime( ToolTipDurationInMS );
+#endif
 
 		// Save preferences
 		GConfig->SetInt( TEXT( "ToolTips" ), TEXT( "DelayInMS" ), ToolTipDelayInMS, GEditorUserSettingsIni );
@@ -1113,6 +1117,104 @@ bool WxUnrealEdApp::OnInit()
 
 	return 1;
 }
+
+#if UE3_WX32
+// Exercise the native Windows message path, rather than calling wx handlers directly.
+class WxVerifyDialogAction : public wxTimer
+{
+	wxDialog& Dialog;
+	INT Button;
+public:
+	UBOOL Fired;
+	WxVerifyDialogAction(wxDialog& InDialog, INT InButton) : Dialog(InDialog), Button(InButton), Fired(FALSE) {}
+	virtual void Notify()
+	{
+		Stop();
+		Fired = TRUE;
+		if (Button == INDEX_NONE)
+		{
+			verify(::PostMessage((HWND)Dialog.GetHandle(), WM_CLOSE, 0, 0));
+		}
+		else
+		{
+			wxWindow* Control = Dialog.FindWindow(wxID_HIGHEST + Button);
+			check(Control);
+			verify(::PostMessage((HWND)Dialog.GetHandle(), WM_COMMAND,
+				MAKEWPARAM(Control->GetId(), BN_CLICKED), (LPARAM)Control->GetHandle()));
+		}
+	}
+};
+
+class WxVerifyEditorDialogs : public wxTimer
+{
+	INT LoadErrorsPhase;
+public:
+	WxVerifyEditorDialogs() : LoadErrorsPhase(0) {}
+	virtual void Notify()
+	{
+		Stop();
+		check(LocalizeUnrealEd(TEXT("File")) == TEXT("File"));
+		if (LoadErrorsPhase == 0)
+		{
+			GApp->CB_DisplayLoadErrors();
+			LoadErrorsPhase = 1;
+			debugf(TEXT("VerifyEditorDialogs: Load Errors opened with %d entries"), GEdLoadErrors.Num());
+			Start(3000, true);
+			return;
+		}
+		check(GApp->DlgLoadErrors);
+		if (LoadErrorsPhase == 1)
+		{
+			check(GApp->DlgLoadErrors->IsShown());
+			check(::IsWindowEnabled((HWND)GApp->DlgLoadErrors->GetHandle()));
+			wxWindow* Button = GApp->DlgLoadErrors->FindWindow(wxID_OK);
+			check(Button);
+			verify(::PostMessage((HWND)GApp->DlgLoadErrors->GetHandle(), WM_COMMAND,
+				MAKEWPARAM(wxID_OK, BN_CLICKED), (LPARAM)Button->GetHandle()));
+			LoadErrorsPhase = 2;
+			Start(250, true);
+			return;
+		}
+		check(!GApp->DlgLoadErrors->IsShown());
+		if (LoadErrorsPhase == 2)
+		{
+			GApp->CB_DisplayLoadErrors();
+			verify(::PostMessage((HWND)GApp->DlgLoadErrors->GetHandle(), WM_CLOSE, 0, 0));
+			LoadErrorsPhase = 3;
+			Start(250, true);
+			return;
+		}
+		debugf(TEXT("VerifyEditorDialogs: Load Errors native OK and close messages passed"));
+		for (INT Action = INDEX_NONE; Action < 5; ++Action)
+		{
+			WxChoiceDialog Dialog(TEXT("Editor modal dialog regression check"), TEXT("Dialog verification"),
+				WxChoiceDialogBase::Choice(10, TEXT("Yes"), WxChoiceDialogBase::DCT_DefaultAffirmative),
+				WxChoiceDialogBase::Choice(11, TEXT("Yes to all")),
+				WxChoiceDialogBase::Choice(12, TEXT("No")),
+				WxChoiceDialogBase::Choice(13, TEXT("No to all")),
+				WxChoiceDialogBase::Choice(14, TEXT("Cancel"), WxChoiceDialogBase::DCT_DefaultCancel));
+			WxVerifyDialogAction Timer(Dialog, Action);
+			Timer.Start(200, true);
+			Dialog.ShowModal();
+			check(Timer.Fired);
+			check(Dialog.GetChoice().ReturnCode == (Action == INDEX_NONE ? 14 : 10 + Action));
+			debugf(TEXT("VerifyEditorDialogs: action %d passed"), Action);
+		}
+		debugf(TEXT("VerifyEditorDialogs: SUCCESS"));
+		appRequestExit(FALSE);
+	}
+};
+
+int WxUnrealEdApp::OnRun()
+{
+	WxVerifyEditorDialogs Verification;
+	if (ParseParam(appCmdLine(), TEXT("VerifyEditorDialogs")))
+	{
+		Verification.Start(250, true);
+	}
+	return WxLaunchApp::OnRun();
+}
+#endif
 
 int WxUnrealEdApp::OnExit()
 {

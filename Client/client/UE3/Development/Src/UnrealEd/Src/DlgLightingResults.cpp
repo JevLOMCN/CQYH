@@ -1578,7 +1578,7 @@ WxDlgLightingBuildInfo::WxDlgLightingBuildInfo(wxWindow* InParent) :
 					TotalUnmappedTexelMemoryPercentageDisplay = new wxStaticText(this, wxID_ANY, TEXT(""));
 					MemorySizer->Add(TotalUnmappedTexelMemoryPercentageDisplay, 0, wxEXPAND|wxALL, 5);
 				}
-				ButtonSizer->Add(MemorySizer, 0, wxALIGN_BOTTOM|wxALL, 5);
+				ButtonSizer->Add(MemorySizer, 0, wxALL, 5);
 			}
 		}
 		MainSizer->Add(ButtonSizer, 0, wxALIGN_TOP|wxALL, 5);

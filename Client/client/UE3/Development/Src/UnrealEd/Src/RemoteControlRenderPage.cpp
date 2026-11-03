@@ -572,7 +572,7 @@ void WxRemoteControlRenderPage::OnMaxShadowSizeChoice(wxCommandEvent &In)
 void WxRemoteControlRenderPage::OnViewmodeChoice(wxCommandEvent &In)
 {
 	const wxString Str = ViewmodeChoice->GetStringSelection();
-	const FString StrCommand = FString::Printf(TEXT("viewmode %s"), Str.GetData());
+	const FString StrCommand = FString::Printf(TEXT("viewmode %s"), Str.wc_str());
 	GetGame()->ExecConsoleCommand( *StrCommand );
 }
 
@@ -598,7 +598,7 @@ void WxRemoteControlRenderPage::OnOpenLevel(wxCommandEvent &In)
 	if( DialogResult == wxID_OK )
 	{
 		const wxString Filename = FileDialog.GetFilename();
-		const FString StrCommand = FString::Printf(TEXT("open %s"), Filename.GetData());
+		const FString StrCommand = FString::Printf(TEXT("open %s"), Filename.wc_str());
 		GetGame()->ExecConsoleCommand( *StrCommand );
 	}
 }

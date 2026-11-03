@@ -101,7 +101,7 @@ void FxAnalysisWidget::OnAppStartup( FxWidget* FxUnused(sender) )
 	FxMsg("Starting up FxAnalysis...");
 	FxAnalysisSetLogOutputFunction(FxAnalysisLogOutput);
 
-	FxAnalysisStartup(FxWString(FxStudioApp::GetDataPath().mb_str(wxConvLibc)));
+	FxAnalysisStartup(FxWString(FxStudioApp::GetDataPath().mb_str(wxConvLibc).data()));
 
 	// Display fonix version
 	FxString versionString;
@@ -114,9 +114,9 @@ void FxAnalysisWidget::OnAppStartup( FxWidget* FxUnused(sender) )
 	wxString licensedTo = wxString::Format(wxT("Licensed to: %s"), wxString::FromAscii(licenseeInfo.licenseeName));
 	wxString project = wxString::Format(wxT("Project: %s"),  wxString::FromAscii(licenseeInfo.licenseeProject));
 	wxString expiration = wxString::Format(wxT("Expires: %s"),  wxString::FromAscii(licenseeInfo.expirationDate));
-	FxMsg(licensedTo.mb_str(wxConvLibc));
-	FxMsg(project.mb_str(wxConvLibc));
-	FxMsg(expiration.mb_str(wxConvLibc));
+	FxMsg(licensedTo.mb_str(wxConvLibc).data());
+	FxMsg(project.mb_str(wxConvLibc).data());
+	FxMsg(expiration.mb_str(wxConvLibc).data());
 
 	// Display the supported languages.
 	FxArray<FxAnalysisLanguageInfo> supportedLanguages;
@@ -131,11 +131,11 @@ void FxAnalysisWidget::OnAppStartup( FxWidget* FxUnused(sender) )
 		wxString timeoutDate(supportedLanguages[i].timeoutDate.GetWCstr());
 		if( supportedLanguages[i].isDefault )
 		{
-			FxMsg("%s (Default) [Timeout Date: %s]", languageName.mb_str(wxConvLibc), timeoutDate.mb_str(wxConvLibc));
+			FxMsg("%s (Default) [Timeout Date: %s]", languageName.mb_str(wxConvLibc).data(), timeoutDate.mb_str(wxConvLibc).data());
 		}
 		else
 		{
-			FxMsg("%s [Timeout Date: %s]", languageName.mb_str(wxConvLibc), timeoutDate.mb_str(wxConvLibc));
+			FxMsg("%s [Timeout Date: %s]", languageName.mb_str(wxConvLibc).data(), timeoutDate.mb_str(wxConvLibc).data());
 		}
 	}
 
@@ -166,11 +166,11 @@ void FxAnalysisWidget::OnAppStartup( FxWidget* FxUnused(sender) )
 		wxString timeoutDate(expiredLanguages[i].timeoutDate.GetWCstr());
 		if( expiredLanguages[i].isDefault )
 		{
-			FxMsg("%s (Default) [Timeout Date: %s]", languageName.mb_str(wxConvLibc), timeoutDate.mb_str(wxConvLibc));
+			FxMsg("%s (Default) [Timeout Date: %s]", languageName.mb_str(wxConvLibc).data(), timeoutDate.mb_str(wxConvLibc).data());
 		}
 		else
 		{
-			FxMsg("%s [Timeout Date: %s]", languageName.mb_str(wxConvLibc), timeoutDate.mb_str(wxConvLibc));
+			FxMsg("%s [Timeout Date: %s]", languageName.mb_str(wxConvLibc).data(), timeoutDate.mb_str(wxConvLibc).data());
 		}
 	}
 
@@ -467,7 +467,7 @@ OnReanalyzeRange( FxWidget* FxUnused(sender), FxAnim* anim, FxReal rangeStart,
 						{
 							newAnalysisText.RemoveLast();
 						}
-						pUserData->SetAnalysisText(FxWString(newAnalysisText.GetData()));
+						pUserData->SetAnalysisText(FxWString(newAnalysisText.wc_str()));
 						pUserData->SetIsSafeToUnload(FxFalse);
 					}
 
@@ -543,7 +543,7 @@ OnAnimPhonemeListChanged( FxWidget* FxUnused(sender), FxAnim* anim, FxPhonWordLi
 			{
 				analysisResults.wordTimes.PushBack(
 					FxWordTimeInfo(
-						pPhonWordList->GetWordText(i).GetData(),
+						FxWString(pPhonWordList->GetWordText(i).wc_str()),
 						pPhonWordList->GetWordStartTime(i),
 						pPhonWordList->GetWordEndTime(i)));
 			}

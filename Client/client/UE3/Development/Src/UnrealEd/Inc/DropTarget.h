@@ -51,7 +51,9 @@ public:
 	WxObjectPathNameDropTarget( FEditorLevelViewportClient* InViewportClient );
 
 	/** @hack: hook to fill-in the drop-target's data member with the data from the drop-source */
+	#if !UE3_WX32
 	virtual bool IsAcceptedData(IDataObject *pIDataSource) const;
+#endif
 
 	// called when the mouse enters the window (only once until OnLeave())
 	virtual wxDragResult OnEnter( wxCoord x, wxCoord y, wxDragResult def );

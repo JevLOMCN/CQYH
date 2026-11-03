@@ -136,7 +136,7 @@ FxBool FxStudioSession::PromptToSaveChangedActor( void )
 					{
 						wxCommandEvent saveCommand(wxEVT_COMMAND_MENU_SELECTED, 
 							MenuID_MainWindowFileSaveActor);
-						FxStudioApp::GetMainWindow()->ProcessEvent(saveCommand);
+						FxStudioApp::GetMainWindow()->GetEventHandler()->ProcessEvent(saveCommand);
 
 						// Check if the save command failed (ex: file was 
 						// read-only) and return failure so calling code can 
@@ -1141,7 +1141,7 @@ AnalyzeFile( const FxString& audioFile, const FxWString& optionalText,
 						wxString textPathString = audioPathString.BeforeLast('.');
 						textPathString.Append(wxT(".txt"));
 						wxString analysisText = FxLoadUnicodeTextFile(FxString(textPathString.mb_str(wxConvLibc)));
-									pNewAnimUserData->SetAnalysisText(FxWString(analysisText.GetData()));	
+									pNewAnimUserData->SetAnalysisText(FxWString(analysisText.wc_str()));
 					}
 					else
 					{

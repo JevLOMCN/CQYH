@@ -86,7 +86,7 @@ protected:
 		if( FxStudioApp::GetMainWindow() )
 		{
 			wxCommandEvent fakeTearoffKeyPress(wxEVT_COMMAND_MENU_SELECTED, MenuID_MainWindowTearoff);
-			FxStudioApp::GetMainWindow()->ProcessEvent(fakeTearoffKeyPress);
+			FxStudioApp::GetMainWindow()->GetEventHandler()->ProcessEvent(fakeTearoffKeyPress);
 		}
 	}
 
@@ -446,23 +446,23 @@ FxStudioMainWin::FxStudioMainWin( FxBool expertMode, wxWindow* parent,
 
 	wxFileName logPath(FxStudioApp::GetAppDirectory());
 	logPath.AppendDir(wxT("Logs"));
-	FxString logsDirectory(logPath.GetFullPath().mb_str(wxConvLibc));
+	FxString logsDirectory(logPath.GetFullPath().mb_str(wxConvLibc).data());
 	FxConsole::Initialize(logsDirectory, "FaceFxStudioLog.html", &_consoleWidget);
 	_consoleWidget.Initialize(_notebook);
 	FxTearoffWindow* consoleTearoffWindow = new FxTearoffWindow(_notebook, _consoleWidget.GetHtmlWindow(), _("Console"));
 	_tearoffWindows.PushBack(consoleTearoffWindow);
 	// Delay adding the console widget to the notebook until after the workspaces have been initialized.
 	
-	FxMsg( "Initializing %s version %s...", APP_TITLE.mb_str(wxConvLibc), APP_VERSION.mb_str(wxConvLibc) );
+	FxMsg( "Initializing %s version %s...", APP_TITLE.mb_str(wxConvLibc).data(), APP_VERSION.mb_str(wxConvLibc).data() );
 	FxMsg( "Using FaceFX SDK version %s", FxSDKGetVersionString().GetData() );
 	FxMsg( "Build Id: %s", FxSDKGetBuildId().GetData() );
 	FxMsg( "FaceFX SDK licensee: %s", FxSDKGetLicenseeName().GetData() );
 	FxMsg( "FaceFX SDK licensee project: %s", FxSDKGetLicenseeProjectName().GetData() );
 	wxString wxVersionString = wxVERSION_STRING;
-	FxMsg( "Using %s", wxVersionString.mb_str(wxConvLibc) );
+	FxMsg( "Using %s", wxVersionString.mb_str(wxConvLibc).data() );
 	FxMsg( "Using zlib version %s", zlibVersion() );
 
-	FxMsg( "OS Version: %s", ::wxGetOsDescription().mb_str(wxConvLibc) );
+	FxMsg( "OS Version: %s", ::wxGetOsDescription().mb_str(wxConvLibc).data() );
 	wxMemorySize freeMemory = ::wxGetFreeMemory();
 	if( freeMemory != -1 )
 	{
@@ -472,8 +472,8 @@ FxStudioMainWin::FxStudioMainWin( FxBool expertMode, wxWindow* parent,
 	{
 		FxMsg( "Memory: n/a" );
 	}
-	FxMsg( "System: %s", ::wxGetHostName().mb_str(wxConvLibc) );
-	FxMsg( "User: %s", ::wxGetUserId().mb_str(wxConvLibc) );
+	FxMsg( "System: %s", ::wxGetHostName().mb_str(wxConvLibc).data() );
+	FxMsg( "User: %s", ::wxGetUserId().mb_str(wxConvLibc).data() );
 
 	FxMsg( "Initializing widgets..." );
 	if( _timelineWidget )
@@ -550,10 +550,10 @@ FxStudioMainWin::FxStudioMainWin( FxBool expertMode, wxWindow* parent,
 	FxMsg( "Render Widget Capabilities:" );
 	FxMsg( "Name: %s", renderWidgetCaps.renderWidgetName.GetData() );
 	FxMsg( "Version: %f", static_cast<FxReal>(renderWidgetCaps.renderWidgetVersion/1000.0f) );
-	FxMsg( "Supports Offscreen Render Targets: %s", (renderWidgetCaps.supportsOffscreenRenderTargets) ? trueString.mb_str(wxConvLibc) : falseString.mb_str(wxConvLibc) );
-	FxMsg( "Supports Multiple Cameras: %s", (renderWidgetCaps.supportsMultipleCameras) ? trueString.mb_str(wxConvLibc) : falseString.mb_str(wxConvLibc) );
-	FxMsg( "Supports Fixed Aspect Ratio Cameras: %s", (renderWidgetCaps.supportsFixedAspectRatioCameras) ? trueString.mb_str(wxConvLibc) : falseString.mb_str(wxConvLibc) );
-	FxMsg( "Supports Bone Locked Cameras: %s", (renderWidgetCaps.supportsBoneLockedCameras) ? trueString.mb_str(wxConvLibc) : falseString.mb_str(wxConvLibc) );
+	FxMsg( "Supports Offscreen Render Targets: %s", (renderWidgetCaps.supportsOffscreenRenderTargets) ? trueString.mb_str(wxConvLibc).data() : falseString.mb_str(wxConvLibc).data() );
+	FxMsg( "Supports Multiple Cameras: %s", (renderWidgetCaps.supportsMultipleCameras) ? trueString.mb_str(wxConvLibc).data() : falseString.mb_str(wxConvLibc).data() );
+	FxMsg( "Supports Fixed Aspect Ratio Cameras: %s", (renderWidgetCaps.supportsFixedAspectRatioCameras) ? trueString.mb_str(wxConvLibc).data() : falseString.mb_str(wxConvLibc).data() );
+	FxMsg( "Supports Bone Locked Cameras: %s", (renderWidgetCaps.supportsBoneLockedCameras) ? trueString.mb_str(wxConvLibc).data() : falseString.mb_str(wxConvLibc).data() );
 
 #ifdef USE_FX_RENDERER
 	FxInt32 compiledILVersion   = 0;
@@ -703,7 +703,7 @@ void FxStudioMainWin::OnLoadActor( wxCommandEvent& FxUnused(event) )
 		FxTearoffWindow::CacheAndSetAllTearoffWindowsToNotAlwaysOnTop();
 		if( fileDlg.ShowModal() == wxID_OK )
 		{
-			FxString actorPath(fileDlg.GetPath().mb_str(wxConvLibc));
+			FxString actorPath(fileDlg.GetPath().mb_str(wxConvLibc).data());
 			FxString command("loadActor -file \"");
 			command = FxString::Concat(command, actorPath);
 			command = FxString::Concat(command, "\"");
@@ -742,7 +742,7 @@ void FxStudioMainWin::OnMRUFile( wxCommandEvent& event )
 		if( _session.PromptToSaveChangedActor() )
 		{
 			FxString command("loadActor -file \"");
-			command = FxString::Concat(command, FxString(actorPath.mb_str(wxConvLibc)));
+			command = FxString::Concat(command, FxString(actorPath.mb_str(wxConvLibc).data()));
 			command = FxString::Concat(command, "\"");
 			FxVM::ExecuteCommand(command);
 			if( !_session.GetActor() )
@@ -804,7 +804,7 @@ void FxStudioMainWin::OnSaveActorAs( wxCommandEvent& FxUnused(event) )
 		if( fileDlg.ShowModal() == wxID_OK )
 		{
 			FxString command("saveActor -file \"");
-			command = FxString::Concat(command, FxString(fileDlg.GetPath().mb_str(wxConvLibc)));
+			command = FxString::Concat(command, FxString(fileDlg.GetPath().mb_str(wxConvLibc).data()));
 			command = FxString::Concat(command, "\"");
 			FxVM::ExecuteCommand(command);
 		}
@@ -821,7 +821,7 @@ void FxStudioMainWin::OnImportXML( wxCommandEvent& FxUnused(event) )
 		FxTearoffWindow::CacheAndSetAllTearoffWindowsToNotAlwaysOnTop();
 		if( fileDlg.ShowModal() == wxID_OK )
 		{
-			FxString actorPath(fileDlg.GetPath().mb_str(wxConvLibc));
+			FxString actorPath(fileDlg.GetPath().mb_str(wxConvLibc).data());
 			FxString command("actorxml -import -file \"");
 			command = FxString::Concat(command, actorPath);
 			command = FxString::Concat(command, "\"");
@@ -843,7 +843,7 @@ void FxStudioMainWin::OnExportXML( wxCommandEvent& FxUnused(event) )
 		if( fileDlg.ShowModal() == wxID_OK )
 		{
 			FxString command("actorxml -file \"");
-			command = FxString::Concat(command, FxString(fileDlg.GetPath().mb_str(wxConvLibc)));
+			command = FxString::Concat(command, FxString(fileDlg.GetPath().mb_str(wxConvLibc).data()));
 			command = FxString::Concat(command, "\"");
 			FxVM::ExecuteCommand(command);
 		}
@@ -867,9 +867,9 @@ void FxStudioMainWin::OnSearchAndReplaceName( wxCommandEvent& FxUnused(event) )
 			if( wxID_OK == retval )
 			{
 				FxString command("rename -name \"");
-				command = FxString::Concat(command, FxString(oldName.mb_str(wxConvLibc)));
+				command = FxString::Concat(command, FxString(oldName.mb_str(wxConvLibc).data()));
 				command = FxString::Concat(command, "\" -to \"");
-				command = FxString::Concat(command, FxString(newName.mb_str(wxConvLibc)));
+				command = FxString::Concat(command, FxString(newName.mb_str(wxConvLibc).data()));
 				command = FxString::Concat(command, "\"");
 				if( FxVM::ExecuteCommand(command) != CE_Success )
 				{
@@ -987,7 +987,7 @@ void FxStudioMainWin::OnRenameActor( wxCommandEvent& FxUnused(event) )
 		if( actorName != wxEmptyString )
 		{
 			FxString command("renameActor -name \"");
-			command = FxString::Concat(command, FxString(actorName.mb_str(wxConvLibc)));
+			command = FxString::Concat(command, FxString(actorName.mb_str(wxConvLibc).data()));
 			command = FxString::Concat(command, "\"");
 			FxVM::ExecuteCommand(command);
 		}
@@ -1090,7 +1090,7 @@ void FxStudioMainWin::OnExportTemplate( wxCommandEvent& FxUnused(event) )
 		if( fileDlg.ShowModal() == wxID_OK )
 		{
 			FxString command("template -export -file \"");
-			command += FxString(fileDlg.GetPath().mb_str(wxConvLibc));
+			command += FxString(fileDlg.GetPath().mb_str(wxConvLibc).data());
 			command += "\"";
 			FxVM::ExecuteCommand(command);
 		}
@@ -1117,7 +1117,7 @@ void FxStudioMainWin::OnSyncTemplate( wxCommandEvent& FxUnused(event) )
 				_("Choose items to synch"), 6, choices, this);
 			if( numSelected )
 			{
-				FxString actorPath(fileDlg.GetPath().mb_str(wxConvLibc));
+				FxString actorPath(fileDlg.GetPath().mb_str(wxConvLibc).data());
 				FxString command("template -sync -file \"");
 				command += actorPath;
 				command += "\"";
@@ -1173,7 +1173,7 @@ void FxStudioMainWin::OnMountAnimSet( wxCommandEvent& FxUnused(event) )
 			if( fileDlg.ShowModal() == wxID_OK )
 			{
 				FxString command("animSet -mount \"");
-				command += FxString(fileDlg.GetPath().mb_str(wxConvLibc));
+				command += FxString(fileDlg.GetPath().mb_str(wxConvLibc).data());
 				command += "\"";
 				FxVM::ExecuteCommand(command);
 			}
@@ -1209,7 +1209,7 @@ void FxStudioMainWin::OnImportAnimSet( wxCommandEvent& FxUnused(event) )
 			if( fileDlg.ShowModal() == wxID_OK )
 			{
 				FxString command("animSet -import \"");
-				command += FxString(fileDlg.GetPath().mb_str(wxConvLibc));
+				command += FxString(fileDlg.GetPath().mb_str(wxConvLibc).data());
 				command += "\"";
 				FxVM::ExecuteCommand(command);
 			}
@@ -1233,7 +1233,7 @@ void FxStudioMainWin::OnExportAnimSet( wxCommandEvent& FxUnused(event) )
 				FxString command("animSet -export \"");
 				command += animGroupToExport;
 				command += "\" -to \"";
-				command += FxString(fileDlg.GetPath().mb_str(wxConvLibc));
+				command += FxString(fileDlg.GetPath().mb_str(wxConvLibc).data());
 				command += "\"";
 				FxVM::ExecuteCommand(command);
 			}
@@ -1350,7 +1350,7 @@ void FxStudioMainWin::OnPrevFrame( wxCommandEvent& FxUnused(event) )
 	FxInt32 newFrame = FxNearestInteger(frames);
 	if( FxRealEqualityRelaxed(newTime, currentTime) ) --newFrame;
 	wxString command = wxString::Format(wxT("currentTime -frame %d"), newFrame);
-	FxVM::ExecuteCommand(FxString(command.mb_str(wxConvLibc)));
+	FxVM::ExecuteCommand(FxString(command.mb_str(wxConvLibc).data()));
 }
 
 void FxStudioMainWin::OnNextFrame( wxCommandEvent& FxUnused(event) )
@@ -1363,7 +1363,7 @@ void FxStudioMainWin::OnNextFrame( wxCommandEvent& FxUnused(event) )
 	FxInt32 newFrame = FxNearestInteger(frames);
 	if( FxRealEqualityRelaxed(newTime, currentTime) ) ++newFrame;
 	wxString command = wxString::Format(wxT("currentTime -frame %d"), newFrame);
-	FxVM::ExecuteCommand(FxString(command.mb_str(wxConvLibc)));
+	FxVM::ExecuteCommand(FxString(command.mb_str(wxConvLibc).data()));
 }
 
 void FxStudioMainWin::OnSize( wxSizeEvent& event )

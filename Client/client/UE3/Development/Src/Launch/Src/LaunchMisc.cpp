@@ -4,6 +4,10 @@
 
 #include "LaunchPrivate.h"
 
+#if UE3_WX32 && HAVE_WXWIDGETS
+#include <wx/evtloop.h>
+#endif
+
 #if _WINDOWS
 
 #include "SplashScreen.h"
@@ -96,12 +100,30 @@ INT CreateMiniDump( LPEXCEPTION_POINTERS ExceptionInfo )
 //	WxLaunchApp implementation.
 //
 
+#if UE3_WX32
+// wxWidgets 3's default GUI logger opens a modal dialog. Keep its diagnostics
+// visible in the engine log, including during unattended editor startup.
+class WxUnrealLog : public wxLog
+{
+protected:
+	virtual void DoLogTextAtLevel(wxLogLevel Level, const wxString& Message)
+	{
+		debugf(NAME_Warning, TEXT("wxWidgets [%d]: %s"), (INT)Level, Message.wc_str());
+	}
+};
+#endif
+
 /**
  * Gets called on initialization from within wxEntry.	
  */
 bool WxLaunchApp::OnInit()
 {
+#if UE3_WX32
+	delete wxLog::SetActiveTarget(new WxUnrealLog());
+#endif
+#if !UE3_WX32
 	wxApp::OnInit();
+#endif // wxWidgets 3's default OnInit parses arguments already owned by UE3.
 
 #if WITH_MANAGED_CODE
 	// If running the editor, the exe's config file must be found to proceed
@@ -172,6 +194,51 @@ void WxLaunchApp::TickUnreal()
 		GEngineLoop.Tick();
 	}
 }
+
+#if UE3_WX32
+int WxLaunchApp::OnRun()
+{
+	bUnrealMainLoopStarted = true;
+	return wxApp::OnRun();
+}
+
+bool WxLaunchApp::ProcessIdle()
+{
+	// wxWidgets 3 also calls ProcessIdle from Yield(), unlike the old
+	// engine-specific loop. Never tick from a nested UI message pump or
+	// while a worker owns wx's GUI lock: the engine touches wx windows.
+	if (!wxThread::IsMain() || !wxGuiOwnedByMainThread())
+	{
+		return false;
+	}
+	wxEventLoopBase* const Loop = wxEventLoopBase::GetActive();
+	if (!Loop || Loop->IsYielding() || !bUnrealMainLoopStarted || bUnrealTickInProgress || GIsSlowTask)
+	{
+		return false;
+	}
+	// Modal dialogs own a separate event loop. Keep their idle UI work,
+	// but do not advance the engine while the caller's UI operation is open.
+	if (Loop != GetMainLoop())
+	{
+		return wxApp::ProcessIdle();
+	}
+	bUnrealTickInProgress = true;
+	if (!GIsRequestingExit)
+	{
+		TickUnreal();
+	}
+	if (GIsRequestingExit)
+	{
+		wxEventLoopBase* ActiveLoop = wxEventLoopBase::GetActive();
+		if (ActiveLoop) ActiveLoop->ScheduleExit(0);
+		bUnrealTickInProgress = false;
+		return false;
+	}
+	wxApp::ProcessIdle();
+	bUnrealTickInProgress = false;
+	return true;
+}
+#endif
 
 /**
  * The below is a manual expansion of wxWindows's IMPLEMENT_APP to allow multiple wxApps.

@@ -230,7 +230,7 @@ WxAnimAimOffsetEditor::WxAnimAimOffsetEditor( WxAnimTreeEditor* InEditor, wxWind
 	wxStaticText* profileStaticText = new wxStaticText( this, wxID_STATIC, TEXT("Profile:"), wxDefaultPosition, wxDefaultSize, 0 );
 	profileSizer->Add(profileStaticText, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-	ProfileCombo = new WxComboBox(this, ID_AOE_PROFILECOMBO, TEXT(""), wxDefaultPosition, wxDefaultSize, NULL, wxCB_READONLY);
+	ProfileCombo = new WxComboBox(this, ID_AOE_PROFILECOMBO, TEXT(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
 	profileSizer->Add(ProfileCombo, 1, wxGROW|wxALL, 5);
 
 	wxButton* NewProfileButton = new wxButton( this, ID_AOE_PROFILENEW, TEXT("New"), wxDefaultPosition, wxDefaultSize, 0 );

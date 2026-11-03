@@ -727,6 +727,12 @@ void WxStatusBarStandard::OnAutosaveToggleClick( wxCommandEvent& InEvent )
 
 void WxStatusBarStandard::OnSize( wxSizeEvent& InEvent )
 {
+	// wxWidgets 3 can deliver a size event before SetUp creates the fields.
+	if (GetFieldsCount() <= FIELD_Buffer || !ExecCombo)
+	{
+		InEvent.Skip();
+		return;
+	}
 	wxRect rect;
 
 	//////////////////////

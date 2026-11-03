@@ -115,6 +115,27 @@
 #include <wx/aui/aui.h>
 #include <wx/richtext/richtextctrl.h>
 
+#if UE3_WX32
+// File dialog flags renamed after wxWidgets 2.8; the old toolbar and dialog
+// style flags no longer have an effect.
+#define wxOPEN wxFD_OPEN
+#define wxSAVE wxFD_SAVE
+#define wxOVERWRITE_PROMPT wxFD_OVERWRITE_PROMPT
+#define wxFILE_MUST_EXIST wxFD_FILE_MUST_EXIST
+#define wxMULTIPLE wxFD_MULTIPLE
+#define wxTB_3DBUTTONS 0
+#define wxDIALOG_MODAL 0
+#define WXK_PRIOR WXK_PAGEUP
+#define WXK_NEXT WXK_PAGEDOWN
+#define wxRESIZE_BOX wxRESIZE_BORDER
+#define wxSP_FULLSASH 0
+#define ButtonSizerFlags (wxOK | wxCANCEL | wxYES | wxNO | wxHELP | wxNO_DEFAULT)
+#ifndef GET_X_LPARAM
+#define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
+#endif
+#endif
+
 #if WITH_FACEFX_STUDIO
 #include <wx/fileconf.h>
 #include <wx/confbase.h>

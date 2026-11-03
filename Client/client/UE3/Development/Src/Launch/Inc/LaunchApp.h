@@ -26,6 +26,17 @@ public:
 	 */
 	virtual void	TickUnreal();
 
+#if UE3_WX32
+	// The engine may tick only after the editor's OnInit has finished.
+	WxLaunchApp() : bUnrealMainLoopStarted(false), bUnrealTickInProgress(false) {}
+	virtual int OnRun();
+	virtual bool ProcessIdle();
+private:
+	bool bUnrealMainLoopStarted;
+	bool bUnrealTickInProgress;
+public:
+#endif
+
 	/**
 	 * Performs any required cleanup in the case of a fatal error.
 	 */

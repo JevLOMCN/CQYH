@@ -448,7 +448,7 @@ UBOOL UUnrealEdEngine::Exec( const TCHAR* Stream, FOutputDevice& Ar )
 		if(Dlg.ShowModal() == wxID_OK)
 		{
 			// if the user hit OK, pass back the result in the OutputDevice
-			Ar.Log(Dlg.GetValue());
+			Ar.Log(Dlg.GetValue().wc_str());
 		}
 
 		return TRUE;

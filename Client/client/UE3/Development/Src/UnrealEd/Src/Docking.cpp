@@ -50,7 +50,10 @@ void WxFloatingFrame::OnCommand( wxCommandEvent& In )
 {
 	if( ChildWindow )
 	{
-		::wxPostEvent( ChildWindow, In );
+		// An unhandled child command must not bubble back and be reposted.
+		wxCommandEvent Forwarded(In);
+		Forwarded.StopPropagation();
+		::wxPostEvent( ChildWindow, Forwarded );
 	}
 }
 
@@ -557,7 +560,10 @@ void WxDockingContainer::OnPageChanged(	wxNotebookEvent& In )
 void WxDockingContainer::OnCommand( wxCommandEvent& In )
 {
 	wxWindow* win = Notebook->GetPage( Notebook->GetSelection() );
-	::wxPostEvent( win, In );
+	// An unhandled child command must not bubble back and be reposted.
+	wxCommandEvent Forwarded(In);
+	Forwarded.StopPropagation();
+	::wxPostEvent( win, Forwarded );
 }
 
 void WxDockingContainer::OnClose( wxCloseEvent& In )
@@ -716,7 +722,10 @@ void WxDockingDataContainer::OnPageChanged(	wxNotebookEvent& In )
 void WxDockingDataContainer::OnCommand( wxCommandEvent& In )
 {
 	wxWindow* win = Notebook->GetPage( Notebook->GetSelection() );
-	::wxPostEvent( win, In );
+	// An unhandled child command must not bubble back and be reposted.
+	wxCommandEvent Forwarded(In);
+	Forwarded.StopPropagation();
+	::wxPostEvent( win, Forwarded );
 }
 
 void WxDockingDataContainer::OnClose( wxCloseEvent& In )

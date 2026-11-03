@@ -2142,6 +2142,7 @@ public:
 		HasData = FALSE;
 		return true;
 	}
+	#if !UE3_WX32
 	virtual bool IsAcceptedData(IDataObject *pIDataSource) const
 	{
 		if ( wxTextDropTarget::IsAcceptedData(pIDataSource) )
@@ -2154,6 +2155,7 @@ public:
 
 		return false;
 	}
+	#endif
 	virtual wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def)
 	{
 		// populate the data so we can check its type in OnDragOver
@@ -6484,7 +6486,7 @@ void WxMaterialEditor::UpdateSearch( UBOOL bQueryChanged )
 		{
 			// We just cleared the search
 			SelectedSearchResult = 0;
-			ToolBar->SearchControl.EnableNextPrev(FALSE,FALSE);
+			ToolBar->SearchControl->EnableNextPrev(FALSE,FALSE);
 			RefreshExpressionViewport();
 		}
 	}
@@ -6524,7 +6526,7 @@ void WxMaterialEditor::UpdateSearch( UBOOL bQueryChanged )
 			}
 		}
 
-		ToolBar->SearchControl.EnableNextPrev(SearchResults.Num()>0, SearchResults.Num()>0);
+		ToolBar->SearchControl->EnableNextPrev(SearchResults.Num()>0, SearchResults.Num()>0);
 	}
 }
 

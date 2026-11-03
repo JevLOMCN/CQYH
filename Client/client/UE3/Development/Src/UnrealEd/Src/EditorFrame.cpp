@@ -2335,7 +2335,7 @@ void WxEditorFrame::OnClose( wxCloseEvent& InEvent )
 #if WITH_FACEFX_STUDIO
 	if( OC3Ent::Face::FxStudioApp::GetMainWindow() )
 	{
-		OC3Ent::Face::FxStudioApp::GetMainWindow()->ProcessEvent(InEvent);
+		OC3Ent::Face::FxStudioApp::GetMainWindow()->GetEventHandler()->ProcessEvent(InEvent);
 	}
 #endif // WITH_FACEFX_STUDIO
 
@@ -10782,11 +10782,11 @@ void WxEditorFrame::MenuCreateMaterialInstance( wxCommandEvent &In )
 			{	
 				if (bCreateMaterialInstanceTimeVarying)
 				{
-					InstanceToEdit = ConstructObject<UMaterialInstanceTimeVarying>(UMaterialInstanceTimeVarying::StaticClass(), LevelPackage, ObjectName.c_str(), RF_Transactional);
+					InstanceToEdit = ConstructObject<UMaterialInstanceTimeVarying>(UMaterialInstanceTimeVarying::StaticClass(), LevelPackage, ObjectName.wc_str(), RF_Transactional);
 				}
 				else
 				{
-					InstanceToEdit = ConstructObject<UMaterialInstanceConstant>(UMaterialInstanceConstant::StaticClass(), LevelPackage, ObjectName.c_str(), RF_Transactional);
+					InstanceToEdit = ConstructObject<UMaterialInstanceConstant>(UMaterialInstanceConstant::StaticClass(), LevelPackage, ObjectName.wc_str(), RF_Transactional);
 				}
 
 				if(InstanceToEdit)
@@ -10797,7 +10797,7 @@ void WxEditorFrame::MenuCreateMaterialInstance( wxCommandEvent &In )
 			}
 			else
 			{
-				appMsgf( AMT_OK, *FString::Printf(LocalizeSecure(LocalizeUnrealEd("MaterialInstanceNameTaken_F"), ObjectName.c_str())) );
+				appMsgf( AMT_OK, *FString::Printf(LocalizeSecure(LocalizeUnrealEd("MaterialInstanceNameTaken_F"), ObjectName.wc_str())) );
 			}
 		}
 

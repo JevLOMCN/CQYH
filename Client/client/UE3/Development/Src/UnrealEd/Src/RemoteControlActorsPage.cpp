@@ -796,6 +796,6 @@ void WxRemoteControlActorsPage::DeleteBranch(wxTreeItemId Node, StringSubObjectI
 		}
 		CurrentData = (ActorTreeItemData*)(TreeCtrl->GetItemData(CurrentNode));
 		check(CurrentData);
-		CurrentNodeName.Printf(TEXT("%s"), CurrentData->GetActorName().c_str());
+		CurrentNodeName.Printf(TEXT("%s"), CurrentData->GetActorName().wc_str());
 	}
 }

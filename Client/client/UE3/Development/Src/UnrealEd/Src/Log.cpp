@@ -183,6 +183,14 @@ void WxHtmlWindow::OnSize( wxSizeEvent& In )
 /*-----------------------------------------------------------------------------
 	WxRichTextEditControl
 -----------------------------------------------------------------------------*/
+#if UE3_WX32
+#define IsCaretAtLineStart GetCaretAtLineStart
+#define UE3_RICH_TEXT_DELETE(buffer, ctrl) new wxRichTextAction(NULL, _("Delete"), wxRICHTEXT_DELETE, buffer, buffer, ctrl)
+#define UE3_RICH_TEXT_DIRTY(buffer) (buffer).IsDirty()
+#else
+#define UE3_RICH_TEXT_DELETE(buffer, ctrl) new wxRichTextAction(NULL, _("Delete"), wxRICHTEXT_DELETE, buffer, ctrl)
+#define UE3_RICH_TEXT_DIRTY(buffer) (buffer).GetDirty()
+#endif
 #define LOG_WINDOW_TIMER_ID		100
 
 IMPLEMENT_DYNAMIC_CLASS(WxRichTextEditControl, wxRichTextCtrl);
@@ -221,7 +229,11 @@ WXLRESULT WxRichTextEditControl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXL
             break;
     }
 
+    #if UE3_WX32
+    WXLRESULT lRc = wxRichTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
+#else
     WXLRESULT lRc = wxTextCtrlBase::MSWWindowProc(nMsg, wParam, lParam);
+#endif
 
     switch ( nMsg )
     {
@@ -342,7 +354,7 @@ void WxRichTextEditControl::RemoveLine( INT LineNumber )
 	wxRichTextParagraph* LineToRemove = buffer->GetParagraphAtLine(LineNumber);
 	if ( LineToRemove )
 	{
-		wxRichTextAction* action = new wxRichTextAction(NULL, _("Delete"), wxRICHTEXT_DELETE, buffer, this);
+		wxRichTextAction* action = UE3_RICH_TEXT_DELETE(buffer, this);
 
 		action->SetPosition(GetCaretPosition());
 		action->SetRange(LineToRemove->GetRange());
@@ -374,7 +386,7 @@ void WxRichTextEditControl::RemoveLineOverflow()
 		{
 			wxRichTextRange RangeToRemove(FirstLineToRemove->GetRange().GetStart(), LastLineToRemove->GetRange().GetEnd());
 
-			wxRichTextAction* action = new wxRichTextAction(NULL, _("Delete"), wxRICHTEXT_DELETE, buffer, this);
+			wxRichTextAction* action = UE3_RICH_TEXT_DELETE(buffer, this);
 
 			action->SetPosition(GetCaretPosition());
 			action->SetRange(RangeToRemove);
@@ -420,7 +432,7 @@ UBOOL WxRichTextEditControl::AttemptDeferredLayout()
 			}
 			else
 			{
-				if ( GetBuffer().GetDirty() )
+				if ( UE3_RICH_TEXT_DIRTY(GetBuffer()) )
 				{
 					LayoutContent();
 				}

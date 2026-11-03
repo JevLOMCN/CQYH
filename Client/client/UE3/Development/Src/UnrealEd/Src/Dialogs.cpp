@@ -454,7 +454,7 @@ void WxChoiceDialogBase::ConstructWidgets(wxPanel* InPanel)
 	wxBoxSizer* TopSizer = new wxBoxSizer(wxVERTICAL);
 	this->SetSizer( TopSizer );
 
-	TopSizer->Add(InPanel, 1, wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT, 0 );
+	TopSizer->Add(InPanel, 1, wxEXPAND, 0 );
 
 	// Create the buttons and arrange them in a horizontal sizer.
 	TArray< wxButton* > Buttons;
@@ -463,7 +463,7 @@ void WxChoiceDialogBase::ConstructWidgets(wxPanel* InPanel)
 	{
 		wxButton* NewButton = new wxButton( this, GetButtonIdFor(ChoiceIndex), *(Choices(ChoiceIndex).ButtonText) );
 		Buttons.AddItem( NewButton );
-		HorizontalSizer->Add( NewButton, 1, wxALIGN_RIGHT );
+		HorizontalSizer->Add( NewButton, 1, 0 );
 		HorizontalSizer->SetItemMinSize( NewButton, 80, 28 );
 		HorizontalSizer->AddSpacer(10);
 	}
@@ -1126,7 +1126,12 @@ CurrentlyBindingIdx(-1)
 	LoadSettings();
 
 	// Initially select the first item in the category list
-	CommandCategories->SelectItem( CommandCategories->GetFirstVisibleItem() );
+	wxTreeItemIdValue Cookie;
+	const wxTreeItemId FirstCategory = CommandCategories->GetFirstChild(CommandCategories->GetRootItem(), Cookie);
+	if (FirstCategory.IsOk())
+	{
+		CommandCategories->SelectItem(FirstCategory);
+	}
 }
 
 /** Saves settings for this dialog to the INI. */

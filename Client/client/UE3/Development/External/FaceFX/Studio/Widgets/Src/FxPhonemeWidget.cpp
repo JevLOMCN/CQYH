@@ -1275,7 +1275,7 @@ void FxPhonemeWidget::OnReanalyzeSelection( wxCommandEvent& FxUnused(event) )
 					{
 						selectedWords.RemoveLast();
 						// If there are selected words, use those.
-						reanalyzeDialog.SetAnalysisText(FxWString(selectedWords.GetData()));
+						reanalyzeDialog.SetAnalysisText(FxWString(selectedWords.wc_str()));
 					}
 					else if( _pAnim )
 					{

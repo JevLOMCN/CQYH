@@ -130,6 +130,10 @@ public:
 	class WxGameStatsVisualizer* GameStatsVisualizer;
 
 	virtual bool OnInit();
+#if UE3_WX32
+	friend class WxVerifyEditorDialogs;
+	virtual int OnRun();
+#endif
 	virtual int OnExit();
 
 	/** Generate a mapping of wx keys to unreal key names */

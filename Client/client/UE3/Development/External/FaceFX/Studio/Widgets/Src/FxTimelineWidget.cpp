@@ -1381,7 +1381,7 @@ void FxTimelineWidget::OnPlayAudio( wxCommandEvent& FxUnused(event) )
 {
 	// Simulate a play button press.
 	wxCommandEvent playPressEvent(wxEVT_COMMAND_BUTTON_CLICKED, ControlID_TimelineWidgetBottomPanelPlayButton);
-	_currTimePanel->ProcessEvent(playPressEvent);
+	_currTimePanel->GetEventHandler()->ProcessEvent(playPressEvent);
 }
 
 // Sets the time range for the bound subscribers

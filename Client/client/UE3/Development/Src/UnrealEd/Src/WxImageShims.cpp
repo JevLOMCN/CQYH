@@ -6,7 +6,20 @@
 
 #include "UnrealEd.h"
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && (defined(_M_IX86) || defined(_M_X64))
+#if UE3_WX32
+FString::FString(const wxString& In) : FString(In.wc_str()) {}
+FString::FString(const wxCStrData& In) : FString(In.AsWChar()) {}
+FString& FString::operator=(const wxString& In) { return *this = In.wc_str(); }
+FString& FString::operator=(const wxCStrData& In) { return *this = In.AsWChar(); }
+FString& FString::operator+=(const wxString& In) { return *this += In.wc_str(); }
+FString& FString::operator+=(const wxCStrData& In) { return *this += In.AsWChar(); }
+INT FString::InStr(const wxString& In, UBOOL bFromEnd, UBOOL bIgnoreCase, INT Start) const { return InStr(In.wc_str(), bFromEnd, bIgnoreCase, Start); }
+INT FString::InStr(const wxCStrData& In, UBOOL bFromEnd, UBOOL bIgnoreCase, INT Start) const { return InStr(In.AsWChar(), bFromEnd, bIgnoreCase, Start); }
+FFilename::FFilename(const wxString& In) : FString(In) {}
+FFilename::FFilename(const wxCStrData& In) : FString(In) {}
+#endif
+
+#if !UE3_WX32 && defined(_MSC_VER) && (_MSC_VER >= 1900) && (defined(_M_IX86) || defined(_M_X64))
 
 #include <new>
 

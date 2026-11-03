@@ -147,7 +147,7 @@ void WxTextCtrl::OnChar( wxKeyEvent& In )
 		case WXK_DOWN:
 		case WXK_UP:
 		case WXK_TAB:
-			GetParent()->AddPendingEvent( In );
+			GetParent()->GetEventHandler()->AddPendingEvent( In );
 			break;
 
 		default:
@@ -985,14 +985,14 @@ private:
 		ButtonCancel->SetPosition(wxDefaultPosition);
 		ButtonCancel->SetSize(ImageSize);
 		ButtonCancel->SetToolTip(*LocalizeUnrealEd("PropertyWindow_CancelSearch"));
-		InParentSizer->Add(ButtonCancel, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+		InParentSizer->Add(ButtonCancel, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
 
 		//Search Button
 		ButtonSearch = new WxBitmapCheckButton(InParent, InParent, ID_SEARCHTEXTCTRL_SEARCH_BUTTON, &ButtonSearchImage, &ButtonSearchImage);
 		ButtonSearch->SetPosition(wxDefaultPosition);
 		ButtonSearch->SetSize(ImageSize);
 		ButtonSearch->SetToolTip(*LocalizeUnrealEd("PropertyWindow_Search"));
-		InParentSizer->Add(ButtonSearch, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+		InParentSizer->Add(ButtonSearch, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
 
 		EmptySearchLabel = new WxPassThroughStaticText(this, wxID_ANY, *LocalizeUnrealEd("PropertyWindow_SearchFor"));
 		const INT LabelBorder = 2;
@@ -1235,14 +1235,14 @@ void WxSearchControlNextPrev::Create( wxWindow* InParent, wxWindowID InID )
 	ButtonNext->SetSize(ImageSize);
 	ButtonNext->SetToolTip(*LocalizeUnrealEd("Search_FindNext"));
 	ButtonNext->Enable(FALSE);
-	FilterSizer->Add(ButtonNext, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);
+	FilterSizer->Add(ButtonNext, 0, wxALIGN_CENTER_VERTICAL, 0);
 
 	/** Prev Button*/
 	ButtonPrev = new WxBitmapButton(this, ID_SEARCHTEXTCTRL_FINDPREV_BUTTON, PrevButtonImage);
 	ButtonPrev->SetSize(ImageSize);
 	ButtonPrev->SetToolTip(*LocalizeUnrealEd("Search_FindPrev"));
 	ButtonPrev->Enable(FALSE);
-	FilterSizer->Add(ButtonPrev, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);
+	FilterSizer->Add(ButtonPrev, 0, wxALIGN_CENTER_VERTICAL, 0);
 
 	Layout();
 }

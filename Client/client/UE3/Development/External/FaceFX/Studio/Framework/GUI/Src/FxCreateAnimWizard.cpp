@@ -887,7 +887,7 @@ wxWizardPage* FxAnimWizardPageSelectText::GetNext() const
 
 FxWString FxAnimWizardPageSelectText::GetAnalysisText() const
 {
-	return FxWString(_analysisText.GetData());
+	return FxWString(_analysisText.wc_str());
 }
 
 void FxAnimWizardPageSelectText::OnBrowseButton(wxCommandEvent&)
@@ -1178,7 +1178,7 @@ wxWizardPage* FxAnimWizardPageSelectName::GetNext() const
 
 FxString FxAnimWizardPageSelectName::GetAnimName() const
 {
-	return FxString(_animName.GetData());
+	return FxString(_animName.wc_str());
 }
 
 void FxAnimWizardPageSelectName::OnPageChanging(wxWizardEvent& event)

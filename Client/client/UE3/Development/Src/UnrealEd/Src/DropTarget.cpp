@@ -344,6 +344,7 @@ void WxObjectPathNameDropTarget::ClearDroppedAssetData()
 }
 
 /** @hack: hook to fill-in the drop-target's data member with the data from the drop-source */
+#if !UE3_WX32
 bool WxObjectPathNameDropTarget::IsAcceptedData(IDataObject *pIDataSource) const
 {
 	if ( WxEditorTextDropTarget::IsAcceptedData(pIDataSource) )
@@ -356,6 +357,8 @@ bool WxObjectPathNameDropTarget::IsAcceptedData(IDataObject *pIDataSource) const
 
 	return false;
 }
+
+#endif // !UE3_WX32
 
 // called when the mouse enters the window (only once until OnLeave())
 wxDragResult WxObjectPathNameDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def)

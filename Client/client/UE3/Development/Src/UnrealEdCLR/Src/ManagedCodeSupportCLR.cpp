@@ -608,10 +608,12 @@ INT ManagedGuardedMain( const TCHAR* CmdLine, HINSTANCE hInInstance, HINSTANCE h
 // @todo WPF: Why do we need to do this?  This exists in the Wx DLL somewhere and we shouldn't need
 //   it linked with our app.  This problem only exists when using /clr.
 
+#if !UE3_WX32
 void wxwxListStringNode::DeleteData()
 {
     delete (wxwxListStringNode *)GetData();
 }
+#endif
 
 
 #pragma managed

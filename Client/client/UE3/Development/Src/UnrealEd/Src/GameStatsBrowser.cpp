@@ -2080,7 +2080,7 @@ FString WxGameStatsVisualizer::GetGameTypeFilter()
 {
 	check(GameTypeFilterList);
 	// Return whats in the combo box for now (ideally friendly name with userdata lookup)
-	return GameTypeFilterList->GetStringSelection().GetData();
+	return GameTypeFilterList->GetStringSelection().wc_str();
 }
 
 /*
@@ -2089,7 +2089,7 @@ FString WxGameStatsVisualizer::GetGameTypeFilter()
  */
 void WxGameStatsVisualizer::OnDateListSelected( wxCommandEvent& In )
 {
-	AddVisualizerOutput(FString::Printf(TEXT("%s selected"), DateFilterList->GetStringSelection().GetData()));
+	AddVisualizerOutput(FString::Printf(TEXT("%s selected"), DateFilterList->GetStringSelection().wc_str()));
 
 	// Update the game session control
 	PopulateGameSessions(GetDateFilter(), GetGameTypeFilter());
@@ -2111,7 +2111,7 @@ void WxGameStatsVisualizer::OnDateListSelected( wxCommandEvent& In )
  */
 void WxGameStatsVisualizer::OnGameTypeListSelected( wxCommandEvent& In )
 {
-	AddVisualizerOutput(FString::Printf(TEXT("%s selected"), GameTypeFilterList->GetStringSelection().GetData()));
+	AddVisualizerOutput(FString::Printf(TEXT("%s selected"), GameTypeFilterList->GetStringSelection().wc_str()));
 
 	// Update the game session control
 	PopulateGameSessions(GetDateFilter(), GetGameTypeFilter());

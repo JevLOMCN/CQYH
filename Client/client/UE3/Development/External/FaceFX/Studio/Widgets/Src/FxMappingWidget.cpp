@@ -711,25 +711,25 @@ void FxMappingWidgetContainer::CreateToolbarControls()
 void FxMappingWidgetContainer::OnMakeDefaultMappingButton(wxCommandEvent& FxUnused(event))
 {
 	wxCommandEvent toDispatch(wxEVT_COMMAND_MENU_SELECTED, MenuID_MappingWidgetMakeDefault);
-	_mappingWidget->ProcessEvent(toDispatch);
+	_mappingWidget->GetEventHandler()->ProcessEvent(toDispatch);
 }
 
 void FxMappingWidgetContainer::OnClearMappingButton(wxCommandEvent& FxUnused(event))
 {
 	wxCommandEvent toDispatch(wxEVT_COMMAND_MENU_SELECTED, MenuID_MappingWidgetClearMapping);
-	_mappingWidget->ProcessEvent(toDispatch);
+	_mappingWidget->GetEventHandler()->ProcessEvent(toDispatch);
 }
 
 void FxMappingWidgetContainer::OnAddTargetButton(wxCommandEvent& FxUnused(event))
 {
 	wxCommandEvent toDispatch(wxEVT_COMMAND_MENU_SELECTED, MenuID_MappingWidgetAddTarget);
-	_mappingWidget->ProcessEvent(toDispatch);
+	_mappingWidget->GetEventHandler()->ProcessEvent(toDispatch);
 }
 
 void FxMappingWidgetContainer::OnSyncAnimButton(wxCommandEvent& FxUnused(event))
 {
 	wxCommandEvent toDispatch(wxEVT_COMMAND_MENU_SELECTED, MenuID_MappingWidgetSyncAnim);
-	_mappingWidget->ProcessEvent(toDispatch);
+	_mappingWidget->GetEventHandler()->ProcessEvent(toDispatch);
 }
 
 void FxMappingWidgetContainer::OnUpdateUI(wxUpdateUIEvent& FxUnused(event))

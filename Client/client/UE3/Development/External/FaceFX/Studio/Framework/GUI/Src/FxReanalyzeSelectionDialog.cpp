@@ -302,7 +302,7 @@ void FxReanalyzeSelectionDialog::OnReanalyzeButtonPressed( wxCommandEvent& FxUnu
 		animText.Trim();
 		if( wxEmptyString != animText )
 		{
-			_analysisText = FxWString(animText.GetData());	
+			_analysisText = FxWString(animText.wc_str());
 		}
 		else
 		{

@@ -134,7 +134,7 @@ void WxPropertyRequiredToolWindow::Create( wxWindow* InParent)
 	/** Text box*/
 	SearchPanel = new WxSearchControl;
 	SearchPanel->Create(this, ID_PROPWINDOW_FILTER_TEXTBOX);
-	FilterWindowSizer->Add(SearchPanel, 1, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(SearchPanel, 1, wxGROW | wxALL, 0);
 
 	/**Favorite Toggle Images*/
 	InitMoveButtons();
@@ -156,12 +156,12 @@ void WxPropertyRequiredToolWindow::Create( wxWindow* InParent)
 	SaveButton->SetSize(ImageSize);
 	//SaveButton->SetToolTip(*LocalizeUnrealEd("PropertyWindow_Options"));
 
-	FilterWindowSizer->Add(MoveUpButton, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
-	FilterWindowSizer->Add(MoveDownButton, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
-	FilterWindowSizer->Add(FavoritesButton, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
-	FilterWindowSizer->Add(LockActorButton, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
-	FilterWindowSizer->Add(OptionsButton, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
-	FilterWindowSizer->Add(SaveButton, 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(MoveUpButton, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(MoveDownButton, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(FavoritesButton, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(LockActorButton, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(OptionsButton, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
+	FilterWindowSizer->Add(SaveButton, 0, wxALIGN_CENTER_VERTICAL, 0);// | wxSHAPED | wxGROW | wxALL, 0);
 
 	SetSizer(FilterWindowSizer);
 }
@@ -557,7 +557,7 @@ void WxPropertyWindowHost::CreateToolbar(wxBoxSizer* InParentSizer)
 
 	FilterSizer->Add(PropertyRequiredToolWindow, 1, wxALIGN_LEFT | wxGROW | wxALL, 0);
 
-	InParentSizer->Add(FilterSizer, 0, wxALIGN_CENTER | wxGROW | wxALL, 0);
+	InParentSizer->Add(FilterSizer, 0, wxGROW | wxALL, 0);
 }
 
 /**
@@ -1765,7 +1765,9 @@ void WxPropertyWindow::Create( wxWindow* InParent, FNotifyHook* InNotifyHook )
 
 	// Create a vertical scrollbar for the property window.
 	ScrollBar = new wxScrollBar( this, -1, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL );
+	#if !UE3_WX32
 	ScrollBar->SetSmallIncrement (PROP_DefaultItemHeight);
+#endif
 
 	//create the full hierarchy only this once
 	WxObjectsPropertyControl* pwo = new WxObjectsPropertyControl;
@@ -2045,6 +2047,10 @@ INT WxPropertyWindow::GetScrollBarMax()
 
 void WxPropertyWindow::OnScroll( wxScrollEvent& In )
 {
+#if UE3_WX32
+	if (In.GetEventType() == wxEVT_SCROLL_LINEUP) { SetScrollBarPos(ThumbPos - PROP_DefaultItemHeight); return; }
+	if (In.GetEventType() == wxEVT_SCROLL_LINEDOWN) { SetScrollBarPos(ThumbPos + PROP_DefaultItemHeight); return; }
+#endif
 	SetScrollBarPos(In.GetPosition());
 }
 

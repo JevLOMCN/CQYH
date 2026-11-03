@@ -354,13 +354,13 @@ private:
 	void OnMoveInfoPackageComboText(wxCommandEvent& In)
 	{
 		const INT SelectedMoveInfoIndex = MoveInfoCheckList->GetSelection();
-		GUnrealEd->ClassRelocationInfo(SelectedMoveInfoIndex).PackageName = NewPackageCombo->GetValue();
+		GUnrealEd->ClassRelocationInfo(SelectedMoveInfoIndex).PackageName = NewPackageCombo->GetValue().wc_str();
 	}
 
 	void OnMoveInfoGroupEditText(wxCommandEvent& In)
 	{
 		const INT SelectedMoveInfoIndex = MoveInfoCheckList->GetSelection();
-		GUnrealEd->ClassRelocationInfo(SelectedMoveInfoIndex).GroupName = NewGroupEdit->GetValue();
+		GUnrealEd->ClassRelocationInfo(SelectedMoveInfoIndex).GroupName = NewGroupEdit->GetValue().wc_str();
 	}
 
 	void ClearSelectedMoveInfo()

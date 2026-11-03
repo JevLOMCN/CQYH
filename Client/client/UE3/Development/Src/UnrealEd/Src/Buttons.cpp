@@ -41,7 +41,7 @@ void WxBitmapButton::OnRightButtonDown( wxMouseEvent& In )
 	// Only forward right click/button input to the parent if specified
 	if (bOnRightForward && GetParent())
 	{
-		GetParent()->ProcessEvent(In);
+		GetParent()->GetEventHandler()->ProcessEvent(In);
 	}
 }
 
@@ -50,7 +50,7 @@ void WxBitmapButton::OnRightButtonUp(wxMouseEvent& In)
 	// Only forward right click/button input to the parent if specified
 	if (bOnRightForward && GetParent())
 	{
-		GetParent()->ProcessEvent(In);
+		GetParent()->GetEventHandler()->ProcessEvent(In);
 	}
 }
 
@@ -59,7 +59,7 @@ void WxBitmapButton::OnRightClick(wxCommandEvent& In)
 	// Only forward right click/button input to the parent if specified
 	if (bOnRightForward && GetParent())
 	{
-		GetParent()->ProcessEvent(In);
+		GetParent()->GetEventHandler()->ProcessEvent(In);
 	}
 }
 

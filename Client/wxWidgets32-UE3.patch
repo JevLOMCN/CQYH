@@ -1,0 +1,136 @@
+diff --git a/include/wx/msw/listctrl.h b/include/wx/msw/listctrl.h
+index f796132..606d2eb 100644
+--- a/include/wx/msw/listctrl.h
++++ b/include/wx/msw/listctrl.h
+@@ -342,6 +342,32 @@ public:
+     // data is arbitrary data to be passed to the sort function.
+     bool SortItems(wxListCtrlCompare fn, wxIntPtr data);
+ 
++    // UE3 and FaceFX used unsigned pointer-sized callback arguments in their
++    // wxWidgets 2.8 build. Adapt them without calling a mismatched function
++    // pointer. Native MSW list sorting is synchronous, so the context remains
++    // valid for the duration of SortItems().
++    #if defined(_WIN64)
++    typedef wxUIntPtr UE3SortValue;
++#else
++    typedef unsigned int UE3SortValue;
++#endif
++    typedef int (wxCALLBACK *UE3ListCtrlCompare)(UE3SortValue, UE3SortValue, UE3SortValue);
++    bool SortItems(UE3ListCtrlCompare fn, UE3SortValue data)
++    {
++        UE3SortContext context = { fn, data };
++        return SortItems(&wxListCtrl::UE3SortThunk, reinterpret_cast<wxIntPtr>(&context));
++    }
++
++private:
++    struct UE3SortContext { UE3ListCtrlCompare fn; UE3SortValue data; };
++    static int wxCALLBACK UE3SortThunk(wxIntPtr a, wxIntPtr b, wxIntPtr opaque)
++    {
++        UE3SortContext* context = reinterpret_cast<UE3SortContext*>(opaque);
++        return context->fn(static_cast<UE3SortValue>(a), static_cast<UE3SortValue>(b), context->data);
++    }
++
++public:
++
+     // IMPLEMENTATION
+     virtual bool MSWCommand(WXUINT param, WXWORD id) wxOVERRIDE;
+     virtual bool MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result) wxOVERRIDE;
+diff --git a/include/wx/window.h b/include/wx/window.h
+index d728345..23c73d3 100644
+--- a/include/wx/window.h
++++ b/include/wx/window.h
+@@ -29,6 +29,24 @@
+ #include "wx/validate.h"        // for wxDefaultValidator (always include it)
+ #include "wx/windowid.h"
+ 
++#ifdef __WXMSW__
++// UE3 supplies these callbacks to integrate native engine windows and to
++// report exceptions raised inside Windows callbacks.
++#include "wx/msw/wrapwin.h"
++class WXDLLIMPEXP_CORE wxUnrealCallbacks
++{
++public:
++    virtual ~wxUnrealCallbacks() {}
++    virtual bool IsUnrealWindowHandle(HWND hwnd) const = 0;
++    virtual bool IsRequestingExit() const = 0;
++    virtual void SetRequestingExit(bool requestingExit) = 0;
++    virtual int WndProcExceptionFilter(LPEXCEPTION_POINTERS info) = 0;
++    virtual void WndProcUnhandledExceptionCallback() = 0;
++};
++WXDLLIMPEXP_CORE void SetUnrealCallbacks(wxUnrealCallbacks* callbacks);
++WXDLLIMPEXP_CORE wxUnrealCallbacks* GetUnrealCallbacks();
++#endif
++
+ #if wxUSE_PALETTE
+     #include "wx/palette.h"
+ #endif // wxUSE_PALETTE
+diff --git a/src/msw/evtloop.cpp b/src/msw/evtloop.cpp
+index 17e9055..d9ee47b 100644
+--- a/src/msw/evtloop.cpp
++++ b/src/msw/evtloop.cpp
+@@ -71,6 +71,11 @@ bool wxGUIEventLoop::PreProcessMessage(WXMSG *msg)
+     // children which themselves were not created by wx (i.e. wxActiveX control children)
+     if ( !wndThis )
+     {
++        // UE3 owns native windows which must not be treated as wx dialogs.
++        wxUnrealCallbacks* callbacks = GetUnrealCallbacks();
++        if ( callbacks && callbacks->IsUnrealWindowHandle(hwnd) )
++            return false;
++
+         while ( hwnd && (::GetWindowLong(hwnd, GWL_STYLE) & WS_CHILD ))
+         {
+             hwnd = ::GetParent(hwnd);
+diff --git a/src/msw/window.cpp b/src/msw/window.cpp
+index 44530f7..4990415 100644
+--- a/src/msw/window.cpp
++++ b/src/msw/window.cpp
+@@ -2908,6 +2908,18 @@ wxWindowCreationHook::~wxWindowCreationHook()
+     gs_winBeingCreated = NULL;
+ }
+ 
++static wxUnrealCallbacks* gs_UnrealCallbacks = NULL;
++
++void SetUnrealCallbacks(wxUnrealCallbacks* callbacks)
++{
++    gs_UnrealCallbacks = callbacks;
++}
++
++wxUnrealCallbacks* GetUnrealCallbacks()
++{
++    return gs_UnrealCallbacks;
++}
++
+ // Main window proc
+ LRESULT WXDLLEXPORT APIENTRY
+ wxWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+@@ -2933,7 +2945,7 @@ wxWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+         wnd->SetHWND((WXHWND)hWnd);
+     }
+ 
+-    LRESULT rc;
++    LRESULT rc = 0;
+ 
+     // We have to catch unhandled Win32 exceptions here because otherwise they
+     // would be simply lost if we're called from a kernel callback (as it
+@@ -2942,14 +2954,19 @@ wxWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+     // mostly just suppressed, although the exact behaviour differs across
+     // Windows versions, see the "Remarks" section of WindowProc documentation
+     // at https://msdn.microsoft.com/en-us/library/ms633573.aspx
+-    wxSEH_TRY
++    __try
+     {
+         if ( wnd && wxGUIEventLoop::AllowProcessing(wnd) )
+             rc = wnd->MSWWindowProc(message, wParam, lParam);
+         else
+             rc = ::DefWindowProc(hWnd, message, wParam, lParam);
+     }
+-    wxSEH_HANDLE(0)
++    __except (gs_UnrealCallbacks
++                  ? gs_UnrealCallbacks->WndProcExceptionFilter(GetExceptionInformation())
++                  : EXCEPTION_CONTINUE_SEARCH)
++    {
++        gs_UnrealCallbacks->WndProcUnhandledExceptionCallback();
++    }
+ 
+     return rc;
+ }

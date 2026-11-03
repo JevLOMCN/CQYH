@@ -850,6 +850,27 @@ namespace UnrealBuildTool
 
         void SetupWxWindowsEnvironment()
         {
+            // Opt-in during the wxWidgets 3 port. The legacy tree and its
+            // prebuilt runtime remain available until every editor target works.
+            string WxRoot = Environment.GetEnvironmentVariable("UE3_WX32_ROOT");
+            if (!String.IsNullOrEmpty(WxRoot))
+            {
+                WxRoot = Path.GetFullPath(WxRoot);
+                bool Debug = Configuration == UnrealTargetConfiguration.Debug;
+                string LibraryDirectory = Path.Combine(WxRoot, "lib", Platform == UnrealTargetPlatform.Win64 ? "vc_x64_dll" : "vc_dll");
+                GlobalCPPEnvironment.IncludePaths.Add(Path.Combine(WxRoot, "include"));
+                GlobalCPPEnvironment.IncludePaths.Add(Path.Combine(LibraryDirectory, Debug ? "mswud" : "mswu"));
+                GlobalCPPEnvironment.IncludePaths.Add("../External/wxExtended/wxDockit/include");
+                GlobalCPPEnvironment.Definitions.Add("WXUSINGDLL");
+                GlobalCPPEnvironment.Definitions.Add("UE3_WX32=1");
+                FinalLinkEnvironment.LibraryPaths.Add(LibraryDirectory);
+                string Suffix = Debug ? "ud" : "u";
+                foreach (string Module in new string[] { "core", "aui", "xrc", "richtext", "qa", "media", "html", "adv" })
+                    FinalLinkEnvironment.AdditionalLibraries.Add("wxmsw32" + Suffix + "_" + Module + ".lib");
+                foreach (string Module in new string[] { "", "_net", "_xml" })
+                    FinalLinkEnvironment.AdditionalLibraries.Add("wxbase32" + Suffix + Module + ".lib");
+                return;
+            }
             // Compile and link with wxWidgets.
             GlobalCPPEnvironment.IncludePaths.Add("../External/wxWidgets/include");
             GlobalCPPEnvironment.IncludePaths.Add("../External/wxWidgets/lib/vc_dll");

@@ -3365,6 +3365,34 @@ UBOOL appLoadFileToArray( TArray<BYTE>& Result, const TCHAR* Filename, FFileMana
 //
 void appBufferToString( FString& Result, const BYTE* Buffer, INT Size )
 {
+#if !MMO_ENCRYPT_FILE_CONTENT
+	// Source builds mix plain text with legacy encoded UTF-16 localization.
+	// FW(< is the encoded UTF-16LE BOM followed by '['. Decode a copy so
+	// callers which verify the original file's SHA still see its stored bytes.
+	if (Size >= 4 && !(Size & 1) && Buffer[0] == 0x46 && Buffer[1] == 0x57 && Buffer[2] == 0x28 && Buffer[3] == 0x3c)
+	{
+		BYTE EncodeTable[256];
+		BYTE DecodeTable[256];
+		for (INT i = 0; i < 256; ++i) EncodeTable[i] = (BYTE)i;
+		// Match FArchiveEncode's original Windows rand() sequence locally;
+		// reading a text file must not reseed the application's global RNG.
+		DWORD Seed = 897502;
+		for (INT i = 0; i < 256; ++i)
+		{
+			Seed = Seed * 214013u + 2531011u;
+			const INT Index = ((Seed >> 16) & 0x7fff) % 256;
+			const BYTE Temp = EncodeTable[i];
+			EncodeTable[i] = EncodeTable[Index];
+			EncodeTable[Index] = Temp;
+		}
+		for (INT i = 0; i < 256; ++i) DecodeTable[EncodeTable[i]] = (BYTE)i;
+		TArray<BYTE> Decoded;
+		Decoded.Add(Size);
+		for (INT i = 0; i < Size; ++i) Decoded(i) = DecodeTable[Buffer[i]];
+		appBufferToString(Result, Decoded.GetData(), Size);
+		return;
+	}
+#endif
 	TArray<TCHAR, FStringAllocator>& ResultArray = Result.GetCharArray();
 	ResultArray.Empty();
 

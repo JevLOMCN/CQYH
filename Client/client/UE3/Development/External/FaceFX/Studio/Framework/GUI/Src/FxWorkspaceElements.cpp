@@ -163,7 +163,7 @@ void FxWorkspaceElement::DrawOn(wxDC* pDC, FxBool editMode, FxBool selected)
 	pDC->DrawLine(_tr, _br);
 	pDC->DrawLine(_br, _bl);
 	pDC->DrawLine(_bl, _tl);
-	pDC->SetLogicalFunction(cachedFunction);
+	pDC->SetLogicalFunction(static_cast<decltype(pDC->GetLogicalFunction())>(cachedFunction));
 
 	// Draw the control handles.
 	if( editMode )
@@ -539,7 +539,7 @@ void FxWorkspaceElement::DrawControlHandles(wxDC* pDC, FxBool FxUnused(selected)
 	}
 	pDC->DrawCircle(_mc, 4);
 
-	pDC->SetLogicalFunction(cachedFunction);
+	pDC->SetLogicalFunction(static_cast<decltype(pDC->GetLogicalFunction())>(cachedFunction));
 
 	pDC->DestroyClippingRegion();
 }
@@ -1071,7 +1071,7 @@ void FxWorkspaceElementSlider::DrawOn(wxDC* pDC, FxBool editMode, FxBool selecte
 
 	pDC->SetPen(*wxBLACK_PEN);
 
-	pDC->SetLogicalFunction(cachedFunction);
+	pDC->SetLogicalFunction(static_cast<decltype(pDC->GetLogicalFunction())>(cachedFunction));
 
 	pDC->DestroyClippingRegion();
 

@@ -172,7 +172,11 @@ void WxDlgProgress::SetProgressPercent( INT ProgressNumerator, INT ProgressDenom
 		}
 
 		// No progress denominator, so use 'indeterminate mode'
+		#if UE3_WX32
+		Progress->Pulse();
+#else
 		Progress->SetIndeterminateMode();
+#endif
 
 #if _WINDOWS
 		// Activate marquee progress bar
@@ -182,7 +186,9 @@ void WxDlgProgress::SetProgressPercent( INT ProgressNumerator, INT ProgressDenom
 	}
 	else
 	{
+		#if !UE3_WX32
 		Progress->SetDeterminateMode();
+#endif
 
 #if _WINDOWS
 		// Deactivate marquee progress bar

@@ -715,7 +715,7 @@ void FxCurveWidget::OnPaint( wxPaintEvent& FxUnused(event) )
 					wxPoint( FxTimeManager::TimeToCoord( _selection.GetRight(), clientRect ),
 					ValueToCoord( _selection.GetBottom(), clientRect ) ) );
 				dc.DrawRectangle( selection );
-				dc.SetLogicalFunction( function );
+				dc.SetLogicalFunction( static_cast<decltype(dc.GetLogicalFunction())>(function) );
 			}
 
 			// Clean up

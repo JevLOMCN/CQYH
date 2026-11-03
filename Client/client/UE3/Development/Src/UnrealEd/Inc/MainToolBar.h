@@ -89,13 +89,13 @@ private:
 	WxBitmap RealtimeAudioB;
 	WxBitmap EmulateMobileFeaturesB;
 	WxMaskedBitmap FavoritesB, DisabledFavoritesB;
-	WxMenuButton MRUButton, PasteSpecialButton;
+	WxMenuButton* MRUButton;
 	WxBitmapCheckButton* SelectionModeButton;
 	WxBitmapStateButton* PlayInEditorButton;
 	wxMenu PasteSpecialMenu;
 
 	/** Drop down of all available Matinee sequences in the level */
-	WxMatineeMenuListToolBarButton MatineeListButton;
+	WxMatineeMenuListToolBarButton* MatineeListButton;
 
 	/** 
 	 * A volume slider that pops up when the toggle realtime audio button is right clicked

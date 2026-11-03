@@ -11,6 +11,10 @@ REM incremental MSBuild of the Shipping configuration, which takes about a secon
 REM If MSBuild cannot be found, an already built copy is used instead.
 
 SETLOCAL
+REM The Windows editor uses the pinned wxWidgets 3.2 build by default.
+REM Build-Client.ps1 prepares the libraries before invoking this script.
+IF /I "%2"=="Win32" IF NOT DEFINED UE3_WX32_ROOT FOR %%I IN ("%~dp0..\..\Intermediate\wxWidgets-3.2.12") DO SET "UE3_WX32_ROOT=%%~fI"
+IF /I "%2"=="Win64" IF NOT DEFINED UE3_WX32_ROOT FOR %%I IN ("%~dp0..\..\Intermediate\wxWidgets-3.2.12") DO SET "UE3_WX32_ROOT=%%~fI"
 SET "UBT_DIR=..\Intermediate\UnrealBuildTool"
 SET "UBT=%UBT_DIR%\Shipping\UnrealBuildTool.exe"
 

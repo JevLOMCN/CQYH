@@ -9447,3 +9447,8 @@ bool MContentBrowserControl::DataCheckName(const TArray<UPackage*>& Packages, co
 
 
 
+
+#if UE3_WX32
+// DataBrowser shares the browser types defined in this translation unit.
+#include "DataBrowserCLR.cpp"
+#endif

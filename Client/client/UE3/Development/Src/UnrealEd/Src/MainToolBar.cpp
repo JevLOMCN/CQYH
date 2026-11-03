@@ -169,7 +169,8 @@ WxMainToolBar::WxMainToolBar( wxWindow* InParent, wxWindowID InID )
 
 	// Create special windows
 
-	MRUButton.Create( this, IDPB_MRU_DROPDOWN, &GApp->EditorFrame->GetDownArrowB(), GApp->EditorFrame->GetCombinedMRUFavoritesMenu(), wxPoint(0,0), wxSize(-1,21) );
+	MRUButton = new WxMenuButton();
+	MRUButton->Create( this, IDPB_MRU_DROPDOWN, &GApp->EditorFrame->GetDownArrowB(), GApp->EditorFrame->GetCombinedMRUFavoritesMenu(), wxPoint(0,0), wxSize(-1,21) );
 	//MRUButton.SetToolTip( *LocalizeUnrealEd("ToolTip_20") );
 
 	//PasteSpecialButton.Create( this, IDPB_PASTE_SPECIAL, &GApp->EditorFrame->DownArrowB, &PasteSpecialMenu, wxPoint(0,0), wxSize(-1,21) );
@@ -196,7 +197,7 @@ WxMainToolBar::WxMainToolBar( wxWindow* InParent, wxWindowID InID )
 	AddTool( IDM_NEWMAP, TEXT(""), NewB, *LocalizeUnrealEd("ToolTip_23") );
 	AddTool( IDM_SEARCH_MAPS, TEXT(""), SearchMaps, *LocalizeUnrealEd("ToolTip_Map36") );  //Bruce@snda 
 	AddTool( IDM_OPEN, TEXT(""), OpenB, *LocalizeUnrealEd("ToolTip_24") );
-	AddControl( &MRUButton );
+	AddControl( MRUButton );
 	AddCheckTool( IDM_FAVORITES_TOGGLE_BUTTON, TEXT(""), FavoritesB, DisabledFavoritesB, *LocalizeUnrealEd("MainToolBar_FavoritesButton_ToolTip") );
 	AddTool( IDM_SAVE, TEXT(""), SaveB, *LocalizeUnrealEd("SaveCurrentLevel") );
 	AddTool( IDM_SAVE_ALL_LEVELS, TEXT(""), SaveAllLevelsB, *LocalizeUnrealEd("ToolTip_SaveAllLevels") );
@@ -267,9 +268,10 @@ WxMainToolBar::WxMainToolBar( wxWindow* InParent, wxWindowID InID )
 
 	// Drop-down menu that allows the user to open a Matinee sequence from a list of all of the Matinees in the level
 	{
-		MatineeListButton.Create( this, IDM_MainToolBar_MatineeList, &MatineeListB );
-		MatineeListButton.SetToolTip( *LocalizeUnrealEd( "MainToolBar_MatineeListDropDown" ) );
-		AddControl( &MatineeListButton );
+		MatineeListButton = new WxMatineeMenuListToolBarButton();
+		MatineeListButton->Create( this, IDM_MainToolBar_MatineeList, &MatineeListB );
+		MatineeListButton->SetToolTip( *LocalizeUnrealEd( "MainToolBar_MatineeListDropDown" ) );
+		AddControl( MatineeListButton );
 	}
 
 #if !UDK
@@ -714,7 +716,7 @@ void WxMainToolBar::OnRealTimeAudioRightClick( wxCommandEvent& In )
 void WxMainToolBar::UI_ToggleFavorites( wxUpdateUIEvent& In )
 {
 	FString FileName;
-	const UBOOL bMapFileExists = GPackageFileCache->FindPackageFile( *( GWorld->GetOutermost()->GetName() ), NULL, FileName );
+	const UBOOL bMapFileExists = GWorld && GPackageFileCache->FindPackageFile( *( GWorld->GetOutermost()->GetName() ), NULL, FileName );
 	
 	// Disable the favorites button if the map isn't associated to a file yet (new map, never before saved, etc.)
 	In.Enable( bMapFileExists == TRUE );

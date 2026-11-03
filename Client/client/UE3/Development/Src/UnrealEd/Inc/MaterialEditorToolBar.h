@@ -50,7 +50,7 @@ public:
 	void SetRealtimeExpressionPreview(UBOOL bValue);
 	void SetAlwaysRefreshAllPreviews(UBOOL bValue);
 
-	WxSearchControlNextPrev	SearchControl;
+	WxSearchControlNextPrev* SearchControl;
 protected:
 	WxMaskedBitmap	HideConnectorsB;
 	WxMaskedBitmap	ShowConnectorsB;

@@ -245,7 +245,7 @@ class WxLayerList : public wxCheckListBox
 public:
 	WxLayerList(WxLayerBrowser* Browser, wxSplitterWindow* Parent, wxWindowID Id)
 		:
-		wxCheckListBox(Parent, Id, wxDefaultPosition, wxDefaultSize, 0, wxLB_EXTENDED ),
+		wxCheckListBox(Parent, Id, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED ),
 		ParentBrowser(Browser)
 	{
 	}
@@ -345,7 +345,7 @@ void WxLayerBrowser::Create(INT DockID,const TCHAR* FriendlyName,wxWindow* Paren
 		SplitterWindow = new wxSplitterWindow( this, -1, wxDefaultPosition, wxDefaultSize, wxSP_3D | wxSP_LIVE_UPDATE | wxSP_BORDER );
 		{
 			LayerList = new WxLayerList(this, SplitterWindow, ID_LB_Layers);
-			//LayerList = new wxCheckListBox( SplitterWindow, ID_LB_Layers, wxDefaultPosition, wxDefaultSize, 0, wxLB_EXTENDED );
+			//LayerList = new wxCheckListBox( SplitterWindow, ID_LB_Layers, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED );
 			ActorList = new WxListView( SplitterWindow, ID_LB_ActorList, wxDefaultPosition, wxDefaultSize, wxLC_REPORT );
 			{
 				ActorList->InsertColumn( 0, *LocalizeUnrealEd("Class"), wxLIST_FORMAT_LEFT, 160 );

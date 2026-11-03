@@ -1079,7 +1079,7 @@ FxBool _ReadActorFromXML (const FxString& xmlpath, FxActor* pActor)
 												if( analysisTextElement )
 												{
 													wxString analysisText(analysisTextElement->GetText(), wxConvUTF8);
-													pUserData->SetAnalysisText(FxWString(analysisText.GetData()));
+													pUserData->SetAnalysisText(FxWString(analysisText.wc_str()));
 												}
 											}
 											phonemesNode = animNode->FirstChild( "phonemes" );

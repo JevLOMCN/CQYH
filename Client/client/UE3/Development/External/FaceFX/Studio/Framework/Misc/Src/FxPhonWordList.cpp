@@ -1203,7 +1203,7 @@ FxArchive& operator<<( FxArchive& arc, FxPhonInfo& phonInfo )
 
 FxArchive& operator<<( FxArchive& arc, FxWordInfo& wordInfo )
 {
-	FxWString tempword(wordInfo.text.GetData());
+	FxWString tempword(wordInfo.text.wc_str());
 	arc << tempword << wordInfo.first << wordInfo.last;
 	wordInfo.text = wxString(tempword.GetData());
 	return arc;
@@ -1241,7 +1241,7 @@ void FxPhonWordList::Serialize( FxArchive& arc )
 		for( FxSize i = 0; i < arrayLen; ++i )
 		{
 			FxWordInfo wordInfo;
-			FxString tempword(wordInfo.text.mb_str(wxConvLibc));
+			FxString tempword(wordInfo.text.mb_str(wxConvLibc).data());
 			arc << tempword << wordInfo.first << wordInfo.last;
 			wordInfo.text = wxString::FromAscii(tempword.GetData());
 			_words.PushBack(wordInfo);
@@ -1280,7 +1280,7 @@ FxBool FxPhonWordList::Proof()
 		if( _words[i].first >= _phonemes.Length() ||
 			_words[i].last >= _phonemes.Length() )
 		{
-			FxWarn("Corruption detected in phoneme list: word %s (index %d) refers to phonemes off the end of the list. The offending word has been removed.", _words[i].text.mb_str(wxConvLibc), i + numOffenders);
+			FxWarn("Corruption detected in phoneme list: word %s (index %d) refers to phonemes off the end of the list. The offending word has been removed.", _words[i].text.mb_str(wxConvLibc).data(), i + numOffenders);
 			_words.Remove(i);
 			--i;
 			++numOffenders;
@@ -1290,7 +1290,7 @@ FxBool FxPhonWordList::Proof()
 		if( (i > 0 && _words[i].first <= _words[i-1].last) ||
 			(i < _words.Length() - 1 && _words[i].last >= _words[i+1].first) )
 		{
-			FxWarn("Corruption detected in phoneme list: word %s (index %d) overlaps an adjacent phoneme. The offending word has been removed.", _words[i].text.mb_str(wxConvLibc), i + numOffenders);
+			FxWarn("Corruption detected in phoneme list: word %s (index %d) overlaps an adjacent phoneme. The offending word has been removed.", _words[i].text.mb_str(wxConvLibc).data(), i + numOffenders);
 			_words.Remove(i);
 			--i;
 			++numOffenders;

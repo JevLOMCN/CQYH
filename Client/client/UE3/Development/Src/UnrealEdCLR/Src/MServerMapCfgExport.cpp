@@ -5,6 +5,10 @@
 #include "UnrealEdCLR.h"
 #include "MServerMapCfgExport.h"
 
+#if UE3_WX32 && WITH_MANAGED_CODE
+#include "ManagedCodeSupportCLR.h"
+#endif
+
 #if WITH_EDITOR
 
 void MServerMapCfgExport::ExportToExcel(
