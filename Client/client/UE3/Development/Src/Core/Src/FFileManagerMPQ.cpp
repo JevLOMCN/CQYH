@@ -164,7 +164,7 @@ UBOOL FArchiveFileReaderMPQ::InternalPrecache( INT PrecacheOffset, INT PrecacheS
 		{
 			SCOPED_FILE_IO_READ_STATS( StatsHandle, BufferCount, Pos );
 			SFileReadFile(Handle, Buffer, BufferCount, &Count, NULL);
-			FArchiveEncode::Decode(Buffer, BufferCount); // oscar@snda
+			FArchiveEncode::DecodeAlways(Buffer, BufferCount); // oscar@snda
 		}
 
 		if( Count!=BufferCount )
@@ -234,7 +234,7 @@ void FArchiveFileReaderMPQ::Serialize( void* V, INT Length )
 
 					SFileReadFile(Handle, V, Length, (DWORD*)&Count, &o);
 					
-					FArchiveEncode::Decode((BYTE*)V, Length); // oscar@snda
+					FArchiveEncode::DecodeAlways((BYTE*)V, Length); // oscar@snda
 				}
 				if( Count!=Length )
 				{
@@ -1034,7 +1034,17 @@ FArchive* FFileManagerMPQ::InternalCreateFileReader( const TCHAR* FilenameSrc, D
 	SCOPED_FILE_IO_READ_OPEN_STATS( StatsHandle );
 
 	HANDLE hArchive = NULL;
-	HANDLE hFile = GetFileHandleByName(Filename, Flags, Error, hArchive);
+	// The pak copies of the Config tables are an older retail version; prefer the loose (plain) file when present.
+	HANDLE hFile = NULL;
+	{
+		FString LooseName( Filename );
+		LooseName = LooseName.ToUpper();
+		const UBOOL bConfigFile = LooseName.InStr( TEXT("\\CONFIG\\") ) != INDEX_NONE || LooseName.InStr( TEXT("/CONFIG/") ) != INDEX_NONE;
+		if( !bConfigFile || GetFileAttributesW( Filename ) == INVALID_FILE_ATTRIBUTES )
+		{
+			hFile = GetFileHandleByName(Filename, Flags, Error, hArchive);
+		}
+	}
 
 	//ConvertToAbsolutePath()
 	

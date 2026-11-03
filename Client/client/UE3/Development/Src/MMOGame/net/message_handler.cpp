@@ -303,6 +303,7 @@ void CMessageHandler::OnConnected(ISocketSession* pSocketSession)
 			warnf( NAME_Log, TEXT("=====####========== [CMessageHandler::OnConnected] Send Login [%x]"), ((SimpleNet::CSocketSession*)pSocketSession)->m_nSockedFD );
 			C2T_LOGIN_REQ msg; //= (C2T_LOGIN_REQ*)ms_MsgBuffer;
 
+			memset(&msg, 0, sizeof(msg)); // szPassword etc. were left uninitialized
 			msg.wMsg = c2t_login_req;
 			//msg->wSize = sizeof(C2T_LOGIN_REQ);
 			msg.byGroup = g_loginServerGroup;
@@ -322,6 +323,7 @@ void CMessageHandler::OnConnected(ISocketSession* pSocketSession)
 
 			//msg->wInfoLen = 0;
 			strxcpy(msg.szUserName, _UserName, USER_NAME_LEN);
+			strxcpy(msg.szPassword, _PW, USER_PASSWORD_LEN);
 			//strxcpy(msg.szUserType, L"TEST_TYPE_1", USER_TYPE_LEN);
 
 			if(g_isSDOLogin)

@@ -111,8 +111,9 @@ void CMessageHandler::Parse_b2c_query_gate_ack(const char* buf, UINT32 size)
 	B2C_QUERY_GATE_ACK *msg = (B2C_QUERY_GATE_ACK*)buf;
 
 
-	if (msg->dwAddr != 20200930)
-		return;
+	// 20200930 is the seller's legacy handshake (gate IP then comes from -ip=, port fixed to 8702).
+	// Any other reply is a normal balance-server answer: use the gate address and port it sends.
+	const UBOOL bLegacyMagic = (msg->dwAddr == 20200930);
 
 	// 不为空说明之前有连上过
 	if(m_dwServerIP != INADDR_NONE)
@@ -166,6 +167,11 @@ void CMessageHandler::Parse_b2c_query_gate_ack(const char* buf, UINT32 size)
 	else
 	{
 		m_dwPort = 8702;
+	}
+	if(!bLegacyMagic)
+	{
+		m_dwServerIP = msg->dwAddr;
+		m_dwPort = msg->wPort;
 	}
 
 	SET_WARN_COLOR(COLOR_CYAN);
