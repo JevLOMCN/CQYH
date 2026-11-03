@@ -298,11 +298,11 @@ void appRequestExit( UBOOL Force )
 	debugf( TEXT("appRequestExit(%i)"), Force );
 	if( Force )
 	{
-		// Force immediate exit.
-		// Dangerous because config code isn't flushed, global destructors aren't called, etc.
-		// Suppress abort message and MS reports.
-		_set_abort_behavior( 0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT );
-		abort();
+		// The fatal-error handler has already flushed its diagnostics. abort()
+		// enters ExitProcess/DLL teardown, which can deadlock in a mixed CLR
+		// editor after other threads have been terminated. Forced exit must
+		// bypass DLL detach callbacks and signal the process handle promptly.
+		::TerminateProcess(::GetCurrentProcess(), 3);
 	}
 	else
 	{
