@@ -203,6 +203,61 @@ The source editor uses wxWidgets 3.2.12 with UE3's window callbacks and event-lo
 
 Verified on 2026-11-02: all four editors loaded the rebuilt source login map, remained responsive, and exited with code 0. A normal game launch reported `bMapNeedsLightingFullyRebuilt=False` and `bPathsRebuilt=True` for `login_n`, `Login_n_MS`, `halfshowlevel`, and `pawnshowlevel_handbook`. Evidence is recorded in `Development\Intermediate\MapRebuild\verification.json`.
 
+### In-game console and debug commands
+
+**Opening the console.** The client has a one-line typing console. Press the key bound to `TypeKey=Tilde` (`[Engine.Console]` in `MMOGame\Config\DefaultInput.ini` / the generated `MMOInput.ini`). A prompt appears at the bottom of the screen; type a command and press Enter.
+
+| Keyboard | Key to press |
+|---|---|
+| US | `` ` `` / `~` (top left, under Esc) |
+| UK | `'` / `@` (the key to the left of `#`). The `#` / `~` key is a different key code (`Quote`) and does **nothing** |
+
+The engine matches the key by its Windows key code, not by the character printed on it, so other layouts may differ. To use a different key, change `TypeKey=` in `MMOInput.ini` (generated and gitignored, so local only) or in `DefaultInput.ini` to share it. For example `TypeKey=Quote` selects the UK `#` key. Exit the game before editing, because the engine rewrites `MMOInput.ini` on exit.
+
+The commands below come from the client source (`MMOGame\Classes\MMOPlayerController.uc`, `Engine\Src`) and are for development builds such as `MMOGame.exe`. Most `Test*` and `Debug*` helpers are the original developers' test hooks; they may talk to the server or assume a particular map.
+
+**Diagnostics and rendering**
+
+| Command | What it does |
+|---|---|
+| `DisWarn` | Toggle the on-screen map warnings (`LIGHTING NEEDS TO BE REBUILT`, `PATHS NEED TO BE REBUILT`) |
+| `stat fps` | Frame-rate counter |
+| `scale set RenderHDR true` / `false` | Turn the HDR tone mapper on or off, to compare brightness (add `-nowrite` to the launch so it is not saved) |
+| `RecompileShaders Changed` | Recompile the shaders that changed (needed after editing `.usf` files in a source client) |
+| `getall <Class> <Property>` | Print a property on every instance, e.g. `getall WorldInfo bMapNeedsLightingFullyRebuilt` or `bPathsRebuilt` |
+| `ToggleLightEnvironment`, `ToggleWaterTess`, `ShowPostPPName` | Rendering debug toggles |
+| `ShowGridFlag`, `ShowNavMeshDistance`, `DrawNpcInfo`, `DebugShowPos`, `ShowState` | Overlay information about the pathfinding grid, NPCs, position and state |
+
+**Maps, scenes and movement**
+
+| Command | What it does |
+|---|---|
+| `LoadMap <name>` / `LoadLevel <name>` | Load a map or streaming level by name |
+| `KismetRemoteEvent <name>` | Fire a Kismet remote event in the current map |
+| `TeleportInMap <x> <y> <z>` | Move the player inside the current map |
+| `SetMoveSpeed <n>`, `ChangeMoveMode <n>`, `SetTimeRate <n>` | Player speed, movement mode and time dilation |
+| `StartRain` / `StopRain`, `StartSnow` / `StopSnow`, `StartStorm` / `StopStorm`, `StartLightning` / `StopLightning`, `EnableWeather <true/false>` | Weather effects |
+
+**UI, camera and gameplay tests**
+
+| Command | What it does |
+|---|---|
+| `ShowUI <name>`, `ShowAllUI`, `TestShowPanelEx <panel> <true/false>` | Show UI panels |
+| `CamFov`, `CamLookAtOffset`, `CamPitchOffset`, `CamYawOffset`, `CamMode <mode>` (and the matching `ShowCam...`) | Adjust and inspect the camera |
+| `TestAcceptQuest <id>`, `TestCompleteQuest <id>`, `TestAbandonQuest <id>`, `TestPopupQuest <id> <accept> <share> <srcId>` | Quest dialog tests |
+| `TestMount <id>`, `ShowShop <templateId>`, `HideHelmet <true/false>` | Mount, shop and appearance tests |
+| `Login <account>`, `LoginCreateRole <name> <classId> <sex>` | Log in or create a character from the console |
+
+The engine also provides the standard Unreal commands (`show`, `stat`, `viewmode`, `getall`, `set`, and so on). To list everything the source defines, search the sources for `exec function` and for `ParseCommand`.
+
+**Launch switches that help with lighting and HDR** (add them to the client command line):
+
+| Switch | What it does |
+|---|---|
+| `-TraceLightingInvalidation` | Log the first lights and primitives whose static lighting is not cached (the cause of the `LIGHTING NEEDS TO BE REBUILT` banner) |
+| `-TraceHDR` | Log the HDR exposure controls and GPU luminance for the first 1,800 HDR frames |
+| `-nowrite` | Do not save changed settings on exit |
+
 ### Opening the archived prebuilt map editor
 
 The archived release includes the **prebuilt 2025 "Win32 - Modified and Compiled" map editor**, intended to run against the full client tree. Use the source-build workflow above for current builds; the following steps preserve the historical bundle setup. It is not an editor built from this source: that is what the release's `Map Editor Tool Description` describes. The steps below are the setup of a contributor who runs it successfully (`MMOGame.exe editor -log -NoGADWarning -dx9 -LANGUAGE=ENG`). The editor binaries are build output and are not in git.
