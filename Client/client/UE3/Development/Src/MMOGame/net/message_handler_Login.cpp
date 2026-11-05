@@ -453,7 +453,7 @@ void CMessageHandler::Parse_t2c_login_ack(const char* buf, UINT32 size)
 		}*/
 		FString sName;
 		sName = _UserName;
-		sName += FString("--");
+		sName += FString(" -- ");
 		sName += MMOFacade::getSingleton().GetMMOAppName();
 		::SetWindowText(GGameWindow, *sName );	
 	}	

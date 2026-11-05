@@ -1870,12 +1870,12 @@ void MMOFacade::IniMMOAppName()
 	const FString RHIName = ShaderPlatformToText( GRHIShaderPlatform, TRUE, TRUE );
 	FString GameVer = FString::Printf(TEXT("%s - %d"), MMO_GAME_VER_DISPLAY, BUILD_NUMBER ); // oscar@snda
 #if SHIPPING_PC_GAME
-	FString appName = FString::Printf( TEXT( "%s [%s] ¡¾%s¡¿%s %s" ),
+	FString appName = FString::Printf( TEXT( "%s [%s] [%s] %s %s" ),
 		*GameName, *GameVer, *g_loginServerName, (GSystemSettings.bUseVSync ? TEXT("VSYNC") : TEXT("")), (M_MMO_HD ? TEXT("HD") : TEXT("Lite"))); 
 #else
-	FString appName = FString::Printf( TEXT( "%s [%s] (%s)[%s] ¡¾%s¡¿¡¾%d¡¿×é %s %s" ),
+	FString appName = FString::Printf( TEXT( "%s [%s] (%s)[%s] [%s] [%d] Group %s%s" ),
 		*GameName, *GameVer, *RHIName, *BuildConfig, *g_loginServerName, g_loginServerGroup,
-		(GSystemSettings.bUseVSync ? TEXT("VSYNC") : TEXT("")), (M_MMO_HD ? TEXT("HD") : TEXT("Lite"))) ; 
+		(GSystemSettings.bUseVSync ? TEXT("VSYNC - ") : TEXT("")), (M_MMO_HD ? TEXT("HD") : TEXT("Lite"))) ; 
 #endif
 
 	mMMOAppName = appName ;

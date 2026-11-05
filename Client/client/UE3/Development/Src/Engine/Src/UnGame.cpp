@@ -294,10 +294,10 @@ void UGameEngine::Init()
 			extern FString g_loginServerName;
 
 #if !SHIPPING_PC_GAME
-			const FString AppName = FString::Printf( TEXT( "%s [%s] (%s-bit, %s %s)¡¾%s¡¿" ), 
+			const FString AppName = FString::Printf( TEXT( "%s [%s] (%s-bit, %s %s) [%s]" ), 
 				*GameName, *GameVer, *PlatformBitsString, *RHIName, (M_MMO_HD ? TEXT("HD") : TEXT("Lite")), *g_loginServerName); // oscar@snda
 #else
-			const FString AppName = FString::Printf( TEXT( "%s [%s] (%s %s)¡¾%s¡¿" ),
+			const FString AppName = FString::Printf( TEXT( "%s [%s] (%s %s) [%s]" ),
 				*GameName, *GameVer, *RHIName, (M_MMO_HD ? TEXT("HD") : TEXT("Lite")), *g_loginServerName); // oscar@snda
 #endif
 
