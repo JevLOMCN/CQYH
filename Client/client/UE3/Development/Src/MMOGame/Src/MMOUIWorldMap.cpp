@@ -835,12 +835,18 @@ void UMMOUIWorldMap::UpdateMapStaticMarks( FVector centerPos3D, float fYawDeg )
 				//2
 				if( dataProvider != NULL ){
 					UGFxObject* itemSingleObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapIconUpdateData") );
-					itemSingleObj->SetObject( TEXT("newMarkObj"), pUiObj );
-					itemSingleObj->SetInt( TEXT("id"), pStaticMark->_ID );
-					itemSingleObj->SetInt( TEXT("type"), pStaticMark->_Type );
-					itemSingleObj->SetString( TEXT("frameName"), pStaticMark->_UiIconIdx);
-					dataProvider->SetElementObject( loopAddedCnt, itemSingleObj );
-					++loopAddedCnt;
+					if( itemSingleObj == NULL ){
+						// The world map SWF has no MapIconUpdateData class: init the mark directly instead of crashing
+						eventInitMapMark( pUiObj, pStaticMark->_ID, pStaticMark->_Type, pStaticMark->_UiIconIdx );
+					}
+					else{
+						itemSingleObj->SetObject( TEXT("newMarkObj"), pUiObj );
+						itemSingleObj->SetInt( TEXT("id"), pStaticMark->_ID );
+						itemSingleObj->SetInt( TEXT("type"), pStaticMark->_Type );
+						itemSingleObj->SetString( TEXT("frameName"), pStaticMark->_UiIconIdx);
+						dataProvider->SetElementObject( loopAddedCnt, itemSingleObj );
+						++loopAddedCnt;
+					}
 				}
 			}
 		}//end of if need update
@@ -931,12 +937,18 @@ void UMMOUIWorldMap::UpdateMarksNearPlayer( FVector centerPos3D, float fYawDeg )
 			//2
 			if( dataProvider != NULL ){
 				UGFxObject* itemSingleObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapIconUpdateData") );
-				itemSingleObj->SetObject( TEXT("newMarkObj"), pUiObj );
-				itemSingleObj->SetInt( TEXT("id"), pDynmActor->_ID );
-				itemSingleObj->SetInt( TEXT("type"), pDynmActor->_Type );
-				itemSingleObj->SetString( TEXT("frameName"), pDynmActor->_UiIconIdx);
-				dataProvider->SetElementObject( loopAddedCnt, itemSingleObj );
-				++loopAddedCnt;
+				if( itemSingleObj == NULL ){
+					// The world map SWF has no MapIconUpdateData class: init the mark directly instead of crashing
+					eventInitMapMark( pUiObj, pDynmActor->_ID, pDynmActor->_Type, pDynmActor->_UiIconIdx );
+				}
+				else{
+					itemSingleObj->SetObject( TEXT("newMarkObj"), pUiObj );
+					itemSingleObj->SetInt( TEXT("id"), pDynmActor->_ID );
+					itemSingleObj->SetInt( TEXT("type"), pDynmActor->_Type );
+					itemSingleObj->SetString( TEXT("frameName"), pDynmActor->_UiIconIdx);
+					dataProvider->SetElementObject( loopAddedCnt, itemSingleObj );
+					++loopAddedCnt;
+				}
 			}
 		}//end of if need update
 
