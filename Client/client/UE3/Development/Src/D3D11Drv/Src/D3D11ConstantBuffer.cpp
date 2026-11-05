@@ -55,7 +55,7 @@ void FD3D11ConstantBuffer::InitDynamicRHI()
 	TRefCountPtr<ID3D11Buffer> CBuffer = NULL;
 	D3D11_BUFFER_DESC BufferDesc;
 	// Verify constant buffer ByteWidth requirements
-	check(MaxSize <= D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT && (MaxSize % 16) == 0);
+	check(MaxSize <= D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * 16 && (MaxSize % 16) == 0); // the limit is in 16 byte elements, not bytes
 	BufferDesc.ByteWidth = MaxSize;
 	
 	BufferDesc.Usage = D3D11_USAGE_DEFAULT;

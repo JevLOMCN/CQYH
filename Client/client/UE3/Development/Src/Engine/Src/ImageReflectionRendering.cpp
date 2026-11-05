@@ -790,7 +790,7 @@ public:
 
 	void SetParameters(const FViewInfo& View)
 	{
-#if PLATFORM_SUPPORTS_D3D10_PLUS
+#if PLATFORM_SUPPORTS_D3D10_PLUS && WITH_D3D11_TESSELLATION // geometry-shader/bokeh image reflections need the tessellation-era engine code
 		const UINT BufferSizeX = GSceneRenderTargets.GetBufferSizeX();
 		const UINT BufferSizeY = GSceneRenderTargets.GetBufferSizeY();
 		const UINT HalfSizeX = BufferSizeX / 2;
@@ -1415,7 +1415,7 @@ extern UBOOL	GNV_AllowGBuffers;
 /** Renders deferred image reflections. */
 UBOOL FSceneRenderer::RenderImageReflections(UINT DPGIndex)
 {
-#if PLATFORM_SUPPORTS_D3D10_PLUS
+#if PLATFORM_SUPPORTS_D3D10_PLUS && WITH_D3D11_TESSELLATION // geometry-shader/bokeh image reflections need the tessellation-era engine code
 	if(
 		( DPGIndex == SDPG_World )
 // NVCHANGE_BEGIN_JC - Performance Optimization

@@ -780,7 +780,8 @@ void FShaderCompilingThreadManager::BeginCompilingThreadLoop(UINT CurrentThreadI
 				ShaderCompileErrorCounter.Increment();
 			}
 
-			if (!IsMultiThreadedCompile())
+			// SM5 jobs are compiled in-process (see D3D11ShaderCompiler.cpp), so their result is already known.
+			if (!IsMultiThreadedCompile() || CurrentJob.Target.Platform == SP_PCD3D_SM5)
 			{
 				CurrentJob.bSucceeded = BeginCompileResult;
 			}
@@ -1193,6 +1194,11 @@ void FShaderCompilingThreadManager::FinishCompiling(TArray<TRefCountPtr<FShaderC
 			if (bDebugDump || (UINT)CompileQueue.Num() < ThreadedShaderCompileThreshold)
 			{
 				NumShaderCompilingThreads = 1;
+			}
+			// SM5 compiles run inside this (32-bit) process, so limit how many run at once to keep the address space in check.
+			if (CompileQueue.Num() > 0 && CompileQueue(0)->Target.Platform == SP_PCD3D_SM5)
+			{
+				NumShaderCompilingThreads = Min<INT>(NumShaderCompilingThreads, 3);
 			}
 
 			NextShaderToBeginCompiling.Reset();

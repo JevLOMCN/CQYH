@@ -88,7 +88,7 @@ DEFINE_RHIMETHOD(
 DEFINE_RHIMETHOD(FPixelShaderRHIRef,CreatePixelShader,(const TArray<BYTE>& Code),(Code),return,return new TNullRHIResource<RRT_PixelShader>(););
 DEFINE_RHIMETHOD(FVertexShaderRHIRef,CreateVertexShader,(const TArray<BYTE>& Code),(Code),return,return new TNullRHIResource<RRT_VertexShader>(););
 
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS // DX10+ driver methods (hull/domain/geometry/compute); tessellation use itself stays behind WITH_D3D11_TESSELLATION
 DEFINE_RHIMETHOD(FHullShaderRHIRef,CreateHullShader,(const TArray<BYTE>& Code),(Code),return,return new TNullRHIResource<RRT_HullShader>(););
 DEFINE_RHIMETHOD(FDomainShaderRHIRef,CreateDomainShader,(const TArray<BYTE>& Code),(Code),return,return new TNullRHIResource<RRT_DomainShader>(););
 
@@ -1145,7 +1145,7 @@ DEFINE_RHIMETHOD(
 				 );
 
 
-#if WITH_D3D11_TESSELLATION && PLATFORM_SUPPORTS_D3D10_PLUS // oscar@snda
+#if PLATFORM_SUPPORTS_D3D10_PLUS // oscar@snda
 /**
  * Sets sampler state.
  *
@@ -1473,7 +1473,7 @@ DEFINE_RHIMETHOD(
 	 ,
 	 );
 
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS // DX10+ driver methods (hull/domain/geometry/compute); tessellation use itself stays behind WITH_D3D11_TESSELLATION
 
 DEFINE_RHIMETHOD(
 	 void,

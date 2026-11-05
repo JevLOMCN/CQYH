@@ -4,7 +4,7 @@
 =============================================================================*/
 
 /** Size of the default constant buffer. */
-#define MAX_GLOBAL_CONSTANT_BUFFER_SIZE		4096
+#define MAX_GLOBAL_CONSTANT_BUFFER_SIZE		16384 // stock is 4096; this project's shaders need up to ~4.5 KB (D3D11 allows 64 KB)
 
 /** Size of the image reflection constant buffers. */
 #define MAX_IR_CONSTANT_BUFFER_SIZE			4096

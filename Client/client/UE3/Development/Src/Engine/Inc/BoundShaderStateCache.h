@@ -19,7 +19,7 @@ public:
 		DWORD* InStreamStrides, 
 		FVertexShaderRHIParamRef InVertexShader, 
 		FPixelShaderRHIParamRef InPixelShader
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 		,FHullShaderRHIParamRef InHullShader = NULL,
 		FDomainShaderRHIParamRef InDomainShader = NULL,
 		FGeometryShaderRHIParamRef InGeometryShader = NULL
@@ -28,7 +28,7 @@ public:
 		: VertexDeclaration(InVertexDeclaration)
 		, VertexShader(InVertexShader)
 		, PixelShader(InPixelShader)
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 		, HullShader(InHullShader)
 		, DomainShader(InDomainShader)
 		, GeometryShader(InGeometryShader)
@@ -50,7 +50,7 @@ public:
 		return	A.VertexDeclaration == B.VertexDeclaration && 
 			A.VertexShader == B.VertexShader && 
 			A.PixelShader == B.PixelShader && 
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 			A.HullShader == B.HullShader &&
 			A.DomainShader == B.DomainShader &&
 			A.GeometryShader == B.GeometryShader &&
@@ -68,7 +68,7 @@ public:
 		return GetTypeHash(Key.VertexDeclaration) ^
 			GetTypeHash(Key.VertexShader) ^
 			GetTypeHash(Key.PixelShader) ^
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 			GetTypeHash(Key.HullShader) ^
 			GetTypeHash(Key.DomainShader) ^
 			GetTypeHash(Key.GeometryShader) ^
@@ -103,7 +103,7 @@ private:
 	FPixelShaderRHIRef PixelShader;
 #endif
 
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 	/** hs for this combination */
 	FHullShaderRHIRef HullShader;
 	/** ds for this combination */
@@ -139,7 +139,7 @@ public:
 		FBoundShaderStateRHIParamRef InBoundShaderState
 		);
 
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 
 	/** Adds the bound shader state to the cache. */
 	FCachedBoundShaderStateLink(
@@ -171,7 +171,7 @@ extern FCachedBoundShaderStateLink* GetCachedBoundShaderState(
 	DWORD* StreamStrides,
 	FVertexShaderRHIParamRef VertexShader,
 	FPixelShaderRHIParamRef PixelShader
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 	,FHullShaderRHIRef HullShader = NULL,
 	FDomainShaderRHIRef DomainShader = NULL,
 	FGeometryShaderRHIRef GeometryShader = NULL

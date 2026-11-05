@@ -15,7 +15,7 @@ static FBoundShaderStateCache& GetBoundShaderStateCache()
 	return BoundShaderStateCache;
 }
 
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 FCachedBoundShaderStateLink::FCachedBoundShaderStateLink(
 	FVertexDeclarationRHIParamRef VertexDeclaration,
 	DWORD* StreamStrides,
@@ -58,7 +58,7 @@ FCachedBoundShaderStateLink* GetCachedBoundShaderState(
 	DWORD* StreamStrides,
 	FVertexShaderRHIParamRef VertexShader,
 	FPixelShaderRHIParamRef PixelShader
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 	,FHullShaderRHIRef HullShader
 	,FDomainShaderRHIRef DomainShader
 	,FGeometryShaderRHIRef GeometryShader
@@ -68,7 +68,7 @@ FCachedBoundShaderStateLink* GetCachedBoundShaderState(
 	// Find the existing bound shader state in the cache.
 	return GetBoundShaderStateCache().FindRef(
 		FBoundShaderStateKey(VertexDeclaration,StreamStrides,VertexShader,PixelShader
-#if WITH_D3D11_TESSELLATION
+#if PLATFORM_SUPPORTS_D3D10_PLUS
 			, HullShader, DomainShader, GeometryShader
 #endif
 			)

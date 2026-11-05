@@ -94,7 +94,7 @@
 #endif
 
 /** Compile out some functionality/ book keeping if we don't support D3D10/D3D11 */
-#define PLATFORM_SUPPORTS_D3D10_PLUS 0 //OSCAR (PLATFORM_DESKTOP && !CONSOLE)
+#define PLATFORM_SUPPORTS_D3D10_PLUS (PLATFORM_DESKTOP && !CONSOLE)
 
 // set up MOBILE platforms (add any others here)
 #if IPHONE || ANDROID || NGP || FLASH

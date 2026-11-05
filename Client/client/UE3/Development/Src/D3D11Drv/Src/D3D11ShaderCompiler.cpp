@@ -18,6 +18,53 @@
 #pragma pack(pop)
 
 /**
+ * The SM5 HLSL compiler rejects structs that are not fully initialised (error X3508), which the SM3 compiler tolerated.
+ * Several vertex factories fill a local FMaterialPixelParameters member by member, and this project added members to it,
+ * so zero-initialise every local "FMaterialPixelParameters X;" declaration before compiling for SM5. Only the source text
+ * handed to the D3D11 compiler is changed; the .usf files (and therefore the SM3 shader hashes) are untouched.
+ */
+static FString D3D11ZeroInitMaterialPixelParameters(const FString& Source)
+{
+	static const TCHAR* Needle = TEXT("FMaterialPixelParameters");
+	static const INT NeedleLength = 24;
+	const TCHAR* Base = *Source;
+	FString Output;
+	INT Copied = 0;
+	const TCHAR* Search = Base;
+	while((Search = appStrstr(Search, Needle)) != NULL)
+	{
+		const TCHAR* Cursor = Search + NeedleLength;
+		const TCHAR* AfterType = Cursor;
+		while(*Cursor == TEXT(' ') || *Cursor == TEXT('\t')) { Cursor++; }
+		if(Cursor == AfterType)
+		{
+			// Longer identifier that merely starts with the type name.
+			Search = AfterType;
+			continue;
+		}
+		const TCHAR* NameStart = Cursor;
+		while(appIsAlnum(*Cursor) || *Cursor == TEXT('_')) { Cursor++; }
+		if(Cursor == NameStart)
+		{
+			Search = AfterType;
+			continue;
+		}
+		const TCHAR* NameEnd = Cursor;
+		while(*Cursor == TEXT(' ') || *Cursor == TEXT('\t')) { Cursor++; }
+		if(*Cursor == TEXT(';'))
+		{
+			// A local declaration without an initializer.
+			const INT NameEndIndex = (INT)(NameEnd - Base);
+			Output += Source.Mid(Copied, NameEndIndex - Copied);
+			Output += TEXT(" = (FMaterialPixelParameters)0");
+			Copied = NameEndIndex;
+		}
+		Search = Cursor;
+	}
+	Output += Source.Mid(Copied);
+	return Output;
+}
+/**
  * An implementation of the D3DX include interface to access a FShaderCompilerEnvironment.
  */
 class FD3D11IncludeEnvironment : public ID3DInclude
@@ -55,6 +102,12 @@ public:
 			else
 			{
 				FileContents = LoadShaderSourceFile(*Filename);
+			}
+
+			// SM5 only: make sure locals of the material pixel parameter struct are fully initialised (see above).
+			if(FileContents.InStr(TEXT("FMaterialPixelParameters")) != INDEX_NONE)
+			{
+				FileContents = D3D11ZeroInitMaterialPixelParameters(FileContents);
 			}
 
 			// Convert the file contents to ANSI.
@@ -333,7 +386,15 @@ static void D3D11BeginCompilingShaderThroughWorker(
 	WorkerInputAppendValue(CompileFlags, WorkerInput);
 	WorkerInputAppendMemory(IncludePath, appStrlen(IncludePath) * sizeof(CHAR), WorkerInput);
 
-	Environment.AddIncludesForWorker(WorkerInput);
+	// SM5 only: give the worker a vertex factory file whose FMaterialPixelParameters locals are zero-initialised
+	// (see D3D11ZeroInitMaterialPixelParameters). The worker reads VertexFactory.usf from this include map.
+	FShaderCompilerEnvironment WorkerEnvironment(Environment);
+	if (WorkerEnvironment.VFFileName)
+	{
+		WorkerEnvironment.IncludeFiles.Set(TEXT("VertexFactory.usf"), D3D11ZeroInitMaterialPixelParameters(LoadShaderSourceFile(WorkerEnvironment.VFFileName)));
+		WorkerEnvironment.VFFileName = NULL;
+	}
+	WorkerEnvironment.AddIncludesForWorker(WorkerInput);
 
 	INT NumMacros = Macros.Num() - 1;
 	WorkerInputAppendValue(NumMacros, WorkerInput);
@@ -860,7 +921,9 @@ UBOOL D3D11BeginCompileShader(
 		TerminatorMacro->Definition = NULL;
 
 		// If this is a multi threaded compile, we must use the worker, otherwise compile the shader directly.
-		if (GShaderCompilingThreadManager->IsMultiThreadedCompile())
+		// SM5 jobs are always compiled in-process on the calling shader compile thread. The prebuilt UE3ShaderCompileWorker.exe
+		// uses an older HLSL compiler that rejects this project's shaders (X3508), and it does not honour the source fix-ups.
+		if (FALSE && GShaderCompilingThreadManager->IsMultiThreadedCompile())
 		{
 			D3D11BeginCompilingShaderThroughWorker(
 				JobId,

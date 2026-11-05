@@ -1703,7 +1703,13 @@ void SaveLocalShaderCache(EShaderPlatform Platform, const TCHAR* OverrideCacheFi
 			}
 			else
 			{
-				ShaderCachePackage->PackageFlags |= PKG_ServerSideOnly | PKG_StoreCompressed;
+				ShaderCachePackage->PackageFlags |= PKG_ServerSideOnly;
+				// The SM5 cache grows large and is saved by a 32-bit process that is already short of address space,
+				// so keep it uncompressed: compressing it needs large extra buffers and ran the process out of memory.
+				if (Platform != SP_PCD3D_SM5)
+				{
+					ShaderCachePackage->PackageFlags |= PKG_StoreCompressed;
+				}
 			}
 
 			if( OverrideCacheFilename )

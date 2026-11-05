@@ -53,7 +53,7 @@ namespace UnrealBuildTool
 			GlobalCPPEnvironment.IncludePaths.Add("OnlineSubsystemPC/Inc");
 			GlobalCPPEnvironment.IncludePaths.Add("WinDrv/Inc");
 			GlobalCPPEnvironment.IncludePaths.Add("D3D9Drv/Inc");
-			//oscar GlobalCPPEnvironment.IncludePaths.Add("D3D11Drv/Inc");
+			GlobalCPPEnvironment.IncludePaths.Add("D3D11Drv/Inc");
             //oscar GlobalCPPEnvironment.IncludePaths.Add("OpenGLDrv/Inc");
 			GlobalCPPEnvironment.IncludePaths.Add("XAudio2/Inc");
 			GlobalCPPEnvironment.IncludePaths.Add("Launch/Inc");
@@ -644,7 +644,7 @@ namespace UnrealBuildTool
             }
             else
             {
-                //oscar NonGameProjects.Add(new UE3ProjectDesc("D3D11Drv/D3D11Drv.vcxproj"));
+                NonGameProjects.Add(new UE3ProjectDesc("D3D11Drv/D3D11Drv.vcxproj"));
 				NonGameProjects.Add(new UE3ProjectDesc("D3D9Drv/D3D9Drv.vcxproj"));
                 //oscar NonGameProjects.Add(new UE3ProjectDesc("OpenGLDrv/OpenGLDrv.vcxproj"));
 				NonGameProjects.Add(new UE3ProjectDesc("WinDrv/WinDrv.vcxproj"));

@@ -1111,6 +1111,7 @@ void FD3D11DynamicRHI::EndOcclusionQuery(FOcclusionQueryRHIParamRef OcclusionQue
 
 static D3D11_PRIMITIVE_TOPOLOGY GetD3D11PrimitiveType(UINT PrimitiveType, UBOOL bUsingTessellation)
 {
+#if WITH_D3D11_TESSELLATION
 	if(bUsingTessellation)
 	{
 		switch(PrimitiveType)
@@ -1132,6 +1133,7 @@ static D3D11_PRIMITIVE_TOPOLOGY GetD3D11PrimitiveType(UINT PrimitiveType, UBOOL 
 			break;
 		};
 	}
+#endif // WITH_D3D11_TESSELLATION
 
 	switch(PrimitiveType)
 	{
@@ -1139,6 +1141,7 @@ static D3D11_PRIMITIVE_TOPOLOGY GetD3D11PrimitiveType(UINT PrimitiveType, UBOOL 
 	case PT_TriangleStrip: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 	case PT_LineList: return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
+#if WITH_D3D11_TESSELLATION
 	// ControlPointPatchList types will pretend to be TRIANGLELISTS with a stride of N 
 	// (where N is the number of control points specified), so we can return them for
 	// tessellation and non-tessellation. This functionality is only used when rendering a 
@@ -1174,6 +1177,7 @@ static D3D11_PRIMITIVE_TOPOLOGY GetD3D11PrimitiveType(UINT PrimitiveType, UBOOL 
 	case PT_30_ControlPointPatchList: return D3D11_PRIMITIVE_TOPOLOGY_30_CONTROL_POINT_PATCHLIST; 
 	case PT_31_ControlPointPatchList: return D3D11_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST; 
 	case PT_32_ControlPointPatchList: return D3D11_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST; 
+#endif // WITH_D3D11_TESSELLATION
 	default: appErrorf(TEXT("Unknown primitive type: %u"),PrimitiveType);
 	};
 
@@ -1189,6 +1193,7 @@ static UINT GetVertexCountForPrimitiveCount(UINT NumPrimitives, UINT PrimitiveTy
 	case PT_TriangleStrip: VertexCount = NumPrimitives+2; break;
 	case PT_LineList: VertexCount = NumPrimitives*2; break;
 
+#if WITH_D3D11_TESSELLATION // patch-list topologies only exist when tessellation is compiled in
 	case PT_1_ControlPointPatchList:
 	case PT_2_ControlPointPatchList:
 	case PT_3_ControlPointPatchList: 
@@ -1223,6 +1228,7 @@ static UINT GetVertexCountForPrimitiveCount(UINT NumPrimitives, UINT PrimitiveTy
 	case PT_32_ControlPointPatchList: 
 		VertexCount = (PrimitiveType - PT_1_ControlPointPatchList + 1) * NumPrimitives;
 		break;
+#endif // WITH_D3D11_TESSELLATION
 	default: appErrorf(TEXT("Unknown primitive type: %u"),PrimitiveType);
 	};
 
@@ -2193,6 +2199,7 @@ void FD3D11DynamicRHI::QueryGPUHardWareInfo( FGPUInfo& info )
 UBOOL FD3D11DynamicRHI::GetColorWriteEnable()
 {
 	//zhaojun@snda,2014-5-23
-	check(0 && "not implemented");
-	return (TRUE);
+	// Same meaning as the D3D9 driver: are any colour channels of render target 0 currently writable?
+	// (Scaleform's filter pass asks this before it draws.)
+	return (CurrentColorWriteEnable[0] != 0) ? TRUE : FALSE;
 }
