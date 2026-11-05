@@ -39,6 +39,8 @@
 /NewServer/bin/gmserver/*.exe
 /NewServer/bin/loginserver/*.exe
 /NewServer/bin/manageserver/*.exe
+# nameserver is built opt-in (CQYH_BUILD_NAMESERVER); its folder only holds build output and runtime DLL copies
+/NewServer/bin/nameserver/
 /NewServer/bin/mgateserver/*.exe
 /NewServer/bin/mobileserver/*.exe
 /NewServer/bin/log

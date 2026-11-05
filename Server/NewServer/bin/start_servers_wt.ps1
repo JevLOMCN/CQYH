@@ -13,7 +13,7 @@ $wt = [pscustomobject]@{ Source = $wtPath }
 
 $tabs = @("new-tab --title guardserver -d `"$bin\_GUARD`" cmd /k .\guardserver64_d.exe cmd")
 $delay = 2
-foreach ($name in 'dbserver', 'manageserver', 'datalogserver', 'gameserver', 'loginserver', 'balanceserver', 'gateserver') {
+foreach ($name in 'nameserver', 'dbserver', 'manageserver', 'datalogserver', 'gameserver', 'loginserver', 'balanceserver', 'gateserver') {
     $exe = "$name\${name}64_d.exe"
     if (-not (Test-Path "$bin\$exe")) { Write-Warning "Missing $exe"; continue }
     $delay += 2

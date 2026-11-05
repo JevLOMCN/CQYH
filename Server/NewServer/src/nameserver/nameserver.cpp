@@ -258,6 +258,8 @@ BOOL CNameServer::_TryCreateDB(void)
     WRN("_TryCreateDB - g_NSConfig.db_config.port %d", g_NSConfig.db_config.port);
 
     WRN("_TryCreateDB - 000");
+    if (!conn_sql)
+        WRN("_TryCreateDB - mysql_real_connect failed: %s", mysql_error(sql.get()));
     LOG_PROCESS_ERROR(conn_sql);
     if (!_ExistDB(sql.get(), g_NSConfig.db_config.db_name))
     {
@@ -556,7 +558,7 @@ BOOL g_bStop = FALSE;
 SERVICE_STATUS_HANDLE g_hServiceStatus;
 SERVICE_STATUS g_status;
 NS_CONFIG g_NSConfig;
-char g_szConfigName[] = { 0 };    // Path to nameserver.ini
+char g_szConfigName[MAX_PATH] = { 0 };    // Path to nameserver.ini
 
 // Initialize the configuration path
 void InitConfigPath() 
@@ -574,6 +576,10 @@ void InitConfigPath()
 
     // Construct the full .ini file path
     snprintf(g_szConfigName, MAX_PATH, "%s\\nameserver.ini", szExePath);
+
+    // The exe may run from a per-server subfolder (bin\nameserver\); then nameserver.ini sits in the parent folder
+    if (GetFileAttributes(g_szConfigName) == INVALID_FILE_ATTRIBUTES)
+        snprintf(g_szConfigName, MAX_PATH, "%s\\..\\nameserver.ini", szExePath);
 }
 
 // The path is correct but data cannot be read here, so a default value is set
