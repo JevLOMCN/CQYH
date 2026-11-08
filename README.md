@@ -22,7 +22,7 @@ The 2016 Shanda Games **Legend Eternal** (传奇永恒 / CQYH) source code: the 
 
 This repository contains the client **source code only**. The game assets and prebuilt binaries the client needs are in a single archive:
 
-**[`Client Assets.7z`](https://mirfiles.co.uk/resources/mir2/users/Jev/Legend%20Eternal/Organised/Client%20Assets.7z)**, hosted in the [Organised files folder](https://mirfiles.co.uk/resources/mir2/users/Jev/Legend%20Eternal/Organised/).
+**[`Client Assets.7z`](https://eternalmir.co.uk/downloads/view.php?slug=mir-eternal-editor-client)**.
 
 It contains the cooked game content (`.upk`, `.udk`, `.pak`, `.bik` videos, the `CookedPC` and `Content` folders), prebuilt third-party libraries (for example the Scaleform GFx `.lib` files), executables and DLLs, compiled UnrealScript packages (`.u`), the Mac binaries and the QA build tools.
 
