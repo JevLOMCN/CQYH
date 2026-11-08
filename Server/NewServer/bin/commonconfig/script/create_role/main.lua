@@ -154,10 +154,10 @@ function main(oRole)
 			oRole:SetLevel(1);
 
 			-- Assassin active skills
-			oRole:LearnSpell(1500, 0, true); -- Normal attack
-			oRole:EquipSpell(qssNormalAtk, 	1500);  -- Compensation mechanism
+			oRole:LearnSpell(1530, 0, true); -- Normal attack (1.05 id)
+			oRole:EquipSpell(qssNormalAtk, 	1530);
 
-			oRole:GetItemBag():AddItem(99800002, 1, ITEMLOG_CREATE_ROLE, 0, false);
+			oRole:GetItemBag():AddItem(89900002, 1, ITEMLOG_CREATE_ROLE, 0, false); -- Starter cleaver (Assassin only)
 
 		-- Archer configuration
 		elseif class == clsArcher then
@@ -165,10 +165,31 @@ function main(oRole)
 			oRole:SetLevel(1);
 
 			-- Archer active skills
-			oRole:LearnSpell(2000, 0, true); -- Normal attack
-			oRole:EquipSpell(qssNormalAtk, 	2000);  -- Compensation mechanism
+			oRole:LearnSpell(2040, 0, true); -- Normal attack (1.05 id)
+			oRole:EquipSpell(qssNormalAtk, 	2040);
 
-			oRole:GetItemBag():AddItem(99800003, 1, ITEMLOG_CREATE_ROLE, 0, false);
+			oRole:GetItemBag():AddItem(40202, 1, ITEMLOG_CREATE_ROLE, 0, false); -- Starter large quiver (800 arrows, 1.05)
+			oRole:GetItemBag():AddItem(99900070, 1, ITEMLOG_CREATE_ROLE, 0, false); -- Starter wooden bow (Archer only)
+
+		-- Dragon Lancer (Spear) configuration
+		elseif class == clsSpear then
+
+			oRole:SetLevel(1);
+
+			oRole:LearnSpell(1200, 0, true); -- Normal attack
+			oRole:EquipSpell(qssNormalAtk, 	1200);
+
+			oRole:GetItemBag():AddItem(99900100, 1, ITEMLOG_CREATE_ROLE, 0, false); -- Starter wooden spear (Lancer only)
+
+		-- Sorcerer (Demon) configuration
+		elseif class == clsSorcerer then
+
+			oRole:SetLevel(1);
+
+			oRole:LearnSpell(3200, 0, true); -- Normal attack
+			oRole:EquipSpell(qssNormalAtk, 	3200);
+
+			oRole:GetItemBag():AddItem(99900199, 1, ITEMLOG_CREATE_ROLE, 0, false); -- Starter ebony stick (Sorcerer only)
 		end
 
 	end

@@ -71,6 +71,8 @@ enum CHAR_CLASS_TYPE
 	clsRogue,
 	clsArcher,
 	clsTaoist,
+	clsSpear,		// 1.05 Dragon Lancer (class id 5)
+	clsSorcerer,	// 1.05 Demon / Sorcerer (class id 6)
 
 	clsPlayerEnd,
 
@@ -80,6 +82,19 @@ enum CHAR_CLASS_TYPE
 
 	clsTotal
 };
+
+// Bit used for a class in the spell table's Class mask (SpellCommonAttribute.Class). Warrior..Taoist use (1 << class)
+// and monsters use 32, but the 1.05 tables put Spear at 64 and Sorcerer at 128 (bit 5 stays reserved for monsters).
+inline int GetClassSpellMask(int nClass)
+{
+	if (nClass == clsSpear)
+		return 64;
+	if (nClass == clsSorcerer)
+		return 128;
+	if (nClass == clsNpc)
+		return 32;
+	return 1 << nClass;
+}
 
 enum CHAR_SPECIES_TYPE
 {

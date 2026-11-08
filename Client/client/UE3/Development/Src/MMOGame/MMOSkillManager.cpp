@@ -1724,8 +1724,12 @@ void MMOSkillManager::ConvertSpellType( TArray<UBOOL>& ClassUsble, const FSpell_
 	ClassUsble(1) = classType.bClassType2;
 	ClassUsble(2) = classType.bClassType3;
 	ClassUsble(3) = classType.bClassType4;
-	ClassUsble(4) = classType.bClassType5;
-	ClassUsble(5) = classType.bClassType6;
+	ClassUsble(4) = classType.bClassType5;	// Taoist (spell mask bit4)
+	// 1.05: Lancer (mask bit6 = 64) and Sorcerer (mask bit7 = 128). Class ids G=5, H=6.
+	ClassUsble(EPCT_PlayerClassG) = classType.bClassType7;
+	ClassUsble(EPCT_PlayerClassH) = classType.bClassType8;
+	// mask bit5 (32) is the monster/npc bit -> npc class F (=7), never index 5
+	ClassUsble(EPCT_PlayerClassF) = classType.bClassType6;
 }
 //
 UBOOL MMOSkillManager::IsSkillUsableForPlayer( UMMOAbility *pInAbility, INT playerClassType )

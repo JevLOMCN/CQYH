@@ -2088,7 +2088,7 @@ INT32 CRole::LearnSpell(INT32 nSpellID, INT32 nSpellLevel, BOOL bNeedSave)
     LOG_PROCESS_ERROR_RET_CODE(e, errSpellNotExists);
 
 #ifdef _FINAL
-    LOG_PROCESS_ERROR_RET_CODE((e->GetAttr(satClass) & (1 << m_nClass)), errSpellLearningClassError);
+    LOG_PROCESS_ERROR_RET_CODE((e->GetAttr(satClass) & GetClassSpellMask(m_nClass)), errSpellLearningClassError);
 #endif
 
     LOG_PROCESS_ERROR_RET_CODE(m_nLevel >= e->GetAttr(satRequireLevel), errSpellLearningLevelError);
@@ -3309,7 +3309,7 @@ INT32 CRole::EquipRune(const RUNE_DATA* pRuneData, Item* poItem)
     t = CSpellConfig::GetInstance().FindSpellTemplate(pRuneData->nSpellID, 0, pRuneData->nRuneSlot);
     LOG_PROCESS_ERROR_RET_CODE(t, errSpellNotExists);
 
-    PROCESS_ERROR_RET_CODE((t->GetAttr(satClass) & (1 << (m_nClass))) != 0, errRuneEquipClassError);
+    PROCESS_ERROR_RET_CODE((t->GetAttr(satClass) & GetClassSpellMask(m_nClass)) != 0, errRuneEquipClassError);
 
     poSet = CreateSpellSet(pRuneData->nSpellID);
     LOG_PROCESS_ERROR_RET_CODE(poSet, errSpellNotExists);
@@ -3516,7 +3516,7 @@ INT32 CRole::CastSpell(CSpell* poSpell, CCharacter* poTarget, INT64 nTargetX, IN
     LOG_PROCESS_ERROR_RET_CODE((poSpell->GetAttr(satWeaponTypeR) & (1 << nWeaponTypeR)) != 0, errSpellWeaponTypeError);
 
 #ifdef _FINAL
-    LOG_PROCESS_ERROR_RET_CODE((poSpell->GetAttr(satClass) & (1 << (m_nClass))) != 0, errSpellErrorType);
+    LOG_PROCESS_ERROR_RET_CODE((poSpell->GetAttr(satClass) & GetClassSpellMask(m_nClass)) != 0, errSpellErrorType);
 #endif
 
     LOG_PROCESS_ERROR_RET_CODE(poSpell->GetAttr(satCastType) == spctActive || poSpell->GetAttr(satCastType) == spctDirectly, errSpellErrorType);

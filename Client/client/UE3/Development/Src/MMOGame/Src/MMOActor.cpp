@@ -2157,6 +2157,15 @@ void AMMOActor::NativeSetMesh(BYTE ClassType, BYTE GenderType)
 	//ClassType = 0; 
 	//GenderType = 1;
 	//`log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@SetMesh ClassType="$ClassType$"   GenderType="$GenderType);
+	// TEMP-DIAG(1.05 backport): remove once class models are verified
+	debugf(NAME_Log, TEXT("[SetMeshDiag] actor=%s class=%d gender=%d playerList=%d"), *GetName(), (INT)ClassType, (INT)GenderType, GpDataManager ? GpDataManager->PlayerList.Num() : -1);
+	if(GpDataManager != NULL)
+	{
+		for(INT d = 0; d < GpDataManager->PlayerList.Num(); ++d)
+		{
+			debugf(NAME_Log, TEXT("[SetMeshDiag]   entry %d: class=%d gender=%d avatar=%s skel=%s"), d, (INT)GpDataManager->PlayerList(d).ClassType, (INT)GpDataManager->PlayerList(d).GenderType, GpDataManager->PlayerList(d).AvatarDataLink ? *GpDataManager->PlayerList(d).AvatarDataLink->GetName() : TEXT("NULL"), (GpDataManager->PlayerList(d).AvatarDataLink && GpDataManager->PlayerList(d).AvatarDataLink->SkeletalMesh) ? *GpDataManager->PlayerList(d).AvatarDataLink->SkeletalMesh->GetName() : TEXT("NULL"));
+		}
+	}
 	if(GpDataManager == NULL)
 		return;
 	if( GpDataManager->PlayerList.Num() == 0)

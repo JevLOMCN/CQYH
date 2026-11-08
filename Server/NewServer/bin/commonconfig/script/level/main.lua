@@ -209,8 +209,45 @@ ArcherSkillAutoEquip[60] = 0;
 local SkillEquipTable = {WarriorSkillAutoEquip, MageSkillAutoEquip, RougeSkillAutoEquip, ArcherSkillAutoEquip, TaoistSkillAutoEquip};
 
 
+--! Spells of the classes added by the 1.05 backport (Rogue, Archer, Dragon Lancer, Sorcerer).
+--! Auto-learned at the level required by the 1.05 spell.txt (RequireLevel, same as the 1.05 emulator's level-up learning).
+--! Entries are {required level, spell id}; spells are learned at spell level 0 (upgraded through spell_progress.txt).
+--! The beginner-book skills (1549, 1540, 1215, 1219, 2055, 2059, 3217, 3218) and sub-spells are not auto-learned.
+local BackportSkillGet = {};
+BackportSkillGet[clsRogue] = {
+	{7, 1531}, {9, 1534}, {18, 1542}, {22, 1532}, {23, 1533}, {28, 1537}, {30, 1535}, {32, 1536},
+	{35, 1538}, {40, 1546}, {41, 1541}, {45, 1547}, {47, 1539}, {50, 1548}, {51, 1545},
+};
+BackportSkillGet[clsArcher] = {
+	{7, 2041}, {10, 2042}, {16, 2043}, {21, 2044}, {25, 2045}, {30, 2046}, {33, 2056},
+	{35, 2048}, {40, 2049}, {41, 2050}, {45, 2057}, {47, 2051}, {50, 2058}, {51, 2052},
+};
+BackportSkillGet[clsSpear] = {
+	{7, 1201}, {12, 1202}, {17, 1203}, {24, 1204}, {28, 1205}, {30, 1206}, {33, 1207}, {35, 1208},
+	{37, 1209}, {40, 1213}, {41, 1210}, {45, 1214}, {47, 1211}, {50, 1218}, {51, 1212},
+};
+BackportSkillGet[clsSorcerer] = {
+	{7, 3201}, {12, 3216}, {17, 3202}, {20, 3203}, {26, 3205}, {30, 3204}, {33, 3206}, {35, 3207},
+	{37, 3208}, {40, 3213}, {41, 3209}, {43, 3210}, {45, 3214}, {47, 3211}, {50, 3215}, {51, 3212},
+};
+
+--! Learn every backport spell whose required level has been reached (already-known spells are ignored by LearnSpell)
+local function LearnBackportSkills(oRole, new_level)
+	local list = BackportSkillGet[oRole:GetClass()];
+	if list == nil then
+		return;
+	end
+	for i = 1, #list do
+		if list[i][1] <= new_level then
+			oRole:LearnSpell(list[i][2], 0, true);
+		end
+	end
+end
+
 --! Level-up logic
 function main(oRole, old_level, new_level)
+
+	LearnBackportSkills(oRole, new_level);
 
 	--print("oldlevel: "..old_level..", newlevel: "..new_level);
 

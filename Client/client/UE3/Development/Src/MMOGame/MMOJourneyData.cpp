@@ -412,6 +412,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 		{
 			switch(MMOFacade::getSingleton().GetMainActor()->GetClassId())
 			{
+			case EPCT_PlayerClassG: // 1.05 Lancer: reuses Warrior reputation rewards (no Spear columns)
 			case EPCT_PlayerClassA://战士
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
@@ -423,6 +424,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 					}
 				}
 				break;
+			case EPCT_PlayerClassH: // 1.05 Sorcerer: reuses Mage reputation rewards
 			case EPCT_PlayerClassB://法师
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)

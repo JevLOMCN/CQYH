@@ -318,7 +318,13 @@ void UMMOUITeam::_UpdateMyTeamMember()
 					case EPCT_PlayerClassD:
 						ValidGfxObjectFunction( ListItem->GetObject(TEXT("avarta")) , GotoAndStop(TEXT("archer")) );
 						break;
-					case EPCT_PlayerClassE:
+					case EPCT_PlayerClassG: // 1.05 Lancer: no dedicated frame, reuse warrior
+							ValidGfxObjectFunction( ListItem->GetObject(TEXT("avarta")) , GotoAndStop(TEXT("warrior")) );
+							break;
+						case EPCT_PlayerClassH: // 1.05 Sorcerer: no dedicated frame, reuse mage
+							ValidGfxObjectFunction( ListItem->GetObject(TEXT("avarta")) , GotoAndStop(TEXT("mage")) );
+							break;
+						case EPCT_PlayerClassE:
 						ValidGfxObjectFunction( ListItem->GetObject(TEXT("avarta")) , GotoAndStop(TEXT("taoist")) );
 						break;
 					}

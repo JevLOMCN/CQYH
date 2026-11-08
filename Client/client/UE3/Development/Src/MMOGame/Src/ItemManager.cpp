@@ -1606,6 +1606,8 @@ void UItemManager::ChangeByEquipMesh(BYTE type,const FString& path)
 	*/
 	UEquipMesh* em = Cast<UEquipMesh>(UObject::StaticLoadObject(
 		UEquipMesh::StaticClass(), NULL, *path, NULL, LOAD_Quiet|LOAD_NoWarn, NULL));
+	// TEMP-DIAG(1.05 backport): remove once class heads are verified
+	debugf(NAME_Log, TEXT("[MeshDiag] ChangeByEquipMesh type=%d path=%s loaded=%d skel=%s needSkinTex=%d colorTex=%d usedColorId=%d"), (INT)type, *path, em ? 1 : 0, (em && em->SkeletalMesh) ? *em->SkeletalMesh->GetPathName() : TEXT("NULL"), em ? (INT)em->bNeedSkinTexture : -1, em ? em->ColorTextures.Num() : -1, em ? em->UsedColorTextureID : -1);
 	if (!em)
 		return;
 
@@ -1613,6 +1615,12 @@ void UItemManager::ChangeByEquipMesh(BYTE type,const FString& path)
 	{
 		CurrentMeshList(type)->OnTakeOff(Owner, UseMergedMesh);
 		CurrentMeshList(type) = NULL;
+	}
+	// TEMP-DIAG(1.05 backport)
+	{
+		FString slots;
+		for( INT d = 0; d < DefaultMeshList.Num(); ++d ) slots += FString::Printf(TEXT("%d "), DefaultMeshList(d) ? (INT)DefaultMeshList(d)->MeshType : -1);
+		debugf(NAME_Log, TEXT("[MeshDiag]   default slots(%d) types: %s useMerged=%d"), DefaultMeshList.Num(), *slots, (INT)UseMergedMesh);
 	}
 	for( INT i = 0; i < DefaultMeshList.Num(); ++i )
 	{
@@ -1634,6 +1642,7 @@ void UItemManager::ApplyFaceModel(int profession, int sex, int id)
 		return;
 
 	FString facePath = MMOLoginManager::getSingleton().GetMeshItemTempletByType(CMT_FACE_MODEL,profession,sex,id);
+	debugf(NAME_Log, TEXT("[MeshDiag] ApplyFaceModel class=%d sex=%d id=%d path=%s"), profession, sex, id, *facePath);
 	if (facePath.Len())
 	{
 		ChangeByEquipMesh(EBMT_Face,facePath);
@@ -1650,6 +1659,7 @@ void UItemManager::ApplyHairModel(int profession, int sex, int id)
 		//return;
 
 	FString hairPath = MMOLoginManager::getSingleton().GetMeshItemTempletByType(CMT_HAIR_MODEL,profession,sex,id);
+	debugf(NAME_Log, TEXT("[MeshDiag] ApplyHairModel class=%d sex=%d id=%d path=%s"), profession, sex, id, *hairPath);
 	if (hairPath.Len())
 	{
 		ChangeByEquipMesh( EBMT_Hair, hairPath );

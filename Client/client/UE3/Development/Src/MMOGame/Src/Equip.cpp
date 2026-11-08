@@ -98,8 +98,32 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 		}
 		break;
 	case EPCT_PlayerClassC:
+		{
+			if( gt == EGT_Male )
+			{
+				em = pEquipAppTemp->MeshList_AG_M;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_AG_M;
+			}
+			else if( gt == EGT_Female )
+			{
+				em = pEquipAppTemp->MeshList_AG_F;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_AG_F;
+			}
+		}
 		break;
 	case EPCT_PlayerClassD:
+		{
+			if( gt == EGT_Male )
+			{
+				em = pEquipAppTemp->MeshList_AR_M;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_AR_M;
+			}
+			else if( gt == EGT_Female )
+			{
+				em = pEquipAppTemp->MeshList_AR_F;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_AR_F;
+			}
+		}
 		break;
 	case EPCT_PlayerClassE:
 		{
@@ -113,6 +137,35 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 			{
 				em = pEquipAppTemp->MeshList_TA_F;
 				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_TA_F;
+			}
+		}
+		break;
+	// 1.05 backport: Lancer / Sorcerer have no MeshList_* in the 2016 EquipAppearence template yet
+	case EPCT_PlayerClassG:
+		{
+			if( gt == EGT_Male )
+			{
+				em = pEquipAppTemp->MeshList_SP_M;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_SP_M;
+			}
+			else if( gt == EGT_Female )
+			{
+				em = pEquipAppTemp->MeshList_SP_F;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_SP_F;
+			}
+		}
+		break;
+	case EPCT_PlayerClassH:
+		{
+			if( gt == EGT_Male )
+			{
+				em = pEquipAppTemp->MeshList_YS_M;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_YS_M;
+			}
+			else if( gt == EGT_Female )
+			{
+				em = pEquipAppTemp->MeshList_YS_F;
+				AdditionalMeshList = &pEquipAppTemp->AdditionalMeshList_YS_F;
 			}
 		}
 		break;

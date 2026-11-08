@@ -303,6 +303,7 @@ enum ITEM_SUBTYPE
     ITEMSUBTYPE_USABLE_GREY_POWDER,     ///< 灰色药粉
     ITEMSUBTYPE_USABLE_YELLOW_POWDER,   ///< 黄色药粉
     ITEMSUBTYPE_USABLE_RUNE,            ///< 护身符
+    ITEMSUBTYPE_USABLE_QUIVER,          ///< Quiver (archer arrows; ammo count = durability)
 
     ITEMSUBTYPE_EQUIP_WEAPON = 1,       ///< 武器
     ITEMSUBTYPE_EQUIP_HAT,              ///< 帽子

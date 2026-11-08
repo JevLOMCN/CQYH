@@ -4220,7 +4220,8 @@ void MMOFacade::SetSceneDifficulty( INT sceneDifficulty )
 
 FString MMOFacade::GetPlayerIcon( INT classId , INT sex )
 {
-	if( classId < EPCT_PlayerClassA || classId >= EPCT_MAX )
+	// valid player face icons: class0..class6 (needs the 1.05 MMOUIFaceIcon package for 5/6); npc (7) / none (8) have none
+	if( classId < EPCT_PlayerClassA || classId > EPCT_PlayerClassH )
 	{
 		return TEXT("");
 	}
@@ -9097,10 +9098,34 @@ UBOOL MMO::CanBeUsedByPlayerClass(EPlayerClass playerClass, FSpell_ClassType cla
 	case EPCT_PlayerClassE:
 		return classType.bClassType6;
 
+	case EPCT_PlayerClassG:
+		return classType.bClassType7;
+
+	case EPCT_PlayerClassH:
+		return classType.bClassType8;
+
 	case EPCT_PlayerClassF:
 		return classType.bClassType5;
 	};
 
+	return FALSE;
+}
+
+// Spell masks (spell.txt Class column): bit = class id (0..4 = Warrior..Taoist), bit5 = monster/npc,
+// bit6 = Lancer, bit7 = Sorcerer. Differs from the item convention above only for Taoist/npc.
+UBOOL MMO::CanSpellBeUsedByPlayerClass(EPlayerClass playerClass, FSpell_ClassType classType)
+{
+	switch(playerClass)
+	{
+	case EPCT_PlayerClassA: return classType.bClassType1;
+	case EPCT_PlayerClassB: return classType.bClassType2;
+	case EPCT_PlayerClassC: return classType.bClassType3;
+	case EPCT_PlayerClassD: return classType.bClassType4;
+	case EPCT_PlayerClassE: return classType.bClassType5;
+	case EPCT_PlayerClassG: return classType.bClassType7;
+	case EPCT_PlayerClassH: return classType.bClassType8;
+	case EPCT_PlayerClassF: return classType.bClassType6;
+	}
 	return FALSE;
 }
 

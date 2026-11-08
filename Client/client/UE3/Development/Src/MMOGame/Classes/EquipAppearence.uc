@@ -38,6 +38,14 @@ var(MA) editinline /*array<EquipMesh>*/EquipMesh		MeshList_MA_F	<DisplayName="Me
 
 var(TA) editinline /*array<EquipMesh>*/EquipMesh		MeshList_TA_M	<DisplayName="MeshList_TA_M">;
 var(TA)	editinline /*array<EquipMesh>*/EquipMesh		MeshList_TA_F	<DisplayName="MeshList_TA_F">;
+var(AG) editinline /*array<EquipMesh>*/EquipMesh		MeshList_AG_M	<DisplayName="MeshList_AG_M">;
+var(AG) editinline /*array<EquipMesh>*/EquipMesh		MeshList_AG_F	<DisplayName="MeshList_AG_F">;
+var(AR) editinline /*array<EquipMesh>*/EquipMesh		MeshList_AR_M	<DisplayName="MeshList_AR_M">;
+var(AR) editinline /*array<EquipMesh>*/EquipMesh		MeshList_AR_F	<DisplayName="MeshList_AR_F">;
+var(SP) editinline /*array<EquipMesh>*/EquipMesh		MeshList_SP_M	<DisplayName="MeshList_SP_M">;
+var(SP) editinline /*array<EquipMesh>*/EquipMesh		MeshList_SP_F	<DisplayName="MeshList_SP_F">;
+var(YS) editinline /*array<EquipMesh>*/EquipMesh		MeshList_YS_M	<DisplayName="MeshList_YS_M">;
+var(YS) editinline /*array<EquipMesh>*/EquipMesh		MeshList_YS_F	<DisplayName="MeshList_YS_F">;
 
 // 为了给战士加两面蛋疼的旗子
 var(WA) editinline array<EquipMesh>		AdditionalMeshList_WA_M	<DisplayName="AdditionalMeshes_WA_M">;
@@ -46,6 +54,14 @@ var(MA) editinline array<EquipMesh>		AdditionalMeshList_MA_M	<DisplayName="Addit
 var(MA) editinline array<EquipMesh>		AdditionalMeshList_MA_F	<DisplayName="AdditionalMeshes_MA_F">;
 var(TA) editinline array<EquipMesh>		AdditionalMeshList_TA_M	<DisplayName="AdditionalMeshes_TA_M">;
 var(TA) editinline array<EquipMesh>		AdditionalMeshList_TA_F	<DisplayName="AdditionalMeshes_TA_F">;
+var(AG) editinline array<EquipMesh>		AdditionalMeshList_AG_M	<DisplayName="AdditionalMeshes_AG_M">;
+var(AG) editinline array<EquipMesh>		AdditionalMeshList_AG_F	<DisplayName="AdditionalMeshes_AG_F">;
+var(AR) editinline array<EquipMesh>		AdditionalMeshList_AR_M	<DisplayName="AdditionalMeshes_AR_M">;
+var(AR) editinline array<EquipMesh>		AdditionalMeshList_AR_F	<DisplayName="AdditionalMeshes_AR_F">;
+var(SP) editinline array<EquipMesh>		AdditionalMeshList_SP_M	<DisplayName="AdditionalMeshes_SP_M">;
+var(SP) editinline array<EquipMesh>		AdditionalMeshList_SP_F	<DisplayName="AdditionalMeshes_SP_F">;
+var(YS) editinline array<EquipMesh>		AdditionalMeshList_YS_M	<DisplayName="AdditionalMeshes_YS_M">;
+var(YS) editinline array<EquipMesh>		AdditionalMeshList_YS_F	<DisplayName="AdditionalMeshes_YS_F">;
 
 DefaultProperties
 {

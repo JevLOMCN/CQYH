@@ -70,12 +70,12 @@ void UMMOGFXPlayer_KillRecord::OnNativeGameEvent(struct MMOGameEvent* evt)
 						else
 							soundTemp += "_Female";
 
-						if(actor->GetClassId() == EPCT_PlayerClassA)
+						if(actor->GetClassId() == EPCT_PlayerClassA || actor->GetClassId() == EPCT_PlayerClassG) // Lancer reuses Warrior voice
 						{
 							soundPackage +=  "_Warrior";
 							soundTemp += "_Warrior";
 						}
-						else if(actor->GetClassId() == EPCT_PlayerClassB)
+						else if(actor->GetClassId() == EPCT_PlayerClassB || actor->GetClassId() == EPCT_PlayerClassH) // Sorcerer reuses Mage voice
 						{
 							soundPackage +=  "_Mage";
 							soundTemp += "_Mage";

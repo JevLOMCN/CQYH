@@ -174,7 +174,7 @@ void EquipSlotManager::ReadEnhancePropConfig()
 		INT slotID = mmoFacade.FindClientEnumValue( tabFile->GetData( TEXT("NormalEquipSlot"), i ), TEXT("ENORMAL_EQUIP_SLOT"), 1 );	
 
 		//记录额外强化加成数据索引
-		if( slotID == NES_TOTAL && refineDataClassId < EPCT_MAX )
+		if( slotID == NES_TOTAL && refineDataClassId >= 0 && refineDataClassId < EPCT_MAX )
 		{
 			INT allLevelCnt = _RefineExtrPropLvIdx[refineDataClassId].Num();
 			UBOOL isAdded = FALSE;

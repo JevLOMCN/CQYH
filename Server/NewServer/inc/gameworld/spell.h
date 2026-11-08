@@ -3,6 +3,7 @@
 
 #include "spell_def.h"
 #include "spell_data.h"
+#include "char_def.h"	// GetClassSpellMask
 
 class CCharacter;
 

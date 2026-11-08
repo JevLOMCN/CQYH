@@ -987,6 +987,7 @@ static FString FormatTempleteDataLoadingDir( const FString& srcDirName );
 
 static UBOOL IsForAllPlayerClass(FSpell_ClassType classType);
 static UBOOL CanBeUsedByPlayerClass(EPlayerClass playerClass, FSpell_ClassType classType);
+static UBOOL CanSpellBeUsedByPlayerClass(EPlayerClass playerClass, FSpell_ClassType classType); // spell.txt mask convention
 static UBOOL CanBeUsedByPlayerGender(EGenderType playerGender, BYTE genderReq);
 static FVector GetGfxOffsetVector(FVector Pos,float CavWidth,float CavHeight);
 static UBOOL IsClassTypeMatch(const FSpell_ClassType& newReqTyp, const FSpell_ClassType& useReqTyp);

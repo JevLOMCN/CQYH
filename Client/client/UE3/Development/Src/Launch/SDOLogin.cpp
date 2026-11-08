@@ -271,7 +271,11 @@ void ShowSDOLoginDialogWnd(bool bForce)
 		RECT rc;
 		::GetWindowRect(GGameWindow, &rc);
 		MoveSDOLoginWindow( rc.left, rc.top );
-		_g_SDOLogin->MoveLoginDialog(g_lastX, g_lastY);
+		// guard: _g_SDOLogin is NULL when the client returns to the login screen after a disconnect (-sdot)
+		if (_g_SDOLogin)
+		{
+			_g_SDOLogin->MoveLoginDialog(g_lastX, g_lastY);
+		}
 	}
 
 	//if(g_SDOLogin)

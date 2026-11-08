@@ -105,7 +105,7 @@ inline BOOL CSpell::CanShowOnUI(void)
 
 inline BOOL CSpell::CanLearnByClass(INT32 nClass)
 {
-	return ((1 << nClass) & m_Data.m_nAttrTable[satClass]) > 0;
+	return (GetClassSpellMask(nClass) & m_Data.m_nAttrTable[satClass]) > 0;
 }
 
 //////////////////////////////////////////////////////////////////////////

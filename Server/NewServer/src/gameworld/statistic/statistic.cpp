@@ -139,6 +139,8 @@ void CStatistic::OnKilledByPlayer(CRole* poKiller, CRole* poVictim)
 		poKiller->GetAchievementList().AddVariable(avdKillArcherCount, 1);
 		break;
 	case clsTaoist:
+	case clsSpear:
+	case clsSorcerer:
 		break;
 	default:
 		LOG_PROCESS_ERROR(FALSE);

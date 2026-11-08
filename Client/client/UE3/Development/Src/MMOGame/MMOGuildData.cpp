@@ -470,6 +470,12 @@ void MMOGuildData::GetJobName(UINT32 type, FString& name)
 	case EPCT_PlayerClassE:
 		name = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.School.SchoolName4"));
 		break;
+	case EPCT_PlayerClassG:
+		name = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.EPlayerClass.E_PlayerClassG"));
+		break;
+	case EPCT_PlayerClassH:
+		name = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.EPlayerClass.E_PlayerClassH"));
+		break;
 	}
 }
 

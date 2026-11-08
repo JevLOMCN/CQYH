@@ -55,6 +55,8 @@ void register_char_definitions(lua_State* L)
     char_class_type_namespace["clsRogue"] = static_cast<lua_Number>(clsRogue);
     char_class_type_namespace["clsArcher"] = static_cast<lua_Number>(clsArcher);
     char_class_type_namespace["clsTaoist"] = static_cast<lua_Number>(clsTaoist);
+    char_class_type_namespace["clsSpear"] = static_cast<lua_Number>(clsSpear);
+    char_class_type_namespace["clsSorcerer"] = static_cast<lua_Number>(clsSorcerer);
     char_class_type_namespace["clsPlayerEnd"] = static_cast<lua_Number>(clsPlayerEnd);
     char_class_type_namespace["clsPlayerTotal"] = static_cast<lua_Number>(clsPlayerTotal);
     char_class_type_namespace["clsNpc"] = static_cast<lua_Number>(clsNpc);

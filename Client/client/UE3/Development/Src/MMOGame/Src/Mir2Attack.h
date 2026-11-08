@@ -92,6 +92,21 @@ private:
 	INT _Last_ShiDu_Ability;
 };
 
+// 1.05 backport: generic handler for the classes without a dedicated one (Rogue, Archer, Lancer, Sorcerer).
+// It just uses the class's normal attack spell, with the same range rule as the Mage/Taoist handlers.
+class AttackClassGeneric: public AttackClassX
+{
+public:
+	AttackClassGeneric(INT normalAttackId) : _NormalAttackId(normalAttackId) {}
+	UBOOL InPrimaryAbilityRange(FVector DesPos, UBOOL b3x3);
+	UMMOAbility* GetPrimaryAbility();
+	UBOOL DoAIAbility();
+	void Update(FLOAT fDeltaTime);
+
+private:
+	INT _NormalAttackId;
+};
+
 
 
 class Mir2Attack : public SingletonMeyers<Mir2Attack>

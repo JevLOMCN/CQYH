@@ -51,6 +51,8 @@ void register_char_definitions(lua_State* L)
     globals["clsRogue"] = static_cast<lua_Number>(clsRogue);
     globals["clsArcher"] = static_cast<lua_Number>(clsArcher);
     globals["clsTaoist"] = static_cast<lua_Number>(clsTaoist);
+    globals["clsSpear"] = static_cast<lua_Number>(clsSpear);
+    globals["clsSorcerer"] = static_cast<lua_Number>(clsSorcerer);
     globals["clsPlayerEnd"] = static_cast<lua_Number>(clsPlayerEnd);
     globals["clsPlayerTotal"] = static_cast<lua_Number>(clsPlayerTotal);
     globals["clsNpc"] = static_cast<lua_Number>(clsNpc);

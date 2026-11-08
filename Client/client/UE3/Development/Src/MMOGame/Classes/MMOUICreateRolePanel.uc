@@ -50,6 +50,22 @@ event CallUCSetAppearanceData(GfxObject dat)
 	ActionScriptVoid("UCSetAppearanceData");
 }
 
+// 1.05 backport: create-screen class description / four featured skills / totem frame per class
+event CallSetLocalizationData(GfxObject dat)
+{
+	ActionScriptVoid("UCSetLocalizationData");
+}
+
+event CallSetAllSkillShow(GfxObject arr)
+{
+	ActionScriptVoid("UCSetAllSkillShow");
+}
+
+event CallSetTotemConfig(GfxObject arr)
+{
+	ActionScriptVoid("UCSetTotemConfig");
+}
+
 event CallSetRoleName(string roleName)
 {
 	ActionScriptVoid("UCSetRoleName");

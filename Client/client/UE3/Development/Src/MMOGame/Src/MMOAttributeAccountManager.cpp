@@ -1317,6 +1317,29 @@ void MMOAttributeAccountManager::Init()
 	initOtherAttribute(3);
 	//’Ω,∑®,¥Ã,¡‘
 
+	// 1.05 classes: the per-class columns above are only filled for A..E.
+	// Lancer (G) shows the Warrior attribute layout, Sorcerer (H) the Mage layout.
+	for ( INT g = 0 ; g < AttributeGroupList.Num() ; g++ )
+	{
+		for ( INT it = 0 ; it < AttributeGroupList(g).AttributeList.Num() ; it++ )
+		{
+			StructAttributeItem& attrItem = AttributeGroupList(g).AttributeList(it);
+			const INT srcCls[2] = { EPCT_PlayerClassA, EPCT_PlayerClassB };
+			const INT dstCls[2] = { EPCT_PlayerClassG, EPCT_PlayerClassH };
+			for ( INT c = 0 ; c < 2 ; c++ )
+			{
+				attrItem.AttributeName[dstCls[c]]		= attrItem.AttributeName[srcCls[c]];
+				attrItem.TipsDesc[dstCls[c]]			= attrItem.TipsDesc[srcCls[c]];
+				attrItem.AttributeValueType[dstCls[c]]	= attrItem.AttributeValueType[srcCls[c]];
+				attrItem.AttributeValueTypeB[dstCls[c]]	= attrItem.AttributeValueTypeB[srcCls[c]];
+				attrItem.AttributeTypeA[dstCls[c]]		= attrItem.AttributeTypeA[srcCls[c]];
+				attrItem.AttributeTypeB[dstCls[c]]		= attrItem.AttributeTypeB[srcCls[c]];
+				attrItem.AttributeMulParaA[dstCls[c]]	= attrItem.AttributeMulParaA[srcCls[c]];
+				attrItem.AttributeMulParaB[dstCls[c]]	= attrItem.AttributeMulParaB[srcCls[c]];
+			}
+		}
+	}
+
 	
 	warnf(NAME_Log, TEXT("MMOAttributeAccountManager::Init <<<"));
 }

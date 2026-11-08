@@ -1959,6 +1959,9 @@ FString UMMOGFXPlayer::GetASHeadIconFrame( BYTE playerClass, UBOOL isFemale )
 	case EPCT_PlayerClassC: iconFrame = TEXT("assassin"); break;
 	case EPCT_PlayerClassD: iconFrame = TEXT("archer"); break;
 	case EPCT_PlayerClassE: iconFrame = TEXT("taoist"); break;
+	// 1.05 classes: no dedicated flash frame in our swfs, reuse nearest (Lancer -> warrior, Sorcerer -> mage)
+	case EPCT_PlayerClassG: iconFrame = TEXT("warrior"); break;
+	case EPCT_PlayerClassH: iconFrame = TEXT("mage"); break;
 	};
 
 	if( isFemale && !iconFrame.IsEmpty() ){

@@ -568,6 +568,8 @@ void CMessageHandler::Parse_g2c_sync_spell_slot(const char* buf, UINT32 size)
 				//	}
 				//}
 			}
+			// TEMP-DIAG(1.05 backport): spell slot sync
+			if( skillMainID != 0 ) debugf( NAME_Log, TEXT("[SlotDiag] i=%d slotID=%d spell=%d learned=%d level=%d"), i, (INT)msg->astSlot[i].bySlotID, skillMainID, learnedSkill != NULL ? 1 : 0, skillLevel );
 			ctrl->EquipNewSpellAndAutoUnequipOld( msg->astSlot[i].bySlotID, skillMainID, skillLevel, skillRunSlotID, msg->astSlot[i].byLocked );
 		}
 	}

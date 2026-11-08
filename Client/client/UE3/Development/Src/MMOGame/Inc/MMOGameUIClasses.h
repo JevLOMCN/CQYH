@@ -20288,6 +20288,27 @@ struct MMOUICreateRolePanel_eventCallSetRoleName_Parms
     {
     }
 };
+struct MMOUICreateRolePanel_eventCallSetTotemConfig_Parms
+{
+    class UGFxObject* arr;
+    MMOUICreateRolePanel_eventCallSetTotemConfig_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUICreateRolePanel_eventCallSetAllSkillShow_Parms
+{
+    class UGFxObject* arr;
+    MMOUICreateRolePanel_eventCallSetAllSkillShow_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUICreateRolePanel_eventCallSetLocalizationData_Parms
+{
+    class UGFxObject* dat;
+    MMOUICreateRolePanel_eventCallSetLocalizationData_Parms(EEventParm)
+    {
+    }
+};
 struct MMOUICreateRolePanel_eventCallUCSetAppearanceData_Parms
 {
     class UGFxObject* dat;
@@ -20472,6 +20493,24 @@ public:
         MMOUICreateRolePanel_eventCallSetRoleName_Parms Parms(EC_EventParm);
         Parms.roleName=roleName;
         ProcessEvent(FindFunctionChecked(MMOGAME_CallSetRoleName),&Parms);
+    }
+    void eventCallSetTotemConfig(class UGFxObject* arr)
+    {
+        MMOUICreateRolePanel_eventCallSetTotemConfig_Parms Parms(EC_EventParm);
+        Parms.arr=arr;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetTotemConfig),&Parms);
+    }
+    void eventCallSetAllSkillShow(class UGFxObject* arr)
+    {
+        MMOUICreateRolePanel_eventCallSetAllSkillShow_Parms Parms(EC_EventParm);
+        Parms.arr=arr;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetAllSkillShow),&Parms);
+    }
+    void eventCallSetLocalizationData(class UGFxObject* dat)
+    {
+        MMOUICreateRolePanel_eventCallSetLocalizationData_Parms Parms(EC_EventParm);
+        Parms.dat=dat;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetLocalizationData),&Parms);
     }
     void eventCallUCSetAppearanceData(class UGFxObject* dat)
     {
