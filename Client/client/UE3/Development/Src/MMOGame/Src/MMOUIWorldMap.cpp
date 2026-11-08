@@ -394,7 +394,7 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 		UTexture2D* tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, *strUILoaderBgTexPath, NULL, LOAD_NoWarn, NULL) );
 		if( tex == NULL ){
 			//是否沿用其他的图
-			tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, *strUILoaderBgTexPath, NULL, LOAD_NoWarn, NULL) );
+			tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, TEXT("MMO_UIWorldMapImg.wMapDefaultBg"), NULL, LOAD_NoWarn, NULL) );
 		}
 
 		if( GFXPlayer != NULL && tex != NULL){

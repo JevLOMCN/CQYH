@@ -62,7 +62,8 @@ Tick items off as they are done. Notes in *italics* are unverified.
 
 ## Phase 5: Wider 1.05 content (separate projects)
 - [ ] Config/script gap: 162 new config files, 1.05 `.u` scripts vs our source
-- [ ] Maps (1,286 Mir2 map files), scenes, map snapshots
+- [x] Maps phase 1 (2026-11-08): all 106 missing 1.05 scenes ported (files, collision, scene rows, GlobalMapsInfos package, 523+10 NPC templates, doodads, 692 portal records, quests, drops, journey/reputation rows). Spawn failures 1166 -> 161. *Open: ~90 maps have no walk-in portal (GM `.jump <name>` only), server dungeon.txt rows for new dungeons, 1.05 Activity.txt (44 vs our 10), per-map big-map background art (default used), 1.05 UI_WorldMap swf (needs client AS support: boss tracking/jump-to-pos), 44 stand-in monster models, teleport-NPC AI trees need engine node types, MirAct27/28 have no server data, Sabak gate portals and MirAct49 ids 128-134 (MAX_TELEPORT_POINT_PER_SCENE=128), item_armor/rune post-process failures (105+11) from the gear backport.*
+- (original survey) Maps: 107 scenes in 1.05 `scene.txt` are missing from ours (mostly activity/instance maps; all have `.udk` + `.nav/.phx/.scn` in the export). Per map: client `.udk` + `MapsGlobalInfo\<Map>.*` + `MMO_MapSnapshot` into `Content`; server `.nav/.phx/.scn` into `commonconfig\scene\<Map>`; scene rows (by column name) into client + server `scene.txt`; then NPC/monster templates referenced by the `.scn` (log: `invalid npc template id`), portals, scripts. Script: `mapport.ps1` (job tmp). **MirPb06 (暮霞之渚, id 104) ported and loads on the server; its NPC templates are still missing, no in-game test yet**
 - [ ] New skills/FX for existing classes, couture, wings, mounts, monsters
 - [ ] New systems (physique, mingwu, legend_power, dragon soul, etc.)
 

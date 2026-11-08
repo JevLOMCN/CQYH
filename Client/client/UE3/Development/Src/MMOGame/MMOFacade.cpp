@@ -3867,9 +3867,9 @@ class UNPCTemplate* MMOFacade::FindNPCTemplate(INT TemplateID)
 	{
 		UNPCTemplate* datTmp =
 			Cast<UNPCTemplate>(UObject::StaticLoadObject(UNPCTemplate::StaticClass(), NULL, *dataPath, NULL, LOAD_NoWarn | LOAD_Quiet, NULL));
-		datTmp->DisplayName = dat->DisplayName;
 		if(datTmp)
 		{
+			datTmp->DisplayName = dat->DisplayName;
 #if !SHIPPING_PC_GAME
 			warnf(NAME_Warning, TEXT("Loading npc:%s"), *dataPath);
 #endif
