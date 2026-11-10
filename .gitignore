@@ -54,3 +54,9 @@ Client/client/UE3/MMOGame/Config/MMOLightmass.ini
 Client/client/UE3/MMOGame/Config/MMOMMOPlayerController.ini
 Client/client/UE3/MMOGame/Config/MMOSystemSettingsHD.ini
 Client/client/UE3/MMOGame/Config/MMOUIHD.ini
+Client/client/UE3/MMOGame/Config/MMOEditorUserSettings.ini
+/Client/client/UE3/Development/Tools/UnrealSwarm/AgentInterface/bin/Debug
+Client/client/UE3/Development/Tools/UnrealLightmass/Debug-Win32.manifest
+Client/client/UE3/Development/Tools/UnrealLightmass/Debug-Win64.manifest
+Client/client/UE3/Development/Tools/UnrealLightmass/Win32.manifest
+Client/client/UE3/Development/Tools/UnrealLightmass/Win64.manifest
