@@ -411,6 +411,10 @@ namespace ExternalMessage
 
         g2c_sell_resource_item,
 
+        g2c_char_wing,                  // wing (back ornament) equipped / removed, broadcast like g2c_char_on_mount
+
+        g2c_wing_info,                  // wing panel data (level / owned wings / worn wing), reply of c2g_wing_op
+
         g2c_message_end = 512,
     };
 
@@ -1090,6 +1094,7 @@ namespace ExternalMessage
         unsigned char   bPet : 1;
         unsigned char	uReserved : 5;
         // tolua_begin
+        UINT16          wWingID;
     };
 
     struct AURA_BRIEF_DATA
@@ -1493,6 +1498,21 @@ namespace ExternalMessage
     struct G2C_CHAR_OFF_MOUNT : MESSAGE_HEADER
     {
         UINT32			dwCharID;
+    };
+
+    struct G2C_CHAR_WING : MESSAGE_HEADER
+    {
+        UINT32			dwCharID;
+        UINT16			wWingID;    // 0: no wing
+    };
+
+    // wing panel (1.05 UnrealWing)
+    struct G2C_WING_INFO : MESSAGE_HEADER
+    {
+        INT32			nWingLevel;     // wings_level.txt level
+        UINT32			dwOwnedMask;    // bit N: wing id (39501 + N) is owned
+        UINT16			wCurrentWing;   // worn wing id, 0: none
+        UINT8			byUpgraded;     // 1: the level has just been raised (play the level up effect)
     };
 
     struct G2C_SYNC_DOOR_STATE : MESSAGE_HEADER

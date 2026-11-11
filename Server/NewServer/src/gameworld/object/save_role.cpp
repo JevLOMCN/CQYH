@@ -269,6 +269,7 @@ BOOL CRole::_SaveBaseData(const char* pcData, UINT32& rdwSize)
 	pBaseData->wFaceDirection = (UINT16)m_nFaceDirection;
 
 	pBaseData->wMountID = m_nCurrentMountID;
+	pBaseData->wWingID = (UINT16)m_nCurrentWingID;
 
 	pBaseData->byStaticReturnSceneTempID = m_StaticReturnPos.nSceneTempID;
 	pBaseData->nStaticReturnSceneID = m_StaticReturnPos.nSceneID;

@@ -879,6 +879,13 @@ struct MountData
 	INT Have;
 };
 
+//wings.txt (1.05)
+struct WingData
+{
+	INT ID;
+	FString AvatarName;	//object path of the wing AvatarData, e.g. Wing_Avt_Data.AvatarData_Wing_01_Lv1
+};
+
 //显示结构
 struct ShowPanelAdvancedData
 {
@@ -965,6 +972,7 @@ typedef std::map<UINT32, FClientItemInfo*, std::less<UINT32>, STLAllocator< std:
 typedef std::map<INT, TitleData, std::less<INT>, STLAllocator< std::pair<INT, struct TitleData>, UE3STLAllocatorPolicy> > TitleDataMap;
 typedef std::map<FString, struct TweenData, ComparFString, STLAllocator< std::pair<FString, struct TweenData>, UE3STLAllocatorPolicy> > TweenDataMap;
 typedef std::map<INT, struct MountData, std::less<INT>, STLAllocator< std::pair<INT, struct MountData>, UE3STLAllocatorPolicy> > MountDataMap;
+typedef std::map<INT, struct WingData, std::less<INT>, STLAllocator< std::pair<INT, struct WingData>, UE3STLAllocatorPolicy> > WingDataMap;
 
 typedef std::map<FString, struct ShowPanelAdvancedData, ComparFString, STLAllocator< std::pair<FString, struct ShowPanelAdvancedData>, UE3STLAllocatorPolicy> > ShowPanelAdvancedDataMap;
 
@@ -1458,6 +1466,7 @@ public:
 	void AddMountList(INT MountID);
 	void RemoveMountList(INT MountID);
 	void EquipMount(UINT CharID, INT MountID);
+	void EquipWing(UINT CharID, INT WingID);
 	void RaiseCharacterRemoveEvent();
 
 	PlayerBaseInfo* RequestPlayerBaseInfo( INT roleID , BOOL forceRequest = FALSE );
@@ -1617,6 +1626,7 @@ public:
 
 	//读取mount列表
 	UBOOL ReadMountData();
+	UBOOL ReadWingData();
 	UBOOL RefreshMountData();
 	UBOOL ReadReputation();
 	UBOOL ReadReputationTemp();
@@ -1662,6 +1672,7 @@ public:
 	INT		   GetTitleDataArrayCount();
 	UBOOL	   UpdateTitleArray();
 	MountData* GetMountData(INT ID);
+	FString GetWingAvatarName(INT ID);
 	//获取某个tween信息
 	TweenData* GetTweenData(FString stringID);
 	//获取某个ForceID的声望值
@@ -1831,6 +1842,7 @@ protected:
 
 	TweenDataMap	_TweenDataMap;
 	MountDataMap	_MountDataMap;
+	WingDataMap		_WingDataMap;
 
 	ShowPanelAdvancedDataMap _ShowPanelAdvancedDataMap;
 

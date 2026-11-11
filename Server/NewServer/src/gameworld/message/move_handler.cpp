@@ -823,6 +823,7 @@ BOOL CCliMessageHandler::DoCharAppear(CCharacter* poCharacter, CRegion* poDestRe
 	pMsg->stAppearData.byLifePercent = nMaxHp > 0 ? (UINT8)(poCharacter->GetHp() * 100 / nMaxHp) : 0;
 
 	pMsg->stAppearData.byMountID = poCharacter->GetCurrentMountID();
+	pMsg->stAppearData.wWingID = (UINT16)poCharacter->GetCurrentWingID();
 
     if (poCharacter->GetObjType() == otNpc)
         pMsg->stAppearData.bPet = (((CNpc*)poCharacter)->GetPetType() > 0 ? 1 : 0);
@@ -883,6 +884,7 @@ struct CTraverseChar
 			rAppearData.byLifePercent = nMaxHp > 0 ? (UINT8)(poRole->GetHp() * 100 / nMaxHp) : 0;
 
 			rAppearData.byMountID = poRole->GetCurrentMountID();
+			rAppearData.wWingID = (UINT16)poRole->GetCurrentWingID();
             rAppearData.bPet = 0;
 			rAppearData.bGreyName = poRole->IsGreyName();
 
@@ -912,6 +914,7 @@ Exit0:
 			rAppearData.byCombatPoseOn = poHero->GetFlag().CheckFlag(cfCombatPoseOn);
             rAppearData.bPet = 0;
 			rAppearData.bGreyName = 0;
+			rAppearData.wWingID = 0;
 			INT32 nMaxHp = poHero->GetAttrList().GetAttr(catMaxHp);
 			rAppearData.byLifePercent = nMaxHp > 0 ? (UINT8)(poHero->GetHp() * 100 / nMaxHp) : 0;
 
@@ -941,6 +944,7 @@ Exit0:
 			rAppearData.byCombatPoseOn = poNpc->GetFlag().CheckFlag(cfCombatPoseOn);
             rAppearData.bPet = (poNpc->GetPetType() > 0 ? 1 : 0);
 			rAppearData.bGreyName = 0;
+			rAppearData.wWingID = 0;
 
 			INT32 nMaxHp = poNpc->GetAttrList().GetAttr(catMaxHp);
 			rAppearData.byLifePercent = nMaxHp > 0 ? (UINT8)(poNpc->GetHp() * 100 / nMaxHp) : 0;
@@ -2167,11 +2171,8 @@ void CCliMessageHandler::OnOnMount(CRole* poRole, const char* pData)
 	poRole->OffMount();
 
 	nResult = poRole->OnMount(pMsg->nMountID);
-	LOG_PROCESS_ERROR_RET_CODE(nResult != errUnknownError, errUnknownError);
+	(void)nResult; // 1.05 backport: a rejected mount request is already reported via ErrorCodeNotify, do not kick
 
-	return;
-Exit0:
-	KICK_ROLE(poRole, ktLogged);
 	return;
 }
 
@@ -2284,6 +2285,62 @@ Exit0:
 	return FALSE;
 }
 
+void CCliMessageHandler::OnWingOp(CRole* poRole, const char* pData)
+{
+	C2G_WING_OP* pMsg = (C2G_WING_OP*)pData;
+
+	poRole->WingOperate(pMsg->nOp, pMsg->nParam);
+}
+
+BOOL CCliMessageHandler::DoWingInfo(CRole* poRole, BOOL bUpgraded)
+{
+	INT32 nRetCode = 0;
+	G2C_WING_INFO* pMsg = NULL;
+
+	LOG_PROCESS_ERROR(poRole);
+
+	pMsg = (G2C_WING_INFO*)m_poPacketAllocator->Alloc(sizeof(G2C_WING_INFO));
+	LOG_PROCESS_ERROR(pMsg);
+
+	pMsg->wMsg = g2c_wing_info;
+	pMsg->nWingLevel = poRole->GetWingLevel();
+	pMsg->dwOwnedMask = poRole->GetWingMask();
+	pMsg->wCurrentWing = (UINT16)poRole->GetCurrentWingID();
+	pMsg->byUpgraded = bUpgraded ? 1 : 0;
+
+	nRetCode = m_poNotifier->SendToUser(poRole->GetSessionID(), (PACKET_BUFFER*)pMsg, sizeof(G2C_WING_INFO));
+	LOG_PROCESS_ERROR(nRetCode);
+
+	return TRUE;
+Exit0:
+	if (pMsg)
+		m_poPacketAllocator->Free((PACKET_BUFFER*)pMsg);
+	return FALSE;
+}
+
+BOOL CCliMessageHandler::DoCharWing(CCharacter* poChar, INT32 nWingID)
+{
+	INT32 nRetCode = 0;
+	G2C_CHAR_WING* pMsg = NULL;
+
+	LOG_PROCESS_ERROR(poChar);
+
+	pMsg = (G2C_CHAR_WING*)m_poPacketAllocator->Alloc(sizeof(G2C_CHAR_WING));
+	LOG_PROCESS_ERROR(pMsg);
+
+	pMsg->wMsg = g2c_char_wing;
+	pMsg->dwCharID = poChar->GetObjID();
+	pMsg->wWingID = (UINT16)nWingID;
+
+	nRetCode = _Broadcast9Region(poChar->GetRegion(), (PACKET_BUFFER*)pMsg, sizeof(G2C_CHAR_WING));
+	LOG_PROCESS_ERROR(nRetCode);
+
+	return TRUE;
+Exit0:
+	if (pMsg)
+		m_poPacketAllocator->Free((PACKET_BUFFER*)pMsg);
+	return FALSE;
+}
 BOOL CCliMessageHandler::DoCombatPoseSwitch(CRole* poRole, INT32 nFlag)
 {
 	INT32 nRetCode = 0;

@@ -1306,6 +1306,7 @@
     4 MMOUIWeaponSkill MMOGame [] []
     4 MMOUIWeaponSkillRplc MMOGame [] []
     4 MMOUIWeaponSkillSetting MMOGame [] []
+    4 MMOUIWingPanel MMOGame [] []
    3 MMOUIBattleScoreBoard MMOGame [] []
    3 MMOUIBattleState MMOGame [] []
    3 MMOUIBattleSummary MMOGame [] []

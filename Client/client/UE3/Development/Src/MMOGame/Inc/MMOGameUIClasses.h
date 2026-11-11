@@ -19098,6 +19098,201 @@ public:
     #include "UMMOUIWeaponSkillSetting.h"
 };
 
+struct MMOUIWingPanel_eventClonePlayer_Parms
+{
+    class AMMOPlayer* Base;
+    class AMMOPlayer* ReturnValue;
+    MMOUIWingPanel_eventClonePlayer_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallSelectWing_Parms
+{
+    INT WingID;
+    MMOUIWingPanel_eventCallSelectWing_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallUpdateWingUpgrade_Parms
+{
+    class UGFxObject* Data;
+    MMOUIWingPanel_eventCallUpdateWingUpgrade_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallUpdateWingSlots_Parms
+{
+    class UGFxObject* Data;
+    MMOUIWingPanel_eventCallUpdateWingSlots_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallUpdateWingProps_Parms
+{
+    class UGFxObject* Data;
+    MMOUIWingPanel_eventCallUpdateWingProps_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallUpdateWingList_Parms
+{
+    class UGFxObject* Data;
+    MMOUIWingPanel_eventCallUpdateWingList_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallOnWingUpgrade_Parms
+{
+    MMOUIWingPanel_eventCallOnWingUpgrade_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallSetWingLocalization_Parms
+{
+    class UGFxObject* Data;
+    MMOUIWingPanel_eventCallSetWingLocalization_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIWingPanel_eventCallUpdateWingData_Parms
+{
+    class UGFxObject* Data;
+    MMOUIWingPanel_eventCallUpdateWingData_Parms(EEventParm)
+    {
+    }
+};
+class UMMOUIWingPanel : public UMMOUIBaseSlotContainer
+{
+public:
+    //## BEGIN PROPS MMOUIWingPanel
+    INT SelectWingID;
+    INT BackShowType;
+    //## END PROPS MMOUIWingPanel
+
+    virtual void UpdateWing();
+    virtual INT GetSlotType();
+    virtual UBOOL OnLeftMousePress(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault);
+    virtual UBOOL OnLeftMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault);
+    virtual UBOOL OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault);
+    virtual UBOOL OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSlotMC,BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID,BYTE DestSlotType,BYTE DestContainerID,INT DestSlotID);
+    virtual UBOOL OnDoubleClickSlot(class UGFxObject* SrcSlotMC,BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID,UBOOL bDefault);
+    virtual void ASClickWingList(INT WingID);
+    virtual void AsClickWing(INT WingID);
+    virtual void ASClickWingUpgrade();
+    virtual void ASHasNoWingTip();
+    virtual void ASRotateWingMesh(INT Direction);
+    virtual void ASRotateWingMeshRelease();
+    virtual void ASSwitchBackShowType(INT ShowType);
+    virtual void ASShowTipsByType(INT TipsType,class UGFxObject* mc);
+    DECLARE_FUNCTION(execUpdateWing)
+    {
+        P_FINISH;
+        this->UpdateWing();
+    }
+    DECLARE_FUNCTION(execASClickWingList)
+    {
+        P_GET_INT(WingID);
+        P_FINISH;
+        this->ASClickWingList(WingID);
+    }
+    DECLARE_FUNCTION(execAsClickWing)
+    {
+        P_GET_INT(WingID);
+        P_FINISH;
+        this->AsClickWing(WingID);
+    }
+    DECLARE_FUNCTION(execASClickWingUpgrade)
+    {
+        P_FINISH;
+        this->ASClickWingUpgrade();
+    }
+    DECLARE_FUNCTION(execASHasNoWingTip)
+    {
+        P_FINISH;
+        this->ASHasNoWingTip();
+    }
+    DECLARE_FUNCTION(execASRotateWingMesh)
+    {
+        P_GET_INT(Direction);
+        P_FINISH;
+        this->ASRotateWingMesh(Direction);
+    }
+    DECLARE_FUNCTION(execASRotateWingMeshRelease)
+    {
+        P_FINISH;
+        this->ASRotateWingMeshRelease();
+    }
+    DECLARE_FUNCTION(execASSwitchBackShowType)
+    {
+        P_GET_INT(ShowType);
+        P_FINISH;
+        this->ASSwitchBackShowType(ShowType);
+    }
+    DECLARE_FUNCTION(execASShowTipsByType)
+    {
+        P_GET_INT(TipsType);
+        P_GET_OBJECT(UGFxObject,mc);
+        P_FINISH;
+        this->ASShowTipsByType(TipsType,mc);
+    }
+    class AMMOPlayer* eventClonePlayer(class AMMOPlayer* Base)
+    {
+        MMOUIWingPanel_eventClonePlayer_Parms Parms(EC_EventParm);
+        Parms.ReturnValue=NULL;
+        Parms.Base=Base;
+        ProcessEvent(FindFunctionChecked(MMOGAME_ClonePlayer),&Parms);
+        return Parms.ReturnValue;
+    }
+    void eventCallSelectWing(INT WingID)
+    {
+        MMOUIWingPanel_eventCallSelectWing_Parms Parms(EC_EventParm);
+        Parms.WingID=WingID;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSelectWing),&Parms);
+    }
+    void eventCallUpdateWingUpgrade(class UGFxObject* Data)
+    {
+        MMOUIWingPanel_eventCallUpdateWingUpgrade_Parms Parms(EC_EventParm);
+        Parms.Data=Data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateWingUpgrade),&Parms);
+    }
+    void eventCallUpdateWingSlots(class UGFxObject* Data)
+    {
+        MMOUIWingPanel_eventCallUpdateWingSlots_Parms Parms(EC_EventParm);
+        Parms.Data=Data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateWingSlots),&Parms);
+    }
+    void eventCallUpdateWingProps(class UGFxObject* Data)
+    {
+        MMOUIWingPanel_eventCallUpdateWingProps_Parms Parms(EC_EventParm);
+        Parms.Data=Data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateWingProps),&Parms);
+    }
+    void eventCallUpdateWingList(class UGFxObject* Data)
+    {
+        MMOUIWingPanel_eventCallUpdateWingList_Parms Parms(EC_EventParm);
+        Parms.Data=Data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateWingList),&Parms);
+    }
+    void eventCallOnWingUpgrade()
+    {
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallOnWingUpgrade),NULL);
+    }
+    void eventCallSetWingLocalization(class UGFxObject* Data)
+    {
+        MMOUIWingPanel_eventCallSetWingLocalization_Parms Parms(EC_EventParm);
+        Parms.Data=Data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetWingLocalization),&Parms);
+    }
+    void eventCallUpdateWingData(class UGFxObject* Data)
+    {
+        MMOUIWingPanel_eventCallUpdateWingData_Parms Parms(EC_EventParm);
+        Parms.Data=Data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateWingData),&Parms);
+    }
+    DECLARE_CLASS(UMMOUIWingPanel,UMMOUIBaseSlotContainer,0|CLASS_Config,MMOGame)
+    #include "UMMOUIWingPanel.h"
+};
+
 struct MMOUIBattleScoreBoard_eventForceStopBattleTime_Parms
 {
     MMOUIBattleScoreBoard_eventForceStopBattleTime_Parms(EEventParm)
@@ -42818,6 +43013,21 @@ AUTOGENERATE_FUNCTION(UMMOUIWeaponSkillSetting,-1,execOnLeftMouseClick);
 AUTOGENERATE_FUNCTION(UMMOUIWeaponSkillSetting,-1,execOnLeftMousePress);
 AUTOGENERATE_FUNCTION(UMMOUIWeaponSkillSetting,-1,execBagSlotChange);
 AUTOGENERATE_FUNCTION(UMMOUIWeaponSkillSetting,-1,execNativeInitLoad);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASShowTipsByType);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASSwitchBackShowType);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASRotateWingMeshRelease);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASRotateWingMesh);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASHasNoWingTip);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASClickWingUpgrade);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execAsClickWing);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execASClickWingList);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execOnDoubleClickSlot);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execOnDragDrop);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execOnRightMouseClick);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execOnLeftMouseClick);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execOnLeftMousePress);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execGetSlotType);
+AUTOGENERATE_FUNCTION(UMMOUIWingPanel,-1,execUpdateWing);
 AUTOGENERATE_FUNCTION(UMMOUIBattleScoreBoard,-1,execSkipCaptureInputKey);
 AUTOGENERATE_FUNCTION(UMMOUIBattleScoreBoard,-1,execIsTimeCountDown);
 AUTOGENERATE_FUNCTION(UMMOUIBattleScoreBoard,-1,execUpdateScore);
@@ -44575,6 +44785,8 @@ AUTOGENERATE_FUNCTION(UUIKeyMapManager,-1,execOnSlotKey);
 	GNativeLookupFuncs.Set(FName("MMOUIWeaponSkillRplc"), GMMOGameUMMOUIWeaponSkillRplcNatives); \
 	UMMOUIWeaponSkillSetting::StaticClass(); \
 	GNativeLookupFuncs.Set(FName("MMOUIWeaponSkillSetting"), GMMOGameUMMOUIWeaponSkillSettingNatives); \
+	UMMOUIWingPanel::StaticClass(); \
+	GNativeLookupFuncs.Set(FName("MMOUIWingPanel"), GMMOGameUMMOUIWingPanelNatives); \
 	UMMOUIBattleScoreBoard::StaticClass(); \
 	GNativeLookupFuncs.Set(FName("MMOUIBattleScoreBoard"), GMMOGameUMMOUIBattleScoreBoardNatives); \
 	UMMOUIBattleState::StaticClass(); \
@@ -47320,6 +47532,26 @@ FNativeFunctionLookup GMMOGameUMMOUIWeaponSkillSettingNatives[] =
 	{NULL, NULL}
 };
 
+FNativeFunctionLookup GMMOGameUMMOUIWingPanelNatives[] = 
+{ 
+	MAP_NATIVE(UMMOUIWingPanel, execASShowTipsByType)
+	MAP_NATIVE(UMMOUIWingPanel, execASSwitchBackShowType)
+	MAP_NATIVE(UMMOUIWingPanel, execASRotateWingMeshRelease)
+	MAP_NATIVE(UMMOUIWingPanel, execASRotateWingMesh)
+	MAP_NATIVE(UMMOUIWingPanel, execASHasNoWingTip)
+	MAP_NATIVE(UMMOUIWingPanel, execASClickWingUpgrade)
+	MAP_NATIVE(UMMOUIWingPanel, execAsClickWing)
+	MAP_NATIVE(UMMOUIWingPanel, execASClickWingList)
+	MAP_NATIVE(UMMOUIWingPanel, execOnDoubleClickSlot)
+	MAP_NATIVE(UMMOUIWingPanel, execOnDragDrop)
+	MAP_NATIVE(UMMOUIWingPanel, execOnRightMouseClick)
+	MAP_NATIVE(UMMOUIWingPanel, execOnLeftMouseClick)
+	MAP_NATIVE(UMMOUIWingPanel, execOnLeftMousePress)
+	MAP_NATIVE(UMMOUIWingPanel, execGetSlotType)
+	MAP_NATIVE(UMMOUIWingPanel, execUpdateWing)
+	{NULL, NULL}
+};
+
 FNativeFunctionLookup GMMOGameUMMOUIBattleScoreBoardNatives[] = 
 { 
 	MAP_NATIVE(UMMOUIBattleScoreBoard, execSkipCaptureInputKey)
@@ -49879,6 +50111,9 @@ VERIFY_CLASS_SIZE_NODIE(UMMOUIWeaponSkillRplc)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUIWeaponSkillSetting,MMOUIWeaponSkillSetting,_ToOpWeapon)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUIWeaponSkillSetting,MMOUIWeaponSkillSetting,_ReplaceWSkillConfirmBox)
 VERIFY_CLASS_SIZE_NODIE(UMMOUIWeaponSkillSetting)
+VERIFY_CLASS_OFFSET_NODIE(UMMOUIWingPanel,MMOUIWingPanel,SelectWingID)
+VERIFY_CLASS_OFFSET_NODIE(UMMOUIWingPanel,MMOUIWingPanel,BackShowType)
+VERIFY_CLASS_SIZE_NODIE(UMMOUIWingPanel)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUIBattleScoreBoard,MMOUIBattleScoreBoard,TeamScoreMc)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUIBattleScoreBoard,MMOUIBattleScoreBoard,BattleTimeMC)
 VERIFY_CLASS_SIZE_NODIE(UMMOUIBattleScoreBoard)

@@ -36,6 +36,7 @@ add_library(fusion STATIC
     src/data/missile_data.cpp
     src/data/money_data.cpp
     src/data/mount_data.cpp
+    src/data/wings_data.cpp
     src/data/npc_data.cpp
     src/data/npc_relation_data.cpp
     src/data/pk_drop_count_data.cpp

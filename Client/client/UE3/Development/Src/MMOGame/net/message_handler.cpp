@@ -962,6 +962,8 @@ BOOL CMessageHandler::Init(void)
 	MREG_PARSE_FUN(g2c_activate_mount);
 	MREG_PARSE_FUN(g2c_char_on_mount);
 	MREG_PARSE_FUN(g2c_char_off_mount);
+	MREG_PARSE_FUN(g2c_char_wing);
+	MREG_PARSE_FUN(g2c_wing_info);
 
 	//hero
 	MREG_PARSE_FUN(g2c_sync_hero_data);
@@ -2325,6 +2327,18 @@ void CMessageHandler::ProcessCharData( G2C_CHAR_APPEAR* msg, CHAR_APPEAR_DATA* d
 	actor->ActorAttributes->IsGreyName = data->bGreyName;
 	//mount
 	actor->ActorAttributes->MountID = data->byMountID;
+	//wing
+	{
+		INT OldWingID = actor->ActorAttributes->WingID;
+		actor->ActorAttributes->WingID = data->wWingID;
+		if(OldWingID != (INT)data->wWingID && actor->Mesh && actor->Mesh->SkeletalMesh)
+		{
+			if(data->wWingID > 0)
+				actor->EquipWing(data->wWingID);
+			else
+				actor->UnEquipWing();
+		}
+	}
 	actor->ActorAttributes->byCombatPoseOn = data->byCombatPoseOn;
 	actor->bHoldWeapon = !(actor->ActorAttributes->byCombatPoseOn);
 	//hp percent
@@ -4169,6 +4183,15 @@ void CMessageHandler::Send_EquipMount(INT MountID)
 	}
 }
 
+void CMessageHandler::Send_WingOp(INT Op, INT Param)
+{
+	C2G_WING_OP msg;
+	msg.wMsg = c2g_wing_op;
+	msg.nOp = Op;
+	msg.nParam = Param;
+	_Send( &msg, sizeof(msg) );
+}
+
 
 void CMessageHandler::Send_ReceiveReputationAward(INT nForceID)
 {
@@ -4800,6 +4823,19 @@ void CMessageHandler::Parse_g2c_char_off_mount(const char* buf, UINT32 size)
 	G2C_CHAR_OFF_MOUNT* msg =  (G2C_CHAR_OFF_MOUNT*)buf;
 	MMOFacade::getSingleton().EquipMount(msg->dwCharID,0);
 	MMOUI::GetUIManager()->delegateRefreshEquipedMount();
+}
+
+void CMessageHandler::Parse_g2c_char_wing(const char* buf, UINT32 size)
+{
+	G2C_CHAR_WING* msg =  (G2C_CHAR_WING*)buf;
+	MMOFacade::getSingleton().EquipWing(msg->dwCharID,msg->wWingID);
+}
+
+extern void MMOUIWingPanel_OnWingInfo(INT Level, UINT Mask, INT CurrentWing, UBOOL bUpgraded);	// MMOUIWingPanel.cpp
+void CMessageHandler::Parse_g2c_wing_info(const char* buf, UINT32 size)
+{
+	G2C_WING_INFO* msg =  (G2C_WING_INFO*)buf;
+	MMOUIWingPanel_OnWingInfo(msg->nWingLevel, msg->dwOwnedMask, msg->wCurrentWing, msg->byUpgraded ? TRUE : FALSE);
 }
 
 

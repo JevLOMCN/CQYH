@@ -233,6 +233,7 @@ var init array<StaticMeshAttachInfo> AttachedStaticMeshs;
 var init array<DestructablePartAttachInfo> AttachedDestructableParts;
 
 var Mount MountInfo;
+var Mount WingInfo;
 var EWeaponType AttitudeType;
 var EWeaponType AttitudeTypeLast;
 
@@ -2307,6 +2308,10 @@ native function EquipMount(int MountID);
 
 // Ð¶ÏÂ×øÆï
 native function UnEquipMount();
+
+// wing (1.05 wings.txt)
+native function EquipWing(int WingID);
+native function UnEquipWing();
 //{
 //	if(MountInfo!=none)
 //	{

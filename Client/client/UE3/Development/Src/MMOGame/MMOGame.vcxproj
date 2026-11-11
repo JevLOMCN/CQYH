@@ -501,6 +501,7 @@
     <None Include="Classes\MMOUIMessageBoxZone.uc" />
     <None Include="Classes\MMOUIMoneyExchange.uc" />
     <None Include="Classes\MMOUIMountPanel.uc" />
+    <None Include="Classes\MMOUIWingPanel.uc" />
     <None Include="Classes\MMOUIMsgButtonBar.uc" />
     <None Include="Classes\MMOUIMsgInfo.uc" />
     <None Include="Classes\MMOUIMutiLineMsgBox.uc" />
@@ -1311,6 +1312,7 @@
     <ClCompile Include="Src\MMOUIMenuBar.cpp" />
     <ClCompile Include="Src\MMOUIMoneyExchange.cpp" />
     <ClCompile Include="Src\MMOUIMountPanel.cpp" />
+    <ClCompile Include="Src\MMOUIWingPanel.cpp" />
     <ClCompile Include="Src\MMOUIMsgButtonBar.cpp" />
     <ClCompile Include="Src\MMOUIMsgInfo.cpp" />
     <ClCompile Include="Src\MMOUINewEventPanel.cpp" />
@@ -1719,6 +1721,7 @@
     <ClInclude Include="Inc\UMMOUIMessageBoxZone.h" />
     <ClInclude Include="Inc\UMMOUIMinimap.h" />
     <ClInclude Include="Inc\UMMOUIMountPanel.h" />
+    <ClInclude Include="Inc\UMMOUIWingPanel.h" />
     <ClInclude Include="Inc\UMMOUIMsgButtonBar.h" />
     <ClInclude Include="Inc\UMMOUINoticeInfo.h" />
     <ClInclude Include="Inc\UMMOUIOptionConfig.h" />

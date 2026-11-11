@@ -1151,7 +1151,7 @@
 	--- Debug options
 	DebugOption = {
 	    debugai = false,
-	    bShowErrorDialog = true,
+	    bShowErrorDialog = false,
 	    debugsp = false,
 	    dropstat = false,
 		anticheat = true,

@@ -2212,6 +2212,15 @@ void AMMOActor::NativeSetMesh(BYTE ClassType, BYTE GenderType)
 	{
 		UnEquipMount();
 	}
+
+	if(ActorAttributes&&ActorAttributes->WingID>0)
+	{
+		EquipWing(ActorAttributes->WingID);
+	}
+	else
+	{
+		UnEquipWing();
+	}
 }
 
 
@@ -5108,6 +5117,107 @@ void AMMOActor::UnEquipMount()
 		}
 	}
 	RefreshAnim();
+}
+
+
+//wing (1.05): a separate skeletal mesh (AvatarData from wings.txt) attached to the back of the character, same idea as EquipMount
+void AMMOActor::EquipWing(INT WingID)
+{
+	UnEquipWing();
+
+	if(ActorAttributes)ActorAttributes->WingID = WingID;
+
+	if(WingID <= 0 || Mesh == NULL || Mesh->SkeletalMesh == NULL)
+	{
+		// the body mesh is not built yet: RefreshAvatar equips the wing again from ActorAttributes->WingID
+		return;
+	}
+
+	FString AvatarName = MMOFacade::getSingleton().GetWingAvatarName(WingID);
+	if(AvatarName.Len() <= 0)
+	{
+		return;
+	}
+
+	UAvatarData* pWing = Cast<UAvatarData>(UObject::StaticLoadObject(UAvatarData::StaticClass(), NULL, *AvatarName, NULL, LOAD_NoWarn | LOAD_Quiet, NULL));
+	if(pWing == NULL || pWing->SkeletalMesh == NULL)
+	{
+		warnf(NAME_Warning, TEXT("EquipWing: cannot load wing avatar %d [%s]"), WingID, *AvatarName);
+		return;
+	}
+
+	UMount* pNewWing = ConstructObject<UMount>(UMount::StaticClass(), UObject::GetTransientPackage());
+	if(pNewWing == NULL)
+	{
+		return;
+	}
+
+	pNewWing->eventInitMount(pWing);
+	pNewWing->eventAttachActor(this);
+	if(pNewWing->SkelMeshComponent == NULL)
+	{
+		return;
+	}
+	WingInfo = pNewWing;
+
+	WingInfo->SkelMeshComponent->SetLightingChannels(Mesh->LightingChannels);
+	WingInfo->SkelMeshComponent->SetLightEnvironment(Mesh->LightEnvironment);
+	// purely visual: no collision / picking
+	WingInfo->SkelMeshComponent->CollideActors = FALSE;
+	WingInfo->SkelMeshComponent->BlockActors = FALSE;
+	WingInfo->SkelMeshComponent->BlockRigidBody = FALSE;
+	WingInfo->SkelMeshComponent->BlockZeroExtent = FALSE;
+	WingInfo->SkelMeshComponent->BlockNonZeroExtent = FALSE;
+
+	// socket on the character: FX_Wing (new skeletons), then FX_Back, otherwise the spine bone
+	FName WingSocket(TEXT("FX_Wing"));
+	if(Mesh->SkeletalMesh->FindSocket(WingSocket) == NULL)
+	{
+		WingSocket = FName(TEXT("FX_Back"));
+		if(Mesh->SkeletalMesh->FindSocket(WingSocket) == NULL)
+		{
+			WingSocket = FName(TEXT("Bip01-Spine1"));
+		}
+	}
+	Mesh->AttachComponentToSocket( WingInfo->SkelMeshComponent, WingSocket );
+
+	// particle effects of the wing (sockets of the wing mesh)
+	for(INT i = 0; i < pWing->AttachedParticles.Num(); ++i)
+	{
+		if(pWing->AttachedParticles(i).EmitterTemplate == NULL)
+		{
+			continue;
+		}
+		UParticleSystemComponent* pPsc = ConstructObject<UParticleSystemComponent>(UParticleSystemComponent::StaticClass(), this);
+		if(pPsc == NULL)
+		{
+			continue;
+		}
+		pPsc->SetTemplate(pWing->AttachedParticles(i).EmitterTemplate);
+		if(pWing->AttachedParticles(i).Scale > 0.f)
+		{
+			pPsc->Scale = pWing->AttachedParticles(i).Scale;
+		}
+		WingInfo->SkelMeshComponent->AttachComponentToSocket( pPsc, pWing->AttachedParticles(i).AttachSocket );
+		pPsc->ActivateSystem(TRUE);
+	}
+
+	if(WingInfo->ActorAT)
+	{
+		WingInfo->ActorAT->SetIdleAnim(FName(TEXT("Idle")));
+		WingInfo->ActorAT->SetMoveAnim(FName(TEXT("Run")));
+	}
+}
+
+
+void AMMOActor::UnEquipWing()
+{
+	if(WingInfo && WingInfo->SkelMeshComponent && Mesh)
+	{
+		Mesh->DetachComponent(WingInfo->SkelMeshComponent);
+	}
+	WingInfo = NULL;
+	if(ActorAttributes)ActorAttributes->WingID = 0;
 }
 
 

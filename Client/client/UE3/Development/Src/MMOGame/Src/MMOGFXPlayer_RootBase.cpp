@@ -5,6 +5,7 @@
 IMPLEMENT_CLASS(UMMOGFXPlayer_RootBase)
 
 extern bool g_displayDragDropIcon;
+extern void MMOUIWingPanel_Tick();	// MMOUIWingPanel.cpp
 
 extern TArray<struct FGFxWidgetBinding> g_WidgetBindings;
 
@@ -234,6 +235,7 @@ UBOOL UMMOGFXPlayer_RootBase::WidgetUnloaded(FName WidgetName,FName WidgetPath,c
 void UMMOGFXPlayer_RootBase::PostAdvance(float DeltaTime)
 {
 	Super::PostAdvance(DeltaTime);
+	MMOUIWingPanel_Tick();
 	if(g_displayDragDropIcon)
 	{
 		FIntPoint pt = MMOFacade::GetMouseCursorPosition();

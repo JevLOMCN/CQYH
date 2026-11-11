@@ -56,6 +56,9 @@ BOOL CRole::Load(const char* pcData, UINT32 dwSize)
 	TryWeeklyRefresh();
 	TryDailyRefresh();
 
+	// wing panel: the level bonuses are not part of the saved attributes
+	ApplyWingLevelAttr(0, GetWingLevel());
+
 	if (m_nCurrentHp > m_AttrList.GetAttr(catMaxHp))
 		m_nCurrentHp = m_AttrList.GetAttr(catMaxHp);
 	if (m_nCurrentMp > m_AttrList.GetAttr(catMaxMp))
@@ -137,6 +140,9 @@ BOOL CRole::_LoadBaseData(const char* pcData, UINT32 dwSize)
 
     if (BaseData.wMountID != 0)
         OnMount(BaseData.wMountID);
+
+    if (BaseData.wWingID != 0)
+        EquipWing(BaseData.wWingID);
 
     return TRUE;
 Exit0:

@@ -11,6 +11,8 @@ CanvasRenderableList g_canvasRenderable;
 
 TArray<IIMMOActorHUD*> g_ActorHUDList;
 
+extern void MMOUIWingPanel_DrawPreview(UCanvas* Canvas);	// MMOUIWingPanel.cpp
+
 void AMMOHud::RegisterCanvasRenderable( class ICanvasRenderable* obj )
 {
 	g_canvasRenderable.push_back(obj);
@@ -63,6 +65,8 @@ void AMMOHud::DrawHUD()
 	{
 		g_canvasRenderable[i]->OnCanvasPostRender(Canvas, fDeltaTime);
 	}
+
+	MMOUIWingPanel_DrawPreview(Canvas);
 
 	//AMMOPlayerController* pc = Cast<AMMOPlayerController>( PlayerOwner );
 }

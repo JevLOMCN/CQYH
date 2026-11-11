@@ -30,6 +30,19 @@ function read_int_expr(expr)
 	return result;
 end
 
+-- 1.05 backport: like read_int_expr, but a name this server does not know (1.05 only attribute categories in wings_level.txt) gives 0
+function read_int_expr_safe(expr)
+	local f = loadstring('return '..expr);
+	if f == nil then
+		return 0;
+	end
+	local ok, v = pcall(f);
+	if ok and type(v) == 'number' then
+		return v;
+	end
+	return 0;
+end
+
 function read_str_expr(expr)
     local f, msg;
     local s = 'result = '..expr;

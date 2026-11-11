@@ -122,6 +122,7 @@ CCharacter::CCharacter()
     m_poPendingItem = NULL;
     m_nPendingItemSlot = 0;
     m_nCurrentMountID = 0;
+    m_nCurrentWingID = 0;
 
     m_nLastHurtFrm = 0;
     m_nNewAiID = 0;
@@ -222,6 +223,7 @@ BOOL CCharacter::Init(UINT32 dwObjID)
     m_nPendingItemSlot = 0;
     m_oFlag.SetFlag(cfNotInCombat);
     m_nCurrentMountID = 0;
+    m_nCurrentWingID = 0;
     m_pStatNode = NULL;
     m_RemoveEventList.clear();
     m_PendingSpellStack.Clear();

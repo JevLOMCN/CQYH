@@ -77,7 +77,7 @@ INT32 g_nS2CMessageSize[] = {
        46,    //  57 G2C_REVIVE_INFO
        14,    //  58 G2C_ACTIVATE_REVIVE_PT
        12,    //  59 G2C_CHAR_MINE
-       19,    //  60 G2C_CHAR_APPEAR
+       21,    //  60 G2C_CHAR_APPEAR
        -1,    //  61 G2C_SYNC_CHAR_LIST
         7,    //  62 G2C_OBJECT_DISAPPEAR
        -1,    //  63 G2C_OBJECT_DISAPPEAR_LIST
@@ -309,8 +309,8 @@ INT32 g_nS2CMessageSize[] = {
         3,    // 289 G2C_RUNE_ITEM_ADVANCE_CONFIRM
        10,    // 290 G2C_POTION_GAMBLE
        -1,    // 291 G2C_SELL_RESOURCE_ITEM
-        0,
-        0,
+        8,    // 292 G2C_CHAR_WING
+       13,    // 293 G2C_WING_INFO
         0,
         0,
         0,
@@ -1242,7 +1242,7 @@ INT32 g_nC2SMessageSize[] = {
         2,    // 195 C2G_SELL_RESOURCE_ITEM
         6,    // 196 C2G_DICE_BET
         2,    // 197 C2G_LOVERS_TELEPROT
-        0,
+       10,    // 198 C2G_WING_OP
         0,
         0,
         0,
@@ -2364,8 +2364,8 @@ char* g_szS2CMessageName[] = {
     "g2c_rune_item_advance_confirm",
     "g2c_potion_gamble",
     "g2c_sell_resource_item",
-    "undefined s2c message",
-    "undefined s2c message",
+    "g2c_char_wing",
+    "g2c_wing_info",
     "undefined s2c message",
     "undefined s2c message",
     "undefined s2c message",
@@ -3297,7 +3297,7 @@ char* g_szC2SMessageName[] = {
     "c2g_sell_resource_item",
     "c2g_dice_bet",
     "c2g_lovers_teleprot",
-    "undefined c2s message",
+    "c2g_wing_op",
     "undefined c2s message",
     "undefined c2s message",
     "undefined c2s message",

@@ -68,7 +68,7 @@ namespace ROLE_DB_DEF_V_3
 	{
 		UINT8   byVersion;  // base data version
 		UINT8	byRequireChangeName;
-		UINT16	wReserved2;
+		UINT16	wWingID;
 
 		UINT32  dwRoleID;
 

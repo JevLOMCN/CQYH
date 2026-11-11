@@ -46,6 +46,7 @@
 #include "level_data.h"
 #include "attr_conversion_data.h"
 #include "mount_data.h"
+#include "wings_data.h"
 #include "circle_quest_data.h"
 #include "activity_reward_data.h"
 #include "modifier_tree.h"
@@ -1671,6 +1672,12 @@ BOOL _InitWorldData()
 	nRetCode = CDataManager<MOUNT_ENTRY>::GetInstance().Init(MOUNT_FILE_NAME, szFilePath, NULL);
 	LOG_PROCESS_ERROR(nRetCode);
 
+	nRetCode = CDataManager<WINGS_ENTRY>::GetInstance().Init(WINGS_FILE_NAME, szFilePath, NULL);
+	LOG_PROCESS_ERROR(nRetCode);
+
+	nRetCode = CDataManager<WINGS_LEVEL_ENTRY>::GetInstance().Init(WINGS_LEVEL_FILE_NAME, szFilePath, NULL);
+	LOG_PROCESS_ERROR(nRetCode);
+
 	nRetCode = CDataManager<SPIRIT_DATA>::GetInstance().Init(SPIRIT_FILE_NAME, szFilePath, NULL);
 	LOG_PROCESS_ERROR(nRetCode);
 
@@ -1896,6 +1903,12 @@ BOOL _UnInitWorldData(void)
 	LOG_CHECK_ERROR(nRetCode);
 	
 	nRetCode = CDataManager<MOUNT_ENTRY>::GetInstance().UnInit();
+	LOG_CHECK_ERROR(nRetCode);
+
+	nRetCode = CDataManager<WINGS_ENTRY>::GetInstance().UnInit();
+	LOG_CHECK_ERROR(nRetCode);
+
+	nRetCode = CDataManager<WINGS_LEVEL_ENTRY>::GetInstance().UnInit();
 	LOG_CHECK_ERROR(nRetCode);
 
 	nRetCode = CDataManager<SPIRIT_DATA>::GetInstance().UnInit();

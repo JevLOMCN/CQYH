@@ -36,6 +36,7 @@
 #include "role_faction_mgr.h"
 #include "statistic.h"
 #include "mount_data.h"
+#include "wings_data.h"
 #include "hero_attr_data.h"
 #include "guild_mgr.h"
 #include "spirit_data.h"
@@ -3721,7 +3722,12 @@ INT32 CRole::OnMount(INT32 nMountID)
     m_nCurrentMountID = nMountID;
     m_oFlag.SetFlag(cfOnMount);
 
-    //	m_AttrList.AddAttrB(this, catMountMoveSpeed, pInfo->m_nSpeedModificationRate);
+    // 1.05 backport: SpeedModificationRate is a (negative) percentage of the per-step delay, RATE_MAX based
+    {
+        INT32 nRate = pInfo->m_nSpeedModificationRate;
+        if (nRate > 0) nRate = -nRate;
+        m_AttrList.AddAttrB(this, catRunSpeed, nRate);
+    }
 
 #ifndef _ROBOT
     if (!IsLoading())
@@ -3750,7 +3756,11 @@ void CRole::OffMount(void)
     LOG_PROCESS_ERROR(pInfo);
 
     m_nCurrentMountID = 0;
-    //	m_AttrList.AddAttrB(this, catMountMoveSpeed, -pInfo->m_nSpeedModificationRate);
+    {
+        INT32 nRate = pInfo->m_nSpeedModificationRate;
+        if (nRate > 0) nRate = -nRate;
+        m_AttrList.AddAttrB(this, catRunSpeed, -nRate);
+    }
 
 #ifndef _ROBOT
     CCliMessageHandler::GetInstance().DoCharOffMount(this);
@@ -3759,6 +3769,207 @@ void CRole::OffMount(void)
 Exit0:
     return;
 }
+
+INT32 CRole::EquipWing(INT32 nWingID)
+{
+    INT32 nResult = errUnknownError;
+    const WINGS_ENTRY* pInfo = NULL;
+
+    pInfo = CDataManager<WINGS_ENTRY>::GetInstance().GetData(nWingID);
+    LOG_PROCESS_ERROR(pInfo);
+
+    // wearing a new wing replaces the current one
+    if (m_nCurrentWingID != 0)
+        UnequipWing();
+
+    m_nCurrentWingID = nWingID;
+
+    if (pInfo->m_nAttributeID > 0 && pInfo->m_nAttributeValue != 0)
+        m_AttrList.AddAttrB(this, pInfo->m_nAttributeID, pInfo->m_nAttributeValue);
+
+#ifndef _ROBOT
+    if (!IsLoading())
+        CCliMessageHandler::GetInstance().DoCharWing(this, nWingID);
+#endif
+
+    return errSuccess;
+Exit0:
+#ifndef _ROBOT
+    if (!IsLoading())
+        this->ErrorCodeNotify(nResult, 0, 0);
+#endif
+    return nResult;
+}
+
+void CRole::UnequipWing(void)
+{
+    const WINGS_ENTRY* pInfo = NULL;
+
+    PROCESS_ERROR(m_nCurrentWingID != 0);
+
+    pInfo = CDataManager<WINGS_ENTRY>::GetInstance().GetData(m_nCurrentWingID);
+
+    m_nCurrentWingID = 0;
+
+    if (pInfo && pInfo->m_nAttributeID > 0 && pInfo->m_nAttributeValue != 0)
+        m_AttrList.AddAttrB(this, pInfo->m_nAttributeID, -pInfo->m_nAttributeValue);
+
+#ifndef _ROBOT
+    CCliMessageHandler::GetInstance().DoCharWing(this, 0);
+#endif
+
+Exit0:
+    return;
+}
+// ---- wing panel (1.05 UnrealWing) -------------------------------------------------------------------------------
+INT32 CRole::GetWingLevel(void)
+{
+    return GetVariable(ROLE_VAR_WING_LEVEL);
+}
+
+UINT32 CRole::GetWingMask(void)
+{
+    return (UINT32)GetVariable(ROLE_VAR_WING_MASK);
+}
+
+BOOL CRole::HasWing(INT32 nWingID)
+{
+    INT32 nBit = nWingID - WING_ID_BASE;
+
+    if (nBit < 0 || nBit >= WING_ID_BITS)
+        return FALSE;
+
+    return ((GetWingMask() >> nBit) & 1) ? TRUE : FALSE;
+}
+
+// returns TRUE when the wing was not owned before
+BOOL CRole::GrantWing(INT32 nWingID)
+{
+    INT32 nBit = nWingID - WING_ID_BASE;
+    const WINGS_ENTRY* pInfo = CDataManager<WINGS_ENTRY>::GetInstance().GetData(nWingID);
+
+    PROCESS_ERROR(pInfo);
+    PROCESS_ERROR(nBit >= 0 && nBit < WING_ID_BITS);
+    PROCESS_ERROR(!HasWing(nWingID));
+
+    SetVariable(ROLE_VAR_WING_MASK, (INT32)(GetWingMask() | (1u << nBit)));
+
+#ifndef _ROBOT
+    if (!IsLoading())
+        SyncWingInfo(FALSE);
+#endif
+
+    return TRUE;
+Exit0:
+    return FALSE;
+}
+
+// level n gives the attributes of row n; the bonuses of the rows (nFrom, nTo] are added
+void CRole::ApplyWingLevelAttr(INT32 nFrom, INT32 nTo)
+{
+    for (INT32 nLevel = nFrom + 1; nLevel <= nTo; ++nLevel)
+    {
+        const WINGS_LEVEL_ENTRY* pLevel = CDataManager<WINGS_LEVEL_ENTRY>::GetInstance().GetData(nLevel);
+        if (!pLevel)
+            continue;
+
+        for (INT32 i = 0; i < 2; ++i)
+        {
+            if (pLevel->m_nAttributeID[i] > 0 && pLevel->m_nAttributeValue[i] != 0)
+                m_AttrList.AddAttrB(this, pLevel->m_nAttributeID[i], pLevel->m_nAttributeValue[i]);
+        }
+    }
+}
+
+INT32 CRole::UpgradeWing(void)
+{
+    INT32 nLevel = GetWingLevel();
+    INT32 nNext = nLevel + 1;
+    const WINGS_LEVEL_ENTRY* pNext = CDataManager<WINGS_LEVEL_ENTRY>::GetInstance().GetData(nNext);
+    CItemBag* pBag = GetItemBag();
+
+    PROCESS_ERROR(pBag);
+
+    if (GetWingMask() == 0)
+    {
+        Say(GetObjID(), cltNormal, "Get a wing first (use a wing item).");
+        goto Exit0;
+    }
+    if (!pNext)
+    {
+        Say(GetObjID(), cltNormal, "The wing is already at the highest level.");
+        goto Exit0;
+    }
+    if (nNext > m_nLevel)
+    {
+        Say(GetObjID(), cltNormal, "The wing level cannot exceed the character level.");
+        goto Exit0;
+    }
+
+    for (INT32 i = 0; i < 2; ++i)
+    {
+        if (pNext->m_nConsumeItemID[i] > 0 && pNext->m_nConsumeItemCnt[i] > 0 &&
+            pBag->GetItemCount(pNext->m_nConsumeItemID[i], FALSE) < pNext->m_nConsumeItemCnt[i])
+        {
+            Say(GetObjID(), cltNormal, "Not enough materials to upgrade the wing.");
+            goto Exit0;
+        }
+    }
+
+    for (INT32 i = 0; i < 2; ++i)
+    {
+        if (pNext->m_nConsumeItemID[i] > 0 && pNext->m_nConsumeItemCnt[i] > 0)
+        {
+            INT32 nRetCode = pBag->DeleteItemId(pNext->m_nConsumeItemID[i], (INT16)pNext->m_nConsumeItemCnt[i], ITEMLOG_SCRIPT, FALSE, 0);
+            LOG_PROCESS_ERROR(nRetCode == errSuccess);
+        }
+    }
+
+    SetVariable(ROLE_VAR_WING_LEVEL, nNext);
+    ApplyWingLevelAttr(nLevel, nNext);
+    SyncWingInfo(TRUE);
+
+    return errSuccess;
+Exit0:
+    return errUnknownError;
+}
+
+// c2g_wing_op: 0 query, 1 wear (nParam = wing id), 2 take off, 3 upgrade
+void CRole::WingOperate(INT32 nOp, INT32 nParam)
+{
+    switch (nOp)
+    {
+    case 0:
+        break;
+    case 1:
+        if (!HasWing(nParam))
+        {
+            Say(GetObjID(), cltNormal, "You do not own this wing yet.");
+            break;
+        }
+        if (m_nCurrentWingID != nParam)
+            EquipWing(nParam);
+        break;
+    case 2:
+        UnequipWing();
+        break;
+    case 3:
+        UpgradeWing();
+        return;     // UpgradeWing replies itself
+    default:
+        break;
+    }
+
+    SyncWingInfo(FALSE);
+}
+
+void CRole::SyncWingInfo(BOOL bUpgraded)
+{
+#ifndef _ROBOT
+    CCliMessageHandler::GetInstance().DoWingInfo(this, bUpgraded);
+#endif
+}
+// ----------------------------------------------------------------------------------------------------------------
 
 void CRole::SetPkValue(UINT32 dwPkValue)
 {

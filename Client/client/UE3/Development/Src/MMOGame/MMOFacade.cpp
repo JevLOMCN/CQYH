@@ -1710,6 +1710,7 @@ void MMOFacade::Init()
 		ReadTweenData();
 		//ReadTestDropTrace();
 		ReadMountData();
+		ReadWingData();
 		ReadReputationTemp();
 		ReadReputation();
 		ReadHint();
@@ -3931,6 +3932,16 @@ MountData* MMOFacade::GetMountData(INT ID)
 	return NULL;
 }
 
+FString MMOFacade::GetWingAvatarName(INT ID)
+{
+	WingDataMap::iterator it = _WingDataMap.find(ID);
+	if(it != _WingDataMap.end())
+	{
+		return it->second.AvatarName;
+	}
+	return FString();
+}
+
 
 ShowPanelAdvancedData* MMOFacade::GetShowPanelAdvancedData(const FString& mapName)
 {
@@ -5564,6 +5575,22 @@ void MMOFacade::EquipMount(UINT CharID,INT MountID)
 		}
 	}
 
+}
+
+void MMOFacade::EquipWing(UINT CharID,INT WingID)
+{
+	AMMOActor* pActor = GetCharacter(CharID);
+	if(pActor)
+	{
+		if(WingID<=0)
+		{
+			pActor->UnEquipWing();
+		}
+		else
+		{
+			pActor->EquipWing(WingID);
+		}
+	}
 }
 
 
@@ -8568,6 +8595,51 @@ UBOOL MMOFacade::ReadMountData()
 	//		pMount->Script				=ArrayString(3); 
 	//	}
 	//}
+	delete tabFile;
+	return TRUE;
+}
+
+//read wings.txt
+UBOOL MMOFacade::ReadWingData()
+{
+	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadWingData"), 0);
+
+	CTabFile* tabFile = NULL;
+	if(!MMOFacade::getSingleton().ReadConfigString( tabFile, TEXT("wings.txt"), TRUE ) )
+	{
+		return FALSE;
+	}
+
+	INT _ID			= tabFile->GetKeyColIdx( TEXT("ID"));
+	INT _Avatar		= tabFile->GetKeyColIdx( TEXT("AvartarName"));
+
+	_WingDataMap.clear();
+	for (int i = 2; i < tabFile->GetRowCount(); ++i)
+	{
+		WingData T;
+
+		T.ID = appAtoi(tabFile->GetData( _ID,i));
+		if(T.ID <= 0)
+		{
+			continue;
+		}
+
+		// AvatarData'Wing_Avt_Data.AvatarData_Wing_01_Lv1'  ->  Wing_Avt_Data.AvatarData_Wing_01_Lv1
+		FString Raw = tabFile->GetData( _Avatar,i);
+		INT Begin = Raw.InStr(TEXT("'"));
+		INT End = Raw.InStr(TEXT("'"), TRUE);
+		if(Begin >= 0 && End > Begin)
+		{
+			T.AvatarName = Raw.Mid(Begin + 1, End - Begin - 1);
+		}
+		else
+		{
+			T.AvatarName = Raw;
+		}
+
+		_WingDataMap.insert(std::make_pair(T.ID, T));
+	}
+
 	delete tabFile;
 	return TRUE;
 }
