@@ -38,8 +38,9 @@ void UMMOGFXLoadPlayer::OnEnter()
 				INT sizeX = MMOFacade::getSingleton().GetScreenSize().X;
 				FLOAT fHeight = loadingBar->GetFloat("height");
 				FLOAT fWidth = loadingBar->GetFloat("width");
-				loadingBar->SetFloat("y",sizeY - fHeight +30);
-				loadingBar->SetFloat("x",(sizeX-fWidth)*0.5f);
+					warnf(TEXT("[LoadingDiag] OnEnter screen=%dx%d bar w=%.1f h=%.1f x=%.1f y=%.1f"), sizeX, sizeY, fWidth, fHeight, loadingBar->GetFloat("x"), loadingBar->GetFloat("y"));
+				loadingBar->SetFloat("y",0.0f /* was sizeY-fHeight+30; swf lays out in stage coords */);
+				loadingBar->SetFloat("x",0.0f);
 			}
 			OnUpdate();
 		}

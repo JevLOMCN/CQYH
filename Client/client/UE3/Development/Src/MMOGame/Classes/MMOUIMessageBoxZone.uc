@@ -20,9 +20,15 @@ event GfxObject CallClearAllMsgbox()
 	return ActionScriptObject("ClearAllMsgbox");
 }
 
-event GfxObject CallAddModalMsgbox( string msgName , optional bool twoButton = true )
+// 1.05 MessageBox.swf: AddModalMsgbox(name, yesLabel, noLabel, twoButton)
+function GfxObject ASAddModalMsgbox( string msgName , string yesLabel , string noLabel , bool twoButton )
 {
 	return ActionScriptObject("AddModalMsgbox");
+}
+
+event GfxObject CallAddModalMsgbox( string msgName , optional bool twoButton = true )
+{
+	return ASAddModalMsgbox( msgName , "OK" , "Cancel" , twoButton );
 }
 
 event GfxObject CallAddInputMsgbox( string msgName , optional bool twoButton = true)

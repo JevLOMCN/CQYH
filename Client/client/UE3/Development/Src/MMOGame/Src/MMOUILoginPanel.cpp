@@ -83,7 +83,7 @@ void UMMOUILoginPanel::ShowFreePkDlg()
 		asTitleName.Type = AS_String;
 		asTitleName.S = TEXT("ÌבÊ¾");
 		asFunArgs.AddItem( asTitleName );
-		obj->Invoke( TEXT("SetWindowTitle"), asFunArgs );
+		if(obj) obj->Invoke( TEXT("SetWindowTitle"), asFunArgs );
 
 		bFirst = FALSE;
 	}

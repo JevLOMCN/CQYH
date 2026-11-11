@@ -209,6 +209,12 @@ UBOOL UMMOGFXPlayer_RootBase::WidgetInitialized(FName WidgetName,FName WidgetPat
 		}
 	}
 
+	// 1.05 swfs contain extra dialog clips (TeamSet, DaoYuSetting, PrivatePolicy, ItemSource, GuildBonus, ...)
+	// that have no ViewData entry; hide them so they only exist when explicitly opened.
+	if (Widget)
+	{
+		Widget->SetVisible(FALSE);
+	}
 	return FALSE;
 }
 
