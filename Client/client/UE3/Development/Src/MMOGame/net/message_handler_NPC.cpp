@@ -43,7 +43,12 @@ void CMessageHandler::SyncNpcData(G2C_SYNC_NPC_EX_DATA* NewData)
 	UNPCTemplate* NpcTemplate = MMOFacade::getSingleton().FindNPCTemplate(NewData->nTemplateID);
 	if (NpcTemplate == NULL)
 	{
-		warnf(NAME_Error, TEXT("!!!!!!!!!!!!can not find npc template by id:%d"), NewData->nTemplateID);
+		static TArray<INT> s_MissingNpcTemplates;
+		if (s_MissingNpcTemplates.FindItemIndex(NewData->nTemplateID) == INDEX_NONE)
+		{
+			s_MissingNpcTemplates.AddItem(NewData->nTemplateID);
+			warnf(NAME_Error, TEXT("!!!!!!!!!!!!can not find npc template by id:%d (logged once)"), NewData->nTemplateID);
+		}
 		return;
 	}
 

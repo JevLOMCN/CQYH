@@ -332,6 +332,13 @@ int sol_role_open(lua_State* L)
     type9.set_function("ActivateMount", [](CRole* self, signed int nMountID) -> decltype(auto) { return self->ActivateMount(nMountID); });
     type9.set_function("OnMount", [](CRole* self, signed int nMountID) -> decltype(auto) { return static_cast<bool>(self->OnMount(nMountID)); });
     type9.set_function("OffMount", [](CRole* self) -> decltype(auto) { self->OffMount(); });
+    type9.set_function("EquipWing", [](CRole* self, signed int nWingID) -> decltype(auto) { return self->EquipWing(nWingID); });
+    type9.set_function("UnequipWing", [](CRole* self) -> decltype(auto) { self->UnequipWing(); });
+    type9.set_function("GetCurrentWingID", [](CRole* self) -> decltype(auto) { return self->GetCurrentWingID(); });
+    type9.set_function("GrantWing", [](CRole* self, signed int nWingID) -> decltype(auto) { return static_cast<bool>(self->GrantWing(nWingID)); });
+    type9.set_function("HasWing", [](CRole* self, signed int nWingID) -> decltype(auto) { return static_cast<bool>(self->HasWing(nWingID)); });
+    type9.set_function("GetWingLevel", [](CRole* self) -> decltype(auto) { return self->GetWingLevel(); });
+    type9.set_function("SyncWingInfo", [](CRole* self) -> decltype(auto) { self->SyncWingInfo(false); });
     type9.set_function("GetVIPLevel", [](CRole* self) -> decltype(auto) { return self->GetVIPLevel(); });
     type9.set_function("SubscribeVIP", [](CRole* self, signed int nVIPLevel, unsigned int dwMonth) -> decltype(auto) { return self->SubscribeVIP(nVIPLevel,dwMonth); });
     type9.set_function("GetVIPTime", [](CRole* self, signed int nVIPLevel) -> decltype(auto) { return self->GetVIPTime(nVIPLevel); });

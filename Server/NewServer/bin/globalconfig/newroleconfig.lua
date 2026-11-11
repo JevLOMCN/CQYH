@@ -61,6 +61,16 @@ NewRoleConfig = {
       --       nFoot = ,
       --       nBack = 0
         },
+	-- Spear (1.05 Dragon Lancer) --
+        [5] = {
+            nMainHand = 99900100,
+            nBody = 99980113,
+        },
+	-- Sorcerer (1.05 Demon) --
+        [6] = {
+            nMainHand = 99900199,
+            nBody = 99980113,
+        },
 	},
     FemaleNewEquip = {
 	-- Warrior --
@@ -117,6 +127,16 @@ NewRoleConfig = {
       --       nWaist = 0,
       --       nFoot = 0,
       --       nBack = 0
+        },
+	-- Spear (1.05 Dragon Lancer) --
+        [5] = {
+            nMainHand = 99900100,
+            nBody = 99990113,
+        },
+	-- Sorcerer (1.05 Demon) --
+        [6] = {
+            nMainHand = 99900199,
+            nBody = 99990113,
         },
 	}
 };

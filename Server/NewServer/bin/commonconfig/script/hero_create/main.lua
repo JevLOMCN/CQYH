@@ -34,6 +34,16 @@ function main(oRole, oHero)
 		-- Provide character weapon
 		oRole:GetItemBag():EquipHeroItemOnBirth(10140311, NES_MAIN_HAND); -- Staff type
 
+		-- Dragon Lancer (1.05) configuration
+	elseif class == clsSpear then
+
+		oRole:GetItemBag():EquipHeroItemOnBirth(99900100, NES_MAIN_HAND); -- Wooden spear
+
+		-- Sorcerer (1.05) configuration
+	elseif class == clsSorcerer then
+
+		oRole:GetItemBag():EquipHeroItemOnBirth(99900199, NES_MAIN_HAND); -- Ebony wand
+
 	end
 
 end

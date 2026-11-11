@@ -73,6 +73,8 @@ enum CHAR_CLASS_TYPE
 	clsRogue,
 	clsArcher,
 	clsTaoist,
+	clsSpear,		// 1.05 Dragon Lancer (class id 5)
+	clsSorcerer,	// 1.05 Demon / Sorcerer (class id 6)
 
 	clsPlayerEnd,
 

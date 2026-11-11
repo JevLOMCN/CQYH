@@ -2766,6 +2766,19 @@ UMaterialInstance* UMMOUISkillBar::GetMPBallMaterila() const
 		}
 		break;
 
+	// 1.05 backport: Dragon Lancer uses the Warrior globe, Sorcerer the Mage globe
+	case clsSpear:
+		{
+			mat = MaterialGlobeHalf_Warrior;
+		}
+		break;
+
+	case clsSorcerer:
+		{
+			mat = MaterialGlobeHalf_Mage;
+		}
+		break;
+
 	}
 
 	return mat;

@@ -278,6 +278,7 @@ void register_item_definitions(lua_State* L)
     item_subtype_namespace["ITEMSUBTYPE_USABLE_GREY_POWDER"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_GREY_POWDER);
     item_subtype_namespace["ITEMSUBTYPE_USABLE_YELLOW_POWDER"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_YELLOW_POWDER);
     item_subtype_namespace["ITEMSUBTYPE_USABLE_RUNE"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_RUNE);
+    item_subtype_namespace["ITEMSUBTYPE_USABLE_QUIVER"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_QUIVER);
     item_subtype_namespace["ITEMSUBTYPE_EQUIP_WEAPON"] = static_cast<lua_Number>(ITEMSUBTYPE_EQUIP_WEAPON);
     item_subtype_namespace["ITEMSUBTYPE_EQUIP_HAT"] = static_cast<lua_Number>(ITEMSUBTYPE_EQUIP_HAT);
     item_subtype_namespace["ITEMSUBTYPE_EQUIP_SHOULDER_ARMOR"] = static_cast<lua_Number>(ITEMSUBTYPE_EQUIP_SHOULDER_ARMOR);

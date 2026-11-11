@@ -147,6 +147,8 @@ struct native Spell_ClassType
 	var(Class) bool bClassType4 <ExportExcel="3"|DisplayName="ClassType4">;
 	var(Class) bool bClassType5 <ExportExcel="4"|DisplayName="ClassType5">;
 	var(Class) bool bClassType6 <ExportExcel="5"|DisplayName="ClassType6">;
+	var(Class) bool bClassType7 <ExportExcel="6"|DisplayName="ClassType7">; // Lancer (1.05)
+	var(Class) bool bClassType8 <ExportExcel="7"|DisplayName="ClassType8">; // Sorcerer (1.05)
 };
 
 struct native Spell_WeaponTypeR

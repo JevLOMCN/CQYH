@@ -1682,7 +1682,15 @@ void UMMOUIHandbookPanel::_UpdateSuitInfo(UINT32 type, UINT32 index)
 						{
 							_ShowPlayer->NativeSetMesh(EPCT_PlayerClassD, mainPlayer->GetSex());
 						}
-						else if (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassE, item->RequireClass))
+						else if (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassG, item->RequireClass))
+							{
+								_ShowPlayer->NativeSetMesh(EPCT_PlayerClassG, mainPlayer->GetSex());
+							}
+							else if (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassH, item->RequireClass))
+							{
+								_ShowPlayer->NativeSetMesh(EPCT_PlayerClassH, mainPlayer->GetSex());
+							}
+							else if (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassE, item->RequireClass))
 						{
 							_ShowPlayer->NativeSetMesh(EPCT_PlayerClassE, mainPlayer->GetSex());
 						}

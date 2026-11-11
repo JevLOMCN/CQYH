@@ -115,6 +115,7 @@
 #define CHECKIN_FILE_NAME				"checkin"
 #define	HANDBOOK_FILE_NAME				"handbook"
 #define MOUNT_FILE_NAME					"mount"
+#define WINGS_FILE_NAME					"wings"
 #define	SPIRIT_FILE_NAME				"spirit"
 #define	BLOOD_FILE_NAME					"blood"
 #define	SPIRIT_SLOT_FILE_NAME			"spirit_slot"

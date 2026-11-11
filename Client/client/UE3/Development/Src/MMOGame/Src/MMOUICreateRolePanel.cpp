@@ -42,6 +42,56 @@ void UMMOUICreateRolePanel::PostOnShow(UBOOL v)
 			
 			eventCallSetRoleName(LoginBase::getSingleton().CreateRoleName);
 
+			// 1.05 backport: the 1.05 create-screen swf shows a description and four featured skills per class,
+			// fed by the game (UCSetLocalizationData / UCSetAllSkillShow / UCSetTotemConfig).
+			{
+				static const INT s_SkillIds[7][4] = {
+					{1035, 1036, 1038, 1050},
+		{2541, 2533, 2534, 2554},
+		{1532, 1538, 1537, 1548},
+		{2056, 2048, 2051, 2057},
+		{3004, 3008, 3015, 3024},
+		{1206, 1208, 1211, 1213},
+		{3202, 3207, 3209, 3213} };
+				static const TCHAR* s_SkillIcons[7][4] = {
+					{TEXT("MMO_UIIcon.Formal_SkillIcon.Warrior_DashNew"), TEXT("MMO_UIIcon.Formal_SkillIcon.Warrior_FlameBlade"), TEXT("MMO_UIIcon.Formal_SkillIcon.War_FlameSlash"), TEXT("MMO_UIIcon.Formal_SkillIcon.Warrior_HeavenlySwordsmanship")},
+		{TEXT("MMO_UIIcon.Formal_SkillIcon.Mag_Thunder"), TEXT("MMO_UIIcon.Formal_SkillIcon.Mage_ThunderFall"), TEXT("MMO_UIIcon.Formal_SkillIcon.Mage_FireWall"), TEXT("MMO_UIIcon.Formal_SkillIcon.Mage_MagicSpark")},
+		{TEXT("MMO_UIIcon.Formal_SkillIcon.Assassin_new_Sneak"), TEXT("MMO_UIIcon.Formal_SkillIcon.Assassin_new_ColdMind"), TEXT("MMO_UIIcon.Formal_SkillIcon.Assassin_new_GhostDance"), TEXT("MMO_UIIcon.Formal_SkillIcon.Assassin_HuntingNotice")},
+		{TEXT("MMO_UIIcon.Formal_SkillIcon.Archer_DodgeShoot"), TEXT("MMO_UIIcon.Formal_SkillIcon.Archer_ElementalShot"), TEXT("MMO_UIIcon.Formal_SkillIcon.Archer_Focus"), TEXT("MMO_UIIcon.Archer_ChaosShot")},
+		{TEXT("MMO_UIIcon.Formal_SkillIcon.Tao_Poison"), TEXT("MMO_UIIcon.Formal_SkillIcon.Tao_SummonMon"), TEXT("MMO_UIIcon.Formal_SkillIcon.Tao_SpiritAttack"), TEXT("MMO_UIIcon.Formal_SkillIcon.Tao_SummonMoonSpirit")},
+		{TEXT("MMO_UIIcon.Formal_SkillIcon.Spear_Qi_01"), TEXT("MMO_UIIcon.Formal_SkillIcon.Spear_DragonSpear"), TEXT("MMO_UIIcon.Formal_SkillIcon.Spear_BurnBlood_01"), TEXT("MMO_UIIcon.Formal_SkillIcon.Spear_CircleSpear")},
+		{TEXT("MMO_UIIcon.Formal_SkillIcon.Sorcerer_DrawingSoul"), TEXT("MMO_UIIcon.Formal_SkillIcon.Sorcerer_SoulOblivion"), TEXT("MMO_UIIcon.Formal_SkillIcon.Sorcerer_SoulSqueeze"), TEXT("MMO_UIIcon.Formal_SkillIcon.Sorcerer_GhostBurst")} };
+				static const TCHAR* s_Totem[7] = { TEXT("warrior"), TEXT("mage"), TEXT("assassin"), TEXT("archer"), TEXT("taoist"), TEXT("spear"), TEXT("sorcerer") };
+
+				UGFxObject* descObj = GFXPlayer->CreateObject(TEXT("Object"));
+				UGFxObject* descArr = GFXPlayer->CreateArray();
+				UGFxObject* skillArr = GFXPlayer->CreateArray();
+				UGFxObject* totemArr = GFXPlayer->CreateArray();
+				if (descObj && descArr && skillArr && totemArr)
+				{
+					for (INT c = 0; c < 7; ++c)
+					{
+						FString descKey = FString::Printf(TEXT("MMOGame.Login.CareerDesc%d"), c);
+						descArr->SetElementString(c, MMOUI::ParseLocalizedPropertyPath(*descKey));
+
+						UGFxObject* skills = GFXPlayer->CreateArray();
+						for (INT k = 0; k < 4; ++k)
+						{
+							UGFxObject* skillObj = GFXPlayer->CreateObject(TEXT("Object"));
+							skillObj->SetInt(TEXT("slotType"), (INT)ESPType_SkillPanel);
+							skillObj->SetString(TEXT("iconName"), s_SkillIcons[c][k]);
+							skillObj->SetInt(TEXT("skillID"), s_SkillIds[c][k]);
+							skills->SetElementObject(k, skillObj);
+						}
+						skillArr->SetElementObject(c, skills);
+						totemArr->SetElementString(c, s_Totem[c]);
+					}
+					descObj->SetObject(TEXT("careerDescArr"), descArr);
+					eventCallSetLocalizationData(descObj);
+					eventCallSetAllSkillShow(skillArr);
+					eventCallSetTotemConfig(totemArr);
+				}
+			}
 			eventCallShowCreateModule(CM_CREATE);
 			eventCallSetCreateInfo(LoginBase::getSingleton().CreateRoleSex, LoginBase::getSingleton().CreateRoleClass);
 			eventCallEffectshow();
@@ -116,6 +166,13 @@ void UMMOUICreateRolePanel::DispatchChangeEvent(INT career,INT sex, INT careerLa
 		break;
 	case EPCT_PlayerClassE:
 		EventName = EventName+TEXT("TA-");
+		break;
+	// 1.05 backport: Lancer (model group SP) and Sorcerer (model group YS)
+	case EPCT_PlayerClassG:
+		EventName = EventName+TEXT("SP-");
+		break;
+	case EPCT_PlayerClassH:
+		EventName = EventName+TEXT("SO-");
 		break;
 	default:
 		EventName = EventName+TEXT("WA-");
@@ -485,6 +542,11 @@ void UMMOUICreateRolePanel::ASGetAppearanceData()
 	else if(nClass==EPCT_PlayerClassD&&nSex==2)MMO::ActiveKismetRemoteEvent(TEXT("AR-F-END"));
 	else if(nClass==EPCT_PlayerClassE&&nSex==1)MMO::ActiveKismetRemoteEvent(TEXT("TA-M-END"));
 	else if(nClass==EPCT_PlayerClassE&&nSex==2)MMO::ActiveKismetRemoteEvent(TEXT("TA-F-END"));
+	// 1.05 backport: Lancer (SP) and Sorcerer (SO)
+	else if(nClass==EPCT_PlayerClassG&&nSex==1)MMO::ActiveKismetRemoteEvent(TEXT("SP-M-END"));
+	else if(nClass==EPCT_PlayerClassG&&nSex==2)MMO::ActiveKismetRemoteEvent(TEXT("SP-F-END"));
+	else if(nClass==EPCT_PlayerClassH&&nSex==1)MMO::ActiveKismetRemoteEvent(TEXT("SO-M-END"));
+	else if(nClass==EPCT_PlayerClassH&&nSex==2)MMO::ActiveKismetRemoteEvent(TEXT("SO-F-END"));
 }
 
 void UMMOUICreateRolePanel::ASCallUpdateAppearance(int type, int id)

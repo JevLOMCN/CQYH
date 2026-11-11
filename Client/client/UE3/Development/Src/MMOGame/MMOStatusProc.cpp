@@ -30,6 +30,7 @@ IMPLEMENT_CLASS(UMMOStatusProc_ShowWeapon);
 IMPLEMENT_CLASS(UMMOStatusProc_ShowNameHint);
 IMPLEMENT_CLASS(UMMOStatusProc_LoopSkillSlot);
 IMPLEMENT_CLASS(UMMOStatusProc_SetSkillSlotIcon);
+IMPLEMENT_CLASS(UMMOStatusProc_ExchangeSkill);
 IMPLEMENT_CLASS(UMMOStatusProc_AddMessage);
 IMPLEMENT_CLASS(UMMOStatusProc_SetNameHint);
 IMPLEMENT_CLASS(UMMOStatusProc_SetAlwaysWalk);
@@ -125,6 +126,8 @@ void UMMOStatusProc_ShowWeapon::Update(AMMOActor* actor){}
 void UMMOStatusProc_ShowNameHint::Update(AMMOActor* actor){}
 void UMMOStatusProc_LoopSkillSlot::Update(AMMOActor* actor){}
 void UMMOStatusProc_SetSkillSlotIcon::Update(AMMOActor* actor){}
+// 1.05 backport: ExchangeSkill is a script-only no-op for now (see MMOStatusProc_ExchangeSkill.uc)
+void UMMOStatusProc_ExchangeSkill::Update(AMMOActor* actor){}
 void UMMOStatusProc_AddMessage::Update(AMMOActor* actor){}
 void UMMOStatusProc_SetNameHint::Update(AMMOActor* actor){}
 void UMMOStatusProc_SetAlwaysWalk::Update(AMMOActor* actor){}

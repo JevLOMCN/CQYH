@@ -11,7 +11,7 @@ int sol_msg_open(lua_State* L) {
     auto role = cqyh::lua::usertype<ROLE_DB_BASE_DATA>(L, lua.globals(), "ROLE_DB_BASE_DATA", "ROLE_DB_BASE_DATA");
     role["byVersion"] = &ROLE_DB_BASE_DATA::byVersion;
     role["byRequireChangeName"] = &ROLE_DB_BASE_DATA::byRequireChangeName;
-    role["wReserved2"] = &ROLE_DB_BASE_DATA::wReserved2;
+    role["wWingID"] = &ROLE_DB_BASE_DATA::wWingID;
     role["dwRoleID"] = &ROLE_DB_BASE_DATA::dwRoleID;
     role["dwCreateTime"] = &ROLE_DB_BASE_DATA::dwCreateTime;
     role["dwSaveTime"] = &ROLE_DB_BASE_DATA::dwSaveTime;

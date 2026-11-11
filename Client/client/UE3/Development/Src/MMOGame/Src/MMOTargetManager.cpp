@@ -595,6 +595,12 @@ UMMOAbility*	MMOTargetManager::GetDefaultAbility()
 	case EPCT_PlayerClassE://µÀÊ¿
 		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(3000, 0);
 		break;
+	case EPCT_PlayerClassG://Lancer (1.05)
+		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(1200, 0);
+		break;
+	case EPCT_PlayerClassH://Sorcerer (1.05)
+		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(3200, 0);
+		break;
 	default:
 		return NULL;
 	}

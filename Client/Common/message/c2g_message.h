@@ -298,6 +298,8 @@ namespace ExternalMessage
 		c2g_dice_bet,			// 取消投点?
 		c2g_lovers_teleprot,    // 夫妻传送?
 
+		c2g_wing_op,            // wing panel request (1.05 UnrealWing)
+
 		c2g_message_end = 512,
 	};
 
@@ -1394,6 +1396,13 @@ namespace ExternalMessage
 	struct C2G_LOVERS_TELEPROT : MESSAGE_HEADER
 	{
 
+	};
+
+	// wing panel (1.05 UnrealWing)
+	struct C2G_WING_OP : MESSAGE_HEADER
+	{
+		INT32			nOp;		// 0: query (reply g2c_wing_info)  1: wear wing nParam  2: take the wing off  3: upgrade the wing level
+		INT32			nParam;
 	};
 };
 

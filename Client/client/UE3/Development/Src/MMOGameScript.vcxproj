@@ -2113,6 +2113,7 @@
     <None Include="MMOGame\Classes\MMOUIMinimap.uc" />
     <None Include="MMOGame\Classes\MMOUIMoneyExchange.uc" />
     <None Include="MMOGame\Classes\MMOUIMountPanel.uc" />
+    <None Include="MMOGame\Classes\MMOUIWingPanel.uc" />
     <None Include="MMOGame\Classes\MMOUIMsgButtonBar.uc" />
     <None Include="MMOGame\Classes\MMOUIMsgInfo.uc" />
     <None Include="MMOGame\Classes\MMOUIMutiLineMsgBox.uc" />

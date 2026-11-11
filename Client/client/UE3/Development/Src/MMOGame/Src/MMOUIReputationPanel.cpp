@@ -197,6 +197,8 @@ void UMMOUIReputationPanel::UpdateRewordSlot(UGFxObject * SlotObj)
 		}
 
 		INT nClassId = MMOFacade::getSingleton().GetMainPlayer()->GetClassId();
+		if(nClassId==EPCT_PlayerClassG) nClassId = 0;		// 1.05 Lancer reuses Warrior rewards
+		else if(nClassId==EPCT_PlayerClassH) nClassId = 1;	// 1.05 Sorcerer reuses Mage rewards
 		if(nClassId==0)
 		{
 			ID[0]		= SlotObj->GetInt("_WarriorAwardItemID1");

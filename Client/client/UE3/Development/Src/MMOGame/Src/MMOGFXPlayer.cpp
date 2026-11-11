@@ -874,8 +874,22 @@ UBOOL UMMOGFXPlayer::OnDragDropOnPanel(class UGFxObject* SrcSlotMC,class UGFxObj
 //	//PlayDragDropSound(SrcItemSlot, SrcSlotType, SrcContainerID, SrcSlotID, EActionSound_MousePutdown);
 //}
 //------------------------------------------------------------------------
+extern INT MMOUIWingPanel_ResolveHoverWing(class UGFxObject* mc, BYTE SlotType, BYTE ContainerID, INT SlotID);	// MMOUIWingPanel.cpp
 void UMMOGFXPlayer::ASRollOverItemSlot(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault)
 {
+	{
+		// UnrealWing window: list items and the three wing slots show the item tip of the wing item
+		const INT WingTip = MMOUIWingPanel_ResolveHoverWing(mc, SlotType, ContainerID, SlotID);
+		if(WingTip != 0)
+		{
+			if(WingTip > 0)
+			{
+				mc->SetInt(TEXT("ItemTemplateID"), WingTip);
+				MMOUI::GetUIManager()->delegateShowTipsHTML(TFT_AwardIcon, mc);
+			}
+			return;
+		}
+	}
 	//MMOUI::GetUIManager()->delegateShowTipsHTML(TFT_ItemSlot, mc);
 
     //使用ItemSlot的面板很多 
@@ -1676,6 +1690,17 @@ void UMMOGFXPlayer::ASOnPanelClose(const FString& PanelName)
 //---------------------------------------------------------------------------
 void UMMOGFXPlayer::ASOnPanelHelp(const FString& PanelName)
 {
+	warnf(NAME_Log, TEXT("[UnrealWing] ASOnPanelHelp('%s')"), *PanelName);
+	if(PanelName.Left(10) == TEXT("UnrealWing"))
+	{
+		// the wing window has no entry in the helper table: show a short text instead of the helper panel
+		UMMOUIManager* um = MMOUI::GetUIManager();
+		if(um)
+		{
+			um->delegateAddScreenMessage(TEXT("Illusion Wings: click a wing to preview it, double-click it to wear it (or take it off), Upgrade raises the wing level."), MsgInfoType_Warning);
+		}
+		return;
+	}
 	UMMOUIManager* uiManager = MMOUI::GetUIManager();
 	if (uiManager)
 	{
@@ -1959,6 +1984,9 @@ FString UMMOGFXPlayer::GetASHeadIconFrame( BYTE playerClass, UBOOL isFemale )
 	case EPCT_PlayerClassC: iconFrame = TEXT("assassin"); break;
 	case EPCT_PlayerClassD: iconFrame = TEXT("archer"); break;
 	case EPCT_PlayerClassE: iconFrame = TEXT("taoist"); break;
+	// 1.05 classes: no dedicated flash frame in our swfs, reuse nearest (Lancer -> warrior, Sorcerer -> mage)
+	case EPCT_PlayerClassG: iconFrame = TEXT("warrior"); break;
+	case EPCT_PlayerClassH: iconFrame = TEXT("mage"); break;
 	};
 
 	if( isFemale && !iconFrame.IsEmpty() ){

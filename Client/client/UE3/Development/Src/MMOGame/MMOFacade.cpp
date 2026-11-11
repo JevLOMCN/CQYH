@@ -1710,6 +1710,7 @@ void MMOFacade::Init()
 		ReadTweenData();
 		//ReadTestDropTrace();
 		ReadMountData();
+		ReadWingData();
 		ReadReputationTemp();
 		ReadReputation();
 		ReadHint();
@@ -3867,9 +3868,9 @@ class UNPCTemplate* MMOFacade::FindNPCTemplate(INT TemplateID)
 	{
 		UNPCTemplate* datTmp =
 			Cast<UNPCTemplate>(UObject::StaticLoadObject(UNPCTemplate::StaticClass(), NULL, *dataPath, NULL, LOAD_NoWarn | LOAD_Quiet, NULL));
-		datTmp->DisplayName = dat->DisplayName;
 		if(datTmp)
 		{
+			datTmp->DisplayName = dat->DisplayName;
 #if !SHIPPING_PC_GAME
 			warnf(NAME_Warning, TEXT("Loading npc:%s"), *dataPath);
 #endif
@@ -3929,6 +3930,16 @@ MountData* MMOFacade::GetMountData(INT ID)
 		return &(it->second);
 	}
 	return NULL;
+}
+
+FString MMOFacade::GetWingAvatarName(INT ID)
+{
+	WingDataMap::iterator it = _WingDataMap.find(ID);
+	if(it != _WingDataMap.end())
+	{
+		return it->second.AvatarName;
+	}
+	return FString();
 }
 
 
@@ -4220,7 +4231,8 @@ void MMOFacade::SetSceneDifficulty( INT sceneDifficulty )
 
 FString MMOFacade::GetPlayerIcon( INT classId , INT sex )
 {
-	if( classId < EPCT_PlayerClassA || classId >= EPCT_MAX )
+	// valid player face icons: class0..class6 (needs the 1.05 MMOUIFaceIcon package for 5/6); npc (7) / none (8) have none
+	if( classId < EPCT_PlayerClassA || classId > EPCT_PlayerClassH )
 	{
 		return TEXT("");
 	}
@@ -5563,6 +5575,22 @@ void MMOFacade::EquipMount(UINT CharID,INT MountID)
 		}
 	}
 
+}
+
+void MMOFacade::EquipWing(UINT CharID,INT WingID)
+{
+	AMMOActor* pActor = GetCharacter(CharID);
+	if(pActor)
+	{
+		if(WingID<=0)
+		{
+			pActor->UnEquipWing();
+		}
+		else
+		{
+			pActor->EquipWing(WingID);
+		}
+	}
 }
 
 
@@ -8571,6 +8599,51 @@ UBOOL MMOFacade::ReadMountData()
 	return TRUE;
 }
 
+//read wings.txt
+UBOOL MMOFacade::ReadWingData()
+{
+	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadWingData"), 0);
+
+	CTabFile* tabFile = NULL;
+	if(!MMOFacade::getSingleton().ReadConfigString( tabFile, TEXT("wings.txt"), TRUE ) )
+	{
+		return FALSE;
+	}
+
+	INT _ID			= tabFile->GetKeyColIdx( TEXT("ID"));
+	INT _Avatar		= tabFile->GetKeyColIdx( TEXT("AvartarName"));
+
+	_WingDataMap.clear();
+	for (int i = 2; i < tabFile->GetRowCount(); ++i)
+	{
+		WingData T;
+
+		T.ID = appAtoi(tabFile->GetData( _ID,i));
+		if(T.ID <= 0)
+		{
+			continue;
+		}
+
+		// AvatarData'Wing_Avt_Data.AvatarData_Wing_01_Lv1'  ->  Wing_Avt_Data.AvatarData_Wing_01_Lv1
+		FString Raw = tabFile->GetData( _Avatar,i);
+		INT Begin = Raw.InStr(TEXT("'"));
+		INT End = Raw.InStr(TEXT("'"), TRUE);
+		if(Begin >= 0 && End > Begin)
+		{
+			T.AvatarName = Raw.Mid(Begin + 1, End - Begin - 1);
+		}
+		else
+		{
+			T.AvatarName = Raw;
+		}
+
+		_WingDataMap.insert(std::make_pair(T.ID, T));
+	}
+
+	delete tabFile;
+	return TRUE;
+}
+
 UBOOL MMOFacade::RefreshMountData()
 {
 	if(GetMainPlayer() )
@@ -9097,10 +9170,34 @@ UBOOL MMO::CanBeUsedByPlayerClass(EPlayerClass playerClass, FSpell_ClassType cla
 	case EPCT_PlayerClassE:
 		return classType.bClassType6;
 
+	case EPCT_PlayerClassG:
+		return classType.bClassType7;
+
+	case EPCT_PlayerClassH:
+		return classType.bClassType8;
+
 	case EPCT_PlayerClassF:
 		return classType.bClassType5;
 	};
 
+	return FALSE;
+}
+
+// Spell masks (spell.txt Class column): bit = class id (0..4 = Warrior..Taoist), bit5 = monster/npc,
+// bit6 = Lancer, bit7 = Sorcerer. Differs from the item convention above only for Taoist/npc.
+UBOOL MMO::CanSpellBeUsedByPlayerClass(EPlayerClass playerClass, FSpell_ClassType classType)
+{
+	switch(playerClass)
+	{
+	case EPCT_PlayerClassA: return classType.bClassType1;
+	case EPCT_PlayerClassB: return classType.bClassType2;
+	case EPCT_PlayerClassC: return classType.bClassType3;
+	case EPCT_PlayerClassD: return classType.bClassType4;
+	case EPCT_PlayerClassE: return classType.bClassType5;
+	case EPCT_PlayerClassG: return classType.bClassType7;
+	case EPCT_PlayerClassH: return classType.bClassType8;
+	case EPCT_PlayerClassF: return classType.bClassType6;
+	}
 	return FALSE;
 }
 

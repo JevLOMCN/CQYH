@@ -301,6 +301,7 @@ enum ITEM_SUBTYPE
     ITEMSUBTYPE_USABLE_GREY_POWDER,     ///< Gray powder
     ITEMSUBTYPE_USABLE_YELLOW_POWDER,   ///< Yellow powder
     ITEMSUBTYPE_USABLE_RUNE,            ///< Amulet
+    ITEMSUBTYPE_USABLE_QUIVER,          ///< Quiver (archer arrows; ammo count = durability)
 
     ITEMSUBTYPE_EQUIP_WEAPON = 1,       ///< Weapon
     ITEMSUBTYPE_EQUIP_HAT,              ///< Hat

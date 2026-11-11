@@ -501,6 +501,9 @@ enum EPlayerClass
 	EPCT_PlayerClassC <DisplayName="E_PlayerClassC">,
 	EPCT_PlayerClassD <DisplayName="E_PlayerClassD">,
 	EPCT_PlayerClassE <DisplayName="E_PlayerClassE">, // µ¿ ø
+	// 1.05 backport: values match the server (clsSpear=5, clsSorcerer=6, clsNpc=7, none/any=8); names match the 1.05 client
+	EPCT_PlayerClassG <DisplayName="E_PlayerClassG">, // Lancer (Spear)
+	EPCT_PlayerClassH <DisplayName="E_PlayerClassH">, // Sorcerer
 	EPCT_PlayerClassF <DisplayName="E_PlayerClassF">, // npc
 	EPCT_None <DisplayName="E_None">,
 };

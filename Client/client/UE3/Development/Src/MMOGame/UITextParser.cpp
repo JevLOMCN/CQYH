@@ -2088,7 +2088,9 @@ FString UITextParser::HTMLFormatItemRequireProfession( UItem* item )
             (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassB, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.School.SchoolName1")) + SpaceStr : NullStr) +
             (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassC, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.School.SchoolName2")) + SpaceStr : NullStr) +
             (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassD, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.School.SchoolName3")) + SpaceStr : NullStr) +
-			(MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassE, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.School.SchoolName4")) + SpaceStr : NullStr)
+			(MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassE, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.School.SchoolName4")) + SpaceStr : NullStr) +
+			(MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassG, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.EPlayerClass.E_PlayerClassG")) + SpaceStr : NullStr) +
+			(MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassH, item->RequireClass) == TRUE ? MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.EPlayerClass.E_PlayerClassH")) + SpaceStr : NullStr)
             ;
 
         FString text = FString::Printf(TEXT("<p>%s</p>"), *classText);
@@ -2525,6 +2527,18 @@ FString UITextParser::FormatSpellPlayerClassLimitText(const FSpell_ClassType &sp
 		return ret;
 	}
 
+	// 1.05 Lancer / Sorcerer
+	if( spellClassLimit.bClassType7 )
+	{
+		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType7"));
+		return ret;
+	}
+	if( spellClassLimit.bClassType8 )
+	{
+		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType8"));
+		return ret;
+	}
+
 	return ret;
 }
 
@@ -2725,7 +2739,7 @@ FString UITextParser::HTMLFormatSkillTipsUnlock( UMMOAbility* skill )
 
 	//检查技能职业需求
 	const FSpell_ClassType &skillReqTyp = skill->SpellCommonAttribute.Class;
-	UBOOL isFitForMyClass = MMO::CanBeUsedByPlayerClass( EPlayerClass(player->GetClassId()), skillReqTyp );
+	UBOOL isFitForMyClass = MMO::CanSpellBeUsedByPlayerClass( EPlayerClass(player->GetClassId()), skillReqTyp );
 	if( isFitForMyClass != TRUE ){
 		return TEXT("");
 	}

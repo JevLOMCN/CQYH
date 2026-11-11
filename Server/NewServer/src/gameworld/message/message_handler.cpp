@@ -201,8 +201,8 @@ BOOL CCliMessageHandler::Init(IMessageNotifier* poNotifier, IPacketAllocator* po
 
 //	REGISTER_MESSAGE(c2g_query_combat_stat,				&CCliMessageHandler::OnQueryCombatStat,     TRUE);
 	
-	//REGISTER_MESSAGE(c2g_on_mount,						&CCliMessageHandler::OnOnMount,             TRUE);
-	//REGISTER_MESSAGE(c2g_off_mount,						&CCliMessageHandler::OnOffMount,            TRUE);
+	REGISTER_MESSAGE(c2g_on_mount,						&CCliMessageHandler::OnOnMount,             TRUE);
+	REGISTER_MESSAGE(c2g_off_mount,						&CCliMessageHandler::OnOffMount,            TRUE);
 
 	//REGISTER_MESSAGE(c2g_hire_hero,						&CCliMessageHandler::OnHireHero,            TRUE);
 	//REGISTER_MESSAGE(c2g_fire_hero,						&CCliMessageHandler::OnFireHero,            TRUE);
@@ -316,6 +316,7 @@ BOOL CCliMessageHandler::Init(IMessageNotifier* poNotifier, IPacketAllocator* po
 
 	REGISTER_MESSAGE(c2g_dice_bet,                      &CCliMessageHandler::OnDiceBet, TRUE);
 	REGISTER_MESSAGE(c2g_lovers_teleprot,               &CCliMessageHandler::OnLoversTeleprot, TRUE);
+	REGISTER_MESSAGE(c2g_wing_op,                       &CCliMessageHandler::OnWingOp, TRUE);
 
 
 
@@ -393,6 +394,9 @@ void CCliMessageHandler::OnLoadFinish(CRole* poRole, const char* pData)
 
 	nRetCode = poScene->AddRole(poRole, soatLogin);
 	LOG_PROCESS_ERROR(nRetCode);
+
+	// the role does not get its own appear data: tell the client which wing is worn (login, scene change, jump)
+	poRole->SyncWingInfo(FALSE);
 
 	{
 		CAura* pAura = NULL;

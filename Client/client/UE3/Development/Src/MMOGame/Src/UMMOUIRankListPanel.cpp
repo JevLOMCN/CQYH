@@ -2450,9 +2450,11 @@ void UMMOUIRankListPanel::SetCurrentActivity()
 		switch(mainPlayer->GetClassId())
 		{
 		case EPCT_PlayerClassA:
+			case EPCT_PlayerClassG:
 				_currentActivityType = rlActivity02;
 			break;
 		case EPCT_PlayerClassB:
+			case EPCT_PlayerClassH:
 				_currentActivityType = rlActivity03;
 			break;
 		case EPCT_PlayerClassE:

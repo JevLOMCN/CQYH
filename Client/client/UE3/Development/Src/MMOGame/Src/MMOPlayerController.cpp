@@ -50,15 +50,15 @@ FLOAT g_inMoveRateScale_3 = 1.2;
 FLOAT g_inMoveRateScale_4 = 1.25;
 
 
-FLOAT g_Run_AniRate[EPCT_MAX]			= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
-FLOAT g_Walk_AniRate[EPCT_MAX]			= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
-FLOAT g_Run_Oblique_AniRate[EPCT_MAX]	= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
-FLOAT g_Walk_Oblique_AniRate[EPCT_MAX]	= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
+FLOAT g_Run_AniRate[EPCT_MAX]			= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
+FLOAT g_Walk_AniRate[EPCT_MAX]			= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
+FLOAT g_Run_Oblique_AniRate[EPCT_MAX]	= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
+FLOAT g_Walk_Oblique_AniRate[EPCT_MAX]	= {1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f,1.00f};
 
-FLOAT g_Run_Phase[EPCT_MAX]				= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
-FLOAT g_Walk_Phase[EPCT_MAX]			= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
-FLOAT g_Run_Oblique_Phase[EPCT_MAX]		= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
-FLOAT g_Walk_Oblique_Phase[EPCT_MAX]	= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
+FLOAT g_Run_Phase[EPCT_MAX]				= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
+FLOAT g_Walk_Phase[EPCT_MAX]			= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
+FLOAT g_Run_Oblique_Phase[EPCT_MAX]		= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
+FLOAT g_Walk_Oblique_Phase[EPCT_MAX]	= {0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f,0.75f};
 UBOOL g_ResetPhaseFlag					= FALSE;
 UBOOL g_UniformSpeed					= FALSE;
 INT   g_SerialID = 0;
@@ -4230,13 +4230,25 @@ void AMMOPlayerController::NativeTestSomeThing()
 	}
 }
 
+extern void MMOUIWingPanel_Diag(UBOOL bFull);	// MMOUIWingPanel.cpp
 void AMMOPlayerController::NativeTestShowPanelEx(const FString& strPanelName,UBOOL bShow)
 {
+	if(strPanelName == TEXT("UWDiag"))
+	{
+		// TestShowPanelEx UWDiag 1 : wing window diagnostics (tabs, IsPlayerHasWing, upgrade button); UWDiag 0 : additionally clicks the upgrade panel button
+		MMOUIWingPanel_Diag(!bShow);
+		return;
+	}
 	//MMOUI::GetUIManager()->ShowPanelEx(FName(*strPanelName),bShow,"");
 	UMMOUIBase* UI = MMOUI::GetUIManager()->FindUIPanel(FName(*strPanelName));
 	if(UI)
 	{
 		UI->SetVisible(bShow);// >Show(TRUE, displayPriority);
+	}
+	else if(bShow)
+	{
+		// panel not loaded yet (e.g. "TestShowPanelEx UnrealWing 1" for the wing panel): load its swf and show it
+		MMOUI::GetUIManager()->ToggleShowPanelEx(FName(*strPanelName), "");
 	}
 }
 

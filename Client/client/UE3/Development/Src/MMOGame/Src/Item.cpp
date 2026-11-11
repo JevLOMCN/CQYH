@@ -365,6 +365,22 @@ void UEquipAppearence::CollectReferencedResource(TSet<FString>& outResList)
 		MeshList_TA_M->CollectReferencedResource( outResList );
 	if( MeshList_TA_F )
 		MeshList_TA_F->CollectReferencedResource( outResList );
+	if( MeshList_AG_M )
+		MeshList_AG_M->CollectReferencedResource( outResList );
+	if( MeshList_AG_F )
+		MeshList_AG_F->CollectReferencedResource( outResList );
+	if( MeshList_AR_M )
+		MeshList_AR_M->CollectReferencedResource( outResList );
+	if( MeshList_AR_F )
+		MeshList_AR_F->CollectReferencedResource( outResList );
+	if( MeshList_SP_M )
+		MeshList_SP_M->CollectReferencedResource( outResList );
+	if( MeshList_SP_F )
+		MeshList_SP_F->CollectReferencedResource( outResList );
+	if( MeshList_YS_M )
+		MeshList_YS_M->CollectReferencedResource( outResList );
+	if( MeshList_YS_F )
+		MeshList_YS_F->CollectReferencedResource( outResList );
 
 	for( INT i = 0; i < AdditionalMeshList_WA_M.Num(); ++i )
 	{
@@ -395,6 +411,46 @@ void UEquipAppearence::CollectReferencedResource(TSet<FString>& outResList)
 	{
 		if( AdditionalMeshList_TA_F(i) )
 			AdditionalMeshList_TA_F(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_AG_M.Num(); ++i )
+	{
+		if( AdditionalMeshList_AG_M(i) )
+			AdditionalMeshList_AG_M(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_AG_F.Num(); ++i )
+	{
+		if( AdditionalMeshList_AG_F(i) )
+			AdditionalMeshList_AG_F(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_AR_M.Num(); ++i )
+	{
+		if( AdditionalMeshList_AR_M(i) )
+			AdditionalMeshList_AR_M(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_AR_F.Num(); ++i )
+	{
+		if( AdditionalMeshList_AR_F(i) )
+			AdditionalMeshList_AR_F(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_SP_M.Num(); ++i )
+	{
+		if( AdditionalMeshList_SP_M(i) )
+			AdditionalMeshList_SP_M(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_SP_F.Num(); ++i )
+	{
+		if( AdditionalMeshList_SP_F(i) )
+			AdditionalMeshList_SP_F(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_YS_M.Num(); ++i )
+	{
+		if( AdditionalMeshList_YS_M(i) )
+			AdditionalMeshList_YS_M(i)->CollectReferencedResource( outResList );
+	}
+	for( INT i = 0; i < AdditionalMeshList_YS_F.Num(); ++i )
+	{
+		if( AdditionalMeshList_YS_F(i) )
+			AdditionalMeshList_YS_F(i)->CollectReferencedResource( outResList );
 	}
 }
 

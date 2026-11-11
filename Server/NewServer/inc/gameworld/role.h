@@ -252,6 +252,17 @@ public:
 	INT32 ActivateMount(INT32 nMountID);
 	INT32 OnMount(INT32 nMountID);
 	void OffMount(void);
+	INT32 EquipWing(INT32 nWingID);
+	void UnequipWing(void);
+	// wing panel (1.05 UnrealWing): level / owned wings are role variables (ROLE_VAR_WING_*), see role.cpp
+	INT32 GetWingLevel(void);
+	UINT32 GetWingMask(void);
+	BOOL HasWing(INT32 nWingID);
+	BOOL GrantWing(INT32 nWingID);
+	void WingOperate(INT32 nOp, INT32 nParam);
+	INT32 UpgradeWing(void);
+	void ApplyWingLevelAttr(INT32 nFrom, INT32 nTo);
+	void SyncWingInfo(BOOL bUpgraded);
 	inline void BeginMount(void);
 	inline INT32 NextMount(void);
 	inline INT32 GetMountCount(void);

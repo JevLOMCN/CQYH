@@ -203,6 +203,8 @@ var HeavenAttribute      heavenAttributes;
 //×øÆï
 var int MountID;
 var array<int> MountList;
+// wing (wings.txt ID) the character wears, 0: none
+var int WingID;
 
 var bool byCombatPoseOn;
 
@@ -467,6 +469,7 @@ defaultproperties
 
 	HpPercent=0
 	MountID=0
+	WingID=0
 	HeroID=0
 
 	EnableRegenHPMP=true

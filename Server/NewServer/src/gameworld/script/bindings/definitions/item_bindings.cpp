@@ -272,6 +272,7 @@ void register_item_definitions(lua_State* L)
     globals["ITEMSUBTYPE_USABLE_GREY_POWDER"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_GREY_POWDER);
     globals["ITEMSUBTYPE_USABLE_YELLOW_POWDER"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_YELLOW_POWDER);
     globals["ITEMSUBTYPE_USABLE_RUNE"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_RUNE);
+    globals["ITEMSUBTYPE_USABLE_QUIVER"] = static_cast<lua_Number>(ITEMSUBTYPE_USABLE_QUIVER);
     globals["ITEMSUBTYPE_EQUIP_WEAPON"] = static_cast<lua_Number>(ITEMSUBTYPE_EQUIP_WEAPON);
     globals["ITEMSUBTYPE_EQUIP_HAT"] = static_cast<lua_Number>(ITEMSUBTYPE_EQUIP_HAT);
     globals["ITEMSUBTYPE_EQUIP_SHOULDER_ARMOR"] = static_cast<lua_Number>(ITEMSUBTYPE_EQUIP_SHOULDER_ARMOR);

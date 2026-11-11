@@ -579,7 +579,7 @@ UBOOL FShaderCompilingThreadManager::IsDeferringCompilation() const
 /** Adds a job to the compile queue, called by the main thread only. */
 void FShaderCompilingThreadManager::AddJob(TRefCountPtr<FShaderCompileJob> NewJob)
 {
-	warnf(NAME_Error, TEXT("********************************ShaderCompiler.cpp-----------------------582"));
+	//warnf(NAME_Error, TEXT("ShaderCompiler.cpp-582"));
 	CompileQueue.AddItem(NewJob);
 	if (NewJob->Target.Platform == SP_PS3)
 	{
@@ -1600,7 +1600,7 @@ void FShaderCompilingThreadManager::FinishDeferredCompilation(const TCHAR* Mater
 		}
 
 		TArray<TRefCountPtr<FShaderCompileJob> > Results;
-		warnf(NAME_Error, TEXT("********************************ShaderCompiler.cpp-----------------------1595"));
+		//warnf(NAME_Error, TEXT("ShaderCompiler.cpp-1595"));
 		FinishCompiling(Results, MaterialName, bForceLogErrors, bInDebugDump);
 
 		TMap<UINT, TArray<TRefCountPtr<FShaderCompileJob> > > SortedResults;

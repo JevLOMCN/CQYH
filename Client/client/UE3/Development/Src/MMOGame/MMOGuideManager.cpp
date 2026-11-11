@@ -274,6 +274,8 @@ UBOOL MMOGuideManager::_ItemCheck(UINT32 id)
 		if (MMOFacade::getSingleton().GetMainActor())
 		{
 			int playerJob = MMOFacade::getSingleton().GetMainActor()->GetClassId();
+			// 1.05 Lancer / Sorcerer: guide tables only have 5 per-class columns -> no requirement
+			if (playerJob == EPCT_PlayerClassG || playerJob == EPCT_PlayerClassH) { return TRUE; }
 			if (playerJob >= EPCT_PlayerClassA && playerJob <= EPCT_PlayerClassE)
 			{
 				if (data.ItemReq[playerJob] == 0)
@@ -304,6 +306,8 @@ UBOOL MMOGuideManager::_LearnSkillCheck(UINT32 id)
 		if (MMOFacade::getSingleton().GetMainActor())
 		{
 			int playerJob = MMOFacade::getSingleton().GetMainActor()->GetClassId();
+			// 1.05 Lancer / Sorcerer: guide tables only have 5 per-class columns -> no requirement
+			if (playerJob == EPCT_PlayerClassG || playerJob == EPCT_PlayerClassH) { return TRUE; }
 			if (playerJob >= EPCT_PlayerClassA && playerJob <= EPCT_PlayerClassE)
 			{
 				if (data.SkillReq[playerJob] == 0)

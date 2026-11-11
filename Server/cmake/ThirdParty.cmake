@@ -32,13 +32,22 @@ endfunction()
 
 if(WIN32)
 
-    # Oracle ships one C API client for both Debug and Release applications.
-    _cqyh_imported(mysql SHARED
-        RELEASE "${_3rd}/mysql-26.10.0/lib/win64/libmysql.lib" DLL_RELEASE "${_3rd}/mysql-26.10.0/lib/win64/libmysql.dll"
-        DEBUG   "${_3rd}/mysql-26.10.0/lib/win64/libmysql.lib" DLL_DEBUG   "${_3rd}/mysql-26.10.0/lib/win64/libmysql.dll")
-    set(CQYH_MYSQL_RUNTIME_DLLS
-        "${_3rd}/mysql-26.10.0/lib/win64/libssl-3-x64.dll"
-        "${_3rd}/mysql-26.10.0/lib/win64/libcrypto-3-x64.dll")
+    if(CQYH_USE_LEGACY_MYSQL51)
+        # The 9-series client below cannot log in to MySQL 5.7 servers (mysql_native_password was removed),
+        # so this switch links the bundled 5.1 client instead.
+        _cqyh_imported(mysql SHARED
+            RELEASE "${_3rd}/mysql-5.1.65/lib/win64/libmysql64.lib"   DLL_RELEASE "${_3rd}/mysql-5.1.65/lib/win64/libmysql64.dll"
+            DEBUG   "${_3rd}/mysql-5.1.65/lib/win64/libmysql64_d.lib" DLL_DEBUG   "${_3rd}/mysql-5.1.65/lib/win64/libmysql64_d.dll")
+        set(CQYH_MYSQL_RUNTIME_DLLS "")
+    else()
+        # Oracle ships one C API client for both Debug and Release applications.
+        _cqyh_imported(mysql SHARED
+            RELEASE "${_3rd}/mysql-26.10.0/lib/win64/libmysql.lib" DLL_RELEASE "${_3rd}/mysql-26.10.0/lib/win64/libmysql.dll"
+            DEBUG   "${_3rd}/mysql-26.10.0/lib/win64/libmysql.lib" DLL_DEBUG   "${_3rd}/mysql-26.10.0/lib/win64/libmysql.dll")
+        set(CQYH_MYSQL_RUNTIME_DLLS
+            "${_3rd}/mysql-26.10.0/lib/win64/libssl-3-x64.dll"
+            "${_3rd}/mysql-26.10.0/lib/win64/libcrypto-3-x64.dll")
+    endif()
 
     # GPK: only a Debug redistributable DLL is shipped; used for both configurations.
     _cqyh_imported(gpk SHARED
@@ -74,5 +83,10 @@ else()
     add_library(cqyh::fcm INTERFACE IMPORTED GLOBAL)
 endif()
 
-set_target_properties(cqyh::mysql PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${_3rd}/mysql-26.10.0/include")
+if(CQYH_USE_LEGACY_MYSQL51 AND WIN32)
+    set_target_properties(cqyh::mysql PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${_3rd}/mysql-5.1.65/include")
+else()
+    set_target_properties(cqyh::mysql PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${_3rd}/mysql-26.10.0/include")
+endif()

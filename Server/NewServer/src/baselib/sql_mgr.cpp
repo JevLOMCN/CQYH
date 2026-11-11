@@ -974,7 +974,11 @@ THREAD_DECLARE(CSqlMgr::_WorkerLoop)(CSqlMgr* pSqlMgr, INT32 nThreadIndex, SqlWo
 					goto Exit0;
 				}
 
-				nRetCode = mysql_stmt_fetch(pThreadSqlData[nSqlStmtID].pStmt.get());
+				// Statements without a result set (INSERT/UPDATE/DELETE) have nothing to fetch; older clients return an error here.
+				if (mysql_stmt_field_count(pThreadSqlData[nSqlStmtID].pStmt.get()) == 0)
+					nRetCode = MYSQL_NO_DATA;
+				else
+					nRetCode = mysql_stmt_fetch(pThreadSqlData[nSqlStmtID].pStmt.get());
 				while (nRetCode == 0 || nRetCode == MYSQL_DATA_TRUNCATED)
 				{
 					LOG_CHECK_ERROR(nRetCode != MYSQL_DATA_TRUNCATED);

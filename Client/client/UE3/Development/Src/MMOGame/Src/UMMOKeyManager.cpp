@@ -617,6 +617,13 @@ UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 		if (apk_c)
 			return DoFunction(it.Value(), down, TRUE);
 	}
+
+	// 1.05 wing panel (UnrealWing): fixed key H while no function is bound to it (not part of the configurable key table)
+	if (down && key == 'H' && !kctrl && !kalt && !kshift)
+	{
+		MMOUI::GetUIManager()->ToggleShowPanelEx(FName(TEXT("UnrealWing")), "");
+		return TRUE;
+	}
 	return FALSE;
 }
 

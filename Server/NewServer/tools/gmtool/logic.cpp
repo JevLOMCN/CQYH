@@ -122,6 +122,10 @@ const char *GetClassString(INT32 nClassType)
         return "弓手";
     case clsTaoist:
         return "道士";
+    case clsSpear:
+        return "龙枪";
+    case clsSorcerer:
+        return "妖师";
     default:
         return "空";
     }

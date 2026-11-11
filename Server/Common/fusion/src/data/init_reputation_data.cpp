@@ -11,6 +11,8 @@ static constexpr const char* s_szClassName[clsPlayerEnd] =
 	"Rogue",
 	"Archer",
 	"Taoist",
+	"Spear",
+	"Sorcerer",
 };
 
 BOOL INIT_REPUTATION_DATA::ReadLine(INT32& rnID, const char*& rpcszName, INIT_REPUTATION_DATA* pData, CTabFile* pTabConfig, INT32 nRow)

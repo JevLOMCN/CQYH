@@ -530,7 +530,7 @@ UBOOL UGFxMoviePlayer::Load ( const FString& filename, UBOOL InitFirstFrame )
 	{
 		// oscar@snda
 		SetViewScaleMode(SM_NoScale);
-		//SetAlignment(Align_TopLeft);
+		SetAlignment(Align_TopLeft); // 1.05 swfs no longer set stage.align themselves
 		// oscar@snda
 		//set receive input flags of movie based on player settings
 		SetMovieCanReceiveInput ( bAllowInput );
@@ -1775,6 +1775,7 @@ void UGFxObject::BeginDestroy()
 
 struct FASValue UGFxObject::Invoke ( const FString& method, const TArray<struct FASValue>& args )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsObject() )
@@ -1796,6 +1797,7 @@ struct FASValue UGFxObject::Invoke ( const FString& method, const TArray<struct 
 
 void UGFxObject::GotoAndPlay ( const FString& frame )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
 	{
@@ -1805,6 +1807,7 @@ void UGFxObject::GotoAndPlay ( const FString& frame )
 
 void UGFxObject::GotoAndStop ( const FString& frame )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
 	{
@@ -1814,6 +1817,7 @@ void UGFxObject::GotoAndStop ( const FString& frame )
 
 void UGFxObject::GotoAndPlayI ( INT frame )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
 	{
@@ -1823,6 +1827,7 @@ void UGFxObject::GotoAndPlayI ( INT frame )
 
 void UGFxObject::GotoAndStopI ( INT frame )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
 	{
@@ -1832,6 +1837,7 @@ void UGFxObject::GotoAndStopI ( INT frame )
 
 struct FASValue UGFxObject::Get ( const FString& member )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	GFx::Value gresult;
 	GFx::Value *v = ( GFx::Value* ) Value;
@@ -1843,6 +1849,7 @@ struct FASValue UGFxObject::Get ( const FString& member )
 }
 class UGFxObject* UGFxObject::GetObject ( const FString& member, class UClass* Type, UBOOL IncludeRoot/* = false*//*zhaojun@snda*/)
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	GFx::Value gresult;
 
@@ -1986,6 +1993,7 @@ static void ConvertMatrix3To4 ( FMatrix& dest, const Matrix3F& src )
 
 UBOOL UGFxObject::GetBool ( const FString& member )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( !v->IsObject() )
 	{
@@ -2006,6 +2014,7 @@ UBOOL UGFxObject::GetBool ( const FString& member )
 }
 FLOAT UGFxObject::GetFloat ( const FString& member )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( !v->IsObject() )
 	{
@@ -2026,6 +2035,7 @@ FLOAT UGFxObject::GetFloat ( const FString& member )
 }
 INT UGFxObject::GetInt ( const FString& member )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
     GFx::Value *v = ( GFx::Value* ) Value;
     if ( !v->IsObject() )
     {
@@ -2046,6 +2056,7 @@ INT UGFxObject::GetInt ( const FString& member )
 }
 FString UGFxObject::GetString ( const FString& member )
 {
+	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( !v->IsObject() )
 	{
@@ -2076,6 +2087,7 @@ FString UGFxObject::GetString ( const FString& member )
 
 FString UGFxObject::GetText()
 {
+	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( !v->IsDisplayObject() )
 	{
@@ -2164,6 +2176,7 @@ FASColorTransform UGFxObject::GetColorTransform()
 
 UBOOL UGFxObject::GetPosition ( FLOAT& X, FLOAT& Y )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value::DisplayInfo ginfo;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
@@ -2199,6 +2212,7 @@ UBOOL UGFxObject::GetAbsolutePosition ( FLOAT& X, FLOAT& Y )
 
 void UGFxObject::Set ( const FString& member, struct FASValue arg )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsObject() )
 	{
@@ -2210,6 +2224,7 @@ void UGFxObject::Set ( const FString& member, struct FASValue arg )
 
 void UGFxObject::SetObject ( const FString& member, class UGFxObject* inval )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsObject() )
 	{
@@ -2226,6 +2241,7 @@ void UGFxObject::SetObject ( const FString& member, class UGFxObject* inval )
 }
 void UGFxObject::SetBool ( const FString& member, UBOOL B )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsObject() )
 	{
@@ -2236,6 +2252,7 @@ void UGFxObject::SetBool ( const FString& member, UBOOL B )
 }
 void UGFxObject::SetFloat ( const FString& member, FLOAT F )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsObject() )
 	{
@@ -2244,6 +2261,7 @@ void UGFxObject::SetFloat ( const FString& member, FLOAT F )
 }
 void UGFxObject::SetInt ( const FString& member, INT I )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
     GFx::Value *v = ( GFx::Value* ) Value;
     if ( v->IsObject() )
     {
@@ -2272,6 +2290,7 @@ UBOOL ConvertMarkupString ( const FString& S, FString& outString )
  */
 void UGFxObject::SetString ( const FString& member, const FString& S, UTranslationContext* TranslationContext )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	FOutputToGfxPolicy Translator;
 	TTranslator::TranslateMarkup ( TranslationContext, S, Translator );
 
@@ -2291,6 +2310,7 @@ void UGFxObject::SetString ( const FString& member, const FString& S, UTranslati
  */
 void UGFxObject::SetPureString(const FString& member, const FString& S)
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsObject() )
 	{
@@ -2306,6 +2326,7 @@ void UGFxObject::SetPureString(const FString& member, const FString& S)
  */
 void UGFxObject::SetText ( const FString& S, UTranslationContext* TranslationContext )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	FOutputToGfxPolicy Translator;
 	TTranslator::TranslateMarkup ( TranslationContext, S, Translator );
 
@@ -2339,6 +2360,7 @@ FString UGFxObject::TranslateString ( const FString& StringToTranslate, UTransla
 
 void UGFxObject::SetDisplayInfo ( struct FASDisplayInfo D )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value::DisplayInfo ginfo;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
@@ -2350,6 +2372,7 @@ void UGFxObject::SetDisplayInfo ( struct FASDisplayInfo D )
 
 void UGFxObject::SetPosition ( FLOAT X, FLOAT Y )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value::DisplayInfo ginfo;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
@@ -2396,6 +2419,7 @@ void UGFxObject::execSetDisplayMatrix3D ( FFrame& Stack, RESULT_DECL )
 
 void UGFxObject::SetVisible ( UBOOL visible )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value::DisplayInfo ginfo;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
@@ -2425,6 +2449,7 @@ void UGFxObject::SetColorTransform ( struct FASColorTransform cxfin )
 
 UGFxObject* UGFxObject::CreateEmptyMovieClip ( const FString& instancename, INT Depth, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	GFx::Value gresult;
 	if ( v->IsDisplayObject() && v->CreateEmptyMovieClip ( &gresult, FTCHARToUTF8 ( *instancename ), Depth ) )
@@ -2436,6 +2461,7 @@ UGFxObject* UGFxObject::CreateEmptyMovieClip ( const FString& instancename, INT 
 
 UGFxObject* UGFxObject::AttachMovie ( const FString& symbolname, const FString& instancename, INT Depth, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	GFx::Value gresult;
 	if ( v->IsDisplayObject() && v->AttachMovie ( &gresult, FTCHARToUTF8 ( *symbolname ), FTCHARToUTF8 ( *instancename ), Depth ) )
@@ -2447,6 +2473,7 @@ UGFxObject* UGFxObject::AttachMovie ( const FString& symbolname, const FString& 
 
 class UGFxObject* UGFxObject::GetElementObject ( INT I, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 		GFx::Value *v = ( GFx::Value* ) Value;
 		GFx::Value gresult;
 		if ( v->IsArray() && v->GetElement ( I, &gresult ) )
@@ -2458,6 +2485,7 @@ class UGFxObject* UGFxObject::GetElementObject ( INT I, class UClass* Type )
 
 void UGFxObject::SetElementObject ( INT I, class UGFxObject* inval )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2475,6 +2503,7 @@ void UGFxObject::SetElementObject ( INT I, class UGFxObject* inval )
 
 struct FASValue UGFxObject::GetElement ( INT Index )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
@@ -2490,6 +2519,7 @@ struct FASValue UGFxObject::GetElement ( INT Index )
 
 UBOOL UGFxObject::GetElementBool ( INT Index )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2512,6 +2542,7 @@ UBOOL UGFxObject::GetElementBool ( INT Index )
 
 FLOAT UGFxObject::GetElementFloat ( INT Index )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2534,6 +2565,7 @@ FLOAT UGFxObject::GetElementFloat ( INT Index )
 
 INT UGFxObject::GetElementInt ( INT Index )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
     GFx::Value *v = ( GFx::Value* ) Value;
     if ( v->IsArray() )
     {
@@ -2556,6 +2588,7 @@ INT UGFxObject::GetElementInt ( INT Index )
 
 FString UGFxObject::GetElementString ( INT Index )
 {
+	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2584,6 +2617,7 @@ FString UGFxObject::GetElementString ( INT Index )
 
 void UGFxObject::SetElement ( INT Index, struct FASValue arg )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2619,6 +2653,7 @@ void UGFxObject::SetElement ( INT Index, struct FASValue arg )
 
 void UGFxObject::SetElementBool ( INT Index, UBOOL B )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2630,6 +2665,7 @@ void UGFxObject::SetElementBool ( INT Index, UBOOL B )
 
 void UGFxObject::SetElementFloat ( INT Index, FLOAT F )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2639,6 +2675,7 @@ void UGFxObject::SetElementFloat ( INT Index, FLOAT F )
 
 void UGFxObject::SetElementInt ( INT Index, INT I )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
     GFx::Value *v = ( GFx::Value* ) Value;
     if ( v->IsArray() )
     {
@@ -2650,6 +2687,7 @@ void UGFxObject::SetElementInt ( INT Index, INT I )
 
 void UGFxObject::SetElementString ( INT Index, const FString& S )
 {
+	if(!this) return;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2711,6 +2749,7 @@ void UGFxObject::SetElementColorTransform ( INT Index, FASColorTransform cxfin )
 
 struct FASValue UGFxObject::GetElementMember ( INT Index, const FString& member )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
@@ -2726,6 +2765,7 @@ struct FASValue UGFxObject::GetElementMember ( INT Index, const FString& member 
 
 class UGFxObject* UGFxObject::GetElementMemberObject ( INT Index, const FString& member, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 		GFx::Value *v = ( GFx::Value* ) Value;
 		if ( v->IsArray() )
 		{
@@ -3591,6 +3631,7 @@ void UGFxObject::BeginDestroy()
 
 struct FASValue UGFxObject::Invoke ( const FString& method, const TArray<struct FASValue>& args )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	result.Type = AS_Null;
 	return result;
@@ -3606,6 +3647,7 @@ void UGFxObject::GotoAndStopI ( INT frame ) {}
 
 struct FASValue UGFxObject::Get ( const FString& member )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	result.Type = AS_Null;
 	return result;
@@ -3613,31 +3655,37 @@ struct FASValue UGFxObject::Get ( const FString& member )
 
 class UGFxObject* UGFxObject::GetObject ( const FString& member, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 		return NULL;
 }
 
 UBOOL UGFxObject::GetBool ( const FString& member )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return FALSE;
 }
 
 FLOAT UGFxObject::GetFloat ( const FString& member )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return 0.0f;
 }
 
 INT UGFxObject::GetInt ( const FString& member )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return 0;
 }
 
 FString UGFxObject::GetString ( const FString& member )
 {
+	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	return FString();
 }
 
 FString UGFxObject::GetText()
 {
+	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	return FString();
 }
 
@@ -3664,6 +3712,7 @@ FASColorTransform UGFxObject::GetColorTransform()
 
 UBOOL UGFxObject::GetPosition ( FLOAT& X, FLOAT& Y )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return FALSE;
 }
 
@@ -3709,16 +3758,19 @@ void UGFxObject::SetColorTransform ( struct FASColorTransform cxfin ) { }
 
 UGFxObject* UGFxObject::CreateEmptyMovieClip ( const FString& instancename, INT Depth, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return NULL;
 }
 
 UGFxObject* UGFxObject::AttachMovie ( const FString& symbolname, const FString& instancename, INT Depth, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return NULL;
 }
 
 class UGFxObject* UGFxObject::GetElementObject ( INT I, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 		return NULL;
 }
 
@@ -3726,6 +3778,7 @@ void UGFxObject::SetElementObject ( INT I, class UGFxObject* inval ) { }
 
 struct FASValue UGFxObject::GetElement ( INT Index )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	result.Type = AS_Null;
 	return result;
@@ -3733,21 +3786,25 @@ struct FASValue UGFxObject::GetElement ( INT Index )
 
 UBOOL UGFxObject::GetElementBool ( INT Index )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return FALSE;
 }
 
 FLOAT UGFxObject::GetElementFloat ( INT Index )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return 0.0f;
 }
 
 INT UGFxObject::GetElementInt ( INT Index )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
     return 0;
 }
 
 FString UGFxObject::GetElementString ( INT Index )
 {
+	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	return FString();
 }
 
@@ -3769,6 +3826,7 @@ void UGFxObject::SetElementColorTransform ( INT Index, FASColorTransform cxfin )
 
 struct FASValue UGFxObject::GetElementMember ( INT Index, const FString& member )
 {
+	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
 	FASValue result;
 	result.Type = AS_Null;
 	return result;
@@ -3776,6 +3834,7 @@ struct FASValue UGFxObject::GetElementMember ( INT Index, const FString& member 
 
 class UGFxObject* UGFxObject::GetElementMemberObject ( INT Index, const FString& member, class UClass* Type )
 {
+	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	return NULL;
 }
 

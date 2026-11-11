@@ -864,9 +864,11 @@ void FSMIO_Ctrl::OtherKeyUp()
 		{
 			AMMOPlayerController* Controller	=	MMOFacade::getSingleton().GetMainController();
 			UIUICommand* cmd = Controller->KeyMapManager->UICmdList(ECK_NormalAtk).Cmd;
+			debugf(NAME_Log, TEXT("[AtkDiag] with-target attack: cmd=%s isAbility=%d"), cmd ? *cmd->GetName() : TEXT("NULL"), (cmd && cmd->IsA(UUICmd_Ability::StaticClass())) ? 1 : 0);
 			if( cmd != NULL && cmd->IsA( UUICmd_Ability::StaticClass()) )
 			{
 				UMMOAbility* ToUseAbility = ( Cast<UUICmd_Ability>(cmd) )->eventGetBindAbilityData();
+				debugf(NAME_Log, TEXT("[AtkDiag]   bound ability=%s id=%d"), ToUseAbility ? *ToUseAbility->GetName() : TEXT("NULL"), ToUseAbility ? ToUseAbility->eventGetAbilityId() : -1);
 				FSMIO::getSingleton().Target.SetDesireAbility(ToUseAbility);
 			}
 			else
@@ -881,9 +883,12 @@ void FSMIO_Ctrl::OtherKeyUp()
 			if(Controller && Controller->bLeftMousePressed)
 			{
 				UIUICommand* cmd = Controller->KeyMapManager->UICmdList(ECK_NormalAtk).Cmd;
+				// TEMP-DIAG(1.05 backport): normal attack binding
+				debugf(NAME_Log, TEXT("[AtkDiag] left-click attack: cmd=%s isAbility=%d"), cmd ? *cmd->GetName() : TEXT("NULL"), (cmd && cmd->IsA(UUICmd_Ability::StaticClass())) ? 1 : 0);
 				if( cmd != NULL && cmd->IsA( UUICmd_Ability::StaticClass()) )
 				{
 					UMMOAbility* ToUseAbility = ( Cast<UUICmd_Ability>(cmd) )->eventGetBindAbilityData();
+					debugf(NAME_Log, TEXT("[AtkDiag]   bound ability=%s id=%d"), ToUseAbility ? *ToUseAbility->GetName() : TEXT("NULL"), ToUseAbility ? ToUseAbility->eventGetAbilityId() : -1);
 					FSMIO::getSingleton().Target.SetDesireAbility(ToUseAbility);
 				}
 			}

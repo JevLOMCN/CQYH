@@ -181,7 +181,8 @@ INT32 CQuestList::CanAccept(const QUEST_DATA* pQuestData, INT32 nAcceptType, INT
 		LOG_PROCESS_ERROR(FALSE);
 	}
 
-	if (pQuestData->nClassLimit != 6)
+	// Any value that is not a player class (the data uses QUEST_ANY_CLASS = 8, as in the 1.05 tables) means no class restriction.
+	if (pQuestData->nClassLimit >= clsPlayerBegin && pQuestData->nClassLimit < clsPlayerEnd)
 	{
 		PROCESS_ERROR_RET_CODE(m_pOwner->GetClass() == pQuestData->nClassLimit, errQuestClass);
 	}
@@ -644,7 +645,8 @@ INT32 CQuestList::CanComplete(INT32 nQuestID)
 		PROCESS_ERROR_RET_CODE(pAcceptedQuest->nVariable[pQuestData->nExploreVarID] == 1, errQuestExplore);
 	}
 
-	if (pQuestData->nClassLimit != 6)
+	// Any value that is not a player class (the data uses QUEST_ANY_CLASS = 8, as in the 1.05 tables) means no class restriction.
+	if (pQuestData->nClassLimit >= clsPlayerBegin && pQuestData->nClassLimit < clsPlayerEnd)
 	{
 		PROCESS_ERROR_RET_CODE(m_pOwner->GetClass() == pQuestData->nClassLimit, errQuestClass);
 	}

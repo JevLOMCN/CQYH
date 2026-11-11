@@ -146,6 +146,9 @@ void ItemTemplateDataProcessor::TParseData( UItem* obj, class CTabFile* dataRow,
 	obj->RequireClass.bClassType4 = tmpVal.InStr(TEXT("clsArcher")) != INDEX_NONE;
 	obj->RequireClass.bClassType5 = tmpVal.InStr(TEXT("clsNpc")) != INDEX_NONE; // 这个是NPC
 	obj->RequireClass.bClassType6 = tmpVal.InStr(TEXT("clsTaoist")) != INDEX_NONE; // 新增加的6才是道士
+	// 1.05 backport: Dragon Lancer (clsSpear) and Sorcerer (clsSorcerer)
+	obj->RequireClass.bClassType7 = tmpVal.InStr(TEXT("clsSpear")) != INDEX_NONE;
+	obj->RequireClass.bClassType8 = tmpVal.InStr(TEXT("clsSorcerer")) != INDEX_NONE;
 
 	obj->RequireGender = (EGenderType)TReadDataValue_Int<DataMgr>(TEXT("RequireGender"), dataRow, rowIdx);
 

@@ -5021,3 +5021,48 @@ end
 Include("script/gs_gm/robot.lua")
 Include("script/gs_gm/gm_command.lua");
 
+
+-- 1.05 backport: mount GM helpers   (.ActivateAllMounts()  .RideMount(51)  .UnrideMount())
+function ActivateAllMounts()
+	for i = 1, 60 do
+		TargetRole:ActivateMount(i);
+	end
+end
+
+function RideMount(id)
+	TargetRole:OffMount();
+	TargetRole:ActivateMount(id);
+	TargetRole:OnMount(id);
+end
+
+function UnrideMount()
+	TargetRole:OffMount();
+end
+
+-- 1.05 backport: wing GM helpers   (.WearWing(39501)  .RemoveWing()  .AddAllWings())
+function WearWing(id)
+	TargetRole:GrantWing(id);
+	TargetRole:EquipWing(id);
+	TargetRole:SyncWingInfo();
+end
+
+function RemoveWing()
+	TargetRole:UnequipWing();
+	TargetRole:SyncWingInfo();
+end
+
+function AddAllWings()
+	for id = 39501, 39527 do
+		TargetRole:GrantWing(id);
+		TargetRole:GetItemBag():AddItem(id, 1, ITEMLOG_GM_COMMAND, 0, false);
+	end
+	TargetRole:GetItemBag():AddItem(39499, 1, ITEMLOG_GM_COMMAND, 0, false);
+	TargetRole:SyncWingInfo();
+end
+
+-- wing panel upgrade materials (wings_level.txt): 90411/90412/90413 and 111008/110011   (.AddWingMaterials(1000))
+function AddWingMaterials(n)
+	for _, id in ipairs({ 90411, 90412, 90413, 111008, 110011 }) do
+		TargetRole:GetItemBag():AddItem(id, n, ITEMLOG_GM_COMMAND, 0, false);
+	end
+end

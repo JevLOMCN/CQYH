@@ -5,6 +5,7 @@
 IMPLEMENT_CLASS(UMMOGFXPlayer_RootBase)
 
 extern bool g_displayDragDropIcon;
+extern void MMOUIWingPanel_Tick();	// MMOUIWingPanel.cpp
 
 extern TArray<struct FGFxWidgetBinding> g_WidgetBindings;
 
@@ -208,6 +209,12 @@ UBOOL UMMOGFXPlayer_RootBase::WidgetInitialized(FName WidgetName,FName WidgetPat
 		}
 	}
 
+	// 1.05 swfs contain extra dialog clips (TeamSet, DaoYuSetting, PrivatePolicy, ItemSource, GuildBonus, ...)
+	// that have no ViewData entry; hide them so they only exist when explicitly opened.
+	if (Widget)
+	{
+		Widget->SetVisible(FALSE);
+	}
 	return FALSE;
 }
 
@@ -234,6 +241,7 @@ UBOOL UMMOGFXPlayer_RootBase::WidgetUnloaded(FName WidgetName,FName WidgetPath,c
 void UMMOGFXPlayer_RootBase::PostAdvance(float DeltaTime)
 {
 	Super::PostAdvance(DeltaTime);
+	MMOUIWingPanel_Tick();
 	if(g_displayDragDropIcon)
 	{
 		FIntPoint pt = MMOFacade::GetMouseCursorPosition();

@@ -429,6 +429,11 @@ inline INT32 CCharacter::GetCurrentMountID(void)
 	return m_nCurrentMountID;
 }
 
+inline INT32 CCharacter::GetCurrentWingID(void)
+{
+	return m_nCurrentWingID;
+}
+
 inline BOOL CCharacter::IncControlCount(INT32 nControlType)
 {
 	LOG_PROCESS_ERROR(nControlType >= cclBegin && nControlType < cclTotal);

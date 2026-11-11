@@ -1002,6 +1002,57 @@ Mir2Attack::~Mir2Attack()
 	}
 }
 
+// 1.05 backport: generic attack handler (see AttackClassGeneric in Mir2Attack.h)
+UBOOL AttackClassGeneric::InPrimaryAbilityRange(FVector DesPos, UBOOL b3x3)
+{
+	if(FSM::Char.Controller==NULL)
+	{
+		return FALSE;
+	}
+	FVector AttackPos = FSM::Char.Controller->MouseHitWorldLocation;
+	if(FSM::Target.DesireMMOActor){
+		AttackPos = FSM::Target.DesireMMOActor->ServerLocation;
+	}
+	UpdateDynamicPos(AttackPos,b3x3);
+
+	if(_fDistance<ONE_GRID_RADIUS)
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+UMMOAbility* AttackClassGeneric::GetPrimaryAbility()
+{
+	if(FSM::Char.Controller==NULL)
+	{
+		return NULL;
+	}
+	FVector AttackPos = FSM::Char.Controller->MouseHitWorldLocation;
+	if(FSM::Target.DesireMMOActor){
+		AttackPos = FSM::Target.DesireMMOActor->ServerLocation;
+		UpdateDynamicPos(AttackPos,FSM::Target.DesireMMOActor->BodySize>=E_body_3x3);
+	}
+	else{
+		UpdateDynamicPos(AttackPos,FALSE);
+	}
+
+	UMMOAbility* pPuGong = MMOFacade::getSingleton().FindMyUsableSkill(_NormalAttackId);
+	if(pPuGong && pPuGong->CanUseManaCheck(_pMainPlayer))
+	{
+		return pPuGong;
+	}
+	return NULL;
+}
+
+UBOOL AttackClassGeneric::DoAIAbility()
+{
+	return FALSE;
+}
+
+void AttackClassGeneric::Update(FLOAT fDeltaTime)
+{
+}
 void Mir2Attack::InitPlayerClassX()
 {
 	if(_AttackClassX)
@@ -1022,6 +1073,19 @@ void Mir2Attack::InitPlayerClassX()
 			break;
 		case EPCT_PlayerClassE:
 			_AttackClassX = new AttackClassE();
+			break;
+		// 1.05 backport: Rogue, Archer, Lancer, Sorcerer use their normal attack spell
+		case EPCT_PlayerClassC:
+			_AttackClassX = new AttackClassGeneric(1530);
+			break;
+		case EPCT_PlayerClassD:
+			_AttackClassX = new AttackClassGeneric(2040);
+			break;
+		case EPCT_PlayerClassG:
+			_AttackClassX = new AttackClassGeneric(1200);
+			break;
+		case EPCT_PlayerClassH:
+			_AttackClassX = new AttackClassGeneric(3200);
 			break;
 		}	
 	}
@@ -1240,6 +1304,7 @@ void Mir2Attack::UpdateItemSubType(FClientItemInfo* newInfo,UItem* item)
 		case 40011:	case 40012:	case 40013:	case 40014:
 		case 40001:	case 40002:	case 40003:	case 40004:
 		case 40101:	case 40102:	case 40103:	case 40104:
+		case 40201:	case 40202:
 			break;
 		default:
 			return;
@@ -1259,6 +1324,10 @@ void Mir2Attack::UpdateItemSubType(FClientItemInfo* newInfo,UItem* item)
 			else if (item->ItemSubType == TEXT("ITEMSUBTYPE_USABLE_RUNE"))
 			{	//»¤Éí·û
 				newInfo->ItemSubTypeNum = ITEMSUBTYPE_USABLE_RUNE;
+			}
+			else if (item->ItemSubType == TEXT("ITEMSUBTYPE_USABLE_QUIVER"))
+			{	//quiver (archer arrows)
+				newInfo->ItemSubTypeNum = ITEMSUBTYPE_USABLE_QUIVER;
 			}
 			else
 			{
@@ -1294,6 +1363,11 @@ UBOOL Mir2Attack::GetAbilityItemCostCondition(UMMOAbility* pUseAbility,UBOOL bSH
 				bRes = MMOFacade::getSingleton().GetItemDurInBag(0,ITEMSUBTYPE_USABLE_RUNE,pUseAbility->SpellCommonAttribute.ItemCostCount);
 				if(!bRes&&bSHowMsg)_ShowAbilityScreenMsg(ITEMSUBTYPE_USABLE_RUNE);
 			}
+			else if(pUseAbility->SpellCommonAttribute.ItemCostSubType  == TEXT("ITEMSUBTYPE_USABLE_QUIVER"))
+			{
+				bRes = MMOFacade::getSingleton().GetItemDurInBag(0,ITEMSUBTYPE_USABLE_QUIVER,pUseAbility->SpellCommonAttribute.ItemCostCount);
+				if(!bRes&&bSHowMsg)_ShowAbilityScreenMsg(ITEMSUBTYPE_USABLE_QUIVER);
+			}
 			if(bRes==0)
 			{
 				if(pUseAbility==FSM::Ability.CacheAbility)
@@ -1322,6 +1396,9 @@ void Mir2Attack::_ShowAbilityScreenMsg(INT enumType)
 			break;
 		case ITEMSUBTYPE_USABLE_RUNE:
 			msg = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Mir2Attack.ITEMSUBTYPE_USABLE_RUNE"));
+			break;
+		case ITEMSUBTYPE_USABLE_QUIVER:
+			msg = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Mir2Attack.ITEMSUBTYPE_USABLE_QUIVER"));
 			break;
 		}
 		MMOUI::GetUIManager()->delegateAddScreenMessage( msg,MsgInfoType_Table,TEXT("Mir2Attack::ShowAbilityScreenMsg") );

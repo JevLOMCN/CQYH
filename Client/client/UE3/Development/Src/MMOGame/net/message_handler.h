@@ -282,6 +282,7 @@ public:
 
 	void Send_ActiveMount(INT MountID);
 	void Send_EquipMount(INT MountID);
+	void Send_WingOp(INT Op, INT Param);	// c2g_wing_op: 0 query, 1 wear, 2 take off, 3 upgrade
 	void Send_Clear_Spell_Cache();
 
 	void Send_HeroSummon();
@@ -431,6 +432,8 @@ private:
 	M_DECL_PARSE_FUN(g2c_activate_mount);
 	M_DECL_PARSE_FUN(g2c_char_on_mount);
 	M_DECL_PARSE_FUN(g2c_char_off_mount);
+	M_DECL_PARSE_FUN(g2c_char_wing);
+	M_DECL_PARSE_FUN(g2c_wing_info);
 
 	//hero
 	M_DECL_PARSE_FUN(g2c_sync_hero_data);

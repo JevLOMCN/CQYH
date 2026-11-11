@@ -1,14 +1,6 @@
 
 
-====TabFile:missile.txt
-Index
-
-
 ====TabFile:aura.txt
-Index
-
-
-====TabFile:spell.txt
 Index
 
 
@@ -73,25 +65,3 @@ RewardExp8
 ====TabFile:black_market.txt
 Limit
 CooldownTime
-
-
-====TabFile:loadmaptips.txt
-NO
-mapID
-class
-minLevel
-maxLevel
-weight
-tips
-Image
-
-
-====TabFile:help.txt
-ID
-PanelName
-BaseClass
-SubClass
-
-
-====TabFile:journey.txt
-MinLevel
