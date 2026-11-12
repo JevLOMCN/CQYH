@@ -1,24 +1,108 @@
 <div align="center">
 
-# Legend Eternal (CQYH) – Source Code
+# Legend Eternal (CQYH)
+### Unreal Engine 3 Client & Server Source Code
 
-The 2016 Shanda Games **Legend Eternal** (传奇永恒 / CQYH) source code: the Unreal Engine 3 client and the server, split into `Client` and `Server`.
+**The 2016 Shanda Games release · 传奇永恒**
+
+[![Repository](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/JevLOMCN/CQYH)
+[![Engine](https://img.shields.io/badge/engine-Unreal%20Engine%203-blue)](https://www.unrealengine.com/)
+[![Client](https://img.shields.io/badge/client-C%2B%2B%20%2B%20UnrealScript-informational)](#building-the-client)
+[![Server](https://img.shields.io/badge/server-C%2B%2B23-informational)](#building-the-server)
+
+<p>
+  <a href="https://eternalmir.co.uk">
+    <img src="https://eternalmir.co.uk/images/Logo/logo-transparent.png"
+         alt="Legend Eternal" width="340">
+  </a>
+</p>
+
+**A preserved release of the original Legend Eternal client and server source,**
+organised into a single repository and updated so the codebase can be explored
+and built with modern development tools.
+
+[Project website](https://eternalmir.co.uk) ·
+[Discord community](https://discord.gg/KahjsD7fhn) ·
+[LOMCN development forum](https://www.lomcn.net/forum/forums/mir-3d-emulation.812/)
 
 </div>
 
-> **The client assets are not in this repository.** The game content and prebuilt binaries (about 64 GB) are too large for GitHub and are hosted separately. See [Client assets](#client-assets-required-to-build-and-run-the-client) below.
+---
+
+## About this repository
+
+This repository contains the **2016 Shanda Games Legend Eternal (传奇永恒 / CQYH) source code**:
+the Unreal Engine 3 game client and the C++ server implementation.
+
+The project brings the client and server code together in one place, with a
+cleaned-up repository layout, updated Visual Studio projects, modern build
+scripts and supporting documentation. The aim is to make the original codebase
+easier for developers and the Mir community to inspect, understand, compile and
+work with.
+
+### What's included
+
+| Component | Contents |
+|---|---|
+| **Client** | Unreal Engine 3 engine and game source, UnrealScript, editor and development tools |
+| **Server** | C++ server source, runtime configuration layout, tools and tests |
+| **Common** | Protocol definitions, messages and shared data structures |
+| **Documentation** | Original release notes, design documents, setup guidance and database documentation |
+| **Build tooling** | Updated Visual Studio 2022 projects, CMake configuration and PowerShell build/verification scripts |
+
+### Modernised development environment
+
+- Client solution ported from the original Visual Studio 2010-era setup to **Visual Studio 2022**.
+- Client engine and game build verified for **Win32 and Win64**, in **Debug and Release** configurations.
+- UnrealScript compilation integrated into the modern Visual Studio workflow.
+- Server and development tools consolidated into a **CMake / Visual Studio 2022** solution using **C++23**.
+- Build, startup, editor and map-validation scripts included to make common development checks repeatable.
+
+> [!IMPORTANT]
+> **The client source is in this repository, but the large client asset archive is hosted separately.**
+> You must download and extract `Client Assets.7z` before you can build or run the client.
+> Follow the [client asset instructions](#client-assets) carefully: the archive contains
+> older copies of some files, so extracting with overwrite enabled can undo the modernised source.
+
+## Start here
+
+1. **Clone this repository.**
+2. If you intend to build or run the client, download
+   [`Client Assets.7z`](https://mirfiles.co.uk/resources/mir2/users/Jev/Legend%20Eternal/Organised/Client%20Assets.7z)
+   and follow the [asset installation instructions](#client-assets).
+3. Install the tools listed under [Build dependencies](#build-dependencies).
+4. Choose the component you want to work on:
+   - [Build the client](#building-the-client)
+   - [Build the server](#building-the-server)
+5. Use the guides in [`Documentation/`](Documentation) for database setup,
+   runtime configuration and the original project notes.
+
+You can browse the source without downloading the assets. The separate asset
+archive is only required for a working client build and runtime.
+
+## Table of contents
+
+- [About this repository](#about-this-repository)
+- [What's included](#whats-included)
+- [Modernised development environment](#modernised-development-environment)
+- [Start here](#start-here)
+- [Client assets](#client-assets)
+- [Repository layout](#repository-layout)
+- [Important repository notes](#important-repository-notes)
+- [Build dependencies](#build-dependencies)
+- [Building the client](#building-the-client)
+  - [Map lighting, navigation and editor verification](#map-lighting-navigation-and-editor-verification)
+  - [In-game console and debugging](#in-game-console-and-debugging)
+  - [Archived prebuilt map editor](#archived-prebuilt-map-editor)
+- [Building the server](#building-the-server)
+- [Documentation guide](#documentation-guide)
+- [Links and community](#links-and-community)
+- [Acknowledgements](#acknowledgements)
+- [Other projects](#other-projects)
 
 ---
 
-<p align="center">
-    <a href="https://eternalmir.co.uk">
-        <img src="https://eternalmir.co.uk/images/Logo/logo-transparent.png" width="360" height="192">
-    </a>
-</p>
-
----
-
-## Client assets (required to build and run the client)
+## Client assets
 
 This repository contains the client **source code only**. The game assets and prebuilt binaries the client needs are in a single archive:
 
@@ -100,14 +184,14 @@ Server/
 └── Common1/                   Alternative "new protocol" variant (not used by the build)
 ```
 
-### Things to know
+### Important repository notes
 
 - **Keep the folder layout.** Project files reach `Common` with paths such as `..\..\..\Common`, so `client` / `NewServer` and `Common` must stay side by side inside `Client` and `Server`.
 - **Two `Common` copies.** `Client/Common` and `Server/Common` are separate; a change in one does not carry to the other.
 - **Compiled server executables are not included.** Packaged server builds are in the [Organised folder](https://mirfiles.co.uk/resources/mir2/users/Jev/Legend%20Eternal/Organised/) under `Server Builds`.
 - **Two things need `Client` and `Server` side by side.** The server tool `gen_msg` writes `ServerEnum.uc` and `MMOBT*.ini` into the client folder, and the client cook scripts in `ClientBuildServer` copy `NewServer\bin\commonconfig`. They do not work with the two apart.
 
-### Dependencies
+### Build dependencies
 
 Visual Studio and the DirectX SDK come from Microsoft. Everything else is hosted in the [Organised files folder](https://mirfiles.co.uk/resources/mir2/users/Jev/Legend%20Eternal/Organised/):
 
@@ -126,7 +210,7 @@ Visual Studio and the DirectX SDK come from Microsoft. Everything else is hosted
 - **Legacy client problems:** if the DirectX SDK installer fails, uninstall the Microsoft Visual C++ redistributables (2005 to 2022), reinstall the SDK, then run the DirectX repair tool. The details are in the [`Documentation`](Documentation) folder.
 - Packaged client builds, packaged server builds and the rest of the release are in the same folder.
 
-### Building the client with Visual Studio 2022
+## Building the client
 
 Everything in `Client` opens and builds from Visual Studio 2022; Visual Studio 2010 is no longer required.
 
@@ -163,7 +247,10 @@ Run `powershell -ExecutionPolicy Bypass -File Client\Test-ClientStartup.ps1` to 
   - The linker rejects objects built with different `_MSC_VER` values, so the `/FAILIFMISMATCH:_MSC_VER=1600` marker inside some prebuilt `.lib` files (`recastd`, `squishd`, `FxSDKd`/`FxCGd`/`FxAnalysisd`, `nvTriStripD`, `NxTetraDebug`, `ConvexDecompositionDEBUG`) was changed to `1900`. The build now applies this change automatically to copies of the Client Assets libraries under `Development\Intermediate\LegacyLibraries`.
   - Debug and Release library variants for Win32 and Win64 are handled automatically; Shipping remains outside the verified build matrix.
 
-### Rebuilding map lighting/paths and checking the source editor
+<details>
+<summary><strong>Advanced: map lighting, navigation and editor verification</strong></summary>
+
+### Map lighting, navigation and editor verification
 
 1. Run `powershell -ExecutionPolicy Bypass -File Client\Build-Client.ps1` to build all four configurations and their matching scripts.
 2. Build `Client\client\UE3\Development\Tools\UnrealLightmass\UnrealLightmass.sln` with `Release|Win64` in Visual Studio. The supplied executable under `Binaries\Win64` can actually be 32-bit, which runs out of address space on large maps; the map-build helper checks the executable's architecture before starting.
@@ -203,7 +290,13 @@ The source editor uses wxWidgets 3.2.12 with UE3's window callbacks and event-lo
 
 Verified on 2026-11-02: all four editors loaded the rebuilt source login map, remained responsive, and exited with code 0. A normal game launch reported `bMapNeedsLightingFullyRebuilt=False` and `bPathsRebuilt=True` for `login_n`, `Login_n_MS`, `halfshowlevel`, and `pawnshowlevel_handbook`. Evidence is recorded in `Development\Intermediate\MapRebuild\verification.json`.
 
-### In-game console and debug commands
+
+</details>
+
+<details>
+<summary><strong>Reference: in-game console and debugging commands</strong></summary>
+
+### In-game console and debugging
 
 **Opening the console.** The client has a one-line typing console. Press the key bound to `TypeKey=Tilde` (`[Engine.Console]` in `MMOGame\Config\DefaultInput.ini` / the generated `MMOInput.ini`). A prompt appears at the bottom of the screen; type a command and press Enter.
 
@@ -258,7 +351,13 @@ The engine also provides the standard Unreal commands (`show`, `stat`, `viewmode
 | `-TraceHDR` | Log the HDR exposure controls and GPU luminance for the first 1,800 HDR frames |
 | `-nowrite` | Do not save changed settings on exit |
 
-### Opening the archived prebuilt map editor
+
+</details>
+
+<details>
+<summary><strong>Legacy: archived prebuilt map editor</strong></summary>
+
+### Archived prebuilt map editor
 
 The archived release includes the **prebuilt 2025 "Win32 - Modified and Compiled" map editor**, intended to run against the full client tree. Use the source-build workflow above for current builds; the following steps preserve the historical bundle setup. It is not an editor built from this source: that is what the release's `Map Editor Tool Description` describes. The steps below are the setup of a contributor who runs it successfully (`MMOGame.exe editor -log -NoGADWarning -dx9 -LANGUAGE=ENG`). The editor binaries are build output and are not in git.
 
@@ -277,7 +376,10 @@ The archived release includes the **prebuilt 2025 "Win32 - Modified and Compiled
 - **`MMO*.ini` are generated files.** The engine rewrites them as `[IniVersion]`-only stubs (about 37 bytes) when it decides they are stale, and keeps the stubs if the start fails. After any failed start restore them (the complete copies are in the first import commit `f1411e9a`). The complete set a working editor needs includes `DrawSilhouettes` in `MMOSystemSettingsHD.ini`.
 - When the prebuilt editor is run from a git working copy it still stopped in `FSystemSettings::LoadFromIni` with `Couldn't find system setting DrawSilhouettes in Ini section SystemSettingsEditor`, even with the contributor's `MMO*.ini` copied in and matching file timestamps. The contributor's own tree does not show this, so some difference between the two trees has not been found yet.
 - Do not commit regenerated `*Classes.h` files (see the build notes above).
-### Building the server with Visual Studio 2022
+
+</details>
+
+## Building the server
 
 The servers **and the tools** build with CMake (x64, C++23) from one solution, **`Server\build\vs2022\CQYHServer.sln`**. Build everything from that solution. The old makefiles, the old per-project `.vcxproj` files and the per-tool `.sln` files (`gmtool.sln`, `guardserver.sln`, ...) are gone or stale and no longer work, because the libraries they referenced were removed.
 
@@ -314,7 +416,7 @@ The original release notes and design documents are in [`Documentation`](Documen
 | `kismet_bin_fmt.xlsx`, `GameObjects.vsd`, `google_cppguide.xml` | Kismet binary format, game object diagram and the Google C++ style guide. |
 
 ---
-## 🔗 Quick Links
+## Links and community
 
 ### Project Resources
 - 🌐 [Legend Eternal Database](https://eternalmir.co.uk/) - by [DontReallyMind](https://www.lomcn.net/forum/members/dontreallymind.4351/)
@@ -335,7 +437,7 @@ The original release notes and design documents are in [`Documentation`](Documen
 
 ---
 
-## 🙏 Special Thanks
+## Acknowledgements
 
 - [DontReallyMind](https://www.lomcn.net/forum/members/dontreallymind.4351/)
 - [CraZyEriK](https://www.lomcn.net/forum/members/crazyerik.9944/)
@@ -348,10 +450,11 @@ The original release notes and design documents are in [`Documentation`](Documen
 
 ---
 
-<h2 align="center">
-  <img src="https://www.lomcn.net/forum/styles/uix/images/logo2024_100.png" width="32">
-  Other Projects
-</h2>
+## Other projects
+
+<div align="center">
+  <img src="https://www.lomcn.net/forum/data/assets/logo/favicon2019_Xf.png" width="32" alt="LOMCN">
+</div>
 
 <table align="center" width="100%">
 
