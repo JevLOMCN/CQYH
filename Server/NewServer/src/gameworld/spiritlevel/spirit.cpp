@@ -381,7 +381,7 @@ INT32 CSpirit::ProductAir(INT32 nIndex)
 
 	if (nIndex < MAX_AIR_PROCEDURE)
 	{
-		for (INT32 nDropIndex = 0; nDropIndex < MAX_DROP_AIR_COUNT; nDropIndex++)			//　Qi drop
+		for (INT32 nDropIndex = 0; nDropIndex < MAX_DROP_AIR_COUNT; nDropIndex++)			// Qi drop
 		{
 			nNum += pAirLevel->nDropAirRate[nDropIndex];
 

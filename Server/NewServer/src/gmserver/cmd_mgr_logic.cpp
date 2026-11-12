@@ -1177,7 +1177,7 @@ BOOL CB_ModifyRoleData(CTLUser *pTLUser, CMD_DATA_BASE *pCmd)
                     LOG_ECHO_ERROR(nRetCode, pTLUser->GetSessionID(), "Failed to send message to ms");
 
                     ++pModifyRoleCmd->nMailCount;
-                    //LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "ms在线，不能删除邮件");
+                    //LOG_ECHO_ERROR(FALSE, pTLUser->GetSessionID(), "ms is online, cannot delete mail");
                 }
                 else
                 {

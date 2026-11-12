@@ -664,7 +664,7 @@ BOOL CNpc::Die(INT32 nParam)
 
             // Example: "[Woma Leader] was defeated by player [Ada]!"
             char strMsg[128] = { 0 };
-            snprintf(strMsg, sizeof(strMsg), "[%s]被玩家[%s]击败!", strAnsiBossName ? strAnsiBossName.get() : "", strAnsiRoleName ? strAnsiRoleName.get() : "");
+            snprintf(strMsg, sizeof(strMsg), "[%s] was defeated by player [%s]!", strAnsiBossName ? strAnsiBossName.get() : "", strAnsiRoleName ? strAnsiRoleName.get() : "");
 
             std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
             Say(cctServer, cltTvShow, str_utf8 ? str_utf8.get() : "");

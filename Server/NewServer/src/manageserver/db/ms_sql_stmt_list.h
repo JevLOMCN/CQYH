@@ -58,9 +58,9 @@ enum MS_SQL_STMT_ID
     mysqlInsertGuildWar,
 
     mysqlSelectGMember,                 // start 
-    mysqlInsertGMember,                 // running, 2，200
-    mysqlDeleteGMember,                 // running, 2，200
-    mysqlUpdateGMember,                 // running, 2，500
+    mysqlInsertGMember,                 // running, 2,200
+    mysqlDeleteGMember,                 // running, 2,200
+    mysqlUpdateGMember,                 // running, 2,500
     mysqlDeleteGMemberByGuildID,
     mysqlClearGMember,
 

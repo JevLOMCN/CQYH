@@ -4265,7 +4265,7 @@ void CMessageHandler::OnClientGMCommand(PACKET_BUFFER* pPacketBuffer, UINT32 dwS
     //const EQUIP_DATA* pcNpcData = CDataManager<EQUIP_DATA>::GetInstance().GetFirstData();
     //while (pcNpcData)
     //{
-    //    WRN("物品序号 %d, 名字 %s", pcNpcData->m_nTemplateID, pcNpcData->m_szName);
+    //    WRN("item index %d, name %s", pcNpcData->m_nTemplateID, pcNpcData->m_szName);
     //    pcNpcData = CDataManager<EQUIP_DATA>::GetInstance().GetNextData();
     //}
 

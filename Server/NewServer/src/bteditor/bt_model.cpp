@@ -1082,7 +1082,7 @@ bool BTModel::UnrealLocation( const QModelIndex& current )
     oData.dwData = nID;									// ID
 
     HWND hWnd = NULL;				//
-    //TCHAR* pszCaptain = TEXT("MsgToUE3");//_TEXT("计算器");
+    //TCHAR* pszCaptain = TEXT("MsgToUE3");//_TEXT("calculator");
     //hWnd = FindWindowEx(NULL, 0, NULL, pszCaptain );
     int nRetCode = EnumWindows( (WNDENUMPROC)WindowTraverseFunc, (LPARAM)(&hWnd) );
     if ( NULL == hWnd )

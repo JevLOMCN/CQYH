@@ -698,7 +698,7 @@ void CMessageHandler::OnMSQueryRoleDataAck(PACKET_BUFFER* pPacketBuffer, UINT32 
     LOG_PROCESS_ERROR(pTLUser);
 
     pCmd = (CMD_QUERY_ROLE_DATA*)CKernel::GetInstance().FindCmd(pMsg->dwCmdSerialID);
-    LOG_ECHO_ERROR(pCmd, pTLUser->GetSessionID(), "从MS返回未找到CMD");
+    LOG_ECHO_ERROR(pCmd, pTLUser->GetSessionID(), "CMD not found in the reply from MS");
 
     pCmd->nResult = pMsg->nResult;
     pCmd->dwLogoutTime = pMsg->dwLogoutTime;
@@ -1276,7 +1276,7 @@ void CMessageHandler::OnTLVerify(PACKET_BUFFER *pPacketBuffer, UINT32 dwSize, IS
     bLD = CPermissionMgr::GetInstance().IsLD(pMsg->szName, pMsg->szPwd);
     
     //pUserData = CUserManager::GetInstance().FindUserByID(nRetCode);
-    //LOG_ECHO_ERROR(pUserData == NULL, pTLSession->dwSessionID, "重复登陆");
+    //LOG_ECHO_ERROR(pUserData == NULL, pTLSession->dwSessionID, "duplicate login");
 
     INF("GMTOOL Verify password Success IP:[%s][%d]\tAccount:[%s]\t", pIP, dwIP, pMsg->szName);
 

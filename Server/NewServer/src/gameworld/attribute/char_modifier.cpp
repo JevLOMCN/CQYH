@@ -9674,7 +9674,7 @@ INT32 ModifierChar_260(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32
 
     LOG_PROCESS_ERROR(!bIsRollingBack);    // Not present in the IDA output; added locally
 
-    //poChar->未知函数(nParam1); // Unknown function placeholder
+    //poChar->UnknownFunction(nParam1); // Unknown function placeholder
 
     return mrcTrue;
 Exit1:
@@ -9697,7 +9697,7 @@ INT32 ModifierChar_261(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT32
     {
         if ((nParam1 & (1 << i)) != 0)
         {
-            //poChar->未知函数(i); // Unknown function placeholder
+            //poChar->UnknownFunction(i); // Unknown function placeholder
         }
     }
 

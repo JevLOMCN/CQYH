@@ -4492,7 +4492,7 @@ INT32 ModifierBullet_138(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     LOG_PROCESS_ERROR(target);
 
     // Jiguang Dianying without an inscription should use this function
-    //target->未知函数(nParam1);    // Function not found in IDA; it may have been added later, so it is temporarily disabled
+    //target->UnknownFunction(nParam1);    // Function not found in IDA; it may have been added later, so it is temporarily disabled
 
     return mrcTrue;
 Exit1:

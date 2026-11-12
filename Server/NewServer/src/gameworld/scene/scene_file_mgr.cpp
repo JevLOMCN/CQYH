@@ -2889,12 +2889,12 @@ BOOL CSceneFileMgr::Init(void)
 
     if (m_nErrorCount > 0)
     {
-        g_AppendErrorMsg("场景数据文件中有---%d---个读取错误\n", m_nErrorCount);
+        g_AppendErrorMsg("There are ---%d--- read errors in the scene data files\n", m_nErrorCount);
     }
 
     if (m_nLoadedCount < rDataMgr.GetDataCount())
     {
-        g_AppendErrorMsg("场景数据文件中有---%d---个场景读取失败\n", rDataMgr.GetDataCount() - m_nLoadedCount);
+        g_AppendErrorMsg("---%d--- scenes failed to load from the scene data files\n", rDataMgr.GetDataCount() - m_nLoadedCount);
     }
 
     // Load teleports.bin

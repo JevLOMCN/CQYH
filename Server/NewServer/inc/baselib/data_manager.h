@@ -481,7 +481,7 @@ BOOL CDataManager<T>::_Insert(LOADED_DATA_LIST* pLoadedDataList)
             (INT32)(qwCurrentTick - pLoadedDataList->qwStartTick), (INT32)(qwCurrentTick - qwStartTick), (sizeof(T) + sizeof(void*) * 4) * nCounter / (1024 * 1024.0f));
 #if defined(_DEBUG) & !defined(_FINAL) 
         if (nCounter < pLoadedDataList->nRowCount)
-            g_AppendErrorMsg("%s.txt中有---%d---条数据错误\n", m_szConfigName, pLoadedDataList->nRowCount - nCounter);
+            g_AppendErrorMsg("%s.txt has ---%d--- data errors\n", m_szConfigName, pLoadedDataList->nRowCount - nCounter);
 #endif  // _DEBUG & !_FINAL
 		m_bNeedPostProcessData = TRUE;
     }

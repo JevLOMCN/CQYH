@@ -10,15 +10,15 @@
 namespace  ERR_CREATEROLE_DB
 {
     const INT32 ID_NOERROR = 0;
-    const TCHAR* STR_NOERROR = _SDTSource2T("GBK", "操作成功");
+    const TCHAR* STR_NOERROR = _SDTSource2T("GBK", "Operation successful");
 
     const INT32 ID_TOOMUCHROLE = 1;
-    const TCHAR* STR_TOOMUCHROLE = _SDTSource2T("GBK", "角色创建过多");
+    const TCHAR* STR_TOOMUCHROLE = _SDTSource2T("GBK", "Too many characters created");
 
     const INT32 ID_PARAMERROR = 2;
-    const TCHAR* STR_PARAMERROR = _SDTSource2T("GBK", "参数不正确");
+    const TCHAR* STR_PARAMERROR = _SDTSource2T("GBK", "Incorrect parameter");
 
     const INT32 ID_UNKNOWERROR = 3;
-    const TCHAR* STR_UNKNOWERROR = _SDTSource2T("GBK", "角色名重复或数据库错误");
+    const TCHAR* STR_UNKNOWERROR = _SDTSource2T("GBK", "Duplicate character name or database error");
 }
 

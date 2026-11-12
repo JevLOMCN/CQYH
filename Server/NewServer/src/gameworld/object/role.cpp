@@ -732,7 +732,7 @@ void CRole::NotifyRole_GameTimeCard()
     {
         m_bHaveTime = TRUE;
 
-        const char* strNoTime = "[Vip月卡]已过期!";
+        const char* strNoTime = "[VIP Monthly Card] Expired!";
 
         snprintf(strMsg, sizeof(strMsg), "%s", strNoTime);
         std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
@@ -743,7 +743,7 @@ void CRole::NotifyRole_GameTimeCard()
     {
         m_bHaveTime = FALSE;
 
-        const char* strHaveTime = "[Vip月卡]时间: ";
+        const char* strHaveTime = "[VIP Monthly Card] Time: ";
 
         snprintf(strMsg, sizeof(strMsg), "%s%s", strHaveTime, strTime);
         std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
@@ -877,28 +877,28 @@ void CRole::NotifyRole_RuneRootCount(INT32 nType, INT32 cls)
     // Normal
     if (nType == rrrNormal)
     {
-        const char* str1 = "[普通铭文洗练]-";
+        const char* str1 = "[Normal Inscription Refine]-";
 
         switch (cls)
         {
         case clsWarrior:
         {
-            const char* str2 = "[战士] ";
-            snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneNormal_Warrior);
+            const char* str2 = "[Warrior] ";
+            snprintf(strMsg, sizeof(strMsg), "%s%s%d times", str1, str2, m_nRuneNormal_Warrior);
             str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsMage:
         {
-            const char* str2 = "[法师] ";
-            snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneNormal_Mage);
+            const char* str2 = "[Mage] ";
+            snprintf(strMsg, sizeof(strMsg), "%s%s%d times", str1, str2, m_nRuneNormal_Mage);
             str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsTaoist:
         {
-            const char* str2 = "[道士] ";
-            snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneNormal_Taoist);
+            const char* str2 = "[Taoist] ";
+            snprintf(strMsg, sizeof(strMsg), "%s%s%d times", str1, str2, m_nRuneNormal_Taoist);
             str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
@@ -907,28 +907,28 @@ void CRole::NotifyRole_RuneRootCount(INT32 nType, INT32 cls)
     // Advanced
     else if (nType == rrrAdvanced)
     {
-        const char* str1 = "[高级铭文洗练]-";
+        const char* str1 = "[Advanced Inscription Refine]-";
 
         switch (cls)
         {
         case clsWarrior:
         {
-            const char* str2 = "[战士] ";
-            snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneAdvanced_Warrior);
+            const char* str2 = "[Warrior] ";
+            snprintf(strMsg, sizeof(strMsg), "%s%s%d times", str1, str2, m_nRuneAdvanced_Warrior);
             str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsMage:
         {
-            const char* str2 = "[法师] ";
-            snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneAdvanced_Mage);
+            const char* str2 = "[Mage] ";
+            snprintf(strMsg, sizeof(strMsg), "%s%s%d times", str1, str2, m_nRuneAdvanced_Mage);
             str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
         case clsTaoist:
         {
-            const char* str2 = "[道士] ";
-            snprintf(strMsg, sizeof(strMsg), "%s%s%d次", str1, str2, m_nRuneAdvanced_Taoist);
+            const char* str2 = "[Taoist] ";
+            snprintf(strMsg, sizeof(strMsg), "%s%s%d times", str1, str2, m_nRuneAdvanced_Taoist);
             str_utf8.reset(char_to_utf8(strMsg));
             break;
         }
@@ -959,7 +959,7 @@ void CRole::IncLuckRootCount()
 void CRole::NotifyRole_LuckRootCount()
 {
     char strMsg[128] = { 0 };
-    const char* str1 = "祝福油节点-";
+    const char* str1 = "Blessing Oil node-";
     snprintf(strMsg, sizeof(strMsg), "%s[%d]", str1, m_nLuckRootCount);
     std::unique_ptr<char[]> str_utf8(char_to_utf8(strMsg));
     Say(GetObjID(), cltDialog, str_utf8 ? str_utf8.get() : "");

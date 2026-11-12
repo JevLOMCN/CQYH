@@ -15,16 +15,16 @@ using namespace SGDP;
 namespace  ERR_CREATEROLE_DB
 {
     extern const INT32 ID_NOERROR/* = 0*/;
-    extern const TCHAR* STR_NOERROR/* = _SDTSource2T("GBK", "操作成功")*/;
+    extern const TCHAR* STR_NOERROR/* = _SDTSource2T("GBK", "Operation successful")*/;
 
     extern const INT32 ID_TOOMUCHROLE/* = 1*/;
-    extern const TCHAR* STR_TOOMUCHROLE/* = _SDTSource2T("GBK", "角色创建过多")*/;
+    extern const TCHAR* STR_TOOMUCHROLE/* = _SDTSource2T("GBK", "Too many characters created")*/;
 
     extern const INT32 ID_PARAMERROR/* = 2*/;
-    extern const TCHAR* STR_PARAMERROR/* = _SDTSource2T("GBK", "参数不正确")*/;
+    extern const TCHAR* STR_PARAMERROR/* = _SDTSource2T("GBK", "Incorrect parameter")*/;
 
     extern const INT32 ID_UNKNOWERROR/* = 3*/;
-    extern const TCHAR* STR_UNKNOWERROR/* = _SDTSource2T("GBK", "角色名重复或数据库错误")*/;
+    extern const TCHAR* STR_UNKNOWERROR/* = _SDTSource2T("GBK", "Duplicate character name or database error")*/;
 }
 
 #endif
