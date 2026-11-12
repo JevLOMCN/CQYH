@@ -72,10 +72,10 @@ This repository started as the unmodified 2016 release. These are the changes ma
 
 | Status | Goal | Details |
 |---|---|---|
-| ✅ Done | **Modern build environment** | Client moved from Visual Studio 2010 to Visual Studio 2022 (Win32/Win64, Debug/Release). Server rebuilt with CMake and C++23. See [Modernised development environment](#modernised-development-environment). |
+| ✅ Done | **Modern build environment** | Client moved from Visual Studio 2010 to Visual Studio 2022 (Win32/Win64, Debug/Release). Server rebuilt with CMake and C++23. Database moved from MySQL 5 to MySQL 8 (modern schema and matching data in [`Database/mysql-modern`](Database/mysql-modern/README.md)). See [Modernised development environment](#modernised-development-environment). |
 | ✅ Done | **Backport the 1.05 client assets** | The 2016 source client was brought up to the latest retail client (v1.05) content: all 7 classes (adding Lancer and Sorcerer) at character select and in game, the 1.05 maps (106 new scenes), gear, skill and item data tables, mounts, and the encoded 1.05 asset packages (decoded and installed). Merged from the `1.05-backport` branch. |
-| 🔲 Planned | **Port the client from Unreal Engine 3 to Unreal Engine 5** | Move the game client off UE3 to UE5, keeping the existing server and protocol. |
-| 🔲 In progress | **1.05 gameplay systems** | 1.05 ships data and UI for systems the 2016 code does not implement (Legend Power, Couture, Dragon Soul, Physique, Mingwu/Wushuang, equipment v2, consign and others). Their tables and assets are in place; the client and server code is still to be written. Progress and order of work are tracked in [`ROADMAP.md`](ROADMAP.md). |
+| 🚧 In progress | **Port the client from Unreal Engine 3 to Unreal Engine 5** | Move the game client off UE3 to UE5, keeping the existing server and protocol. |
+| 🚧 In progress | **1.05 gameplay systems** | 1.05 ships data and UI for systems the 2016 code does not implement (Legend Power, Couture, Dragon Soul, Physique, Mingwu/Wushuang, equipment v2, consign and others). Their tables and assets are in place; the client and server code is still to be written. Progress and order of work are tracked in [`ROADMAP.md`](ROADMAP.md). |
 
 ## Start here
 
