@@ -417,6 +417,7 @@ The original release notes and design documents are in [`Documentation`](Documen
 
 | File / folder | What it covers |
 |---|---|
+| [`Network Architecture.md`](Documentation/Network%20Architecture.md) | Server topology and the login / enter-game sequence as diagrams that render on GitHub (the originals are Visio `.vsd` files). |
 | `Explanation of Frontend and Backend Files.txt` | The `Common` (old protocol) vs `Common1` (new protocol) split, the old-client / new-server mismatch, and the client compile tips (`GlobalMapInfo.cpp`, Shipping manifests). |
 | `Server-side - Runtime Environment.txt` | Running the server: `certserver` service, `server.reg`, `commonconfig.lua` / `dbconfig.lua` / `mmconfig.lua` / `nameserver.ini`, and the `guard_d.bat` commands (`start ar`, `start a`, `close`, `stop`). |
 | `Description of the Compilation Environment.txt` | Original toolchain (VS2013 server, VS2010 client, DirectX SDK June 2010) and the DirectX install fix. The repository now builds with Visual Studio 2022; see the sections above. |
