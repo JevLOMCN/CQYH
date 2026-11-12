@@ -18,17 +18,17 @@ void UMMOGFXPlayer_NpcDialogNew::ASNPCDialogPage(INT pageIndex)
 {
 	_DialogPanel->CurrentDialogPage = pageIndex;
 	MMOQuestManager::getSingleton().SetQuestDialogCurrentPage(pageIndex);
-	//重置时间
+	//reset time
 	MMOQuestManager::getSingleton().RestPageTime();
 
-	//翻页要重播动画的说
+	//animation needs to replay on page turn
 	_DialogPanel->eventCallUCPlay(MMOQuestManager::getSingleton().GetPageTotalTime()*1000);
 }
 
 void UMMOGFXPlayer_NpcDialogNew::ASCloseDialog()
 {
 	_DialogPanel->CloseDialog();
-	//这里要清空一下
+	//need to clear here
 	MMOQuestManager::getSingleton().ResetContent();
 }
 
@@ -39,7 +39,7 @@ void UMMOGFXPlayer_NpcDialogNew::ASSelectAward(class UGFxObject* icon,INT idx,IN
 
 	if (_DialogPanel->SelectedAwardIndex >= 0)
 	{
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_SelectQuestAward);
 		MMOUI::PostGameEvent(&evtGuide);
 	}

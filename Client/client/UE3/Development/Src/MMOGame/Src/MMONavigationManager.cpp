@@ -3,7 +3,7 @@
 #include "MMONavigationManager.h"
 #include "MMOFacade.h"
 #include "MMOChatManager.h"
-//#include "UGlobalMapInfo.h" // 给uc类自动包含的.h，不能在其它地方手动包含的
+//#include "UGlobalMapInfo.h" // .h automatically included for the uc class, must not be included manually elsewhere
 #include "MMOMapDataManager.h"
 #include "FSMIO.h"
 #include "DoodadManager.h"
@@ -53,10 +53,10 @@ void MMONavigationManager::Init()
 			continue;
 		}
 
-		// 起点
+		// start point
 		_AddNaviNode(fromMapId);
 
-		// 终点
+		// end point
 		_AddNaviNode(toMapId);
 
 		// Link
@@ -296,10 +296,10 @@ void MMONavigationManager::StopNavigate(UBOOL stopMove)
 
 void MMONavigationManager::EnterScene()
 {
-	// 如果跨地图中
+	// if crossing maps
 	if (_NaviNodeList.size() > 0)
 	{
-		// 继续
+		// continue
 		switch (_NaviInfo.Type)
 		{
 		case NT_NAV_POINT:
@@ -547,7 +547,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, const FString& pointName, UBOOL
 			AMMONavPoint* point = *iter;
 			if(point && point->ConfigName == pointName)
 			{
-				// 先检查本地图是否直接可达，如果不行，考虑当前地图有地图内传送点的情况
+				// first check whether the current map is directly reachable; if not, consider in-map teleport points on the current map
 				if (_GeneratePath(mainPlayer->Location, point->Location, TRUE))
 				{
 					if (needMove)
@@ -582,15 +582,15 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, const FString& pointName, UBOOL
 				}
 				else
 				{
-					// 移动到通往本张地图其他位置的传送点
-					// 因为还要夸一次地图，要求_NaviNodeList里有数据
+					// move to the teleport point leading to other positions on this map
+					// because it must cross maps once more, _NaviNodeList must have data
 					_NaviNodeList.push_back(curMapId);
 					return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 				}
 			}
 		}
 
-		// 如果找不到地图的路点Actor,从全局数据找(缺陷#10295)
+		// if the map's waypoint Actor is not found, look in the global data (defect #10295)
 		UGlobalMapInfo* globalMapInfo = UGlobalMapInfo::GetSingleton();
 		const TArray<FNaviPointInfo>* mapNavPoints = NULL;
 		if( globalMapInfo != NULL ){
@@ -606,7 +606,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, const FString& pointName, UBOOL
 			const FNaviPointInfo* navInfo = &mapNavPointsList(i);
 			if (navInfo && navInfo->Name == pointName)
 			{
-				// 先检查本地图是否直接可达，如果不行，考虑当前地图有地图内传送点的情况
+				// first check whether the current map is directly reachable; if not, consider in-map teleport points on the current map
 				if (_GeneratePath(mainPlayer->Location, navInfo->Position, TRUE))
 				{
 					if (needMove)
@@ -621,8 +621,8 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, const FString& pointName, UBOOL
 				}
 				else
 				{
-					// 移动到通往本张地图其他位置的传送点
-					// 因为还要夸一次地图，要求_NaviNodeList里有数据
+					// move to the teleport point leading to other positions on this map
+					// because it must cross maps once more, _NaviNodeList must have data
 					_NaviNodeList.push_back(curMapId);
 					return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 				}
@@ -640,9 +640,9 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, const FString& pointName, UBOOL
 			}
 			else
 			{
-				// 如果相邻地图传送点不可达，考虑当前地图有地图内传送点的情况
-				// 移动到通往本张地图其他位置的传送点
-				// 因为还要夸一次地图，要求_NaviNodeList里有数据
+				// if the adjacent map's teleport point is unreachable, consider in-map teleport points on the current map
+				// move to the teleport point leading to other positions on this map
+				// because it must cross maps once more, _NaviNodeList must have data
 				_NaviNodeList.push_back(curMapId);
 				return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 			}
@@ -665,7 +665,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, INT npcId, UBOOL needMove)
 	{
 		_NaviNodeList.clear();
 
-		// 找到npc
+		// found the npc
 		const FNPCInstanceInfo* npcInfo = NULL;
 		const TArray<FNPCInstanceInfo*>& npcInMapInfoList = *(MMOMapDataManager::getSingleton().GetNpcInstanceInMap(mapId));
 		for(INT i = 0; i < npcInMapInfoList.Num(); ++ i)
@@ -679,7 +679,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, INT npcId, UBOOL needMove)
 
 		if (npcInfo)
 		{
-			// 先检查本地图是否直接可达，如果不行，考虑当前地图有地图内传送点的情况
+			// first check whether the current map is directly reachable; if not, consider in-map teleport points on the current map
 			if (_GeneratePath(mainPlayer->Location, npcInfo->Position, TRUE))
 			{
 				if (needMove)
@@ -704,8 +704,8 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, INT npcId, UBOOL needMove)
 			}
 			else
 			{
-				// 移动到通往本张地图的其他位置的传送点
-				// 因为还要夸一次地图，要求_NaviNodeList里有数据
+				// move to the teleport point leading to other positions on this map
+				// because it must cross maps once more, _NaviNodeList must have data
 				_NaviNodeList.push_back(curMapId);
 				return FindAndMoveToTeleport(curMapId, curMapId, npcInfo->TemplateID, needMove);
 			}
@@ -724,7 +724,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, INT npcId, UBOOL needMove)
 						const FNPCGroupInfo &groupNpcInfo = npcGroups(i);
 						if (groupNpcInfo.MapID == curMapId && groupNpcInfo.NpcTemplateID == npcId)
 						{
-							// 先检查本地图是否直接可达，如果不行，考虑当前地图有地图内传送点的情况
+							// first check whether the current map is directly reachable; if not, consider in-map teleport points on the current map
 							if (_GeneratePath(mainPlayer->Location, groupNpcInfo.Position, TRUE))
 							{
 								if (needMove)
@@ -748,8 +748,8 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, INT npcId, UBOOL needMove)
 							}
 							else
 							{
-								// 移动到通往本张地图的其他位置的传送点
-								// 因为还要夸一次地图，要求_NaviNodeList里有数据
+								// move to the teleport point leading to other positions on this map
+								// because it must cross maps once more, _NaviNodeList must have data
 								_NaviNodeList.push_back(curMapId);
 								return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 							}
@@ -764,16 +764,16 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, INT npcId, UBOOL needMove)
 		INT nextMapId = _GetNextMapId(curMapId);
 		if (nextMapId != INVALID_MAP_ID)
 		{
-			// 移动到通往下一张地图的传送点
+			// move to the teleport point leading to the next map
 			if (FindAndMoveToTeleport(curMapId, nextMapId, 0, needMove))
 			{
 				return TRUE;
 			}
 			else
 			{
-				// 如果相邻地图传送点不可达，考虑当前地图有地图内传送点的情况
-				// 移动到通往本张地图其他位置的传送点
-				// 因为还要夸一次地图，要求_NaviNodeList里有数据
+				// if the adjacent map's teleport point is unreachable, consider in-map teleport points on the current map
+				// move to the teleport point leading to other positions on this map
+				// because it must cross maps once more, _NaviNodeList must have data
 				_NaviNodeList.push_back(curMapId);
 				return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 			}
@@ -791,7 +791,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, FVector point, UBOOL needMove)
 		return FALSE;
 	}
 
-	// 先检查下坐标对应格子有没有寻路数据
+	// first check whether the grid cell at the coordinate has pathfinding data
 	ZONE_DATA* zoneData = NULL;
 	GRID_DATA* gridData = NULL;
 	gServerGridWorld.GetZoneAndGrid(point, zoneData, gridData);
@@ -810,7 +810,7 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, FVector point, UBOOL needMove)
 	{
 		_NaviNodeList.clear();
 
-		// 先检查本地图是否直接可达，如果不行，考虑当前地图有地图内传送点的情况
+		// first check whether the current map is directly reachable; if not, consider in-map teleport points on the current map
 		if (_GeneratePath(mainPlayer->Location, point, TRUE))
 		{
 			if (needMove)
@@ -829,16 +829,16 @@ UBOOL MMONavigationManager::_Navigate(INT mapId, FVector point, UBOOL needMove)
 		INT nextMapId = _GetNextMapId(curMapId);
 		if (nextMapId != INVALID_MAP_ID)
 		{
-			// 移动到通往下一张地图的传送点
+			// move to the teleport point leading to the next map
 			if (FindAndMoveToTeleport(curMapId, nextMapId, 0, needMove))
 			{
 				return TRUE;
 			}
 			else
 			{
-				// 如果相邻地图传送点不可达，考虑当前地图有地图内传送点的情况
-				// 移动到通往本张地图其他位置的传送点
-				// 因为还要夸一次地图，要求_NaviNodeList里有数据
+				// if the adjacent map's teleport point is unreachable, consider in-map teleport points on the current map
+				// move to the teleport point leading to other positions on this map
+				// because it must cross maps once more, _NaviNodeList must have data
 				_NaviNodeList.push_back(curMapId);
 				return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 			}
@@ -876,7 +876,7 @@ UBOOL MMONavigationManager::_NavigateDoodad(INT mapId, const FString& pointName,
 			const FNaviPointInfo* navInfo = &mapNavPointsList(i);
 			if (navInfo && navInfo->Name == pointName)
 			{
-				// 先检查本地图是否直接可达，如果不行，考虑当前地图有地图内传送点的情况
+				// first check whether the current map is directly reachable; if not, consider in-map teleport points on the current map
 				if (_GeneratePath(mainPlayer->Location, navInfo->Position, TRUE))
 				{
 					if (needMove)
@@ -892,8 +892,8 @@ UBOOL MMONavigationManager::_NavigateDoodad(INT mapId, const FString& pointName,
 				}
 				else
 				{
-					// 移动到通往本张地图其他位置的传送点
-					// 因为还要夸一次地图，要求_NaviNodeList里有数据
+					// move to the teleport point leading to other positions on this map
+					// because it must cross maps once more, _NaviNodeList must have data
 					_NaviNodeList.push_back(curMapId);
 					return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 				}
@@ -905,16 +905,16 @@ UBOOL MMONavigationManager::_NavigateDoodad(INT mapId, const FString& pointName,
 		INT nextMapId = _GetNextMapId(curMapId);
 		if (nextMapId != INVALID_MAP_ID)
 		{
-			// 移动到通往下一张地图的传送点
+			// move to the teleport point leading to the next map
 			if (FindAndMoveToTeleport(curMapId, nextMapId, 0, needMove))
 			{
 				return TRUE;
 			}
 			else
 			{
-				// 如果相邻地图传送点不可达，考虑当前地图有地图内传送点的情况
-				// 移动到通往本张地图其他位置的传送点
-				// 因为还要夸一次地图，要求_NaviNodeList里有数据
+				// if the adjacent map's teleport point is unreachable, consider in-map teleport points on the current map
+				// move to the teleport point leading to other positions on this map
+				// because it must cross maps once more, _NaviNodeList must have data
 				_NaviNodeList.push_back(curMapId);
 				return FindAndMoveToTeleport(curMapId, curMapId, 0, needMove);
 			}
@@ -943,7 +943,7 @@ void MMONavigationManager::_BeginNavigate()
 
 void MMONavigationManager::_StopNavigate()
 {
-	// 跨地图前会被调Stop，所以这里不能清
+	// Stop is called before crossing maps, so it cannot be cleared here
 	//_NaviNodeList.clear();
 
 	_IsNavigating = FALSE;
@@ -1024,7 +1024,7 @@ void MMONavigationManager::_GeneratePathPoint()
 
 	ClearPathEffect();
 
-	// 原始路点列表
+	// original waypoint list
 	TArray<FVector> pathPointArray;
 	if (mainPlayerCtrl->Pawn && naviHelper->_NavigationHandle)
 	{
@@ -1035,7 +1035,7 @@ void MMONavigationManager::_GeneratePathPoint()
 		//pathPointList.Push(CurReachablePoint);
 		//pathPointList.Push(*(naviHelper->_NavigationHandle->FinalDestination));
 
-		// hack: 因为目前时序为角色先移动，_IsNavigating再被置上，所以进入此处，路点索引要使用前一个点，zhaojun@snda
+		// hack: currently the order is character moves first, then _IsNavigating is set, so when entering here the waypoint index must use the previous point, zhaojun@snda
 		INT32 pathPointIndex = gServerGridWorld.FetchArrayPointer() - 1;
 		FVector pathPoint;
 		while (gServerGridWorld.FetchPath(pathPoint, pathPointIndex))
@@ -1045,14 +1045,14 @@ void MMONavigationManager::_GeneratePathPoint()
 		}
 	}
 
-	// 因为FetchPath得到的有些路点的z值为0.0，导致后面通过路点距离计算插值错误，
-	// 所以这里统一全部设0，在同一平面插值，然后在_UpdatePath时再计算Z值
+	// because some waypoints from FetchPath have a z value of 0.0, which makes the interpolation computed from waypoint distances wrong later,
+	// so here all are uniformly set to 0, interpolated on the same plane, and Z is computed again in _UpdatePath
 	for (INT i = 0; i < pathPointArray.Num(); ++ i)
 	{
 		pathPointArray(i).Z = 0.0;
 	}
 
-	// 插值路点列表
+	// interpolated waypoint list
 	INT interval = naviHelper->PathEffectInterval;
 	if (interval <= 0)
 	{
@@ -1076,7 +1076,7 @@ void MMONavigationManager::_GeneratePathPoint()
 	//	
 	//	if (dist < interval)
 	//	{
-	//		// 距离太近, 直接丢弃
+	//		// too close, discard directly
 	//		continue;
 	//	}
 	//	
@@ -1135,7 +1135,7 @@ void MMONavigationManager::_GeneratePathPoint()
 
 	if (_PathPointList.Num() < 2)
 	{
-		// 不足两个点，不生成
+		// fewer than two points, do not generate
 		_PathPointList.Empty();
 	}
 }
@@ -1285,7 +1285,7 @@ void MMONavigationManager::ShutdownPathEffect()
 		return;
 	}
 
-	// 这里QA测试出在大退的时候容易崩溃，可能是GWorld已经将Actor都销毁了
+	// QA found it easily crashes on a hard exit, possibly because GWorld has already destroyed all Actors
 //	for (INT i = 0; i < _PathEffectList.Num(); ++ i)
 //	{
 //		AMMONavitationEmitter* emitter = _PathEffectList(i);
@@ -1332,7 +1332,7 @@ void MMONavigationManager::_DrawPathEffect(FLOAT deltaTime)
 		return;
 	}
 	
-	// 4秒一个周期
+	// 4 seconds per cycle
 	_PathEffectProgress += deltaTime;
 	if (_PathEffectProgress > PATH_EFFECT_WAVE_TIME)
 	{
@@ -1363,7 +1363,7 @@ void MMONavigationManager::_DrawPathEffect(FLOAT deltaTime)
 
 		FVector curPathPointPos = _PathPointList(i).Pos;
 
-		// 确定方向
+		// determine direction
 		FRotator curPathPointDir = FRotator(EC_EventParm);
 		if (i < _PathPointList.Num() - 1)
 		{
@@ -1382,7 +1382,7 @@ void MMONavigationManager::_DrawPathEffect(FLOAT deltaTime)
 		emitter->SetRotation(curPathPointDir);
 	}
 
-	// 隐藏其余的特效
+	// hide the remaining effects
 	for (INT i = psIndex; i < _PathEffectList.Num(); ++ i)
 	{
 		AMMONavitationEmitter* emitter = _PathEffectList(i);

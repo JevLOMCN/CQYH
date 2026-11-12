@@ -1,7 +1,7 @@
 //
-// NPC 出生点
+// NPC spawn point
 //
-// implements(IMMOActorHUD) Editor 中没有Player
+// implements(IMMOActorHUD) no Player in Editor
 class NPCSpawnPoint extends Actor
 	placeable
 	dependson(NPC)
@@ -9,39 +9,39 @@ class NPCSpawnPoint extends Actor
 	hidecategories(Object,Debug,Display,Attachment,Collision,Physics,Advanced)
 	ClassGroup(__Server_Old__);
 
-//具体NPC模板信息
+//specific NPC template info
 struct native SpawnNpcData
 {
 	var() NPC  NPCTemplateArchi;
 	var() int     Weight;
 };
-// NPC模板引用
+// NPC template reference
 var(MMOServer) editoronly editinline  array<SpawnNpcData> NPCTemplateList;
 
-//@todo ------------Start---------------- 慢慢删除这块内容
+//@todo ------------Start---------------- gradually delete this block
 
-// 出生群组ID,NPCSpawnGroupId,目前导出后才会自动赋值，手动配置 
+// spawn group ID, NPCSpawnGroupId, currently assigned automatically only after export, configured manually
 var(MMOServerOld) editoronly int GroupID;
 
-// NPC类型ID（以后改为引用Archetype)
+// NPC type ID (to be changed to reference Archetype later)
 var(MMOServerOld) editoronly int KindID;
 
-// 出生数量
+// spawn count
 var(MMOServerOld) editoronly int SpawnCount;
 
-// 如果是Manual方式，需要服务器在收到特定协议后进行刷怪处理（如过场电影看完之后）
+// In Manual mode, the server must spawn monsters after receiving a specific message (e.g. after a cutscene finishes)
 var(MMOServerOld) editoronly bool ManualSpawn;
 
-// AI的脚本函数名
+// AI script function name
 var(MMOServerOld) editoronly init string AIScriptFunctionID;
 
-// 由哪个区域出生，需要自动根据AreaID设定
+// which area it spawns from, must be set automatically from AreaID
 var editoronly int SpawnByAreaID;
 
 var editoronly ArrowComponent EditorArrow;
 var editoronly SpriteComponent EditorSprite;
 
-//@todo ------------End---------------- 慢慢删除这块内容
+//@todo ------------End---------------- gradually delete this block
 
 native function vector GetServerPosition();
 
@@ -54,13 +54,13 @@ cpptext
 event Tick(  float deltaTime  )
 {
 	super.Tick( deltaTime );
-	//绘制会缓冲
+	//drawing is buffered
 	//if ( !class'Engine'.static.IsGame() )
 	//	DrawMyHUD( HUD( class'HUD'.static ) );
 }
 function bool OnlyDrawHUDForOwner(){return false;}
 
-//在HUD上显示SpawnPoint 信息
+//show SpawnPoint info on the HUD
 function bool DrawMyHUD( MMOHud H )
 {
 // 	local Vector screenPos;
@@ -72,7 +72,7 @@ function bool DrawMyHUD( MMOHud H )
 // 	local int nNPCCount;
 // 
 // 
-// 	objectIconWorldPos = Location;//实际位置
+// 	objectIconWorldPos = Location;//actual position
 // 	objectIconWorldPos.Z += 120;
 // 	screenPos = H.Canvas.Project(objectIconWorldPos);
 // 

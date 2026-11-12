@@ -2,10 +2,10 @@
 #define __MESSAGE_HANDLER_MasterStudent_H__
 public:
 	/*
-		请求可以当师傅的人员列表
-		请求可以做徒弟的人员列表
-		师傅请求进入招募徒弟状态
-		师傅请求退出招募徒弟状态
+		Request list of players who can be master
+		Request list of players who can be apprentice
+		Master requests to enter apprentice recruiting state
+		Master requests to exit apprentice recruiting state
 	*/
 	void Send_MasterListAck();
 	void Send_SoloStudentListAck();
@@ -13,10 +13,10 @@ public:
 	void Send_CancelRecruitStudent();
 
 	/*
-		徒弟请求拜师 
-		师傅同意  
-		师傅拒绝
-		徒弟自己取消拜师
+		Apprentice requests to take a master
+		Master agrees
+		Master refuses
+		Apprentice cancels master request by self
 	*/
 	void Send_SubmitApplyToMaster( INT RoleId  ); 
 	void Send_AgreeStudentdApply( INT RoleId  ); 
@@ -24,10 +24,10 @@ public:
 	void Send_CancelStudentApplyBySelf( INT RoleId  ); 
 	
 	/*
-		师傅请求招收该徒弟   
-		徒弟同意  
-		徒弟拒绝
-		师傅自己取消招收该徒弟
+		Master requests to recruit this apprentice
+		Apprentice agrees
+		Apprentice refuses
+		Master cancels recruiting this apprentice by self
 	*/
 	void Send_SubmitApplyToStudent( INT RoleId ,UINT8 twitter = 0 ); 
 	void Send_AgreeMasterdApply( INT RoleId  ); 
@@ -35,10 +35,10 @@ public:
 	void Send_CancelMasterApplyBySelf( INT RoleId  ); 
 	
 	/*
-		背叛师门
-		开除徒弟
-		请求师傅信息
-		发出祝贺信息
+		Betray the sect
+		Expel apprentice
+		Request master info
+		Send congratulation info
 	*/
 	void Send_LeaveMaster(); 
 	void Send_FireStudent( INT RoleId  ); 
@@ -51,11 +51,11 @@ public:
 	void Send_ForceGrad();
 	
 
-	//推送相关
+	//Push related
 	void Send_Ignore(UINT32 nRoleId);
 	void Send_Twitter(UINT8 twitter);
 
-	//师徒经验
+	//Master/apprentice experience
 	void Send_QueryMasterExp();
 	void Send_ReciveMasterExp(UINT32 roleId);
 
@@ -66,7 +66,7 @@ private:
 	M_DECL_PARSE_FUN(m2c_master_get_solo_list_ack);
 	//M_DECL_PARSE_FUN(m2c_master_recruit_ack);
 
-	/* 徒弟请求拜师系列消息回应*/
+	/* Apprentice master-request series message responses*/
 	M_DECL_PARSE_FUN(m2c_master_stud_submit_app_ack);
 	M_DECL_PARSE_FUN(m2c_master_stud_submit_app_ntf);
 	M_DECL_PARSE_FUN(m2c_master_agree_stud_app_ack); 
@@ -75,7 +75,7 @@ private:
 	M_DECL_PARSE_FUN(m2c_master_cancel_stud_app_ack);
 	M_DECL_PARSE_FUN(m2c_master_cancel_stud_app_ntf);
 
-	/* 师傅请求收徒系列消息回应*/
+	/* Master apprentice-recruit series message responses*/
 	M_DECL_PARSE_FUN(m2c_master_teacher_submit_app_ack);
 	M_DECL_PARSE_FUN(m2c_master_teacher_submit_app_ntf);
 	M_DECL_PARSE_FUN(m2c_master_agree_teacher_app_ack);
@@ -84,7 +84,7 @@ private:
 	M_DECL_PARSE_FUN(m2c_master_cancel_teacher_app_ack);
 	M_DECL_PARSE_FUN(m2c_master_cancel_teacher_app_ntf);
 
-	/*师门内部操作消息回应*/
+	/*Sect internal operation message responses*/
 	M_DECL_PARSE_FUN(m2c_master_leave_teacher_ack);
 	M_DECL_PARSE_FUN(m2c_master_leave_teacher_ntf);
 	M_DECL_PARSE_FUN(m2c_master_fire_student_ack);

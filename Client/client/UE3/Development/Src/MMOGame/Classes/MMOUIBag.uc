@@ -20,10 +20,10 @@ enum EBagLabelType
 var int     CurLabel;
 var int     LastLabel;
 var int     CurTab;
-var array<int>     LabelBagPage; //其实Bag就用到E_CONSLOT_BANK，为了扩展方便，这里就用E_CONSLOT_MAX了
+var array<int>     LabelBagPage; //Bag actually only uses E_CONSLOT_BANK; for easy extension E_CONSLOT_MAX is used here
 var GFxObject MoneyText[4];
 var GFxObject LabelButton[4];
-var GFxObject CapMc; // 容量
+var GFxObject CapMc; // capacity
 var GFxObject BagGroup;
 //var GFxObject BagUsedSlotTf;
 const OriBagCap = 32;
@@ -48,7 +48,7 @@ var int stage;
 var bool bOpenResBag;
 
 
-//包里物品的锁定状态
+//Lock state of items in the bag
 //var native Map_Mirror BagSlotState{TMap< INT, EItemSlotState >};
 //var native Map_Mirror QuestBagSlotState{TMap< INT, EItemSlotState >};
 //var int CurPageIdx;
@@ -121,7 +121,7 @@ event CallAsShowExpContainer( bool isToShow )
 
 event ClickSplit()
 {
-	// OSCARTODO: 重构掉这个切换修理状态的函数
+	// OSCARTODO: refactor away this function that toggles repair state
 	//NativeRepair();
 	local IItemSlotActionListener curLsn;
 	curLsn = class'MMOUIManager'.static.GetCurrentItemSlotActionListener();
@@ -218,7 +218,7 @@ event ClickSpecRepair()
 
 event OnShow(bool show)
 {
-	// bag是默认的ItemSlotActionListener，所以不用设置到当前
+	// bag is the default ItemSlotActionListener, so no need to set it to current
 	
 }
 
@@ -277,7 +277,7 @@ event InitOnce()
 	LabelButton[2] = GetObject("tab2_mc");
 	LabelButton[3] = GetObject("tab3_mc");
 
-	//页签new暂时不要了
+	//Tab new is not needed for now
 	//for(i = 0; i < 4; ++i)	
 	//{
 	//	LabelButton[i] = GetObject("tab"$i$"_mc");
@@ -293,7 +293,7 @@ native function NativeOnShow(bool v);
 
 event OpenBagEx(ECONTAINER_SLOT ContainerType)
 {
-	// OSCARTODO: 打开相应的包
+	// OSCARTODO: open the corresponding bag
 	OpenBag(CurLabel);
 }
 
@@ -387,7 +387,7 @@ event CallEnableSort(bool enable, string btnLabel)
 
 native function bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string strHoverControllerName, Vector2D ClickPosInMovieSpace);
 //{
-//	// 鼠标滚动，且不在界面内
+//	// Mouse scroll, and not inside the UI
 //	if ((key == "MouseScrollUp" || key == "MouseScrollDown") && (strHoverControllerName == ""))
 //		return false;
 //	else
@@ -400,7 +400,7 @@ native function bool SkipCaptureInputKey(const string key, EInputEvent eIE, cons
 //	local int slotId;
 //	conslotId = ECONTAINER_SLOT( ItemSlot.GetInt("containerID") );
 //	slotId = ItemSlot.GetInt("slotID");
-//	//重载掉这个函数，bag里清格子属性是ESPType_Bag
+//	//Override this function; clearing grid attributes in bag is ESPType_Bag
 //	SetItemSlotData( ItemSlot, none, ESPType_Bag , conslotId , slotId );
 //}
 

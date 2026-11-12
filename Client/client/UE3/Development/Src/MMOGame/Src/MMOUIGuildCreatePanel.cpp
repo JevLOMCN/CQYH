@@ -76,7 +76,7 @@ void UMMOUIGuildCreatePanel::UpdateGuildCreatePanel()
 		return;
 	}
 
-	// 创建所需金币
+	// Gold required to create
 	FString money = TEXT("");
 	if (mainPlayer->GetMoney(MONEYTYPE_02) < CreateMoney)
 	{
@@ -88,7 +88,7 @@ void UMMOUIGuildCreatePanel::UpdateGuildCreatePanel()
 	}
 	eventCallSetMoneyRequest(money);
 
-	// 创建所需道具
+	// Items required to create
 	FString itemName = TEXT("");
 	UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(CreateItemId);
 	if (itemTemp)
@@ -155,7 +155,7 @@ void UMMOUIGuildCreatePanel::CreateGuild(const FString& guildName,const FString&
 	}
 
 	FTCHARToUTF8 szGuildName(*guildName);
-	// 最多8个汉字(Length = 3 * 8个char)
+	// Up to 8 Chinese characters (Length = 3 * 8 chars)
 	if (szGuildName.Length() > 24)
 	{
 		FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.LongName"));
@@ -185,7 +185,7 @@ void UMMOUIGuildCreatePanel::CreateGuild(const FString& guildName,const FString&
 	}
 
 	FTCHARToUTF8 szGuildAnnounce(*guildAnnounce);
-	// 最多30个汉字(Length = 3 * 30个char)
+	// Up to 30 Chinese characters (Length = 3 * 30 chars)
 	if (szGuildAnnounce.Length() > 90)
 	{
 		FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.LongAnnounce"));
@@ -213,5 +213,5 @@ void UMMOUIGuildCreatePanel::ASCreateGuild(const FString& guildName, const FStri
 
 void UMMOUIGuildCreatePanel::ASInputError()
 {		
-	MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("只能包含英文，中文，数字"), MsgInfoType_Table, TEXT(""));
+	MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("May only contain English letters, Chinese characters and digits"), MsgInfoType_Table, TEXT(""));
 }

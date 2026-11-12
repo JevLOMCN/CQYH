@@ -95,9 +95,9 @@ void LoginBase::SelectRole( INT id )
 	SelectRoleIndex = id;
 	SelectedRoleName = FString(PC->RoleList(id).RoleName);
 
-	// 这个一定要在PC->SetCharAvatart前设置
+	// this must be set before PC->SetCharAvatart
 	MainPlayer->WeaponUpgradePoint = PC->RoleList(id).WeaponUpgradePoint;
-	//美术比例不适 特殊放大需求
+	//art proportions are off, special scaling needed
 	//FLOAT scale = 1.3f;
 	//MainPlayer->SetHidden( TRUE );
 	PC->SetCharAvatart(id);
@@ -153,7 +153,7 @@ void LoginBase::UpdateCreateRole()
 	SetHiddenInLogin( showActor, FALSE );
 
 	CreateShowCharacter = showActor;
-	//Idle开始
+	//Idle start
 	showActor->PlayAnimation( CreateShowName );
 }
 
@@ -236,7 +236,7 @@ void LoginBase::SetHiddenInLogin( class AMMOActor* actor,UBOOL hiddden )
 	}
 	else
 	{
-		//换装缘故，防止模型突然出现 
+		//due to outfit change, prevent the model from suddenly appearing
 		actor->SetHidden( FALSE );
 		FVector NewLocation = PlayerStartPostion + FVector(0, 0, actor->GetCollisionHeight());
 		actor->SetLocation( NewLocation );
@@ -255,7 +255,7 @@ void LoginBase::CreateListRoleIni()
 	if( PC ==NULL || MainPlayer==NULL )
 		return;
 
-    //这些在场景重新加载之后都得确保重新被加载一次
+    //these must be ensured to be reloaded once after the scene reloads
     TActorInstanceIterator< APlayerStart > tempIter;
     while ( *tempIter )
     {
@@ -279,7 +279,7 @@ void LoginBase::CreateListRoleIni()
     {
         ANPC* showActor = (*tempNPCIter);
         showActor->WorldInfo  = MainPlayer->WorldInfo;
-        //关闭自身LightEnvironment
+        //turn off own LightEnvironment
         //showActor->LightEnvironment->SetEnabled( FALSE );
         static_cast<AActor*>( showActor )->setPhysics( PHYS_Walking );
         static_cast<AActor*>( showActor )->SetCollision( true, false, true );

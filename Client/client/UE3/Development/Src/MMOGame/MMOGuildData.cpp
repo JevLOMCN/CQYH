@@ -221,7 +221,7 @@ void MMOGuildData::Init()
 	_LoadGuildDungeonData(TEXT("guild_dungeon.txt"));
 	_LoadGuildActivityData(TEXT("guild_activity.txt"));
 
-	// 排行榜用的，不能跟着本地公会信息清除
+	// used for the leaderboard, must not be cleared along with local guild info
 	_QueryGuildInfoByIdMap.clear();
 	_QueryGuildInfoByNameMap.clear();
 }
@@ -234,7 +234,7 @@ void MMOGuildData::Shutdown()
 
 	Clear();
 
-	// 排行榜用的，不能跟着本地公会信息清除
+	// used for the leaderboard, must not be cleared along with local guild info
 	_QueryGuildInfoByIdMap.clear();
 	_QueryGuildInfoByNameMap.clear();
 }
@@ -537,7 +537,7 @@ void MMOGuildData::AddGuildFullMember(const GUILD_MEMBER_INFO& info)
 	memberInfo.Id = info.dwRoleID;
 	memberInfo.Name = UTF8_TO_TCHAR(info.szRoleName);
 	memberInfo.Post = info.byPosition;
-	// 统计职位人数
+	// count members per position
 	if (memberInfo.Post > GUILD_POSITION_NONE && memberInfo.Post < GUILD_POSITION_TOTAL)
 	{
 		_GuildPostCount[memberInfo.Post - 1] ++;
@@ -558,7 +558,7 @@ void MMOGuildData::AddGuildFullMember(const GUILD_MEMBER_INFO& info)
 	_GuildFullMemberInfoList.push_back(memberInfo);
 	_GuildBaseInfo.MemberCount = _GuildFullMemberInfoList.size();
 
-	// 查询成员名字
+	// query member name
 	MMOFacade::getSingleton().RequestPlayerBaseInfo(info.dwRoleID);
 }
 
@@ -569,7 +569,7 @@ void MMOGuildData::DelGuildFullMember(UINT32 id)
 	{
 		if (iter->Id == id)
 		{
-			// 统计职位人数
+			// count members per position
 			if (iter->Post > GUILD_POSITION_NONE && iter->Post < GUILD_POSITION_TOTAL)
 			{
 				_GuildPostCount[iter->Post - 1] --;
@@ -581,7 +581,7 @@ void MMOGuildData::DelGuildFullMember(UINT32 id)
 	}
 	_GuildBaseInfo.MemberCount = _GuildFullMemberInfoList.size();
 
-	// 查询成员名字
+	// query member name
 	MMOFacade::getSingleton().RequestPlayerBaseInfo(id);
 }
 
@@ -592,7 +592,7 @@ void MMOGuildData::UpdateGuildFullMemberPost(UINT32 id, UINT8 post)
 	{
 		if (iter->Id == id)
 		{
-			// 统计职位人数
+			// count members per position
 			if (iter->Post > GUILD_POSITION_NONE && iter->Post < GUILD_POSITION_TOTAL)
 			{
 				_GuildPostCount[iter->Post - 1] --;
@@ -617,7 +617,7 @@ void MMOGuildData::UpdateGuildFullMemberData(UINT32 roleId, UINT8 level, INT32 s
 	{
 		if (iter->Id == roleId)
 		{
-			// 任务 #25207, 如果成员下线，仍旧要显示等级
+			// Quest #25207, if the member is offline, still show the level
 			if (level > 0)
 			{
 				iter->Level = level;
@@ -773,7 +773,7 @@ void MMOGuildData::SetWarehouseItem( INT pageId , INT idx , FClientItemInfo* ite
 	}
 	else
 	{
-		//标0即为空格子
+		//0 means an empty slot
 		_GuildWarehouseItemTable[pageId][idx].m_nTemplateID = 0;
 	}
 }
@@ -932,7 +932,7 @@ void MMOGuildData::UpdateGuildBaseInfo(const GuildBaseInfo& baseInfo)
 
 UINT16 MMOGuildData::GetGuildRights(UINT8 post)
 {
-	// 这里修改必须配合服务器NewServer\bin\globalconfig\guildconfig.lua同步修改
+	// changes here must be synced with server NewServer\\bin\\globalconfig\\guildconfig.lua
 	UINT16 rights = 0;
 	switch (post)
 	{
@@ -1191,7 +1191,7 @@ GuildRelation MMOGuildData::GetGuildRelation(const FString& guildName)
 		}
 	}
 
-	// 2016.6.23公会临时做法
+	// 2016.6.23 temporary guild workaround
 	if (MMOGuildManager::getSingleton().IsGuildWarStart())
 	{
 		INT mapId = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
@@ -1213,7 +1213,7 @@ void MMOGuildData::UpdateGuildAllyList(GUILD_DIPLOMAT_INFO* list, UINT8 size)
 	_GuildAllyInfoList.clear();
 	for (INT i = 0; i < size; ++ i)
 	{
-		// 这里服务器发的绝对时间，换算一下
+		// the server sends absolute time here, convert it
 		__time32_t lastTime = list[i].dwLastTime;
 		_localtime32(&lastTime);
 
@@ -1236,7 +1236,7 @@ void MMOGuildData::UpdateGuildEnemyList(GUILD_DIPLOMAT_INFO* list, UINT8 size)
 	_GuildEnemyInfoList.clear();
 	for (INT i = 0; i < size; ++ i)
 	{
-		// 这里服务器发的绝对时间，换算一下
+		// the server sends absolute time here, convert it
 		__time32_t lastTime = list[i].dwLastTime;
 		_localtime32(&lastTime);
 
@@ -1331,7 +1331,7 @@ void MMOGuildData::UpdateGuildApplyAllyList(APPLY_ALLIANCE_INFO* list, UINT8 siz
 		}
 		*/
 
-		// 这里服务器发的绝对时间，换算一下
+		// the server sends absolute time here, convert it
 		__time32_t lastTime = list[i].dwWashoutTime;
 		_localtime32(&lastTime);
 
@@ -1986,7 +1986,7 @@ UINT8 MMOGuildData::GetGuildActivityComplete(UINT16 activityType)
 			localHour = localDate->tm_hour;
 		}
 
-		// 凌晨0:00重置版本
+		// Reset version at 0:00 AM
 		if (lastDay < localDay)
 		{
 			iter->second.Complete = 0;
@@ -2028,8 +2028,8 @@ void MMOGuildData::SetGuildActivityTime(UINT16 activityType, UINT32 time)
 	GuildActivityInfoMap::iterator iter = _GuildActivityInfoMap.find(activityType);
 	if (iter != _GuildActivityInfoMap.end())
 	{
-		// 服务器发过来的是结束时间，这里计算下开启时间
-		// 用开启时间判断状态，可以规避跨天活动状态不对的问题
+		// the server sends the end time, compute the start time here
+		// use the start time to determine state, avoids wrong state for activities spanning days
 		if (time == 0)
 		{
 			iter->second.StartTime = 0;
@@ -2067,14 +2067,14 @@ void MMOGuildData::SetGuildActivityTime(UINT16 activityType, UINT32 time)
 		else
 		{
 			/*
-			// 凌晨4:00重置版本
-			// 任务 #25369
+			// Reset version at 4:00 AM
+			// Quest #25369
 			if (startDay < localDay - 1)
 			{
 				iter->second.State = GAS_NONE;
 			}
 			else if (startDay == localDay - 1)
-			{// 开启时间是昨天
+			{// start time is yesterday
 				__time32_t destTime = startTime + data.Duration;
 				if (startHour < 4)
 				{
@@ -2083,26 +2083,26 @@ void MMOGuildData::SetGuildActivityTime(UINT16 activityType, UINT32 time)
 				else
 				{
 					if (localHour < 4)
-					{// 开启时间在昨天的,没过今天凌晨4:00都还是前一天的状态
+					{// start time is yesterday, until 4:00 AM today it still counts as the previous day's state
 						iter->second.State = destTime > localTime ? GAS_OPEN : GAS_OVER;
 					}
 					else
-					{// 开启时间在昨天的,过了今天凌晨4:00都变为可开启
+					{// start time is yesterday, after 4:00 AM today it becomes startable
 						iter->second.State = GAS_NONE;
 					}
 				}
 			}
 			else if (startDay == localDay)
-			{// 开启时间是今天
+			{// start time is today
 				__time32_t destTime = startTime + data.Duration;
 				if (startHour < 4)
 				{
 					if (localHour < 4)
-					{// 开启时间在今天凌晨4:00前的,没过今天凌晨4:00都还是前一天的状态
+					{// start time is before 4:00 AM today, until 4:00 AM today it still counts as the previous day's state
 						iter->second.State = destTime > localTime ? GAS_OPEN : GAS_OVER;
 					}
 					else
-					{// 开启时间在今天凌晨4:00前的,过了今天凌晨4:00都变为可开启
+					{// start time is before 4:00 AM today, after 4:00 AM today it becomes startable
 						iter->second.State = GAS_NONE;
 					}
 				}
@@ -2117,14 +2117,14 @@ void MMOGuildData::SetGuildActivityTime(UINT16 activityType, UINT32 time)
 			}
 			*/
 
-			// 凌晨0:00重置版本
+			// Reset version at 0:00 AM
 			if (startDay < localDay)
-			{// 开启时间是昨天
+			{// start time is yesterday
 				__time32_t destTime = startTime + data.Duration;
 				iter->second.State = destTime > localTime ? GAS_OPEN : GAS_NONE;
 			}
 			else if (startDay == localDay)
-			{// 开启时间是今天
+			{// start time is today
 				__time32_t destTime = startTime + data.Duration;
 				iter->second.State = destTime > localTime ? GAS_OPEN : GAS_OVER;
 			}
@@ -2180,14 +2180,14 @@ void MMOGuildData::UpdateGuildActivityState()
 		else
 		{
 			/*
-			// 凌晨4:00重置版本
-			// 任务 #25369
+			// Reset version at 4:00 AM
+			// Quest #25369
 			if (startDay < localDay - 1)
 			{
 				iter->second.State = GAS_NONE;
 			}
 			else if (startDay == localDay - 1)
-			{// 开启时间是昨天
+			{// start time is yesterday
 				__time32_t destTime = startTime + data.Duration;
 				if (startHour < 4)
 				{
@@ -2196,26 +2196,26 @@ void MMOGuildData::UpdateGuildActivityState()
 				else
 				{
 					if (localHour < 4)
-					{// 开启时间在昨天的, 没过今天凌晨4:00都还是前一天的状态
+					{// start time is yesterday, until 4:00 AM today it still counts as the previous day's state
 						iter->second.State = destTime > localTime ? GAS_OPEN : GAS_OVER;
 					}
 					else
-					{// 开启时间在昨天的,过了今天凌晨4:00都变为可开启
+					{// start time is yesterday, after 4:00 AM today it becomes startable
 						iter->second.State = GAS_NONE;
 					}
 				}
 			}
 			else if (startDay == localDay)
-			{// 开启时间是今天
+			{// start time is today
 				__time32_t destTime = startTime + data.Duration;
 				if (startHour < 4)
 				{
 					if (localHour < 4)
-					{// 开启时间在今天凌晨4:00前的,没过今天凌晨4:00都还是前一天的状态
+					{// start time is before 4:00 AM today, until 4:00 AM today it still counts as the previous day's state
 						iter->second.State = destTime > localTime ? GAS_OPEN : GAS_OVER;
 					}
 					else
-					{// 开启时间在今天凌晨4:00前的,过了今天凌晨4:00都变为可开启
+					{// start time is before 4:00 AM today, after 4:00 AM today it becomes startable
 						iter->second.State = GAS_NONE;
 					}
 				}
@@ -2230,14 +2230,14 @@ void MMOGuildData::UpdateGuildActivityState()
 			}
 			*/
 
-			// 凌晨0:00重置版本
+			// Reset version at 0:00 AM
 			if (startDay < localDay)
-			{// 开启时间是昨天
+			{// start time is yesterday
 				__time32_t destTime = startTime + data.Duration;
 				iter->second.State = destTime > localTime ? GAS_OPEN : GAS_NONE;
 			}
 			else if (startDay == localDay)
-			{// 开启时间是今天
+			{// start time is today
 				__time32_t destTime = startTime + data.Duration;
 				iter->second.State = destTime > localTime ? GAS_OPEN : GAS_OVER;
 			}
@@ -2528,7 +2528,7 @@ UINT32 MMOGuildData::GetGuildTerritoryResMax(UINT32 type)
 	UINT32 crystalMax = 0;
 	UINT32 silverMax = 0;
 
-	// 初始化
+	// initialize
 	GuildBuildingData buildingData;
 	if (GetGuildBuildingData(GUILD_B_STORAGE, GetGuildBuildingMaxLevel(GUILD_B_STORAGE), buildingData))
 	{
@@ -2612,23 +2612,23 @@ UINT32 MMOGuildData::GetCurGuildTerritoryRes(UINT32 type)
 
 void MMOGuildData::GetGuildTerritoryResName(UINT32 type, FString& name)
 {
-	name = TEXT("错误资源类型");
+	name = TEXT("Invalid resource type");
 	switch (type)
 	{
 	case GUILD_ATTR_MONEY:
-		name = TEXT("公会资金");
+		name = TEXT("Guild Funds");
 		break;
 	case GUILD_ATTR_WOOD:
-		name = TEXT("木材");
+		name = TEXT("Wood");
 		break;
 	case GUILD_ATTR_HERB:
-		name = TEXT("粮食");
+		name = TEXT("Grain");
 		break;
 	case GUILD_ATTR_CRYSTAL:
-		name = TEXT("石料");
+		name = TEXT("Stone");
 		break;
 	case GUILD_ATTR_SILVER:
-		name = TEXT("铁矿");
+		name = TEXT("Iron Ore");
 		break;
 	}
 }
@@ -3025,7 +3025,7 @@ void MMOGuildData::AddOrUpdateGuildInfo(M2C_QUERY_GUILD_NAME_ACK* msg)
 		iterName->second.Crc = crc32(0, (const Bytef*)msg, sizeof(M2C_QUERY_GUILD_NAME_ACK));
 	}
 
-	// 查一下会长的信息
+	// look up the guild leader's info
 	MMOFacade::getSingleton().RequestPlayerBaseInfo(msg->dwLeaderID);
 }
 
@@ -3051,44 +3051,44 @@ GuildSabacState MMOGuildData::GetGuildSabacState(AMMOPlayer* player)
 		return GSS_NULL;
 	}
 
-	// 还没开战
+	// war has not started
 	if (MMOGuildManager::getSingleton().GetSabacState() == 0)
 	{
 		return GSS_NULL;
 	}
 
-	// 看自己始终蓝色
+	// always see self as blue
 	if (player->IsMainPlayer())
 	{
 		return GSS_BLUE;
 	}
 
-	// 看没有公会的人始终绿色
+	// always see players without a guild as green
 	if (player->GuildName == TEXT(""))
 	{
 		return GSS_GREEN;
 	}
 
-	// 自己没有公会，看别人都是绿色
+	// if I have no guild, I see everyone as green
 	if (_GuildBaseInfo.Id == 0)
 	{
 		return GSS_GREEN;
 	}
 
-	// 和我一个公会
+	// same guild as me
 	if (_GuildBaseInfo.Name == player->GuildName)
 	{
 		return GSS_BLUE;
 	}	
 
-	// 和我是联盟
+	// allied with me
 	GuildRelation relation = GetGuildRelation(player->GuildName);
 	if (relation == GR_FRIEND)
 	{
 		return GSS_BLUE;
 	}
 
-	// 如果即有公会关系，又有sabac关系，sabac关系优先级高
+	// if there is both a guild relation and a sabac relation, the sabac relation takes priority
 	UINT32 myGuildId = 0;
 	int mySabacState = 0;
 	UINT32 otherGuildId = 0;
@@ -3107,21 +3107,21 @@ GuildSabacState MMOGuildData::GetGuildSabacState(AMMOPlayer* player)
 	}
 
 	if (mySabacState == 0)
-	{// 我是第三方公会，看别人都是绿的
+	{// I am a third-party guild, see everyone as green
 		return GSS_GREEN;
 	}
 	
 	if (otherSabacState == 0)
-	{// 我是参战公会，看第三方都是绿的
+	{// I am a participating guild, see third parties as green
 		return GSS_GREEN;
 	}
 	
 	if (myGuildId == _CurOccupySabacGuildId)
-	{// 我是占领公会，看占领公会是蓝的，看进攻公会是橙色的
+	{// I am the occupying guild, see the occupying guild as blue, attacking guilds as orange
 		return otherGuildId == _CurOccupySabacGuildId ? GSS_BLUE : GSS_ORANGE;
 	}
 	else
-	{// 我是进攻公会，看其他公会是橙的(任务 #20918)
+	{// I am an attacking guild, see other guilds as orange (Quest #20918)
 		return GSS_ORANGE;
 	}
 	

@@ -5,7 +5,7 @@
 #if !SHIPPING_PC_GAME
 
 
-//导出场景中指定单独摆放的NPC
+//Export NPCs placed individually in the scene
 Exporter_ChessNode::Exporter_ChessNode(void)
 {
 }
@@ -18,7 +18,7 @@ void Exporter_ChessNode::PrePorcess(INT& GlobalAutoID)
 {
 	//MMOSERVER_CHESSNODE_HEADER  *spntHdr = new MMOSERVER_CHESSNODE_HEADER;
 	////------------------------------------------------------------------------
-	//// 分类对象
+	//// Classify objects
 	////------------------------------------------------------------------------
 	//for (INT i = 0; i < GWorld->Levels.Num(); ++i)
 	//{
@@ -69,14 +69,14 @@ void Exporter_ChessNode::WriteHeader( FBufferArchive& ar)
 	//blkHdrs.nBlockOffset = sizeof(SCENE_FILE_BLOCK_HEADER);
 
 	//ar.ByteOrderSerialize(&blkHdrs, sizeof(SCENE_FILE_BLOCK_HEADER) );
-	//// 先存储位置，后面再修改参数
+	//// Store the position first, modify parameters later
 	//arBlkHdrs = (SCENE_FILE_BLOCK_HEADER*)( ar.GetData() + ar.Tell() - sizeof(SCENE_FILE_BLOCK_HEADER) );
 
 }
 //------------------------------------------------------------------------
 void Exporter_ChessNode::WriteData( FBufferArchive& ar )
 {
-	//// =====================NPCSpawnPointList写到内存=====================
+	//// =====================Write NPCSpawnPointList to memory=====================
 	//arBlkHdrs->nBlockSize = memPointAr.TotalSize();
 	//// nBlockOffset 
 	//arBlkHdrs->nBlockOffset = ar.Tell();

@@ -67,7 +67,7 @@ void UMMOUIPathMap::ChangeScene()
 }
 
 //================================================================================================
-//进入新场景时调用
+//called when entering a new scene
 void UMMOUIPathMap::InitPathMap()
 {
 	AMMOPlayerController *pCtrl;
@@ -90,7 +90,7 @@ void UMMOUIPathMap::InitPathMap()
 		}
 	}
 
-	//更新地图固定点
+	//update map fixed points
 	InitMapStaticMarks();
 
 	//
@@ -190,15 +190,15 @@ void UMMOUIPathMap::InitPathMapTiles( const FString& inMapFileName, FInMapRegion
 
 	//
 	if( trueWorldMapWidth != 0 ){
-		FLOAT sinMap = 0.70710678118654752440084436210485;//45度
-		FLOAT cosMap = 0.70710678118654752440084436210485;//45度
+		FLOAT sinMap = 0.70710678118654752440084436210485;//45 degrees
+		FLOAT cosMap = 0.70710678118654752440084436210485;//45 degrees
 		FLOAT edge = ( trueWorldMapHeight * sinMap / cosMap + trueWorldMapWidth );
 		FLOAT edge1 = edge * sinMap;
 		FLOAT edge2 = edge * cosMap;
 		FLOAT longEdge = edge1 > edge2 ? edge1 : edge2;
 		ZoomDefaultQuot = MapVisibleZoneSize.X / longEdge;
 	}
-	else{//正常情况不会来这
+	else{//should not get here normally
 		ZoomDefaultQuot = MapVisibleZoneSize.X / 512;
 	}
 	ResizeMap( ZoomDefaultQuot );
@@ -472,7 +472,7 @@ void UMMOUIPathMap::UpdateMarksNearPlayer( FVector centerPos3D, float fYawDeg )
 		if( pDynmActor->_IsValid == TRUE ){
 			AMMOActor* nearActor = gameFacade.GetCharacter( pDynmActor->_ActorID );
 			if( nearActor == NULL ){
-				//this become invalid,remove it(应该早被移除了的)
+				//this become invalid,remove it(should have been removed long ago)
 				pMapDataMgr->RemoveMapDymcActorNear( pDynmActor->_ActorID );
 				if( pDynmActor->_UiObjInPathMap ){
 					pDynmActor->_UiObjInPathMap->SetVisible( FALSE );
@@ -546,7 +546,7 @@ void UMMOUIPathMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg 
 				pUiObj = pDynmActor->_UiObjInPathMap;
 			}
 
-			//是否在此地图
+			//whether in this map
 			UBOOL canShow = ( pDynmActor->_InMapID == curMapID );
 			pUiObj->SetVisible( canShow );
 			eventInitMapMark( pUiObj, pDynmActor->_ID, pDynmActor->_Type, pDynmActor->_UiIconIdx );
@@ -567,7 +567,7 @@ void UMMOUIPathMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg 
 					AMMOActor* nearActor = gameFacade.GetCharacter( pDynmActor->_ActorID );
 					MMOTeamMember *pTeammate = TeamManager::getSingleton().GetMemberById( pDynmActor->_ActorID );
 					if( pTeammate == NULL ){
-						//this become invalid,remove it(应该早被移除了的)
+						//this become invalid,remove it(should have been removed long ago)
 						pMapDataMgr->RemoveMapDymcActorGlobal( pDynmActor->_ActorID );
 
 						++iter;
@@ -827,7 +827,7 @@ void UMMOUIPathMap::ASShowPathMapMarkHint( INT type, INT idx )
 	case EACTMUI_NearPlayer:
 		{
 			pMapMark = pMapDataMgr->GetMapDymcActorNearByUiID( idx );
-			//因为当初加入这个玩家时，他的信息还没到
+			//because when this player was added, his info had not arrived yet
 			if( pMapMark != NULL ){
 				AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter(  ((FActorInMapUI*)pMapMark)->_ActorID );
 				if( pPlayer != NULL ){

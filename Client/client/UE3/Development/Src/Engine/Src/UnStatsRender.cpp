@@ -801,7 +801,7 @@ void FStatManager::DumpMemoryUseStatus( )
                         particleTableWriter->AddColumn( TEXT("MemUsedAvg(MB)") );
                         //particleTableWriter->AddColumn( TEXT("MemUsedMax(MB)") );
                         particleTableWriter->AddColumn( TEXT("% of Total(MB)") );
-                        //@Todo 直接遍历出Count  
+                        //@Todo directly iterate to get Count
                         //particleTableWriter->AddColumn( TEXT("Count") );
                         particleTableWriter->CycleRow();
                     }
@@ -893,7 +893,7 @@ void FStatManager::DumpMemoryUseStatusItem( FStatGroup* group, FDiagnosticTableW
 			}
             particleTableWriter->AddColumn(TEXT("%s"), *FString::Printf(TEXT("%.4f%% [%d]"),PercentOfMax, appRound(TotalAvail) ) );
             
-            //@Todo 直接遍历出Count  
+            //@Todo directly iterate to get Count
             // Count of the stat 
             //particleTableWriter->AddColumn( TEXT("%s"), *FString::Printf( TEXT("%d"),Stat->History.GetCountInFrame() ) );
 

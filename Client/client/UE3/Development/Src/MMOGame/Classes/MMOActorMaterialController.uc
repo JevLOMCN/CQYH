@@ -1,7 +1,7 @@
 
 /**
- * 角色材质控制器
- * 主要实现特效动态参数，如发光、半透明等效果的控制
+ * Character material controller
+ * Mainly implements control of dynamic effect parameters, such as glow and translucency
  * */
 
 class MMOActorMaterialController extends Object 
@@ -12,15 +12,15 @@ var private MeshComponent Mesh;
 struct native MeshIdMaterialMap
 {
 	var int		Id;
-	var MaterialInterface	OriginalMaterial;		// 模型的原始材质
-	var MaterialInstanceConstant	OpacityMaterial;	// 半透明材质
-	var MaterialInstance   NewMaterial;            // 替换材质
-	var MaterialInstanceTimeVarying   TimeVaringMaterial;     // 材质参数使用的材质
+	var MaterialInterface	OriginalMaterial;		// Original material of the model
+	var MaterialInstanceConstant	OpacityMaterial;	// Translucent material
+	var MaterialInstance   NewMaterial;            // Replacement material
+	var MaterialInstanceTimeVarying   TimeVaringMaterial;     // Material used for material parameters
 };
 
-// 当前材质效果
+// Current material effect
 var EMaterialEffectType EffectType;
-// 材质效果ID,为了唯一地区别效果
+// Material effect ID, to uniquely distinguish effects
 var int EffectId;
 
 var array<MeshIdMaterialMap> MeshMaterials;
@@ -66,7 +66,7 @@ event Init( MeshComponent MeshComp, optional bool initOpacityMat=false )
 
 	Mesh = meshComp;
 
-	// 初始化保存材质
+	// Initialize and save materials
 	for(i = 0; i < Mesh.GetNumElements(); ++i)
 	{
 		// initial fade in/out material instances
@@ -94,7 +94,7 @@ event Init( MeshComponent MeshComp, optional bool initOpacityMat=false )
 	FadeSpeed = 0.f;
 }
 
-// 为传入的材质创建相应的半透明混合版本
+// Create the corresponding translucent blend version for the given material
 function MaterialInstanceConstant CreateOpacityMaterial( MaterialInterface mat )
 {
 	local String matTransName;
@@ -166,7 +166,7 @@ function MaterialInstanceConstant CreateOpacityMaterial( MaterialInterface mat )
 
 native final function CopyMaterialInstanceParameters( Material DestMat, MaterialInstance DestMatInst, MaterialInstance SrcMatInst );
 
-// 设置颜色参数值
+// Set color parameter value
 function SetColor(name parameterName, LinearColor clrl)
 {
 	local int elemCnt;
@@ -210,13 +210,13 @@ function SetColor(name parameterName, LinearColor clrl)
 	}
 }
 
-// 设置发光色，产生中毒、聚能等特效
+// Set glow color, produces effects like poison, charging
 function SetImpactEmissiveColor(LinearColor clrl)
 {
 	SetColor('ImpactEmissive', clrl);
 }
 
-// 播放动态发光
+// Play dynamic glow
 function PlayAnimImpactEmissiveColor(name schemeName, optional bool loop = false)
 {
 	local int elemCnt;
@@ -240,7 +240,7 @@ function PlayAnimImpactEmissiveColor(name schemeName, optional bool loop = false
 			//`log("________________set impact color MaterialInstanceTimeVarying" @mi @mitv.VectorParameterValues.Length);
 			//mitv.SetVectorParameterValue(ImpactEmissiveColorName, clrl );
 			//mitv.SetDuration(20);
-			// TODO:需要扩展源代码，加入SchemeName，支持多套动画参数
+			// TODO:TODO: need to extend source code, add SchemeName, support multiple sets of animation parameters
 			mitv.SetVectorStartTime(schemeName, 0.0f);
 			mitv.SetDuration(mitv.GetMaxDurationFromAllParameters());
 			foreach mitv.VectorParameterValues(pvo)
@@ -266,15 +266,15 @@ function PlayAnimImpactEmissiveColor(name schemeName, optional bool loop = false
 	}
 }
 
-// 设置模型为半透明材质
+// Set model to translucent material
 native final function SetOpacity(float percent);
 native final function SetTransparentMaterial( bool bTransparent );
 native final function SetOpacityPercent( float percent );
 
-// 播放半透明淡入
+// Play translucent fade-in
 native final function PlayOpacityFadeIn( optional float fadeInTime = 0.2 );
 
-// 播放半透明淡出
+// Play translucent fade-out
 native final function PlayOpacityFadeOut( optional float fadeOutTime = 0.2 );
 
 function ClearOpacityEffect()
@@ -286,14 +286,14 @@ function ClearOpacityEffect()
 	}
 }
 
-// 设置材质皮肤颜色，只针对打开皮肤通道功能的材质(UseSkinClothColor为1)
+// Set material skin color, only for materials with skin channel enabled (UseSkinClothColor is 1)
 function SetSkinColor(LinearColor clrl)
 {
 	//`log("________________ SetSkinColor ");
 	SetColor('SkinColor', clrl);
 }
 
-// 设置材质衣服颜色，只针对打开皮肤通道功能的材质(UseSkinClothColor为1)
+// Set material clothes color, only for materials with skin channel enabled (UseSkinClothColor is 1)
 function SetClothColor(LinearColor clrl)
 {
 	SetColor('ClothColor', clrl);

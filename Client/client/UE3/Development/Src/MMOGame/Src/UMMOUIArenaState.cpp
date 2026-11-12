@@ -87,7 +87,7 @@ void UMMOUIArenaState::UpdatePanel()
 	UINT32 leftSec = arenaMgr.GetArenaLeftSecond();
 	eventCallASSetArenaTimeCntDown( leftSec );
 
-	//战绩
+	//Battle record
 	UpdateMyScore();
 
 	//
@@ -96,7 +96,7 @@ void UMMOUIArenaState::UpdatePanel()
 	{
 	case EAnaSta_WaitStartRound:
 		{
-			//隐藏操作按钮设置
+			//Hide operation button settings
 			eventCallASShowOperateBtn( TEXT(""), FALSE );
 			//
 			eventCallASSetArenaRoundTime( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.StatePanelWaitStart") ), -1 );
@@ -104,25 +104,25 @@ void UMMOUIArenaState::UpdatePanel()
 		break;
 	case EAnaSta_InRound:
 		{
-			//隐藏操作按钮设置
+			//Hide operation button settings
 			eventCallASShowOperateBtn( TEXT(""), FALSE );
-			//本轮剩余时间
+			//Remaining time this round
 			UpdateRoundTime();
 		}
 		break;
 	case EAnaSta_InGame:
 		{
-			//操作按钮设置
+			//Operation button settings
 			eventCallASShowOperateBtn( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.BeginNextBtnText") ), TRUE );
-			//设置界面提示文字
+			//Set UI hint text
 			eventCallASSetPanelHintTxt( TEXT(""), -1 );
 		}
 		break;
 	case EAnaSta_WaitNextRound:
 		{
-			//隐藏操作按钮设置
+			//Hide operation button settings
 			eventCallASShowOperateBtn( TEXT(""), FALSE );
-			//设置界面提示文字
+			//Set UI hint text
 			eventCallASSetPanelHintTxt( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.StatePanelWaitingNextRoundHint") ), -1 );
 		}
 		break;

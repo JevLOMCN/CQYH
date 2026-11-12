@@ -148,7 +148,7 @@ void Exporter_NPCNewSpawnGroup::WriteToClientXML( INT& GlobalAutoID )
 				continue;
 			}
 			if( mGrp->SpawnNpcGroupType == ENpcGroupType_Invalid ){
-				//不需要输出（大地图里不用显示，所以暂时认为不需要输出）
+				//No output needed (not shown in the big map, so assumed not needed for now)
 				continue;
 			}
 
@@ -171,7 +171,7 @@ void Exporter_NPCNewSpawnGroup::WriteToClientXML( INT& GlobalAutoID )
 					UNPCTemplate *npc = sppt->NPCTemplateList(n).NPCTemplateNew;
 					memset(tmpBuf, 0, sizeof(wchar_t) * C_TMPBUF_SZ);
 
-					//NPC功能属性
+					//NPC function attributes
 					INT npcFuncType = 0;
 					//
 					swprintf_s(tmpBuf, C_TMPBUF_SZ - 1,
@@ -219,7 +219,7 @@ void Exporter_NPCNewSpawnGroup::WriteHeader( FBufferArchive& ar)
 	blkHdrs.nBlockOffset = sizeof(SCENE_FILE_BLOCK_HEADER);
 	
 	ar.ByteOrderSerialize(&blkHdrs, sizeof(SCENE_FILE_BLOCK_HEADER) );
-	// 先存储位置，后面再修改参数
+	// Store the position first, modify parameters later
 	SpawnGroupHeader = (SCENE_FILE_BLOCK_HEADER*)( ar.GetData() + ar.Tell() - sizeof(SCENE_FILE_BLOCK_HEADER) );
 }
 //------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 //
-// 设置技能的激活
+// Set ability activation
 //
 class MMOStatusProc_LoopSkillSlot extends Object implements(IMMOStatusProc)
 	native

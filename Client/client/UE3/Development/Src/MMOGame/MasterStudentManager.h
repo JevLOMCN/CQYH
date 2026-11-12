@@ -12,16 +12,16 @@ using namespace ExternalMessage;
 #define MAX_ROW_MASTERLIST					14
 
 /*
-	1.师门信息:师傅数据 和同门数据
+	1.Master's school info: master data and fellow disciple data
 		{
 			MasterDetailInfo masterInfo;
 			StudentList		listStudent;
 		}
-	2.系统推荐的备选师傅列表\系统推荐的备选徒弟列表
+	2.System-recommended candidate master list\system-recommended candidate apprentice list
 		{
 			SystemPosterList listSystemPoster;	
 		}
-	3.申请拜你为师的徒弟列表 \ 申请收你为徒的师傅列表
+	3.List of apprentices applying to take you as master \ list of masters applying to take you as apprentice
 		{
 			ApllicantsList  listApllicants;
 		}
@@ -29,7 +29,7 @@ using namespace ExternalMessage;
 
 #define Student_DesireGrad 2
 
-//师徒奖励经验
+//master/apprentice reward experience
 struct Teacher_RewardExp
 {
 	UINT32          nRoleID;
@@ -47,7 +47,7 @@ struct Teacher_RewardExp
 	}
 };
 
-//师傅信息
+//master info
 struct MasterDetailInfo
 {
 	INT			 nRoleID;
@@ -59,16 +59,16 @@ struct MasterDetailInfo
 
 	Teacher_RewardExp reward;
 };
-//同门数据
+//fellow disciple data
 struct StudentListData
 {
 	UINT32               nRoleID;
 	INT               nClass;
 	UINT8               nLevel;
 	UINT8               nCZLevel;
-	UINT8               nState;//0是没有达到出师条件 1是达到出师条件  2是申请出师 
+	UINT8               nState;//0 means graduation conditions not met, 1 means met, 2 means graduation applied
 	FString           RoleName;
-	BOOL              bLeaveMaster;//是否出师
+	BOOL              bLeaveMaster;//whether graduated
 
 	Teacher_RewardExp reward;
 
@@ -82,7 +82,7 @@ struct StudentListData
 		bLeaveMaster = FALSE;
 	}
 };
-//申请者列表项数据 请求拜师和请求收徒通用
+//applicant list item data, shared by apprenticeship requests and recruit requests
 struct ApplicantsListData
 {
 	INT               nRoleID;
@@ -92,7 +92,7 @@ struct ApplicantsListData
 	INT               nMasterExp;
 };
 
-// 系统推送 推荐拜师和推荐收徒通用
+// system push, shared by master recommendation and apprentice recommendation
 struct SystemPosterListData
 {
 	INT               nRoleID;
@@ -152,22 +152,22 @@ enum StudentSortType
 
 enum EMasterStudentType
 {
-	EMST_MasterInfo,				//师门信息
-	EMST_MasterSystemPosterList,	//系统推荐的师傅列表
-	EMST_StudentSystemPosterList,	//系统推荐的徒弟列表
-	EMST_MasterApplicantsList,		//申请收你为徒的师傅列表
-	EMST_StudentApplicantsList,		//申请拜你为师的徒弟列表
-	EMST_RecruitStatus,				//是否是收徒状态中
-	EMST_MasterStateChange,			//状态变化
-	EMST_CDTime,					//开除CD时间
-	EMST_ChangeValue,				//名师值改变
-	EMST_DesireGradAck,				//毕业申请发送成功
-	EMST_DesireGradNtf,				//收到毕业申请
-	EMST_StudentGrad,				//毕业成功
-	EMST_OnClickMasterStudent,      // 点击消息球相关
-	EMST_MasterTwitterType,         //师傅推送状态
-	EMST_HelloTeacher,              //给师傅推送徒弟
-	EMST_HelloStudent,              //给徒弟推送师傅
+	EMST_MasterInfo,				//master's school info
+	EMST_MasterSystemPosterList,	//system-recommended master list
+	EMST_StudentSystemPosterList,	//system-recommended apprentice list
+	EMST_MasterApplicantsList,		//list of masters applying to take you as apprentice
+	EMST_StudentApplicantsList,		//list of apprentices applying to take you as master
+	EMST_RecruitStatus,				//whether currently recruiting apprentices
+	EMST_MasterStateChange,			//state change
+	EMST_CDTime,					//expulsion CD time
+	EMST_ChangeValue,				//famous master value changed
+	EMST_DesireGradAck,				//graduation request sent successfully
+	EMST_DesireGradNtf,				//graduation request received
+	EMST_StudentGrad,				//graduation successful
+	EMST_OnClickMasterStudent,      // click message-ball related
+	EMST_MasterTwitterType,         //master push state
+	EMST_HelloTeacher,              //push apprentice to master
+	EMST_HelloStudent,              //push master to apprentice
 	EMST_MasterEnterGame,
 	EMST_PlayerExpChange,
 	
@@ -206,7 +206,7 @@ struct GiftDetailData
 	FString strGiftName;
 	FString strGiftTips;
 };
-//活动配置表读取
+//Read activity config table
 struct GiftDetailDataProcessor
 {
 	static const TCHAR* GetName()
@@ -254,7 +254,7 @@ struct MailTemplateData
 	INT nMailID;
 	INT nItemID;
 };
-//活动配置表读取
+//Read activity config table
 struct MailTemplateDataProcessor
 {
 	static const TCHAR* GetName()
@@ -297,8 +297,8 @@ struct MailTemplateDataProcessor
 
 typedef TDataManger< MailTemplateData, MailTemplateDataProcessor >   MailTemplateDataManager;
 
-//礼包配置
-//活动配置表读取
+//gift pack config
+//Read activity config table
 struct CongratulationGiftDataProcessor
 {
 	static const TCHAR* GetName()
@@ -424,9 +424,9 @@ public:
 	void						OpenHelloStudentPanel();
 	void						OpenHelloTeacherPanel();
 	/*
-		跟服务端的协议保持语义一致  
-		Ack 后缀的都是返回自己的回馈消息
-		Ntf 都是通知对方的
+		keep semantics consistent with the server protocol
+		those with Ack suffix all return feedback messages to oneself
+		Ntf are all notifications to the other party
 	*/
 	void  NotifyUpdateMasterList(const M2C_MASTER_RECRUIT_LIST*msg);
 	void  NotifyUpdateMasterSoloListAck(const M2C_MASTER_GET_SOLO_LIST_ACK* msg);
@@ -516,11 +516,11 @@ private:
 	INT					curSystemPosterPage;
 	INT					cdTime;
 	/*
-		-1是无效  0是没有达到出师条件  1是达到出师条件  2是已申请出师
+		-1 is invalid  0 means graduation conditions not met  1 means met  2 means graduation already applied
 	*/
 	INT					selfState;			
-	EMST_SUCCESS_RSP_TYPE _MasterRecruitStatus;				//师父申请招募，或者取消招募的返回值
-	EMASTER_STATE		_MasterStudentStatus;			//当前角色的状态
+	EMST_SUCCESS_RSP_TYPE _MasterRecruitStatus;				//return value when master applies to recruit or cancels recruiting
+	EMASTER_STATE		_MasterStudentStatus;			//current character's state
 	FScriptDelegate		_OpenMasterStudentPanelDelegate;
 	FScriptDelegate		_OpenCongUpLevelPanelDelegate;
 

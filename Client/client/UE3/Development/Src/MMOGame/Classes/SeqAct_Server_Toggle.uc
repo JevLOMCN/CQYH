@@ -1,5 +1,5 @@
 
-// ToggleTrigger 服务器确认打开
+// ToggleTrigger server confirms open
 
 class SeqAct_Server_Toggle extends SequenceAction
 	native;

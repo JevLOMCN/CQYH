@@ -20,7 +20,7 @@ void CMessageHandler::Send_BuybackItem(UINT8 bySlot)
 	msg.bySlot = bySlot;
 	_Send(&msg, sizeof(msg));
 
-	// 买回来后就再刷新一次
+	// Refresh once more after buying back
 	Send_ViewSoldItems();
 }
 
@@ -108,7 +108,7 @@ void CMessageHandler::Parse_g2c_black_market_buy(const char* buf, UINT32 size)
 	MMOGameEvent_BlackMarket_UpdateItemCount evt(msg->nBlackMarketProductID,msg->nCount);
 	MMOUI::PostGameEvent(&evt);
 
-	//购买成功。查询cd
+	//Purchase succeeded. Query cd
 	//Send_BlackMarketItemCoolDown();
 }
 
@@ -137,7 +137,7 @@ void CMessageHandler::Parse_g2c_view_sold_items(const char* buf, UINT32 size)
 {
 	G2C_VIEW_SOLD_ITEMS *msg = (G2C_VIEW_SOLD_ITEMS*)buf;
 
-	// 按发过来的Index作为标记
+	// Use the Index sent over as the marker
 	MMOFacade::getSingleton().ClearSoldItems();
 
 	INT BuffSize = 0;

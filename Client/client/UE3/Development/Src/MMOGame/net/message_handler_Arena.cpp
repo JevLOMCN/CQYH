@@ -19,7 +19,7 @@ namespace ExternalMessage
 #define OfflineModeTest 0
 
 //====================================================================================================
-//1V1竞技场
+//1V1 arena
 //====================================================================================================
 void CMessageHandler::Send_QueryVSRewardInfo()
 {
@@ -69,11 +69,11 @@ void CMessageHandler::Parse_g2c_arena_status(const char* buf, UINT32 size)
 	MMOUI::PostGameEvent( &vsStateEvt );
 }
 //====================================================================================================
-//1V1竞技场 END
+//1V1 arena END
 //====================================================================================================
 
 //====================================================================================================
-//竞技场
+//Arena
 //====================================================================================================
 
 void CMessageHandler::Send_GetArenaData(){}
@@ -132,7 +132,7 @@ void CMessageHandler::Parse_m2c_arena_end(const char* buf, UINT32 size)
 	//
 	INT curEntCnt = arenaMgr.GetArenaEnterCnt();
 	if( curEntCnt > 0 ){
-		//有参加过，就有奖
+		//Has participated, so there is a reward
 		arenaMgr.SetCurArenaState( EAnaSta_ToGetAward );
 	}
 	else{
@@ -217,21 +217,21 @@ void CMessageHandler::Parse_g2c_arena_sync_data(const char* buf, UINT32 size)
 	if( arenaMgr.IsArenaApplyTime() ){
 		//msg->byIsJJCMatchTime
 		if( msg->byIsInSeason ){
-			//已经报过名，可以直接打
+			//Already registered, can fight directly
 			arenaMgr.SetCurArenaState( EAnaSta_InGame );
 		}
 		else{
-			//还可报名
+			//Can still register
 			arenaMgr.SetCurArenaState( EAnaSta_WaitApply );
 		}
 	}
 	else if( arenaMgr.IsArenaDay() ){
 		if( msg->bySeasonNum > 0 ){
-			//奖还没有领
+			//Reward not yet claimed
 			arenaMgr.SetCurArenaState( EAnaSta_ToGetAward );
 		}
 		else{
-			//领完奖
+			//Reward claimed
 			arenaMgr.SetCurArenaState( EAnaSta_EndNoAward );
 		}
 	}
@@ -303,7 +303,7 @@ void CMessageHandler::Send_ArenaJoinAck( UBOOL agree )
 	_Send(&msg, sizeof(msg));
 }
 
-//进入排队
+//Enter queue
 void CMessageHandler::Parse_m2c_join_arena_queue(const char* buf, UINT32 size)
 {
 	M2C_JOIN_ARENA_QUEUE* msg = (M2C_JOIN_ARENA_QUEUE*)buf;
@@ -319,7 +319,7 @@ void CMessageHandler::Parse_m2c_cancel_join_arena_ack(const char* buf, UINT32 si
 	MMOUI::GetUIManager()->delegateLeaveArenaQueue();
 }
 
-//直接就进了
+//Entered directly
 void CMessageHandler::Parse_m2c_join_arena_confirm_req(const char* buf, UINT32 size)
 {
 	M2C_JOIN_ARENA_CONFIRM_REQ* msg = (M2C_JOIN_ARENA_CONFIRM_REQ*)buf;
@@ -336,7 +336,7 @@ void CMessageHandler::Parse_m2c_sync_arena_score_for_team(const char* buf, UINT3
 {
 	//M2C_SYNC_ARENA_SCORE_FOR_TEAM* msg = (M2C_SYNC_ARENA_SCORE_FOR_TEAM*)buf;
 	//msg->dwTeamID_win
-	//目前没法搞这个
+	//Currently cannot do this
 	//msg->
 }
 

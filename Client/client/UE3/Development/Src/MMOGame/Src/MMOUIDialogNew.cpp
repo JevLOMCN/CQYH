@@ -86,7 +86,7 @@ void UMMOUIDialogNew::OnNativeGameEvent(struct MMOGameEvent* evt)
 
 			if(targetEvt->EventType == MMOGameEvent_TargetEvent::ETCT_DesiredTarget)
 			{
-				// 如果换目标了，并且不是同一个就先关掉
+				// If the target changed and is not the same one, close first
 				if(DialogNpc && targetEvt->DesiredTarget != DialogNpc)
 				{
 					CloseDialog();
@@ -173,7 +173,7 @@ void UMMOUIDialogNew::TryPopupQuest(INT newCompleteQuestID)
 		return;
 	}
 
-	// 如果这个时候正在播放matinee, 不弹出
+	// If a matinee is playing at this time, do not pop up
 	if (mainPlayerCtrl->IsPlayingMatinee())
 	{
 		CloseDialog();
@@ -195,7 +195,7 @@ void UMMOUIDialogNew::TryPopupQuest(INT newCompleteQuestID)
 		}
 	}
 
-	// 完成任务后如果有其它可接任务自动弹出接任务界面
+	// After completing a quest, if there are other available quests, automatically pop up the quest accept UI
 	if (compassableList.Num() == 1)
 	{
 		const UQuest* quest = compassableList(0);
@@ -223,7 +223,7 @@ void UMMOUIDialogNew::TryPopupQuest(INT newCompleteQuestID)
 		const UQuest* quest = DialogNpc->AcceptableQuestList(i);
 		if (quest->GetTemplateID() != newCompleteQuestID
 			&& MMOQuestData::getSingleton().IsQuestAvailable(quest->GetTemplateID())
-			&& quest->QuestType == E_qt_Trunk) // #15294 策划改为只有主线任务才自动弹框
+			&& quest->QuestType == E_qt_Trunk) // #15294 designer changed it so only main quests auto pop up
 		{
 			acceptableList.AddItem(quest);
 		}
@@ -274,7 +274,7 @@ void UMMOUIDialogNew::TryPopupQuestWithoutNpc(INT questId)
 		return;
 	}
 
-	// 没有NPC, 显示主角头像
+	// No NPC, show the main character portrait
 	AMMOPlayer* clonePlayer = eventClonePlayer(mainPlayer);
 	SetShowActor(clonePlayer);
 
@@ -355,7 +355,7 @@ void UMMOUIDialogNew::OpenDialog(class ANPC* NPC , struct FDialogContent DiaCont
 //------------------------------------------------------------------------
 void UMMOUIDialogNew::ClearContex()
 {
-	// 前面手动new出来的，要手动管理删除掉
+	// Manually newed earlier, must be manually deleted
 	if(CurDialogContent.Contex)
 	{
 		delete CurDialogContent.Contex;
@@ -391,12 +391,12 @@ void UMMOUIDialogNew::CloseDialog(UBOOL playSound)
 	}
     DialogNpc = 0;
 
-	//清空context
+	//Clear context
 	MMOQuestManager::getSingleton().ResetContent();
 
 	Show(FALSE);
 
-	// 防止对话框被Matinee或者切换场景临时隐藏后，自动显示回来
+	// Prevent the dialog from automatically showing again after being temporarily hidden by Matinee or scene switch
 	LastVisible = FALSE;
 
 	//CMessageHandler::GetInstance().Send_StopNPCInteract();
@@ -447,7 +447,7 @@ void SetupQuestDiagOption(UQuest* quest, EQuestHUDStatus status, UGFxMoviePlayer
 
 	optionData->SetInt( TEXT("option_type"), EOptionType_Quest);
 
-	// 先增加客户端的对话选项ID
+	// First add the client's dialog option ID
 	CurDialogContent.Contex->AdvanceClientActionID();
 	optionData->SetInt( TEXT("option_id"), CurDialogContent.Contex->ClientActionAutoID );
 	DialogOptionAction_UICommand_OpenQuest* questAction = new DialogOptionAction_UICommand_OpenQuest();
@@ -516,7 +516,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 	//check(diagData != NULL);
 	if(diagData == NULL) return;
 
-	dataArr->SetElementObject(0, diagData); // 只有一个
+	dataArr->SetElementObject(0, diagData); // only one
 
 	if (FALSE == CurDialogContent.Contex->TempText.IsEmpty())
 	{
@@ -544,7 +544,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 	}
 	diagData->SetInt(TEXT("diag_type"), (INT)EDiagDataType_Dialog);
 	
-	// 如果是家族副本大使, 插入选项
+	// If it is a clan dungeon envoy, insert option
 	UNPCTemplate* npcTemplateNew = NULL;
 	
 	if (DialogNpc)
@@ -577,7 +577,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 	//check(option_list != NULL);
 	if(option_list == NULL) return;
 
-	// 添加从文本分析创建的对话选项
+	// Add dialog options created from text parsing
 	for (; it != CurDialogContent.Contex->OptionActionMap.end(); ++it)
 	{
 		UGFxObject* optionData = GFXPlayer->CreateObject(TEXT("ActionScript3.NPCDialog.NPCDialogOptionData"));
@@ -600,7 +600,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 	diagData->SetObject(TEXT("option_list"), option_list);
 
 	UBOOL hasQuestContent = FALSE;
-	// NPC模板上配置的任务列表
+	// Quest list configured on the NPC template
 	if (DialogNpc != NULL)
 	{
 		SortQuestList canCompleteList, acceptedList;
@@ -618,7 +618,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 			}
 		}
 
-		// 可完成的任务列表
+		// Completable quest list
 		SortQuest(canCompleteList);
 
 		for(size_t j = 0; j < canCompleteList.size(); ++j)
@@ -627,7 +627,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 			SetupQuestDiagOption(quest, EQHUDS_CanSubmit, GFXPlayer, CurDialogContent, option_list, optionIndex);
 		}
 
-		// 可接的任务列表
+		// Acceptable quest list
 		SortQuestList acceptableList;
 		for(INT i = 0; i < DialogNpc->AcceptableQuestList.Num(); i++)
 		{
@@ -647,7 +647,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 			SetupQuestDiagOption(quest, EQHUDS_Acceptable, GFXPlayer, CurDialogContent, option_list, optionIndex);
 		}
 
-		// 已经接的任务列表
+		// Already accepted quest list
 		SortQuest(acceptedList);
 
 		for(size_t k = 0; k < acceptedList.size(); ++k)
@@ -659,7 +659,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 		hasQuestContent = !acceptableList.empty() || !acceptedList.empty() || !canCompleteList.empty();
 		hasDiagContent = hasDiagContent || hasQuestContent;
 
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_OpenNpcDialog, DialogNpc->NPCID);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -667,7 +667,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 	if (CurDialogContent.Contex->OptionActionMap.size() == 0)
 	{
 		if (CurDialogContent.Contex->TempText.IsEmpty())
-		{// 如果没有对话框选项, 不弹框(需求#8589)
+		{// If there are no dialog options, do not pop up (requirement #8589)
 			CloseDialog(FALSE);
 			PlayDialogNpcSound(FALSE);
 			return;
@@ -685,7 +685,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 		}
 	}
 	else if (CurDialogContent.Contex->OptionActionMap.size() == 1)
-	{// 如果只有一个对话框选项, 直接做
+	{// If there is only one dialog option, do it directly
 		DialogContext::DialogOptionActionMap::iterator iter = CurDialogContent.Contex->OptionActionMap.begin();
 		if (iter != CurDialogContent.Contex->OptionActionMap.end())
 		{
@@ -709,7 +709,7 @@ void UMMOUIDialogNew::UpdateNPCDialog()
 					if (questAction)
 					{
 						questAction->Execute();
-						// 如果是回收道具任务, 不显示对话框, 但要保留DialogNpc, 所以不能CloseDialog, 只能Show(FALSE)
+						// If it is an item-collection quest, do not show the dialog, but keep DialogNpc, so CloseDialog cannot be used, only Show(FALSE)
 						if (MMOQuestData::getSingleton().IsQuestRecycle(questAction->GetQuestTemplateID()))
 						{
 							Show(FALSE);
@@ -781,7 +781,7 @@ void UMMOUIDialogNew::TrySubmitQuest(INT questID)
 	INT selectAwardItemCount = MMOQuestData::getSingleton().GetSelectableAwardItemCount(questID);
 	if (selectAwardItemCount <= 1)
 	{
-		// 如果没有或者只有一个符合职业的可选奖励，得到奖励索引
+		// If there are no or only one class-matching selectable rewards, get the reward index
 		SelectedAwardIndex = MMOQuestData::getSingleton().GetDefaultSelectableAwardItemIndex(questID);
 		MMOQuestManager::getSingleton().CompleteQuest(questID, SelectedAwardIndex);
 		SelectedAwardIndex = -1;
@@ -800,7 +800,7 @@ void UMMOUIDialogNew::TrySubmitQuest(INT questID)
 		}
 	}
 
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_DialogCompleteQuest);
 	MMOUI::PostGameEvent(&evtGuide);
 }
@@ -817,25 +817,25 @@ void UMMOUIDialogNew::OpenQuestPopupUp(UBOOL accept, INT questID, UBOOL share, I
 	if(dataArr == NULL) return;
 
 	MMOQuestManager::getSingleton().SetPageQuestId(questID);
-	//重置时间和页数
+	//Reset time and page count
 	CurrentDialogPage = 0;
 	MMOQuestManager::getSingleton().SetQuestDialogCurrentPage(CurrentDialogPage);
 	MMOQuestManager::getSingleton().RestPageTime();
 	MMOQuestManager::getSingleton().ClearContext();
-	//解析各种对话
+	//Parse various dialogs
 	MMOQuestManager::getSingleton().ParseQuestDialog(questID,TRUE,*MMOQuestManager::getSingleton().GetQuestDialongContext());
 	
-	//判断是否要分页
+	//Determine whether to paginate
 	if (MMOQuestManager::getSingleton().GetMaxDialogPage() <= MIN_PAGENUMBER)
 	{
 		UGFxObject* diagData = CreateDialogContext(0,questID,share,shareSrcId,EDialogContextType_Quest);
 
 		dataArr->SetElementObject(0, diagData);  
 
-		// 需求11961
+		// Requirement 11961
 		MMOQuestManager::getSingleton().PlayQuestSound(questID, DialogNpc);
 
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_OpenQuestDialogSinglePage, DialogNpc ? DialogNpc->NPCID : 0);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -856,7 +856,7 @@ void UMMOUIDialogNew::OpenQuestPopupUp(UBOOL accept, INT questID, UBOOL share, I
 			dataArr->SetElementObject(i, diagData); 
 		}
 
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_OpenQuestDialogMultiPage, DialogNpc ? DialogNpc->NPCID : 0);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -881,12 +881,12 @@ void UMMOUIDialogNew::TryPopupQuestOver(INT questId)
 	if(object == NULL) return;
 
 	MMOQuestManager::getSingleton().SetPageQuestId(questId);
-	//重置时间和页数
+	//Reset time and page count
 	CurrentDialogPage = 0;
 	MMOQuestManager::getSingleton().SetQuestDialogCurrentPage(CurrentDialogPage);
 	MMOQuestManager::getSingleton().RestPageTime();
 	MMOQuestManager::getSingleton().ClearContext();
-	// 解析各种对话
+	// Parse various dialogs
 	MMOQuestManager::getSingleton().ParseQuestDialog(questId,TRUE,*MMOQuestManager::getSingleton().GetQuestDialongContext());
 
 	for (int i =0;i<MMOQuestManager::getSingleton().GetMaxDialogPage();i++)
@@ -1020,7 +1020,7 @@ UGFxObject* UMMOUIDialogNew::CreateDialogContext(INT i,INT questID,UBOOL share, 
 	 }
 	 else
 	 {
-		 // TODO: 有空重构
+		 // TODO: refactor when there is time
 		 MMOQuestManager::getSingleton().AcceptQuest(questID, share, shareSrcId);
 
 		 if( ShowLevel )
@@ -1028,13 +1028,13 @@ UGFxObject* UMMOUIDialogNew::CreateDialogContext(INT i,INT questID,UBOOL share, 
 			 ShowLevel->SetEnabled( FALSE );
 		 }
 		 Show(FALSE);
-		 //TryPopupQuest(questID); // 等EQET_AcceptQuest再试
+		 //TryPopupQuest(questID); // retry after EQET_AcceptQuest
 
-		 //清空context
+		 //Clear context
 		 MMOQuestManager::getSingleton().ResetContent();
 	 }
 
-	 // 引导事件
+	 // Tutorial event
 	 MMOGameEvent_Guide evtGuide(EGUET_DialogAcceptQuest);
 	 MMOUI::PostGameEvent(&evtGuide);
  }
@@ -1191,7 +1191,7 @@ UGFxObject* UMMOUIDialogNew::CreateDialogContext(INT i,INT questID,UBOOL share, 
 		 }
 		 CMessageHandler::GetInstance().Send_EquipLevelUpShortcut_PutIn( E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND );
 
-		 // 新手引导
+		 // Tutorial
 		 MMOGameEvent_Guide evtGuide(EGUET_ShowWeaponLvUpPanel);
 		 MMOUI::PostGameEvent(&evtGuide);
 	 }
@@ -1272,17 +1272,17 @@ UGFxObject* UMMOUIDialogNew::CreateDialogContext(INT i,INT questID,UBOOL share, 
  {
 	 CurrentDialogPage = pageIndex;
 	 MMOQuestManager::getSingleton().SetQuestDialogCurrentPage(pageIndex);
-	 //重置时间
+	 //reset time
 	 MMOQuestManager::getSingleton().RestPageTime();
 
-	 //翻页要重播动画的说
+	 //animation needs to replay on page turn
 	 eventCallUCPlay(MMOQuestManager::getSingleton().GetPageTotalTime()*1000);
  }
 
  void UMMOUIDialogNew::ASCloseDialog()
  {
 	 CloseDialog(FALSE);
-	 //这里要清空一下
+	 //need to clear here
 	 MMOQuestManager::getSingleton().ResetContent();
  }
 
@@ -1293,7 +1293,7 @@ UGFxObject* UMMOUIDialogNew::CreateDialogContext(INT i,INT questID,UBOOL share, 
 
 	 if (SelectedAwardIndex >= 0)
 	 {
-		 // 引导事件
+		 // Tutorial event
 		 MMOGameEvent_Guide evtGuide(EGUET_SelectQuestAward);
 		 MMOUI::PostGameEvent(&evtGuide);
 	 }

@@ -3,13 +3,13 @@
 	Filename: 	MMOUISkillPanel
 	file ext:	uc
 	Author:		hemu@snda
-	Purpose:	MMOUISkillPanel 技能界面，包含以下4块  
-				-Console 技能总览
-				-Active  主动技能
-				  -Rune 符文充能、激活
-				  -SkillUp 技能熟练度升级：心练、魂练
-				-Passive 被动技能
-				-Avarta  Avarta技能
+	Purpose:	MMOUISkillPanel ability UI, contains the following 4 parts
+				-Console ability overview
+				-Active  active abilities
+				  -Rune rune charge, activation
+				  -SkillUp ability proficiency upgrade: heart training, soul training
+				-Passive passive abilities
+				-Avarta  Avarta abilities
 *********************************************************************/
 
 class MMOUISkillPanel extends MMOUIBase
@@ -117,7 +117,7 @@ enum ESkill_PageType
 //var array<sAllPassive>  AllPassives;
 //var int CurrentPassiveSlot;
 
-//// QTE技能  命名正好与Avatar区分开故沿用资源名 
+//// QTE ability  naming happens to differ from Avatar, so the resource name is kept
 ////==================AvartaModify()================================ 
 //struct native sCurrentAvarta
 //{
@@ -139,7 +139,7 @@ enum ESkill_PageType
 
 
 //native function     PostAdvance(float DeltaTime);
-////更新心练面板
+////Update heart training panel
 //native final  function     UpdateNormalPractice( );
 
 //native final  function 	int GetRealActiveRealSlotId(int activeSlotId );
@@ -156,10 +156,10 @@ enum ESkill_PageType
 //native final  function 	RuneDurSync( int wSpellID, int byRuneSlot, int byDurabilityType, int nDurability );
 //native final  function 	RuneEquip( int bySlot, int wSpellID, int byRuneSlot );
 			
-////相关检测 防止Crash
+////Related checks to prevent Crash
 //native final  function bool Validate();
 
-////重新登录后 重置状态
+////Reset state after logging in again
 //native function EnterLogin();
 
 //event RefreshData()
@@ -168,7 +168,7 @@ enum ESkill_PageType
 //	//RefreshActiveModify();
 //}
 
-////进行初始化
+////Perform initialization
 //event InitLoad(MMOGFXPlayer pl)
 //{
 //	super.InitLoad(pl);
@@ -180,7 +180,7 @@ enum ESkill_PageType
 //	ActiveRealSlotList.Add( ActiveSlotCount );
 //	ActiveRealSlotList[ 0 ] = ECK_MouseL;
 //	ActiveRealSlotList[ 1 ] = ECK_MouseR;
-//	//变化太多 乖乖先写定s
+//	//Too many changes, hardcode it for now s
 //	ActiveRealSlotList[ 2 ] = ECK_Slot1;
 //	ActiveRealSlotList[ 3 ] = ECK_Slot2;
 //	ActiveRealSlotList[ 4 ] = ECK_Slot3;
@@ -198,7 +198,7 @@ enum ESkill_PageType
 //	class'MMOUIManager'.static.SetReplaceHotSkillDelegate( ReplaceHotSkill );
 //}
 
-////Tab键直接切换左右键技能
+////Tab key directly switches left/right click abilities
 //native final  function ReplaceHotSkill();
 
 //event IniData()
@@ -221,7 +221,7 @@ enum ESkill_PageType
 //native function NativeInitOnce();
 
 //native final  function SetLockedState( int slotId, GFxObject tObj, int uiSlot );
-////刷新整体面板
+////Refresh the whole panel
 //native final  function RefreshCurrentSpell();
 
 //event SetItem( GFxObject mc,int quantity,string IconName,int ItemIndex,optional string Type="", optional int itemColor = 0  )
@@ -229,122 +229,122 @@ enum ESkill_PageType
 //	GFXPlayer.CallSetItemData(mc,quantity,IconName,ItemIndex, ESPType_SkillPanel, Type,itemColor );
 //}
 
-////背包改变响应
+////Bag change response
 //native function BagSlotChange( INT BagId,INT SlotId );
-////刷新当前页面
+////Refresh current page
 //native final  function RefreshCurrentPage( );
-////刷新页面
+////Refresh page
 //native final  function RefreshPage( ESkill_PageType tSPT );
-////执行相关的变量初始化 
+////Perform related variable initialization
 //native final  function PageJump( ESkill_PageType tSPT );
 ////PlayerMoneyChange
 //native function PlayerMoneyChange(EMONEY_TYPE MoneyType, int Money, int OldMoney);
 
 ////==================================================RefreshActiveModify()====================================================== 
 
-////设置ActiveBtn
+////Set ActiveBtn
 //native final  function SetSpellBtnByActiveId(GFxObject tObj,int SlotId,int abilityId,bool isSubCtrl = false );
-////选择当前CurrentActiveSlot
+////Select current CurrentActiveSlot
 //native final  function SetCurrentActive( int activeSlotId );
 ////RefreshActiveModify
 //native final  function RefreshActiveModify();
-////选择CurrentActiveSlot 切换成的对应 AllActives( abilityId ) 的 ActiveId
+////Select CurrentActiveSlot switched to the ActiveId corresponding to AllActives( abilityId )
 //native final  function SelectActive( int tSlotId,int abilityId );
 
-////符文,技能点等刷新显示
+////Refresh display of runes, ability points, etc.
 //native final  function OnSelecteActiveChanged( int abilityId );
-////判断当前符文是否能被激活
+////Determine whether the current rune can be activated
 //native final  function bool CanActiveRune( MMOAbility tRune );
-////设置RuneBtn
+////Set RuneBtn
 //native final  function SetRuneBtnByAbility(MMOAbility tRune,int iRuneSlot );
-////点击装配符文
+////Click equip rune
 //native final  function EquipRune( int runeSlotId);
-////点击激活符文
+////Click activate rune
 //native final  function ActivateRune( int runeSlotId);
-////取消符文装配
+////Cancel rune equip
 //native final  function CleanRune();
 ///*
-////符文图标hover 
+////Rune icon hover
 //native final  function OnRuneBtnHover( int runeSlotId );*/
 
-////Active是否已经被装备
+////Whether Active is already equipped
 //native final  function int IsActiveAlreadyEquiped( int abilityId );
-////确认提交Modify
+////Confirm submit Modify
 //native final  function ConfirmActive( );
 //native final  function ActiveLastPage();
 //native final  function ActiveNextPage();
 
-////技能升级
-////点击弹出面板
+////Ability upgrade
+////Click pop up panel
 //native final  function ASClickNormalPractice( bool IsToggle = true );
 //native final  function ASClickFastPractice( bool IsToggle = true );
-////点击开始升级技能
+////Click start upgrading ability
 //native final  function ASStartNormalPractice(  );
 //native final  function ASStartFastPractice(  );
-////选择心练类型
+////Select heart training type
 //native final  function ASChooseNormalParcticeType( int NPType );
-////选择魂练类型
+////Select soul training type
 //native final  function ASChooseFastPracticeType( int FPType );
-////魂练用药
+////Soul training use medicine
 //native final  function ASUseFastPracticeItem( int FPItem );
-////中止升级技能
+////Abort ability upgrade
 //native final  function ASStopPractice( int inActiveId );
-////中止并关闭技能升级面板
+////Abort and close the ability upgrade panel
 //native final  function ASStopPracticeAndClose( int inActiveId,SkillPracticeType spt );
-////中止技能升级确认
+////Abort ability upgrade confirm
 //native final  function StopSkillPracticeOk(GFxObject mc);
-////中止技能升级取消
+////Abort ability upgrade cancel
 //native final  function StopSkillPracticeCancel(GFxObject mc);
 
-////开始技能升级
+////Start ability upgrade
 //native final  function NetStartSkillPractice(int inActiveId,int byPracticeType,int	nInterval,int nEndTime );
-////结束技能升级
+////End ability upgrade
 //native final  function NetStopSkillPractice(int inActiveId);
-////技能熟练度提醒
+////Ability proficiency reminder
 //native final  function NetSkillProgressChange( int inActiveId,int nProgress );
-////技能升级提示
+////Ability upgrade hint
 //native final  function NetSkillLevelUp( int inActiveId,int byLevel );
-////技能升级提示
+////Ability upgrade hint
 //native final  function NetSkillPointChangeNotify( );
-////技能升级功能开启
+////Ability upgrade function enabled
 //native final  function EnableSkillUp( bool isEnable = true );
 
 ////==================================================RefreshPassiveModify()====================================================== 
 
-////设置PassiveBtn
+////Set PassiveBtn
 //native final  function SetSpellBtnByPassiveId(GFxObject tObj,int SlotId,int abilityId,bool isSubCtrl = false );
-////选择当前CurrentPassiveSlot
+////Select current CurrentPassiveSlot
 //native final  function SetCurrentPassive( int passiveSlotId );
 ////RefreshPassiveModify
 //native final  function RefreshPassiveModify();
-////选择CurrentPassiveSlot 切换成的对应 AllPassives( abilityId ) 的 PassiveId
+////Select CurrentPassiveSlot switched to the PassiveId corresponding to AllPassives( abilityId )
 //native final  function SelectPassive( int tSlotId,int abilityId );
-////Passive是否已经被装备
+////Whether Passive is already equipped
 //native final  function int IsPassiveAlreadyEquiped( int abilityId );
-////确认提交Modify
+////Confirm submit Modify
 //native final  function ConfirmPassive( );
 
 ////==================================================RefreshAvartaModify()====================================================== 
 
-////设置AvartaBtn
+////Set AvartaBtn
 //native final  function SetSpellBtnByAvartaId(GFxObject tObj,int SlotId,int abilityId,bool isSubCtrl = false );
-////设置AvartaBtn
+////Set AvartaBtn
 //native final  function SetSpellBtnByAvarta(GFxObject tObj,int SlotId,MMOAbility tAvarta,bool isSubCtrl = false,bool isRuneCtrl = false );
-////选择当前CurrentAvartaSlot
+////Select current CurrentAvartaSlot
 //native final  function SetCurrentAvarta( int avartaSlotId );
 ////RefreshAvartaModify
 //native final  function RefreshAvartaModify();
-////选择CurrentAvartaSlot 切换成的对应 AllAvartas( abilityId ) 的 AvartaId
+////Select CurrentAvartaSlot switched to the AvartaId corresponding to AllAvartas( abilityId )
 //native final  function SelectAvarta( int tSlotId,int abilityId );
-////刷一遍符文
+////Refresh runes once
 //native final  function OnSelecteAvartaChanged( int  abilityId );
-////abilityId 号技能装配了第 tSlotId 个符文
+////Ability abilityId has equipped the tSlotId-th rune
 //native final  function SelectAvartaRune( int tSlotId,int abilityId );
-////Avarta是否已经被装备
+////Whether Avarta is already equipped
 //native final  function int IsAvartaAlreadyEquiped( int abilityId );
-////确认提交Modify
+////Confirm submit Modify
 //native final  function ConfirmAvarta( );
-////翻页
+////Turn page
 //native final  function AvartaLastPage();
 //native final  function AvartaNextPage();
 //native final  function AvartaRuneLastPage();

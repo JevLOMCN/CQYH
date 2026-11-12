@@ -1,18 +1,18 @@
 //
-// FracturedStaticMeshActor类
+// FracturedStaticMeshActor class
 //
 
 class MMOApexDestructibleActor extends ApexDestructibleActor implements(IAbilityDamageable)
 	native
 	placeable;
 
-// 阵营标识, 两阵营标识做 AND 操作，不为0是友好
+// Faction ID, AND two faction IDs; non-zero means friendly
 var int FriendlyMask;
 
 var(MMO) int CurHealth;
-var(MMO) int MaxHealth;     // 这个变量需要么？这玩意会回血么？zhaojun@snda
+var(MMO) int MaxHealth;     // Is this variable needed? Does it regen health? zhaojun@snda
 
-// 破坏后就隐藏阻挡
+// Hide blocking after destroyed
 var(MMO) bool DisableCollisionWhenExplode;
 
 event int GetFriendlyMask()
@@ -73,6 +73,6 @@ defaultproperties
 {
 	FriendlyMask=4
 	DisableCollisionWhenExplode=true
-	CurHealth = 1;  // 默认情况一打就碎
-	MaxHealth = 1;  // 默认情况一打就碎
+	CurHealth = 1;  // By default breaks on one hit
+	MaxHealth = 1;  // By default breaks on one hit
 }

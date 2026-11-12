@@ -10,14 +10,14 @@
 
 enum
 {
-	DEFAULT_PRACTISE_TIME = 4,		// 秒
-	MIN_PRACTISE_TIME = 1,			// 秒
-	DEFAULT_PROTECT_TIME = 2,		// 秒
-	MIN_PROTECT_TIME = 1,			// 秒
+	DEFAULT_PRACTISE_TIME = 4,		// seconds
+	MIN_PRACTISE_TIME = 1,			// seconds
+	DEFAULT_PROTECT_TIME = 2,		// seconds
+	MIN_PROTECT_TIME = 1,			// seconds
 	DEFAULT_PROTECT_VALUE = 10,		// #20091
 };
 
-// 掉落数据
+// Drop data
 enum EAssistDropType
 {
 	EADT_ALL = 0,
@@ -87,31 +87,31 @@ typedef TDataManger<AssistDropData, AssistDropDataProcessor> AssistDropDataManag
 typedef std::map<UINT32, AssistDropData, M_UE3_STL_ALLOC_MAP(UINT32, AssistDropData)> AssistDropDataMap;
 typedef std::map<UINT32, AssistDropInfo, M_UE3_STL_ALLOC_MAP(UINT32, AssistDropInfo)> AssistDropInfoMap;
 
-// 保护道具
+// Protection item
 enum EAssistItemType
 {
-	EAIT_SLOW_HP = 0,		// 缓回药:HP
-	EAIT_SLOW_MP,			// 缓回药:MP
-	EAIT_SLOW_HPMP,			// 缓回药:HP&MP
-	EAIT_FAST_HP,			// 瞬回药:HP
-	EAIT_FAST_MP,			// 瞬回药:MP
-	EAIT_FAST_HPMP,			// 瞬回药:HP&MP
-	EAIT_PROTECT_HP,		// 保护道具:HP
-	EAIT_PROTECT_MP,		// 保护道具:MP
-	EAIT_PROTECT_HPMP,		// 保护道具:HP&MP
+	EAIT_SLOW_HP = 0,		// slow-recovery potion: HP
+	EAIT_SLOW_MP,			// slow-recovery potion: MP
+	EAIT_SLOW_HPMP,			// slow-recovery potion: HP&MP
+	EAIT_FAST_HP,			// instant-recovery potion: HP
+	EAIT_FAST_MP,			// instant-recovery potion: MP
+	EAIT_FAST_HPMP,			// instant-recovery potion: HP&MP
+	EAIT_PROTECT_HP,		// protection item: HP
+	EAIT_PROTECT_MP,		// protection item: MP
+	EAIT_PROTECT_HPMP,		// protection item: HP&MP
 	EAIT_MAX
 };
 
 enum EProtectType
 {
-	EPT_SLOW_HP = 0,		// 体力药
-	EPT_SLOW_MP,			// 魔法药
-	EPT_FAST_HP1,			// 瞬回药:HP1
-	EPT_FAST_MP1,			// 瞬回药:MP1
-	EPT_FAST_HP2,			// 瞬回药:HP2
-	EPT_FAST_MP2,			// 瞬回药:MP2
-	EPT_PROTECT_HP,			// 保护道具:HP
-	EPT_PROTECT_MP,			// 保护道具:MP
+	EPT_SLOW_HP = 0,		// health potion
+	EPT_SLOW_MP,			// mana potion
+	EPT_FAST_HP1,			// instant-recovery potion: HP1
+	EPT_FAST_MP1,			// instant-recovery potion: MP1
+	EPT_FAST_HP2,			// instant-recovery potion: HP2
+	EPT_FAST_MP2,			// instant-recovery potion: MP2
+	EPT_PROTECT_HP,			// protection item: HP
+	EPT_PROTECT_MP,			// protection item: MP
 	EPT_TOTAL
 };
 
@@ -190,7 +190,7 @@ public:
 	void Shutdown();
 	void Clear();
 
-	// 掉落
+	// Drop
 	void AddAssistDropData(const AssistDropData& data);
 	AssistDropDataMap& GetAssistDropDataMap();
 	UBOOL GetAssistDropData(UINT32 id, AssistDropData& data);
@@ -202,7 +202,7 @@ public:
 	UBOOL IsDropAutoPick(UINT32 id);
 	UBOOL IsDropVisible(UINT32 id);
 
-	// 保护
+	// Protection
 	void AddAssistItemData(const AssistItemData& data);
 	AssistItemDataMap& GetAssistItemDataMap();
 	UBOOL GetAssistItemData(UINT32 id, AssistItemData& data);

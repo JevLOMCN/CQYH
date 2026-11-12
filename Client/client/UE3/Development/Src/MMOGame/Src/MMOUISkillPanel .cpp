@@ -3,13 +3,13 @@
 	Filename: 	MMOUISkillPanel
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	MMOUISkillPanel 技能界面，包含以下4块  
-				-Console 技能总览
-				-Active  主动技能
-				  -Rune 符文充能、激活
-				  -SkillUp 技能熟练度升级：心练、魂练
-				-Passive 被动技能
-				-Avarta  Avarta技能
+	Purpose:	MMOUISkillPanel ability UI, contains the following 4 parts
+				-Console ability overview
+				-Active  active abilities
+				  -Rune rune charge, activation
+				  -SkillUp ability proficiency upgrade: heart training, soul training
+				-Passive passive abilities
+				-Avarta  Avarta abilities
 *********************************************************************/
 
 #include "stdafx.h"
@@ -42,7 +42,7 @@ void UMMOUISkillPanel::Init()
 	EventAdapter = new TGameEventAdapter<UMMOUISkillPanel>(this, evts);
 }
 
-//显示的时候做些数据更新
+//do some data updates when displaying
 void UMMOUISkillPanel::PostOnShow(UBOOL v)
 {
 	Super::PostOnShow(v);
@@ -50,7 +50,7 @@ void UMMOUISkillPanel::PostOnShow(UBOOL v)
 	if(v)
 	{
 		MMOFacade::getSingleton().PlayUISound(TEXT("menu_skillbook_op"));
-		//如果可见 则刷新界面显示
+		//If visible, refresh the UI display
 		eventIniData();
 		eventRefreshData();
 	}
@@ -94,14 +94,14 @@ void UMMOUISkillPanel::NativeInitOnce()
 	EnableSkillUp( true );
 }
 
-//发送Slot切换请求 
+//Send Slot switch request
 void UMMOUISkillPanel::SendEquipActive(int activeSlotId,int abilityId )
 {
 	int realSlotId = GetRealActiveRealSlotId( activeSlotId );
 	CMessageHandler::GetInstance().Send_EquipSpell( realSlotId, abilityId ) ; 
 }
 
-//发送Passive Slot切换请求
+//Send Passive Slot switch request
 void UMMOUISkillPanel::SendEquipPassive(int passiveSlotId,int abilityId )
 {
 	//3~5
@@ -109,33 +109,33 @@ void UMMOUISkillPanel::SendEquipPassive(int passiveSlotId,int abilityId )
 }
  
 
-//发送Avarta Slot切换请求
+//Send Avarta Slot switch request
 void UMMOUISkillPanel::SendEquipAvarta(int avartaSlotId,int abilityId )
 {
 	//0~2
 	CMessageHandler::GetInstance().Send_EquipSpell( avartaSlotId + ECK_QTE1 , abilityId ) ; 
 }
 
-//激活符文
+//Activate rune
 void UMMOUISkillPanel::SendActivateRune( int inSpellId, int runeSlotId)
 {
 	CMessageHandler::GetInstance().Send_ActivateRune( inSpellId, runeSlotId ) ; 
 }
 
-//装配Active符文
+//Equip Active rune
 void UMMOUISkillPanel::SendEquipActiveRune( int activeSlotId, int runeSlotId )
 {
 	int realSlotId = GetRealActiveRealSlotId( activeSlotId );
 	CMessageHandler::GetInstance().Send_EquipRune( realSlotId, runeSlotId ) ; 
 }
 
-//装配Avarta符文
+//Equip Avarta rune
 void UMMOUISkillPanel::SendEquipAvartaRune( int avartaSlotId, int runeSlotId)
 {
 	CMessageHandler::GetInstance().Send_EquipRune( avartaSlotId + ECK_QTE1, runeSlotId ) ; 
 }
 
-//同步符文耐久数据
+//Sync rune durability data
 void UMMOUISkillPanel::RuneDurSync( int wSpellID, int byRuneSlot, int byDurabilityType, int nDurability )
 {
 	/*UMMOAbility* tMainActive = MainPlayer->GetMainAbilityById( wSpellID );
@@ -153,14 +153,14 @@ void UMMOUISkillPanel::RuneDurSync( int wSpellID, int byRuneSlot, int byDurabili
 	}*/
 }
 
-//激活符文响应 需要UI响应
+//Rune activation response, needs UI response
 void UMMOUISkillPanel::RuneActivate( int wSpellID, int byRuneSlot, int byDurabilityType, int nDurability )
 {
 	/*RuneDurSync(wSpellID,byRuneSlot,byDurabilityType,nDurability);
 	OnSelecteActiveChanged( CurrentSelectedActiveId );*/
 }
 
-//装配符文响应
+//Rune equip response
 void UMMOUISkillPanel::RuneEquip( int bySlot, int wSpellID, int byRuneSlot )
 {
 /*
@@ -203,18 +203,18 @@ UBOOL UMMOUISkillPanel::Validate()
 //void UMMOUISkillPanel::OnOpen()
 //{
 //	eventIniData();
-//	//如果可见 则刷新界面显示
+//	//If visible, refresh the UI display
 //	eventRefreshData();
 //}
 
-//重新登录后 重置状态
+//Reset state after re-login
 void UMMOUISkillPanel::EnterLogin( )
 {
-	//状态清理
+	//State cleanup
 	NetStopSkillPractice( NowNormalPracticeActiveId );
 	NetStopSkillPractice( NowFastPracticeActiveId );
 
-	//重登后 祥光数据清零
+	//Reset auspicious light data after re-login
 	CurPageType = 0;
 
 	NowActivePageNum = 0;
@@ -262,7 +262,7 @@ void UMMOUISkillPanel::SkillSlotChange()
 		RefreshAll();
 }
 
-//刷新
+//Refresh
 void UMMOUISkillPanel::RefreshAll()
 {
 	if( ! Validate() )
@@ -271,12 +271,12 @@ void UMMOUISkillPanel::RefreshAll()
 	RefreshPage( ESkill_Console );
 }
 
-//装备有发生改变
+//Equipment changed
 void UMMOUISkillPanel::BagSlotChange(INT BagId,INT SlotId)
 {
 	if( !IsVisible )
 		return;
-	//符文碎片有改变时刷新
+	//Refresh when rune fragments change
 	if( CurPageType == ESkill_Active )
 	{
 		if( BagId != E_CONSLOT_DEFAULT )
@@ -301,13 +301,13 @@ void UMMOUISkillPanel::BagSlotChange(INT BagId,INT SlotId)
 	}
 }
 
-//刷新当前页面
+//Refresh current page
 void UMMOUISkillPanel::RefreshCurrentPage( )
 {
 	RefreshPage( CurPageType );
 }
 
-//刷新页面
+//Refresh page
 void UMMOUISkillPanel::RefreshPage( BYTE tSPT )
 {
 	if( !IsVisible )
@@ -329,7 +329,7 @@ void UMMOUISkillPanel::RefreshPage( BYTE tSPT )
 	}
 }
 
-//页面跳转
+//Page jump
 void UMMOUISkillPanel::PageJump( BYTE tSPT )
 {
 	int i;
@@ -382,7 +382,7 @@ void UMMOUISkillPanel::SetLockedState( int slotId, UGFxObject* tObj, int uiSlot 
    
 }
 
-//刷新整体面板
+//Refresh the whole panel
 void UMMOUISkillPanel::RefreshCurrentSpell()
 {
 	if( ! Validate() )
@@ -394,10 +394,10 @@ void UMMOUISkillPanel::RefreshCurrentSpell()
 
 	//`log("===========================================RefreshCurrentSpell ()=======================================");
 
-	//---------------------------1 当前技能面板 ---------------------------------------------------------
+	//---------------------------1 Current skill panel ---------------------------------------------------------
 	
     //1
-	//加载当前快捷键装备的主动技能
+	//Load the active skills currently equipped on hotkeys
 	for( j = 0; j< 6;j++ )
 	{
         int realSlotId = GetRealActiveRealSlotId( j );
@@ -408,14 +408,14 @@ void UMMOUISkillPanel::RefreshCurrentSpell()
 		}
 		abilityId = KeyMapManager->GetCmdIDBySlotID( realSlotId );
 		
-        //根据ActiveId设置Btn
+        //Set Btn according to ActiveId
 		SetSpellBtnByActiveId( tObj, j, abilityId );
 		RealActives( j ).ActiveId = abilityId;
         SetLockedState( realSlotId,  tObj, j );
 	}	
 
 	//2
-	//加载当前装备的被动技能 
+	//Load currently equipped passive skills
 	for( j = 0; j< 3;j++)
 	{
 		tObj = GetObject("SpellConsole")->GetObject( FString::Printf(TEXT("PassiveSkill%d"),j ) );
@@ -426,13 +426,13 @@ void UMMOUISkillPanel::RefreshCurrentSpell()
 		CmdSlotId = ECK_Passive1 + j;
 		abilityId = KeyMapManager->GetCmdIDBySlotID( CmdSlotId );
 		SetSpellBtnByPassiveId( tObj, j, abilityId );
-		//预留一份真正的数据
+		//Reserve a copy of the real data
 		RealPassives( j ).PassiveId = abilityId;
         SetLockedState( CmdSlotId,  tObj, j  );
 	}	
 
 	//3
-	//加载当前装备的战术技能 
+	//Load currently equipped tactical skills
 	for( j = 0; j< 3;j++)
 	{
 		tObj = GetObject("SpellConsole")->GetObject( FString::Printf(TEXT("AvartaSkill%d"),j ) );
@@ -447,14 +447,14 @@ void UMMOUISkillPanel::RefreshCurrentSpell()
         SetLockedState( CmdSlotId,  tObj, j  );
 	}
 
-    //显示当前技能点
+    //Show current skill points
     if(  GetObject("SpellConsole") && GetObject("SpellConsole")->GetObject("tF_spellPoint") )
         GetObject("SpellConsole")->GetObject("tF_spellPoint")->SetText( appItoa( PC->SkillPoint ) );
 
 }
 //==================================================RefreshActiveModify()====================================================== 
 
-//设置ActiveBtn
+//Set ActiveBtn
 void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,INT abilityId,UBOOL isSubCtrl)
 {
 #if M_TEMP_ENABLE_UI_Skill_CODE
@@ -463,7 +463,7 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 	{
 		return;
 	}
-	//根据ActiveId设置Btn
+	//Set Btn according to ActiveId
 	ability = MainPlayer->GetMainAbilityById( abilityId );
 
 	//`log("CurrentSpell Active Add Active ()"@tObj@tObj->GetObject("ItemSlot")@"ActiveId::"@abilityId );
@@ -481,11 +481,11 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 			//GFXPlayer->eventASSetSlotShowData(tObj->GetObject("ItemSlot") ,0 ,ability->GetAbilityIconName() ,ability->eventGetAbilityId());
 			tObj->GetObject("ItemSlot")->SetInt( "SlotType" , ESPType_SkillPanel );
 		}
-		//tF_SpellName 技能名称
+		//tF_SpellName skill name
 		if( tObj->GetObject("tF_SpellName") )
 			tObj->GetObject("tF_SpellName")->SetText( ability->ClientCommonAttribute.AbilityName );
 		
-		//tF_RuneName 使用的符文
+		//tF_RuneName rune used
 		INT RuneId = ability->GetRuneSlot() ;
 		TArray<struct FASValue> Arguments0;
 		FASValue ASValue0(EC_EventParm);
@@ -508,14 +508,14 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 		}
 		tObj->Invoke("SetRuneIcon", Arguments0 );
 
-		//tF_level  等级 
+		//tF_level  level
 		if( tObj->GetObject("tF_level") )
 			tObj->GetObject("tF_level")->SetText( FString::Printf( TEXT("Lv %d"), ability->SpellCommonAttribute.Level ) );
 
 		if( isSubCtrl )
 		{
 			tObj->SetBool("selected",false);
-			//如果这个技能已经装备，则
+			//If this skill is already equipped, then
 			if( tObj->GetObject("EquipedCheck") )
 			{
 				if( IsActiveAlreadyEquiped( abilityId ) >= 0 )
@@ -523,14 +523,14 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 				else
 					tObj->GetObject("EquipedCheck")->SetVisible( false );
 			}
-			//默认对应的Main技能被选择
+			//The corresponding Main skill is selected by default
 			if( abilityId ==  CurrentSelectedActiveId )
 				tObj->SetBool("selected",true);
-			//记录下对应的abilityId
+			//Record the corresponding abilityId
 			tObj->SetInt("ActiveId",abilityId );
 			if( tObj->GetObject("lock_mc") )
 				tObj->GetObject("lock_mc")->SetVisible( false );
-			//如果这个技能不允许被左键装备 
+			//If this skill is not allowed to be equipped by left click
 			if( CurrentActiveSlot==0 && ! ability->ClientCommonAttribute.CanLMouseEquip )
 			{
 				tObj->SetBool("enabled",false);
@@ -545,10 +545,10 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 	{
 		if( tObj->GetObject("ItemSlot") )
 			eventSetItem(tObj->GetObject("ItemSlot") ,0,"",-1 );
-		//tF_SpellName 技能名称
+		//tF_SpellName skill name
 		if( tObj->GetObject("tF_SpellName") )
 			tObj->GetObject("tF_SpellName")->SetText( "" );
-		//tF_RuneName 使用的符文
+		//tF_RuneName rune used
 		TArray<struct FASValue> Arguments0;
 		FASValue ASValue0(EC_EventParm);
 		//Icon'
@@ -561,7 +561,7 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 		Arguments0.AddItem(ASValue0);
 		tObj->Invoke("SetRuneIcon", Arguments0 );
 
-		//tF_level  等级 
+		//tF_level  level
 		if( tObj->GetObject("tF_level") )
 			tObj->GetObject("tF_level")->SetText("");
 		if( isSubCtrl )
@@ -583,7 +583,7 @@ void UMMOUISkillPanel::SetSpellBtnByActiveId(class UGFxObject* tObj,INT SlotId,I
 #endif
 }
 
-//选择当前CurrentActiveSlot
+//Select the current CurrentActiveSlot
 void UMMOUISkillPanel::SetCurrentActive( int activeSlotId )
 {
 	UGFxObject*  tObj = NULL;
@@ -594,14 +594,14 @@ void UMMOUISkillPanel::SetCurrentActive( int activeSlotId )
 		CurrentActiveSlot = activeSlotId;
 		if(  GetObject("ActiveModify") )
 		{
-			//当前装备Active技能
+			//Currently equipped Active skill
 			tObj = GetObject("ActiveModify")->GetObject( TEXT("CurrentSpellSlot") );
 			SetSpellBtnByActiveId( tObj,0 , CurrentActives( CurrentActiveSlot ).ActiveId ,false );
-			//不可以进行切换
+			//Cannot switch
 			if( tObj )
 				tObj->SetBool( "enabled", false );
 		}
-		//先主动刷新一遍符文 
+		//First actively refresh the runes once
 		SelectActive( CurrentActiveSlot, CurrentActives( CurrentActiveSlot ).ActiveId );
 		RefreshActiveModify();
 	}
@@ -619,15 +619,15 @@ void UMMOUISkillPanel::RefreshActiveModify()
 	//`log("==============================RefreshActiveModify() Opended=================================================");
 	if( !Validate() )
 		return;
-	//--------------------------- 选择技能面板 ---------------------------------------------------------
+	//--------------------------- Select skill panel ---------------------------------------------------------
 
 	if( ! GetObject("ActiveModify") )
 		return;
-	//当前职业玩家所有学会的Active技能
+	//All Active skills learned by the player of the current class
 	k = 0;
 
 	iTotalAbilitiesNum = MainPlayer->Abilities.Num() ;
-	//刷新当前页码
+	//Refresh current page number
 	TotalActivePageNum = iTotalAbilitiesNum / MaxActiveModifyCount;
 	if( iTotalAbilitiesNum % MaxActiveModifyCount > 0 )
 		++TotalActivePageNum;
@@ -644,7 +644,7 @@ void UMMOUISkillPanel::RefreshActiveModify()
 	GetObject("ActiveModify")->Invoke("SetActivePageNum", Arguments0 );
 
     int currentActiveSlot = GetRealActiveRealSlotId( CurrentSelectedActiveSlot );
-	//算出实际显示那些技能
+	//Work out which skills are actually shown
 	int iOffset = NowActivePageNum  * MaxActiveModifyCount;
     int activeSlot = 0;;
 	for ( j = 0 ;   j < iTotalAbilitiesNum ; ++j )
@@ -680,12 +680,12 @@ void UMMOUISkillPanel::RefreshActiveModify()
 		SetSpellBtnByActiveId( tObj, activeSlot, 0 , true );
 		++activeSlot;
 	}
-	//刷一遍符文
+	//Refresh runes once
 	OnSelecteActiveChanged( CurrentSelectedActiveId );
 
 }
 
-//选择CurrentActiveSlot 切换成的对应 AllActives( abilityId ) 的 ActiveId
+//Select the ActiveId of AllActives( abilityId ) that CurrentActiveSlot switches to
 void UMMOUISkillPanel::SelectActive( int tSlotId,int abilityId )
 {
 	if( CurrentSelectedActiveSlot != tSlotId || CurrentSelectedActiveId != abilityId )
@@ -696,38 +696,38 @@ void UMMOUISkillPanel::SelectActive( int tSlotId,int abilityId )
 	}
 }
 
-//符文,技能点等刷新显示
+//Refresh display of runes, skill points, etc.
 void UMMOUISkillPanel::OnSelecteActiveChanged( int abilityId )
 {
-	//面板都挂了 啥也不干
+	//Panel is gone, do nothing
 	if( !GetObject("ActiveModify") )
 		return;
-	//心练面板如果打开 也刷新一遍
+	//If the mental training panel is open, refresh it too
 	UGFxObject* tNormalPractice = GetObject("ActiveModify")->GetObject("NormalPractice");
 	UGFxObject* tFastPractice = GetObject("ActiveModify")->GetObject("FastPractice");
 	if( tNormalPractice && tNormalPractice->GetBool("visible") )
 		ASClickNormalPractice( false );
 	else if( tFastPractice && tFastPractice->GetBool("visible") && ! IsInFastPractice )
 		ASClickFastPractice( false );
-	//刷新abilityId对应的所有符文
+	//Refresh all runes corresponding to abilityId
 	int iRune = 0;
 	//UINT Key = MMO::Facade::CombinateID( abilityId, level ,0 );
 	//UMMOAbility* pAbility = MMOSkillManager::getSingleton().FindAbilityTemplate(Key);
 	UMMOAbility* tMainActive = MainPlayer->GetMainAbilityById( abilityId );
-	//当前如果装配的已经是符文技能 则选择其主技能 
+	//If the currently equipped one is already a rune skill, select its main skill
 	if( tMainActive )
 	{
-		//确定装备的符文
+		//Confirm the equipped rune
 		CurrentSelectedActiveRuneSlot = tMainActive->GetRuneSlot();
 	}
 	else
 		CurrentSelectedActiveRuneSlot = 0;
 
-	//清理选择的符文栏
+	//Clear the selected rune bar
 	TArray<struct FASValue> Arguments0;
 	GetObject("ActiveModify")->Invoke("UnselecteAllRune", Arguments0 );
 
-	//设置当前技能点数 及技能升级进度
+	//Set current skill points and skill upgrade progress
 	TArray<struct FASValue> Arguments2;
 	FASValue ASValue0(EC_EventParm);
 	//Icon'
@@ -744,7 +744,7 @@ void UMMOUISkillPanel::OnSelecteActiveChanged( int abilityId )
 	GetObject("ActiveModify")->Invoke("SetSkillPoint", Arguments2 );
 
 	UMMOAbility* tRune=NULL;
-	//显示当前技能所有的符文 
+	//show all runes of the current ability
 	int byRuneSlot = 0;
 	if( tMainActive )
 		byRuneSlot = tMainActive->GetRuneSlot();
@@ -760,14 +760,14 @@ void UMMOUISkillPanel::OnSelecteActiveChanged( int abilityId )
 		SetRuneBtnByAbility( tRune,iRune );
 		++iRune;
 	} 
-	//剩下不显示 
+	//Do not show the rest
 	while( iRune < ActiveRuneCount )
 	{
 		SetRuneBtnByAbility( NULL, iRune );
         ++iRune;
 	}
 
-    //如果选择了一个空技能 则清空符文按钮也不显示
+    //If an empty skill is selected, clear it and do not show the rune button
     UGFxObject* btnClear = GetObject("ActiveModify")->GetObject("btn_clear");
     if( !tMainActive && btnClear )
     {
@@ -778,7 +778,7 @@ void UMMOUISkillPanel::OnSelecteActiveChanged( int abilityId )
         btnClear->SetVisible( true );
     }
 
-	//当前符文碎片数量
+	//Current rune fragment count
 	const TArray<INT> *pVecRuneDebrisIds = MMOSkillManager::getSingleton().GetRuneDebrisIds();
 	if( pVecRuneDebrisIds )
 	{
@@ -791,7 +791,7 @@ void UMMOUISkillPanel::OnSelecteActiveChanged( int abilityId )
 			item = NULL;
 			if( MainPlayer->ItemManager != NULL)
 				item = MainPlayer->ItemManager->GetItemById( (*pVecRuneDebrisIds)(i),E_CONSLOT_DEFAULT);
-			//如果有这个碎片，则显示当前拥有的数量
+			//If this fragment exists, show the current owned count
 			if( item )
 				tObj->SetText( appItoa( item->DefaultDuration ) );
 			else
@@ -800,13 +800,13 @@ void UMMOUISkillPanel::OnSelecteActiveChanged( int abilityId )
 	}
 }
 
-//判断当前符文是否能被激活
+//Check whether the current rune can be activated
 UBOOL UMMOUISkillPanel::CanActiveRune( UMMOAbility* tRune )
 {
-	//耐久为满 不需要激活
+	//Durability is full, no activation needed
 	if( tRune->RuneDurability >= tRune->RuneDurMax )
 		return FALSE;
-	//当前符文碎片数量
+	//Current rune fragment count
 	const TArray<INT> *pVecRuneDebrisIds = MMOSkillManager::getSingleton().GetRuneDebrisIds();
 	UItem* item;
 	if(  MainPlayer->ItemManager == NULL )
@@ -818,10 +818,10 @@ UBOOL UMMOUISkillPanel::CanActiveRune( UMMOAbility* tRune )
 		if( tRune->vecRuneDebris(i).ItemCount > 0)
 		{
 			item = MainPlayer->ItemManager->GetItemById( (*pVecRuneDebrisIds)(i),E_CONSLOT_DEFAULT);
-			//如果有这个碎片，则显示当前拥有的数量
+			//If this fragment exists, show the current owned count
 			if( item && i < tRune->vecRuneDebris.Num() )
 			{
-				//当前碎片拥有量小于当前符文所需最小激活量
+				//Current shard count is less than the minimum activation amount required by the rune
 				if( item->DefaultDuration < tRune->vecRuneDebris(i).ItemCount )
 					return FALSE;
 			}
@@ -832,7 +832,7 @@ UBOOL UMMOUISkillPanel::CanActiveRune( UMMOAbility* tRune )
 	return TRUE;
 }
 
-//设置RuneBtn
+//Set RuneBtn
 void UMMOUISkillPanel::SetRuneBtnByAbility( UMMOAbility* tRune,int iRuneSlot )
 {
 	UGFxObject* tObj = GetObject("ActiveModify")->GetObject( FString::Printf(TEXT("btn_rune%d"),iRuneSlot )  );
@@ -894,24 +894,24 @@ void UMMOUISkillPanel::SetRuneBtnByAbility( UMMOAbility* tRune,int iRuneSlot )
 	}
 }
 
-//点击装配符文
+//Click to equip rune
 void UMMOUISkillPanel::EquipRune( int runeSlotId)
 {
 	/*UMMOAbility* tMainActive = MainPlayer->GetMainAbilityById( CurrentActives( CurrentSelectedActiveSlot ).ActiveId );
 	if ( !tMainActive )
 		return;
 	UMMOAbility* tRune=NULL;
-	//显示当前技能所有的符文 
+	//show all runes of the current ability
 	if( runeSlotId < tMainActive->SubRuneList.Num() ) 
 		tRune = tMainActive->SubRuneList( runeSlotId );
 
 	if( CanActiveRune( tRune ) )*/
 	CurrentSelectedActiveRuneSlot = runeSlotId +1 ;
-	//确定之后再予发送消息
+	//Send the message after confirmation
 	//SendEquipActiveRune( CurrentSelectedActiveSlot,runeSlotId );
 }
 
-//点击激活符文 0~4 
+//Click to activate rune 0~4
 void UMMOUISkillPanel::ActivateRune( int runeSlotId)
 {
 	/*int iOffset = NowActivePageNum  * MaxActiveModifyCount;
@@ -922,23 +922,23 @@ void UMMOUISkillPanel::ActivateRune( int runeSlotId)
 	if ( !tMainActive )
 		return;
 	UMMOAbility* tRune=NULL;
-	//显示当前技能所有的符文 
+	//show all runes of the current ability
 	if( runeSlotId >= 0 && runeSlotId < tMainActive->SubRuneList.Num() ) 
 		tRune = tMainActive->SubRuneList( runeSlotId );
 	if( !tRune )
 		return;
-	//本地Rune的索引是0~4 服务器是按1~5
+	//Local Rune index is 0~4, server uses 1~5
 	if( CanActiveRune( tRune ) )
 		SendActivateRune( CurrentSelectedActiveId, runeSlotId +1  );
 }
 
-//取消符文装配
+//Cancel rune equip
 void UMMOUISkillPanel::CleanRune( )
 {
 	SendEquipActiveRune( CurrentSelectedActiveSlot, 0 );
 }
 
-//Active是否已经被装备
+//Whether Active is already equipped
 int UMMOUISkillPanel::IsActiveAlreadyEquiped( int abilityId )
 {
 	int i;
@@ -950,10 +950,10 @@ int UMMOUISkillPanel::IsActiveAlreadyEquiped( int abilityId )
 	return -1;
 }
 
-//Tab键直接切换左右键技能
+//Tab key directly switches left/right mouse button abilities
 void UMMOUISkillPanel::ReplaceHotSkill( )
 {
-    //技能与Slot绑定，Tab切换功能取消
+    //Abilities are bound to Slots, Tab switching is removed
     return;
 
 	/*if( Validate() && MMO::GetCurrentGameState() == EGameState_InGame )
@@ -961,7 +961,7 @@ void UMMOUISkillPanel::ReplaceHotSkill( )
 		int FirsabilityId  =  KeyMapManager->GetCmdIDBySlotID( GetRealActiveRealSlotId(0) );
 		int SecondActiveId =  KeyMapManager->GetCmdIDBySlotID( GetRealActiveRealSlotId(1) );
         
-        //会出现EmptyCmd 
+        //EmptyCmd may appear
         if( FirsabilityId < 0 )
         {
             FirsabilityId = 0;
@@ -972,7 +972,7 @@ void UMMOUISkillPanel::ReplaceHotSkill( )
             SecondActiveId = 0;
         }
 
-        //切换技能 
+        //Switch ability
         SendEquipActive( 0,  0 );
         SendEquipActive( 1,  FirsabilityId );
         SendEquipActive( 0,  SecondActiveId );
@@ -980,9 +980,9 @@ void UMMOUISkillPanel::ReplaceHotSkill( )
 }
 
 
-//技能升级---------------------------------------------------------------------------------------start
+//Ability upgrade---------------------------------------------------------------------------------------start
 
-//中止技能升级确认
+//Confirm aborting ability upgrade
 void UMMOUISkillPanel::StopSkillPracticeOk(UGFxObject* mc)
 {
 	HasAskStopSkillPractice = false;
@@ -997,13 +997,13 @@ void UMMOUISkillPanel::StopSkillPracticeOk(UGFxObject* mc)
 	}
 }
 
-//中止技能升级取消
+//Cancel aborting ability upgrade
 void UMMOUISkillPanel::StopSkillPracticeCancel(UGFxObject* mc)
 {
 	HasAskStopSkillPractice = false;
 }
 
-//设置心练面板
+//Set mind practice panel
 void UMMOUISkillPanel::ASClickNormalPractice(UBOOL IsToggle  )
 {
 	if( !GetObject("ActiveModify") )
@@ -1015,12 +1015,12 @@ void UMMOUISkillPanel::ASClickNormalPractice(UBOOL IsToggle  )
 	ability = MainPlayer->GetMainAbilityById( CurrentSelectedActiveId );
 	if( !ability  )
 		return;
-	//当前是否在魂炼 且是当前选择的技能
+	//Whether currently in soul practice and it is the currently selected ability
 	if( ability->SkillPracticeType == SkillPT_Fast  )
 	{
 		if( !HasAskStopSkillPractice )
 		{
-			//提示是否取消之前的魂练状态
+			//Prompt whether to cancel the previous soul practice state
 			FString sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Skill.StopSkillPracticeFast") ),
 				*(ability->ClientCommonAttribute.AbilityName) );
 
@@ -1034,11 +1034,11 @@ void UMMOUISkillPanel::ASClickNormalPractice(UBOOL IsToggle  )
 		}
 		return;
 	}
-	//不在魂练 但是魂练面板已经打开 且是当前的技能 则直接将其关闭
+	//Not in soul practice but the soul practice panel is open and is the current ability, so close it directly
 	if( NowRequestFastPracticeActiveId == CurrentSelectedActiveId && GetObject("ActiveModify")->GetObject("FastPractice") )
 		GetObject("ActiveModify")->GetObject("FastPractice")->SetVisible( false );
 
-	//重复点击 Toogle
+	//Repeated click Toggle
 	if( CurrentSelectedActiveId == NowRequestNormalPracticeActiveId && IsToggle && tObj->GetBool("visible") )
 	{
 		TArray<struct FASValue> Arguments;
@@ -1048,9 +1048,9 @@ void UMMOUISkillPanel::ASClickNormalPractice(UBOOL IsToggle  )
 	}
 	
 	NowRequestNormalPracticeActiveId = CurrentSelectedActiveId;
-	//设置心练面板
+	//Set mind practice panel
 
-	//设置ItemSlot
+	//Set ItemSlot
 	if( tObj->GetObject("ActiveSlot") )
 	{
 		GFXPlayer->eventCallSetItemData( tObj->GetObject("ActiveSlot") , 0 , ability->GetAbilityIconName() , ability->eventGetAbilityId() , ESPType_SkillPanel,TEXT("") );
@@ -1069,39 +1069,39 @@ void UMMOUISkillPanel::ASClickNormalPractice(UBOOL IsToggle  )
 	*/
 	TArray<struct FASValue> Arguments2;
 	FASValue ASValue0(EC_EventParm);
-	//inActiveId 技能ID
+	//inActiveId ability ID
 	ASValue0.I = ability->eventGetAbilityId();
 	ASValue0.Type = AS_Int;
 	Arguments2.AddItem(ASValue0);
-	//HasFastPracticing 是否有其他魂练在进行
+	//HasFastPracticing whether another soul practice is in progress
 	ASValue0.B = NowFastPracticeActiveId ?true:false;
 	ASValue0.Type = AS_Boolean;
 	Arguments2.AddItem(ASValue0);
-	//TimeLeft 升级剩余时间 Tick中开始刷新显示
+	//TimeLeft remaining upgrade time, refreshed in Tick
 	ASValue0.S = StrTimeLeft +  "";  //StrTimeLeft + MMOFacade::getSingleton().TimeDisplay( (DWORD)ability->SkillPracticeEndTime );
 	ASValue0.Type = AS_String;
 	Arguments2.AddItem(ASValue0);
-	//inPercent 技能熟练度
+	//inPercent ability proficiency
 	ASValue0.I = ability->SkillPracticeProgress;
 	ASValue0.Type = AS_Int;
 	Arguments2.AddItem(ASValue0);
-	//inType 修炼Type
+	//inType practice Type
 	ASValue0.I = ability->SkillPracticeCostType > 0 ? ability->SkillPracticeCostType : 1 ;
 	ASValue0.Type = AS_Int;
 	Arguments2.AddItem(ASValue0);
-	//IsPracticing 是否在修炼
+	//IsPracticing whether practicing
 	ASValue0.B = ability->SkillPracticeCostType > 0 ? true:false;
 	ASValue0.Type = AS_Boolean;
 	Arguments2.AddItem(ASValue0);
 	tObj->Invoke("SetNormalPracticeData", Arguments2 );
 
-	//刷入状态 可能没有开始 但是之前已经有熟练度 
+	//Refresh state, may not have started but already has proficiency
 	NowNormalPracticeActiveId = CurrentSelectedActiveId;
 	NetSkillProgressChange( CurrentSelectedActiveId,ability->SkillPracticeProgress );
 
 }
 
-//设置魂练面板
+//Set soul practice panel
 void UMMOUISkillPanel::ASClickFastPractice(UBOOL IsToggle  )
 {
 	if( !GetObject("ActiveModify") )
@@ -1113,13 +1113,13 @@ void UMMOUISkillPanel::ASClickFastPractice(UBOOL IsToggle  )
 	ability = MainPlayer->GetMainAbilityById( CurrentSelectedActiveId );
 	if( !ability )
 		return;
-	//当前是否在魂炼 且是当前选择的技能
+	//Whether currently in soul practice and it is the currently selected ability
 	if(  ability->SkillPracticeType == SkillPT_Fast  )
 	{
-		//提示是否取消之前的魂练状态
+		//Prompt whether to cancel the previous soul practice state
 		if( !HasAskStopSkillPractice )
 		{
-			//提示是否取消之前的魂练状态
+			//Prompt whether to cancel the previous soul practice state
 			FString sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Skill.StopSkillPracticeFast") ),
 				*(ability->ClientCommonAttribute.AbilityName ) );
 			FScriptDelegate funcOk(EC_EventParm);
@@ -1132,10 +1132,10 @@ void UMMOUISkillPanel::ASClickFastPractice(UBOOL IsToggle  )
 		}
 		return;
 	}
-	//如果在心练
+	//If in mind practice
 	if( ability->SkillPracticeType == SkillPT_Noraml )
 	{
-		//提示是否取消之前的心练状态
+		//Prompt whether to cancel the previous mind practice state
 		if( !HasAskStopSkillPractice )
 		{
 			FString sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Skill.StopSkillPracticeNormal") ),
@@ -1150,11 +1150,11 @@ void UMMOUISkillPanel::ASClickFastPractice(UBOOL IsToggle  )
 		}
 		return;
 	}
-	//不在心练 但是心练面板已经打开 且是当前的技能 则直接将其关闭
+	//Not in mind practice but the mind practice panel is open and is the current ability, so close it directly
 	if( NowRequestNormalPracticeActiveId == CurrentSelectedActiveId && GetObject("ActiveModify")->GetObject("NormalPractice") )
 		GetObject("ActiveModify")->GetObject("NormalPractice")->SetVisible( false );
 	
-	//重复点击 Toogle
+	//Repeated click Toggle
 	if( CurrentSelectedActiveId == NowRequestFastPracticeActiveId && IsToggle && tObj->GetBool("visible") )
 	{
 		TArray<struct FASValue> Arguments;
@@ -1172,35 +1172,35 @@ void UMMOUISkillPanel::ASClickFastPractice(UBOOL IsToggle  )
 	}
 	TArray<struct FASValue> Arguments2;
 	FASValue ASValue0(EC_EventParm);
-	//inActiveId 技能ID
+	//inActiveId ability ID
 	ASValue0.I = ability->eventGetAbilityId();
 	ASValue0.Type = AS_Int;
 	Arguments2.AddItem(ASValue0);
-	//inPercent 技能熟练度
+	//inPercent ability proficiency
 	ASValue0.I = ability->SkillPracticeProgress;
 	ASValue0.Type = AS_Int;
 	Arguments2.AddItem(ASValue0);
 	tObj->Invoke("SetFastPracticeData", Arguments2 );
 
-	//刷入状态
+	//Refresh state
 	NowFastPracticeActiveId = CurrentSelectedActiveId;
 	NetSkillProgressChange( CurrentSelectedActiveId,ability->SkillPracticeProgress );
 	
 }
 
-//选择心练类型
+//Select mind practice type
 void UMMOUISkillPanel::ASChooseNormalParcticeType( int NPType )
 {
 	NowNormalPracticeType = NPType;
 }
 
-//选择魂练类型
+//Select soul practice type
 void UMMOUISkillPanel::ASChooseFastPracticeType( int FPType )
 {
     NowFastPracticeType = FPType;
 }
 
-//开始心练
+//Start heart training
 void UMMOUISkillPanel::ASStartNormalPractice()
 {
 	if( !Validate() )
@@ -1209,11 +1209,11 @@ void UMMOUISkillPanel::ASStartNormalPractice()
 	ability = MainPlayer->GetMainAbilityById( NowRequestNormalPracticeActiveId );
 	if( ability )
 	{
-		//@Todo 最大技能等级宏
+		//@Todo max ability level macro
 		if( 0 == ability->LvUpRequirePoints && ability->SpellCommonAttribute.Level >= 5 )
 		{
-			//LvUpRequirePoints 则说当前技能升到了最高级别 不需要要再升级
-			//提示是否取消之前的魂练状态
+			//LvUpRequirePoints means the current ability is at max level and needs no further upgrade
+			//Prompt whether to cancel the previous soul practice state
 			FString sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Skill.SkillAlreadyMax") ),
 				*(ability->ClientCommonAttribute.AbilityName) );
 			FScriptDelegate funcNULL(EC_EventParm);
@@ -1224,7 +1224,7 @@ void UMMOUISkillPanel::ASStartNormalPractice()
 	}
 }
 
-//开始魂练
+//Start soul training
 void UMMOUISkillPanel::ASStartFastPractice( )
 {
 	if( !Validate() )
@@ -1233,11 +1233,11 @@ void UMMOUISkillPanel::ASStartFastPractice( )
 	ability = MainPlayer->GetMainAbilityById( NowRequestFastPracticeActiveId );
 	if( ability )
 	{
-		//@Todo 最大技能等级宏
+		//@Todo max ability level macro
 		if( 0 == ability->LvUpRequirePoints && ability->SpellCommonAttribute.Level >= 5 )
 		{
-			//LvUpRequirePoints 则说当前技能升到了最高级别 不需要要再升级
-			//提示是否取消之前的魂练状态
+			//LvUpRequirePoints means the current ability is at max level and needs no further upgrade
+			//Prompt whether to cancel the previous soul practice state
 			FString sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Skill.SkillAlreadyMax") ),
 				*(ability->ClientCommonAttribute.AbilityName) );
 			FScriptDelegate funcNULL(EC_EventParm);
@@ -1248,20 +1248,20 @@ void UMMOUISkillPanel::ASStartFastPractice( )
 	}
 }
 
-//魂练用药
+//Soul training use medicine
 void UMMOUISkillPanel::ASUseFastPracticeItem( int FPItem )
 {
-	//开始心练
+	//Start heart training
 	CMessageHandler::GetInstance().Send_SpeedUpFastPractice( FPItem ,NowFastPracticeActiveId ) ; 
 }
 
-//中止当前正在修炼的技能
+//Abort the ability currently being practiced
 void UMMOUISkillPanel::ASStopPractice( INT inActiveId )
 {
 	CMessageHandler::GetInstance().Send_StopPractice( inActiveId  ) ; 
 }
 
-//中止并关闭技能升级面板
+//Abort and close the ability upgrade panel
 void UMMOUISkillPanel::ASStopPracticeAndClose( int inActiveId,BYTE spt )
 {
 	if( spt == SkillPT_Noraml )
@@ -1271,7 +1271,7 @@ void UMMOUISkillPanel::ASStopPracticeAndClose( int inActiveId,BYTE spt )
 	ASStopPractice( inActiveId );
 }
 
-//开始技能升级
+//Start ability upgrade
 void UMMOUISkillPanel::NetStartSkillPractice(int inActiveId,int byPracticeType,int	nInterval,int nEndTime )
 {
 	if( !GetObject("ActiveModify") )
@@ -1288,7 +1288,7 @@ void UMMOUISkillPanel::NetStartSkillPractice(int inActiveId,int byPracticeType,i
 
 	TArray<struct FASValue> Arguments2;
 	FASValue ASValue0(EC_EventParm);
-	//是否开始
+	//Whether to start
 	ASValue0.B = true;
 	ASValue0.Type = AS_Boolean;
 	Arguments2.AddItem(ASValue0);
@@ -1305,7 +1305,7 @@ void UMMOUISkillPanel::NetStartSkillPractice(int inActiveId,int byPracticeType,i
 		}
 
 		if( ability )
-			ability->SkillPracticeCostType = NowNormalPracticeType; //刚才选择的最后类型 
+			ability->SkillPracticeCostType = NowNormalPracticeType; //last type just selected
 
 	}
 	else if( SkillPT_Fast == NowPracticeType )
@@ -1320,12 +1320,12 @@ void UMMOUISkillPanel::NetStartSkillPractice(int inActiveId,int byPracticeType,i
 		}
 
 		if( ability )
-			ability->SkillPracticeCostType = NowFastPracticeType; //刚才选择的最后类型 
+			ability->SkillPracticeCostType = NowFastPracticeType; //last type just selected
 
 	}
 }
 
-//结束技能升级
+//End ability upgrade
 void UMMOUISkillPanel::NetStopSkillPractice(int inActiveId)
 {
     if( !Validate() )
@@ -1379,7 +1379,7 @@ void UMMOUISkillPanel::NetStopSkillPractice(int inActiveId)
 	}
 }
 
-//更新心练面板
+//Update mind practice panel
 void UMMOUISkillPanel::UpdateNormalPractice( )
 {
 	if( !GetObject("ActiveModify") )
@@ -1398,7 +1398,7 @@ void UMMOUISkillPanel::UpdateNormalPractice( )
 		return;
 	int NowTime = time(NULL);
 	int TimeLeft = ability->SkillPracticeEndTime - NowTime;
-	//计算剩余时间 
+	//Calculate remaining time
 	if( TimeLeft <= 0 )
 	{
 		TimeLeft = 0;
@@ -1427,7 +1427,7 @@ void UMMOUISkillPanel::PostAdvance(float DeltaTime)
 	}
 }
 
-//技能熟练度提醒
+//Ability proficiency reminder
 void UMMOUISkillPanel::NetSkillProgressChange( int inActiveId,int nProgress )
 {
 	if( !Validate() )
@@ -1439,7 +1439,7 @@ void UMMOUISkillPanel::NetSkillProgressChange( int inActiveId,int nProgress )
 		return;
 	ability->SkillPracticeProgress = nProgress;
 
-	//刷新升级进度显示
+	//Refresh upgrade progress display
 	TArray<struct FASValue> Arguments2;
 	FASValue ASValue0(EC_EventParm);
 	ASValue0.I = ability->SpellCommonAttribute.Level;
@@ -1454,7 +1454,7 @@ void UMMOUISkillPanel::NetSkillProgressChange( int inActiveId,int nProgress )
 	ASValue0.Type = AS_Int;
 	Arguments2.AddItem(ASValue0);
 
-	//在心练时 可以收到其他技能的成长 并不要刷当前面板 
+	//During mind practice, growth of other abilities may be received; do not refresh the current panel
 	if(  inActiveId == NowNormalPracticeActiveId )
 	{
 		UGFxObject* tObj = GetObject("ActiveModify")->GetObject("NormalPractice");
@@ -1473,7 +1473,7 @@ void UMMOUISkillPanel::NetSkillProgressChange( int inActiveId,int nProgress )
 	}
 }
 
-//MoneyChange 技能点现在也是一种货币 
+//MoneyChange ability points are now also a currency
 void UMMOUISkillPanel::PlayerMoneyChange(BYTE MoneyType, INT DeltaMoney)
 {
     if ( MONEYTYPE_SOUL_PTS == MoneyType )
@@ -1483,21 +1483,21 @@ void UMMOUISkillPanel::PlayerMoneyChange(BYTE MoneyType, INT DeltaMoney)
     }
 }
 
-//技能升级提示
+//Ability upgrade hint
 void UMMOUISkillPanel::NetSkillPointChangeNotify( )
 {
 	if( !Validate() )
 		return;
 	if( IsVisible && PC )
 	{
-		//显示当前技能点
+		//Show current skill points
 		if(  GetObject("SpellConsole") && GetObject("SpellConsole")->GetObject("tF_spellPoint") )
 			GetObject("SpellConsole")->GetObject("tF_spellPoint")->SetText( appItoa( PC->SkillPoint ) );
 
 		UMMOAbility*  ability = MainPlayer->GetMainAbilityById( CurrentSelectedActiveId );
 		if( ability )
 		{
-			//设置当前技能点数 及技能升级进度
+			//Set current skill points and skill upgrade progress
 			TArray<struct FASValue> Arguments2;
 			FASValue ASValue0(EC_EventParm);
 			ASValue0.I = PC->SkillPoint;
@@ -1512,7 +1512,7 @@ void UMMOUISkillPanel::NetSkillPointChangeNotify( )
 	}
 }
 
-//技能升级功能开启
+//Ability upgrade feature enabled
 void UMMOUISkillPanel::EnableSkillUp( UBOOL isEnable )
 {
     if( !GetObject("ActiveModify") )
@@ -1528,7 +1528,7 @@ void UMMOUISkillPanel::EnableSkillUp( UBOOL isEnable )
     GetObject("ActiveModify")->Invoke("UcEnableSkillUp", Arguments );
 }
 
-//技能升级提示
+//Ability upgrade hint
 void UMMOUISkillPanel::NetSkillLevelUp( int inActiveId,int byLevel )
 {
 	if( !GetObject("ActiveModify") )
@@ -1539,23 +1539,23 @@ void UMMOUISkillPanel::NetSkillLevelUp( int inActiveId,int byLevel )
 	//if( !ability )
 	//	return;
 
- //   //先刷对当前等级
+ //   //Refresh the current level first
 	//ability->SpellCommonAttribute.Level = byLevel;
 
-	////相关的系统提示
+	////Related system prompts
 	//FString sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Skill.SkillLvUpNotify") ),
 	//	*(ability->ClientCommonAttribute.AbilityName), byLevel );
 	//MMOUI::GetUIManager()->delegateAddScreenMessage( sMsg );
 	//MMOChatManager::getSingleton().AddSystemMessage( sMsg );
 
-    //刷新当前技能等级
+    //Refresh current ability level
     //NetSkillProgressChange( inActiveId, ability->LvUpRequirePoints );
 
-	//并停止升级状态显示 
+	//and stop the upgrade state display
 	TArray<struct FASValue> Arguments2;
 	FASValue ASValue0(EC_EventParm);
 
-	//是否开始
+	//Whether to start
 	ASValue0.B = false;
 	ASValue0.Type = AS_Boolean;
 	Arguments2.AddItem(ASValue0);
@@ -1578,10 +1578,10 @@ void UMMOUISkillPanel::NetSkillLevelUp( int inActiveId,int byLevel )
 	}
 
 }
-//技能升级---------------------------------------------------------------------------------------end
+//Ability upgrade---------------------------------------------------------------------------------------end
 
 
-//确认提交Modify
+//Confirm submit Modify
 void UMMOUISkillPanel::ConfirmActive( )
 {
 	UGFxObject*  tObj = NULL;
@@ -1591,7 +1591,7 @@ void UMMOUISkillPanel::ConfirmActive( )
 		OtherRef = IsActiveAlreadyEquiped( CurrentSelectedActiveId ) ;
 		if( OtherRef >= 0 )
 		{
-			// 则对应的勾也会被冲掉
+			// the corresponding check mark will also be overwritten
 			CurrentActives( OtherRef ).IsChanged = true; 
 			CurrentActives( OtherRef ).ActiveId = 0;
 		}
@@ -1627,7 +1627,7 @@ void UMMOUISkillPanel::ConfirmActive( )
 	}
 	for( tIter = tChangeMsg.begin(); tIter != tChangeMsg.end() ; ++ tIter )
 	{
-		/*//如果选择过符文
+		/*//If a rune was selected
 		if( tIter->AbilityId == CurrentSelectedActiveId && CurrentSelectedActiveRuneSlot > 0 )
 		{
 			SendEquipActiveRune( CurrentSelectedActiveSlot,CurrentSelectedActiveRuneSlot  );
@@ -1636,9 +1636,9 @@ void UMMOUISkillPanel::ConfirmActive( )
 		SendEquipActive( tIter->SlotId,  tIter->AbilityId );
 	}
 	
-	//如果选择过符文
+	//If a rune was selected
 	if( CurrentSelectedActiveRuneSlot > 0 )
-		SendEquipActiveRune( CurrentActiveSlot,CurrentSelectedActiveRuneSlot   ); //本地Rune的索引是0~4 服务器是按1~5
+		SendEquipActiveRune( CurrentActiveSlot,CurrentSelectedActiveRuneSlot   ); //Local Rune index is 0~4, server uses 1~5
 	
 }
 
@@ -1663,7 +1663,7 @@ void UMMOUISkillPanel::ActiveNextPage( )
 //==================================================RefreshPassiveModify()====================================================== 
 
 
-//设置PassiveBtn
+//Set PassiveBtn
 void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,INT abilityId,UBOOL isSubCtrl)
 {
 #if M_TEMP_ENABLE_UI_Skill_CODE
@@ -1674,7 +1674,7 @@ void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,
 		//`log("CurrentSpell Passive Active PassiveSkill"$SlotId@"can't found");
 		return;
 	}
-	//根据PassiveId设置Btn
+	//Set Btn according to PassiveId
 	ability = MainPlayer->GetAbilityById( abilityId );
 	//`log("CurrentSpell Passive Add Passive ()"@tObj@tObj->GetObject("ItemSlot")@"PassiveId::"@abilityId );
 	if( ability != NULL && ability->eventGetAbilityId() >=0  && ( ability->SpellCommonAttribute.CastType == E_spct_Passive ) )
@@ -1689,7 +1689,7 @@ void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,
 			//GFXPlayer->eventASSetSlotShowData(tObj->GetObject("ItemSlot") ,0 ,ability->GetAbilityIconName() ,ability->eventGetAbilityId() );
 			tObj->GetObject("ItemSlot")->SetInt( "SlotType" , ESPType_SkillPanel );
 		}
-			//tF_SpellName 技能名称
+			//tF_SpellName skill name
 		if( tObj->GetObject("tF_SpellName") )
 			tObj->GetObject("tF_SpellName")->SetText( ability->ClientCommonAttribute.AbilityName );
 		if( tObj->GetObject("lock_mc") )
@@ -1697,7 +1697,7 @@ void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,
 		//`log("CurrentSpell Passive set SpellSlotId:"@SlotId );
 		if( isSubCtrl )
 		{
-			//如果这个技能已经装备，则
+			//If this skill is already equipped, then
 			if( tObj->GetObject("EquipedCheck") )
 			{
 				if( IsPassiveAlreadyEquiped( abilityId ) >= 0 )
@@ -1705,7 +1705,7 @@ void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,
 				else
 					tObj->GetObject("EquipedCheck")->SetVisible( false );
 			}
-			//记录下对应的abilityId
+			//Record the corresponding abilityId
 			tObj->SetInt("PassiveId",abilityId );
 		}
 // 		else if( SlotId > 0 && SlotId < CurrentPassives.Num() )
@@ -1718,7 +1718,7 @@ void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,
 		//tObj->SetBool("enabled",false);
 		if( tObj->GetObject("ItemSlot") )
 			eventSetItem(tObj->GetObject("ItemSlot") ,0,"",-1 );
-		//tF_SpellName 技能名称
+		//tF_SpellName skill name
 		if( tObj->GetObject("tF_SpellName") )
 			tObj->GetObject("tF_SpellName")->SetText( "" );
 		if( isSubCtrl )
@@ -1738,7 +1738,7 @@ void UMMOUISkillPanel::SetSpellBtnByPassiveId(class UGFxObject* tObj,INT SlotId,
 #endif
 }
 
-//选择当前CurrentPassiveSlot
+//Select current CurrentPassiveSlot
 void UMMOUISkillPanel::SetCurrentPassive( int passiveSlotId )
 {
 	PageJump( ESkill_Passive );
@@ -1760,19 +1760,19 @@ void UMMOUISkillPanel::RefreshPassiveModify()
 	//`log("==============================RefreshPassiveModify() Opended=================================================");
 	if( !Validate() )
 		return;
-	//--------------------------- 选择技能面板 ---------------------------------------------------------
+	//--------------------------- Select skill panel ---------------------------------------------------------
 
 	if( ! GetObject("PassiveModify") )
 		return;
 
-	//当前装备Passive技能
+	//Currently equipped Passive ability
 	for( int i =0 ;i < CurrentPassives.Num(); ++i )
 	{
 		tObj = GetObject("PassiveModify")->GetObject( FString::Printf(TEXT("CurrentSpellSlot%d"),i ) );
 		SetSpellBtnByPassiveId( tObj,i , CurrentPassives(i).PassiveId ,false );
 	}
 
-	//当前职业玩家所有学会的Passive技能
+	//All Passive abilities learned by the player's current class
 	k = 0;
 	for ( j = 0;   j < MainPlayer->Abilities.Num()  ; ++j )
 	{
@@ -1801,7 +1801,7 @@ void UMMOUISkillPanel::RefreshPassiveModify()
 	}
 }
 
-//选择CurrentPassiveSlot 切换成的对应 AllPassives( abilityId ) 的 PassiveId
+//Select the PassiveId corresponding to AllPassives( abilityId ) to switch CurrentPassiveSlot to
 void UMMOUISkillPanel::SelectPassive( int tSlotId,int abilityId )
 {
 	UGFxObject*  tObj = NULL;
@@ -1811,7 +1811,7 @@ void UMMOUISkillPanel::SelectPassive( int tSlotId,int abilityId )
 		OtherRef = IsPassiveAlreadyEquiped( abilityId ) ;
 		if( OtherRef >= 0 )
 		{
-			// 则对应的勾也会被冲掉
+			// the corresponding check mark will also be overwritten
 			CurrentPassives( OtherRef ).IsChanged = true; 
 			CurrentPassives( OtherRef ).PassiveId = 0;
 		}
@@ -1821,7 +1821,7 @@ void UMMOUISkillPanel::SelectPassive( int tSlotId,int abilityId )
 	}
 }
 
-//Passive是否已经被装备
+//Whether Passive is already equipped
 int UMMOUISkillPanel::IsPassiveAlreadyEquiped( int abilityId )
 {
 	int i;
@@ -1833,7 +1833,7 @@ int UMMOUISkillPanel::IsPassiveAlreadyEquiped( int abilityId )
 	return -1;
 }
 
-//确认提交Modify
+//Confirm submit Modify
 void UMMOUISkillPanel::ConfirmPassive( )
 {
 /*
@@ -1868,16 +1868,16 @@ void UMMOUISkillPanel::ConfirmPassive( )
 //==================================================RefreshAvartaModify()====================================================== 
 
 
-//设置AvartaBtn
+//Set AvartaBtn
 void UMMOUISkillPanel::SetSpellBtnByAvartaId(class UGFxObject* tObj,INT SlotId,INT abilityId,UBOOL isSubCtrl)
 {
 	UMMOAbility*  ability;
-	//根据AvartaId设置Btn
+	//Set Btn according to AvartaId
 	ability = MainPlayer->GetAbilityById( abilityId );
 	SetSpellBtnByAvarta( tObj,SlotId, ability,isSubCtrl);
 }
 
-//设置AvartaBtn
+//Set AvartaBtn
 void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UMMOAbility*  ability,UBOOL isSubCtrl,UBOOL isRuneCtrl )
 {
 	if( tObj == NULL )
@@ -1885,7 +1885,7 @@ void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UM
 		//`log("CurrentSpell Avarta Active AvartaSkill"$SlotId@"can't found");
 		return;
 	}
-	//Avarta技能是主动技能中一种 
+	//Avarta ability is a kind of active ability
 	if( ability != NULL && ability->eventGetAbilityId() >=0  )
 	{
 		INT abilityId = ability->eventGetAbilityId();
@@ -1899,7 +1899,7 @@ void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UM
 			//GFXPlayer->eventASSetSlotShowData(tObj->GetObject("ItemSlot") ,0 ,ability->GetAbilityIconName() ,ability->eventGetAbilityId()/* ,cs*/);
 			tObj->GetObject("ItemSlot")->SetInt( "SlotType" , ESPType_SkillPanel );
 		}
-			//tF_SpellName 技能名称
+			//tF_SpellName skill name
 		if( tObj->GetObject("tF_SpellName") )
 		{
 			tObj->GetObject("tF_SpellName")->SetVisible( true );
@@ -1910,7 +1910,7 @@ void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UM
 			tObj->GetObject("lock_mc")->SetVisible( false );
 		if( isSubCtrl )
 		{
-			//如果这个技能已经装备，则显示已经装备 （符文不显示）
+			//If this ability is already equipped, show equipped (runes not shown)
 			if( tObj->GetObject("EquipedCheck") && !isRuneCtrl )
 			{
 				if( IsAvartaAlreadyEquiped( abilityId ) >= 0 )
@@ -1918,10 +1918,10 @@ void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UM
 				else
 					tObj->GetObject("EquipedCheck")->SetVisible( false );
 			}
-			//记录下对应的abilityId
+			//Record the corresponding abilityId
 			tObj->SetInt("AvartaId",abilityId );
 
-			//标记被选择的按钮
+			//Mark the selected button
 			if( isRuneCtrl )
 			{
 				if( SlotId == CurrentSelectedAvartaRuneSlot )
@@ -1947,7 +1947,7 @@ void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UM
 		//tObj->SetBool("enabled",false);
 		if( tObj->GetObject("ItemSlot") )
 			eventSetItem(tObj->GetObject("ItemSlot") ,0,"",-1 );
-		//tF_SpellName 技能名称
+		//tF_SpellName skill name
 		if( tObj->GetObject("tF_SpellName") )
 		{
 			tObj->GetObject("tF_SpellName")->SetVisible( false );
@@ -1966,19 +1966,19 @@ void UMMOUISkillPanel::SetSpellBtnByAvarta(class UGFxObject* tObj,INT SlotId, UM
 			if( tObj->GetObject("lock_mc") )
 				tObj->GetObject("lock_mc")->SetVisible( false );
 		}
-		//选择状态取消
+		//Selection state canceled
 		tObj->SetBool("selected",false);
 	}
 }
 
-//选择当前CurrentAvartaSlot
+//Select current CurrentAvartaSlot
 void UMMOUISkillPanel::SetCurrentAvarta( int avartaSlotId )
 {
 	PageJump( ESkill_Avarta );
 	if( CurrentAvartaSlot != avartaSlotId )
 	{
 		CurrentAvartaSlot = avartaSlotId;
-		//切换后 重新确定选定的Avarta技能
+		//After switching, re-confirm the selected Avarta ability
 		CurrentSelectedAvartaId = CurrentAvartas( CurrentAvartaSlot ).AvartaId; 
 		RefreshAvartaModify();
 	}
@@ -1995,7 +1995,7 @@ void UMMOUISkillPanel::RefreshAvartaModify()
 	//`log("==============================RefreshAvartaModify() Opended=================================================");
 	if( !Validate() )
 		return;
-	//--------------------------- 选择技能面板 ---------------------------------------------------------
+	//--------------------------- Select skill panel ---------------------------------------------------------
 
 	if( ! GetObject("AvartaModify") )
 		return;
@@ -2004,20 +2004,20 @@ void UMMOUISkillPanel::RefreshAvartaModify()
 	UMMOAbility* tMainAvarta = MMOSkillManager::getSingleton().FindAbilityTemplate(Key);
 	if( tMainAvarta )
 	{
-		//确定装备的符文
+		//Confirm the equipped rune
 		CurrentSelectedAvartaRuneSlot = tMainAvarta->GetRuneSlot();
 	}
 	else
 		CurrentSelectedAvartaRuneSlot = 0;
 
-	//当前装备Avarta技能
+	//Currently equipped Avarta ability
 	for( int i =0 ;i < CurrentAvartas.Num(); ++i )
 	{
 		tObj = GetObject("AvartaModify")->GetObject( FString::Printf(TEXT("CurrentSpellSlot%d"),i ) );
 		SetSpellBtnByAvartaId( tObj,i , CurrentAvartas(i).AvartaId ,false );
 	}
 
-	//当前职业玩家所有学会的Avarta技能
+	//All Avarta abilities learned by the player's current class
 	k = 0;
 	
 	if( GetObject("AvartaModify")->GetObject("NowAvarta") )
@@ -2033,11 +2033,11 @@ void UMMOUISkillPanel::RefreshAvartaModify()
 
 /*
 	int iTotalAbilitiesNum = MainPlayer->Abilities.Num() ;
-	//刷新当前页码
+	//Refresh current page number
 	TotalActivePageNum = iTotalAbilitiesNum / MaxActiveModifyCount;
 	if( iTotalAbilitiesNum % MaxActiveModifyCount > 0 )
 		++TotalActivePageNum;
-	//算出实际显示那些技能
+	//Work out which skills are actually shown
 	int iOffset = NowActivePageNum  * MaxActiveModifyCount;
 	for ( j = iOffset ;   j < iTotalAbilitiesNum ; ++j )*/
 	for ( j = 0;   j < MainPlayer->Abilities.Num()  ; ++j )
@@ -2065,11 +2065,11 @@ void UMMOUISkillPanel::RefreshAvartaModify()
 		SetSpellBtnByAvartaId( tObj,k,0 ,true );
 		++k;
 	}
-	//刷一遍符文
+	//Refresh runes once
 	OnSelecteAvartaChanged( CurrentSelectedAvartaId );
 }
 
-//选择CurrentAvartaSlot 切换成的对应 AllAvartas( abilityId ) 的 AvartaId
+//Select the AvartaId corresponding to AllAvartas( abilityId ) to switch CurrentAvartaSlot to
 void UMMOUISkillPanel::SelectAvarta( int tSlotId,int abilityId )
 {
 	UGFxObject*  tObj = NULL;
@@ -2081,7 +2081,7 @@ void UMMOUISkillPanel::SelectAvarta( int tSlotId,int abilityId )
 		OtherRef = IsAvartaAlreadyEquiped( abilityId ) ;
 		if( OtherRef >= 0 )
 		{
-			// 则对应的勾也会被冲掉
+			// the corresponding check mark will also be overwritten
 			CurrentAvartas( OtherRef ).IsChanged = true; 
 			CurrentAvartas( OtherRef ).AvartaId = 0;
 		}
@@ -2091,29 +2091,29 @@ void UMMOUISkillPanel::SelectAvarta( int tSlotId,int abilityId )
 	}
 }
 
-//刷一遍符文
+//Refresh runes once
 void UMMOUISkillPanel::OnSelecteAvartaChanged( int  abilityId )
 {
 	if( !GetObject("AvartaModify") )
 		return;
 
-	//刷新abilityId对应的所有符文
+	//Refresh all runes corresponding to abilityId
 	int iRune = 0;
 	UINT Key = MMOSkillManager::CombinateAbilityID( CurrentSelectedAvartaId, 1 ,0 );
 	UMMOAbility* tMainAvarta = MMOSkillManager::getSingleton().FindAbilityTemplate(Key);
 	UMMOAbility* tRune = NULL;
 	UGFxObject* tObj = NULL;
-	//显示当前技能所有的符文 
+	//show all runes of the current ability
 	int byRuneSlot = 0;
 	while( tMainAvarta && iRune < tMainAvarta->SubRuneList.Num() ) 
 	{
 		tRune = tMainAvarta->SubRuneList( iRune );
 		tObj = GetObject("AvartaModify")->GetObject( FString::Printf(TEXT("avarta%d"),iRune) );
-		//直接当成Main处理
+		//Treat directly as Main
 		SetSpellBtnByAvarta( tObj ,iRune ,tRune ,true , true );
 		++iRune;
 	} 
-	//剩下不显示 
+	//Do not show the rest
 	while( iRune < AvartaRuneCount )
 	{
 		tObj = GetObject("AvartaModify")->GetObject( FString::Printf(TEXT("avarta%d"),iRune ) );
@@ -2122,14 +2122,14 @@ void UMMOUISkillPanel::OnSelecteAvartaChanged( int  abilityId )
 	}
 }
 
-//abilityId 号技能装配了第 tSlotId 个符文
+//Ability abilityId has the tSlotId-th rune equipped
 void UMMOUISkillPanel::SelectAvartaRune( int tSlotId,int abilityId )
 {
 	CurrentSelectedAvartaRuneSlot = tSlotId;
 	OnSelecteAvartaChanged( CurrentSelectedAvartaId );
 }
 
-//Avarta是否已经被装备
+//Whether Avarta is already equipped
 int UMMOUISkillPanel::IsAvartaAlreadyEquiped( int abilityId )
 {
 	int i;
@@ -2141,7 +2141,7 @@ int UMMOUISkillPanel::IsAvartaAlreadyEquiped( int abilityId )
 	return -1;
 }
 
-//确认提交Modify
+//Confirm submit Modify
 void UMMOUISkillPanel::ConfirmAvarta( )
 {
 	sSpellChange tSC;
@@ -2165,13 +2165,13 @@ void UMMOUISkillPanel::ConfirmAvarta( )
 	{
 		SendEquipAvarta( tIter->SlotId,  tIter->AbilityId );
 	}
-	//如果选择过符文 
-    //本地Rune的索引是0~4 服务器是按1~5
+	//If a rune was selected
+    //Local Rune index is 0~4, server uses 1~5
 	if( CurrentSelectedAvartaRuneSlot > 0 )
 		SendEquipAvartaRune( CurrentSelectedAvartaSlot, CurrentSelectedAvartaRuneSlot  );
 }
 
-//翻页
+//Page turn
 void UMMOUISkillPanel::AvartaLastPage( )
 {
 	if( NowAvartaPageNum > 0 )

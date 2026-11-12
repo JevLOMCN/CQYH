@@ -57,7 +57,7 @@ var int BeatBackDist;
 //var Sequence  AISequence;     // can use the kismet to do AI
 
 
-/// 受击临时属性
+/// Hit temporary attributes
 var transient AbilityHitEffectComponent CurrentHitEffect;
 
 /** Set direction for the NPC
@@ -121,7 +121,7 @@ simulated event PostBeginPlay()
 
 function AbilityEnd(int id)
 {
-	// 技能结束响应函数
+	// Ability end response function
 }
 
 /** found the target player and prepare to attack
@@ -212,7 +212,7 @@ auto state Idle
 		super.PushedState();
 		//if (Pawn != None)
 		//{
-			//这里控制了物理包，这里是控制角色的移动的骨骼动作。
+			//this controls the physics asset, i.e. the skeletal animation controlling character movement.
 			//Pawn.SetMovementPhysics();
 		//}
 
@@ -707,8 +707,8 @@ function bool IsUsingAbility()
 	return MMOActor(Pawn).IsUsingAbility();
 }
 
-// Hurt状态表示能中断其它状态的一种受伤状态,比如受击硬值,击退,击飞,击倒,普通受伤不要进入这个状态
-// 这个状态与其它状态排斥
+// Hurt state is a hurt state that can interrupt other states, e.g. hit stun, knockback, knock-up, knockdown; normal hurt should not enter this state
+// this state is mutually exclusive with other states
 state Hurt
 {
 	event BeginState(Name PreviousStateName)
@@ -776,7 +776,7 @@ state Hurt
 	}
 }
 
-/** 走位 */
+/** positioning */
 state Position
 {
 	event BeginState( name PreviousStateName )
@@ -971,7 +971,7 @@ Begin:
 		Sleep( 0.1f );
 	}
 
-	// 错开开始攻击时间
+	// stagger the attack start time
 	Sleep(FRand());
 
 	GotoState( 'Attack' );
@@ -1030,14 +1030,14 @@ state Dead
 	//	// TODO:
 	//	force = 1000;
 		
-	//	// 鞭尸
+	//	// whip the corpse
 	//	Pawn.Mesh.AddImpulse(Normal(Pawn.Location - Damage.HitEffectComponent.Creator.Location) * force);
 	//}
 
 Begin:
 }
 
-/// 跳崖逃跑
+/// flee by jumping off a cliff
 state JumpDown
 {
 Begin:
@@ -1096,13 +1096,13 @@ Begin:
 	}
 }
 
-/// 判断是否能掉回场景中
+/// determine whether it can fall back into the scene
 function bool CouldDropBack( )
 {
 	return true;
 }
 
-/// 跳崖逃跑以后等待重新回来
+/// wait to return after jumping off a cliff
 state WaitBack
 {
 	function SetInSky( )
@@ -1122,7 +1122,7 @@ Begin:
 	GotoState( 'DropDown' );
 }
 
-/// 从天而降
+/// descend from the sky
 state DropDown
 {
 Begin:

@@ -1,23 +1,23 @@
 class MMOLoadingTrigger extends MMOServerTrigger
 	placeable
 	native;
-// Trigger模型组件
+// TriggerTrigger model component
 var() StaticMeshComponent TriggerMesh;
-// Trigger特效
+// TriggerTrigger effect
 var(EmitterComp) ParticleSystem             TriggerParticleSystem;
 var transient EmitterSpawnable                 NewEmitter;
 var transient ParticleSystemComponent   EmitterComponent;
-//相关音效
+//Related sound effects
 
-//关联的MMOActor
+//Associated MMOActor
 var()  MMOActor        TriggerUser;
-//本地计时时间
+//Local timing time
 var()   float                   fLoadingTime;
 
 
-//设置关联的MMOActor
+//Set associated MMOActor
 /*
- 两者对应关系
+ Correspondence between the two
 	UINT32           dwTrapID;
 	UINT32           dwObjID;
 */
@@ -29,13 +29,13 @@ function SetUser( MMOActor User )
 	}
 	TriggerUser = User;
 }
-//向服务器发送打开Trigger消息
+//Send Trigger open message to the server
 native function OpenTriggerReq();
-//服务器通知打开
+//Server notifies open
 event OnTriggerOpen(int iLoadingTime);
-//服务器通知打断
+//Server notifies interrupt
 event OnTriggerLoadingStop();
-//向服务通知本地计时结束
+//Notify the server that local timing ended
 native function OpenTriggerCompleteReq();
 
 function SwitchState(ETriggerInitState newState)
@@ -56,14 +56,14 @@ simulated event PostBeginPlay()
 
 	RegisterToFacade();
 }
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 native function RegisterToFacade();
-//隐藏
+//Hide
 function Hide()
 {
 	TriggerMesh.SetHidden(true);
 }
-//显示
+//Show
 function Show()
 {
 	TriggerMesh.SetHidden(false);
@@ -73,7 +73,7 @@ event Tick(float deltaTime)
 	super.Tick(deltaTime);
 
 }
-//机关消失，需要一定时间后刷新
+//Mechanism disappears, needs to refresh after a certain time
 state() Invisible
 {
 
@@ -81,7 +81,7 @@ state() Invisible
 Begin:
 	InitTriggerState=eTIS_Invisible;
 }
-//默认的关闭状态，只显示Mesh
+//Default closed state, only shows Mesh
 auto state() Off
 {
 
@@ -89,16 +89,16 @@ auto state() Off
 Begin:
 	InitTriggerState=eTIS_Off;
 }
-//激活状态 显示Mesh和Particle
+//Activated state, shows Mesh and Particle
 state() On
 {
 
 Begin:
 	InitTriggerState=eTIS_On;
 }
-//打开状态
-//1，倒计时，结束后通知服务器，特效
-//2，调用User，显示User相关动画 /播放音效 /UI相关
+//Open state
+//11, countdown, notify the server when done, effect
+//22, call User, show User related animation / play sound / UI related
 state() Loading
 {
 	event Tick(float deltaTime)
@@ -112,7 +112,7 @@ Begin:
 DefaultProperties
 {
 /*
-	//覆盖上一层中的默认图标
+	//Override the default icon in the previous layer
 	Begin Object Class=SpriteComponent Name=Sprite
 		Sprite=Texture2D'MMOEditor.ServerTrigger'
 		HiddenGame=True
@@ -124,7 +124,7 @@ DefaultProperties
 	Components.Add(Sprite);*/
 	TriggerType=eTT_TRAPTYPE_LOADING
 	Begin Object Class=StaticMeshComponent Name=tTriggerMesh
-		//模型文件
+		//Model file
 		StaticMesh=StaticMesh'MMO_Player.Mesh.TargetLocationMark'
 		Rotation=(Pitch=16384, Yaw=0, Roll=0)
 		RBChannel=RBCC_Nothing

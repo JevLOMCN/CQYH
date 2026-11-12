@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_Teleport，传送
+// PlayerActionEx_Teleport, teleport
 //
 class PlayerActionEx_Teleport extends PlayerActionEx_Base
 	native;

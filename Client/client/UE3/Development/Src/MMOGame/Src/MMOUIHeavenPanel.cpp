@@ -13,7 +13,7 @@ IMPLEMENT_CLASS(UMMOUIHeavenPanel)
 
 void UMMOUIHeavenPanel::ConverterConfirmShow()
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_SoulToPoint);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -134,7 +134,7 @@ void UMMOUIHeavenPanel::UpdateHeavenLevel()
 	INT nLevel = mainPlayer->ActorAttributes->heavenAttributes.heavenLevel;
 	INT nStarTitleIndex = MMOHeavenManager::getSingleton().GetStarTitleIndex(nLevel);
 	eventCallUpdateStateLevel(nStarTitleIndex,MMOHeavenManager::getSingleton().GetLevelString(nLevel));
-	FString strLevel = FString::Printf(TEXT("%d级"),nLevel);
+	FString strLevel = FString::Printf(TEXT("Lv %d"),nLevel);
 
 	const HeavenLevelConfig* pkLevel =  MMOHeavenManager::getSingleton().GetHeavenLevelData(nLevel);
 	if(pkLevel)
@@ -206,12 +206,12 @@ UBOOL UMMOUIHeavenPanel::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BY
 			}
 		}
 	}
-	//这里装备的话 就卸载魂瓶
+	//If equipping here, unequip the soul bottle
 	return FALSE;
 }
 UBOOL UMMOUIHeavenPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSlotMC,BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID,BYTE DestSlotType,BYTE DestContainerID,INT DestSlotID)
 {
-	//拖的是魂瓶的话 就装载魂瓶
+	//If dragging a soul bottle, load the soul bottle
 	if(pkSoulSlot == NULL || pkSoulSlot != DestSlotMC)
 		return FALSE;
 	if(SrcContainerID == E_CONSLOT_DEFAULT&&DestContainerID == E_CONSLOT_DEPOSIT)

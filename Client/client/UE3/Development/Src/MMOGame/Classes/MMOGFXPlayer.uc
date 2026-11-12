@@ -16,21 +16,21 @@ var config string LockedSlotIconPath;
 
 var bool IsLockedDynamicLoad;
 
-var transient bool RegisterEndCalled; //TODOUI: 改完了移除这个
+var transient bool RegisterEndCalled; //TODOUI: TODOUI: remove this when done
 
 enum EItemSlotState
 {
 	ISS_Normal,
-	ISS_SlotLocked,  //未解锁的Slot
-	ISS_ItemLocked,     //锁住了的Item
-	ISS_Unusable,   //不可使用的Item
+	ISS_SlotLocked,  //Locked Slot (not unlocked)
+	ISS_ItemLocked,     //Locked Item
+	ISS_Unusable,   //Unusable Item
 };
 
 native function BindingWidgetsInfo();
 
 event Init(optional LocalPlayer LocPlay) // oscar@snda
 {
-	BindingWidgetsInfo(); // 这个必须先做
+	BindingWidgetsInfo(); // This must be done first
 	
 	super.Init(LocPlay);
 }
@@ -136,10 +136,10 @@ event bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string s
 		class'MMOUIManager'.static.ClearCurrentItemSlotActionListenerDelay(2);
 	}
 
-	// 鼠标滚动，且不在界面内
+	// Mouse wheel scroll, and not inside the UI
 	if ((key == "MouseScrollUp" || key == "MouseScrollDown") && (strHoverControllerName == ""))
 	{
-		//`log("	    ==== captured 鼠标滚动，且不在界面内key:" @ key @ eIE @ strHoverControllerName);
+		//`log("	    ==== captured mouse wheel scroll, not inside UI key:" @ key @ eIE @ strHoverControllerName);
 		return false;
 	}
 	else
@@ -248,7 +248,7 @@ native function ASFocusInTextInput(bool In);    // added by zhaojun@snda. monite
 native function bool GetlockMouseCursorForUI();
 native final function ClosePanel(GFxObject Panel);
 
-// UI音效 zhangrui05@snda
+// UI sound effects zhangrui05@snda
 native function ASPlayUISound(string cueName);
 //~ zhangrui05@snda
 
@@ -259,7 +259,7 @@ event CallSetItemData( GFxObject mc, int quantity, string IconName, int ItemInde
 }
 
 
-//根据Item填入ItemSlot
+//Fill ItemSlot according to Item
 event CallSetItemSlotByItem( GFxObject ItemSlot,Item inItem, ESlotPanelType SlotType )
 { 
 	if( inItem == none )
@@ -386,7 +386,7 @@ native final function ShowUI(name inFriendlyName, optional bool inShow=true);
 // 	}
 // }
 
-//自Login->Game后，恢复所有的UI默认显示状态
+//After Login->Game, restore all UI default display states
 native final function SetAllChildren2DefaultVisible();
 // {
 // 	local int i ;
@@ -467,36 +467,36 @@ native final function ASLinkCallBack( GFxObject paraArr , int buttonIdx );
 native final function ASLinkOverCallBack(GFxObject paraArr);
 native final function ASLinkOutCallBack(GFxObject paraArr);
 	
-////////////////////////////////////////////可公用接口add by JimZhang@snda.com//////////////////////////////////////////////////////
+////////////////////////////////////////////Common interfaces add by JimZhang@snda.com//////////////////////////////////////////////////////
 native function DebugString(string str);
 
-//通过文字ID，设置文字
+//Set text by text ID
 native function ASGetStringByID(GfxObject mc, string menberID,string textID);
 native function SetTextByID(GfxObject mc, string textID);
 native function SetLabelByID(GfxObject mc, string textID);
 
-//显示时间
+//Show time
 native function TimeDisplay(GfxObject mc, int seconds);
 
-//获取死亡倒计时时间，单位秒
+//Get death countdown time, in seconds
 native function GetReviveCountDown(GfxObject mc, string resName);
 
-//获取地图类型.
+//Get map type.
 native function GetCurrentMapType(GfxObject mc, string resName);
 
-//获取某种ID物品的数量(背包中)
+//Get the count of items with a given ID (in bag)
 native function GetItemCountByID(GfxObject mc, string resName,int itemID );
 
-//获取某种ID物品的图标名字
+//Get the icon name of the item with a given ID
 //native function GetItemIconByID(GfxObject mc, string resName,int itemID );
 
-//获取某种ID技能的图标名字
+//Get the icon name of the ability with a given ID
 native function GetSkillIconByID(GfxObject mc, string resName,int skillID );
 
-//获取金币类1
+//Get gold class 1
 native function GetPlayerMoney(GfxObject mc, string resName);
 
-//获取金币类2
+//Get gold class 2
 native function GetPlayerGold(GfxObject mc, string resName);
 
 //
@@ -507,19 +507,19 @@ function LeaveGame(GFxObject mc)
 	LeaveGameWithConfirm(mc);
 }
 
-// 不弹出对话框，直接退出游戏
+// Exit the game directly without a dialog
 function LeaveGameWithoutConfirm(GFxObject mc)
 {
 	GetPC().ConsoleCommand("exit");
 	//LeaveGame();
 }
 
-//头顶泡泡显示时间结束
+//Head bubble display time ended
 function BubbleShowedOver( GFxObject mc )
 {
 }
 
-// 会弹出个对话框，确认后再退出游戏
+// A dialog pops up, exit the game after confirmation
 native final function LeaveGameWithConfirm(GFxObject mc);
 
 function ASHideTips()
@@ -569,7 +569,7 @@ event McGotoAndPlay(GFxObject mc,string FrameName)
 //	}
 //}
 
-//新slot操控接口
+//New slot control interface
 native final function ASSlot_MouseLeftPress(GFxObject mcSlot);
 native function ASSlot_StartDrag(GFxObject mcSlot);
 native final function ASSlot_ReleaseDrag(GFxObject mcSlotFrom,GFxObject mcSlotTo);
@@ -608,7 +608,7 @@ native final function MouseRightClickBuff(GFxObject mc, int curBuffID, int curBu
 //	}
 //}
 
-//Movie读取早于myHUD的设置，一些需要HUD的响应放在这里来做
+//Movie loads earlier than myHUD is set, so responses that need the HUD are done here
 native virtual function OnHUDLoaded();
 
 native function OnDragDrop(GFxObject SrcSlotMC, GFxObject DestSlotMC, ESlotPanelType SrcSlotType, ECONTAINER_SLOT SrcContainerID, int SrcSlotID, ESlotPanelType DestSlotType, ECONTAINER_SLOT DestContainerID, int DestSlotID);

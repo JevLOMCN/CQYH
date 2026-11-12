@@ -804,7 +804,7 @@ void  MasterStudentManager::NotifySubmitMasterApplyAck(INT nRoleID)
 	if(pkApplicants)
 	{
 		pkApplicants->bCanApply = false;
-		//通知下去
+		//notify downward
 		MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_StudentSystemPosterList);
 		MMOUI::PostGameEvent(&evt);
 	}
@@ -823,7 +823,7 @@ void  MasterStudentManager::NotifySubmitMasterApplyNtf(const M2C_MASTER_TEACHER_
 	case 0:
 		{
 			AddorUpdateApplicants(msg);
-			//通知下去
+			//notify downward
 			MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterApplicantsList);
 			MMOUI::PostGameEvent(&evt);
 
@@ -871,14 +871,14 @@ void  MasterStudentManager::NotifyAgreeMasterApplyAck(INT nRoleID)
 	FString strTips = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.MasterStudent.BeMasterSuccess"));
 	MMOChatManager::getSingleton().AddSystemMessage(strTips); 
 	MMOUI::GetUIManager()->delegateAddScreenMessage(strTips,MsgInfoType_Table,TEXT("MMOGame.MasterStudent.BeMasterSuccess")); 
-	//通知下去
+	//notify downward
 	MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterApplicantsList);
 	MMOUI::PostGameEvent(&evt);
 }
 void  MasterStudentManager::NotifyRefuseMasterApplyAck(INT nRoleID)
 {
 	DeleteApplicantsByID(nRoleID);
-	//通知下去
+	//notify downward
 	MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterApplicantsList);
 	MMOUI::PostGameEvent(&evt);
 }
@@ -888,7 +888,7 @@ void  MasterStudentManager::NotifyRefuseMasterApplyNtf(INT nRoleID)
 	if(pkApplicants)
 	{
 		pkApplicants->bCanApply = true;
-		//通知下去
+		//notify downward
 		MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_StudentSystemPosterList);
 		MMOUI::PostGameEvent(&evt);
 	}
@@ -903,7 +903,7 @@ void  MasterStudentManager::NotifyCacelMasterApplyAck(INT nRoleID)
 	{
 		pkApplicants->bCanApply = true;
 
-		//通知下去
+		//notify downward
 		MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_StudentSystemPosterList);
 		MMOUI::PostGameEvent(&evt);
 	}
@@ -911,13 +911,13 @@ void  MasterStudentManager::NotifyCacelMasterApplyAck(INT nRoleID)
 void  MasterStudentManager::NotifyCacelMasterApplyNtf(INT nRoleID)
 {
 	DeleteApplicantsByID(nRoleID);
-	//通知下去
+	//notify downward
 	MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_StudentSystemPosterList);
 	MMOUI::PostGameEvent(&evt);
 }
 void  MasterStudentManager::NotifyLeaveMasterAck()
 {
-	//清空师傅信息
+	//clear master info
 	ClearMasterInfo();
 	FString strTips = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.MasterStudent.LeaveMasterForStudent"));
 	MMOChatManager::getSingleton().AddSystemMessage(strTips); 
@@ -926,7 +926,7 @@ void  MasterStudentManager::NotifyLeaveMasterAck()
 	//MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterInfo);
 	//MMOUI::PostGameEvent(&evt);
 
-	//查一下师徒奖励经验
+	//query master/apprentice reward experience
 	if (_MasterStudentStatus == E_MASTER_NONE)
 	{
 		CMessageHandler::GetInstance().Send_QueryMasterExp();
@@ -952,7 +952,7 @@ void  MasterStudentManager::NotifyLeaveMasterNtf(INT nRoleID)
 
 		MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_MasterCongMain,FALSE,"");
 
-		//徒弟判师，查询一下师徒组队奖励
+		//apprentice betrays master, query master/apprentice team reward
 		CMessageHandler::GetInstance().Send_QueryMasterExp();
 	}
 }
@@ -988,28 +988,28 @@ void  MasterStudentManager::NotifyAddStudentNtf(const M2C_MASTER_ADD_STUDENT_NTF
 
 	//AddorUpdateStudent(msg);
 
-	////通知下去
+	////notify downward
 	//MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterInfo);
 	//MMOUI::PostGameEvent(&evt);
 	CMessageHandler::GetInstance().Send_GetMasterInfo();
-	//加为关注
+	//add to follow
 	FriendManager::getSingleton().RequestAddAttention( msg->dwStudentID , TEXT("") );
 }
 void  MasterStudentManager::NotifyDelStudentNtf(INT nRoleID)
 {
 	DeleteStudentByID(nRoleID);
-	//通知下去
+	//notify downward
 	MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterInfo);
 	MMOUI::PostGameEvent(&evt);
 }
 void  MasterStudentManager::NotifyClearInfo()
 {
 	ClearMasterInfo();
-	//通知下去
+	//notify downward
 	MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterInfo);
 	MMOUI::PostGameEvent(&evt);
 
-	//提示
+	//prompt
 	if (isLeaveTeacher)
 	{
 		isLeaveTeacher = FALSE;
@@ -1088,11 +1088,11 @@ void  MasterStudentManager::NotifyMasterInfo(const M2C_MASTER_INFO* msg)
 		}
 	}*/
 
-	//通知下去
+	//notify downward
 	//MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterInfo);
 	//MMOUI::PostGameEvent(&evt);
 
-	//请求一下奖励数据
+	//request reward data
 	CMessageHandler::GetInstance().Send_QueryMasterExp();
 }
 UBOOL MasterStudentManager::UpdateMasterInfoForCompletion( UBOOL isForceRequire )
@@ -1129,13 +1129,13 @@ void  MasterStudentManager::NotifyCongratulationCount(INT nRoleID,INT nCount)
 		}
 	}
 
-	//通知下去
+	//notify downward
 	MMOGameEvent_MasterStudent evt(EMasterStudentType::EMST_MasterInfo);
 	MMOUI::PostGameEvent(&evt);
 }
 void  MasterStudentManager::NotifyCongratulationTarget(INT nRoleID)
 {
-	//祝贺某同门成功
+	//congratulate a fellow disciple on success
 	FString strTips =  MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Master.CongratulationOK"));
 	StudentListData* pkData = _GetStudentDataByID(nRoleID);
 	if(pkData)
@@ -1189,7 +1189,7 @@ void MasterStudentManager::NotifyLevelUp(INT nRoleID,INT nLevel)
 		masterInfo.nLevel = nLevel;
 	}
 
-	//更新等级
+	//update level
 	PlayerBaseInfo *playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo(nRoleID);
 	if( playerInfo != NULL ){
 		playerInfo->_Level = nLevel;

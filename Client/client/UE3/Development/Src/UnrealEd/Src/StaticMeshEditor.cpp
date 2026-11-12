@@ -1389,7 +1389,7 @@ void FStaticMeshEditorViewportClient::InitOverlappedUV(INT TextYPos, INT UVIdx)
 	const UINT BoxSize = UVBoxScale + 2;
 
 	//draw a string showing what UV channel and LOD is being displayed	
-	//song@snda 貌似这里重复加了18导致偏移
+	//song@snda seems 18 is added twice here causing an offset
 	//TextYPos += 18;
 
 

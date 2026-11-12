@@ -974,20 +974,20 @@ void WxLevelPane::WxLevelWindow::OnPaint(wxPaintEvent& In)
 		FileSize += CurLevel->GetOutermost()->GetFileSize() * ByteConversion * ByteConversion;
 	}
 
-	//增加当前LevelSubLevel和GroupID hemu 120327
+	//Add current LevelSubLevel and GroupID hemu 120327
 	FString DescriptionString;
 	if( Level != NULL )
 	{
 		ULevelStreaming* LevelStreaming = FLevelUtils::FindStreamingLevel( Level );
 		if ( LevelStreaming )
 			DescriptionString=FString::Printf( LocalizeSecure(LocalizeUnrealEd("NewLayerDesc_F"), *Description, LevelActorCount, LevelStreaming->SubLevelID, LevelStreaming->SubLevelGroupID) );
-		else //这里统计了总的Actors数
+		else //total Actors count is counted here
 			DescriptionString=FString::Printf( LocalizeSecure(LocalizeUnrealEd("LayerDesc_F"), *Description, LevelActorCount ) );
 	}
 	else
 		DescriptionString=FString::Printf( LocalizeSecure(LocalizeUnrealEd("LayerDesc_F"), *Description, LevelActorCount ) );
 	
-	//原始函数
+	//Original function
 	//FString DescriptionString( FString::Printf( LocalizeSecure(LocalizeUnrealEd("LayerDesc_F"), *Description, LevelActorCount ) ) );
 
 	// Append an asterisk if the level's package is unsaved.

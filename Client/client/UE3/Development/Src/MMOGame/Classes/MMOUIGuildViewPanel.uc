@@ -55,12 +55,12 @@ event CallEnableGuildWar(bool enableGuildWar)
 	ActionScriptVoid("UCUpdateGuildWarButtonState");
 }
 
-// 申请加入家族
+// Apply to join guild
 native final function ASApplyForJoint(int id);
 native final function ASUpdateGuildViewInfo(int id);
-// 家族查找
+// Find guild
 native final function ASFindGuild(bool isId, String content);
-// 翻页
+// Turn page
 native final function ASPageUp();
 native final function ASPageDown();
 

@@ -5,7 +5,7 @@ class ParticleSystem extends Object
 	native(Particle)
 	hidecategories(Object);
 
-var(MMO) bool IsBloodyContent < DisplayName="ÊÇÑªÐÈÄÚÈÝ" >;
+var(MMO) bool IsBloodyContent < DisplayName="Is Bloody Content" >;
 /**
  *	ParticleSystemUpdateMode
  *	Enumeration indicating the method by which the system should be updated

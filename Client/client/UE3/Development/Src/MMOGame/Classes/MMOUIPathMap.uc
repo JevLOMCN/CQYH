@@ -3,8 +3,8 @@ class MMOUIPathMap extends MMOUIBase
 	config(UIVisibleMask);
 
 var array<GFxObject> MapTiles;
-var GFxObject MapNPCView;//堆NPC图标的那层
-var GFxObject MapPathView;//路径那层
+var GFxObject MapNPCView;//the layer where NPC icons are stacked
+var GFxObject MapPathView;//the path layer
 var GFxObject MapPaper;
 var GFxObject MyIcon;
 

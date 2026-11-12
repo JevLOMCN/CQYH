@@ -63,7 +63,7 @@ void CMessageHandler::Parse_g2c_activity_reward(const char* buf, UINT32 size)
 	G2C_ACTIVITY_REWARD* msg = (G2C_ACTIVITY_REWARD*)buf; 
 	if(msg)
 	{
-		//奖励领取成功
+		//Reward claimed successfully
 		INT32 RewardBit = ActivityManager::getSingleton().GetRewardBit();
 		RewardBit |= (1 << msg->wIndex);
 		ActivityManager::getSingleton().NotifyActivityVariableErvtActivityReward(RewardBit);

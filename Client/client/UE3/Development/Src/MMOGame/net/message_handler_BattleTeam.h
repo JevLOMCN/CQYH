@@ -4,10 +4,10 @@
 public:
 	
 	void Send_CreateBattleTeam( const FString& teamName , int iconID );
-	//邀请
+	//Invite
 	void Send_JoinBattleTeam(INT roleID);
 	void Send_JoinBattleTeam( FString roleName );
-	//答复入队邀请
+	//Reply to team invitation
 	void Send_JoinBattleTeamAnswer(INT roleID);
 	void Send_LeaveBattleTeam(INT roleID);
 	void Send_RequestBattleTeamInfo( INT teamId );

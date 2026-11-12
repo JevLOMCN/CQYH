@@ -33,7 +33,7 @@ TeamManager::TeamManager()
 	InvitePlayerList.Empty();
 	InvitedPlayerCache.Empty(MAX_ARCHIVE_INVITE_PLAYER);
 
-	//选项
+	//Options
 	TeamAuctionItemColorLimitMap item;
 	item.Color = ITEMCOLOR_WHITE;
 	item.ColorStringText = TEXT("MMOGame.TeamAuction.TeamAuctionColorLimit0");
@@ -183,7 +183,7 @@ void TeamManager::Init( )
 	MMOUI::RegisterEventHandler( this , GameEvent_InviteTeamMsg );
 	MMOUI::RegisterEventHandler( this , GameEvent_AddTeamMsg );
 	MMOUI::RegisterEventHandler( this , GameEvent_PlayerBaseInfo );
-	//这个放在了这里，其实不归这管
+	//This is placed here, though it doesn't really belong here
 	//MMOUI::RegisterEventHandler( this , GameEvent_ExitMsg );
 	bTargetRoleTeam = FALSE;
 	bTeamAnswerHasTeam = FALSE;
@@ -321,7 +321,7 @@ void TeamManager::LeaveTeam( INT roleId )
 	}
 	else
 	{
-		//不在野外地图，不能退队
+		//Not on a field map, cannot leave team
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Team.SceneCannotLeaveTeam") ) ,MsgInfoType_Table,TEXT("MMOGame.Team.SceneCannotLeaveTeam"));
 	}
 }
@@ -616,7 +616,7 @@ void TeamManager::GetNearbyPlayerList()
 			NearPlayer.ClassId = pl->ActorAttributes->ClassType;
 			NearPlayer.Lv = pl->ActorAttributes->LevelAttributes.Level;
 			NearPlayer.Sex = pl->ActorAttributes->GenderType;
-			NearPlayer.InTeam = pl->TeamID > 0; //无队伍<=0 
+			NearPlayer.InTeam = pl->TeamID > 0; //no team <=0
 			NearPlayer.ActorName = pl->ActorName;
 			NearbyPlayerList.AddItem(NearPlayer);
 
@@ -709,7 +709,7 @@ void TeamManager::RemoveCurrentAuctionItem(INT index)
 	//}
 }
 
-//开始拍卖一个东西
+//Start auctioning an item
 void TeamManager::StartTeamAuctionItem( UINT32 itemIndex ,  UINT32 bidMoney,UINT32 bidCount,UBOOL canBid )
 {
 	if( EGameState_Loading == MMO::GetCurrentGameState() ){
@@ -719,7 +719,7 @@ void TeamManager::StartTeamAuctionItem( UINT32 itemIndex ,  UINT32 bidMoney,UINT
 		return;
 	}
 
-	//记录一个当前的
+	//Record a current one
 	for ( INT idx = 0 ; idx < TeamAuctionItemList.Num() ; idx++ )
 	{
 		if( TeamAuctionItemList(idx).Index == itemIndex)
@@ -736,7 +736,7 @@ void TeamManager::StartTeamAuctionItem( UINT32 itemIndex ,  UINT32 bidMoney,UINT
 				_CurBidMoney = bidMoney;//_CurAuctionItem->RewardMemberCount;
 				_CurAuctionItem->RewardMemberCount = bidCount;
 
-				//显示拍卖
+				//Show auction
 				MMOUI::GetUIManager()->ShowPanelEx( MMOUI::GetUIManager()->Panel_TeamAuction , TRUE, "" );
 
 				MMOGameEvent_Any msg( GameEvent_TeamAuctionNewAuction );
@@ -921,7 +921,7 @@ void TeamManager::NotifyQuickTeam(BOOL join)
 
 		 if ( actor)
 		 {
-			 //组队
+			 //Form team
 				 if (join)
 				 {
 					 /*if (TeamManager::getSingleton().HasTeam() && TeamManager::getSingleton().IsTeamLeader())
@@ -936,14 +936,14 @@ void TeamManager::NotifyQuickTeam(BOOL join)
 					 QueryRoleHasTeam(actor->ServerID);
 
 				 }
-				 //踢人
+				 //Kick player
 				 else
 				 {
 					 if( TeamManager::getSingleton().HasTeam() && TeamManager::getSingleton().IsTeamLeader() )
 					 {
 						 if ( actor->ServerID != MMOFacade::getSingleton().GetMainPlayer()->ServerID)
 						 {
-							 if(TeamManager::getSingleton().GetMemberById(actor->ServerID))//如果在队伍中
+							 if(TeamManager::getSingleton().GetMemberById(actor->ServerID))//if in the team
 							 {
 								 //TeamManager::getSingleton().LeaveTeam( actor->ServerID );
 								 MMOGameEvent_TeamCommon et(MMOGameEvent_TeamCommon::ETeamEventType_LeaveTeam,actor->ServerID);
@@ -966,7 +966,7 @@ void TeamManager::NotifyQuickTeam(BOOL join)
 
 		 else
 		 {
-			 // 策划要求没目标时 也可自己离队
+			 // Designer requires that one can also leave the team without a target
 			 if(!join&&TeamManager::getSingleton().HasTeam())
 			 {
 				 MMOGameEvent_TeamCommon et(MMOGameEvent_TeamCommon::ETeamEventType_LeaveTeam,MMOFacade::getSingleton().GetMainPlayer()->ServerID);

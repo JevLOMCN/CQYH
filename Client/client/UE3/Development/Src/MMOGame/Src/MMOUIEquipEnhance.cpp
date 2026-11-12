@@ -136,7 +136,7 @@ UBOOL UMMOUIEquipEnhance::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,B
 		}
 		//
 		if( EnumCurEnhanceMode == EEQPEHC_MakeEnhance ){
-			//强化装备插槽
+			//Enhance equipment slot
 			if( ContainerID == E_CONSLOT_DEFAULT || ContainerID == E_CONSLOT_HERO_EQUIPMENT ){
 				SetWorkingSlotData( ContainerID, SlotID, pItem );
 				UpdatePanel();
@@ -179,7 +179,7 @@ UBOOL UMMOUIEquipEnhance::OnDragDrop( class UGFxObject* SrcSlotMC,class UGFxObje
 									  BYTE SrcSlotType, BYTE SrcContainerID, INT SrcSlotID,
 									  BYTE DestSlotType, BYTE DestContainerID, INT DestSlotID)
 {
-	//从背包到强化
+	//From bag to enhance
 	if( (SrcSlotType == ESPType_Bag) && (DestSlotType == ESPType_Enhance) ){
 		//put in equip from bag
 		ItemInfo *pInfo = MMOFacade::getSingleton().FindItem( SrcContainerID, SrcSlotID );
@@ -240,7 +240,7 @@ UBOOL UMMOUIEquipEnhance::OnDragDrop( class UGFxObject* SrcSlotMC,class UGFxObje
 		return TRUE;
 	}
 	else if( (DestSlotType == ESPType_Bag) && (SrcSlotType == ESPType_Enhance) ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		INT panelSlotID = (INT)SrcSlotMC->GetFloat( "EquipID" );
 
 		switch( panelSlotID )
@@ -264,7 +264,7 @@ UBOOL UMMOUIEquipEnhance::OnDragDrop( class UGFxObject* SrcSlotMC,class UGFxObje
 	return FALSE;
 }
 //========================================================================================================================================
-//更新
+//Update
 void UMMOUIEquipEnhance::UpdatePanel()
 {
 	switch( EnumCurEnhanceMode )
@@ -280,11 +280,11 @@ void UMMOUIEquipEnhance::UpdatePanel()
 //========================================================================================================================================
 void UMMOUIEquipEnhance::UpdateMakeEnhanceInfo()
 {
-	//所需材料
+	//Required materials
 	UpdateMaterialConsume();
-	//所需钱
+	//Required money
 	UpdateFee();
-	//强化物品基本信息
+	//Enhance item basic info
 	UpdateEquipInfo();
 	//
 	//CheckOperation();
@@ -293,18 +293,18 @@ void UMMOUIEquipEnhance::UpdateMakeEnhanceInfo()
 //
 void UMMOUIEquipEnhance::UpdateTransEnhanceInfo()
 {
-	///所需钱
+	///Required money
 	UpdateFee();
-	//强化物品基本信息
+	//Enhance item basic info
 	UpdateEquipInfo();
-	//强化转移无需材料，所以此条件必为真
+	//Enhance transfer needs no materials, so this condition is always true
 	IsMatOK = true;
 	//
 	//CheckOperation();
 }
 //========================================================================================================================================
 /*
-@更新强化所需耗材信息
+@Update enhancement required consumables info
 */
 void UMMOUIEquipEnhance::UpdateMaterialConsume()
 {
@@ -316,7 +316,7 @@ void UMMOUIEquipEnhance::UpdateMaterialConsume()
 		return;
 	}
 
-	//重置材料条件标志
+	//Reset material condition flag
 	IsMatOK = true;
 	//
 	UINT8 matTypeCnt = 0;
@@ -349,8 +349,8 @@ void UMMOUIEquipEnhance::UpdateMaterialConsume()
 	//ResetMaterialConsume( matTypeCnt );
 }
 /*
-@更新材料消耗数字
-@MatCsmNeed为-1表示MatCsmNeed采用已有值
+@Update material consumption number
+@MatCsmNeed of -1 means MatCsmNeed uses the existing value
 */
 INT UMMOUIEquipEnhance::UpdateMaterialCnt( UGFxObject *pTfCurHave, UGFxObject *pTfCnt, INT itemID, INT MatCsmNeed )
 {
@@ -381,10 +381,10 @@ INT UMMOUIEquipEnhance::UpdateMaterialCnt( UGFxObject *pTfCurHave, UGFxObject *p
 	}
 	//set the current amount text color
 	if( iCurExist < MatCsmNeed ){
-		pTfCurHave->SetInt( TEXT("textColor") , 0xFF0000 );//红GFXPlayer->OfflineFontColor
+		pTfCurHave->SetInt( TEXT("textColor") , 0xFF0000 );//red GFXPlayer->OfflineFontColor
 	}
 	else{
-		pTfCurHave->SetInt( TEXT("textColor") , 0x00FF00 );//绿
+		pTfCurHave->SetInt( TEXT("textColor") , 0x00FF00 );//green
 	}
 	//set the current amount and needed amount
 	if( iCurExist <= 99 ){
@@ -398,7 +398,7 @@ INT UMMOUIEquipEnhance::UpdateMaterialCnt( UGFxObject *pTfCurHave, UGFxObject *p
 	return iCurExist;
 }
 //========================================================================================================================================
-//更新强化费用
+//Update enhancement cost
 void UMMOUIEquipEnhance::UpdateFee()
 {
 	//enhance consumption
@@ -417,7 +417,7 @@ void UMMOUIEquipEnhance::UpdateFee()
 		}
 	}
 
-	//更新条件标记
+	//Update condition flags
 	IsMnyOK = ( pEnhanceData != NULL && moneyCnt <= Player->GetMoney( moneyType ) );
 	//bExpOK = ( iExp <= Player->ActorAttributes->LevelAttributes.CurrentExp );
 	//
@@ -439,7 +439,7 @@ void UMMOUIEquipEnhance::UpdateFee()
 	}
 }
 //========================================================================================================================================
-//更新强化物品信息
+//Update enhance item info
 void UMMOUIEquipEnhance::UpdateEquipInfo()
 {
 	INT bagIdx = CurBagIdxOfTargetEquip();
@@ -465,20 +465,20 @@ void UMMOUIEquipEnhance::UpdateEquipInfo()
 			curEnhanceMaxLv = pEquip->MaxRefineLevel;
 		}
 
-		//更新条件标记
+		//Update condition flags
 		IsDegreeOK = ( curEnhanceLv < curEnhanceMaxLv );
-		//强化等级
+		//Enhancement level
 		MakeEnhanceCurDgr_tf->SetText( curEnhanceLv >= 0 ? appItoa( curEnhanceLv ) : TEXT("--") );
 		MakeEnhanceMaxDgr_tf->SetText( curEnhanceMaxLv >= 0 ? appItoa( curEnhanceMaxLv ) : TEXT("--") );
 
-		//强化属性
+		//enhancement attributes
 		//FString strLookUpKey = TEXT("MMOGame.attribute.attribute");
 		//FString strPropValuePrefix = TEXT("+");
 		INT curPropIdx = 0;
 		INT nextPropIdx = 0;
 		for( INT i = 0; i < ENHANCE_EQUIP_PROPERTY; ++i )
 		{
-			//当前强化的属性加成
+			//Current enhancement attribute bonus
 			if( NULL != pCurResult )
 			{
 				const ItemRandomAttr* propAttr = MMOFacade::getSingleton().GetRandomAttributById( pCurResult->_Prop[i] );
@@ -494,7 +494,7 @@ void UMMOUIEquipEnhance::UpdateEquipInfo()
 				}
 			}
 
-			//强化后的属性加成
+			//Attribute bonus after enhancement
 			if( NULL != pNextResult )
 			{
 				const ItemRandomAttr* propAttr = MMOFacade::getSingleton().GetRandomAttributById( pNextResult->_Prop[i] );
@@ -525,10 +525,10 @@ void UMMOUIEquipEnhance::UpdateEquipInfo()
 	}
 	else if( EnumCurEnhanceMode == EEQPEHC_TransEnhance )
 	{
-		//更新条件标记
+		//Update condition flags
 		IsDegreeOK = TRUE;
 
-		//当前强化等级
+		//Current enhancement level
 		TransEnhanceCurDgr_tf->SetText( curEnhanceLv >= 0 ? appItoa( curEnhanceLv ) : TEXT("--") );
 	}
 }
@@ -552,7 +552,7 @@ void UMMOUIEquipEnhance::ResetMaterialConsume( INT startIdx )
 	}
 }
 //========================================================================================================================================
-//检查是否为可以执行操作
+//Check whether the operation can be performed
 UBOOL UMMOUIEquipEnhance::CheckCanGo()
 {
 	UBOOL bRet = IsMatOK && IsMnyOK && IsDegreeOK;
@@ -562,7 +562,7 @@ UBOOL UMMOUIEquipEnhance::CheckCanGo()
 	return bRet;
 }
 
-//检查是否是此界面正在使用的物品
+//Check whether it is the item currently used by this UI
 UBOOL UMMOUIEquipEnhance::CheckInUse( INT ItemInBagID )
 {
 	if( IsVisible && (ItemInBagID == CurBagIdxOfTargetEquip() || ItemInBagID == CurBagIdxOfTransTargetEquip()) ){
@@ -756,7 +756,7 @@ void UMMOUIEquipEnhance::TransferEnhanceItem()
 }
 
 //========================================================================================================================================
-//放入强化（取消强化）的装备
+//Put in the equipment to enhance (cancel enhance)
 void UMMOUIEquipEnhance::SetWorkingSlotData( INT bagSlotCon, INT bagSlotID, UItem *slotItem )
 {
 	UGFxObject *slot_mc = NULL;
@@ -789,7 +789,7 @@ void UMMOUIEquipEnhance::SetWorkingSlotData( INT bagSlotCon, INT bagSlotID, UIte
 		MMOFacade::getSingleton().LockItem( CurWorkingItemContainID, CurWorkingItemBagID, ESPType_Enhance );
 	}
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->SetItemSlotData( slot_mc, slotItem, ESPType_Enhance, CurWorkingItemContainID, CurWorkingItemBagID );
 }
 //========================================================================================================================================
@@ -811,7 +811,7 @@ void UMMOUIEquipEnhance::SetTransSlotTarget( INT bagSlotCon, INT bagSlotID, UIte
 		MMOFacade::getSingleton().LockItem( CurTransEnhanceToItemContainID, CurTransEnhanceToItemBagID, ESPType_Enhance );
 	}
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->SetItemSlotData( slot_mc, slotItem, ESPType_Enhance, CurTransEnhanceToItemContainID, CurTransEnhanceToItemBagID );
 
 	//if in unEnhance panel update the condition mark
@@ -824,7 +824,7 @@ void UMMOUIEquipEnhance::PostOnShow(UBOOL v)
 	Super::PostOnShow( v );
 
 	if( v ){
-		//！！！！！！！！！！这个废了，不让显示
+		//!!!!!!!!!! This is deprecated, do not display
 		Show( FALSE );
 
 		//show the default enhance panel
@@ -863,7 +863,7 @@ void UMMOUIEquipEnhance::ResetUIMode()
 	eventChangeContentTabBtn( 0 );
 }
 
-//重置当前界面显示内容
+//Reset current UI display content
 void UMMOUIEquipEnhance::ResetPanelInfo()
 {
 	switch( EnumCurEnhanceMode )
@@ -882,7 +882,7 @@ void UMMOUIEquipEnhance::ResetMakeEnhanceInfo()
 {
 	SetWorkingSlotData( -1, -1, NULL );
 
-	//Update需在Set的物品后计算费用等数据，所以update*必须在后面调用
+	//Update must compute cost and other data after the item is Set, so update* must be called afterwards
 	UpdateFee();
 	UpdateEquipInfo();
 	ResetMaterialConsume( 0 );
@@ -895,7 +895,7 @@ void UMMOUIEquipEnhance::ResetTransEnhanceInfo()
 {
 	SetWorkingSlotData( -1, -1, NULL );
 	SetTransSlotTarget( -1, -1, NULL );
-	//Update需在Set的物品后计算费用等数据，所以update*必须在后面调用
+	//Update must compute cost and other data after the item is Set, so update* must be called afterwards
 	UpdateFee();
 	UpdateEquipInfo();
 	//
@@ -930,10 +930,10 @@ void UMMOUIEquipEnhance::ResetEnhanceItems()
 	CurTransEnhanceToItemBagID = -1;
 }
 //========================================================================================================================================
-//最后修改
+//Last modified
 void UMMOUIEquipEnhance::CheckOperation()
 {
-	//按钮状态
+	//Button state
 	SetOkBtn();
 }
 //
@@ -965,7 +965,7 @@ void UMMOUIEquipEnhance::Init()
 //
 void UMMOUIEquipEnhance::InitMc()
 {
-	//强化界面
+	//Enhance UI
 	MakeEnhancePanel = GetObject( TEXT("MakeEnhancePanel_mc") );
 	if( MakeEnhancePanel != NULL ){	
 		MakeEnhanceItem_mc = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceItem_mc") );
@@ -973,7 +973,7 @@ void UMMOUIEquipEnhance::InitMc()
 		MakeEnhanceItem_mc->SetInt( TEXT("SlotType"), ESPType_Enhance );
 		//animation
 		MakeEnhanceSuccessAnim_mc = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceSuccessAnim_mc") );
-		//所需材料Icon
+		//Required material icon
 		MakeEnhanceMatCsm_mc[0] = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceMatCsm_mc1") );
 		//MakeEnhanceMatCsm_mc[0]->SetFloat( "EquipID", 200 );
 		MakeEnhanceMatCsm_mc[0]->SetInt( TEXT("SlotType") , ESPType_Enhance );
@@ -983,12 +983,12 @@ void UMMOUIEquipEnhance::InitMc()
 		MakeEnhanceMatCsm_mc[2] = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceMatCsm_mc3") );
 		//MakeEnhanceMatCsm_mc[2]->SetFloat( "EquipID", 200 );
 		MakeEnhanceMatCsm_mc[2]->SetInt( TEXT("SlotType") , ESPType_Enhance );
-		//强化费
+		//Enhance fee
 		MakeEnhanceMnyType_mc = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceMnyType_mc") );
 		MakeEnhanceMnyCsm_tf = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceMnyCsm_tf") );
-		//当前强化等级
+		//Current enhancement level
 		MakeEnhanceCurDgr_tf = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceCurDgr_tf") );
-		//最大强化等级
+		//Max enhance level
 		MakeEnhanceMaxDgr_tf = MakeEnhancePanel->GetObject( TEXT("MakeEnhanceMaxDgr_tf") );
 		//
 		for( INT i = 0; i < ENHANCE_PROP_MAX; ++i )
@@ -1000,26 +1000,26 @@ void UMMOUIEquipEnhance::InitMc()
 			MakeEnhanceProp_tf[i] = MakeEnhancePanel->GetObject( obName );
 			//MakeEnhancePropValue_tf[i] = MakeEnhancePanel->GetObject("MakeEnhancePropValue_tf"$i);
 		}
-		//强化按钮
+		//Enhance button
 		MakeEnhance_btn = MakeEnhancePanel->GetObject( TEXT("MakeEnhance_btn") );
 	}
 
-	//强化转换界面
+	//Enhance conversion UI
 	TransEnhancePanel = GetObject( TEXT("TransEnhancePanel_mc") );
 	if( TransEnhancePanel != NULL ){
-		//待转换的武器
+		//Weapon to be converted
 		TransEnhanceFromItem_mc = TransEnhancePanel->GetObject( TEXT("TransEnhanceFromItem_mc") );
 		TransEnhanceFromItem_mc->SetInt( TEXT("EquipID"), EEHCSLT_TransEnhanceSlot );
 		TransEnhanceFromItem_mc->SetInt( TEXT("SlotType"), ESPType_Enhance );
-		//需要附上强化的装备
+		//Equipment that needs the enhancement applied
 		TransEnhanceToItem_mc = TransEnhancePanel->GetObject( TEXT("TransEnhanceToItem_mc") );
 		TransEnhanceToItem_mc->SetInt( TEXT("EquipID"), EEHCSLT_TransTargetSlot );
 		TransEnhanceToItem_mc->SetInt( TEXT("SlotType"), ESPType_Enhance );
-		//消除强化费
+		//Remove enhance fee
 		TransEnhanceMnyCsm_tf = TransEnhancePanel->GetObject( TEXT("TransEnhanceMnyCsm_tf") );
-		//当前强化等级
+		//Current enhancement level
 		TransEnhanceCurDgr_tf = TransEnhancePanel->GetObject( TEXT("TransEnhanceCurDgr_tf") );
-		//转移强化按钮
+		//Transfer enhance button
 		TransEnhance_btn = TransEnhancePanel->GetObject( TEXT("TransEnhance_btn") );
 	}
 }

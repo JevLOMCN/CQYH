@@ -1,7 +1,7 @@
 class MMOUIPVP extends MMOUIBase
 	native(UI);
 
-//¾º¼¼³¡
+//Arena
 var GFxObject ArenaPanel;
 var array<GFxObject> ArenaMode;
 var array<GFxObject> ArenaSize;

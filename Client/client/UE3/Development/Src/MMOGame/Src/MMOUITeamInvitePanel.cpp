@@ -46,7 +46,7 @@ void UMMOUITeamInvitePanel::UpdateFriendsList()
 		const MMOFriendGroup& group = friendGroups(i);
 		for(INT j = 0; j < group.FriendList.Num(); ++j)
 		{
-			//不在线的不显示
+			//Do not show offline ones
 			if(group.FriendList(j).Online == FS_OFFLINE)
 				continue;
 

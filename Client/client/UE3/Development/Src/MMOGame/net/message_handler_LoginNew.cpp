@@ -13,7 +13,7 @@
 //TCHAR g_sdoLoginIP[MAX_PATH] = TEXT("");
 //INT g_sdoLoginPort = 0;
 //
-//// 从Launcher调用
+//// Called from Launcher
 //void EndSDOLogin()
 //{
 //	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
@@ -43,7 +43,7 @@
 ////------------------------------------------------------------------------
 //VOID CMessageHandler::Login(const TCHAR* strIP, const INT nPort, const TCHAR* UserName, const TCHAR* Password, UBOOL bConnectBS)
 //{		
-//	//消息返回之前 不得重复发送 
+//	//Must not send repeatedly before the message returns
 //	if( m_vecMsgSendRestrictList(MsgRL_Login) )
 //		return;
 //    LockSendRestrict(MsgRL_Login);
@@ -84,7 +84,7 @@
 //		warnf(NAME_Error, TEXT("====== [CMessageHandler::SendCharactorSelect] RoleID[%d] UserID[%s]"),roleid,_UserName);
 //		return;
 //	}
-//	//消息返回之前 不得重复发送 
+//	//Must not send repeatedly before the message returns
 //	if( m_vecMsgSendRestrictList(MsgRL_Select) )
 //		return;
 //
@@ -109,7 +109,7 @@
 //
 //	if( !pl || pl->RoleList.Num() <= 0 )
 //		return;
-//	//消息返回之前 不得重复发送 
+//	//Must not send repeatedly before the message returns
 //	if( m_vecMsgSendRestrictList(MsgRL_Delete) )
 //		return;
 //	if( RoleListId < 0 || RoleListId >= pl->RoleList.Num() )
@@ -120,7 +120,7 @@
 //	msg.wMsg = c2t_delete_role;
 //	msg.dwRoleID = pl->RoleList(RoleListId).dwRoleID;
 //
-//	//@Temp 调试使用
+//	//@Temp used for debugging
 //	warnf(NAME_Log, TEXT("[CMessageHandler::Send_DeleteRole] [RoleListId]: %d"), RoleListId );
 //	_Send(&msg, sizeof(msg));
 //}
@@ -131,7 +131,7 @@
 //	msg.wMsg = c2t_undelete_role;
 //	msg.dwRoleID = roleid;
 //
-//	//@Temp 调试使用
+//	//@Temp used for debugging
 //	warnf(NAME_Log, TEXT("[CMessageHandler::Send_UnDeleteRole] [roleid]: %d"), roleid );
 //	_Send(&msg, sizeof(msg));
 //}
@@ -139,7 +139,7 @@
 ////------------------------------------------------------------------------------------------------------------------------------
 //void CMessageHandler::Send_CreateRole(const TCHAR* Name,INT classid,INT sex)
 //{
-//	//消息返回之前 不得重复发送 
+//	//Must not send repeatedly before the message returns
 //	if( m_vecMsgSendRestrictList(MsgRL_Create) )
 //		return;
 //	LockSendRestrict(MsgRL_Create);
@@ -153,7 +153,7 @@
 //	msg.byHairColor = 1;
 //	msg.bySex = sex;
 //
-//	//@Temp 调试使用
+//	//@Temp used for debugging
 //	warnf(NAME_Log, TEXT("[CMessageHandler::Send_CreateRole] [Name]: %s [Class]:%d [Sex]:%d"), Name,classid,sex );
 //	_Send(&msg, sizeof(msg));
 //}
@@ -182,7 +182,7 @@
 //	
 //    INT32 errCode = msg->nErrCode;
 //
-//	// 如果被服务器处理的返回到登录界面就不往下走了
+//	// If the server handled it and returned to the login screen, do not continue
 //	if(_ProcessReturnLoginError( errCode ))
 //	{
 //		return;
@@ -221,10 +221,10 @@
 //	loginEvt.EvtType = MMOGameEvent_Splash::ESET_LoginGameSuccess;
 //	MMOUI::PostGameEvent(&loginEvt);
 //
-//    //不解锁 直到OnDisconnected
+//    //Do not unlock until OnDisconnected
 //    //UnLockSendRestrict(MsgRL_Login);
 //
-//	//方便多开时调试
+//	//Convenient for debugging with multiple clients
 //	if ( appGetPlatformType() == UE3::PLATFORM_Windows && GGameWindow != NULL )
 //	{
 //		/*AMMOPlayer* player = Cast<AMMOPlayer>(ctrl->Pawn);
@@ -264,7 +264,7 @@
 //				player->ActorName = ctrl->RoleList(i).RoleName;
 //				player->ActorAttributes->ClassType = ctrl->RoleList(i).byCareer;
 //				player->ActorAttributes->GenderType = ctrl->RoleList(i).bySex;
-//				player->ServerID = msg->dwRoleID;//added by york 后来加的
+//				player->ServerID = msg->dwRoleID;//added by york added later
 //
 //				MMOFacade::getSingleton().NotifyPlayerBaseInfoChange();
 //				MMOFacade::getSingleton().NotifyPlayerLevelChange( 0 , ctrl->RoleList(i).byLevel );
@@ -281,7 +281,7 @@
 //					p->eventSetUIPlayerVisible(FALSE);
 //				}
 //
-//				//确认登录后再播放动画
+//				//Play animation after login is confirmed
 //				MMOGameEvent_Splash loginEvt;
 //				loginEvt.EvtType = MMOGameEvent_Splash::ESET_EnterGameSuccess;
 //				MMOUI::PostGameEvent(&loginEvt);
@@ -317,7 +317,7 @@
 //	ctrl->bNeedCommitPosition = FALSE;
 //	ctrl->ReturnSelect();
 //	
-//	////不一定直接进入Select状态
+//	////Does not necessarily enter Select state directly
 //	//MMOGameEvent_Splash loginEvt;
 //	//loginEvt.EvtType = MMOGameEvent_Splash::ESET_CreateListRoleCheck;
 //	//MMOUI::PostGameEvent(&loginEvt);
@@ -341,7 +341,7 @@
 //	AMMOPlayer* player = Cast<AMMOPlayer>(ctrl->Pawn);
 //	if( player != NULL )
 //	{
-//		//@todo 添加一个玩家重登陆的方法 
+//		//@todo add a player relogin method
 //		
 //		UStallManager::GetInstance().ChangeActorStallState( player,essNotOpen );
 //	}
@@ -391,7 +391,7 @@
 //
 //	}
 //	else{
-//		//不一定直接进入Select状态
+//		//Does not necessarily enter Select state directly
 //		MMOGameEvent_Splash loginEvt;
 //		loginEvt.EvtType = MMOGameEvent_Splash::ESET_CreateListRoleCheck;
 //		MMOUI::PostGameEvent(&loginEvt);
@@ -413,7 +413,7 @@
 //			{
 //				ctrl->RoleList(I).nOverTime = msg->dwRemainingDeleteTime;
 //				ctrl->RoleList(I).nBeginTime = (INT)GetTickCount();
-//				// 不删除，改为时间显示
+//				// Do not delete, change to time display
 //				//ctrl->RoleList.Remove(I,1);
 //				//ctrl->AvatarInfoList.Remove(I,1);
 //			}
@@ -469,7 +469,7 @@
 //	roleinfo.byLevel = pBaseData->byLevel;
 //	ctrl->RoleList.AddItem( roleinfo );		
 //
-//	//Avatar信息
+//	//Avatar info
 //	FAvatarInfo tAvatarInfo(EC_EventParm);
 //	//tAvatarInfo.MainHand=pBaseData->nMainHandID;
 //	//tAvatarInfo.OffHand=pBaseData->nOffHandID;
@@ -493,6 +493,6 @@
 //	//MMOUI::GetUIManager()->delegateAddMessageBox(msgStr, 0, nullDelegate, nullDelegate);
 //	MMOUI::GetUIManager()->delegateAddScreenMessage(msgStr,MsgInfoType_Table,TEXT("MMOGame.MsgBox.CreateRoleSucceeded"));
 //
-//	// 创建成功音效
+//	// Creation success sound effect
 //	MMOFacade::getSingleton().PlayUISound(TEXT("menu_CreateCharacter"));
 //}

@@ -3,55 +3,55 @@ interface IMMOActor
 	native;
 
 
-// 角色类型，可能会影响某些攻击计算
+// Character type, may affect some attack calculations
 enum EActorClassType
 {
-	// 没有
+	// None
 	EACT_None <DisplayName="None">,
 	
-	// 场景物体
+	// Scene object
 	EACT_SceneObject <DisplayName="SceneObject">,
 
-	// 玩家自己
+	// Local player
 	EACT_PlayerSelf <DisplayName="PlayerSelf">,
 
-	// 其它玩家
+	// Other players
 	EACT_OtherPlayer <DisplayName="OtherPlayer">,
 
-	// 公务NPC
+	// Official NPC
 	EACT_NPC <DisplayName="NPC">,
 
-	// 普通怪
+	// Normal monster
 	EACT_Monster <DisplayName="Monster">,
 
 	// BOSS
 	EACT_Boss <DisplayName="Boss">,
 
-	// 怪物尸体
+	// Monster corpse
 	EACT_MonsterBody <DisplayName="MonsterBody">,
 
-	// NPC尸体
+	// NPCNPC corpse
 	EACT_NPCBody <DisplayName="NPCBody">,
 
-	// Player尸体
+	// Player corpse
 	EACT_PlayerBody <DisplayName="PlayerBody">,
 
 	// Doodad
 	EACT_Doodad <DisplayName="Doodad">,
 
-	// 掉落物品
+	// Dropped item
 	EACT_DropItem <DisplayName="DropItem">,
 
 	// TOY
 	EACT_Toy <DisplayName="Toy">,
 
-	// 宠物
+	// Pet
 	EACT_Pet <DisplayName="Pet">,
 
-	// 功能NPC
+	// Function NPC
 	EACT_Function_NPC <DisplayName="FNPC">,
 
-	// GM（GM是比较特殊的，考虑后期做客服）
+	// GM(GM is special, consider customer service later)
 	EACT_GM  <DisplayName="GM">
 };
 

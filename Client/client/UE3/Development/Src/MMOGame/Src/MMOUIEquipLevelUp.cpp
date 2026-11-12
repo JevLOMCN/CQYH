@@ -281,7 +281,7 @@ UBOOL UMMOUIEquipLevelUp::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObje
 		return TRUE;
 	}
 	else if( (destSlotType == ESPType_Bag) && (srcSlotType == ESPType_EquipLevelUp) ){
-		//取消放置的物品
+		//Cancel placed item
 		INT panelSlotID = (INT)srcSlotMC->GetFloat( "EquipID" );
 		switch( panelSlotID )
 		{
@@ -324,7 +324,7 @@ void UMMOUIEquipLevelUp::UpdatePanel()
 }
 
 //========================================================================================================================================
-//重置当前界面显示内容
+//Reset current UI display content
 void UMMOUIEquipLevelUp::ResetPanel()
 {
 	UnSetLevelUpEquip();
@@ -335,7 +335,7 @@ void UMMOUIEquipLevelUp::ResetPanel()
 	UpdateFee();
 }
 //========================================================================================================================================
-//更新强化费用
+//Update enhancement cost
 void UMMOUIEquipLevelUp::UpdateFee()
 {
 	INT moneyCnt = -1;
@@ -347,7 +347,7 @@ void UMMOUIEquipLevelUp::UpdateFee()
 				moneyCnt = pLevelUpData->_MnyCost;
 			}
 
-			//更新条件标记
+			//Update condition flags
 			IsMnyOK = ( pLevelUpData != NULL && moneyCnt <= Player->GetMoney( E_MONEYTYPE_02 ) );
 		}
 	}
@@ -394,7 +394,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpEquip( INT bagSlotCon, INT bagSlotID )
 		return TRUE;
 	}
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( bagSlotCon, bagSlotID );
 	if( pInfo == NULL ){
 		MMOFacade::getSingleton().LockItem( _ToOpEquip._ConID, _ToOpEquip._SlotID, -1 );
@@ -403,7 +403,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpEquip( INT bagSlotCon, INT bagSlotID )
 		return FALSE;
 	}
 
-	//是否是武器
+	//Whether it is a weapon
 	UItem *pItemToOperation = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UBOOL isFitToPutIn = IsItemCanLevelUp( pItemToOperation );
 	if( !isFitToPutIn ){
@@ -411,7 +411,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpEquip( INT bagSlotCon, INT bagSlotID )
 		return FALSE;
 	}
 
-	//解锁背包内原先放入界面中的装备
+	//unlock the equipment previously placed in the UI from the bag
 	if( _ToOpEquip._ConID >= 0 && _ToOpEquip._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( _ToOpEquip._ConID, _ToOpEquip._SlotID, -1 );
 	}
@@ -419,7 +419,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpEquip( INT bagSlotCon, INT bagSlotID )
 	_ToOpEquip._ConID = bagSlotCon;
 	_ToOpEquip._SlotID = bagSlotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( _ToOpEquipSlot, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pItemToOperation, pInfo ), pItemToOperation->ItemId, 
 		ESPType_EquipLevelUp, TEXT(""), pItemToOperation->ItemColor+1, _ToOpEquip._ConID, _ToOpEquip._SlotID );
 	
@@ -505,7 +505,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpConsume( INT idx, INT bagSlotCon, INT bagSlo
 		return TRUE;
 	}
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( bagSlotCon, bagSlotID );
 	if( pInfo == NULL ){
 		MMOFacade::getSingleton().LockItem( opItemPos._ConID, opItemPos._SlotID, -1 );
@@ -514,7 +514,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpConsume( INT idx, INT bagSlotCon, INT bagSlo
 		return FALSE;
 	}
 
-	//是否是武器
+	//Whether it is a weapon
 	UItem *pItemToOperation = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UBOOL isFitToPutIn = IsItemConsumeForLevelUp( pItemToOperation );
 	if( !isFitToPutIn ){
@@ -522,7 +522,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpConsume( INT idx, INT bagSlotCon, INT bagSlo
 		return FALSE;
 	}
 
-	//解锁背包内原先放入界面中的装备
+	//unlock the equipment previously placed in the UI from the bag
 	if( opItemPos._ConID >= 0 && opItemPos._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( opItemPos._ConID, opItemPos._SlotID, -1 );
 	}
@@ -530,7 +530,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpConsume( INT idx, INT bagSlotCon, INT bagSlo
 	opItemPos._ConID = bagSlotCon;
 	opItemPos._SlotID = bagSlotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( opSlot, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pItemToOperation, pInfo ), pItemToOperation->ItemId, 
 		ESPType_EquipLevelUp, TEXT(""), pItemToOperation->ItemColor+1, opItemPos._ConID, opItemPos._SlotID );
 
@@ -612,7 +612,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpHelpItem( INT idx, INT bagSlotCon, INT bagSl
 		return TRUE;
 	}
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( bagSlotCon, bagSlotID );
 	if( pInfo == NULL ){
 		MMOFacade::getSingleton().LockItem( opItemPos._ConID, opItemPos._SlotID, -1 );
@@ -621,7 +621,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpHelpItem( INT idx, INT bagSlotCon, INT bagSl
 		return FALSE;
 	}
 
-	//是否是饰物
+	//Whether it is an accessory
 	UItem *pItemToOperation = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UBOOL isFitToPutIn = IsItemCanHelpLevelUp( pItemToOperation );
 	if( !isFitToPutIn ){
@@ -629,7 +629,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpHelpItem( INT idx, INT bagSlotCon, INT bagSl
 		return FALSE;
 	}
 
-	//解锁背包内原先放入界面中的装备
+	//unlock the equipment previously placed in the UI from the bag
 	if( opItemPos._ConID >= 0 && opItemPos._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( opItemPos._ConID, opItemPos._SlotID, -1 );
 	}
@@ -637,7 +637,7 @@ UBOOL UMMOUIEquipLevelUp::SetLevelUpHelpItem( INT idx, INT bagSlotCon, INT bagSl
 	opItemPos._ConID = bagSlotCon;
 	opItemPos._SlotID = bagSlotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( opSlot, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pItemToOperation, pInfo ), pItemToOperation->ItemId, 
 		ESPType_EquipLevelUp, TEXT(""), pItemToOperation->ItemColor+1, opItemPos._ConID, opItemPos._SlotID );
 
@@ -681,7 +681,7 @@ void UMMOUIEquipLevelUp::GrayAllBagItemsNoNeed( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -792,7 +792,7 @@ void UMMOUIEquipLevelUp::NotifyLevelUpResult( INT succeedType, INT duribilityEnu
 	//	{
 	//		InitSuccessConfirmBox( succeedType - eelrPlus1 + 1, duribilityEnum );
 
-	//		// 引导任务
+	//		// Tutorial quest
 	//		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_UpgradeEquip);
 	//	}
 	//	break;
@@ -919,7 +919,7 @@ void UMMOUIEquipLevelUp::ShowLevelUpResultConfirmBox( UBOOL isToShow )
 }
 
 //========================================================================================================================================
-//检查是否为可以执行操作
+//Check whether the operation can be performed
 UBOOL UMMOUIEquipLevelUp::CheckCanGo( FString &errStrName, FString &errorHint )
 {
 	UBOOL bRet = IsMnyOK;

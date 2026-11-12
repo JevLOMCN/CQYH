@@ -194,89 +194,89 @@ UBOOL MMOSystemActivateManager::GetSystemInfo(INT systemType, FString& icon, FSt
 	case EAST_Guild:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.guild");
-			name = TEXT("公会");
+			name = TEXT("Guild");
 			return TRUE;
 		}
 		break;
 	case EAST_Schedule:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.activity");
-			name = TEXT("活动");
+			name = TEXT("Activities");
 			return TRUE;
 		}
 		break;
 	case EAST_GoldStore:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.goldstore");
-			name = TEXT("金币交易行");
+			name = TEXT("Gold Exchange");
 			return TRUE;
 		}
 		break;
 	case EAST_LongWei:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.longwei");
-			name = TEXT("龙卫心法");
+			name = TEXT("Dragon Guard Art");
 			return TRUE;
 		}
 	case EAST_LingXing:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.lingxing");
-			name = TEXT("灵性修炼");
+			name = TEXT("Spirit Cultivation");
 			return TRUE;
 		}
 	case EAST_QiXi:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.qixi");
-			name = TEXT("气息修炼");
+			name = TEXT("Qi Cultivation");
 			return TRUE;
 		}
 		break;
 	case EAST_NormalQuest:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.normalquest");
-			name = TEXT("普通任务");
+			name = TEXT("Quests");
 			return TRUE;
 		}
 		break;
 	case EAST_Mall:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.mall");
-			name = TEXT("商城");
+			name = TEXT("Mall");
 			return TRUE;
 		}
 		break;
 	case EAST_Repute:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.repute");
-			name = TEXT("声望");
+			name = TEXT("Reputation");
 			return TRUE;
 		}
 		break;
 	case EAST_MasterStudent:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.master");
-			name = TEXT("师徒");
+			name = TEXT("Master & Apprentice");
 			return TRUE;
 		}
 		break;
 	case EAST_Enhance:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.enhance");
-			name = TEXT("体格强化");
+			name = TEXT("Physique Training");
 			return TRUE;
 		}
 		break;
 	case EAST_Riding:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.ride");
-			name = TEXT("坐骑");
+			name = TEXT("Mount");
 			return TRUE;
 		}
 		break;
 	case EAST_Handbook:
 		{
 			icon = TEXT("img://UI_SkillbarWidget.normalquest");
-			name = TEXT("百晓生");
+			name = TEXT("Baixiaosheng");
 			return TRUE;
 		}
 		break;

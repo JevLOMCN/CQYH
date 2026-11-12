@@ -11,8 +11,8 @@ class MMOUIContactWidget extends MMOUIBase
 //	EFOS_Busy,
 //};
 //var FriendManager FM;
-var GFxObject       ContactListContent; //基本信息都是在这里
-var GFxObject       SearchText; //基本信息都是在这里
+var GFxObject       ContactListContent; //basic info is all here
+var GFxObject       SearchText; //basic info is all here
 var GFxObject       MyFriendStatus;
 var GFxObject       SearchPanel;
 var GFxObject	    TipsWidget;
@@ -49,7 +49,7 @@ event InitLoad(MMOGFXPlayer pl)
 native function NativeInitOnce();
 
 
-//新建组，改组名，都用这个
+//Used for both creating a new group and renaming a group
 native function CreateNewGroup( string GroupName , int GroupId  );
 native function ChangeGroupName( string GroupName , int GroupId);
 native function DeleteGroup(  int GroupId );
@@ -62,7 +62,7 @@ native function SetBlackListNum( int num );
 native function AddNewFriend(GFxObject mc);
 native function AddNewFriend_No( GFxObject mc);
 
-//最近联系人
+//Recent contacts
 event CallSetNearContactData( GFxObject data )
 {
 	ActionScriptVoid("SetNearContactData");
@@ -169,7 +169,7 @@ native function ASNearContactDClick(GFXObject Item);
 
 //native function ASContactWidgetMiniMize(string WindowName);
 
-//---------------------------挪接口----------------------------------
+//---------------------------Move interface----------------------------------
 event CallCreateNewGroup( String GroupName , int GroupId )
 {
 	ActionScriptVoid("CreateNewGroup");

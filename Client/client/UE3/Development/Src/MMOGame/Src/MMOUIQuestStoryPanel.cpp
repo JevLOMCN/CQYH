@@ -136,7 +136,7 @@ void UMMOUIQuestStoryPanel::UpdateQuestChapterList()
 		if (object)
 		{
 			object->SetInt(TEXT("quest_chapter"), *iterChapter);
-			object->SetString(TEXT("quest_chapter_name"), FString::Printf(TEXT("第%d章:"), *iterChapter));
+			object->SetString(TEXT("quest_chapter_name"), FString::Printf(TEXT("Chapter %d: "), *iterChapter));
 		}
 
 		objectArray->SetElementObject(index, object);
@@ -184,7 +184,7 @@ void UMMOUIQuestStoryPanel::UpdateQuestStageList(UINT32 chapter)
 					object->SetInt(TEXT("quest_chapter"), data.Chapter);
 					object->SetInt(TEXT("quest_stage"), data.Stage);
 
-					FString stageName = FString::Printf(TEXT("第%d幕:"), *iterStage);
+					FString stageName = FString::Printf(TEXT("Act %d: "), *iterStage);
 					stageName += data.StageName;
 					object->SetString(TEXT("quest_stage_name"), stageName);
 
@@ -225,7 +225,7 @@ void UMMOUIQuestStoryPanel::ASUpdateQuestChapterList()
 
 void UMMOUIQuestStoryPanel::ASUpdateQuestStageList(INT chapter)
 {
-	// 目前章节任务是从第4章开始的，先临时偏移下
+	// chapter quests currently start from chapter 4, temporarily offset for now
 	UpdateQuestStageList(chapter);
 }
 

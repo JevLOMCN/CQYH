@@ -1,5 +1,5 @@
 
-// 播放指定的动画
+// play the specified animation
 
 class SeqAct_PlayAnim extends SequenceAction;
 

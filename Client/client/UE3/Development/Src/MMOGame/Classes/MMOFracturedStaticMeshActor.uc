@@ -1,5 +1,5 @@
 //
-// FracturedStaticMeshActor类
+// FracturedStaticMeshActor class
 //
 
 class MMOFracturedStaticMeshActor extends FracturedStaticMeshActor implements(IAbilityDamageable)
@@ -7,7 +7,7 @@ class MMOFracturedStaticMeshActor extends FracturedStaticMeshActor implements(IA
 	placeable;
 
 var(MMO) DynamicLightEnvironmentComponent LightEnvironment <DisplayName="LightEnvironment">;
-//var(MMO) SoundCue ExplosionSound <DisplayName="爆炸音效">;
+//var(MMO) SoundCue ExplosionSound <DisplayName="Explosion sound">;
 var(MMO) PhysicalMaterial PhysMaterial <DisplayName="PhysMaterial">;
 
 var(MMO) bool SpawnFracPartChunk <DisplayName="SpawnFracPartChunk">;
@@ -17,7 +17,7 @@ var(MMO) float ExplodeEffectScale <DisplayName="ExplodeEffectScale">;
 
 var ActorAttribute MyAttribute;
 
-// 阵营标识, 两阵营标识做 AND 操作，不为0是友好
+// Faction ID, AND two faction IDs; non-zero means friendly
 var int FriendlyMask;
 
 simulated event PostBeginPlay()
@@ -36,7 +36,7 @@ simulated event Explode()
 {
 	//local FracturedStaticMesh mesh;
 	//local PhysicalMaterial pm;
-	// 爆炸特效
+	// Explosion effect
 	local EmitterSpawnable ExplodeSFX;
 
 	local array<byte> FragmentVis;
@@ -49,7 +49,7 @@ simulated event Explode()
 	local Sequence GameSequence;
 	local array<SequenceObject> Events;
 
-	// HACK: 破坏掉后就不再爆炸
+	// HACK: HACK: no more explosion after destroyed
 	if(bHidden)
 	{
 		return;
@@ -124,7 +124,7 @@ simulated event Explode()
 	}
 }
 
-// 取得阵营标识，以计算伤害
+// Get faction ID to calculate damage
 event int GetFriendlyMask()
 {
 	return FriendlyMask;
@@ -140,7 +140,7 @@ event bool IsDead()
 	return false;
 }
 
-// 取得攻击防御属属性
+// Get attack/defense attributes
 function ActorAttribute GetActorAttribute()
 {
 	return MyAttribute;

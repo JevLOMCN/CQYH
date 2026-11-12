@@ -121,18 +121,18 @@ INT32 ActivityManager::_GetVariableCompleteCount(UINT8 varType, UINT16 index)
 	{
 		switch (index)
 		{
-		case EARV_ID_2:// 公会据点战是否领取BUFF
+		case EARV_ID_2:// Whether the guild stronghold war BUFF has been claimed
 			count = _GetVariableValue(varType, index) > 0 ? 1 : 0;
 			break;
 
-		case EARV_ID_4:// 幽冥海上次进入时间
-		case EARV_ID_5:// 公会祈祷上次时间
-		case EARV_ID_6:// 九层妖塔上次进入时间
-		case EARV_ID_7:// 皇室宝库上次进入时间
-		case EARV_ID_8:// 经验武斗场上次进入时间
-		case EARV_ID_10:// 角色上次做公会行商时间
-		case EARV_ID_11:// 角色是否当日泡过温泉的时间
-		case EARV_ID_12:// 演武场每日计数时间
+		case EARV_ID_4:// Last entry time to Youming Sea
+		case EARV_ID_5:// Last guild prayer time
+		case EARV_ID_6:// Last entry time to Nine-Layer Demon Tower
+		case EARV_ID_7:// Last entry time to Royal Treasury
+		case EARV_ID_8:// Last entry time to Experience Arena
+		case EARV_ID_10:// Last time the character did guild trading
+		case EARV_ID_11:// Time the character last soaked in the hot spring today
+		case EARV_ID_12:// Training Ground daily count time
 			{
 				int lastDay = 0;
 				int lastHour = 0;
@@ -156,8 +156,8 @@ INT32 ActivityManager::_GetVariableCompleteCount(UINT8 varType, UINT16 index)
 				}
 
 				/*
-				// 凌晨4:00重置版本
-				// 任务 #25369
+				// Reset version at 4:00 AM
+				// Quest #25369
 				if (lastDay < localDay - 1)
 				{
 					count = 0;
@@ -249,7 +249,7 @@ INT32 ActivityManager::_GetVariableCompleteCount(UINT8 varType, UINT16 index)
 				}
 				*/
 
-				// 凌晨0:00重置版本
+				// Reset version at 0:00 AM
 				if (lastDay < localDay)
 				{
 					count = 0;
@@ -285,7 +285,7 @@ INT32 ActivityManager::_GetVariableCompleteCount(UINT8 varType, UINT16 index)
 	return count;
 }
 
-// 活动状态更新事件
+// Activity state update event
 void ActivityManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 {
 	switch (evt->GetEventType())
@@ -303,7 +303,7 @@ void ActivityManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 	}
 }
 
-// 活动数据
+// Activity data
 const ActivityData* ActivityManager::GetActivityData(INT activityId) const
 {
 	if(activityId < 0)
@@ -762,7 +762,7 @@ void ActivityManager::FilterActivityType(INT nActivityType,INT nRewardType)
 	}
 	else
 	{
-		//副本 不过滤直接显示
+		//Dungeon: show directly without filtering
 	}
 }
 void ActivityManager::SetActivityList(UMMOGFXPlayer* gfxPlayer, UGFxObject* dataProvider)
@@ -802,7 +802,7 @@ void ActivityManager::_GetGuildActivityTimeString(UINT16 activityType, FString& 
 	GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 	if (baseInfo.Id == 0)
 	{
-		timeString = TEXT("待定");
+		timeString = TEXT("TBD");
 		return;
 	}
 
@@ -818,7 +818,7 @@ void ActivityManager::_GetGuildActivityTimeString(UINT16 activityType, FString& 
 		{
 			if (iter->second.State == GAS_NONE)
 			{
-				timeString = TEXT("待定");
+				timeString = TEXT("TBD");
 			}
 			else
 			{
@@ -888,7 +888,7 @@ void ActivityManager::SetActivityDataList(UMMOGFXPlayer* gfxPlayer, UGFxObject* 
 	
 	for (INT index = 0; iter != _ActivityCurShowDataList.end(); ++ iter)
 	{
-		//timeLimit为0,表示不做时间限制
+		//timeLimit of 0 means no time limit
 		INT findIndex = 0;
 		if (iter->aTimeLimit.Num() > 0)
 		{
@@ -1089,13 +1089,13 @@ void ActivityManager::SetActivityTeamMemberInfo(UMMOGFXPlayer* gfxPlayer, UGFxOb
 	object->SetString(TEXT("class_limit_title"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Activity.ClassLimit")));
 	if(ActivityManager::getSingleton().GetActivityFilterType() == EActivityCopy)
 	{
-		//副本
+		//Dungeon
 		object->SetInt(TEXT("TipsType"), 1);
 		object->SetString(TEXT("title_1"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Activity.HuoYue")));
 	}
 	else
 	{
-		//活动
+		//Activity
 		object->SetInt(TEXT("TipsType"), 0);
 		object->SetString(TEXT("title_1"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Activity.Times")));
 	}
@@ -1161,7 +1161,7 @@ void ActivityManager::SetActivityTeamInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* 
 		const ActivityData* pkActivity = GetActivityData(_CurActivityId);
 		if(pkActivity)
 		{
-			//如果是单人活动或副本就不显示队伍
+			//If it is a single-player activity or dungeon, don't show the team
 			if(pkActivity->nPersonNumMin <= 1)
 			{
 				UGFxObject* teamItem = gfxPlayer->CreateObject(TEXT("Object"));
@@ -1206,8 +1206,8 @@ void ActivityManager::SetActivityTeamInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* 
 
 void ActivityManager::SetActivityInviteList(UMMOGFXPlayer* gfxPlayer, UGFxObject* object, INT nType, UBOOL bActivity)
 {
-	//bActivity 活动还是副本
-	//nType 0 好友，1 最近队友，2 公会成员
+	//bActivity: activity or dungeon
+	//nType 0 friend, 1 recent teammate, 2 guild member
 }
 
 void ActivityManager::SetActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* object, INT nActivityID)
@@ -1226,7 +1226,7 @@ void ActivityManager::SetActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject
 		conditionDesc = pkActivity->sLevelString;
 
 	if (pkActivity->nVipLevel > 0)
-		conditionDesc += TEXT("VIP玩家");
+		conditionDesc += TEXT("VIP player");
 
 	conditionDesc += '\n';
 	if (pkActivity->nPersonNumMin >= 0)
@@ -1236,7 +1236,7 @@ void ActivityManager::SetActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject
 	object->SetString(TEXT("conditionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle1")));
 	object->SetString(TEXT("conditionLimited"), conditionDesc);
 	
-	// 接取NPC
+	// Quest-giver NPC
 	object->SetString(TEXT("positionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle2")));
 
 	for (INT i = 0; i < pkActivity->ndestMapID.Num(); ++i)
@@ -1261,7 +1261,7 @@ void ActivityManager::SetActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject
 			continue;
 		}
 
-		if (pkActivity->sNpcName(i) == TEXT("无"))
+		if (pkActivity->sNpcName(i) == TEXT("None"))
 		{
 			conditionDesc += pkActivity->sNpcName(i);
 		}
@@ -1280,7 +1280,7 @@ void ActivityManager::SetActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject
 	object->SetString(TEXT("describleTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle3")));
 	object->SetString(TEXT("describle"), pkActivity->sDecrible);
 
-	// 道具奖励
+	// Item reward
 	object->SetString(TEXT("rewardTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle4")));
 }
 void ActivityManager::SetFBDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* object, INT nFBID)
@@ -1296,7 +1296,7 @@ void ActivityManager::SetFBDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* obje
 
 	object->SetString(TEXT("activityName"),pkFB->sFBName);
 	object->SetString(TEXT("conditionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitleFB1")));
-	//object->SetString(TEXT("conditionTitle"),TEXT("目标BOSS"));
+	//object->SetString(TEXT("conditionTitle"),TEXT("Target BOSS"));
 	UNPCTemplate* acceptNpc = NULL;
 	if (pkFB->nAcceptNpcID > 0)
 	{
@@ -1314,7 +1314,7 @@ void ActivityManager::SetFBDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* obje
 		yPos = teleportLink->From.Location.Y;
 		zPos = teleportLink->From.Location.Z;
 	}*/
-	// 接取NPC
+	// Quest-giver NPC
 	FString conditionDesc = FString::Printf(TEXT("<font color='#14a800'>%s</font>"), *LinkManager::HtmlLink_NPCNav(pkFB->sFBName,pkFB->nAcceptNpcID, pkFB->ndestMapID, TRUE));
 
 	object->SetPureString(TEXT("activityPosition"), conditionDesc);
@@ -1323,7 +1323,7 @@ void ActivityManager::SetFBDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* obje
 	object->SetString(TEXT("describle"), pkFB->sDecrible);
 
 	object->SetString(TEXT("rewardTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitleFB4")));
-	// 道具奖励
+	// Item reward
 }
 void ActivityManager::ClearActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* object)
 {
@@ -1334,7 +1334,7 @@ void ActivityManager::ClearActivityDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObje
 	object->SetString(TEXT("conditionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle1")));
 	object->SetString(TEXT("conditionLimited"), TEXT(""));
 
-	// 接取NPC
+	// Quest-giver NPC
 	object->SetString(TEXT("positionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle2")));
 	object->SetString(TEXT("activityPosition"), TEXT(""));
 	object->SetString(TEXT("describleTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitle3")));
@@ -1348,10 +1348,10 @@ void ActivityManager::ClearFBDetailInfo(UMMOGFXPlayer* gfxPlayer, UGFxObject* ob
 
 	object->SetString(TEXT("activityName"),TEXT(""));
 	object->SetString(TEXT("conditionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitleFB1")));
-	//object->SetString(TEXT("conditionTitle"),TEXT("目标BOSS"));
+	//object->SetString(TEXT("conditionTitle"),TEXT("Target BOSS"));
 	object->SetString(TEXT("conditionLimited"), TEXT(""));
 	object->SetString(TEXT("positionTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitleFB2")));
-	// 接取NPC
+	// Quest-giver NPC
 	object->SetString(TEXT("activityPosition"), TEXT(""));
 	object->SetString(TEXT("describleTitle"),MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Activity.DetailTitleFB3")));
 	object->SetString(TEXT("describle"), TEXT(""));
@@ -1534,12 +1534,12 @@ INT ActivityManager::GetActiveValue()
 }
 INT ActivityManager::GetRewardState(INT nIndex)
 {
-	//0是不可领取 1是可以领而未领取  2 是已领取
+	//0 is not claimable, 1 is claimable but not yet claimed, 2 is already claimed
 	INT nState = -1;
 	INT nHave = _RewardBit&(0x0001<<(nIndex + 1));
 	if (nHave == 0)
 	{
-		//0今天未领 _RewardBit
+		//0 not claimed today _RewardBit
 		const RewardBarItem* pkRew = GetRewardBarCondition(nIndex);
 		if(pkRew)
 		{
@@ -1551,7 +1551,7 @@ INT ActivityManager::GetRewardState(INT nIndex)
 	}
 	else if(nHave > 0)
 	{
-		//1是今天已领 _RewardBit
+		//1 claimed today _RewardBit
 		nState = 2;
 	}
 	return nState;
@@ -1778,7 +1778,7 @@ ActivityTeam* ActivityManager::GetActivityTeamById(INT TeamId)
 //////////////////////////////////////////////////////////////////////////
 ActivityData* ActivityDataProcessor::CreateDataObject(INT templateID, bool& needAddToMap)
 {
-	//不用 new
+	//No need for new
 	needAddToMap = false;
 	return NULL;
 }

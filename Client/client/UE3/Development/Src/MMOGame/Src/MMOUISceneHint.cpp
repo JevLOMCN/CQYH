@@ -40,7 +40,7 @@ void UMMOUISceneHint::Init()
 		UGFxObject* HeadName= this->AttachMovie( TEXT("PlayerNameHintText") , FString::Printf( TEXT("PlayerNameHintTextEx%d"), i) ,1 );
 		if(HeadName==NULL)
 		{
-			warnf(NAME_Log, TEXT("SceneHint初始化错误!"));
+			warnf(NAME_Log, TEXT("SceneHint initialization error!"));
 		}
 		HeadName->AddToRoot();
 		HeadName->SetVisible(FALSE);
@@ -265,7 +265,7 @@ void UMMOUISceneHint::OnShutDown()
 	if(bShutDown)return;
 	bShutDown = TRUE;
 
-	//智能删除
+	//Smart delete
 	INT2FActorHintMap::iterator HintItor = mapHint.begin();
 	for( HintItor = mapHint.begin(); HintItor!=mapHint.end();	 )
 	{
@@ -292,7 +292,7 @@ bool g_updateMainPlayerHudName = true;
 
 void UMMOUISceneHint::RefleshHintsByTemp(INT nTempleteID)
 {
-	//根据模板ID批量刷新
+	//Batch refresh by template ID
 	if (nTempleteID < 0)
 	{
 		INT2FActorHintMap::iterator HintItor = mapHint.begin();
@@ -392,7 +392,7 @@ void UMMOUISceneHint::UpdateHints_Pos(float DeltaTime)
 
 	
 
-	//自己
+	//Self
 	AMMOPlayer* self = MMOFacade::getSingleton().GetMainPlayer();
 	if(self)
 	{
@@ -429,7 +429,7 @@ void UMMOUISceneHint::UpdateHints_Pos(float DeltaTime)
 		//}
 	}
 
-	////player遍历
+	////player traversal
 	//STLInt2IntMap* PlayerMap = MMOFacade::getSingleton().GetPlayerMap();
 	//STLInt2IntMap::iterator PlayerMapItor ;
 	//for ( PlayerMapItor= PlayerMap->begin();  PlayerMapItor !=PlayerMap->end(); PlayerMapItor++ )
@@ -442,7 +442,7 @@ void UMMOUISceneHint::UpdateHints_Pos(float DeltaTime)
 	//	}
 	//}
 
-	//npc遍历 player遍历
+	//npc traversal player traversal
 	STLInt2IntMap* ActorMap = MMOFacade::getSingleton().GetCharacterMap();
 	STLInt2IntMap::iterator ActorMapItor ;
 	UBOOL bBlockCheck = MMOFacade::getSingleton().GetBlockCheck();
@@ -483,7 +483,7 @@ void UMMOUISceneHint::UpdateHints_Pos(float DeltaTime)
 
 	MMOFacade::getSingleton().DoBlockCheck();
 
-	//智能删除
+	//Smart delete
 	if(bRefresh)
 	{
 		bRefresh = FALSE;
@@ -516,7 +516,7 @@ void UMMOUISceneHint::UpdateHints_Pos(float DeltaTime)
 		}
 	}
 
-	// 沙巴克雕像
+	// Sabak statue
 	MMOGuildManager::getSingleton().UpdateStatueHint(TRUE);
 }
 
@@ -640,7 +640,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 
 	if(pl==NULL)
 	{
-		debugf(NAME_Error, TEXT("------------------UpdateHints_Player 输入为NULL"));
+		debugf(NAME_Error, TEXT("------------------UpdateHints_Player input is NULL"));
 		return;
 	}
 
@@ -660,7 +660,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 	//}
 
 
-	//--距离判断,距离外不做处理，只做隐藏------------------------------------------------------------------------------
+	//--Distance check, beyond the distance do nothing but hide------------------------------------------------------------------------------
 	FLOAT dist = (pl->Location - Player->Location).SizeSquared2D();
 	if(dist > maxViewDist)
 	{
@@ -673,7 +673,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 	}
 
 	UBOOL bUpdatePos=FALSE;
-	//增加headName的UI
+	//Add headName UI
 	if(HeadName==NULL)
 	{
 		if(stackHintNum>0)
@@ -692,7 +692,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 			eventSetHpInfo(  HeadName, 100, 100, 1,  0);
 		}
 
-		//加入本地表
+		//Add to local table
 		FActorHint PH(EC_EventParm);
 		PH.PlayerHeadText = HeadName;	
 		PH.PlayerNo = pl->ServerID;
@@ -742,13 +742,13 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 
 	}
 		
-	//--确认元件齐备--------------------------------------------------------------------------
+	//--Confirm components are complete--------------------------------------------------------------------------
 	if(HeadName==NULL||pActorHint==NULL)
 	{
 		return;
 	}
 
-	////--visible刷新---------------------------------------------------------------------------
+	////--visible refresh---------------------------------------------------------------------------
 	if(pActorHint->IsVisible==FALSE && pActorHint->ForceUpdate==FALSE && pActorHint->ForceUpdateCountDown<0)
 	{
 		pActorHint->IsVisible = TRUE;
@@ -756,7 +756,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 	}
 
 
-	//--alpha的渐变----------------------------------------------------------------------------
+	//--alpha fade----------------------------------------------------------------------------
 
 	FLOAT InAlpha = 1.0;
 	if(dist <= maxViewDist && dist > maxViewDist/2)
@@ -772,7 +772,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 		
 		
 
-	//--位置绑定，从3d投射到2d-------------------------------------------------------------------------
+	//--Position binding, projecting from 3d to 2d-------------------------------------------------------------------------
 	FVector2D ScreenPos;
 	FLOAT  h = 0;
 	if(pl->CylinderComponent)
@@ -792,16 +792,16 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 
 		if(dx*dx+dy*dy>0 || bUpdatePos)
 		{
-			HeadName->SetPosition( ScreenPos.X ,ScreenPos.Y );//图中心
+			HeadName->SetPosition( ScreenPos.X ,ScreenPos.Y );//image center
 			pActorHint->CurScreenX=ScreenPos.X;
 			pActorHint->CurScreenY=ScreenPos.Y;
 		}
 	}
 
-	//--细节解析，分量表示-------------------------------------------------------------------------------------
+	//--Detail parsing, component representation-------------------------------------------------------------------------------------
 	if(Force)
 	{
-		//细节解析，分量表示
+		//Detail parsing, component representation
 		if( pl->MoveType == EMT_InStall  || pl->MoveType == EMT_PrepareStall )
 		{
 
@@ -867,7 +867,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 			if (pl->IsMainPlayer())
 			{
 				/*
-					名字先调用  其次是vip 再次是仇人标识
+					Name is called first, then vip, then enemy marker
 				*/
 				eventSetPlayerTxt_Name(HeadName, GetPlayerNameFrame(pl)	,ActorName,NameColor);
 //				eventSetVipState(HeadName,MMOVipManager::getSingleton().GetMyCurrentVipType());
@@ -875,7 +875,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 			else
 			{
 				/*
-					名字先调用  其次是vip 再次是仇人标识
+					Name is called first, then vip, then enemy marker
 				*/
 				eventSetPlayerTxt_Name(HeadName, GetPlayerNameFrame(pl)	,ActorName,NameColor);
 //				eventSetVipState(HeadName,pl->GetVipType());
@@ -914,7 +914,7 @@ void UMMOUISceneHint::UpdateHints_Player(class AMMOPlayer* pl,class ULocalPlayer
 				}
 			}
 
-			// 公会
+			// guild
 			FString guildName = TEXT("");
 			if (!pl->GuildName.IsEmpty())
 			{
@@ -980,7 +980,7 @@ FString UMMOUISceneHint::GetPlayerNameColor(AMMOPlayer* pl)
 	AMMOPlayerController* playerCtrl = MMOFacade::getSingleton().GetMainController();
 	if(playerCtrl==NULL||pl==NULL)return TEXT("Player3");
 
-	//1.沙巴克，攻守方----------------------------------------------------------------------------------
+	//1. Sabak, attacker/defender----------------------------------------------------------------------------------
 	MMOTeamMember *pTeammate = TeamManager::getSingleton().GetMemberById( pl->ServerID );
 	if(pl->inSabacZoneCount > 0)
 	{
@@ -999,7 +999,7 @@ FString UMMOUISceneHint::GetPlayerNameColor(AMMOPlayer* pl)
 		}
 	}
 
-	//2.敌对阵营-----------------------------------------------------------------------------------------
+	//2. Hostile faction-----------------------------------------------------------------------------------------
 	FExportMap *pMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfoPointer( playerCtrl->CurMapID );
 	INT mapType = E_est_Invalid;
 	if( pMapInfo != NULL )
@@ -1018,13 +1018,13 @@ FString UMMOUISceneHint::GetPlayerNameColor(AMMOPlayer* pl)
 		}
 	}
 
-	//3.灰名----------------------------------------------------------------------------------------------
+	//3. Gray name----------------------------------------------------------------------------------------------
 	if(pl->ActorAttributes && pl->ActorAttributes->IsGreyName )
 	{
 		return TEXT("");
 	}
 
-	//4.特殊名--------------------------------------------------------------------------------------------
+	//4. Special name--------------------------------------------------------------------------------------------
 	if(pl->ActorAttributes )
 	{
 		if(pl->ActorAttributes->FrameEx1.Len()>0){
@@ -1036,7 +1036,7 @@ FString UMMOUISceneHint::GetPlayerNameColor(AMMOPlayer* pl)
 		}
 	}
 
-	//5.自然显示
+	//5. Natural display
 	if (pl->ActorAttributes->PkValue >= 100)
 	{
 		return TEXT("");
@@ -1057,7 +1057,7 @@ FString UMMOUISceneHint::GetPlayerNameFrame(AMMOPlayer* pl)
 	AMMOPlayerController* playerCtrl = MMOFacade::getSingleton().GetMainController();
 	if(playerCtrl==NULL||pl==NULL)return TEXT("Player3");
 
-	//1.沙巴克，攻守方----------------------------------------------------------------------------------
+	//1. Sabak, attacker/defender----------------------------------------------------------------------------------
 	MMOTeamMember *pTeammate = TeamManager::getSingleton().GetMemberById( pl->ServerID );
 	if(pl->inSabacZoneCount > 0)
 	{
@@ -1076,7 +1076,7 @@ FString UMMOUISceneHint::GetPlayerNameFrame(AMMOPlayer* pl)
 		}
 	}
 
-	//2.敌对阵营-----------------------------------------------------------------------------------------
+	//2. Hostile faction-----------------------------------------------------------------------------------------
 	FExportMap *pMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfoPointer( playerCtrl->CurMapID );
 	INT mapType = E_est_Invalid;
 	if( pMapInfo != NULL )
@@ -1095,13 +1095,13 @@ FString UMMOUISceneHint::GetPlayerNameFrame(AMMOPlayer* pl)
 		}
 	}
 
-	//3.灰名----------------------------------------------------------------------------------------------
+	//3. Gray name----------------------------------------------------------------------------------------------
 	if(pl->ActorAttributes && pl->ActorAttributes->IsGreyName )
 	{
 		return TEXT("Grey");
 	}
 
-	//4.特殊名--------------------------------------------------------------------------------------------
+	//4. Special name--------------------------------------------------------------------------------------------
 	if(pl->ActorAttributes )
 	{
 		if(pl->ActorAttributes->FrameEx1.Len()>0){
@@ -1114,7 +1114,7 @@ FString UMMOUISceneHint::GetPlayerNameFrame(AMMOPlayer* pl)
 	}
 
 
-	//5.自然显示
+	//5. Natural display
 	if(pl->IsMainPlayer() && pl->ActorAttributes->PkValue<100)return TEXT("Player1");
 	else if(pTeammate && pl->ActorAttributes->PkValue<100)return TEXT("Group1");
 	else if(pl->ActorAttributes->PkValue<100)return TEXT("Player3");
@@ -1280,7 +1280,7 @@ UBOOL UMMOUISceneHint::CreateNpcHint(class ANPC* npc)
 	//UGFxObject* HeadName = this->AttachMovie( TEXT("PlayerNameHintText") , FString::Printf( TEXT("PlayerNameHintText%d"), npc->ServerID),1  );
 	//HeadName->AddToRoot();
 
-	//加入本地表
+	//Add to local table
 	FActorHint PH(EC_EventParm);
 	PH.PlayerHeadText = HeadName;
 	PH.PlayerNo = npc->ServerID;
@@ -1389,7 +1389,7 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 
 	if(pl==NULL)
 	{
-		debugf(NAME_Error, TEXT("------------------UpdateHints_NPC 输入为NULL"));
+		debugf(NAME_Error, TEXT("------------------UpdateHints_NPC input is NULL"));
 		return;
 	}
 
@@ -1434,7 +1434,7 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 		return;
 	}
 
-	//--距离判断,距离外不做处理，只做隐藏------------------------------------------------------------------------------
+	//--Distance check, beyond the distance do nothing but hide------------------------------------------------------------------------------
 	FLOAT dist = (pl->Location - Player->Location).SizeSquared2D();
 	if(dist > maxViewDist)
 	{
@@ -1447,7 +1447,7 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 	}
 
 
-	//--增加headName的UI-------------------------------------------------------------------------------------------------
+	//--Add headName UI-------------------------------------------------------------------------------------------------
 	if(HeadName==NULL)
 	{
 				
@@ -1465,7 +1465,7 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 			HeadName->SetVisible(FALSE);
 		}
 
-		//加入本地表
+		//Add to local table
 		FActorHint PH(EC_EventParm);
 		PH.PlayerHeadText = HeadName;
 		PH.PlayerNo = pl->ServerID;
@@ -1504,20 +1504,20 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 		}
 	}
 
-	//--确认元件齐备--------------------------------------------------------------------------
+	//--Confirm components are complete--------------------------------------------------------------------------
 	if(HeadName==NULL||pActorHint==NULL)
 	{
 		return;
 	}
 
-	//--visible刷新---------------------------------------------------------------------------
+	//--visible refresh---------------------------------------------------------------------------
 	if(pActorHint->IsVisible==FALSE && pActorHint->ForceUpdate==FALSE && pActorHint->ForceUpdateCountDown<0)
 	{
 		pActorHint->IsVisible = TRUE;
 		HeadName->SetVisible(TRUE);
 	}
 
-	//--alpha的渐变----------------------------------------------------------------------------
+	//--alpha fade----------------------------------------------------------------------------
 	FLOAT InAlpha = 1.0;
 	if(dist <= maxViewDist && dist > maxViewDist/2)
 	{
@@ -1531,7 +1531,7 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 	}
 			
 
-	//--位置绑定，从3d投射到2d-------------------------------------------------------------------------
+	//--Position binding, projecting from 3d to 2d-------------------------------------------------------------------------
 	FVector2D ScreenPos;
 	FLOAT  h = 0;
 	if(pl->UseingAvatar)
@@ -1553,21 +1553,21 @@ void UMMOUISceneHint::UpdateHints_NPC(class ANPC* pl,class ULocalPlayer* lp,UBOO
 		INT dy = pActorHint->CurScreenY-ScreenPos.Y;
 		if(dx*dx+dy*dy>0)
 		{
-			HeadName->SetPosition( ScreenPos.X ,ScreenPos.Y );//图中心
+			HeadName->SetPosition( ScreenPos.X ,ScreenPos.Y );//image center
 			pActorHint->CurScreenX=ScreenPos.X;
 			pActorHint->CurScreenY=ScreenPos.Y;
 		}
 	}
 
 	// fix bug #23679
-	// 任务怪头顶标志，会随任务状态，和进出任务区域不断变化，所以变化时需要更新
+	// Quest monster head marker changes continuously with quest state and entering/leaving the quest area, so it needs updating when it changes
 	if (IsQuestTrace != pActorHint->IsQuestTrace)
 	{
 		pActorHint->IsQuestTrace = IsQuestTrace;
 		Force = TRUE;
 	}
 
-	//--细节解析，分量表示-------------------------------------------------------------------------------------
+	//--Detail parsing, component representation-------------------------------------------------------------------------------------
 	if(Force)
 	{
 
@@ -1845,7 +1845,7 @@ void UMMOUISceneHint::TestNpcTalk( const FString &strWords )
 {
 	FString showWords = strWords;
 	if( showWords.IsEmpty() ){
-		showWords = TEXT("你好！我只是个测试泡泡。");
+		showWords = TEXT("Hello! I am just a test bubble.");
 	}
 
 	//AMMOActor* targetActor =    Cast<AMMOActor>(MMOTargetManager::getSingleton().GetDesireActor());//    .GetCurrentTarget();
@@ -1987,14 +1987,14 @@ void UMMOUISceneHint::BeforeViewUpdate(float DeltaTime)
 		return;
 	}
 	/*
-	性能调节提示
+	Performance tuning hint
 	*/
 
 	if( GSystemSettings.bAutoAdjustPerformance )
 	{
 		if(g_lastCheckTime > GSystemSettings.AutoPerformanceCheckTime)
 		{
-			// 过场动画时不要检测提示
+			// Do not check hints during cutscenes
 			if(!MMOFacade::getSingleton().GetMainController()->IsPlayingMatinee())
 			{
 				//FLOAT fInGameStateFps = MMOFacade::getSingleton().GetGameSateFps();				
@@ -2003,7 +2003,7 @@ void UMMOUISceneHint::BeforeViewUpdate(float DeltaTime)
 
 				if(s_averageFPS < GSystemSettings.LowerCheckFPS)
 				{		
-					// 只有在新的调节等级小于当前等级时才提示
+					// Only hint when the new tuning level is lower than the current level
 					INT newLv = GetFPSLevel(GAverageFPS);
 					if(GSystemSettings.bHintBeforeAutoAdjust && (newLv < GSystemSettings.AutoFPSLevel))
 					{
@@ -2083,7 +2083,7 @@ void UMMOUISceneHint::HideNearPlayer(FLOAT DeltaTime)
 
 					if(!strKey.IsEmpty())
 					{
-						FString text = FString::Printf( TEXT("按快捷键: %s 可以隐藏周围玩家") , *(strKey) );
+						FString text = FString::Printf( TEXT("Press %s to hide nearby players") , *(strKey) );
 						MMOChatManager::getSingleton().AddSystemMessage( text );
 						MMOUI::GetUIManager()->delegateAddScreenMessage( text ,MsgInfoType_Normal);
 					}
@@ -2142,7 +2142,7 @@ void UMMOUISceneHint::ASClickStallInfo(const FString& playerName, const FString&
 	}
 
 	if (playerName == mainPlayer->GetActorName() && stallName == mainPlayer->StallName)
-	{// 如果是自己
+	{// If it is self
 		if (mainPlayer->MoveType >= EMT_PrepareStall)
 		{
 			UMMOUIBag* bag = (UMMOUIBag*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_Bag);
@@ -2160,7 +2160,7 @@ void UMMOUISceneHint::ASClickStallInfo(const FString& playerName, const FString&
 		}
 	}
 
-	// 其他人
+	// Others
 	STLInt2IntMap* playerMap = MMOFacade::getSingleton().GetPlayerMap();
 	STLInt2IntMap::iterator playerMapItor;
 	for (playerMapItor = playerMap->begin(); playerMapItor != playerMap->end(); playerMapItor ++)
@@ -2177,13 +2177,13 @@ void UMMOUISceneHint::ASClickStallInfo(const FString& playerName, const FString&
 
 
 /************************************************************************/
-/*     接管名字UI的创建			                                        */
+/*     Take over name UI creation			                                        */
 /************************************************************************/
 class UGFxObject* UMMOUISceneHint::CreateHintFromPool()
 {
 	if(hintPool.empty())
 	{
-		//如果池2空了，则重新创建
+		//If pool 2 is empty, recreate
 		static int autoGenIndex = 0;
 		UGFxObject* HeadName = this->AttachMovie( TEXT("PlayerNameHintText") , FString::Printf( TEXT("PlayerNameHintText%d"), ++autoGenIndex),1  );
 		HeadName->AddToRoot();
@@ -2191,7 +2191,7 @@ class UGFxObject* UMMOUISceneHint::CreateHintFromPool()
 	}
 	else
 	{
-		//如果池中有待用则用池里的
+		//If the pool has spares, use those
 		GFxObjectSet::iterator it = hintPool.begin();
 		UGFxObject* fx = *it;
 		hintPool.erase(it);
@@ -2203,11 +2203,11 @@ class UGFxObject* UMMOUISceneHint::CreateHintFromPool()
 
 
 /************************************************************************/
-/*     接管名字UI的销毁			                                        */
+/*     Take over name UI destruction			                                        */
 /************************************************************************/
 void UMMOUISceneHint::RecycleHintToPool(class UGFxObject* HeadName)
 {
-	//直接隐藏并添加到待用池中
+	//Hide directly and add to the spare pool
 	HeadName->SetVisible(FALSE);
 	hintPool.insert(HeadName);
 }
@@ -2219,7 +2219,7 @@ void UMMOUISceneHint::InitHintPool()
 
 
 /************************************************************************/
-/*     当SceneHint销毁时销毁所有池中UI，释放内存                        */
+/*     When SceneHint is destroyed, destroy all UI in the pools to free memory                        */
 /************************************************************************/
 void UMMOUISceneHint::UnintHintPool()
 {

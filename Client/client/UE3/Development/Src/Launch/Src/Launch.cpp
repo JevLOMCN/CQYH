@@ -209,7 +209,7 @@ INT EngineInit( const TCHAR* SplashName )
 	return( ErrorLevel );
 }
 
-#if 1 // add by showlong, 增加对拖动窗口不阻塞游戏功能
+#if 1 // add by showlong, add support for dragging the window without blocking the game
 extern void MMOCursorDragWindowFrameProcess();
 extern void CursorDragWebWindowProcess();
 #endif
@@ -223,7 +223,7 @@ void EngineTick( void )
 	ResetRenderingCallStack(); // oscar@snda
 
 	GEngineLoop.Tick();
-#if 1 // add by showlong, 增加对拖动窗口不阻塞游戏功能
+#if 1 // add by showlong, add support for dragging the window without blocking the game
     MMOCursorDragWindowFrameProcess();
 	CursorDragWebWindowProcess();
 #endif
@@ -292,8 +292,8 @@ INT GuardedMain( const TCHAR* CmdLine, HINSTANCE hInInstance, HINSTANCE hPrevIns
 		M_MMO_HD = false;
 		M_LOW_MEM = true;
 		::MessageBox(NULL, 
-			TEXT("检测到虚拟内存只有2G左右，游戏运行会极不稳定(经常会白屏)。\n\n请到游戏安装菜单找到“开启3G内存扩展模式”快捷链接，用鼠标右键点击，在弹出的菜单中选择“以管理员身份运行”，完成后请重新启动Windows后再进游戏。\n\n建议升级到64位操作系统以获得更流畅的游戏体验。"),
-			TEXT("提示"),
+			TEXT("Only about 2 GB of virtual memory was detected. The game will be very unstable (often a white screen).\n\nPlease find the \"Enable 3G memory extension mode\" shortcut in the game's install menu, right-click it and choose \"Run as administrator\", then restart Windows and start the game again.\n\nUpgrading to a 64-bit operating system is recommended for a smoother experience."),
+			TEXT("Notice"),
 			MB_OK|MB_ICONWARNING);
 	}
 	else
@@ -313,8 +313,8 @@ INT GuardedMain( const TCHAR* CmdLine, HINSTANCE hInInstance, HINSTANCE hPrevIns
 				if( Handle == INVALID_HANDLE_VALUE )
 				{
 					if(IDNO == ::MessageBox(NULL, 
-						TEXT("检测到虚拟内存不足3G，自动切换到32位模式以获得稳定的游戏体验！\n\n升级到64位操作系统可以获得更流畅的游戏体验。\n\n下次启动游戏是否提示？"),
-						TEXT("提示"),
+						TEXT("Less than 3 GB of virtual memory detected. Automatically switching to 32-bit mode for a stable experience!\n\nUpgrading to a 64-bit operating system gives a smoother experience.\n\nShow this prompt next time the game starts?"),
+						TEXT("Notice"),
 						MB_YESNO|MB_ICONQUESTION))
 					{
 						Handle = ::CreateFileW(TEXT("NOTIP32"), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -580,7 +580,7 @@ UBOOL CheckSystemAndMemory()
 
 	if (bIsWow64 != TRUE)
 	{
-		::MessageBox(NULL, TEXT("检测到您的安装的是32位系统。本次测试只支持64位（4G内存）系统，建议您升级到64位系统并确保安装了4G内存后再安装游戏。给您带来的不便，敬请谅解。"),TEXT("警告"), MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL);
+		::MessageBox(NULL, TEXT("A 32-bit system was detected. This test only supports 64-bit systems (4 GB RAM). Please upgrade to a 64-bit system with 4 GB of RAM before installing the game. We apologise for the inconvenience."),TEXT("Warning"), MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL);
 		return FALSE;
 	}
 
@@ -593,7 +593,7 @@ UBOOL CheckSystemAndMemory()
 
 	//if (statex.ullTotalPhys < 4000000000)
 	//{
-	//	::MessageBox(NULL, TEXT("检测到您的内存不足4G。本次测试只支持64位（4G内存）系统，建议您升级到64位系统并确保安装了4G内存后再安装游戏。给您带来的不便，敬请谅解。"),TEXT("警告"), MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL);
+	//	::MessageBox(NULL, TEXT("Detected that your memory is less than 4G. This test only supports 64-bit (4G memory) systems; we recommend upgrading to a 64-bit system and making sure 4G of memory is installed before installing the game. We apologize for the inconvenience."),TEXT("Warning"), MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL);
 	//	return FALSE;
 	//}
 
@@ -658,13 +658,13 @@ INT WINAPI WinMain( HINSTANCE hInInstance, HINSTANCE hPrevInstance, char*, INT n
 		if(dwR == WAIT_TIMEOUT || dwR == WAIT_ABANDONED)
 		{
 #if 0
-			::MessageBox(NULL, TEXT("已经检测到有《传奇永恒》在运行了，请等待登录界面显示，或者强制结束进程后重开。"),
-				TEXT("警告"), MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL);
+			::MessageBox(NULL, TEXT("Legend Eternal is already running. Please wait for the login screen to appear, or force-close the process and start again."),
+				TEXT("Warning"), MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL);
 			CloseHandle( hnd );
 			return FALSE;
 #else
-			if(IDNO == ::MessageBox(NULL, TEXT("已经检测到有《传奇永恒》在运行了，是否要切换到低画质模式运行游戏？\r\n注意：多开游戏可能会使内存或显存不够导致游戏无法正常运行！"),
-				TEXT("警告"), MB_YESNO | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL))
+			if(IDNO == ::MessageBox(NULL, TEXT("Legend Eternal is already running. Run the game in low quality mode?\r\nNote: running multiple clients may use up memory or video memory and stop the game from running properly!"),
+				TEXT("Warning"), MB_YESNO | MB_ICONWARNING | MB_TOPMOST | MB_SYSTEMMODAL))
 			{
 				CloseHandle( hnd );
 				//return FALSE;
@@ -745,8 +745,8 @@ INT WINAPI WinMain( HINSTANCE hInInstance, HINSTANCE hPrevInstance, char*, INT n
 #if SHIPPING_PC_GAME
 	if(!(g_isSDOLogin || isSDOTest))
 	{
-		::MessageBox(NULL, TEXT("请通过安装时创建的快捷方式启动游戏。\n或者通过运行安装目录下的Launcher.exe进入游戏。"),
-			TEXT("提示"), MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SYSTEMMODAL);
+		::MessageBox(NULL, TEXT("Please start the game with the shortcut created during installation.\nOr run Launcher.exe in the install directory."),
+			TEXT("Notice"), MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SYSTEMMODAL);
 		return FALSE;
 	}
 #endif

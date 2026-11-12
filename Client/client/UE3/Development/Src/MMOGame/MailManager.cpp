@@ -42,7 +42,7 @@ void MailManager::Shutdown()
 {
 	ClearAllMails();
 
-	//保存邮件系统最近联系人
+	//save recent contacts of mail system
 	SaveData();
 }
 void MailManager::SetMailType(INT nType)
@@ -196,7 +196,7 @@ BOOL MailManager::IsCurrentPageMail(INT index, INT page)
 
 void MailManager::DeleteMail( UINT32 mailID )
 {
-	// 缓存的详细邮件也要删除掉
+	// cached detailed mail must also be deleted
 	MailDetailMap::iterator it = _CachedMailMap.find(mailID);
 	if(it != _CachedMailMap.end())
 	{
@@ -288,7 +288,7 @@ void MailManager::NotifyWriteSuccess()
 	MMOGameEvent_Mail evt(WriteSuccess, 0);
 	MMOUI::PostGameEvent(&evt);
 
-	// 引导任务
+	// Guide quest
 	MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Mail);
 }
 
@@ -364,7 +364,7 @@ void MailManager::DeleteSelected()
 		{
 			deleteMails.push_back(i->first);
 		}
-		//绑金ID == 0！！！！
+		//bound gold ID == 0!!!!
 		if (i->second->IsSelected && i->second->byAttachment != 0)
 		{
 			bShowBox = TRUE;
@@ -465,7 +465,7 @@ void MailManager::_ReadMail( ClientMailDetail mail )
 		MMOUI::ReplaceCensoredWord(Parms.content,CensoredWord_Chat);
 	}
 
-	//附件解封时间
+	//attachment unlock time
 	UINT32 cdtime = 0;
 
 	if (mail.nAttachCDTime > 0)

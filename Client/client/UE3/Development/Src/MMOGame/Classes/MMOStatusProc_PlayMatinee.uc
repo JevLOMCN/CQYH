@@ -1,5 +1,5 @@
 //
-// ´ò¿ªmatinee
+// Open matinee
 //
 class MMOStatusProc_PlayMatinee extends Object implements(IMMOStatusProc)
 	native

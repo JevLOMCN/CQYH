@@ -880,7 +880,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 		UTextureRenderTarget2D* RendTarget = GEditor->GetScratchRenderTarget( DstWidth );
 		if(!RendTarget)
 		{
-			appMsgf(AMT_OK, TEXT("貌似显存不够，无法创建内存贴图呢...,大小:%d x %d"), DstWidth, DstHeight);
+			appMsgf(AMT_OK, TEXT("Not enough video memory to create the in-memory texture..., size: %d x %d"), DstWidth, DstHeight);
 			return;
 		}
 
@@ -987,7 +987,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 		//	FRenderTarget* rendTar = RendTarget->GameThread_GetRenderTargetResource();
 		//	if(!rendTar)
 		//	{
-		//		appMsgf(AMT_OK, TEXT("从游戏线程访问渲染贴图为空，无法生成缩小后的小地图贴图！"));
+		//		appMsgf(AMT_OK, TEXT("Render texture accessed from game thread is empty, cannot generate the downscaled minimap texture!"));
 		//		continue;
 		//	}
 
@@ -1070,7 +1070,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 
 		GWarn->StatusUpdatef(j * MaxSubStep + 6, VolumeList.Num() * MaxSubStep, TEXT("Creating scaled path map texture:%s..."), *AerialPhotoName);
 
-		/*小地图不需要了，用大地图资源
+		/*Minimap is no longer needed, use the big map resource
 		if(MapVol->MiniMapScale < 1.0f)
 		{
 			TArray<FColor> RawData, ScaleData;
@@ -1080,7 +1080,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 			FRenderTarget* rendTar = RendTarget->GameThread_GetRenderTargetResource();
 			if(!rendTar)
 			{
-				appMsgf(AMT_OK, TEXT("从游戏线程访问渲染贴图为空，无法生成缩小后的小地图贴图！"));
+				appMsgf(AMT_OK, TEXT("The render texture accessed from the game thread is empty, cannot generate the downscaled minimap texture!"));
 				continue;
 			}
 
@@ -1133,7 +1133,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 		//	FRenderTarget* rendTar = RendTarget->GameThread_GetRenderTargetResource();
 		//	if(!rendTar)
 		//	{
-		//		appMsgf(AMT_OK, TEXT("从游戏线程访问渲染贴图为空，无法生成缩小后的小地图贴图！"));
+		//		appMsgf(AMT_OK, TEXT("Render texture accessed from game thread is empty, cannot generate the downscaled minimap texture!"));
 		//		continue;
 		//	}
 
@@ -1170,7 +1170,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 		//	//
 		//	MapVol->WorldMapOffsetX = ( worldMapW - ScaledSizeX ) / 2;
 		//	INT beginCol = MapVol->WorldMapOffsetX;
-		//	//ScaledSizeX不会超过66536，否则出错
+		//	//ScaledSizeX must not exceed 66536, otherwise error
 		//	INT srcBeginCol = 0;
 		//	UINT cpySrcRowSize = ScaledSizeX;
 		//	if( beginCol < 0 ){
@@ -1266,7 +1266,7 @@ void UUnrealEdEngine::CaptuerMapTexture()
 
 	if(VolumeList.Num() == 0)
 	{
-		appMsgf(AMT_OK, TEXT("没有找到MapSize Volume，请检查其所在关卡是否可见，或者其导出属性是否勾选！"));
+		appMsgf(AMT_OK, TEXT("MapSize Volume not found. Please check whether its level is visible and whether its export property is ticked!"));
 	}
 }
 // oscar@snda

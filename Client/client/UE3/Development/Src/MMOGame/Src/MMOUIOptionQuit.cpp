@@ -24,7 +24,7 @@ void UMMOUIOptionQuit::ASOptionQuitImmed()
 	}
 	else
 	{
-		//退出之前存个档
+		//Save before exiting
 		MMOChatManager::getSingleton().SaveRecord();
 		MMOUI::GetUIManager()->ImmQuitGame();
 	}

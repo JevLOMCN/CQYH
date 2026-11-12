@@ -24,7 +24,7 @@ Exporter_NPCSpawnGroup::~Exporter_NPCSpawnGroup(void)
 void Exporter_NPCSpawnGroup::PrePorcess(INT& GlobalAutoID)
 {
 	////------------------------------------------------------------------------
-	//// 分类对象
+	//// Classify objects
 	////------------------------------------------------------------------------
 	//for (INT i = 0; i < GWorld->Levels.Num(); ++i)
 	//{
@@ -48,7 +48,7 @@ void Exporter_NPCSpawnGroup::PrePorcess(INT& GlobalAutoID)
 
 	//INT autoID = 0;
 
-	//// 自动编号
+	//// Auto-numbering
 	//for( vector< AMMONPCSpawnGroup * >::iterator it = SpawnGroupList.begin(); it != SpawnGroupList.end() ; ++it)
 	//{
 	//	AMMONPCSpawnGroup* SpawnGrp = *it;
@@ -65,14 +65,14 @@ void Exporter_NPCSpawnGroup::IniData()
 	//NPC_SPAWN_POINT_HEADER  *spntHdr = new NPC_SPAWN_POINT_HEADER;
 	//NPC_SPAWN_GROUP_HEADER *grpHdr  = new NPC_SPAWN_GROUP_HEADER;
 
-	//// =========================导出SpawnGroupList==================
+	//// =========================Export SpawnGroupList==================
 	//grpHdr->nGroupCount = SpawnGroupList.size();
-	////定长，统一申请
+	////Fixed length, allocate uniformly
 	//NPC_SPAWN_GROUP_DATA *grpList = new NPC_SPAWN_GROUP_DATA[ grpHdr->nGroupCount ];
 	//memGroupAr.ByteOrderSerialize(grpHdr, sizeof(NPC_SPAWN_GROUP_HEADER));
 	//for (INT i = 0; i < grpHdr->nGroupCount ; ++i)
 	//{
-	//	//AutoServerID 暂时不用
+	//	//AutoServerID not used for now
 	//	grpList[i].nGroupID = SpawnGroupList[i]->AutoServerID;//NPCSpawnGroupId;
 	//	if(SpawnGroupList[i]->MaxConcurrentPoint > SpawnGroupList[i]->NPCSpawnPoints.Num())
 	//		grpList[i].nMaxConcurrentPoint = SpawnGroupList[i]->NPCSpawnPoints.Num();
@@ -80,7 +80,7 @@ void Exporter_NPCSpawnGroup::IniData()
 	//		grpList[i].nMaxConcurrentPoint = SpawnGroupList[i]->MaxConcurrentPoint;
 	//	grpList[i].IsAutoSpawn = SpawnGroupList[i]->IsAutoSpawn;
 	//	grpList[i].IsAutoReSpawn = SpawnGroupList[i]->IsAutoReSpawn;
-	//	//先导出Grp的原因在这里，对SpawnPoint的Group完成赋值
+	//	//This is why Grp is exported first: it completes the Group assignment for SpawnPoint
 	//	for( INT j = 0; j < SpawnGroupList[i]->NPCSpawnPoints.Num(); ++j )
 	//	{
 	//		if(!SpawnGroupList[i])
@@ -103,9 +103,9 @@ void Exporter_NPCSpawnGroup::IniData()
 	//	memGroupAr.ByteOrderSerialize(&grpList[i], sizeof(NPC_SPAWN_GROUP_DATA));
 	//}
 
-	//// =========================导出ANPCSpawnPoint==================
+	//// =========================Export ANPCSpawnPoint==================
 	//spntHdr->nPointCount = SpawnPointList.size();
-	////这里是变长 所以需要预先申请好内存
+	////This is variable length so memory needs to be allocated in advance
 	//int SpawnPointDataSize= spntHdr->nPointCount*sizeof( NPC_SPAWN_POINT_DATA ) ;
 	//for (INT i = 0; i < spntHdr->nPointCount ; ++i)
 	//{
@@ -126,14 +126,14 @@ void Exporter_NPCSpawnGroup::IniData()
 	//	spntData->shDirection = (UINT16)(SpawnPointList[i]->Rotation.Yaw);
 	//	spntData->nGroupID = SpawnPointList[i]->GroupID; 
 	//	spntData->nNpcCount = SpawnPointList[i]->NPCTemplateList.Num();
-	//	//这里也可以用流 << 直接输入，但这样表现相对直观 而且便于调试 
+	//	//The stream << could also be used for direct input here, but this is more intuitive and easier to debug
 	//	memPointAr.ByteOrderSerialize(spntData, sizeof(NPC_SPAWN_POINT_DATA));
-	//	//SpawnNPCTableOffest 开始于所有的NPCSpawnPoint数据之后
+	//	//SpawnNPCTableOffest starts after all NPCSpawnPoint data
 	//	for( INT j = 0; j < spntData -> nNpcCount  ; ++j )
 	//	{
 	//		spntNpcData = (NPC_SPAWN_DATA*)pSpawnPointData;
 	//		pSpawnPointData += sizeof(NPC_SPAWN_DATA);
-	//		//配多了 可能配错 出现空值
+	//		//Over-configured, may be misconfigured, resulting in empty values
 	//		if(!SpawnPointList[i]->NPCTemplateList(j).NPCTemplateArchi )
 	//		{
 	//			spntNpcData->nTemplateID = 0 ;
@@ -162,7 +162,7 @@ void Exporter_NPCSpawnGroup::IniData()
 void Exporter_NPCSpawnGroup::WriteHeader( FBufferArchive& ar)
 {
 	////Serialize
-	////难看，将就下
+	////Ugly, make do for now
 	//SCENE_FILE_BLOCK_HEADER blkHdrs[2];
 	//blkHdrs[0].eBlockType= sbtNpcSpawnPoint;
 	//blkHdrs[0].nBlockSize = 0;
@@ -173,7 +173,7 @@ void Exporter_NPCSpawnGroup::WriteHeader( FBufferArchive& ar)
 	//blkHdrs[1].nBlockOffset = sizeof(SCENE_FILE_BLOCK_HEADER);
 
 	//ar.ByteOrderSerialize(&blkHdrs[0], sizeof(SCENE_FILE_BLOCK_HEADER) );
-	//// 先存储位置，后面再修改参数
+	//// Store the position first, modify parameters later
 	//arBlkHdrs[0] = (SCENE_FILE_BLOCK_HEADER*)( ar.GetData() + ar.Tell() - sizeof(SCENE_FILE_BLOCK_HEADER) );
 
 	//ar.ByteOrderSerialize(&blkHdrs[1], sizeof(SCENE_FILE_BLOCK_HEADER));
@@ -182,14 +182,14 @@ void Exporter_NPCSpawnGroup::WriteHeader( FBufferArchive& ar)
 //------------------------------------------------------------------------
 void Exporter_NPCSpawnGroup::WriteData( FBufferArchive& ar )
 {
-	//// =====================SpawnPointList写到内存=====================
+	//// =====================Write SpawnPointList to memory=====================
 	//arBlkHdrs[0]->nBlockSize = memPointAr.TotalSize();
-	////计算SpawnPointList  nBlockOffset 注：Offest 是指与 SCENE_FILE_HEADER的Global Offset
+	////Calculate SpawnPointList nBlockOffset. Note: Offest means the Global Offset relative to SCENE_FILE_HEADER
 	//arBlkHdrs[0]->nBlockOffset = ar.Tell();
-	////Srialize时很可能会ReAllocate 地址会发生改变，watch arBlkHdrs[0] 会看到异常
+	////Serialize will likely ReAllocate and the address will change; watching arBlkHdrs[0] will show anomalies
 	//ar.ByteOrderSerialize(memPointAr.GetData(), memPointAr.TotalSize());
 
-	////===================== SpawnGroup写到内存=======================
+	////===================== Write SpawnGroup to memory=======================
 	//arBlkHdrs[1]->nBlockSize = memGroupAr.TotalSize();
 	//arBlkHdrs[1]->nBlockOffset = ar.Tell();
 	//ar.ByteOrderSerialize(memGroupAr.GetData(), memGroupAr.TotalSize());

@@ -49,7 +49,7 @@ void UMMOGFXPlayer_PathMap::ASShowPathMapMarkHint( INT type, INT idx )
 	case EACTMUI_NearPlayer:
 		{
 			pMapMark = pMapDataMgr->GetMapDymcActorNearByUiID( idx );
-			//因为当初加入这个玩家时，他的信息还没到
+			//because when this player was added, his info had not arrived yet
 			if( pMapMark != NULL ){
 				AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter(  ((FActorInMapUI*)pMapMark)->_ActorID );
 				if( pPlayer != NULL ){

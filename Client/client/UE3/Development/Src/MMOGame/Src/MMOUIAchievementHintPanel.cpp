@@ -101,7 +101,7 @@ void UMMOUIAchievementHintPanel::PlayAchievementHintEnd()
 
 UBOOL UMMOUIAchievementHintPanel::SkipCaptureInputKey(const FString& key,BYTE eIE,const FString& strHoverControllerName,FVector2D ClickPosInMovieSpace)
 {
-	// 任务 #18968，如果需要点击穿透，再打开
+	// Task #18968, re-enable if click-through is needed
 	//UGFxObject* control = this->GetObject(strHoverControllerName);
 	//if (control)
 	//{
@@ -126,7 +126,7 @@ void UMMOUIAchievementHintPanel::ASPlayAchievementHintEnd()
 
 void UMMOUIAchievementHintPanel::ASShowAchievementPanelById(INT id)
 {
-	// 任务 #18968
+	// Task #18968
 	UMMOUIManager* uiManager = MMOUI::GetUIManager();
 	if (uiManager)
 	{

@@ -51,10 +51,10 @@ void CMessageHandler::Parse_g2c_decompose(const char* buf, UINT32 size)
 
 	if (msg->byResult)
 	{
-		// 引导任务
+		// Guide quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Decompose, msg->nOriginalItemID);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_DecompEquip);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -73,10 +73,10 @@ void CMessageHandler::Parse_g2c_compose(const char* buf, UINT32 size)
 
 	if (msg->byResult)
 	{
-		// 引导任务
+		// Guide quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Compose, msg->nResultItemID);
 	
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_CompEquip);
 		MMOUI::PostGameEvent(&evtGuide);
 	}

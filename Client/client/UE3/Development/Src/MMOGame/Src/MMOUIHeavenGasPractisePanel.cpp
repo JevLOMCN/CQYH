@@ -34,7 +34,7 @@ void UMMOUIHeavenGasPractisePanel::PreOnShow(UBOOL v)
 		INT nMoney = MMOFacade::getSingleton().GetPlayerMoney(E_MONEYTYPE_AIR);
 		eventCallUCUpdateGasMoney(nMoney);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowGasPraPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 	}

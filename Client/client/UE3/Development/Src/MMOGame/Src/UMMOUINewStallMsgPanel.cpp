@@ -94,7 +94,7 @@ BOOL UMMOUINewStallMsgPanel::CheckStall(INT count, INT price)
 		return FALSE;
 	}
 
-	//拥有的总金额
+	//Total money owned
 	INT64 allStallPrice = UStallManager::getSingleton().GetStallSellInfoPrice();
 	INT64 sellPrice = price * count;
 	INT64 playerMoney  = MMOFacade::getSingleton().GetPlayerMoney64(E_MONEYTYPE_02);

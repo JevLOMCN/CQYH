@@ -2326,10 +2326,10 @@ INT FEngineLoop::PreInit( const TCHAR* CmdLine )
 	MEMORYSTATUSEX M;
 	M.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&M);
-	// 小于2.5G可用的应该都是32位系统
+	// Anything with less than 2.5G available should be a 32-bit system
 	if(FLOAT(M.ullTotalVirtual) < (1024.0f * 1024.0f * 1024.0f * 2.2f))
 	{
-		NumThreadsInThreadPool = 1; // 每个线程在SHIPPING版本有2M stack
+		NumThreadsInThreadPool = 1; // Each thread has a 2M stack in the SHIPPING build
 	}
 	// oscar@snda
 

@@ -237,7 +237,7 @@ AActor* UEditorEngine::AddActor(UClass* Class, const FVector& Location, UBOOL bS
 			Actor->InvalidateLightingCache();
 			Actor->PostEditMove( TRUE );
 
-			//song@snda.com  自动生成连续不重复id
+			//song@snda.com  auto-generate consecutive unique ids
 			TScriptInterface<IIUniqueID> InterfaceActor = ScriptInterfaceCast<IIUniqueID>(Actor);
 			if(InterfaceActor)
 			{

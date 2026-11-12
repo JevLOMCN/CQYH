@@ -37,7 +37,7 @@ void UMMOUIJourneyViewPanel::PostOnShow(UBOOL v)
 
 		if (MMOJourneyData::getSingleton().GetFirstRewardJourneyId() == _CurJourneyId)
 		{
-			// 新手引导
+			// Tutorial
 			MMOGameEvent_Guide evtGuide(EGUET_OpenJourneyView);
 			MMOUI::PostGameEvent(&evtGuide);
 		}
@@ -231,7 +231,7 @@ void UMMOUIJourneyViewPanel::UpdateJourneyInfo(INT journeyId)
 				switch(MMOFacade::getSingleton().GetMainActor()->GetClassId())
 				{
 				case EPCT_PlayerClassG: // 1.05 Lancer: reuses Warrior reputation rewards (no Spear columns)
-			case EPCT_PlayerClassA://战士
+			case EPCT_PlayerClassA://Warrior
 					{
 						for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 						{
@@ -240,7 +240,7 @@ void UMMOUIJourneyViewPanel::UpdateJourneyInfo(INT journeyId)
 					}
 					break;
 				case EPCT_PlayerClassH: // 1.05 Sorcerer: reuses Mage reputation rewards
-			case EPCT_PlayerClassB://法师
+			case EPCT_PlayerClassB://Mage
 					{
 						for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 						{
@@ -248,7 +248,7 @@ void UMMOUIJourneyViewPanel::UpdateJourneyInfo(INT journeyId)
 						}
 					}
 					break;
-				case EPCT_PlayerClassC://刺客
+				case EPCT_PlayerClassC://Assassin
 					{
 						for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 						{
@@ -256,7 +256,7 @@ void UMMOUIJourneyViewPanel::UpdateJourneyInfo(INT journeyId)
 						}
 					}
 					break;
-				case EPCT_PlayerClassD://弓手
+				case EPCT_PlayerClassD://Archer
 					{
 						for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 						{
@@ -264,7 +264,7 @@ void UMMOUIJourneyViewPanel::UpdateJourneyInfo(INT journeyId)
 						}
 					}
 					break;
-				case EPCT_PlayerClassE://道士
+				case EPCT_PlayerClassE://Taoist
 					{
 						for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 						{

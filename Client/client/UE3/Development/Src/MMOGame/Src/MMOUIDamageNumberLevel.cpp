@@ -39,7 +39,7 @@ void UMMOUIDamageNumberLevel::SetDamageShowPara( const FString& FunctionName,INT
 {
 	TArray<struct FASValue> Arguments;
 
-	Arguments.AddZeroed( 5 ); //参数数量
+	Arguments.AddZeroed( 5 ); //argument count
 	Arguments(0).I = PosX;
 	Arguments(0).Type = AS_Int;
 
@@ -62,7 +62,7 @@ void UMMOUIDamageNumberLevel::SetValueDamageShowPara( const FString& FunctionNam
 {
 	TArray<struct FASValue> Arguments;
 
-	Arguments.AddZeroed( 6 ); //参数数量
+	Arguments.AddZeroed( 6 ); //number of arguments
 	Arguments(0).I = PosX;
 	Arguments(0).Type = AS_Int;
 
@@ -152,7 +152,7 @@ void UMMOUIDamageNumberLevel::ShowGetMoney(INT PosX,INT PosY,INT Number, INT Mon
 
 	TArray<struct FASValue> Arguments;
 
-	Arguments.AddZeroed( 8 ); //参数数量
+	Arguments.AddZeroed( 8 ); //argument count
 	Arguments(0).I = MoneyType;
 	Arguments(0).Type = AS_Int;
 
@@ -193,7 +193,7 @@ void UMMOUIDamageNumberLevel::PlayerExpChange(INT CurrentExp,INT MaxExp,INT Chan
 	}
 	else if( MaxExp > LastMaxExp)
 	{
-		//升级
+		//Upgrade
 		ExpChange = LastMaxExp - LastExp + CurrentExp;
 	}
 	else if( MaxExp == LastMaxExp )

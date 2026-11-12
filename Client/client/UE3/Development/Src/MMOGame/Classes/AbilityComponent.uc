@@ -2,9 +2,9 @@ class AbilityComponent extends Object
 	dependson(TypeDefine)
 	native;
 
-// 组件结束方式
+// component end mode
 var(LifeSpan) EAbilityComponentStopType StopType;
-// 组件生命期时长
+// component lifetime duration
 var(LifeSpan) float Duration;
 
 var(LifeSpan) bool bClearWhenRevive;
@@ -12,7 +12,7 @@ var(LifeSpan) bool bClearWhenRevive;
 var(ValidRadius) float MinRadius;
 var(ValidRadius) float MaxRadius;
 
-// 这个组件是否挂在hitpoint组件下
+// whether this component is attached under the hitpoint component
 var transient bool bInHitPoint;
 
 var bool bAddToRoot;

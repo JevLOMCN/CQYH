@@ -3,7 +3,7 @@
 	Filename: 	StudentDetailManager
 	file ext:	h
 	Author:		hemu@snda
-	Purpose:	师徒系统Model StudentDetailManager 管理当前的徒弟列表
+	Purpose:	master/apprentice system Model StudentDetailManager manages the current apprentice list
 *********************************************************************/
 #ifndef _StudentDetailMANAGER_H_
 #define _StudentDetailMANAGER_H_
@@ -48,12 +48,12 @@ namespace MMO
 		void Init();
 		void Shutdown();
 		void AddStudentDetail(struct M2C_MASTER_NTF_MST_INFO::MASTER_DATA* StudentDetail);
-        //需要改动
+        //needs change
 		ClientBriefStudentDetailInfo* FindStudentDetail(UINT32 StudentDetailID) const;
 		void DeleteItem(UINT32 inID);	
-		//点击一位师傅
+		//click a master
 		void MarkStudentDetailSelected(UINT32 StudentDetailID, bool sel);
-		//向选中的师傅提出拜师申请
+		//send apprenticeship request to the selected master
 		void ApplySelected();
 		const StudentDetailMap& GetAllStudentDetails() const;
 		void ClearAll();

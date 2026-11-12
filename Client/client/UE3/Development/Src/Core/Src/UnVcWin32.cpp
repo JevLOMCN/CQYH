@@ -221,7 +221,7 @@ void appSendNotificationString( const TCHAR* Message )
 #endif	//#if WITH_UE3_NETWORKING
 }
 
-//hjj@snda  打开网页的做法
+//hjj@snda  How to open a web page
 extern RECT GPrimaryMonitorWorkRect;
 void appOpenGameQuitWeb()
 {
@@ -369,8 +369,8 @@ void appSubmitErrorReport( const TCHAR* InErrorHist, EErrorReportMode::Type InMo
 	if(M_LOW_MEM)
 	{
 		::MessageBox(NULL, 
-			TEXT("虚拟内存不足，游戏运行会极不稳定(经常会白屏)。\n\n请到游戏安装菜单找到“开启3G内存扩展模式”快捷链接，用鼠标右键点击，在弹出的菜单中选择“以管理员身份运行”，完成后请重新启动Windows后再进游戏。\n\n建议升级到64位操作系统以获得更流畅的游戏体验。"),
-			TEXT("提示"),
+			TEXT("Not enough virtual memory. The game will be very unstable (often a white screen).\n\nPlease find the \"Enable 3G memory extension mode\" shortcut in the game's install menu, right-click it and choose \"Run as administrator\", then restart Windows and start the game again.\n\nUpgrading to a 64-bit operating system is recommended for a smoother experience."),
+			TEXT("Notice"),
 			MB_OK|MB_ICONWARNING);
 	}
 
@@ -1963,8 +1963,8 @@ void appPlatformInit()
 	if(M_MMO_HD && (g_videoRam < 1024*1024*1024))
 	{
 		if(IDYES == ::MessageBox(NULL, 
-			TEXT("检测到显存不足1G，游戏运行会极不稳定(经常会白屏)。\n\n是否要以低画质模式进入游戏，以便较稳定运行游戏？"),
-			TEXT("提示"),
+			TEXT("Less than 1 GB of video memory detected. The game will be very unstable (often a white screen).\n\nStart the game in low quality mode for more stable play?"),
+			TEXT("Notice"),
 			MB_YESNO|MB_ICONQUESTION))
 		{
 			M_MMO_HD = false;
@@ -2059,11 +2059,11 @@ void appPlatformPostInit()
 			extern FString g_loginServerName;
 
 #if !SHIPPING_PC_GAME
-			const FString Name = FString::Printf( TEXT( "%s [%s] (%s-bit, %s %s)【%s】" ),
+			const FString Name = FString::Printf( TEXT( "%s [%s] (%s-bit, %s %s) [%s]" ),
 				*GameName, *GameVer, *PlatformBitsString, *RHIName , (M_MMO_HD ? TEXT("HD") : TEXT("Lite")),
 				*g_loginServerName); // oscar@snda
 #else
-			const FString Name = FString::Printf( TEXT( "%s [%s] (%s %s)【%s】" ),
+			const FString Name = FString::Printf( TEXT( "%s [%s] (%s %s) [%s]" ),
 				*GameName, *GameVer, *RHIName , (M_MMO_HD ? TEXT("HD") : TEXT("Lite")),
 				*g_loginServerName); // oscar@snda
 #endif

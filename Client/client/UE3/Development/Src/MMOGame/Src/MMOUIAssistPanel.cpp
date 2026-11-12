@@ -111,22 +111,22 @@ void UMMOUIAssistPanel::UpdateAssistDropClassList()
 			switch (i)
 			{
 			case EADT_ALL:
-				object->SetString(TEXT("label"), TEXT("全部分类"));
+				object->SetString(TEXT("label"), TEXT("All Categories"));
 				break;
 			case EADT_OTHER:
-				object->SetString(TEXT("label"), TEXT("其他类"));
+				object->SetString(TEXT("label"), TEXT("Other"));
 				break;
 			case EADT_DRUG:
-				object->SetString(TEXT("label"), TEXT("药品类"));
+				object->SetString(TEXT("label"), TEXT("Potions"));
 				break;
 			case EADT_CLOTHING:
-				object->SetString(TEXT("label"), TEXT("服装类"));
+				object->SetString(TEXT("label"), TEXT("Clothing"));
 				break;
 			case EADT_WEAPON:
-				object->SetString(TEXT("label"), TEXT("武器类"));
+				object->SetString(TEXT("label"), TEXT("Weapons"));
 				break;
 			case EADT_ACCESSORY:
-				object->SetString(TEXT("label"), TEXT("首饰类"));
+				object->SetString(TEXT("label"), TEXT("Jewelry"));
 				break;
 			}
 
@@ -474,7 +474,7 @@ void UMMOUIAssistPanel::ASApplyProtectConfig(class UGFxObject* dataProvider)
 		}
 	}
 
-	// 这里刷新Time的修正值
+	// refresh the Time correction value here
 	UpdateAssistItemData();
 	UpdateAssistItemList();
 	MMOAssistManager::getSingleton().SaveData();
@@ -784,7 +784,7 @@ void UMMOUIAssistPanel::ASApplyGameConfig(class UGFxObject* dataProvider)
    //             sceneHint->CloseAllTalkBubble();
 			//}
         }
-		// 设置HurtUI的显示
+		// set HurtUI display
 		MMOUI::GetUIManager()->ShowHurtPanel(uiManager->DrawHurt);
 		
         UMMOUISkillBar* skillBar = Cast<UMMOUISkillBar>(uiManager->FindUIPanel(uiManager->Panel_Skillbar));
@@ -798,7 +798,7 @@ void UMMOUIAssistPanel::ASApplyGameConfig(class UGFxObject* dataProvider)
 			miniMap->UpdateFramePinVisible();
 		}
 
-		// 突出自己的显示
+		// highlight own display
 		AMMOActor* mainActor = MMOFacade::getSingleton().GetMainActor();
 		if (mainActor && mainActor->ActorAttributes)
 		{
@@ -824,7 +824,7 @@ void UMMOUIAssistPanel::ASApplyGameConfig(class UGFxObject* dataProvider)
 		UBOOL oldQuestMode = uiManager->QuestMode;
 		uiManager->QuestMode = (dataProvider->GetInt(_T("taskModeType"))) == 0;
 
-		// 任务模式设置
+		// quest mode setting
 		if (oldQuestMode != uiManager->QuestMode)
 		{
 			MMOGameEvent_Any evt(GameEvent_QuestModeChange);

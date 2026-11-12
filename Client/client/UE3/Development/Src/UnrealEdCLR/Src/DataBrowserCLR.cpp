@@ -144,7 +144,7 @@ public:
 	 */
 	UBOOL InitDataBrowser( WxDataBrowserHost* InParentBrowser, const HWND InParentWindowHandle )
 	{
-		// 加载任务需要的信息 zhangrui05@snda
+		// Load info needed by quest zhangrui05@snda
 		UGlobalMapInfo* GlobalMapSingleton = UGlobalMapInfo::GetSingleton();
 		if (GlobalMapSingleton)
 		{
@@ -9227,7 +9227,7 @@ void MDataBrowserControl::ExecuteMenuCommand( System::Object^ Sender, System::Wi
 				INT ClassIndex = GEditor->EditorClassHierarchy->Find(PkgPath);
 				if(ClassIndex == -1)
 				{
-					//没有找到该类?
+					//Class not found?
 				}
 				else
 				{
@@ -9587,7 +9587,7 @@ void MDataBrowserControl::ExecuteMenuCommand( System::Object^ Sender, System::Wi
 			INT ClassIndex = GEditor->EditorClassHierarchy->Find(PkgPath);
 			if(ClassIndex == -1)
 			{
-				//没有找到该类?
+				//Class not found?
 			}
 			else
 			{
@@ -9633,7 +9633,7 @@ void MDataBrowserControl::ExecuteMenuCommand( System::Object^ Sender, System::Wi
 			INT ClassIndex = GEditor->EditorClassHierarchy->Find(PkgPath);
 			if(ClassIndex == -1)
 			{
-				//没有找到该类?
+				//Class not found?
 			}
 			else
 			{
@@ -10500,13 +10500,13 @@ void MDataBrowserControl::SetDefaultValue(UObject *Obj, const TCHAR* Section)
 					{
 						BYTE* Data = (BYTE*)Obj + ObjPro->Offset;
 						int nIndex = appAtoi(*MetaData);
-						//用来排序
+						//Used for sorting
 						ExportProperty(Data, ObjPro, ParentNode, nIndex);
 					}
 				}
 			}
 		}
-		//导入默认值
+		//Import default values
 		ImportProperty(ParentNode, nHeadIndex, DefaultValues);
 
 	}
@@ -10660,7 +10660,7 @@ void MDataBrowserControl::ExportTable(const TArray<UPackage*>& Packages, const T
 		
 		UAI_Affix_Table* ExcelableObj = exportingObjs(i);
 
-		// 如果表头还没有导出过，先导出表头
+		// If the table header has not been exported yet, export it first
 		if(!HeaderExported)
 		{
 			TArray<FString> Headers, DefaultValues;
@@ -10937,7 +10937,7 @@ void MDataBrowserControl::SaveModifier(const TArray<UPackage*>& Packages, const 
 #ifdef _DEBUG
 		if(Modifier->BreakOnExport)
 		{
-			appMsgf(AMT_OK, TEXT("触发了导出时设置断点调试Modifer数据，请用VS的DEBUG挂接后继续并调试分析：%s"), *Modifier->GetName());
+			appMsgf(AMT_OK, TEXT("Breakpoint debugging of Modifier data was triggered during export. Please attach the Visual Studio debugger, continue and analyse: %s"), *Modifier->GetName());
 		}
 #endif
 
@@ -11068,7 +11068,7 @@ void MDataBrowserControl::SaveSpellNode(const TArray<UPackage*>& Packages, const
 	{
 		UMMOAbility* ExcelableObj = exportingObjs(i);
 	
-		// 如果表头还没有导出过，先导出表头
+		// If the table header has not been exported yet, export it first
 		if(!HeaderExported)
 		{
 			TArray<FString> Headers, DefaultValues;
@@ -11180,8 +11180,8 @@ void MDataBrowserControl::FullLoadPackages(FString ConfigDir, TArray<UPackage*> 
 }
 
 /*
-//@暂不使用 以后可以考虑
-  //从Excel中读取动画混合参数表 hemu@snda
+//@not used for now, can consider later
+  //Read animation blend parameter table from Excel hemu@snda
 void MDataBrowserControl::LoadExcelCLR(const TArray<UPackage*>& Packages, const TArray<FString>& PackageNames, const FString& Path)
 {
 	List<List<String^>^> ^ItemList = gcnew List<List<String^>^>();

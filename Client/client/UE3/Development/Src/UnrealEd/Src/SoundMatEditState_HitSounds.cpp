@@ -269,27 +269,27 @@ FHitSoundNode* SoundMatEditState_HitSounds::FindSoundMaterialGroupObject(
 //------------------------------------------------------------------------
 
 /*
-HitType0=无类型
-HitType1=挥砍
-HitType2=戳刺
-HitType3=射击
-HitType4=敲打
-HitType5=肉搏
-HitType6=元素
-HitType7=挥砸
+HitType0=no type
+HitType1=slash
+HitType2=stab
+HitType3=shoot
+HitType4=bash
+HitType5=brawl
+HitType6=element
+HitType7=Swing Smash
 
 
 [EItemMaterialType]
-EIMAT_Default=缺省
-EIMAT_Mat1=金属
-EIMAT_Mat2=石头
-EIMAT_Mat3=水晶
-EIMAT_Mat4=木头
-EIMAT_Mat5=骨头
-EIMAT_Mat6=肉
-EIMAT_Mat7=碎屑
-EIMAT_Mat8=流体
-EIMAT_Mat9=虚幻
+EIMAT_Default=Default
+EIMAT_Mat1=Metal
+EIMAT_Mat2=Stone
+EIMAT_Mat3=Crystal
+EIMAT_Mat4=Wood
+EIMAT_Mat5=Bone
+EIMAT_Mat6=Flesh
+EIMAT_Mat7=Debris
+EIMAT_Mat8=Fluid
+EIMAT_Mat9=Illusory
 */
 
 FString SoundMatEditState_HitSounds::GetEnumEnglishName(UEnum* InObject, INT Idx)

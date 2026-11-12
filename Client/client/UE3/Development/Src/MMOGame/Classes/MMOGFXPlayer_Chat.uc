@@ -122,12 +122,12 @@ event bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string s
 	return super.SkipCaptureInputKey(key, eIE, strHoverControllerName, ClickPosInMovieSpace);
 }
 
-// 这个ESC的时候把焦点给Skillbar
+// On ESC give focus to Skillbar
 native function ASOnPanelClose( string PanelName );//moved
 
 native function ASonRollChatPanel(bool focus);//moved
 
-//清空聊天记录
+//Clear chat log
 function ASChatCleanAll()//moved
 {
 	Chat.CleanChnnelChat();
@@ -142,5 +142,5 @@ DefaultProperties
 	MovieInfoStr="UI_ChatWidget.ChatWidget"
 	
 	//bAllowFocus=FALSE
-	Priority=2 // 和Skillbar一样，需要通过聊天输入状态动态管理
+	Priority=2 // Same as Skillbar, managed dynamically by chat input state
 }

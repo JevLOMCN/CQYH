@@ -70,28 +70,28 @@ void MMOPowerManager::UpdatePartPower( EPowerPart type )
 
 void MMOPowerManager::UpdateEquipPower( FClientItemInfo* item )
 {
-	//装备战斗力是特殊的，因为要计算保存在装备里
+	//equipment combat power is special, since it must be computed and saved in the equipment
 	if(!item)
 	{
 		return;
 	}
-	//装备才能操作
+	//only equipment can be operated
 	UEquip* equipTemp = Cast<UEquip>( MMOFacade::getSingleton().FindItemTemplate( item->m_nTemplateID ) );
 
 	if(!equipTemp)
 	{
 		return;
 	}
-	//武器基础战斗力
+	//weapon base combat power
 	INT basePower = equipTemp->FixAttrbutes.BasePow;
 
-	//幸运值
+	//Luck value
 	//basePower *= ( 1 + (FLOAT)item->m_byLuck * 0.05 );
 	if( item->m_byLuck > 0 ){
 		basePower = basePower * ( 20 + item->m_byLuck ) / 20;
 	}
 
-	//随机属性战斗力
+	//random attribute combat power
 	INT randomPower = 0;
 	ItemRandomAttr* randomAttr[MAX_RANDOM_ATTR_COUNT] = {};
 
@@ -104,7 +104,7 @@ void MMOPowerManager::UpdateEquipPower( FClientItemInfo* item )
 		}		
 	}
 
-	//融灵
+	//Spirit fusion
 	INT soulPower = 0;
 	for ( INT i = 0 ; i < MAX_SOCKET_COUNT ; i++ )
 	{
@@ -126,7 +126,7 @@ void MMOPowerManager::UpdateEquipPower( FClientItemInfo* item )
 		}		
 	}
 
-	//装备符文战斗力
+	//equipment rune combat power
 	INT runePower = 0;
 	UBOOL runeChange = FALSE;
 	for( INT i = 0; i < EQUIP_RUNE_SKILL_MAX; ++i )
@@ -140,7 +140,7 @@ void MMOPowerManager::UpdateEquipPower( FClientItemInfo* item )
 		}
 	}
 	
-	////武器等级
+	////weapon level
 	INT upgradePower = 0;
 	//if( item->m_byLevel > 0 ){
 	//	const EquipLvUpCfg *pLevelUpData = MMOEquipManager::getSingleton().FindEquipLevelUpData( item->m_byLevel - 1 );

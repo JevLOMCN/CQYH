@@ -22,10 +22,10 @@ IMPLEMENT_CLASS(UMMOUIFriendChatHint)
 		BOOL HasCreate = FALSE;
 		for( INT j = 0 ; j < FriendChatHintList.Num() ; j++ )
 		{
-			//全遍历可能有些多余，理论上只会改变一个数据。但全遍历可以减少一点错误，而且代价不是很大。
+			//Traversing everything may be redundant; in theory only one data entry changes. But a full traversal reduces some errors and the cost is not large.
 			if( FriendChatHintList(j).RoleId == unReadLog(i).RoleId )
 			{
-				//已有，更新下
+				//Already exists, update it
 				if( FriendChatHintList(j).ListItemGfxObject )
 				{
 					/*UGFxObject* TF_Num = FriendChatHintList(j).ListItemGfxObject->GetObject( TEXT("tF_msgNum"));
@@ -63,7 +63,7 @@ void UMMOUIFriendChatHint::ClearUI()
 // 	FriendChatMgr = &FriendChatManager::getSingleton();
 // }
 
-//----------------------------------------------点击好友来的未读消息的提醒条-----------------------------------------------------------------
+//----------------------------------------------Reminder bar for unread messages from clicking a friend-----------------------------------------------------------------
 void UMMOUIFriendChatHint::ClickFriendChatHint(INT Index)
 {
 	if( Index >= FriendChatHintList.Num() )
@@ -101,7 +101,7 @@ void UMMOUIFriendChatHint::UpdateUnReadList()
 
 	const TArray<ContactLogStruct>& UnReadContactLogList =  FriendChatManager::getSingleton().GetUnReadLog();
 
-	//多余的就减少
+	//Reduce the excess
 	for ( INT i = FriendChatHintList.Num()-1 ; i >= 0  ; i-- )
 	{
 		bMatch = FALSE;
@@ -120,7 +120,7 @@ void UMMOUIFriendChatHint::UpdateUnReadList()
 			FriendChatHintList.Remove( i );
 		}
 	}
-	//缺少的就增加
+	//Add the missing
 	for ( INT i = 0 ; i < UnReadContactLogList.Num() ; i++ )
 	{
 		bMatch = FALSE;
@@ -214,7 +214,7 @@ void UMMOUIFriendChatHint::UpdateHintButtonInfo()
 		{
 			//
 			HideChatHint();
-			//this->SetVisible(FALSE); //这里只开子行不行？
+			//this->SetVisible(FALSE); //Is it ok to only open the child row here?
 		}
 		else
 		{
@@ -238,7 +238,7 @@ void UMMOUIFriendChatHint::UpdateHintButtonInfo()
 
 void UMMOUIFriendChatHint::PostOnShow(UBOOL v)
 {
-	//重载掉，因为不要movetop
+	//Override, because movetop is not wanted
 }
 
 void UMMOUIFriendChatHint::ASFriendChatList(INT Index)

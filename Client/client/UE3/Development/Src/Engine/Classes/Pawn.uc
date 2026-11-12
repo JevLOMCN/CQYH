@@ -197,7 +197,7 @@ var bool bForceRMVelocity;
 var bool bForceRegularVelocity;
 
 //||<- add by fangruyi
-/* 这个标记表示采用矢量方法检测是否到达目标点*/
+/* This flag means a vector method is used to detect whether the target point has been reached*/
 var bool bUseSimpleCheckReachDestination;
 var Vector Destination;
 //->||
@@ -237,7 +237,7 @@ var bool				bPlayedDeath;			// set when death animation has been played (used in
 
 var() SkeletalMeshComponent	Mesh;
 
-// 变身
+// Transform
 var SkeletalMeshComponent OverriddenMesh;
 
 
@@ -3653,7 +3653,7 @@ defaultproperties
 	// Pawns often manipulate physics components so need to be done pre-async
 	TickGroup=TG_PreAsyncWork
 
-	// oscar@snda 不需要这个东西 InventoryManagerClass=class'InventoryManager'
+	// oscar@snda this is not needed InventoryManagerClass=class'InventoryManager'
 	ControllerClass=class'AIController'
 
 	// Flags

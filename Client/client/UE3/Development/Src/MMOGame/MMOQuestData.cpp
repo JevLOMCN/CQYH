@@ -693,7 +693,7 @@ void MMOQuestData::Init()
 	_LoadQuestRecyle(TEXT("quest_recycle.txt"));
 	_LoadRewardQuestCostData(TEXT("reward_quest_money_cost.txt"));
 
-	// 如果不是发行版本检查任务需求道具来源错误, 生成quest_doodad.txt
+	// if not a release build, check quest requirement item source errors, generate quest_doodad.txt
 #if !SHIPPING_PC_GAME
 	_CheckQuestData();
 	GenerateQuestDoodadDropData(TEXT("quest_doodad.txt"));
@@ -834,7 +834,7 @@ void MMOQuestData::LoadQuestDataFromUpk()
 			if ( !Package )
 			{
 				M_AddDataError(TEXT("quest.txt"),
-					FString::Printf(TEXT("无法加载任务数据包: %s"), *pkgs(i)));
+					FString::Printf(TEXT("Cannot load quest data package: %s"), *pkgs(i)));
 				continue;;
 			}
 
@@ -942,9 +942,9 @@ UBOOL MMOQuestData::_LoadStoryQuestData(const TCHAR* filePath)
 	_StoryQuestChapterStageMap.clear();
 	StoryQuestDataManager::getSingleton().InitFromFile(filePath, true);
 	
-	// 需求：#15142，暂时还原为显示任务名
+	// Requirement: #15142, temporarily revert to showing the quest name
 	/*
-	// 任务名字统一处理
+	// unified handling of quest names
 	for (auto iter = _QuestDataMap.begin(); iter != _QuestDataMap.end(); ++ iter)
 	{
 		UQuest* quest = iter->second;
@@ -983,11 +983,11 @@ UBOOL MMOQuestData::_CheckQuestData()
 			{
 				if (checkItem.ItemDropSource == EIDS_None)
 				{
-					// 只检测道具表中有没有
+					// only check whether it is in the item table
 					if (!MMOFacade::getSingleton().FindItemTemplate(checkItem.CheckItemID))
 					{
 						hasError = TRUE;
-						M_AddDataError(TEXT("quest.txt"), FString::Printf(TEXT("任务[%d][%s] 道具条件[%d],无法在item.txt/item_armor.txt表中找到道具:[%d]"),
+						M_AddDataError(TEXT("quest.txt"), FString::Printf(TEXT("Quest [%d][%s] item condition [%d]: cannot find item [%d] in item.txt/item_armor.txt"),
 							quest->GetTemplateID(), *quest->QuestName, i, checkItem.CheckItemID));
 					}
 				}
@@ -1029,7 +1029,7 @@ void MMOQuestData::GenerateQuestDoodadDropData(const TCHAR* filePath)
 								{
 									iterItem = itemDoodadDropMap.insert(std::make_pair(itemId, DoodadDropSet())).first;
 								}
-								// 这里记录的是CombineId
+								// what is recorded here is CombineId
 								iterItem->second.insert(doodadDropData->GetTemplateID());
 							}
 						}
@@ -1072,17 +1072,17 @@ void MMOQuestData::GenerateQuestDoodadDropData(const TCHAR* filePath)
 					if (itemTemp)
 					{
 						M_AddDataError(TEXT("quest.txt"), 
-							FString::Printf(TEXT("任务[%d][%s] 道具条件[%d] [期望从Doodad掉落],无法在doodad_drop_data.txt表中配置的DropGroup里找到道具:[%d][%s]"),
+							FString::Printf(TEXT("Quest [%d][%s] item condition [%d] [expected from Doodad drops]: cannot find item [%d][%s] in the DropGroup configured in doodad_drop_data.txt"),
 							quest->GetTemplateID(), *quest->QuestName, i, checkItem.CheckItemID, *itemTemp->ItemName));
 					}
 					else
 					{
 						M_AddDataError(TEXT("quest.txt"), 
-							FString::Printf(TEXT("任务[%d][%s] 道具条件[%d] [期望从Doodad掉落],无法在doodad_drop_data.txt表中配置的DropGroup里找到道具:[%d][道具表中没有这个道具]"),
+							FString::Printf(TEXT("Quest [%d][%s] item condition [%d] [expected from Doodad drops]: cannot find item [%d][item not in item table] in the DropGroup configured in doodad_drop_data.txt"),
 							quest->GetTemplateID(), *quest->QuestName, i, checkItem.CheckItemID));
 					}
 
-					// 如果在doodad_drop_data表里已经配置的DropGroup里面找不到, 就在所有的DropGroup里找一下(DropGroup不一定全部在doodad_drop_data里配置)
+					// if not found in the DropGroups already configured in the doodad_drop_data table, look in all DropGroups (DropGroup is not necessarily all configured in doodad_drop_data)
 					bool foundInDropGroup = MMODropGroupDataManager_IsItemExists(checkItem.CheckItemID);
 					if (!foundInDropGroup)
 					{
@@ -1090,13 +1090,13 @@ void MMOQuestData::GenerateQuestDoodadDropData(const TCHAR* filePath)
 						if (itemTemp)
 						{
 							M_AddDataError(TEXT("quest.txt"),
-								FString::Printf(TEXT("任务[%d][%s] 道具条件[%d],无法在drop_group.txt表中找到道具:[%d][%s]"),
+								FString::Printf(TEXT("Quest [%d][%s] item condition [%d]: cannot find item [%d][%s] in drop_group.txt"),
 								quest->GetTemplateID(), *quest->QuestName, i, checkItem.CheckItemID, *itemTemp->ItemName));
 						}
 						else
 						{
 							M_AddDataError(TEXT("quest.txt"),
-								FString::Printf(TEXT("任务[%d][%s] 道具条件[%d],无法在drop_group.txt表中找到道具:[%d][道具表中没有这个道具]"),
+								FString::Printf(TEXT("Quest [%d][%s] item condition [%d]: cannot find item [%d][item not in item table] in drop_group.txt"),
 								quest->GetTemplateID(), *quest->QuestName, i, checkItem.CheckItemID));
 						}
 					}
@@ -1110,9 +1110,9 @@ void MMOQuestData::GenerateQuestDoodadDropData(const TCHAR* filePath)
 		}
 	}
 
-	// 输出
+	// output
 	FString printText;
-	// 表头
+	// table header
 	printText += TEXT("QuestId");
 	for (int i = 0; i < MAX_QUEST_DOODAD_COUNT; ++ i)
 	{
@@ -1120,21 +1120,21 @@ void MMOQuestData::GenerateQuestDoodadDropData(const TCHAR* filePath)
 		printText += FString::Printf(TEXT("Doodad%d"), i);
 	}
 	printText += TEXT("\r\n");
-	// 第二行
+	// second row
 	printText += TEXT("Client");
 	for (int i = 0; i < MAX_QUEST_DOODAD_COUNT; ++ i)
 	{
 		printText += TEXT("\tClient");
 	}
 	printText += TEXT("\r\n");
-	// 第三行
+	// third row
 	printText += TEXT("0");
 	for (int i = 0; i < MAX_QUEST_DOODAD_COUNT; ++ i)
 	{
 		printText += TEXT("\t0");
 	}
 	printText += TEXT("\r\n");
-	// 数据
+	// data
 	QuestDoodadMap::iterator iterQuestDoodad = questDoodadMap.begin();
 	for (; iterQuestDoodad != questDoodadMap.end() ; iterQuestDoodad ++)
 	{
@@ -1149,7 +1149,7 @@ void MMOQuestData::GenerateQuestDoodadDropData(const TCHAR* filePath)
 			index ++;
 		}
 
-		// 剩下的补0
+		// pad the rest with 0
 		for (int i = 0; i < MAX_QUEST_DOODAD_COUNT - index; ++ i)
 		{
 			printText += TEXT("\t0");
@@ -1270,7 +1270,7 @@ void MMOQuestData::UpdateQuestList(ROLE_DB_QUEST_DATA* questData)
 		}
 	}
 
-	// 悬赏任务
+	// bounty quest
 	_RewardQuestFreeCount = questData->stDailyQuestData.nRewardQuestRemainCompleteTime;
 	_RewardQuestCostCount = questData->stDailyQuestData.dwRewardBoughtTime;
 
@@ -1286,7 +1286,7 @@ void MMOQuestData::UpdateQuestList(ROLE_DB_QUEST_DATA* questData)
 		MMOQuestManager::getSingleton().SetRewardQuestRefreshTime(endTime - curTime);
 	}
 
-	// 环任务
+	// circle quest
 	_CircleQuestInfoMap.clear();
 	for (UINT8 i = 0; i < MAX_CIRCLE_COUNT; ++ i)
 	{
@@ -1299,7 +1299,7 @@ void MMOQuestData::UpdateQuestList(ROLE_DB_QUEST_DATA* questData)
 		_CircleQuestInfoMap.insert(std::make_pair(info.CircleId, info));
 	}
 	
-	// 已经完成的剧情任务
+	// completed story quests
 	//_StoryQuestChapterStageMap.clear();
 	_StoryQuestPastChapterList.clear();
 	for (auto iter = _QuestDataMap.begin(); iter != _QuestDataMap.end(); ++ iter)
@@ -1313,12 +1313,12 @@ void MMOQuestData::UpdateQuestList(ROLE_DB_QUEST_DATA* questData)
 		}
 	}
 
-	// 紧急任务
+	// emergency quest
 	_EmergencyQuestCompleteCount = questData->byCompleteEmergencyQuestCount;
 
 	_UpdateAcceptedQuestVariable();
 
-	// 任务 #25538：对因故(比如：自动接取任务时正好在体验模式，接取失败)没有接取成功的主线任务，上线保障接取
+	// Quest #25538: for main quests that failed to be accepted for some reason (e.g. auto-accept happened while in trial mode and failed), guarantee acceptance on login
 	for (auto iter = _QuestDataMap.begin(); iter != _QuestDataMap.end(); ++iter)
 	{
 		const UINT32 questId = iter->first;
@@ -1485,7 +1485,7 @@ void MMOQuestData::_AddAcceptedQuest(const ROLE_DB_QUEST_DATA::ROLE_DB_ACCEPTED_
 			}
 		}
 
-		// 限时任务
+		// timed quest
 		if (quest && quest->IsTimeLimit())
 		{
 			__time32_t localTime;
@@ -1499,7 +1499,7 @@ void MMOQuestData::_AddAcceptedQuest(const ROLE_DB_QUEST_DATA::ROLE_DB_ACCEPTED_
 			}
 			else
 			{
-				// 超时
+				// timed out
 				data.LeftTime = 0;
 				data.IsFailed = true;
 			}
@@ -1767,7 +1767,7 @@ EQuestHUDStatus MMOQuestData::IsNpcHasMyQuest(INT npcId, TArray<INT>* completeLi
 		return state;
 	}
 
-	// 是否有已完成的任务
+	// whether there are completed quests
 	bool hasCompletedTask = false;
 	const QuestDataMap& endQuestMap = questNpcInfo->EndQuestList;
 	QuestDataMap::const_iterator iterQuest = endQuestMap.begin();
@@ -1797,7 +1797,7 @@ EQuestHUDStatus MMOQuestData::IsNpcHasMyQuest(INT npcId, TArray<INT>* completeLi
 		}
 	}
 
-	// 没有完成任务，那么继续检查可接取的任务
+	// no completed quest, continue checking acceptable quests
 	const QuestDataMap& startQuestMap = questNpcInfo->StartQuestList;
 	iterQuest = startQuestMap.begin();
 	for (; iterQuest != startQuestMap.end(); ++ iterQuest)
@@ -1813,7 +1813,7 @@ EQuestHUDStatus MMOQuestData::IsNpcHasMyQuest(INT npcId, TArray<INT>* completeLi
 		}	
 	}
 
-	// 检查可接的悬赏任务
+	// check acceptable bounty quests
 	if (npcId == 6456)
 	{
 		RewardQuestList::iterator iter = _RewardQuestList.begin();
@@ -1898,10 +1898,10 @@ bool MMOQuestData::IsQuestAvailable(INT questId)
 		return FALSE;
 	}
 
-	// 是否活动
+	// whether activity
 	if (ActivityManager::getSingleton().IsActivity(questId))
 	{
-		// 是否VIP
+		// whether VIP
 		INT vipLevel = 0;
 		for (INT i = eVIPTyp_LV1; i < eVIPTyp_LVMax; ++ i)
 		{
@@ -1919,8 +1919,8 @@ bool MMOQuestData::IsQuestAvailable(INT questId)
 	}
 
 	if (quest->QuestType == E_qt_Circle)
-	{// 环任务
-		// 判定是否是当前环
+	{// circle quest
+		// determine whether it is the current circle
 		CircleQuestInfo info;
 		if (!GetCircleQuestInfo(quest->CircleID, info))
 		{
@@ -1941,7 +1941,7 @@ bool MMOQuestData::IsQuestAvailable(INT questId)
 			return FALSE;
 		}
 
-		// 已经达到当日紧急任务可接最大数量
+		// the max number of emergency quests acceptable today has been reached
 		if (IsEmegencyQuestAllCompleteToday())
 		{
 			return FALSE;
@@ -2047,7 +2047,7 @@ void MMOQuestData::_RemoveAcceptedQuest(INT32 questId)
 	if (iter != _AcceptedQuestDataMap.end())
 	{
 		AcceptedQuestData& data = iter->second;
-		// 统计杀怪任务
+		// count kill-monster quests
 		const UQuest* quest = GetQuestData((INT)questId);
 		if (quest)
 		{
@@ -2101,7 +2101,7 @@ void MMOQuestData::_AddStoryQuestChapterStage(UINT32 chapter, UINT32 stage)
 	}
 	else
 	{
-		// 已经有了，就不加进去了
+		// already there, do not add
 		StoryQuestStageList& storyQuestStageList = iterChapter->second;
 		StoryQuestStageList::iterator iter = storyQuestStageList.begin();
 		for (; iter != storyQuestStageList.end(); ++ iter)
@@ -2217,7 +2217,7 @@ void MMOQuestData::TraceAllQuest(bool traceOn)
 		{
 			if (quest->QuestType == E_qt_Trunk)
 			{
-				// 主线任务始终都追踪
+				// main quests are always tracked
 				iter->second.IsTraced = true;
 			}
 			else
@@ -2238,7 +2238,7 @@ void MMOQuestData::TraceQuest(INT questId, bool traceOn)
 		{
 			if (quest->QuestType == E_qt_Trunk)
 			{
-				// 主线任务始终都追踪
+				// main quests are always tracked
 				iter->second.IsTraced = true;
 			}
 			else
@@ -2259,7 +2259,7 @@ void MMOQuestData::UpdateQuestNpcKillCount(INT questId, UINT16 index, INT value)
 		{
 			data.KillNpcCount[index] = value;
 
-			// 统计杀怪任务
+			// count kill-monster quests
 			const UQuest* quest = GetQuestData((INT)questId);
 			if (quest)
 			{
@@ -2269,7 +2269,7 @@ void MMOQuestData::UpdateQuestNpcKillCount(INT questId, UINT16 index, INT value)
 					if (killNpc->CheckKillNpcNewId && data.KillNpcCount[index] >= killNpc->CheckKillNpcCnt)
 					{
 						_RemoveMonsterAcceptedQuest(killNpc->CheckKillNpcNewId, questId);
-						// 任务条件达成再更新任务状态，避免卡顿
+						// update quest state only when quest conditions are met, to avoid stutter
 						MMOQuestManager::getSingleton().UpdateQuestStatus();
 					} 
 					else if (killNpc->CheckKillNpcGroupId && data.KillNpcCount[index] >= killNpc->CheckKillNpcCnt)
@@ -2284,7 +2284,7 @@ void MMOQuestData::UpdateQuestNpcKillCount(INT questId, UINT16 index, INT value)
 								_RemoveMonsterAcceptedQuest(*iterMonster, questId);
 							}
 						}
-						// 任务条件达成再更新任务状态，避免卡顿
+						// update quest state only when quest conditions are met, to avoid stutter
 						MMOQuestManager::getSingleton().UpdateQuestStatus();
 					}
 				}
@@ -2447,7 +2447,7 @@ void MMOQuestData::UpdateQuestTime(INT timeCount)
 		{
 			if (data.IsFailed)
 			{
-				// 紧急任务，时间到自动放弃
+				// emergency quest, auto abandon when time is up
 				if (quest->QuestType == E_qt_Emegency && quest->CanAbandon)
 				{ 
 					// Bug:#24687
@@ -2520,13 +2520,13 @@ void MMOQuestData::UpdateQuestReachLevel(INT curLevel)
 
 void MMOQuestData::_UpdateAcceptedQuestVariable()
 {
-	// 如果条件在接任务之前已经达成, 更新当前的完成状况
+	// if the condition was already met before accepting the quest, update the current completion status
 	UpdateClientVariable(ECVT_Quest, FriendManager::getSingleton().GetTotalFriendNum() > 0 ? GQT_Friend : GQT_Invalid);
 	UpdateClientVariable(ECVT_Quest, MMOGuildData::getSingleton().GetGuildBaseInfo().Id > 0 ? GQT_Guild : GQT_Invalid);
 	UpdateClientVariable(ECVT_Quest, TeamManager::getSingleton().HasTeam() ? GQT_Team : GQT_Invalid);
 	UpdateClientVariable(ECVT_Quest, MMOFacade::getSingleton().GetContainerSize(E_CONSLOT_DEFAULT) > UCONST_OriBagCap ? GQT_Extendbag : GQT_Invalid);
 
-	// 学习技能任务,如果已经学会
+	// learn-ability quest, if already learned
 	TMap<INT, class UMMOAbility*> allLearnedSkills = MMOSkillManager::getSingleton().GetMyLearnedMainSkills();
 	for (TMap<INT, class UMMOAbility*>::TIterator iter(allLearnedSkills); iter; ++iter)
 	{
@@ -2542,7 +2542,7 @@ void MMOQuestData::_UpdateAcceptedQuestVariable()
 	AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	if (mainPlayer && mainPlayer->ItemManager)
 	{
-		// 获取道具任务,如果已经获得
+		// obtain-item quest, if already obtained
 		for (INT i = 0; i < mainPlayer->ItemManager->BagItemList.Num(); ++i)
 		{
 			UItem* item = mainPlayer->ItemManager->BagItemList(i);
@@ -2555,7 +2555,7 @@ void MMOQuestData::_UpdateAcceptedQuestVariable()
 			UpdateClientVariable(ECVT_Quest, GQT_GetItem, item->GetTemplateID());
 		}
 
-		// 装备道具任务, 如果已经装备
+		// equip-item quest, if already equipped
 		for (INT i = 0; i < mainPlayer->ItemManager->EquippedItemList_Normal.Num(); ++i)
 		{
 			UItem* item = mainPlayer->ItemManager->EquippedItemList_Normal(i);
@@ -2589,7 +2589,7 @@ void MMOQuestData::AcceptQuest(INT questId)
 
 	if (quest->QuestType == E_qt_Reward)
 	{
-		// 如果是悬赏任务
+		// if it is a bounty quest
 		RewardQuestList::iterator iter = _RewardQuestList.begin();
 		for (; iter != _RewardQuestList.end(); ++ iter)
 		{
@@ -2650,7 +2650,7 @@ void MMOQuestData::CompleteQuest(INT questId)
 	_RemoveAcceptedQuest(questId);
 
 	if (quest->QuestType == E_qt_Reward)
-	{// 悬赏任务
+	{// bounty quest
 		RewardQuestList::iterator iter = _RewardQuestList.begin();
 		for (; iter != _RewardQuestList.end(); ++ iter)
 		{
@@ -2678,7 +2678,7 @@ void MMOQuestData::CompleteQuest(INT questId)
 		}
 	}
 
-	// 如果是环任务
+	// if it is a circle quest
 	if (quest->CircleID > 0)
 	{
 		AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
@@ -2707,7 +2707,7 @@ void MMOQuestData::CompleteQuest(INT questId)
 		}
 	}
 
-	// 已经完成的剧情任务
+	// completed story quests
 	//_AddStoryQuestChapterStage(quest->QuestChapter, quest->QuestStage);taogetagfdgd
 	_AddStoryQuestPastChapter(quest->QuestChapter);
 }
@@ -2739,7 +2739,7 @@ void MMOQuestData::GetAwardItemList(INT questId, QuestAwardItemInfoList& list)
 			{
 				for (INT i = 0; i < MAX_CIRCLE_AWARD_ITEM_COUNT; ++ i)
 				{
-					// 过滤ID为0道具
+					// filter items with ID 0
 					if (awardData.AwardItemId[i] > 0)
 					{
 						UItem* item = MMOFacade::getSingleton().FindItemTemplate(awardData.AwardItemId[i]);
@@ -2776,7 +2776,7 @@ void MMOQuestData::GetAwardItemList(INT questId, QuestAwardItemInfoList& list)
 	if (list.size() > 4)
 	{
 		list.resize(4);
-		appMsgf(AMT_OK, TEXT("任务[%d][%s]固定奖励数量超过最大值，最多4个，请检查道具配置的'职业'和'性别'限定参数！"),
+		appMsgf(AMT_OK, TEXT("Quest [%d][%s] fixed reward count exceeds the maximum of 4. Please check the item's 'class' and 'gender' restriction parameters!"),
 			quest->GetTemplateID(), *quest->QuestName);
 	}
 }
@@ -2808,7 +2808,7 @@ void MMOQuestData::GetSelectableAwardItemList(INT questId, QuestAwardItemInfoLis
 			{
 				for (INT i = 0; i < MAX_SELECTABLE_REWARD_COUNT; ++ i)
 				{
-					// 过滤ID为0道具
+					// filter items with ID 0
 					if (awardData.SelectableAwardItemId[i] > 0)
 					{
 						UItem* item = MMOFacade::getSingleton().FindItemTemplate(awardData.SelectableAwardItemId[i]);
@@ -2848,7 +2848,7 @@ void MMOQuestData::GetSelectableAwardItemList(INT questId, QuestAwardItemInfoLis
 	if (list.size() > 4)
 	{
 		list.resize(4);
-		appMsgf(AMT_OK, TEXT("任务[%d][%s]可选奖励数量超过最大值，最多4个，请检查道具配置的'职业'和'性别'限定参数！"),
+		appMsgf(AMT_OK, TEXT("Quest [%d][%s] optional reward count exceeds the maximum of 4. Please check the item's 'class' and 'gender' restriction parameters!"),
 			quest->GetTemplateID(), *quest->QuestName);
 	}
 }
@@ -2946,7 +2946,7 @@ void MMOQuestData::UpdateRewardQuestList(const INT32 (&rewardQuestId)[MAX_REWARD
 {
 	_RewardQuestList.clear();
 
-	// 先把已接任务放进来
+	// put accepted quests in first
 	AcceptedQuestDataMap::iterator iter = _AcceptedQuestDataMap.begin();
 	for (; iter != _AcceptedQuestDataMap.end(); ++ iter)
 	{
@@ -2960,7 +2960,7 @@ void MMOQuestData::UpdateRewardQuestList(const INT32 (&rewardQuestId)[MAX_REWARD
 		}
 	}
 
-	// 再把新任务放进来
+	// then put new quests in
 	for (UINT8 i = 0; i < MAX_REWARD_QUEST_COUNT_PER_ROLE; ++ i)
 	{
 		bool bExist = false;
@@ -3011,7 +3011,7 @@ INT MMOQuestData::GetTopLevelRewardQuestCount()
 	for (; iter != _RewardQuestList.end(); ++ iter)
 	{
 		const UQuest* quest = GetQuestData(iter->QuestId);
-		// 顶级任务定义为三星以上(#9924)
+		// top-tier quests are defined as three stars or above (#9924)
 		if (quest && quest->StarLevel >= 3 && !IsQuestAccepted(quest->GetTemplateID()))
 		{
 			count ++;
@@ -3377,7 +3377,7 @@ UBOOL MMOQuestData::_CheckAvailableQuestLimit_Level(const UQuest* quest, AMMOPla
 		return FALSE;
 	}
 	
-	// 任务 #25516
+	// Quest #25516
 	if (quest->QuestLevel >= 39)
 	{
 		UINT32 clientOption = CMessageHandler::GetInstance().GetClientOption();
@@ -3520,7 +3520,7 @@ UBOOL MMOQuestData::_CheckAvailableQuestLimit_Time(const UQuest* quest, AMMOPlay
 		}
 	}
 
-#if 0 // TODO:时间限定
+#if 0 // TODO: time limit
 	if (quest->WeekdayLimit != -1 && quest->WeekdayLimit != DayOfWeekNow)
 		return false;
 
@@ -3937,7 +3937,7 @@ UBOOL MMOQuestData::IsStoryQuestPast(INT chapter, INT stage)
 		if (quest)
 		{
 			if (quest->QuestChapter == 0 || quest->QuestStage == 0)
-			{//非剧情任务
+			{//non-story quest
 				continue;
 			}
 
@@ -4050,7 +4050,7 @@ void MMOQuestData::UpdateEmergencyQuestCoolDown(INT deltaTime)
 		} 
 		else
 		{
-			// 通知地图图标刷新
+			// notify map icons to refresh
 			MMOGameEvent_Any evt(GameEvent_QuestStateChanged);
 			MMOUI::PostGameEvent(&evt);
 
@@ -4072,7 +4072,7 @@ INT MMOQuestData::GetEmergencyQuestCoolDown(INT questId) const
 
 UBOOL MMOQuestData::IsSingleMonsterQuest(INT questId)
 {
-	// 缺陷11480, 整个任务只有一个怪物的情况
+	// Defect 11480, the case where the whole quest has only one monster
 	const UQuest* quest = MMOQuestData::getSingleton().GetQuestData(questId);
 	if (!quest)
 	{

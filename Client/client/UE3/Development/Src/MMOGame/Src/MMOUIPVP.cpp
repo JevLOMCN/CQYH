@@ -43,7 +43,7 @@ void UMMOUIPVP::Init()
 		ArenaSize(i) = GetObject( FString( TEXT("ArenaSize") ) + appItoa(i) );
 	}
 
-	//这个版本禁用掉5V5
+	//5V5 is disabled in this version
 	ArenaSize(1)->SetBool( TEXT("enable") , FALSE );
 
 

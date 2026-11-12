@@ -1,5 +1,5 @@
 //
-// 设置物体的物理关节是否固定
+// set whether the object's physics joints are fixed
 //
 class SeqAct_SetPhysicsFixed extends SequenceAction
 	dependson(SkeletalMeshActor);

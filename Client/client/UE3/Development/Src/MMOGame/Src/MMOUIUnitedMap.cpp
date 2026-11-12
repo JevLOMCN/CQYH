@@ -153,7 +153,7 @@ void UMMOUIUnitedMap::OnClickUnitedMapTile( INT tileIdx, INT mapID, const FStrin
 				worldMapPanel->ShowWorldMapInUnitedMapContent( mapID, regionInMapIdx );
 			}
 			else{
-				worldMapPanel->Show( TRUE );//这里会默认打开当前地图
+				worldMapPanel->Show( TRUE );//this opens the current map by default
 				worldMapPanel->ShowWorldMapInUnitedMapContent( mapID, regionInMapIdx );
 			}
 		}

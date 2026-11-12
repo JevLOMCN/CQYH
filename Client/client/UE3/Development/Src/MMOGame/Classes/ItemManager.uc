@@ -1,6 +1,6 @@
 /*
- *	 物品管理类,也是包裹管理类
- *	 直接支持相同类型物品叠加功能
+ *	 Item manager class, also the bag manager class
+ *	 Directly supports stacking items of the same type
  * 
  * */
 class ItemManager extends Object
@@ -12,36 +12,36 @@ class ItemManager extends Object
 //`define EquipMaxType 12
 //`define AvatarShowMaxType 11
 
-//var() array<Equip>        DefaultEquipListTemplate;	// 默认装备模板列表
+//var() array<Equip>        DefaultEquipListTemplate;	// Default equipment template list
 
-var transient init array<EquipMesh> OldMeshList;		// 上一次UpdateOwnerData装备模型
+var transient init array<EquipMesh> OldMeshList;		// Equipment models from the last UpdateOwnerData
 
-var transient init array<Texture2D> SkinTextures;		// 当前皮肤颜色贴图
-var transient init array<Texture2D>	SkinTexturesBase;	// 皮肤贴图中用来查找specular/normal贴图的那张
+var transient init array<Texture2D> SkinTextures;		// Current skin color textures
+var transient init array<Texture2D>	SkinTexturesBase;	// The skin texture used to find the specular/normal textures
 
-// 以上只在老的换装机制需要，新换装不需要更换身体部件
-var transient init array<EquipMesh> DefaultMeshList;	// 默认模型
+// The above is only needed by the old outfit-change mechanism; the new one does not need to change body parts
+var transient init array<EquipMesh> DefaultMeshList;	// Default models
 
-var transient init array<Equip>  EquippedItemList_Normal;	// 当前装备 - 普通
-var transient init array<Equip>	 EquippedItemList_Avatar;	// 当前装备 - 时装
-var transient init array<Equip>  EquippedItemList_Hero;	// 当前装备 - 英雄
+var transient init array<Equip>  EquippedItemList_Normal;	// Current equipment - normal
+var transient init array<Equip>	 EquippedItemList_Avatar;	// Current equipment - fashion
+var transient init array<Equip>  EquippedItemList_Hero;	// Current equipment - hero
 
-// 新旧换装机制都会用到这个数组，新机制下只会用到其中部分位置
-var transient init array<EquipMesh>	CurrentMeshList;	// 当前模型
+// Both old and new outfit mechanisms use this array; the new mechanism only uses some positions
+var transient init array<EquipMesh>	CurrentMeshList;	// Current models
 
-var int			Capacity; //改为不可编辑，包裹最大量
-var array<int>  CurCapacity; //包裹当前最大容量
+var int			Capacity; //Changed to non-editable, max bag capacity
+var array<int>  CurCapacity; //Current max bag capacity
 
-var transient init array<Item>   BagItemList;		//物品道具包裹
-//var transient init array<Item>   BagEquipList;		//装备包裹
-//var transient init array<Item>   BagMaterialList;	//材料包裹
-var transient init array<Item>   BagQuestList;		//任务包裹
-var transient init array<Item>   BagBankList; //仓库
-var transient init array<Item>   BagHeroList;		//英雄包裹
-var transient init array<Item>   BagDepositList;		//储值包裹 适用于魂瓶等待扩展
-var transient init array<Item>   BagResourceList;		//资源包
+var transient init array<Item>   BagItemList;		//Item bag
+//var transient init array<Item>   BagEquipList;		//Equipment bag
+//var transient init array<Item>   BagMaterialList;	//Material bag
+var transient init array<Item>   BagQuestList;		//Quest bag
+var transient init array<Item>   BagBankList; //Warehouse
+var transient init array<Item>   BagHeroList;		//Hero bag
+var transient init array<Item>   BagDepositList;		//Deposit bag, for soul bottles etc., to be extended
+var transient init array<Item>   BagResourceList;		//Resource bag
 
-var transient MMOActor			Owner;      // 此背包的所有者
+var transient MMOActor			Owner;      // Owner of this bag
 var transient EPlayerClass		ClassType;
 var transient EGenderType			GenderType;
 
@@ -72,7 +72,7 @@ var transient bool	bHelmetHidden;
 // use shoulder ( Left ) instead of face for merging
 var transient bool	ReplaceFaceByShoulder;
 
-// 是否使用新的换装方案（全身作为一个整体）
+// Whether to use the new outfit scheme (whole body as one piece)
 var transient bool	UseMergedMesh;
 
 native function SendMoveItem( int srcconslot,int srcitemslot ,int desconslot,int desitemslot);
@@ -133,7 +133,7 @@ event Item AddItemToBag( const Item itemTemplate, int Slot, ECONTAINER_SLOT bag,
 			break;
 		}
 	}
-	//刚拾取到的物品 播放拾取声音
+	//Just-picked-up item, play pickup sound
 	if( bNewPick )
 	{
 		//itemSound = class'GamePlayDataManager'.static.Singleton().GetItemActionSounds(  newItem.SoundActionType );
@@ -152,7 +152,7 @@ native final function Item GetItemById( int ItemId, ECONTAINER_SLOT bagType );
 native final function int FetchItem( Item pItem, ECONTAINER_SLOT bagType );	// get item and remove from the bag
 native final function InsertItem( Item pItem, ECONTAINER_SLOT bagType, int slot );	// insert item into the bag
 
-native final function int GetEmptyItemSlot( ECONTAINER_SLOT bagType ); // 得到空格子号，没有则返回-1
+native final function int GetEmptyItemSlot( ECONTAINER_SLOT bagType ); // Get empty slot index, returns -1 if none
 native final function DeleteItemBySlot(ECONTAINER_SLOT bagType ,int slot);
 native final function Equip GetEquipBySlot( int slot, bool normalEquip );
 native final function Item GetItemBySlot(ECONTAINER_SLOT bagType ,int slot);
@@ -187,9 +187,9 @@ event UpdateCurrentAttackRange()
 }
 
 /*
- * 请求收拔武器
- * 参数  : 表示是收操作还是拔操作
- * 返回值: >0表现成功( 1 需要操作,2不需要操作)
+ * Request sheathe/draw weapon
+ * Param  : whether it is a sheathe or draw operation
+ * Return: >0 means success (1 needs operation, 2 needs no operation)
  */
 event int RequestHoldWeapon(bool bHold)
 {
@@ -198,12 +198,12 @@ event int RequestHoldWeapon(bool bHold)
 	return 1;
 }
 
-// 请求装备上某物品 ItemId:物品ID -1: create new item
+// Request to equip an item. ItemId: item ID, -1: create new item
 native function Item RequestTakeOn(int SlotId, int TargetSlotId, bool normalEquip, optional const Item itemTemplate, optional bool autoChagneBag = false);
-// 请求卸下装备 SlotId
+// Request to unequip, SlotId
 native function bool RequestTakeOff(int SlotId, bool normalEquip);
 
-//得到一个装备能装在身上的slot位置
+//Get the slot position where an equipment can be worn
 function native GetEquippedSlotByEquipType( int EquipType , out int tConSlot , out int tItemSlot  );
 
 native function int RequestExchangeItem(int BagId,int Item1Pos, int Bag2Id,int Item2Pos);

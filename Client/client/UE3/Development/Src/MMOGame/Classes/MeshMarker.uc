@@ -1,10 +1,10 @@
 //
-// 模型标记
+// model flag
 //
 class MeshMarker extends Actor
 	native;
 
-// 实际的模型组件
+// Actual model component
 // var() StaticMeshComponent Mesh;
 
 var ParticleSystemComponent ParComp;
@@ -15,7 +15,7 @@ DefaultProperties
 // 		BlockActors=false
 // 		CollideActors=false
 // 		BlockRigidBody=false
-// 		//模型文件
+// 		//model file
 // 		StaticMesh=StaticMesh'MMO_Player.Mesh.TargetLocationMark'
 // 		//Scale3D=(X=0.3,Y=0.3,Z=0.3)
 // 		Rotation=(Pitch=16384, Yaw=0, Roll=0)

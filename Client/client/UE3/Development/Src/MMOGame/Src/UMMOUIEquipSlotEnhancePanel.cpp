@@ -21,7 +21,7 @@ void UMMOUIEquipSlotEnhancePanel::PostOnShow(UBOOL v)
 		//
 		UpdateUIViews();
 		
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowStrongPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 
@@ -109,7 +109,7 @@ void UMMOUIEquipSlotEnhancePanel::BagSlotChange(INT bagId,INT slotId)
 	////
 	//if( pItemInfo == NULL )
 	//{
-	//	//不管了，直接过一遍
+	//	//Whatever, just go through it directly
 	//	UpdateCurSlotDetail();
 	//}
 	//else
@@ -176,7 +176,7 @@ void UMMOUIEquipSlotEnhancePanel::UpdateDetail( INT enhanceClassID, INT playerLv
 
 	if(curSelSlotEnhanceLv == MAX_ENHANCE_LEVEL)
 	{
-		//顶级特殊处理
+		//Top level special handling
 		gfxObj->SetString(TEXT("IconPath"),TEXT("IconPath_Max_Max"));
 		gfxObj->SetInt(TEXT("CurLevel"),0);
 		gfxObj->SetString(TEXT("LevelDesc"),MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EquipSlotEnhance.MaxLevel")));
@@ -210,7 +210,7 @@ void UMMOUIEquipSlotEnhancePanel::UpdateDetail( INT enhanceClassID, INT playerLv
 	FString strName;
 	
 	const ItemRandomAttr* curEnhancePropAttr[ENHANCE_EFFECT_COUNT];
-	//当前属性
+	//Current attributes
 	INT i = 0;
 	if(curSelSlotEnhanceLv > 0 && pCurSelSlotProp != NULL)
 	{
@@ -251,7 +251,7 @@ void UMMOUIEquipSlotEnhancePanel::UpdateDetail( INT enhanceClassID, INT playerLv
 		}
 	}
 
-	//下一级属性
+	//Next level attributes
 	const EquipSlotEnhancePropCfgData *pNextSlotEnhanceLvProp = eSlotMgr.FindEnhancePropCfg( enhanceClassID, curSelSlotID, curSelSlotEnhanceLv + 1 );
 	if( pNextSlotEnhanceLvProp != NULL )
 	{
@@ -314,11 +314,11 @@ void UMMOUIEquipSlotEnhancePanel::UpdateDetail( INT enhanceClassID, INT playerLv
 		}
 	}
 
-	//需要条件
+	//Required conditions
 	const EquipSlotEnhanceCfgData *pNextSlotEnhanceLvConsume = eSlotMgr.FindEnhanceConsumeCfg( curSelSlotEnhanceLv + 1 );
 	if( pNextSlotEnhanceLvConsume != NULL )
 	{
-		//等级需求
+		//level requirement
 		if( pNextSlotEnhanceLvConsume->PlayerRequireLv <= playerLv )
 		{
 			gfxObj->SetBool(TEXT("CanEnhance"),TRUE);
@@ -332,12 +332,12 @@ void UMMOUIEquipSlotEnhancePanel::UpdateDetail( INT enhanceClassID, INT playerLv
 			gfxObj->SetString(TEXT("EnhanceDesc"),MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EnhanceGeneral.EnhcCannotDesc")));
 		}
 
-		//金币需求
+		//Gold requirement
 		INT iCost = pNextSlotEnhanceLvConsume->MoneyCost;
 		gfxObj->SetString(TEXT("MoneyCostHtml"), UITextParser::HTMLMoneyIconString( MONEYTYPE_02, iCost ));
 		gfxObj->SetString(TEXT("MoneyDescText"),MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EquipSlotEnhance.MoneyConsumeType1")));
 
-		//基础成功率
+		//Base success rate
 		pNextSlotEnhanceLvConsume->BaseSuccessRate;
 	}
 	else
@@ -348,7 +348,7 @@ void UMMOUIEquipSlotEnhancePanel::UpdateDetail( INT enhanceClassID, INT playerLv
 		gfxObj->SetString(TEXT("MoneyDescText"), TEXT("") );
 	}
 
-	//升级材料
+	//Upgrade materials
 	//MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	//for(i = 0; i < ENHANCE_CONSUME_COUNT; i++)
 	//{
@@ -421,7 +421,7 @@ void UMMOUIEquipSlotEnhancePanel::UpdateCurSuccessRate()
 //=======================================================================================================================================
 void UMMOUIEquipSlotEnhancePanel::UpdateSummary()
 {
-	//除主要显示区以外的其他信息,如玩家名字等
+	//Other info besides the main display area, such as player name
 	UGFxObject* gfxObj = GFXPlayer->CreateObject(TEXT("UI_EquipEnhance.EquipEnhanceAS3.EquipSlotIconData"));
 	gfxObj->SetString(TEXT("WindowTitle"),MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EquipSlotEnhance.WidgetTitle")));
 	gfxObj->SetString(TEXT("EnhanceHint_0"),MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EnhanceHint.EnhanceHint0")));
@@ -457,7 +457,7 @@ void UMMOUIEquipSlotEnhancePanel::UpdateSummaryUI(UGFxObject* PathArray)
 
 		if(curSlotEnhanceLv == MAX_ENHANCE_LEVEL)
 		{
-			//顶级特殊处理
+			//Top level special handling
 			INT ehcMajorLevel = 0;
 			INT ehcMinorLevel = 0;
 			INT ehcMinorMinorLv = 0;
@@ -692,7 +692,7 @@ UBOOL UMMOUIEquipSlotEnhancePanel::SetEnhanceConsumeItem( INT containerID, INT s
 {
 	if( containerID < 0 || slotID < 0 ){
 		if( _ToEnhanceConsume._ConID >= 0 && _ToEnhanceConsume._SlotID >= 0 ){
-			//清空，取下
+			//Clear, remove
 			//if( pBagPanel != NULL && _ToEnhanceConsume._ConID == E_CONSLOT_DEFAULT ){
 			MMOFacade::getSingleton().LockItem( _ToEnhanceConsume._ConID, _ToEnhanceConsume._SlotID, -1 );
 			//}
@@ -705,13 +705,13 @@ UBOOL UMMOUIEquipSlotEnhancePanel::SetEnhanceConsumeItem( INT containerID, INT s
 		_ToEnhanceConsume._ConID = -1;
 		_ToEnhanceConsume._SlotID = -1;
 
-		//刷新成功率
+		//Refresh success rate
 		UpdateCurSuccessRate();
 
 		return TRUE;
 	}
 
-	//检查物品是否合适
+	//Check whether the item is suitable
 	UBOOL isItemOK = EquipSlotManager::getSingleton().CheckEnhanceConsume( containerID, slotID, _PanelCurSelSlotID );
 	if( isItemOK != TRUE ){
 		return TRUE;
@@ -726,7 +726,7 @@ UBOOL UMMOUIEquipSlotEnhancePanel::SetEnhanceConsumeItem( INT containerID, INT s
 		pConsumeItem = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	}
 
-	//解锁背包内原先放置的灵
+	//Unlock the spirit previously placed in the bag
 	if( _ToEnhanceConsume._ConID >= 0 && _ToEnhanceConsume._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _ToEnhanceConsume._ConID == E_CONSLOT_DEFAULT ){
 		mmoFacade.LockItem( _ToEnhanceConsume._ConID, _ToEnhanceConsume._SlotID, -1 );
@@ -736,18 +736,18 @@ UBOOL UMMOUIEquipSlotEnhancePanel::SetEnhanceConsumeItem( INT containerID, INT s
 	_ToEnhanceConsume._ConID = containerID;
 	_ToEnhanceConsume._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	if( pConsumeItem != NULL ){
 		//GFXPlayer->SetItemSlotData( _ToEmbedEquipMc, pEmbedItem, ESPType_SoulEmbed, _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 		GFXPlayer->eventCallSetItemData( _ToEnhanceConsumeMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pConsumeItem, pInfo ), pConsumeItem->ItemId, ESPType_EquipSlotEnhance, TEXT(""), pConsumeItem->ItemColor+1, _ToEnhanceConsume._ConID, _ToEnhanceConsume._SlotID );
 	}
 
-	//锁住背包内的物品
+	//Lock items in the bag
 	//if( pBagPanel != NULL && _ToEnhanceConsume._ConID == E_CONSLOT_DEFAULT ){
 	mmoFacade.LockItem( _ToEnhanceConsume._ConID, _ToEnhanceConsume._SlotID, ESPType_EquipSlotEnhance );
 	//}
 
-	//刷成功率
+	//Refresh success rate
 	UpdateCurSuccessRate();
 
 	return TRUE;
@@ -824,13 +824,13 @@ UBOOL UMMOUIEquipSlotEnhancePanel::OnDragDrop( class UGFxObject* srcSlotMC,class
 	}
 
 	if( srcSlotType == ESPType_Bag && destSlotType == ESPType_EquipSlotEnhance ){
-		//从背包进
+		//Enter from bag
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
 			return TRUE;
 		}
 
-		//检查是否在界面中(本界面或是其他操作界面)
+		//check whether in a UI (this UI or another operation UI)
 		//
 		ClientActionCondition_EnhanceItem checker;
 
@@ -856,7 +856,7 @@ UBOOL UMMOUIEquipSlotEnhancePanel::OnDragDrop( class UGFxObject* srcSlotMC,class
 	}
 
 	if( srcSlotType == ESPType_EquipSlotEnhance && destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		INT panelSlotID = (INT)srcSlotMC->GetFloat( "EquipID" );
 		switch( panelSlotID )
 		{
@@ -897,7 +897,7 @@ void UMMOUIEquipSlotEnhancePanel::GrayAllInBagNoNeedForEnhance( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -960,7 +960,7 @@ void UMMOUIEquipSlotEnhancePanel::InitByParent( UMMOUIBase *parentPanel )
 	_ToEnhanceConsume._SlotID = -1;
 	//
 	InitMc();
-	//每次进来刷新一下装备部位里面的装备信息
+	//Refresh the equipment info in the equipment slots each time entering
 	//EquipSlotManager::getSingleton().ResetEquipSlotItem();
 }
 

@@ -5,7 +5,7 @@
 
 #include "ExportServerData.h"
 
-//illegal zero-sized array 服务端数据结构需要
+//illegal zero-sized array needed by the server data structure
 #pragma warning(disable:4200)
 
 class Exporter_DoodadSpawnPoint : public IServerSceneExporter

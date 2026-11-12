@@ -1,5 +1,5 @@
 //
-// 设置物体控制器的状态转换
+// set the state transitions of the object controller
 //
 class SeqAct_ControllerGotoState extends SequenceAction
 	;

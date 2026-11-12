@@ -7,8 +7,8 @@
 void AMMOVolume_GuildBattle::OnActive(class AMMOActor* actor,UBOOL bOn)
 {
 	// fix bug  #23525
-	// todo:12月10日测试前发现在公会属地里也有这个Volume，
-	// 但是不确定服务器是不是在用这个Volume的数据，所以就没让LD删掉，客户端临时保护下
+	// todo: found before the Dec 10 test that this Volume also exists in guild territory,
+	// but unsure whether the server uses this Volume's data, so LD was not asked to delete it; client protects it temporarily
 	INT curMapId = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 	if (curMapId != SABAC_MAP_ID)
 	{
@@ -30,7 +30,7 @@ void AMMOVolume_GuildBattle::OnActive(class AMMOActor* actor,UBOOL bOn)
 
 		if (actor->IsMainPlayer())
 		{
-			// 缺陷：#14676
+			// bug: #14676
 			if (MMOGuildManager::getSingleton().GetSabacState() > 0)
 			{
 				FString curSabacOccupyGuildName = TEXT("");
@@ -42,7 +42,7 @@ void AMMOVolume_GuildBattle::OnActive(class AMMOActor* actor,UBOOL bOn)
 					AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 					//panel->Show(mainPlayer != NULL && mainPlayer->inSabacZoneCount > 0);
 					panel->Show(FALSE);
-					panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("争霸战结束还有:"), MMOGuildManager::getSingleton().GetGuildWarTime());
+					panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("Time left in the Conquest War: "), MMOGuildManager::getSingleton().GetGuildWarTime());
 				}
 			}
 		}

@@ -265,7 +265,7 @@ struct native InterpLookupTrack
 
 var		InterpLookupTrack	LookupTrack;
 
-// 结束时重置角色到初始位置
+// Reset the character to its initial position when finished
 var() bool ResetToInitLocationWhenStop; // oscar@snda
 
 /** When using IMR_LookAtGroup, specifies the Group which this track should always point its actor at. */

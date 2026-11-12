@@ -1,5 +1,5 @@
 //
-// 设置键盘移动开关
+// set keyboard movement switch
 //
 class SeqAct_KeyboardInput extends SequenceAction
 	;

@@ -3506,7 +3506,7 @@ void UGameEngine::Tick2( FLOAT DeltaSeconds )
 		GameViewport->Tick(DeltaSeconds);
 	}
 
-#if GAMENAME == MMOGAME // JimZhang@snda, 在GameViewport->Tick之后，在RedrawViewports之前，这个点很重要，特别是对同步，如头顶文字位移同步，3d点选同步,等
+#if GAMENAME == MMOGAME // JimZhang@snda, after GameViewport->Tick and before RedrawViewports; this point is important, especially for synchronization, such as overhead text position sync, 3D picking sync, etc.
 	TickGameLogic_AfterViewportTick(DeltaSeconds);
 #endif // JimZhang@snda
 
@@ -3857,7 +3857,7 @@ void UGameEngine::Tick2( FLOAT DeltaSeconds )
 #if 1 // oscar@snda
 			extern DOUBLE g_loadingStartTime;
 			SET_WARN_COLOR(COLOR_PURPLE);
-			warnf(NAME_Log, TEXT("场景 %s 加载耗时: %.4f 秒"), *GWorld->GetOutermost()->GetName(), appSeconds() - g_loadingStartTime);
+			warnf(NAME_Log, TEXT("Scene %s load time: %.4f s"), *GWorld->GetOutermost()->GetName(), appSeconds() - g_loadingStartTime);
 			CLEAR_WARN_COLOR();
 #endif
 			// [ming@snda // oscar@snda

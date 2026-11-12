@@ -55,7 +55,7 @@ void UMMOGFXPlayer_GuildBase::SetItemSlotData(class UGFxObject* mc,class UItem* 
 	mc->SetBool("isSlotLocked", FALSE);
 	mc->SetBool("isSlotUnusable", FALSE);
 
-	//置于Loader之上
+	//placed above the Loader
 	if (ISS_ItemLocked == inISS || ISS_SlotLocked == inISS)
 	{
 		mc->SetBool("isSlotLocked", TRUE);
@@ -65,7 +65,7 @@ void UMMOGFXPlayer_GuildBase::SetItemSlotData(class UGFxObject* mc,class UItem* 
 		mc->SetBool("isSlotUnusable", TRUE);
 	}
 
-	//直接替换Loader
+	//directly replace the Loader
 	if (ISS_SlotLocked == inISS)
 	{
 		eventCallSetItemData(mc, 0, LockedSlotIconPath, -1, SlotType, TEXT(""), ITEMCOLOR_INVALID, ContainerID, SlotID);
@@ -77,7 +77,7 @@ void UMMOGFXPlayer_GuildBase::SetItemSlotData(class UGFxObject* mc,class UItem* 
 	}
 	else
 	{
-		//有iteminfo为本地商品
+		//having iteminfo means a local product
 		FClientItemInfo* itemInfo = MMOGuildData::getSingleton().GetWarehouseItem(_GuildWarehouse->_CurPage, SlotID);
 		switch (tItem->ItemDuration)
 		{
@@ -85,26 +85,26 @@ void UMMOGFXPlayer_GuildBase::SetItemSlotData(class UGFxObject* mc,class UItem* 
 			{
 				if (itemInfo)
 				{
-					//摆摊时 如果当前物品已经上架
+					//when setting up a stall, if the current item is already listed
 					if (itemInfo->IsOnSale && ESPType_StallSetting == SlotType)
 					{
 						eventCallSetItemData(mc, itemInfo->OnSaleCount, MMOFacade::getSingleton().GetItemIconNamePersonalized(tItem), tItem->ItemId, SlotType, TEXT(""), tItem->ItemColor + 1, ContainerID, SlotID);
 					}
-					//灵魂被拖入灵魂融合界面
+					//soul dragged into the soul fusion screen
 					else if (itemInfo->IsDragIntoOtherUI >= 0 && (ESPType_SoulEmbed == SlotType || ESPType_SoulLevelUp == SlotType || ESPType_SoulUnEmbed == SlotType))
 					{
 						eventCallSetItemData(mc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized(tItem), tItem->ItemId, SlotType, TEXT(""), tItem->ItemColor, ContainerID, SlotID);
 					}
-					//融灵时，则其他界面都不显示 
+					//during soul fusion, other screens are not shown
 					else if (itemInfo->IsDragIntoOtherUI >= 0 && itemInfo->m_nCurDur <= 0) 
 					{
 						if (itemInfo->IsDragIntoOtherUI == ESPType_StallSetting)
-						{// 摆摊时，背包里的图标不隐藏
+						{// when setting up a stall, icons in the bag are not hidden
 							eventCallSetItemData(mc, itemInfo->m_nCurDur, MMOFacade::getSingleton().GetItemIconNamePersonalized(tItem), tItem->ItemId, SlotType, TEXT(""), tItem->ItemColor + 1, ContainerID, SlotID);
 						}
 						else
 						{
-							//显示空
+							//show empty
 							eventCallSetItemData(mc, 0, TEXT(""), -1, SlotType, TEXT(""), ITEMCOLOR_INVALID, ContainerID, SlotID);
 						}
 					}
@@ -169,13 +169,13 @@ void UMMOGFXPlayer_GuildBase::ShowGuildViewPanel()
 //	_GuildMainPanel->ShowGuildMainPanel();
 //}
 
-// 创建家族
+// Create guild
 void UMMOGFXPlayer_GuildBase::ASCreateGuild(const FString& guildName, const FString& guildAnnounce)
 {
 	_GuildCreatePanel->CreateGuild(guildName, guildAnnounce);
 }
 
-// 家族查看
+// View guild
 void UMMOGFXPlayer_GuildBase::ASViewGuild()
 {
 	_GuildViewPanel->SetNpcCalled(FALSE);
@@ -189,13 +189,13 @@ void UMMOGFXPlayer_GuildBase::ASUpdateGuildViewInfo(INT id)
 	_GuildViewPanel->UpdateGuildBuildingList(id);
 }
 
-// 家族查找
+// Find guild
 void UMMOGFXPlayer_GuildBase::ASFindGuild(UBOOL isId, const FString& content)
 {
 	_GuildViewPanel->FindGuild(isId, content);
 }
 
-// 翻页
+// Turn page
 void UMMOGFXPlayer_GuildBase::ASPageUp()
 {
 	_GuildViewPanel->PageUp();
@@ -206,7 +206,7 @@ void UMMOGFXPlayer_GuildBase::ASPageDown()
 	_GuildViewPanel->PageDown();
 }
 
-// 仓库
+// Warehouse
 void UMMOGFXPlayer_GuildBase::ASGuildWarehouseMore()
 {
 	_GuildWarehouse->MoreInfo();
@@ -222,40 +222,40 @@ void UMMOGFXPlayer_GuildBase::ASGuildWarehouseTab(INT tabID)
 	_GuildWarehouse->TabChange( tabID );
 }
 
-// 申请加入家族
+// Apply to join guild
 void UMMOGFXPlayer_GuildBase::ASApplyForJoint(INT id)
 {
 	_GuildViewPanel->ApplyForJoint(id);
 }
 
-// 更新申请列表
+// Update application list
 void UMMOGFXPlayer_GuildBase::ASUpdateGuildPendingMemberList()
 {
 	_GuildMainPanel->UpdateGuildPendingMemberList();
 }
 
-// 同意加入家族
+// Accept joining guild
 void UMMOGFXPlayer_GuildBase::ASAgreeToJoin(INT id)
 {
 	_GuildMainPanel->AgreeToJoin(id);
 }
 
-// 拒绝加入家族
+// Reject joining guild
 void UMMOGFXPlayer_GuildBase::ASRefuseToJoin(INT id)
 {
 	_GuildMainPanel->RefuseToJoin(id);
 }
 
-// 资金捐献
+// fund donation
 void UMMOGFXPlayer_GuildBase::ASContribute(INT type, INT count)
 {
 	if (count == 0)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("捐献数量不能为0"),MsgInfoType_Table,TEXT("捐献数量不能为0"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Donation amount cannot be 0"),MsgInfoType_Table,TEXT("Donation amount cannot be 0"));
 		return;
 	}
 
-	// 判定资金是否已达上限
+	// determine whether funds have reached the limit
 	UINT32 resMax = MMOGuildData::getSingleton().GetGuildTerritoryResMax(GUILD_ATTR_MONEY);
 	UINT32 resCur = MMOGuildData::getSingleton().GetCurGuildTerritoryRes(GUILD_ATTR_MONEY);
 	if (resCur >= resMax)
@@ -268,7 +268,7 @@ void UMMOGFXPlayer_GuildBase::ASContribute(INT type, INT count)
 	// #15422
 	if (resCur + count > resMax)
 	{
-		FString text = TEXT("捐献金额过大，无法捐献资金");		
+		FString text = TEXT("Donation amount too large, cannot donate funds");		
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOGame.Guild.MoneyStoreLimit"));
 		return;
 	}
@@ -276,24 +276,24 @@ void UMMOGFXPlayer_GuildBase::ASContribute(INT type, INT count)
 	CMessageHandler::GetInstance().Send_GuildContribute(GUILD_ATTR_MONEY, count);
 }
 
-// 更改通告
+// Change announcement
 void UMMOGFXPlayer_GuildBase::ASChangeNotice(const FString& notice)
 {
 	_GuildMainPanel->ChangeGuildNotice(notice);
 }
 
-// 更改宣言
+// Change declaration
 void UMMOGFXPlayer_GuildBase::ASChangeAnnounce(const FString& announce)
 {
 }
 
-// 查看更多家族事件
+// View more guild events
 void UMMOGFXPlayer_GuildBase::ASViewMoreEvents()
 {
 	CMessageHandler::GetInstance().Send_ViewMoreEvents();
 }
 
-// 招募成员
+// Recruit members
 void UMMOGFXPlayer_GuildBase::ASInviteMember(const FString& roleName)
 {
 	_GuildMainPanel->InviteMember(roleName);
@@ -304,55 +304,55 @@ void UMMOGFXPlayer_GuildBase::ASSortMember(INT type, UBOOL isUp)
 	_GuildMainPanel->SortMember(type, isUp);
 }
 
-// 驱逐成员
+// Expel member
 void UMMOGFXPlayer_GuildBase::ASExpelMember(INT id)
 {
 	_GuildMainPanel->ExpelMember(id);
 }
 
-// 更改职位
+// Change position
 void UMMOGFXPlayer_GuildBase::ASChangePost(INT roleId, INT post)
 {
 	_GuildMainPanel->ChangePost(roleId, post);
 }
 
-// 是否显示在线成员
+// Whether to show online members
 void UMMOGFXPlayer_GuildBase::ASShowOnlineMember(UBOOL isShow)
 {
 	_GuildMainPanel->ShowOnlineMember(isShow);
 }
 
-// 是否显示在线成员
+// Whether to show online members
 void UMMOGFXPlayer_GuildBase::ASOnlineMemberNotify(UBOOL notify)
 {
 	MMOGuildManager::getSingleton().SetOnlineMemberNotify(notify);
 }
 
-// 族长禅位
+// Guild leader abdication
 void UMMOGFXPlayer_GuildBase::ASLeaderDemise(const FString& roleName)
 {
 	_GuildMainPanel->LeaderDemise(roleName);
 }
 
-// 家族解散
+// Guild disband
 void UMMOGFXPlayer_GuildBase::ASDisbandGuild(const FString& text)
 {
 	_GuildMainPanel->DisbandGuild(text);
 }
 
-// 退出家族
+// Leave guild
 void UMMOGFXPlayer_GuildBase::ASQuitGuild()
 {
 	_GuildMainPanel->QuitConfirm();
 }
 
-// 更新家族权限显示
+// Update guild permission display
 void UMMOGFXPlayer_GuildBase::ASUpdateGuildRights(INT post)
 {
 	_GuildMainPanel->UpdateGuildRights(post + 1);
 }
 
-// 更新仓库权限显示
+// Update warehouse permission display
 void UMMOGFXPlayer_GuildBase::ASModifyGuildStorageRights(INT post, UGFxObject* rights)
 {
 	_GuildMainPanel->ModifyGuildStorageRights(post + 1, rights);
@@ -363,7 +363,7 @@ void UMMOGFXPlayer_GuildBase::ASUpdateGuildStorageRights(INT post)
 	_GuildMainPanel->UpdateGuildStorageRights(post + 1);
 }
 
-// 俸禄分配
+// Salary distribution
 void UMMOGFXPlayer_GuildBase::ASDistributeSalary(UGFxObject* percent)
 {
 	_GuildMainPanel->DistributeSalary(percent);
@@ -413,7 +413,7 @@ void UMMOGFXPlayer_GuildBase::ASChallengeConfirm(INT guildId)
 {
 }
 
-// 家族匹配战
+// family matchmaking battle
 void UMMOGFXPlayer_GuildBase::ASSearchGuild()
 {
 	CMessageHandler::GetInstance().Send_Search();
@@ -421,5 +421,5 @@ void UMMOGFXPlayer_GuildBase::ASSearchGuild()
 
 void UMMOGFXPlayer_GuildBase::ASInputError()
 {		
-	MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("只能包含英文，中文，数字"), MsgInfoType_Table, TEXT(""));
+	MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("May only contain English letters, Chinese characters and digits"), MsgInfoType_Table, TEXT(""));
 }

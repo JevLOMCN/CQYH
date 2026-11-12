@@ -4,7 +4,7 @@
 
 void CMessageHandler::Send_TeamAuctionBid( INT itemTempId , INT bidMoney , INT index )
 {
-	//这个发itemTempid，为了只是校验，不能全信
+	//This sends itemTempid only for verification, cannot be fully trusted
 	C2G_TEAM_AUCTION_BID msg;
 	msg.wMsg = c2g_team_auction_bid;
 	msg.dwAuctionIndex = index;
@@ -15,7 +15,7 @@ void CMessageHandler::Send_TeamAuctionBid( INT itemTempId , INT bidMoney , INT i
 
 void CMessageHandler::Send_TeamAuctionAbandonBid( INT itemTempId , INT itemIndex )
 {
-	//这个发itemTempid，为了只是校验，不能全信
+	//This sends itemTempid only for verification, cannot be fully trusted
 	C2G_TEAM_AUCTION_ABANDON msg;
 	msg.wMsg = c2g_team_auction_abandon;
 //	msg.nItemID = itemTempId;
@@ -38,7 +38,7 @@ void CMessageHandler::Parse_g2c_team_auction_abandon(const char* buf, UINT32 siz
 
 void CMessageHandler::Parse_g2c_team_auction_begin(const char* buf, UINT32 size)
 {
-	//开始拍卖该物品
+	//Start auctioning this item
 	G2C_TEAM_AUCTION_BEGIN* msg = (G2C_TEAM_AUCTION_BEGIN*)buf;
 	INT BuffSize = 0;
 
@@ -73,7 +73,7 @@ void CMessageHandler::Parse_g2c_team_auction_add_item(const char* buf, UINT32 si
 
 void CMessageHandler::Parse_g2c_team_auction_notify(const char* buf, UINT32 size)
 {
-	//有人出价
+	//Someone bid
 	G2C_TEAM_AUCTION_NOTIFY* msg = (G2C_TEAM_AUCTION_NOTIFY*)buf;
 	if(msg)
 	{

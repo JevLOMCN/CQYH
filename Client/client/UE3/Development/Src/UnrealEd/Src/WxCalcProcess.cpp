@@ -352,7 +352,7 @@ void WxCalcProcess::MakeLogicConnection(USequenceOp* OutOp, INT OutConnIndex, US
 	FSeqOpOutputLink &outLink = OutOp->OutputLinks(OutConnIndex);
 	// make sure the link doesn't already exist
 
-	//去掉已经连接的modifier
+	//Remove already connected modifiers
 	{
 		//OutOp;
 		FSeqOpOutputLink &outLink = OutOp->OutputLinks(OutConnIndex);

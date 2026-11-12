@@ -180,8 +180,8 @@ void UAudioDevice::SetSoundSpawningEnabled( UBOOL bEnable )
 // add by showlong, Start
 float UAudioDevice::ComputeSoundVolumByConfig(FName& SoundClass)
 {
-    // 可以使用SetClassVolume来控制的某个类型音量，但无法解决开关与实际分类树的问题。
-    // 音效师要求音量在UPK中的音量与设置界面中的是乘法关系，而不是直接等号，否则他无法调混音。
+    // SetClassVolume can be used to control the volume of a certain type, but it cannot solve the problem of toggles versus the actual class tree.
+    // The sound designer requires the volume in the UPK to be multiplied with the volume in the settings UI rather than directly equated, otherwise he cannot adjust the mix.
 	FString soundClass = SoundClass.ToString();
 	
     if (!VolumeTotal_op)
@@ -200,7 +200,7 @@ float UAudioDevice::ComputeSoundVolumByConfig(FName& SoundClass)
 //--------------------------------------------------------------------------------
 
 /**
-* 静音设备主声音, zhaojun@snda
+* Mute the device's main sound, zhaojun@snda
 */
 void UAudioDevice::MuteMasterVoice(UBOOL bMute)
 {
@@ -1735,7 +1735,7 @@ void UAudioDevice::AddComponent( UAudioComponent* AudioComponent )
 {
 	check( AudioComponent );
 
-    // 控制只能播放一个同类音效
+    // Control so that only one sound of the same type can play
     // add by showlong
     FSoundClassProperties* snd_prop = 0;
     if (AudioComponent->SoundCue)
@@ -1752,8 +1752,8 @@ void UAudioDevice::AddComponent( UAudioComponent* AudioComponent )
         for (INT i = 0; i < stop_lst.Num(); ++i)
 		{
 			// modified by zhangrui05@snda
-			// 这里用Stop会有一个FadeOut的延迟, 这样有时候会导致新的SoundMode激活后, 
-			// 当前的AudioComponent才被RemoveComponent，这时候会设置一个Default的SoundMode， 导致新的SoundMode失效
+			// Using Stop here has a FadeOut delay, which sometimes causes the new SoundMode to be activated before
+			// the current AudioComponent is RemoveComponent'd, at which point a Default SoundMode is set, causing the new SoundMode to be invalidated
             //stop_lst(i)->Stop();
 			stop_lst(i)->Cleanup();
 		}
@@ -1761,7 +1761,7 @@ void UAudioDevice::AddComponent( UAudioComponent* AudioComponent )
 
 	AudioComponents.AddUniqueItem( AudioComponent );
 
-    // 启动SoundMode
+    // Start SoundMode
     // add by showlong
     if (snd_prop && !snd_prop->DockSoundMode.IsEmpty())
 	{
@@ -1785,7 +1785,7 @@ void UAudioDevice::RemoveComponent( UAudioComponent* AudioComponent )
 		}
 	}
 
-    // 恢复SoundMode到默认
+    // Restore SoundMode to default
     // add by showlong
     FSoundClassProperties* snd_prop = 0;
     if (AudioComponent->SoundCue)

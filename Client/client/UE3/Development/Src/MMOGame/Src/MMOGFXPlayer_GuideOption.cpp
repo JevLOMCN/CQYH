@@ -62,7 +62,7 @@ void UMMOGFXPlayer_GuideOption::ASGuideOptionPanelClose()
 	MMOGuideOptionManager::getSingleton().SetGameControlType(GC_MIR2);
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_GuideOption,FALSE,"");
 
-	// 引导事件：移动教学
+	// tutorial event: movement teaching
 	MMOGameEvent_Guide evtGuide(EGUET_Move);
 	MMOUI::PostGameEvent(&evtGuide);
 }

@@ -29,7 +29,7 @@ void UMMOGFXPlayer_Warehouse::SetItemSlotData( class UGFxObject* mc, class UItem
 {
 	UMMOGFXPlayer::SetItemSlotData( mc, tItem, SlotType, ContainerID, SlotID,inISS);
 
-	//补个刀
+	//finishing blow
 	if(!mc)
 	{
 		return;
@@ -42,7 +42,7 @@ void UMMOGFXPlayer_Warehouse::SetItemSlotData( class UGFxObject* mc, class UItem
 		FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindItem( ContainerID , SlotID );
 
 
-		//这里改成包裹里不满足本职业的武器标记成x，因为该图标和交易摆摊时锁定物品图标相同，所以会有歧义。但目前只有这个图标了。
+		//changed here so weapons in the bag that do not suit this class are marked with x; since this icon is the same as the locked-item icon when trading or stalling, there is ambiguity. But currently this is the only icon.
 		if( tItem->ItemType == TEXT("ITEMTYPE_EQUIP") && !mc->GetBool( TEXT("isSlotUnusable") ) )
 		{
 			AMMOPlayer* pl=  MMOFacade::getSingleton().GetMainPlayer();

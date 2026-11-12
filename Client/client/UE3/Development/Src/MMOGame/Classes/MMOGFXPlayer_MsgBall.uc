@@ -30,5 +30,5 @@ DefaultProperties
 	//bAllowFocus=false
 	MovieInfoStr="UI_MsgBall.MsgBall"
 	bCloseOnLevelChange=FALSE
-	Priority=6 // 让这个在最下面接受响应键盘、鼠标事件
+	Priority=6 // Keep this at the bottom to receive keyboard and mouse events
 }

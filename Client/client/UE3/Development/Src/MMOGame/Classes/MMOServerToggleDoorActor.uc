@@ -1,13 +1,13 @@
 //MMOServerToggleDoorActor
 //hemu@snda
-//用于场景交互中的门
-//涉及到碰撞相关 服务需要填入Grid 这里单独处理
+//Used for doors in scene interaction
+//Involves collision; the server needs to fill in Grid, handled separately here
 
 class MMOServerToggleDoorActor extends MMOServerToggleActor 
 	native
 	ClassGroup(__Server_Old__);
 
-//DoorId 标记
+//DoorId marker
 var(MMOServerToggleActor)  int                   DoorId           <DisplayName="ID">;
 
 cpptext

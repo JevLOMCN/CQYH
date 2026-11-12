@@ -2957,7 +2957,7 @@ UBOOL UWorld::ProcessLevelStreamingVolumes(FVector* OverrideViewLocation, UBOOL 
 					UBOOL bShouldBeLoaded = LevelGridVolume->ShouldLevelBeLoaded( GridCell, ViewLocation, bIsLevelAlreadyLoaded, Distance );
 					if(bShouldBeLoaded)
 					{
-						// 保持15秒至少不直接回收
+						// Keep for at least 15 seconds before directly reclaiming
 						LevelStreamingObject->KeepLoadingTime = 15.0f;
 					}
 					else

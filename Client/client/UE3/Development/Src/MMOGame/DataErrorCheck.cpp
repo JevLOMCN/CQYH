@@ -87,7 +87,7 @@ void AddDataError( const FString& tabFile, const FString& msg )
 {
 	static bool g_InitDataErrorReport = InitDataErrorReport();
 
-	FString msgStr = FString(TEXT("加载 ")) + g_dataLoadingContex + TEXT(" 时发现 -> ") + msg;
+	FString msgStr = FString(TEXT("Loading ")) + g_dataLoadingContex + TEXT(" found -> ") + msg;
 	if(g_enableLogToConsole)
 	{
 		warnf(NAME_Error, *msgStr);
@@ -117,9 +117,9 @@ const FString& FindTabfileInChargeName(const FString& tabfile)
 		return i->second;
 	}
 
-	warnf(NAME_Error, TEXT("没有找到对应表格的负责人:%s 请尽快在代码中添加表格负责人!"), *tabfile);
+	warnf(NAME_Error, TEXT("No owner found for table: %s. Please add a table owner in the code as soon as possible!"), *tabfile);
 
-	static FString blankStr = TEXT("未找到");
+	static FString blankStr = TEXT("Not found");
 	return blankStr;
 }
 
@@ -138,7 +138,7 @@ void ReportAllDataError()
 				warnf(NAME_Error, *i->second(j));
 			}
 
-			msgAll += FString::Printf(TEXT("%6s ：%-30s  共有 %d 条错误\r\n"),
+			msgAll += FString::Printf(TEXT("%6s : %-30s  %d errors\r\n"),
 				*chargeName, *i->first, i->second.Num());
 		}
 	}
@@ -150,7 +150,7 @@ void ReportAllDataError()
 #endif
 		)
 	{
-		FString msg = FString(TEXT("发现配置数据错误，请查看 08.Prog\\Client\\UE3\\MMOGame\\Logs\\Launch.log 进行修正：\r\n")) + msgAll;
+		FString msg = FString(TEXT("Config data errors found. Please check 08.Prog\\Client\\UE3\\MMOGame\\Logs\\Launch.log to fix them:\r\n")) + msgAll;
 		appMsgf(AMT_OK, *msg);
 	}
 #endif

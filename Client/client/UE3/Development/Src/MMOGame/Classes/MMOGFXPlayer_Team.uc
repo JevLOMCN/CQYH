@@ -45,7 +45,7 @@ function ASTeamContentTab(int i)//moved team
 	Team.TeamContentTab(i);
 }
 
-//组队部分的响应
+//Party part responses
 function ASTeamEnterNearbyTeam()//moved team
 {
 	Team.EnterNearbyTeam();

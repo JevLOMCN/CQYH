@@ -42,7 +42,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 	class AMMODropActor* obj = NULL;
 	FName debugName;
 
-#if 0 // oscar@snda 不能这样指定可能会重复的名字
+#if 0 // oscar@snda names that may be duplicated cannot be specified like this
 #if !SHIPPING_PC_GAME
 	debugName = FName(*FString::Printf(TEXT("DropActor.ItemTemplate[%d]_ID[%d]"),
 		itemTemplateID, dropActorID));
@@ -54,7 +54,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 	debugName = NAME_None;
 
 	FVector dropLocation = destLocation;
-	FVector startPoint = dropLocation + FVector(0, 0, 512); // 16CM误差距离即可
+	FVector startPoint = dropLocation + FVector(0, 0, 512); // 16CM error distance is enough
 	FVector endPoint = dropLocation - FVector(0, 0, 512);
 	FCheckResult hit(1.f);
 	if (GWorld->SingleLineCheck(hit, NULL, endPoint, startPoint, TRACE_World/*TRACE_Blocking|TRACE_Terrain|TRACE_Level|TRACE_Volumes|TRACE_LevelGeometry*/) == FALSE)
@@ -84,9 +84,9 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 		
 		UStaticMesh* itemMesh = NULL;
 
-		// 任务 #13020, add by zhangrui
+		// Task #13020, add by zhangrui
 		if (item->GetTemplateID() == obj->BindItemId)
-		{// 如果是绑金
+		{// If it is bound gold
 			if (itemCount <= obj->DropDivide1)
 			{
 				itemMesh = LoadUEObject<UStaticMesh>(obj->BindDropMesh1, TEXT("DefaultMMOGame.ini"));
@@ -109,7 +109,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 			}
 		}
 		else if (item->GetTemplateID() == obj->GoldItemId)
-		{// 如果是金币
+		{// If it is gold coins
 			if (itemCount <= obj->DropDivide1)
 			{
 				itemMesh = LoadUEObject<UStaticMesh>(obj->GoldDropMesh1, TEXT("DefaultMMOGame.ini"));
@@ -132,7 +132,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 			}
 		}
 		else
-		{// 如果是道具
+		{// If it is an item
 			itemMesh = item->GetDropMesh();
 		}
 
@@ -164,7 +164,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 		obj->TargetPosition = dropLocation + FVector(0, 0, offsetZ);
 		//obj->Location = spawnLocation;//MMOFacade::getSingleton().GetMainActor()->Location;
 		//obj->SpawnDelayTimer = spawnOrder * g_SpawnDelay;
-		obj->SpawnDelayTimer = g_SpawnDelay; // #23577 陆陈磊：统一掉落延迟0.15S
+		obj->SpawnDelayTimer = g_SpawnDelay; // #23577 Lu Chenlei: unified drop delay 0.15S
 		obj->SetCollision( FALSE, FALSE, FALSE );
 
 		FVector newSpawnLocation = spawnLocation;
@@ -199,7 +199,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 
 			info.Hud->SetVisible(FALSE);
 			info.IsVisible = FALSE;
-			// 内挂设置极品的道具，要显示名字，并且标示颜色(即便是勾选不显示名字)
+			// Bot settings: for top-quality items, show name and mark color (even if show-name is unchecked)
 			if (MMOAssistManager::getSingleton().IsDropValuable(item->ItemId))
 			{
 				//info.Hud->SetVisible(TRUE);
@@ -208,7 +208,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 			}
 			else
 			{
-				// 内挂设置可见，才能可见
+				// Visible only if the bot settings make it visible
 				UBOOL defaultShow = GetShowDropHud();
 				UBOOL inVisible = defaultShow & MMOAssistManager::getSingleton().IsDropVisible(item->ItemId);
 				
@@ -267,7 +267,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 		
 		if(isNew)
 		{
-			//// 播放Matinee, 隐藏掉落
+			//// Play Matinee, hide drops
 			//UBOOL bHidden = TRUE;
 			//AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 			//if (pc && pc->bShowDropsByKismet==)
@@ -285,7 +285,7 @@ class AMMODropActor* MMODropManager::AddDropActor( bool isNew, const FVector& sp
 			obj->EndSpawnAnim(FALSE);
 		}
 
-		// 更新掉落的任务状态
+		// Update the quest state of drops
 		MMOQuestManager::getSingleton().UpdateQuestDropItemStatus(obj);
 	}
 
@@ -478,7 +478,7 @@ void MMODropManager::UpdateDropHudPos(FLOAT DeltaTime)
 				//show = GetShowDropHud() || dropActor->IsHover();
 				show = defaultShow;
 
-				//// 内挂还要过滤下
+				//// The bot still needs to filter
 				//if (!MMOAssistManager::getSingleton().IsDropVisible(dropActor->ItemTemplate->ItemId))
 				//{
 				//	show = FALSE;
@@ -542,7 +542,7 @@ void MMODropManager::UpdateDropHudPos(FLOAT DeltaTime)
 				}
 			}
 
-			// 拾取道具
+			// Pick up item
 			FLOAT dist_SD = (playerServerPos - dropActor->Location).SizeSquared2D();
 			FLOAT dist_SP = (playerPos - playerServerPos).SizeSquared2D();
 			if(dist_SD<64.0f&&dist_SP<128.0f)
@@ -562,7 +562,7 @@ void MMODropManager::UpdateDropHudPos(FLOAT DeltaTime)
 						}
 					}
 					else if (dropActor->ItemTemplate && MMOAssistManager::getSingleton().IsDropAutoPick(dropActor->ItemTemplate->ItemId))
-					{// 内挂里面设置了自动拾取道具，自动拾取
+					{// Auto-pickup of items is set in the bot, auto-pickup
 						CMessageHandler::GetInstance().Send_PickDropItem(dropActor->DropID, 0);
 						i->second.CannotPickCD = 0.5f;
 						dropActor->fPickupDelay = 0.5f;
@@ -588,7 +588,7 @@ void MMODropManager::UpdateDropHudPos(FLOAT DeltaTime)
 
 void MMODropManager::OnCanvasPostRender( class UCanvas* canvas, FLOAT fDelta )
 {
-	//更改刷新方式
+	//Change refresh method
 	return;
 }
 
@@ -671,7 +671,7 @@ void MMODropManager::SetDropTipsIcon(INT dropActorId, const FString& icon)
 				FString IconName = TEXT("");
 				INT realColor = UITextParser::HTMLGetItemRealColor(   (EItemColor)item->ItemColor );
 
-				// 内挂设置可见，才能可见
+				// Visible only if the bot settings make it visible
 
 				UBOOL bSpawnEnd = info.DropActor->SpawnDelayTimer<=0.0f ? TRUE : FALSE;
 
@@ -679,7 +679,7 @@ void MMODropManager::SetDropTipsIcon(INT dropActorId, const FString& icon)
 				info.IsVisible = bVisible;
 				info.Hud->SetVisible(bVisible);
 
-				// 内挂设置极品的道具，要显示名字，并且标示颜色(即便是勾选不显示名字)
+				// Bot settings: for top-quality items, show name and mark color (even if show-name is unchecked)
 				if (MMOAssistManager::getSingleton().IsDropValuable(item->ItemId))
 				{
 					info.IsVisible = TRUE & bSpawnEnd;

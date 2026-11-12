@@ -11,8 +11,8 @@
 #define Seconds 1.0f
 struct HurtData
 {
-	UINT AllHurts; //总伤害值
-	float HurtTime;//总战斗时间
+	UINT AllHurts; //total damage
+	float HurtTime;//total combat time
 
 	void Reset()
 	{

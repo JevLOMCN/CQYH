@@ -1,17 +1,17 @@
 //MMOServerToggleActor
 //hemu@snda
-//用于场景交互中 机关及门
+//Used for mechanisms and doors in scene interaction
 
 class MMOServerToggleActor extends SkeletalMeshActor
 	placeable
 	native;
 
 /*
-使用一个Anim来解决四个状态+
-第一帧 Closed
-正放 Opening
-最后一帧 Opened
-反放 Closing
+Use one Anim to handle four states +
+First frame Closed
+Play forward Opening
+Last frame Opened
+Play reverse Closing
 */
 enum EToggleActorState
 {
@@ -21,14 +21,14 @@ enum EToggleActorState
 	ETAS_Closing
 };
 
-//动画名
+//Animation name
 var( )  name                       AnimName         <DisplayName="AnimName">;
-//关联的Trigger
+//Associated Trigger
 var()   MMOServerToggleDoorTrigger DoorTrigger      <DisplayName="DoorTrigger">;
-//当前状态
+//Current state
 var()   EToggleActorState          CurState         <DisplayName="ToggleActorState">;; 
 
-//动画时长 
+//Animation duration
 var     float               AnimTime;
 var     AnimNodeSequence    AnimNodeSeq;
 var     AnimSequence        AnimSeq;
@@ -44,13 +44,13 @@ native final function  IniData();
 native final function  SetState(EToggleActorState inState );
 native final function  TriggerEvent( );
 
-//可以使用Notify自由控制
+//Can be freely controlled using Notify
 /*
-//打开时的声音 
+//Sound when opening
 var() array<SoundCue>          Sound_Close    <DisplayName="Sound_Close">;
-//关闭时的声音
+//Sound when closing
 var() array<SoundCue>          Sound_Open     <DisplayName="Sound_Open">;
-//相关特效
+//Related effects
 var( ) PointLightComponent     SourceLight    <DisplayName="SourceLight">;
 var( ) ParticleSystemComponent Effect         <DisplayName="Effect">;
 */

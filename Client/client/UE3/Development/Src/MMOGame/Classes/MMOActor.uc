@@ -1,6 +1,6 @@
 
 //
-// 主要的抽象角色类，用于游戏中所有角色对象的基类
+// Main abstract character class, base class of all character objects in the game
 //
 class MMOActor extends Pawn implements (IAbilityDamageable, IPickableActor, IMMOActor)
 	config(MMOActor)
@@ -14,10 +14,10 @@ class MMOActor extends Pawn implements (IAbilityDamageable, IPickableActor, IMMO
 	dependson(DestructablePartAttachInfo)
 	native;
 
- // 每隔1秒尝试修正贴地
+ // Try to correct ground snapping every 1 second
 var float PlaceToGoundTickTime;
 
-// 超过多少次后就不再修正
+// No more corrections after this many attempts
 var int PlaceToGoundTickCount;
 
 var protected Vector ServerLocation;
@@ -44,7 +44,7 @@ var          float     ResetMovePhaseTime;
 var          float     ResetLastLocationTime;
 var          float     AttackAi_LockTime;
 
-// 游戏通用数据处理器的引用,直接使用,避免每次强转
+// Reference to the general game data handler, used directly to avoid casting each time
 var transient GamePlayDataManager GpDataManager;
 
 // var bool IsDead;
@@ -53,23 +53,23 @@ var name PlayingAnim;
 // only for sound effect
 var(SoundFX) EBodyType BodyType;
 
-// 当没有换装数据,但需要音效材质数据时,这是一个缺省的属性
+// Default attribute when there is no outfit data but sound/material data is needed
 var(SoundFX) EItemMaterialType SoundMaterialType;
 
-// nActionOrLoop,记录动画层状态
+// nActionOrLoop,nActionOrLoop, records animation layer state
 var int nActorActionOrLoop;
 
 
 var bool bSendRequestToServerToGetFullInfo;
 
 
-// 是否显示地形与Navment高度差开关
+// Switch to show height difference between terrain and Navment
 var(Debug) bool ShowNavmeshDistance;
 
-// 近战范围
+// Melee range
 var(Debug) float MeleeAttackRange;
 
-// 远程攻击范围
+// Ranged attack range
 var(Debug) float RangeAttackRange;
 
 var(MMO_UI) int   NPCIcon;
@@ -83,35 +83,35 @@ var Rotator TargetRotation;
 var float CurrentAttackRange;
 var EOBJ_BODY_TYPE  BodySize;
 
-// 统一用g_moveModGridSize  const GRID_SIZE=64;
-// 是否使用虚幻自己的移动函数
+// Use g_moveModGridSize  const GRID_SIZE=64;
+// Whether to use Unreal's own movement function
 var(Movement) bool bUsingUnrealWalking;
 
-// 阵营标识, 两阵营标识做 AND 操作，不为0是友好
+// Faction ID, AND two faction IDs; non-zero means friendly
 var(MMO) int FriendlyMask;
 
-// 角色属性
+// Character attributes
 var(MMO) editinline ActorAttribute ActorAttributes;
 
 var   ActorAttribute HeroAttributes;     
 
-//队伍号，其实这根本不应该放这里，都怪方如意写的mmoactor结构
+//Team number; this should not be here at all, blame the mmoactor structure written by Fang Ruyi
 var int TeamID;
-//个人竞技积分，放在人身上，这个属性虽说是竞技场积分，但是和人属性一起同步
+//Personal arena score, stored on the person; although it is arena score, it syncs together with the person's attributes
 var int PersonalArenaScore;
 
-// 模型相关属性
-// 动画
+// Model-related attributes
+// Animation
 var(Anim) MMOAnimGroup PawnAnimInfo;
 var transient int CurrentModelTypeIdx;
 
 
-// 攻击状态持续时间，每次使用技能时置为最大值MaxAttackStateTime，倒计时为0后重置为非攻击状态
+// Attack state duration, set to max MaxAttackStateTime on each ability use, resets to non-attack state when countdown reaches 0
 var float AttackStateDurationTime;
 var bool IsAttackState;
 
 var transient bool bWaitForAbilityReply;
-// 第一人称有效
+// Valid in first person
 var transient EAbilityState CurrentAbilityState;
 var transient int   CurrentRequestAbilityId;
 var transient int   CurrentRequestAbilitySerialId;
@@ -135,7 +135,7 @@ var transient bool bVisibleByCharacterCountLimit;
 
 var transient bool bVisibleWeaponByAbility;
 
-var transient bool bShowTime;   // 客户端表演状态,不一定与服务器坐标保持一致,但在结束时要与服务器坐标一致
+var transient bool bShowTime;   // Client performance state, not necessarily consistent with the server position, but must match the server position at the end
 
 var transient bool bDead;
 
@@ -204,20 +204,20 @@ struct native EquipNode
 
 var init array<EquipNode> EquipList;
 
-// 头顶上的特效
+// Effect above the head
 var Emitter SFX_OverHead;
 
-// 显示血量数字标识
+// Show HP number marker
 var int ShowHpNumber;
 
 var int GridX;
 var int GridY;
 var bool bIsActorInSafeZone;
 //---------------------------------------------------------------
-// 静态绑定部件
+// Static bound parts
 //---------------------------------------------------------------
 
-// 当前绑定的StaticMesh信息
+// Currently bound StaticMesh info
 struct native StaticMeshAttachInfo
 {
 	var() Name AttachName;
@@ -229,7 +229,7 @@ struct native StaticMeshAttachInfo
 
 var init array<StaticMeshAttachInfo> AttachedStaticMeshs;
 
-// 当前绑定的可破坏部件，add by jimzhang 2012.7.11
+// Currently bound destructible parts, add by jimzhang 2012.7.11
 var init array<DestructablePartAttachInfo> AttachedDestructableParts;
 
 var Mount MountInfo;
@@ -237,31 +237,31 @@ var Mount WingInfo;
 var EWeaponType AttitudeType;
 var EWeaponType AttitudeTypeLast;
 
-// 当前角色身上装备列表
+// Equipment list on the current character
 var const int C_EquipCount;
 
-var transient bool						bHoldWeapon;            // 如果有装备武器的话,true表示手持武器状态,false表示背着武器状态
+var transient bool						bHoldWeapon;            // If a weapon is equipped, true means weapon in hand, false means weapon on back
 
 var transient ItemManager				ItemManager;
 
 
 
 //var transient EEStallState StallState;
-var transient EActorMoveType MoveType;       // 当前移动方式
-var transient float MoveSpeedFactor;    // 移动速度变化值(buff管理)    , deafault is 1.0f
+var transient EActorMoveType MoveType;       // Current move type
+var transient float MoveSpeedFactor;    // Move speed modifier (buff managed)    , deafault is 1.0f
 
 
 /** The pawn's light environment */
 var(MMO) const editconst DynamicLightEnvironmentComponent LightEnvironment;
 
 //---------------------------------------------------------------
-// 粒子系统绑定部件
+// Particle system bound parts
 //---------------------------------------------------------------
 
-// 当前绑定的粒子系统
+// currently attached particle system
 var init array<ParticleSystemAttachInfo> AttachedParSys;
 
-// 初始时的绑定粒子系统列表
+// Initial bound particle system list
 var(MMOAttach) editinline array<ParticleSystemAttachInfo> InitAttachParSys;
 
 //var transient AutoReleaseRadialBlurActor BlurActor;
@@ -282,10 +282,10 @@ var SkelControlLookAt   lookAtController;
 var transient MMOActorAT    ActorAT;   
 
 var transient float ActionPlayedLeftTime;
-//当前正在播放的动画
+//Animation currently playing
 var transient name PlayingAinmName;
 
-// 特用材质模板
+// Special material template
 var MaterialInstanceConstant ConstantMat;
 var MaterialInstanceTimeVarying TimeMat;
 
@@ -293,7 +293,7 @@ var MaterialInstanceTimeVarying TimeMat;
 var transient   array<MMOAbility>   Abilities;
 var transient   array<MMOAbility>   NormalAttackAbilities;
 
-// 方便于管理技能有生命期的组件
+// Convenient for managing ability components that have a lifetime
 var transient   array<ParticleSystemComponent> MeshParticleAttachments;
 var transient   array<AudioComponent>   ActorAudioComponent;
 
@@ -326,29 +326,29 @@ var vector LastLocation;
 var bool	  UsePlaneShadow;
 var transient INT	planeShadowIndex;
 //---------------------------------------------------------------
-// 网络协议相关变量
+// Network protocol related variables
 //---------------------------------------------------------------
 
-// 对象在服务器端的ID
+// Object ID on the server side
 var int ServerID;
 var int ServerHeroID;
-var bool HeroSummon; //出征标志
-var int  HeroAi;//英雄跟随方式
+var bool HeroSummon; //Deploy flag
+var int  HeroAi;//Hero follow mode
 
-// 对象的角色名（昵称）
-//统一用ActorNamevar init string RoleName;
+// Object character name (nickname)
+//Use ActorNamevar init string RoleName;
 var init string MasterName;
 var init string HeroName;
 var int dwHostID;
 
-// 对象的家族名
+// Object guild name
 var init string GuildName;
 var int	MasterState;
 
 var float AnimBlendInTime;
 var float AnimBlendOutTime;
 
-//记录上次改变的材质
+//Record the last changed material
 var init string LastMaterialName;
 
 var transient ESceneObjectAppearType SceneObjectAppearType;
@@ -387,11 +387,11 @@ struct native MirrorActor
 
 var transient array<MirrorActor> ActiveMirrorActors;
 
-// 比奇争霸战
-// 进/出Volume计数
+// Bichon supremacy war
+// Enter/exit Volume count
 var int inSabacZoneCount;
 
-// 材质需要刷新
+// Material needs refresh
 var bool NeedRefreshMaterial;
 
 native function string GetActorName();
@@ -431,7 +431,7 @@ final native function SelfDestroyed(int cid);
 native function AvatarData GetAvatarData();
 native function float GetGridRadius();
 
-// 材质效果相关处理函数
+// Material effect related functions
 native function RebuildMaterialControllerList();
 native function SetToNewMaterialEffect(EMaterialEffectType InType, int InId, bool bOn, optional MaterialInstanceTimeVaryingEffectNode InEffectData, optional MaterialInstance InNewMaterial);
 native function SetInitColor(name InColorName, Vector InColor);
@@ -441,10 +441,10 @@ native function EActorClassType GetActorType() const;
 native final function bool IsMainPlayer() const;
 native function SetActorType( EActorClassType newType );
 
-// 取得脚底坐标
+// Get foot position
 native final function vector GetFootLocation();
 
-// 取得全身高
+// Get full body height
 native final function float GetFullBodyHeight();
 
 native final function EnableRagdoll(bool bOn);
@@ -536,7 +536,7 @@ native function ProcessActionsDelay(out array<AbilityComponent> OutComponents, f
 //native function ShowEquipLevelUpEffect(int InNewLevel, bool bWeapon);
 
 // add by zhangrui05 for fix bug #22643
-// 这个是用来将角色身上Buff效果影响的所有材质还原,以便重新施加Buff的效果
+// Used to restore all materials affected by Buff effects on the character, so Buff effects can be reapplied
 native function RebuildAllMeshMaterialList();
 
 native function NotifyRefreshEquipLevel(ENORMAL_EQUIP_SLOT InSlot);
@@ -629,8 +629,8 @@ function MMOAbility GetNormalAttackAbility()
 
 event PostInitAbility()
 {
-	//UI通知全部在外围做
-	//这个暂时留着 可留作它用 
+	//UIUI notifications are all done outside
+	//Keep this for now, can be used for something else
 	/*if(IsMainPlayer())
 	{
 		MainController.UpdateSkillPanel();
@@ -698,7 +698,7 @@ event SetToNewMaterialByName(string Type,string tName )
 	if( Type=="MaterialInstanceConstant" )
 	{
 		newMaterialConst = MaterialInstanceConstant( DynamicLoadObject( tName , class'MaterialInstanceConstant' ) );
-		//Buff无广播 这里这能暂且如此了
+		//BuffBuff has no broadcast, this is all we can do for now
 		if( newMaterialConst == none )
 		{
 			`log("SetToNewMaterialByName::Can't find Material"@newMaterialConst );
@@ -718,7 +718,7 @@ event SetToNewMaterialByName(string Type,string tName )
 	else if( Type=="MaterialInstanceTimeVarying" )
 	{
 		newMaterialTime = MaterialInstanceTimeVarying( DynamicLoadObject( tName , class'MaterialInstanceTimeVarying' ) );
-		//Buff无广播 这里这能暂且如此了
+		//BuffBuff has no broadcast, this is all we can do for now
 		if( newMaterialTime == none )
 		{
 			`log("SetToNewMaterialByName::Can't find Material"@newMaterialTime );
@@ -756,25 +756,25 @@ function PlaySpawnAnim()
 
 
 
-//-------------------------新技能代码 ------------------------>
+//--------------------------------------------------New ability code ------------------------>
 
 
-// 取得攻击防御属属性
+// Get attack/defense attributes
 function ActorAttribute GetActorAttribute()
 {
 	return ActorAttributes;
 }
 
-// 计算血量的百分比
+// Calculate HP percentage
 native function float GetHealthPercent();
 //{
 //	if( ActorAttributes.GetMaxHp() == 0 )
-//		return 0.001f;//如果对flash的宽度设0有点问题
+//		return 0.001f;//Setting flash width to 0 may cause problems
 
 //	return float(ActorAttributes.GetCurHp()) / float(ActorAttributes.GetMaxHp());
 //}
 
-// 计算蓝的百分比
+// Calculate MP percentage
 function float GetManaPercent()
 {
 	if( ActorAttributes.GetMaxMp() == 0 )
@@ -838,7 +838,7 @@ native function RefreshCollision();
 
 
 
-// 更新碰撞信息, add by jimzhang 2012.8.14
+// Update collision info, add by jimzhang 2012.8.14
 //event RefreshCollision()
 //{
 //	if(UseingAvatar!=none && UseingAvatar.CollisionHeight>0.0)// && UseingAvatar.CollisionComponent!=none)
@@ -888,19 +888,19 @@ event SetMesh(EPlayerClass ClassType, EGenderType GenderType)
 	NativeSetMesh( ClassType, GenderType);
 }
 
-// 当切换新武器时,需要切换一下动作集，changed by jimzhang 2012.7.11
+// When switching to a new weapon, the animation set must be switched, changed by jimzhang 2012.7.11
 native function RefreshAnimSet();
 
 native function RefreshMovementSpeed();
 
-//一些特殊情况下调用 
+//Called in some special cases
 event ChangeAnimSet(string AnimSetName )
 {
 	//local array<AnimSet> AnimSets;
 	local AnimSet Anim;
 	`log("ChangeAnimSet::ChangeName"@AnimSetName );
 	Anim = AnimSet( DynamicLoadObject( AnimSetName , class'AnimSet' ) );
-	//Buff无广播 这里这能暂且如此了
+	//BuffBuff has no broadcast, this is all we can do for now
 	if( Mesh.AnimSets[0] == Anim )
 	{
 		`log("ChangeAnimSet::Nothing Changed" );
@@ -919,15 +919,15 @@ event ChangeAnimSet(string AnimSetName )
 	}
 }
 
-// 强行设置动作集，用于boss的特殊动作，changed by jimzhang 2012.7.11
+// Force set the animation set, used for boss special actions, changed by jimzhang 2012.7.11
 event SetAnimSet(array<AnimSet> ani)
 {
 	
 	local int  j;
-	`log("________ 强行设置动作集" );
+	`log("________ Force set animation set" );
 	if(Mesh != none )
 	{
-		if(ani.Length == 0)//如果等于0,就恢复武器对应动画集
+		if(ani.Length == 0)//If equal to 0, restore the weapon's animation set
 		{
 			RefreshAnimSet();
 		}
@@ -1017,7 +1017,7 @@ native function float PlayAnimation(
 	optional EAnimLevel InLevel = EAL_Action
 	);
 
-// 不太准确的查询
+// Imprecise query
 event bool IsPlayingAnimationByName(name InAnim)
 {
 	if(IsInMeshChangeState())
@@ -1037,7 +1037,7 @@ event bool IsPlayingAnimationByName(name InAnim)
 	}
 }
 
-// 准确的查询
+// Precise query
 event bool IsPlayingAnimationByKey(int InKey)
 {
 	if(IsInMeshChangeState())
@@ -1245,7 +1245,7 @@ function AddPreviewWeapon(StaticMesh sm, name socket)
 
 native function AddInteractiveWind(optional float Strength = 1.f);
 
-// 物品管理类,角色初始装备在此这里被初始化
+// Item manager class, the character's initial equipment is initialized here
 native function InitItems();
 
 event SpawnMoveController()
@@ -1294,7 +1294,7 @@ native function bool ActorIsMoving();
 
 native function EnableSkeletalControlFootPlacement(bool bOn);
 
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -1406,10 +1406,10 @@ final native function LeaveGame();
 
 
 //---------------------------------------------------------------
-// 调试函数
+// Debug function
 //---------------------------------------------------------------
 
-// 设置近战范围半径
+// Set melee range radius
 function SetMeleeAttackRange(float val)
 {
 // 	if( DebugRangeNear != none )
@@ -1421,7 +1421,7 @@ function SetMeleeAttackRange(float val)
 	RangeAttackRange = val;
 }
 
-// 设置远程范围半径
+// Set ranged range radius
 function SetRangeAttackRange(float val)
 {
 // 	DebugRangeFar.CylinderRadius = val;
@@ -1431,7 +1431,7 @@ function SetRangeAttackRange(float val)
 }
 
 //---------------------------------------------------------------
-// 战斗相关函数接口，供各状态调用
+// Combat related function interface, called by states
 //---------------------------------------------------------------
 
 event int GetFriendlyMask()
@@ -1439,19 +1439,19 @@ event int GetFriendlyMask()
 	return FriendlyMask;
 }
 
-// 获取动画控制打断类型，比如受伤害动作是否打断其他正在进行的动作，add by jimzhang 2012.8.10
+// Get animation control interrupt type, e.g. whether hurt animation interrupts other ongoing animations, add by jimzhang 2012.8.10
 event int GetAnimTypeByActor()
 {
 	return 0;
 }
 
-// 检查可破坏的装备，并以各种方式表现出来
+// Check destructible equipment and present it in various ways
 event OnCheckDestructableEquipments();
 
-// 死亡动画播放完成的事件
+// Event when death animation finishes playing
 event OnDeathAnimationEnd();
 
-// 死亡动画播放完成后停止动画
+// Stop animation after death animation finishes
 function PauseAnimationAfterDeath()
 {
 	Mesh.bPauseAnims = true;
@@ -1481,10 +1481,10 @@ native final function DoRevive();
 
 native function SetDead();
 
-// 处理由技能直接带来的死亡函数
+// Handle death caused directly by ability
 native function ProcessAbilityCauseDie(DeathStyle InStyle, EElementaryType InElementaryType, float Delay);
 
-// 处理服务器通用死亡协议带来的死亡
+// Handle death caused by the server's general death protocol
 //native function ProcessDefaultDie(bool bNeedPlayDieAction = false);
 native function ProcessDefaultDie(byte DieCause);
 
@@ -1493,7 +1493,7 @@ native function ClearOldEffects();
 
 
 //---------------------------------------------------------------
-// 动画播放控制
+// Animation playback control
 //---------------------------------------------------------------
 event OnAnimPlay(AnimNodeSequence SeqNode)
 {
@@ -1581,7 +1581,7 @@ function bool IsPlayingCustomAnim(name inAnim, optional float timeFromEndToConsi
 	return false;
 }*/
 
-// 取得范围内可见的角色，被阻挡的不算
+// Get visible characters in range, blocked ones do not count
 function array<Actor> GetVisibleActors(float radius, optional Vector orig = Location)
 {
 	local Actor tracedActor;
@@ -1594,12 +1594,12 @@ function array<Actor> GetVisibleActors(float radius, optional Vector orig = Loca
 	return actors;
 }
 
-// 进入安全区
+// Enter safe zone
 event OnEnterSafeZone()
 {
 }
 
-// 离开安全区
+// Leave safe zone
 event OnLeavingSafeZone()
 {
 }
@@ -1692,7 +1692,7 @@ native function SetWeaponVisibleByAbility(bool InVisible);
 native function bool CanShowAbilityEmitter(int CreatorId);
 
 
-// 取得Socket位置
+// get Socket position
 function vector GetSocketWorldPosition(name socketName)
 {
 	local Vector pos;
@@ -1704,7 +1704,7 @@ function vector GetSocketWorldPosition(name socketName)
 	return pos;
 }
 
-// 取得Socket朝向
+// get Socket orientation
 function rotator GetSocketWorldRotation(name socketName)
 {
 	local Vector pos;
@@ -1729,7 +1729,7 @@ event GetSocketWorldLocationAndRotation(name SockeName, out Vector vec, out Rota
 	}
 }
 
-// 在头顶播放特效
+// Play effect above the head
 function PlayOverHeadSFX(ParticleSystem template)
 {
 	if(SFX_OverHead == none)
@@ -1746,7 +1746,7 @@ function PlayOverHeadSFX(ParticleSystem template)
 	SetTimer(0.4, false, 'StopOverHeadSFX' );
 }
 
-// 停止头顶特效
+// Stop effect above the head
 function StopOverHeadSFX()
 {
 	if(SFX_OverHead != none)
@@ -1759,7 +1759,7 @@ function StopOverHeadSFX()
 // *    weapon releated functions
 //---------------------------------------------------------------------------------------------------
 
-// 显示或隐藏当前装备的武器
+// Show or hide the currently equipped weapon
 function ShowWeapon(bool show)
 {
 	//if(ItemManager.EquippedItemList_Normal[E_NES_MAIN_HAND]!=none)
@@ -1769,13 +1769,13 @@ function ShowWeapon(bool show)
 	HideWeapon(!show);
 }
 
-// 恢复到默认的武器显示状态
+// Restore to default weapon display state
 function RestoreWeaponVisiblity()
 {
 	ShowWeapon(true);
 }
 
-// 校验武器模型
+// Validate weapon model
 function ValidateWeaponMesh()
 {
 	//if(WeaponMesh[0] == none)
@@ -1790,7 +1790,7 @@ function ValidateWeaponMesh()
 }
 
 
-// 绑定静态模型到绑定点
+// Bind static model to bind point
 function AttachStaticMesh(name attachName, StaticMesh sm, name socketName)
 {
 	local StaticMeshAttachInfo smai;
@@ -1815,7 +1815,7 @@ function AttachStaticMesh(name attachName, StaticMesh sm, name socketName)
 	AttachedStaticMeshs.AddItem(smai);
 }
 
-// 解除静态模型绑定
+// Unbind static model
 function DetachStaticMesh(name attachName)
 {
 	local StaticMeshAttachInfo smai;
@@ -1829,19 +1829,19 @@ function DetachStaticMesh(name attachName)
 	}
 }
 
-// 死亡后丢掉武器
+// Drop weapon after death
 function ThrowWeaponOnDeath();
 
-// 抽刀收刀动画事件
+// Draw/sheathe weapon animation event
 event OnBladeInOut();
 
-// 动画通知死亡时掉落武器
+// Animation notifies to drop weapon on death
 event OnDeathTrowWeapons();
 
 function Vector GetAbilityTargetDirection( );
 function Vector GetAbilityTargetLocation( );
 
-// 绑定粒子特效
+// Bind particle effect
 function AttachParticleSystem(ParticleSystemAttachInfo psai)
 {
 	local array<SkeletalMeshComponent> wpMesh;
@@ -1885,7 +1885,7 @@ function AttachParticleSystem(ParticleSystemAttachInfo psai)
 	self.AttachedParSys.AddItem(psai);
 }
 
-// 解除绑定粒子特效
+// Unbind particle effect
 function DetachParticleSystem(ParticleSystemAttachInfo psai)
 {
 	local ParticleSystemAttachInfo info;
@@ -1929,9 +1929,9 @@ simulated function ActuallyPlayFootstepSound(int FootDown)
 		//`log("no sound to play");
 	}
 
-	// 这种生成不是最好(当地是斜面时),
-	// 最好是从人中心向地面trace,然后获得trace到的normal,
-	// 计算平铺于地面的角度作为正确的角度 by fangruyi
+	// This kind of spawn is not the best (when the ground is sloped),
+	// it is best to trace from the person's center toward the ground, then get the traced normal,
+	// and compute the angle lying flat on the ground as the correct angle by fangruyi
 
 	if(Particle != none)
 	{
@@ -2005,7 +2005,7 @@ function SetLookAtSomebody( MMOActor targetActor )
 	}
 }
 
-// 模型淡入淡出效果
+// Model fade in/out effect
 event StartMeshFade( bool FadeIn, float Time )
 {
 	ItemManager.StartMeshFade( fadeIn, time );
@@ -2080,7 +2080,7 @@ state Dying
 native function SetSilhouetteEx( bool show, Vector sc = vect( 0.f, 0.f, 0.f ) );
 
 
-// 根据目标坐标设置角色朝向
+// Set character facing according to target position
 event SetDirection( Vector varDestLocation )
 {
 	local Vector PawnLocationXY;
@@ -2125,7 +2125,7 @@ event NotifyWalkEnd()
 	}
 }
 
-//add by jimzhang 2012.7.13,同步绑定有骨骼动画物体的动画
+//add by jimzhang 2012.7.13,add by jimzhang 2012.7.13, sync animation of bound objects with skeletal animation
 function PlayAttachLoopAnim()
 {
 		local Name   nameAction;
@@ -2145,7 +2145,7 @@ function PlayAttachLoopAnim()
 		}
 		else if( MoveType == EMT_InStall || MoveType == EMT_PrepareStall )
 		{
-			//@todo 等待资源
+			//@todo @todo waiting for resources
 			nameAction = 'Fly';
 		}
 		else
@@ -2175,7 +2175,7 @@ function SetAttachAnim( int nActionOrLoop )
 
 function UpdateAttachAnim( int nActionOrLoop )
 {
-	//action和loop的切换
+	//actionSwitch between action and loop
 	if( nActorActionOrLoop!= nActionOrLoop&&nActionOrLoop>=0)
 	{
 		nActorActionOrLoop = nActionOrLoop;
@@ -2191,7 +2191,7 @@ function UpdateAttachAnim( int nActionOrLoop )
 	}
 
 
-	//行走和待机的切换
+	//Switch between walk and idle
 	if( isMovingLast != isMoving || isMoving == true )
 	{
 		isMovingLast = isMoving;
@@ -2212,9 +2212,9 @@ native function ResetMoveTo(byte InMoveState, float speed, Vector Dst, Vector Sr
 
 native function UpdateMoveSpeed(float NewSpeed);
 
-// 设置被抛状态
+// Set thrown state
 native function SetThrowTo(Vector Des, float LastTime);
-// 开始执行抛物状态
+// Begin executing thrown state
 native function DoThrowTo(Vector InP0, Vector InP1, Vector InT0, Vector InT1, float InLastTime, float InExp);
 
 native function DashTo(Vector Des, float InLastTime);
@@ -2278,17 +2278,17 @@ event TriggerEvent(int outputIndex)
 	}
 }
 
-// 动画事件通知，处理武器拔出成功后消除场景中的对象
+// Animation event notification, remove the object in the scene after the weapon is drawn successfully
 event OnAttachDestructablePart(DestructablePartAttachInfo Info);
 
-// 绑定的武器掉落时清除特效
+// Clear effect when the bound weapon drops
 event OnDetachDestructablePart(DestructablePartAttachInfo dpai);
 
 
 native function SetAttitudeType(EWeaponType type);
 native function RevertAttitudeType();
 
-// 装备坐骑
+// Equip mount
 native function EquipMount(int MountID);
 //{
 
@@ -2306,7 +2306,7 @@ native function EquipMount(int MountID);
 
 //}
 
-// 卸下坐骑
+// Unequip mount
 native function UnEquipMount();
 
 // wing (1.05 wings.txt)
@@ -2321,7 +2321,7 @@ native function UnEquipWing();
 //}
 
 
-// 绑定可破坏部件
+// attach destructible part
 function AttachDestructablePart(DestructablePartAttachInfo dpai)
 {
 	//local int j;
@@ -2382,7 +2382,7 @@ function AttachDestructablePart(DestructablePartAttachInfo dpai)
 	//`log("[MMOSFX] ***" @ dpai.SkelMeshComponent @ dpai.MeshComponent @ AttachedDestructableParts.Length);
 }
 
-// 解除可破坏部件
+// detach destructible part
 function DetachDestructablePart(DestructablePartAttachInfo dpai)
 {
 	//`log("[MMOSFX] [DetachDestructablePart] :" @dpai.MeshComponent @dpai.SkelMeshComponent);
@@ -2419,7 +2419,7 @@ native function SetNewElementary(int InCreatorId, EElementaryType InType);
 native function RemoveElementary(int InCreatorId);
 
 
-//是否在摆摊相关的状态中 
+//Whether in a stall-related state
 event bool IsStallState()
 {
 	if( MoveType == EMT_PrepareStall || MoveType ==EMT_InStall ) 
@@ -2477,7 +2477,7 @@ defaultproperties
 	TimeMat=MaterialInstanceTimeVarying'Fx_LevelActor.M_PorTal_002_INST'
 	
 
-	//// 添加调试用范围线框 - 远程攻击范围
+	//// Add debug range wireframe - ranged attack range
 	//Begin Object Class=DrawCylinderComponent  Name=DebugRangeFar0
 	//	CylinderColor=(R=255,G=0,B=0,A=255)
 	//	CylinderRadius=600.0
@@ -2491,7 +2491,7 @@ defaultproperties
 	//Components.Add(DebugRangeFar0)
 	//DebugRangeFar=DebugRangeFar0
 
-	//// 添加调试用范围线框 - 近战范围
+	//// Add debug range wireframe - melee range
 	//Begin Object Class=DrawCylinderComponent  Name=DebugRangeNear0
 	//	CylinderColor=(R=255,G=0,B=0,A=255)
 	//	CylinderRadius=200.0
@@ -2531,7 +2531,7 @@ defaultproperties
 	//End Object
 	//Components.Add(StaticMeshComponent1)
 
-	////创建骨骼模型
+	////Create skeletal model
 	//clothing system
 	//Begin Object Class=SkeletalMeshComponent   Name=MasterMesh     // master piece pour caching animations
 	//	//SkeletalMesh=SkeletalMesh'MMO_Player_Body.man_body'
@@ -2643,7 +2643,7 @@ defaultproperties
 	// oscar@snda disable apex destruction trace when move
 	bMoveIgnoresDestruction=false
 
-	// 测试RT特效时打开
+	// Enable when testing RT effects
 // 	Begin Object Class=ParticleSystemComponent Name=ParEffect0test
 // 		bAutoActivate=true
 // 		bIsActive=true

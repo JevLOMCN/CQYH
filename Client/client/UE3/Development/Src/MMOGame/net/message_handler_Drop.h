@@ -23,7 +23,7 @@ protected:
 	INT GetDropCounterFromID(INT srcID);
 
 private:
-	//掉落物品 拾取相关
+	//Dropped item pickup related
 	M_DECL_PARSE_FUN(g2c_sync_drop_list);
 	M_DECL_PARSE_FUN(g2c_pickup_item);
 	M_DECL_PARSE_FUN(g2c_pickup_money);

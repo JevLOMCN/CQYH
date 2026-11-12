@@ -11,22 +11,22 @@
 enum MallStoreGoodsType
 {
 	MallStoreGOODS_All = -1,
-	MallStoreGOODS_RENQI,	//按人气排列
-	MallStoreGOODS_COST,	//按价格排列
+	MallStoreGOODS_RENQI,	//sort by popularity
+	MallStoreGOODS_COST,	//sort by price
 };
 
 enum MallStoreGoodstoUseType
 {
-	MallUSINGGOODS_ALL = 0,				//显示全部
-	MallUSINGGOODS_AVAIBLEJOB,			//显示本职业可用
+	MallUSINGGOODS_ALL = 0,				//show all
+	MallUSINGGOODS_AVAIBLEJOB,			//show those usable by this class
 };
 
 enum MallStorePageType
 {
-	MallStorePageHome = 0,	//首页
-	MallStorePageItem,		//道具
-	MallStorePageSuit,		//时装
-	MallStorePageMount,		//坐骑
+	MallStorePageHome = 0,	//home page
+	MallStorePageItem,		//items
+	MallStorePageSuit,		//fashion
+	MallStorePageMount,		//mounts
 };
 struct MALLGOODSSHOWDATA
 {
@@ -36,7 +36,7 @@ struct MALLGOODSSHOWDATA
 	INT nShowIndex;
 	FString iconShowPath;
 };
-//列表
+//list
 typedef std::list<FString,				 M_UE3_STL_ALLOC(FString) >						MallBuyInfoList;
 typedef std::list<REAL_MONEY_ITEM_INFO,  M_UE3_STL_ALLOC(REAL_MONEY_ITEM_INFO) >		MallGoodsList;
 typedef std::list<MALLGOODSSHOWDATA,	 M_UE3_STL_ALLOC(MALLGOODSSHOWDATA) >			MallGoodsClientDataList;	

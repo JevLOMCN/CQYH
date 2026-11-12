@@ -100,9 +100,9 @@ void UMMOUISpecialExpApply::ASTryToApply()
 	}
 
 	FLOAT curCost = curApplyCnt * _CurConvertRate;
-	INT32 curCostInSec = curCost * 3600;//×ª³ÉÃë
+	INT32 curCostInSec = curCost * 3600;//convert to seconds
 	if( curCostInSec > curMoney ){
-		//²»¹»
+		//Not enough
 		TryRechargeGameTime();
 		return;
 	}

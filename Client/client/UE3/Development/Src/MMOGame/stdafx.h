@@ -23,7 +23,7 @@
 #include "MMOFacade.h"
 
 
-//自行申请内存的释放宏 hemu@snda
+//macro to release self-allocated memory hemu@snda
 #define SAFEDELETE(a)\
 {\
 	if( a )\
@@ -33,7 +33,7 @@
   }\
 }
 
-//自行申请内存数组的释放宏 hemu@snda
+//macro to release self-allocated memory arrays hemu@snda
 #define SAFEDELETEARRAY(a)\
 {\
 	if( a )\

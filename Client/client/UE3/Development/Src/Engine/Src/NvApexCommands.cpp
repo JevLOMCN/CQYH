@@ -200,7 +200,7 @@ public:
 			ret = FALSE;
 			NotifyAssetGoingAway();
 			
-			// sometimes iface == ApexAsset’s parameterized here causing problems...
+			// sometimes iface == ApexAsset's parameterized here causing problems...
 			const NxParameterized::Interface *assetInterface = ApexAssetObject->getAssetNxParameterized();
 			
 			if ( bEdited || iface == assetInterface )
@@ -393,7 +393,7 @@ public:
 			NxParameterized::Interface *iface = NewInterface; // see if we have a 'new' interface pointer.
 			NewInterface = NULL;
 
-			// sometimes iface == ApexAsset’s parameterized here causing problems...
+			// sometimes iface == ApexAsset's parameterized here causing problems...
 			const NxParameterized::Interface *assetInterface = ApexAssetObject->getAssetNxParameterized();
 			if ( iface == NULL || iface == assetInterface )
 			{
@@ -1157,7 +1157,7 @@ public:
 			{
 				NotifyAssetGoingAway();
 
-				// sometimes TweakInterface == ApexAsset’s parameterized here causing problems...
+				// sometimes TweakInterface == ApexAsset's parameterized here causing problems...
 				const NxParameterized::Interface *assetInterface = ApexAssetObject->getAssetNxParameterized();
 				if ( bEdited || TweakInterface == assetInterface )
 				{

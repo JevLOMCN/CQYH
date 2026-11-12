@@ -20,19 +20,19 @@ var const int FBEndTotalMSec;
 // }
 
 
-//副本结算
+//Dungeon settlement
 function RegisterFBSummary( MMOUIFBSummary mc )
 {
 	_FBSummary = mc;
 	RegisterUI( mc, class'MMOUIManager'.default.Panel_FBEndAll_FBSummary);
 }
-//副本抽奖
+//Dungeon lottery
 function RegisterFBAward( MMOUIFBAward mc )
 {
 	_FBAward = mc;
 	RegisterUI( mc, class'MMOUIManager'.default.Panel_FBEndAll_FBAward);
 }
-//副本退出选择
+//Dungeon exit choice
 function RegisterFBBattleComfirm( MMOUIFBBattleComfirm mc )
 {
 	_FBBattleConfirm = mc;
@@ -67,7 +67,7 @@ native function SendPlayFBAgain();
 native function WantPlayFbAgain();
 native function SendLeaveFB();
 native function LeaveFB();
-//关闭副本评分，副本抽奖，副本退出重置窗口
+//Close dungeon rating, dungeon lottery, dungeon exit reset windows
 native function CloseAllFBEndUI();
 //End
 DefaultProperties

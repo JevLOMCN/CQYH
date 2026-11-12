@@ -681,10 +681,10 @@ struct BuffData
 
 class EffectProcessor
 {
-	// 服务器有管理的实体子弹
+	// Entity projectile managed by the server
 	STLInt2IntMap	ServerProjectiles;
 
-	// 纯客户端粒子
+	// Pure client-side particles
 	STLInt2IntMap	ClientProjectiles;
 
 	STLInt2BaseComponentMap ActiveComponents;

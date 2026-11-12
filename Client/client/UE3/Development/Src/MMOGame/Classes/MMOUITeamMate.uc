@@ -46,7 +46,7 @@ native function UpdateAllTeamMate(  );
 native function UpdateTeamMate( int UIPos , int Pos );
 
 /*
-	µ¯¿òÈ·ÈÏ
+	Popup confirm
 */
 native function ClickMoveLeaderConfirmOK();
 native function ClickMoveLeaderConfirmCancel();

@@ -5,7 +5,7 @@ class MMOSceneIntObj_Movable extends SkeletalMeshActor
 var(MMOSceneObj) SplineActor MovePath <DisplayName="MovePath">;
 var(MMOSceneObj) SplineActor MovePathLast <DisplayName="MovePathLast">;
 
-// 不循环就是往返运动
+// If not looping, it moves back and forth
 var(MMOSceneObj) bool LoopPath <DisplayName="LoopPath">;
 
 var(MMOSceneObj) bool AlignPathNormal <DisplayName="AlignPathNormal">;
@@ -14,16 +14,16 @@ var(MMOSceneObj) bool AlignPathDirection <DisplayName="AlignPathDirection">;
 var(MMOSceneObj) float StartPosOffsetPct <DisplayName="StartPosOffsetPct">;
 var(MMOSceneObj) float MoveSpeed <DisplayName="MoveSpeed">;
 
-// 当前移动方向
+// Current movement direction
 var(MMOSceneObj) bool CurrentMoveForward;
 
-// 当前路径点对象
+// Current waypoint object
 var SplineActor CurrentTargetPathNode;
 
-// 上一个或是下一个有效的节点
+// Previous or next valid node
 var SplineActor LastValidNode;
 
-// 当前路径点索引
+// Current waypoint index
 var int CurrentTargetPathNodeIdx;
 
 simulated event PostBeginPlay()
@@ -75,7 +75,7 @@ state Activate
 
 		if(CurrentTargetPathNode != none)
 		{
-			// 先保存是一个节点
+			// Save a node first
 			if(CurrentTargetPathNode.LinksFrom.Length > 0)
 			{
 				LastValidNode = CurrentTargetPathNode.LinksFrom[0];
@@ -83,7 +83,7 @@ state Activate
 
 			if(VSize(CurrentTargetPathNode.Location - GetMeshWorldPosition()) < 60)
 			{
-				// 如果还有下一个节点就继续，否则返回
+				// If there is a next node, continue; otherwise return
 				if(CurrentTargetPathNode.Connections.Length > 0)
 				{
 					CurrentTargetPathNode = CurrentTargetPathNode.Connections[0].ConnectTo;
@@ -101,7 +101,7 @@ state Activate
 			
 			if(CurrentTargetPathNode == none)
 			{
-				// 切换到往回移动
+				// Switch to moving backward
 				CurrentMoveForward = false;
 				CurrentTargetPathNode = LastValidNode;
 			}
@@ -120,7 +120,7 @@ state Activate
 
 		if(CurrentTargetPathNode != none)
 		{
-			// 先保存下一个节点
+			// Save the next node first
 			if(CurrentTargetPathNode.Connections.Length > 0)
 			{
 				LastValidNode = CurrentTargetPathNode.Connections[0].ConnectTo;
@@ -128,7 +128,7 @@ state Activate
 
 			if(VSize(CurrentTargetPathNode.Location - GetMeshWorldPosition()) < 60)
 			{
-				// 如果前面还有节点就继续往回移动
+				// If there are nodes ahead, continue moving backward
 				if(CurrentTargetPathNode.LinksFrom.Length > 0)
 				{
 					CurrentTargetPathNode = CurrentTargetPathNode.LinksFrom[0];
@@ -146,7 +146,7 @@ state Activate
 			
 			if(CurrentTargetPathNode == none)
 			{
-				// 切换到往前移动
+				// Switch to moving forward
 				CurrentMoveForward = true;
 				CurrentTargetPathNode = LastValidNode;
 			}
@@ -155,10 +155,10 @@ state Activate
 		return moveDir;
 	}
 
-	// 往返移动，返回前进方向
+	// Back-and-forth movement, return the forward direction
 	function vector UpdateCruiseMovement(float deltaTime)
 	{
-		// 先判定方向
+		// Determine direction first
 		if(CurrentMoveForward)
 		{
 			return UpdateForward(deltaTime);
@@ -169,10 +169,10 @@ state Activate
 		}
 	}
 
-	// 循环移动，返回前进方向
+	// Looping movement, return the forward direction
 	function vector UpdateLoopMovement(float deltaTime)
 	{
-		// 先判定方向
+		// Determine direction first
 		if(CurrentMoveForward)
 		{
 			return UpdateLoopForward(deltaTime);
@@ -191,7 +191,7 @@ state Activate
 		{
 			if(VSize(CurrentTargetPathNode.Location - GetMeshWorldPosition()) < 60)
 			{
-				// 如果还有下一个节点就继续，否则返回
+				// If there is a next node, continue; otherwise return
 				if(CurrentTargetPathNode.Connections.Length > 0)
 				{
 					CurrentTargetPathNode = CurrentTargetPathNode.Connections[0].ConnectTo;
@@ -224,7 +224,7 @@ state Activate
 		{
 			if(VSize(CurrentTargetPathNode.Location - GetMeshWorldPosition()) < 60)
 			{
-				// 如果前面还有节点就继续往回移动
+				// If there are nodes ahead, continue moving backward
 				if(CurrentTargetPathNode.LinksFrom.Length > 0)
 				{
 					CurrentTargetPathNode = CurrentTargetPathNode.LinksFrom[0];

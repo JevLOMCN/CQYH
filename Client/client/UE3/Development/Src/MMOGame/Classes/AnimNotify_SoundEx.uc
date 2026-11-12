@@ -1,5 +1,5 @@
 //
-// 音效通知扩展类
+// sound notify extension class
 //
 class AnimNotify_SoundEx extends AnimNotify_Scripted;
 
@@ -17,14 +17,14 @@ struct SoundSearchKey
 	var() name MaterialType;
 };
 
-//直接播放的音效
+//sound played directly
 var(CommonSound)	array<SoundCue> 	SoundCues;
-/*通过对象类型,行为,材质类型进行匹配的识别参数,
- * 这个与SoundCues不可同时设置,如果SoundCues里有配置了音效数据,
- * 则SoundSearchKeys里的参数失效
+/*identification parameters matched by object type, action, material type,
+ * this cannot be set together with SoundCues; if SoundCues has sound data configured,
+ * the parameters in SoundSearchKeys are ignored
  */
 var(MaterialSound)  array<SoundSearchKey>   SoundSearchKeys;
-// 当有机会播放时,会从SoundCues里随机选取一种音效进行播放
+// when there is a chance to play, one sound is randomly chosen from SoundCues to play
 var()   float       Rate;
 var()	bool		bFollowActor;
 var()	Name		BoneName;

@@ -147,7 +147,7 @@ void UMMOUINewStallBuyPanel::UpdateSlot(INT stallSlot, INT itemId, INT count, IN
 	UGFxObject* itemDescObject = itemObject->GetObject(TEXT("tf_dec"));
 	if (itemDescObject)
 	{
-		itemDescObject->SetString(TEXT("text"), itemPrice.IsEmpty() ? TEXT("") : TEXT("价格"));
+		itemDescObject->SetString(TEXT("text"), itemPrice.IsEmpty() ? TEXT("") : TEXT("Price"));
 	}
 
 	UGFxObject* itemPriceObject = itemObject->GetObject(TEXT("tF_Gold"));
@@ -159,7 +159,7 @@ void UMMOUINewStallBuyPanel::UpdateSlot(INT stallSlot, INT itemId, INT count, IN
 	UGFxObject* itemTotalDescObject = itemObject->GetObject(TEXT("tf_dec_total"));
 	if (itemTotalDescObject)
 	{
-		itemTotalDescObject->SetString(TEXT("text"), itemTotalPrice.IsEmpty() ? TEXT("") : TEXT("总价"));
+		itemTotalDescObject->SetString(TEXT("text"), itemTotalPrice.IsEmpty() ? TEXT("") : TEXT("Total Price"));
 	}
 
 	UGFxObject* itemTotalPriceObject = itemObject->GetObject(TEXT("tF_Gold_Total"));
@@ -197,7 +197,7 @@ void UMMOUINewStallBuyPanel::BuyItemReal(int stallSlot)
 		durType == DURTYPE_USE ||
 		durType == DURTYPE_PURITY ||
 		durType == DURTYPE_DEPOSIT)
-	{//装备 或者 无耐久物品 无法叠加
+	{//equipment or items without durability cannot stack
 		if (stallItemInfo.CurDur >= 0)
 		{
 			maxCount = 1;
@@ -211,7 +211,7 @@ void UMMOUINewStallBuyPanel::BuyItemReal(int stallSlot)
 		}
 	}
 
-	// 弹出框
+	// Pop-up box
 	if (maxCount > 1)
 	{
 		MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Stall_StallBuyMsg, TRUE, "");
@@ -253,7 +253,7 @@ void UMMOUINewStallBuyPanel::BuyItem(INT stallSlot)
 	}
 
 	if (itemInfo->m_byIdentified == IDENTIFY_TYPE_LEVEL_UP)
-	{// 任务 #24686
+	{// Task #24686
 		ConfirmBuyExercise(stallSlot);
 	} 
 	else

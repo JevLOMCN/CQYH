@@ -16,7 +16,7 @@
 
 using namespace FSM;
 
-//FSM控制类注册--------------------------------------------------------------------------------------------------
+//FSM control class registration--------------------------------------------------------------------------------------------------
 ADD_FSM_CTRL(FSMCtrl_AiAbility)
 ADD_FSM_CTRL(FSMCtrl_ShiftAbility)
 ADD_FSM_CTRL(FSMCtrl_StayAndUseAbility)
@@ -28,7 +28,7 @@ ADD_FSM_CTRL(FSMCtrl_FocusActor)
 
 extern UBOOL g_PreMovetoPoint;
 extern INT g_TotalFrameNum;
-//shift键原地使用技能---------------------------------------------------------------------------------------------
+//Shift key use ability in place---------------------------------------------------------------------------------------------
 UBOOL FSMCtrl_ShiftAbility::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_ShiftAbility");
@@ -50,7 +50,7 @@ UBOOL FSMCtrl_ShiftAbility::Update(FLOAT DelTime)
 	}
 
 
-	////按住shift进行强行有目标的攻击的暂停
+	////Holding shift pauses forced targeted attack
 	//if(	FSM::Input.ShiftDown==FALSE	&&
 	//	FSM::Input.ShiftDown_Last==TRUE&&
 	//	FSM::Target.DesireMMOActor &&
@@ -72,7 +72,7 @@ void FSMCtrl_ShiftAbility::Action()
 {
 	//if(FSM::Ctrl.KeyType == KT_PRIMARY)
 	//{
-	//	warnf(TEXT("施放技能-----------Mir2Attack::getSingleton().GetPrimaryAbility();"));
+	//	warnf(TEXT("Cast ability-----------Mir2Attack::getSingleton().GetPrimaryAbility();"));
 	//	FSM::Ability.UsableAbility = Mir2Attack::getSingleton().GetPrimaryAbility();
 	//	if(FSM::Ability.UsableAbility==NULL)
 	//	{
@@ -86,12 +86,12 @@ void FSMCtrl_ShiftAbility::Action()
 		return;
 	}
 
-	//warnf(TEXT("施放技能-----------FSMCtrl_ShiftAbility ID:%d"),FSM::Ability.UsableAbility->SpellCommonAttribute.Id );
+	//warnf(TEXT("Cast ability-----------FSMCtrl_ShiftAbility ID:%d"),FSM::Ability.UsableAbility->SpellCommonAttribute.Id );
 
 
-	//直接施放技能
+	//Cast ability directly
 	if(FSM::Char.Controller){
-		//这是一个奇葩的分支，shift按住攻击目标的时候要能释放开关类技能
+		//This is an odd branch, when holding shift to attack a target, toggle-type abilities must be castable
 		if(FSM::Ability.UsableAbility->SpellCommonAttribute.CanMoveInPrepare)
 		{
 			if(FSM::Ctrl.state_Switching_Flag)
@@ -125,7 +125,7 @@ void FSMCtrl_ShiftAbility::Action()
 
 
 
-//原地释放技能----------------------------------------------------------------------------------------------------
+//Cast ability in place----------------------------------------------------------------------------------------------------
 UBOOL FSMCtrl_StayAndUseAbility::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_StayAndUseAbility");
@@ -202,7 +202,7 @@ void FSMCtrl_StayAndUseAbility::Action()
 	}
 	else{
 
-		//直接施放技能
+		//Cast ability directly
 		FSM::Char.Controller->eventClearAllCmd();
 		//FSM::Char.Controller->eventAddCmdUseAbility(FSM::Ability.UsableAbility,		NULL,	FSM::Target.CurTargetPos);
 		//stateAbilityRespondTime = 0;
@@ -230,7 +230,7 @@ void FSMCtrl_StayAndUseAbility::Action()
 		}
 		else
 		{
-			//点击UI攻击时候的替换2015.12.16
+			//Replacement when attacking via UI click 2015.12.16
 			AMMOActor* pCurTargetMMOActor = FSM::Target.CurTargetMMOActor;
 			if(FSM::Target.UITargetMMOActorID&&FSM::Ability.UsableAbility->bCanUITarget)
 			{
@@ -261,14 +261,14 @@ void FSMCtrl_StayAndUseAbility::Action()
 }
 
 
-//走向目标并释放技能----------------------------------------------------------------------------------------------
+//Walk to target and cast ability----------------------------------------------------------------------------------------------
 UBOOL FSMCtrl_MoveToAndUseAbility::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_MoveToAndUseAbility");
 
 	//warnf(NAME_Warning, TEXT("------------------------------------------------------------------------------FSMCtrl_MoveToAndUseAbility::Update"));
 
-	//常规攻击入口
+	//Normal attack entry
 	if( //(FSM::Ctrl.state_Switching_Flag ||(FSM::Ctrl.state_Attack&&FSM::Char.AbilityActionNum==0) ) &&
 		(FSM::Ctrl.state_Attack&&FSM::Char.AbilityActionNum==0)	&&	
 		FSM::Input.ShiftDown==FALSE&&
@@ -299,7 +299,7 @@ UBOOL FSMCtrl_MoveToAndUseAbility::Update(FLOAT DelTime)
 		return TRUE;
 	}
 
-	//常规攻击的跑动后再锁定
+	//Lock after running for normal attack
 	if( FSM::Ctrl.state_Attack==FALSE &&
 		FSM::Char.AbilityActionNum==0 &&
 		FSM::Ctrl.KeyType != KT_SECONDARY &&
@@ -322,7 +322,7 @@ UBOOL FSMCtrl_MoveToAndUseAbility::Update(FLOAT DelTime)
 		FSM::Ctrl.state_Moving  = FALSE;
 	}
 
-	//取消shift，取消当前的锁定攻击
+	//Cancel shift, cancel the current locked attack
 	if( FSM::Input.ShiftDown==FALSE	&&
 		FSM::Input.ShiftDown_Last==TRUE &&
 		FSM::Char.AbilityActionNum>0 &&
@@ -341,7 +341,7 @@ UBOOL FSMCtrl_MoveToAndUseAbility::Update(FLOAT DelTime)
 	}
 
 
-	//按住shift时候，攻击入口
+	//Attack entry while holding shift
 	if( (FSM::Input.ShiftDown==TRUE||FSM::Ctrl.ctrlFlag_IgnoreShiftBtn)	&&
 		FSM::Char.AbilityActionNum==0 &&
 		FSM::Input.CtrlBtnDown==FALSE&&
@@ -416,7 +416,7 @@ void FSMCtrl_MoveToAndUseAbility::Action()
 			UBOOL   bInRange = (abs(disVector.X)<=dis+32.0f)&&(abs(disVector.Y)<=dis+32.0f); 
 			if(bInRange==FALSE)
 			{
-				//追踪过去，距离一个施法距离时候，结束
+				//Chase over, end when within one casting range
 				FSM::Char.Controller->eventAddCmdMoveToActor(FSM::Target.DesireMMOActor,FSM::Target.DesireMMOActor->ServerLocation,dis,0,TRUE,FALSE,FALSE,1,TRUE);
 			}
 
@@ -440,12 +440,12 @@ void FSMCtrl_MoveToAndUseAbility::Action()
 			UBOOL   bInRange = (abs(disVector.X)<=dis+32.0f)&&(abs(disVector.Y)<=dis+32.0f); 
 			if(bInRange==FALSE)
 			{
-				//追踪过去，距离一个施法距离时候，结束
+				//Chase over, end when within one casting range
 				FSM::Char.Controller->eventAddCmdMoveToActor(FSM::Target.CurTargetMMOActor,FSM::Target.CurTargetMMOActor->ServerLocation,dis );
 			}
 			//if(FSM::Ability.AbilityEnable)
 			{
-				//施放技能
+				//Cast ability
 				//warnf(NAME_Warning, TEXT("======FSMCtrl_MoveToAndUseAbility2 AbilityId[%d]"),		FSM::Ability.UsableAbility->SpellCommonAttribute.Id );
 				FSM::Char.Controller->eventAddCmdUseAbility(FSM::Ability.UsableAbility,FSM::Target.CurTargetMMOActor,FSM::Target.CurTargetMMOActor->ServerLocation,FALSE);
 			}
@@ -455,7 +455,7 @@ void FSMCtrl_MoveToAndUseAbility::Action()
 	
 }
 
-//走近并交互------------------------------------------------------------------------------------------------------
+//Walk close and interact------------------------------------------------------------------------------------------------------
 UBOOL FSMCtrl_MoveToAndInteract::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_MoveToAndInteract");
@@ -509,29 +509,29 @@ void FSMCtrl_MoveToAndInteract::Action()
 			//ConvertCoordN2C(Dis);
 			if(abs(Dis.X)>=interactDist||abs(Dis.Y)>=interactDist)
 			{
-				//追踪过去，
+				//Chase over,
 				FSM::Char.Controller->eventAddCmdMoveToActor(FSM::Target.DesireNPC, FSM::Target.DesireInteractableActor->GetInteractActorLocation(), interactDist , FSM::Target.DesireNPCTempleteID,TRUE,FALSE,FALSE,1);
 			}
 		}
 		else if(FSM::Target.DesireNPCTempleteID > 0)
 		{
 			interactDist = FSM::Char.Controller->InteractDistance;
-			//追踪过去，
+			//Chase over,
 			FSM::Char.Controller->eventAddCmdMoveToActor(NULL, FVector(0, 0, 0),  interactDist , FSM::Target.DesireNPCTempleteID);
 		}
 
-		//进行交互
+		//Perform interaction
 		//stateController->SetSelectTarget(stateDesireActor);
 		FSM::Char.Controller->eventAddCmdInteract(FSM::Target.DesireInteractableActor, 0, FSM::Target.DesireNPCTempleteID);
 	//}
 }
 
-//走到目标点，鼠标按住的情况下，高速操控走向的目标点-------------------------------------------------------------------------
+//Walk to target point, with mouse held, fast control of the target point to walk to-------------------------------------------------------------------------
 UBOOL FSMCtrl_MoveToPoint::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_MoveToPoint");
 
-	//在移动状态下走路
+	//Walk while in move state
 
 	if( FSM::Char.Controller &&
 		(FSM::Ctrl.state_Moving || FSM::Ctrl.state_Attack )&&
@@ -613,10 +613,10 @@ void FSMCtrl_MoveToPoint::Action()
 }
 
 
-//焦点激活------------------------------
+//Focus activation------------------------------
 UBOOL	FSMCtrl_FocusActor::Update(FLOAT DelTime)
 {
-	////在移动状态下走路
+	////Walk while in move state
 	//if( FSM::CDTime.FocusTime>0.0 )
 	//{
 	//	return TRUE;
@@ -634,7 +634,7 @@ void	FSMCtrl_FocusActor::Action()
 	//}
 }
 
-//测试------------------------------
+//Test------------------------------
 UBOOL FSMCtrl_Test::Update(FLOAT DelTime)
 {
 	if(	FSM::Char.MoveEnable &&
@@ -669,7 +669,7 @@ void FSMCtrl_Test::Action()
 
 }
 
-//自动施法----------------------------------------------------
+//Auto cast----------------------------------------------------
 UBOOL FSMCtrl_AiAbility::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_AiAbility");

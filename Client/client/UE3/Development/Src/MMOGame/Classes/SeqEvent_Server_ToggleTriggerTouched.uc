@@ -1,5 +1,5 @@
 
-// ToggleTrigger µã»÷ºóÏìÓ¦Event
+// ToggleTrigger respond to Event after click
 
 class SeqEvent_Server_ToggleTriggerTouched extends SequenceEvent;
 

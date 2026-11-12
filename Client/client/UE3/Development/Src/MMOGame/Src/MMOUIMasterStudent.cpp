@@ -57,13 +57,13 @@ void UMMOUIMasterStudentPanel::UpdatePanelInfo()
 		break;
 	}
 }
-//师门信息
+//Master's sect info
 void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 {
 	INT idx = 0;
 	//bool bShow = false;
 
-	//自己当前状态
+	//Own current state
 	INT myState = MasterStudentManager::getSingleton().GetMasterStudentState();
 
 	UGFxObject* dataProvider = GFXPlayer->CreateArray();
@@ -92,7 +92,7 @@ void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 			eventCallUpdateMasterExp(nMasterExp );
 			eventCallUpdateStudentNum(nNum,nMaxStudent);
 
-			PlayerBaseInfo *playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo(masterInfo.nRoleID, TRUE);//数据不多，这重新请求数据
+			PlayerBaseInfo *playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo(masterInfo.nRoleID, TRUE);//data is small, request it again here
 
 			itemObj->SetInt(TEXT("Id"), masterInfo.nRoleID );
 			if(playerInfo)
@@ -124,7 +124,7 @@ void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 			if(conCount > 0 )
 				congratulateType = MMOUI::ParseLocalizedPropertyPath( TEXT( "MMOGame.Master.CongraluationLvUp") );
 			itemObj->SetString(TEXT("CongratulateType"), congratulateType );
-			//自己是师傅不显示
+			//Do not show if self is the master
 			AMMOPlayer* pl = MMOFacade::getSingleton().GetMainPlayer();
 			if(pl&&pl->ServerID != masterInfo.nRoleID)
 				dataProvider->SetElementObject(idx++, itemObj);
@@ -163,7 +163,7 @@ void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 					FString sProfession = MMOUI::ParseLocalizedPropertyPath( FString("MMOGame.School.SchoolName") + FString::Printf(TEXT("%d"), stuData.nClass));
 					itemObj->SetString(TEXT("Profession"), sProfession );
 				}
-				//最后一次祝贺如果>= 当前等级，则说明不可祝贺
+				//If the last congratulation >= current level, congratulation is not possible
 				
 				bool CanCongraluate = true;
 				INT conCount = MasterStudentManager::getSingleton().GetCongratulationCount(stuData.nCZLevel, stuData.nLevel);
@@ -177,7 +177,7 @@ void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 				itemObj->SetBool(TEXT("CanCongratulate"), CanCongraluate );
 				itemObj->SetInt(TEXT("congCount"),conCount );
 
-				//最后一次祝贺为出师
+				//Last congratulation was for graduation
 				FString congratulateType = TEXT("");
 				if( CanCongraluate && conCount > 0 )
 					congratulateType = MMOUI::ParseLocalizedPropertyPath( TEXT( "MMOGame.Master.CongraluationLvUp") );
@@ -187,13 +187,13 @@ void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 				itemObj->SetBool(TEXT("bMaster"), false );
 				itemObj->SetInt(TEXT("nState"), stuData.nState);
 
-				//是否置灰
+				//Whether to gray out
 				itemObj->SetBool(TEXT("bLeaveMaster"),stuData.bLeaveMaster);
 				itemObj->SetInt(TEXT("exp"),stuData.reward.nExp);
 				itemObj->SetInt(TEXT("gold"),stuData.reward.nMoney);
 				itemObj->SetInt(TEXT("MasterValue"),MasterStudentManager::getSingleton().GetMasterExpByRatio(stuData.reward.nMasterExp));
 
-				//否是之前跟师傅累计的奖励bSelfReward
+				//Whether it is the reward accumulated earlier with the master bSelfReward
 				itemObj->SetBool(TEXT("bSelfReward"),stuData.reward.bSelfReward);
 
 				dataProvider->SetElementObject(idx++, itemObj);
@@ -208,7 +208,7 @@ void UMMOUIMasterStudentPanel::UpdateMasterInfoList()
 		
 	}
 }
-//师傅申请表
+//Master application table
 void UMMOUIMasterStudentPanel::UpdateMasterApplyList()
 {
 	const ApllicantsList& masterList = MasterStudentManager::getSingleton().GetMasterApllyList();
@@ -248,10 +248,10 @@ void UMMOUIMasterStudentPanel::UpdateMasterApplyList()
 	}
 	eventCallUpdateMasterApplyListData(dataProvider);
 }
-//推荐师傅表
+//Recommended master table
 void UMMOUIMasterStudentPanel::UpdateMasterPosterList()
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_StudentApply);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -299,7 +299,7 @@ void UMMOUIMasterStudentPanel::UpdateMasterPosterList()
 	}
 	eventCallUpdateMasterPosterListData(dataProvider);
 }
-//徒弟申请表
+//Apprentice application table
 void UMMOUIMasterStudentPanel::UpdateStudentApplyList()
 {
 	INT nIndex = 0;
@@ -339,7 +339,7 @@ void UMMOUIMasterStudentPanel::UpdateStudentApplyList()
 		eventCallUpdateStudentApplyListData(dataProvider);
 	}
 }
-//徒弟推荐表
+//Apprentice recommendation table
 void UMMOUIMasterStudentPanel::UpdateStudentPosterList()
 {
 	INT nIndex = 0;
@@ -558,7 +558,7 @@ void UMMOUIMasterStudentPanel::PostOnShow(UBOOL v)
 		int PlayerLv = Player->ActorAttributes->LevelAttributes.Level;
 		if( PlayerLv < STUD_LEVEL_LOWER_LIMIT  )
 		{
-			//不满足显示条件，再hide掉
+			//If display conditions are not met, hide again
 			FString LevNotEnough = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Master.LvNotEnough")), STUD_LEVEL_LOWER_LIMIT);
 			MMOUI::GetUIManager()->delegateAddScreenMessage(LevNotEnough,MsgInfoType_Table,TEXT("MMOGame.Master.LvNotEnough"));
 			MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_MasterStudent,FALSE, "");
@@ -571,7 +571,7 @@ void UMMOUIMasterStudentPanel::PostOnShow(UBOOL v)
 			{
 				if(masterInfo.nRoleID > 0)
 				{
-					FString strInfo = FString::Printf(TEXT("您已满%d级,可以出师"),GRADUATE_LEVEL);
+					FString strInfo = FString::Printf(TEXT("You have reached level %d and can graduate"),GRADUATE_LEVEL);
 					MMOUI::GetUIManager()->delegateAddScreenMessage(strInfo);
 					MMOChatManager::getSingleton().AddSystemMessage(strInfo);
 				}
@@ -593,7 +593,7 @@ void UMMOUIMasterStudentPanel::PostOnShow(UBOOL v)
 
 		ShowTwitterCheckBox();
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowMasterPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 
@@ -739,7 +739,7 @@ void UMMOUIMasterStudentPanel::OnConfirmForceGraduate( UGFxObject *mc )
 	_ConfirmBox = NULL;
 	CMessageHandler::GetInstance().Send_ForceGrad();
 
-	//关闭祝贺界面
+	//Close congratulation UI
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_MasterCongMain,FALSE,"");
 }
 //
@@ -761,7 +761,7 @@ void UMMOUIMasterStudentPanel::SetCurPanelType(BYTE type)
 //----------------moved-----------------------
 void UMMOUIMasterStudentPanel::ASClearMasterApplyList()
 {
-	//全部拒绝
+	//reject all
 	const ApllicantsList& list = MasterStudentManager::getSingleton().GetMasterApllyList();
 	for (ApllicantsList::const_iterator itr  = list.begin(); itr != list.end(); ++itr)
 	{
@@ -1057,7 +1057,7 @@ void UMMOUIMasterStudentPanel::ASRightMenuStudentDetailList(INT nID)
 		const StudentListData* pMaster = MasterStudentManager::getSingleton().GetStudentDataByID(nID);	
 		if(pMaster == NULL)
 		{
-			//是否是师傅
+			//whether is master
 			const MasterDetailInfo& masterInfo = MasterStudentManager::getSingleton().GetMasterDetailInfo();
 			if (masterInfo.nRoleID == nID)
 			{

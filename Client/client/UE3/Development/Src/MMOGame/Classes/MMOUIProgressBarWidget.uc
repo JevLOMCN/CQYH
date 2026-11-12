@@ -49,7 +49,7 @@ function ProgressBarTimeUpCallback()
 
 native function ShowProgressBar( int countDownTime,string strTitle, int type );
 native function CloseProgressBar(int closeType);
-//需要分开DelegateTimeUp
+//DelegateTimeUp needs to be separated
 //function FBSummaryProgressBarTimeUpCallback()
 //{
 //	`log("FBSummaryProgressBar TimeUp Callback called"$DelegateTimeUp);

@@ -29,7 +29,7 @@ void MMOPlayerInfoManager::UpdatePlayerEquipInfo( INT roleId , INT equipNum , ch
 
 	if( playerInfo )
 	{
-		//先清空
+		//clear first
 		appMemzero( playerInfo->EquipList , sizeof( playerInfo->EquipList ) );
 		
 
@@ -75,7 +75,7 @@ void MMOPlayerInfoManager::UpdatePlayerRefineInfo( INT roleId , UINT16* level )
 	{
 		appMemcpy( playerInfo->RefineLevels , level , sizeof(playerInfo->RefineLevels) );
 	}
-	//和装备消息一起来，等装备通知界面一起更新
+	//comes together with the equipment message, update along with the equipment notification UI
 }
 
 void MMOPlayerInfoManager::UpdatePlayerAttrInfo( INT roleId , INT attrCount , ATTR_DATA* attrData , INT crc , INT Fatigue)
@@ -121,20 +121,20 @@ void MMOPlayerInfoManager::UpdatePlayerSpiritInfo( INT roleId , ROLE_DB_SPIRIT_D
 			gas.nUniqueID = 0;
 			if( data->nEquipContainerTemplate[n] > 0 )
 			{
-				//有物品
+				//has item
 				gas.nTempID	= data->nEquipContainerTemplate[n];
 				gas.nCurExp	= data->nEquipContainerExp[n];
 			}
 			else if( n >= data->nEquipContainerSize)
 			{
-				//未开锁
+				//not unlocked
 				gas.nTempID = 0;
 				gas.nCurExp = 0;
 				gas.nUniqueID = -1;
 			}
 			else
 			{
-				//开锁 空
+				//unlocked, empty
 				gas.nTempID = 0;
 				gas.nCurExp = 0;
 			}

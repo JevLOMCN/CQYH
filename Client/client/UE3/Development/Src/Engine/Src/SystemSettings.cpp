@@ -1928,7 +1928,7 @@ void FSystemSettings::UpdateSplitScreenSettings( void )
 // [ming@snda
 void FSystemSettings::AutoAdjustCompatLevel()
 {
-	// 暂时屏蔽根据硬件推荐画质的功能
+	// Temporarily disable the feature of recommending graphics quality based on hardware
 	const FCompatibilityLevelInfo MachineCompatLevel( 5, 5, 5 );// = appGetCompatibilityLevelV2();
 	
 	FSystemSettings OldSystemSettings = *this;

@@ -20,7 +20,7 @@ event Open(int time,string keyName,string imgName,int nActorID,int nAbilityID)
 	asval.Type = AS_String;
 	asval.s = imgName;
 	args[2] = asval;
-	SetPosition( -200,-200 );//Í¼ÖÐÐÄ
+	SetPosition( -200,-200 );//image center
 	Invoke("ShowQTE",args);
 	IsVisible = GetBool("visible");
 }

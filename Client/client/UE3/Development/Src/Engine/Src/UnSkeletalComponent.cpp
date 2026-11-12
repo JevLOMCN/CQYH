@@ -16,7 +16,7 @@
 #include "AnimationEncodingFormat.h"
 
 // [ming@snda
-// 应旺旺要求加上弹框~
+// Added a popup at Wangwang's request~
 #include "..\..\MMOGame\DataErrorCheck.h"
 // ming@snda]
 
@@ -1557,7 +1557,7 @@ void USkeletalMeshComponent::Tick(FLOAT DeltaTime)
 		APawn* PawnOwner = BaseSkelMeshComp->Owner ? BaseSkelMeshComp->Owner->GetAPawn() : NULL;
 		if( PawnOwner )
 		{
-			// 不是玩家自己的动画就全跳
+			// Skip everything that is not the player's own animation
 			APlayerController* pc = Cast<APlayerController>(PawnOwner->Controller);
 			if(!pc)
 			{
@@ -2030,7 +2030,7 @@ void USkeletalMeshComponent::DetachComponent(UActorComponent* Component)
 					SkelComp->AttachedToSkelComponent = NULL;
 				}
 
-				//去除break，增加除冗余功能，或者说增加清理全表雷同项功能 add by JimZhang@snda.com
+				//Removed break, added redundancy removal, or rather added a function to clean up duplicate entries across the whole table add by JimZhang@snda.com
 				//break;
 			}
 		}
@@ -2709,7 +2709,7 @@ void USkeletalMeshComponent::ComposeSkeleton()
 #if !SHIPPING_PC_GAME
 	if(NumBones > MAX_BONES)
 	{
-		appMsgf(AMT_OK, TEXT("骨头数量超过最大数量：%d 最大：%d"), NumBones, MAX_BONES);
+		appMsgf(AMT_OK, TEXT("Bone count exceeds the maximum: %d max: %d"), NumBones, MAX_BONES);
 		return;
 	}
 #endif
@@ -4787,7 +4787,7 @@ FMatrix USkeletalMeshComponent::GetBoneMatrix(DWORD BoneIdx) const
 				//debugf(NAME_Warning, TEXT("GetBoneMatrix : ParentBoneIndex(%d) out of range of ParentAnimComponent->SpaceBases for %s owned by %s (%s)"), BoneIdx, *GetName(), *Owner->GetName(), *SkeletalMesh->GetFName().ToString());
 
 				//SET_WARN_COLOR(COLOR_RED);
-				M_AddDataError(TEXT("SkeletalMesh"), FString::Printf(TEXT("骨架模型 %s 的第 %d 根骨头与模板 %s 中的根骨架不匹配，请联系熊老师修正。"),
+				M_AddDataError(TEXT("SkeletalMesh"), FString::Printf(TEXT("Bone %d of skeletal mesh %s does not match the root skeleton in template %s. Please contact the art team to fix it."),
 					*SkeletalMesh->GetPathName(), BoneIdx, *Owner->GetDebugDescription()));
 				//CLEAR_WARN_COLOR();
 #endif
@@ -4801,7 +4801,7 @@ FMatrix USkeletalMeshComponent::GetBoneMatrix(DWORD BoneIdx) const
 #if !PS3 // will be caught on PC, hopefully
 			//debugf( NAME_Warning, TEXT("GetBoneMatrix : BoneIndex(%d) out of range of ParentBoneMap for %s (%s)"), BoneIdx, *this->GetFName().ToString(), *SkeletalMesh->GetFName().ToString() );
 						
-			M_AddDataError(TEXT("SkeletalMesh"), FString::Printf(TEXT("骨架模型 %s 的第 %d 根骨头超出了TPos的骨架数量！请联系熊老师修正。"),
+			M_AddDataError(TEXT("SkeletalMesh"), FString::Printf(TEXT("Bone %d of skeletal mesh %s exceeds the TPos bone count! Please contact the art team to fix it."),
 				*SkeletalMesh->GetPathName(), BoneIdx ));
 			
 #endif
@@ -4821,7 +4821,7 @@ FMatrix USkeletalMeshComponent::GetBoneMatrix(DWORD BoneIdx) const
 #if !PS3 // will be caught on PC, hopefully
 			//debugf( NAME_Warning, TEXT("GetBoneMatrix : BoneIndex(%d) out of range of SpaceBases for %s (%s) owned by %s"), BoneIdx, *this->GetFName().ToString(), this->SkeletalMesh?*this->SkeletalMesh->GetFullName():TEXT("NULL"), this->Owner?*this->Owner->GetFName().ToString():TEXT("NULL") );
 
-			M_AddDataError(TEXT("SkeletalMesh"), FString::Printf(TEXT("骨架模型 %s 的第 %d 根骨头超出了模板 %s 的骨架数量！请联系熊老师修正。"),
+			M_AddDataError(TEXT("SkeletalMesh"), FString::Printf(TEXT("Bone %d of skeletal mesh %s exceeds the bone count of template %s! Please contact the art team to fix it."),
 				this->SkeletalMesh?*this->SkeletalMesh->GetPathName():TEXT("NULL"), BoneIdx, this->Owner?*this->Owner->GetDebugDescription():TEXT("NULL") ));
 #endif
 			// ming@snda]

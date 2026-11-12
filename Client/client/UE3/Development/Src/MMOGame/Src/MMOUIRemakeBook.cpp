@@ -93,14 +93,14 @@ void UMMOUIRemakeBook::HandleRemakeResult( INT isSuccess, INT remakedItemID )
 		else if( pGainedItem != NULL ){
 			iconName = pGainedItem->GetIconName();
 		}
-		////聊天提示
+		////Chat hint
 		//FString hintStringName = TEXT("MMOGame.RemakeFactory.BookResultSuccessChatHint");
 		//FString hintString = MMOUI::ParseLocalizedPropertyPath( hintStringName );
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( hintString, MsgInfoType_Table, hintStringName );
 		//MMOChatManager::getSingleton().AddSystemMessage(  FString::Printf( *chatHintFormat, *itemName ) );
 	}
 	else{
-		////聊天提示
+		////Chat hint
 		//FString hintStringName = TEXT("MMOGame.RemakeFactory.BookResultFailedChatHint");
 		//FString hintString = MMOUI::ParseLocalizedPropertyPath( hintStringName );
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( hintString, MsgInfoType_Table, hintStringName );
@@ -112,9 +112,9 @@ void UMMOUIRemakeBook::HandleRemakeResult( INT isSuccess, INT remakedItemID )
 //========================================================================================================================================
 void UMMOUIRemakeBook::UpdatePanel()
 {
-	//消耗
+	//Cost
 	UpdateConsumption();
-	////需要的钱
+	////Money needed
 	//UpdateRemakeFee();
 }
 //========================================================================================================================================

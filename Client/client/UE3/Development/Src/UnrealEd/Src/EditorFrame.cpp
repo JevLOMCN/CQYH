@@ -773,7 +773,7 @@ WxMainMenu::WxMainMenu()
 		// oscar@snda
 		ToolsMenu->AppendSeparator();
 		ToolsMenu->Append( IDM_BuildMiniMap, *LocalizeUnrealEd("ToolTip_BuildMiniMap"), *LocalizeUnrealEd("ToolTip_BuildMiniMap") );
-		ToolsMenu->Append( IDM_BuildNPCPreLoadingList, TEXT("生成NPC预加载数据"), *LocalizeUnrealEd("ToolTip_BuildMiniMap"));
+		ToolsMenu->Append( IDM_BuildNPCPreLoadingList, TEXT("Generating NPC preload data"), *LocalizeUnrealEd("ToolTip_BuildMiniMap"));
 		
 		ToolsMenu->AppendSeparator();
 		ToolsMenu->Append( IDM_AutoSplitLevels, *LocalizeUnrealEd("IDM_AutoSplitLevels"), *LocalizeUnrealEd("IDM_AutoSplitLevels") );
@@ -6707,7 +6707,7 @@ void WxEditorFrame::SplitAndSaveMap( UTexture2D* SrcTexture, const FString& SrcT
 					FColor *srcColor = (FColor*)srcPtr;
 					for(int n = 0; n < DstSizeX; ++n)
 					{
-						//全透，和全黑，干掉
+						//Fully transparent and fully black, remove
 						if( srcColor->A > 0 && srcColor->R + srcColor->G + srcColor->B != 0 ){
 							hasValidColor = TRUE;
 							break;
@@ -7629,7 +7629,7 @@ void WxEditorFrame::CopyViewportBuffToTexture(FEditorLevelViewportClient* Viewpo
 	INT SrcHeight = 256;
 	INT Distance = 1024;
 
-	//X轴向上
+	//X axis up
 	INT MapHeight = Max.X - Min.X;
 	INT MapWidth = Max.Y - Min.Y;
 
@@ -10055,7 +10055,7 @@ void WxEditorFrame::SyncToContentBrowser()
 				}
 				else
 				{
-					//GWarn->MapCheck_Add(MCTYPE_ERROR, Pawn, FString::Printf(TEXT("NPC的这个模型"),), NULL);
+					//GWarn->MapCheck_Add(MCTYPE_ERROR, Pawn, FString::Printf(TEXT("This NPC model"),), NULL);
 				}
 			}
 			else if( StaticMesh ) // oscar@snda

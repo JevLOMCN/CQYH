@@ -1,5 +1,5 @@
 //
-//  ’µ∂»°µ∂
+// Sheathe/draw blade
 //
 class MMOStatusProc_SetWeaponState extends Object implements(IMMOStatusProc)
 	native

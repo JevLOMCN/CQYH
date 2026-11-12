@@ -145,10 +145,10 @@ void UMMOActorMaterialController::SetOpacity(FLOAT percent)
 	}
 }
 
-// 播放半透明淡入
+// Play translucent fade-in
 void UMMOActorMaterialController::PlayOpacityFadeIn( FLOAT fadeInTime )
 {
-	// 如果有正在淡出的从其当前OpacityPercent开始淡入
+	// if one is fading out, start fading in from its current OpacityPercent
 	if(!IsFading)
 	{
 		SetOpacityPercent( 0.0f );
@@ -175,10 +175,10 @@ void UMMOActorMaterialController::PlayOpacityFadeIn( FLOAT fadeInTime )
 	}
 }
 
-// 播放半透明淡出
+// Play translucent fade-out
 void UMMOActorMaterialController::PlayOpacityFadeOut( FLOAT fadeOutTime )
 {
-	// 如果有正在淡入的从其当前OpacityPercent开始淡出
+	// if one is fading in, start fading out from its current OpacityPercent
 	if(!IsFading)
 	{
 		SetOpacityPercent( 1.f );

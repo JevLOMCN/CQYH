@@ -128,7 +128,7 @@ class FGFxCLIKObjectEventCallback : public FunctionHandler
 
 				// Determine where we should get our widget binding information from:  either the PathHandlingWidget if available, or the movie itself
 				TArray<FGFxWidgetBinding>* WidgetBindings = ( PathHandlingWidget != NULL ) ? & ( PathHandlingWidget->SubWidgetBindings ) : & ( Movie->WidgetBindings );
-				// oscar@snda 只需要绑定一个全局的数组，通过DefaultUI.ini中的[MMOGame.MMOGFXPlayer_Root]段配置
+				// oscar@snda only need to bind one global array, configured through the [MMOGame.MMOGFXPlayer_Root] section in DefaultUI.ini
 				WidgetBindings = &g_WidgetBindings;
 				// oscar@snda
 
@@ -2189,7 +2189,7 @@ UBOOL UGFxObject::GetPosition ( FLOAT& X, FLOAT& Y )
 	return FALSE;
 }
 
-//hemu@snda 获得一个控件的绝对坐标位置
+//hemu@snda get the absolute coordinate position of a control
 UBOOL UGFxObject::GetAbsolutePosition ( FLOAT& X, FLOAT& Y )
 {
     if( !GetPosition( X, Y ) )
@@ -2201,12 +2201,12 @@ UBOOL UGFxObject::GetAbsolutePosition ( FLOAT& X, FLOAT& Y )
     UGFxObject *Root = GetObject("root");
     while ( Parent && Parent != Root )
     {
-        //需要转化为本地的相对坐标
+        //Need to convert to local relative coordinates
         X += Parent->GetFloat("x");
         Y += Parent->GetFloat("y");
         Parent = Parent->GetObject("parent");
     }
-    //中心点问题 这里显示上很可能会有差别 需要美术调整
+    //Center point issue: there will likely be a visual difference here, needs artist adjustment
     return TRUE;
 }
 

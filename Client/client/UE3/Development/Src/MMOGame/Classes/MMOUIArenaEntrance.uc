@@ -20,7 +20,7 @@ final native function UpdatePanelBaseInfo();
 
 final native function UpdateArenaData();
 
-//标题处
+//Title area
 event CallASSetPanelTopTitleText( String text )
 {
 	ActionScriptVoid( "UCSetTopTipsText" );
@@ -31,7 +31,7 @@ event CallASSetPanelTopText( String text, bool isToShowThis )
 	ActionScriptVoid( "UCSetTopTipAdditionalText" );
 }
 
-//最终奖励
+//Final reward
 final native function UpdateArenaWinResult();
 event CallASSetArenaProcess( GFxObject data )
 {
@@ -64,7 +64,7 @@ event CallASUpdateCurWinMoney( GFxObject data )
 	ActionScriptVoid( "UCSetBattleRewardsRankInfo" );
 }
 
-//宝箱奖励
+//Treasure chest reward
 event CallASInitRewardViewItemSlot( int idx, int slotType, int inPanelIdx )
 {
 	ActionScriptVoid( "InitRewardViewItemSlot" );
@@ -92,19 +92,19 @@ event CallASUpdateMyArenaCost( String mnyStr )
 	ActionScriptVoid( "UCSetTotalCostText" );
 }
 
-//参赛按钮设置
+//Entry button settings
 event CallASSetArenaEnterBtn( String btnStr, bool isToShowThis )
 {
 	ActionScriptVoid( "UCSetActionButton" );
 }
 
-//界面底部文字（参赛报名需花费， 报名已成功）
+//Text at the bottom of the UI (entry costs, registration succeeded)
 event CallASSetPanelBottomText( String titleStr )
 {
 	ActionScriptVoid( "UCSetBottomTipsText" );
 }
 
-//参赛费用
+//Entry fee
 event CallASSetArenaEntryFee( String mnyStr, bool isToShowThis )
 {
 	ActionScriptVoid( "UCSetTicketCostText" );

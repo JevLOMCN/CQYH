@@ -129,7 +129,7 @@ bool ClientActionConditionSequence::CheckClientActionCondition( FClientActionCon
 	FClientActionConditionContexList::iterator i = _ConditionCheckList.begin();
 	for (; i != _ConditionCheckList.end(); ++i)
 	{
-		// 只要一个不符合就返回
+		// Return as soon as one does not match
 		contex.ChceckType = *i;
 		if(!::CheckClientActionCondition(contex))
 		{
@@ -149,7 +149,7 @@ bool Check_ECACCT_UseItem_CheckClass( FClientActionConditionContex& contex )
 {
 	if(contex.Item && contex.ItemTemplate)
 	{
-		//如果是合成卷轴就肯定可以用
+		//If it is a synthesis scroll, it can definitely be used
 		if(contex.ItemTemplate->ItemType == TEXT("ITEMTYPE_FORMULA"))
 		{
 			return true;
@@ -314,22 +314,22 @@ bool Check_ECACCT_Hero_UseItem_CheckLv( FClientActionConditionContex& contex )
 
 bool Check_ECACCT_Hero_EquipItem_CheckClass( FClientActionConditionContex& contex )
 {
-	return Check_ECACCT_Hero_UseItem_CheckClass(contex); // 只是ENUM不一样
+	return Check_ECACCT_Hero_UseItem_CheckClass(contex); // Only the ENUM differs
 }
 
 bool Check_ECACCT_Hero_EquipItem_CheckLv( FClientActionConditionContex& contex )
 {
-	return Check_ECACCT_Hero_UseItem_CheckLv(contex); // 只是ENUM不一样
+	return Check_ECACCT_Hero_UseItem_CheckLv(contex); // Only the ENUM differs
 }
 
 bool Check_ECACCT_EquipItem_CheckClass( FClientActionConditionContex& contex )
 {
-	return Check_ECACCT_UseItem_CheckClass(contex); // 只是ENUM不一样
+	return Check_ECACCT_UseItem_CheckClass(contex); // Only the ENUM differs
 }
 
 bool Check_ECACCT_EquipItem_CheckLv( FClientActionConditionContex& contex )
 {
-	return Check_ECACCT_UseItem_CheckLv(contex); // 只是ENUM不一样
+	return Check_ECACCT_UseItem_CheckLv(contex); // Only the ENUM differs
 }
 
 bool Check_ECACCT_UseItem_CheckStallState( FClientActionConditionContex& contex )
@@ -353,7 +353,7 @@ bool Check_ECACCT_Item_CheckCanStall(FClientActionConditionContex& contex)
 {
 	if(contex.ItemTemplate)
 	{
-		// #21536 任务物品允许交易
+		// #21536 Quest items are allowed to be traded
 		if(contex.ItemTemplate->CanSell /*&& contex.ItemTemplate->ItemType != TEXT("ITEMTYPE_QUEST") && contex.ItemTemplate->Trade*/ )
 		{
 			return true;
@@ -544,7 +544,7 @@ bool Check_ECACCT_Item_CheckAllInContainerIfInPanelUsing( FClientActionCondition
 		return false;
 	}
 
-	//轮询物品
+	//Poll items
 	bool nothingIsInUsing = true;
 	INT containerEnum = contex.UsefulInt;
 	UINT bagCapability = mainPlayer->ItemManager->CurCapacity( containerEnum );

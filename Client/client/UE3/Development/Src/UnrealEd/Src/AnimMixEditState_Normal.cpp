@@ -1,6 +1,6 @@
 /*=============================================================================
 	hemu@snda 120416
-	动画混合参数表，用于播放连击动作等情况下动作的平滑返回播放
+	Animation blend parameter table, used for smooth return playback of animations such as combo actions
 =============================================================================*/
 
 #include "AnimMixEditState_Normal.h"
@@ -67,7 +67,7 @@ void AnimMixEditState_Normal::DrawObjects( FViewport* Viewport, FCanvas* Canvas 
 			}
 			else 
 			{
-				//数据还未填充
+				//Data not yet filled in
 				tBkgColor = WhiteColor ;
 			}
 			/*else
@@ -151,7 +151,7 @@ void AnimMixEditState_Normal::OnExit()
 	SelectedObject = 0;
 	HighlightObject = 0;
 }
-//从ArchiType中读取
+//Read from ArchiType
 FAnimMixNode* AnimMixEditState_Normal::FindAnimNodeObject(BYTE ST, BYTE TT)
 {
 	UGamePlayDataManager* DataMgr = AnimMixEditor->GetDataManager();
@@ -177,7 +177,7 @@ void AnimMixEditState_Normal::ClickedAnyObject( struct HAnyObjectProxy* proxy )
 		if(!node)				
 		{
 			//UMMOAnimMixEditObject *NewNode=new UMMOAnimMixEditObject;//(EC_EventParm)
-			//这里需要加入EC_EventParm进行初始化
+			//EC_EventParm needs to be added here for initialization
 			FAnimMixNode NewNode(EC_EventParm);
 			NewNode.SourceAnim = SelectedObject->AnimMixInfo.SourceAnim;
 			NewNode.TargetAnim = SelectedObject->AnimMixInfo.TargetAnim;
@@ -186,7 +186,7 @@ void AnimMixEditState_Normal::ClickedAnyObject( struct HAnyObjectProxy* proxy )
 		}
 		else
 		{
-			//如果内存中的编辑节点里已经有了数据，则使用内存中的编辑节点数据，防止数据被冲掉
+			//If the edit node in memory already has data, use the in-memory edit node data to prevent the data from being overwritten
 			if( SelectedObject->AnimMixInfo.Anim.animation.GetIndex() <= 0)
 			{
 				node->Anim=SelectedObject->AnimMixInfo.Anim;
@@ -249,7 +249,7 @@ void AnimMixEditState_Normal::SaveData()
 		}
 		else
 		{
-			//节点可以为空
+			//Node can be empty
 			//checkSlow(false && TEXT("Sound material type map not found!") );
 		}
 	}

@@ -51,7 +51,7 @@ event InitOnce()
 
 	class'MMOUIManager'.static.SetUpdateWarehouseCapSlotDelegate(UpdateWarehouseCapSlot);
 
-	// TODO:功能完成了移除这2个
+	// TODO: remove these 2 once the feature is done
 	GetObject("BtnLock_mc").SetVisible(false);
 	//GetObject("BtnSort_mc").SetVisible(false);
 	
@@ -141,7 +141,7 @@ event ClearItemSlot(GFxObject ItemSlot)
 {
 	local int slotId;
 	slotId = ItemSlot.GetInt("slotID");
-	//重载掉这个函数，bag里清格子属性是ESPType_Bag
+	//Override this function; clearing slot attributes in bag uses ESPType_Bag
 	SetItemSlotData( ItemSlot, none, ESPType_Warehouse , E_CONSLOT_BANK , slotId );
 }
 

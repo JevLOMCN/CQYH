@@ -97,7 +97,7 @@ void AMMOGame::SendRequest_FinishLoading()
 	CMessageHandler::GetInstance().Send_HardwareInfo();
 }
 
-//地图加载完成后 根据目的跳转 
+//After map loading completes, jump according to destination
 void AMMOGame::FinishLoading2Login()
 {
     MMO::ActiveGameState( EGameState_Login );

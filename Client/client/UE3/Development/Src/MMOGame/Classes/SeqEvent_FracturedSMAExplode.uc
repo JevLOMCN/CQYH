@@ -1,5 +1,5 @@
 //
-// ¿ÉÆÆ»µÎïÌå±¬Õ¨
+// destructible object explosion
 //
 
 class SeqEvent_FracturedSMAExplode extends SequenceEvent;

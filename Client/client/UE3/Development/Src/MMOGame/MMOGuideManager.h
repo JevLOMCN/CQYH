@@ -9,14 +9,14 @@
 #include "MMOFacade.h"
 #include "MMOGuideData.h"
 
-// 引导记录
+// guide record
 struct GuideRecord
 {
 	UINT32 Id;
 	GuideState State;
 };
 
-// 引导事件
+// Tutorial event
 struct MMOGameEvent_Guide : public MMOGameEvent
 {
 public:
@@ -55,12 +55,12 @@ public:
 	void SetGuideEnable(UBOOL isEnable);
     UBOOL IsGuideEnable(){ return _IsGuideEnable; }
 
-	// 测试位置用
+	// for testing position
 	void TestGuideArrow(INT id, INT offsetX, INT offsetY);
 	void TestGuideBox(INT id, INT offsetX, INT offsetY, INT width, INT height);
 
 protected:
-	// 条件检查
+	// condition check
 	UBOOL _PreGuideCheck(UINT32 id);
 	UBOOL _LevelCheck(UINT32 id);
 	UBOOL _QuestCheck(UINT32 id);
@@ -81,8 +81,8 @@ protected:
 	void _DetachAllGuidePanel();
 
 	void _UpdateAllGuidePanel();
-	void _UpdateGuideBox(UGFxObject* guide, const GuideData& data);											// 更新引导框
-	void _UpdateBagSlotGuide(UMMOUIBase* targetPanel, UGFxObject* guide, const GuideData& data);			// 更新背包格子引导
+	void _UpdateGuideBox(UGFxObject* guide, const GuideData& data);											// update guide box
+	void _UpdateBagSlotGuide(UMMOUIBase* targetPanel, UGFxObject* guide, const GuideData& data);			// update bag slot guide
 
 	void _PlayGuideSound(UINT32 id);
 	void _UpdateGuideState(UINT32 id);

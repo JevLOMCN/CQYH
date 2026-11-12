@@ -106,7 +106,7 @@ native function  ASHideTips_ActivityRewardItem();
 native function  ASShowTips_ActivityRewardItemBar(GFxObject mc,int nIndex);
 native function  ASHideTips_ActivityRewardItemBar();
 
-//副本大厅相关
+//Dungeon lobby related
 native function ASShowActivityFBView();
 native function ASShowActivityTeamView();
 native function ASClickActivityTeamList(int nTeamId);

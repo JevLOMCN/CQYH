@@ -2125,7 +2125,7 @@ bool FServerGridWorld::LoadNavFromFile( const TCHAR* pNavFilePath )
 		file->Serialize(pData, nDataSize);//fread(pData, 1, nDataSize, pFile);
 		SCENE_NAV_HEADER* pHeader = (SCENE_NAV_HEADER*)pData;
 
-		// 拷贝一遍，不直接指向了，感觉上舒服点
+		// Copy it instead of pointing to it directly; feels more comfortable
 		m_pNavHeader = new SCENE_NAV_HEADER;
 		memcpy(m_pNavHeader, pHeader, sizeof(SCENE_NAV_HEADER));
 
@@ -2642,7 +2642,7 @@ FVector FServerGridWorld::OptimizeDes_Line( const FVector Step1, const FVector S
 	GRID_DATA* pBufGrid = NULL;
 	bRes= GetZoneAndGrid(Step1, pBufZone, pBufGrid);
 
-	////加log,显示阻挡的情况------------------------------------------------------------------------------------------------------
+	////Add log to show the blocking situation------------------------------------------------------------------------------------------------------
 	//if(bRun && bRes && pBufGrid && !pBufGrid->bOutOfPoly && IsBlockedActorExist(pBufGrid) && IsInSafeZone(pBufGrid)==FALSE )
 	//{
 
@@ -2652,7 +2652,7 @@ FVector FServerGridWorld::OptimizeDes_Line( const FVector Step1, const FVector S
 	//	}
 	//	else
 	//	{
-	//		warnf( NAME_Log, TEXT("*****************************动态阻挡，有阻挡标志，但是格子里已经没有actor!!!!!!") );
+	//		warnf( NAME_Log, TEXT("*****************************Dynamic blocking, has blocking flag, but there is no actor left in the grid cell!!!!!!") );
 	//	}
 	//}
 	////--------------------------------------------------------------------------------------------------------------------------
@@ -2705,7 +2705,7 @@ FVector FServerGridWorld::GetHitPoint( const FVector& StartPoint,  const FVector
 			}
 			else
 			{
-				if(pBufGrid->bBorder==FALSE)//不是边缘，额外多判定一格子
+				if(pBufGrid->bBorder==FALSE)//Not an edge, judge one extra grid cell
 				{
 					CurPoint += Step;
 				}
@@ -2760,7 +2760,7 @@ FVector FServerGridWorld::GetNearbyGridPos(const FVector& SelfPos, INT Index, FL
 
 INT FServerGridWorld::OptimizeDir_Mir2( const FVector& inFoot, const FVector& inDest)
 {
-	//新手感/////////////////////////////////////////////////////////////
+	//New feel/////////////////////////////////////////////////////////////
 	FVector V1 = inFoot;
 	FVector V2 = inDest;
 	ConvertCoordC2S(V1);
@@ -2820,7 +2820,7 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 		bEx = FALSE;
 	}
 
-//新手感/////////////////////////////////////////////////////////////
+//New feel/////////////////////////////////////////////////////////////
 	INT Index = OptimizeDir_Mir2(inFoot, inDest);
 	if(Index<0)
 	{
@@ -2833,9 +2833,9 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 	FLOAT delta1 = (step1-VecDest).Size2D();
 	FLOAT delta2 = (step2-VecDest).Size2D();
 
-	if(bRun&&delta1<=minRadius)//跑的第一步就进入范围了，直接切走，行进一步
+	if(bRun&&delta1<=minRadius)//Already within range on the first step of running, switch away directly and advance one step
 	{
-		//不做处理跳到下一步处理走
+		//Do not process, jump to the next step and walk
 	}
 	else
 	{
@@ -2848,12 +2848,12 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 		FVector ResVector = OptimizeDes_Line( step1, step2, bRes,bRun );
 		if(bRes&&(bCross||bRun==FALSE))
 		{
-			if(bRun&&bCross)//跑步正常处理，保证不能走过头，再转身
+			if(bRun&&bCross)//Normal running handling, ensure not to overshoot, then turn
 			{
 				bOblique=(Index%2==1);
 				return ResVector;
 			}
-			if(bRun==FALSE)//走路正常处理
+			if(bRun==FALSE)//Normal walking handling
 			{
 				bOblique=(Index%2==1);
 				return ResVector;
@@ -2861,7 +2861,7 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 		}
 	}
 
-	if(bRun)//跑步不满足的情况下，进行走一步
+	if(bRun)//When running is not satisfied, take one step of walking
 	{
 		UBOOL bRunOrWalk = FALSE;
 		//FVector ResVector2 = OptimizeDes_Line( inFoot+DirArray[Index]*128.0, inFoot+DirArray[Index]*128.0*2.0, bRes,bRunOrWalk );
@@ -2874,7 +2874,7 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 		}
 	}
 
-	if(bRes==FALSE)//跑走都不行的情况下，判定阻挡类型，动态阻挡不扰路
+	if(bRes==FALSE)//When neither running nor walking works, determine the blocking type; dynamic blocking does not disturb the path
 	{
 		UBOOL bRes1= GetZoneAndGrid(step1, pBufZone, pBufGrid);
 		UBOOL bDynamicBLock1 = (bRes1 && pBufGrid && !pBufGrid->bOutOfPoly && IsBlockedActorExist(pBufGrid));
@@ -2901,8 +2901,8 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 		}
 	}
 
-//如果有静态阻挡，则进行绕行判定-----------------------------------------------------------------------
-	bRun = FALSE; //绕行一律是走的*****************
+//If there is static blocking, perform detour judgment-----------------------------------------------------------------------
+	bRun = FALSE; //Detours are always walked*****************
 	INT Index2 = Index+1;
 	if(Index2>=8)Index2=0;
 	UBOOL bRes2;
@@ -2949,10 +2949,10 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 	
 
 
-//如果无路可走，则进行高级牛逼的绕柱子判定，这段属于高级附加，传奇没有，为了让传奇永恒感觉更好，不被柱子卡住-----------------------------------------------------------------------
+//If there is no way to go, perform the advanced pillar-circumvention judgment; this part is an advanced extra that Legend doesn't have, added so Legend Eternal feels better and doesn't get stuck on pillars-----------------------------------------------------------------------
 	if(bEx)
 	{
-		bRun = FALSE; //绕行一律是走的*****************
+		bRun = FALSE; //Detours are always walked*****************
 		INT Index4 = Index+2;
 		if(Index4>=8)Index4=Index4-8;
 		FVector step4 = GetNearbyGridPos(inFoot,  Index4, 1.0f);
@@ -2997,14 +2997,14 @@ FVector FServerGridWorld::OptimizeDes_Mir2( const FVector& inFoot, const FVector
 
 }
 
-//Add by JimZhang@snda 取离目标点最近可到达的寻路点，当往目标方向直行距离不足64*3的时候，采取走向距离目标点最近的格子
+//Add by JimZhang@snda Take the nearest reachable pathfinding point to the target; when the straight-line distance toward the target is less than 64*3, walk to the grid cell nearest to the target
 FVector FServerGridWorld::OptimizeDes( const FVector& inFoot, const FVector& inDest, UBOOL& bOptimized )
 {
 	INT i=0;
 	ZONE_DATA* pBufZone = NULL;
 	GRID_DATA* pBufGrid = NULL;
 
-	//目标点直接可达
+	//Target point is directly reachable
 	UBOOL bRes= GetZoneAndGrid(inDest, pBufZone, pBufGrid);
 	if(pBufGrid && !pBufGrid->bOutOfPoly && !pBufGrid->bBorder)
 	{
@@ -3012,7 +3012,7 @@ FVector FServerGridWorld::OptimizeDes( const FVector& inFoot, const FVector& inD
 		return inDest;
 	}
 
-	//判定可以朝目标点直接走到哪
+	//Determine how far one can walk directly toward the target point
 	FVector Out	= inFoot;
 	FVector direct = inDest-inFoot;
 	FLOAT dis = direct.Size();
@@ -3033,11 +3033,11 @@ FVector FServerGridWorld::OptimizeDes( const FVector& inFoot, const FVector& inD
 	//	return Out;
 	//}
 
-	//判定距离目标点最近可以走到哪
+	//Determine how close to the target point one can get
 	FVector DeltaStep[8] = {FVector(1.0f,0.0,0.0),FVector(0.0f,1.0,0.0),FVector(-1.0f,0.0,0.0),FVector(0.0f,-1.0f,0.0),
 		FVector(0.7071f,0.7071f,0.0),FVector(-0.7071f,0.7071,0.0),FVector(0.7071f,-0.7071f,0.0),FVector(-0.7071f,-0.7071f,0.0)};
 
-	FLOAT DeltaStepWeight[8];//方向性权重
+	FLOAT DeltaStepWeight[8];//Directional weights
 	for(INT k=0;k<8;k++)
 	{
 		DeltaStepWeight[k] = (DeltaStep[k]-direct*3.0f).Size2D();
@@ -3201,7 +3201,7 @@ UINT FServerGridWorld::GeneratePath( const FVector& inSour, const FVector& inDes
 	//DWORD moveCycles = appCycles();
 
 
-	//// oscar@snda 对付楼梯等斜面生成的格子太薄的情况
+	//// oscar@snda deal with the case where grid cells generated on slopes such as stairs are too thin
 	FVector dest = inDest;
 	//dest.Z += g_pickZOffset;
 
@@ -3262,25 +3262,25 @@ UINT FServerGridWorld::GeneratePath( const FVector& inSour, const FVector& inDes
 	
 	if(!pSrcZone)
 	{
-		warnf(NAME_Error, TEXT("+++发现寻路时 起始点 %s 没有Zone格子数据！"), *inSour.ToString());
+		warnf(NAME_Error, TEXT("+++ Pathfinding: start point %s has no Zone grid data!"), *inSour.ToString());
 		goto Exit0;
 	}
 
 	if(!pDestZone)
 	{
-		warnf(NAME_Warning, TEXT("+++发现寻路时 目标点 %s 没有Zone格子数据，可能是空的，或是地图边界，或是数据与服务器不同步。"), *inDest.ToString());
+		warnf(NAME_Warning, TEXT("+++ Pathfinding: target point %s has no Zone grid data. It may be empty, a map border, or out of sync with the server."), *inDest.ToString());
 		goto Exit0;
 	}
 
 	if(!pSrcGrid)
 	{
-		warnf(NAME_Error, TEXT("+++发现寻路时 起始点 %s 居然没有格子数据！"), *inSour.ToString());
+		warnf(NAME_Error, TEXT("+++ Pathfinding: start point %s has no grid data!"), *inSour.ToString());
 		goto Exit0;
 	}
 
 	if(!pDestGrid)
 	{
-		warnf(NAME_Warning, TEXT("+++发现寻路时 目标点 %s 没有格子数据，可能是空的，或是地图边界，或是数据与服务器不同步。"), *inDest.ToString());
+		warnf(NAME_Warning, TEXT("+++ Pathfinding: target point %s has no grid data. It may be empty, a map border, or out of sync with the server."), *inDest.ToString());
 		goto Exit0;
 	}
 
@@ -3290,12 +3290,12 @@ UINT FServerGridWorld::GeneratePath( const FVector& inSour, const FVector& inDes
 
 	if(pSrcGrid->bOutOfPoly)
 	{
-		warnf(NAME_Error, TEXT("+++发现寻路时 起始点 %s 在Poly外面！"), *inSour.ToString());
+		warnf(NAME_Error, TEXT("+++ Pathfinding: start point %s is outside the Poly!"), *inSour.ToString());
 	}
 
 	if(pDestGrid->bOutOfPoly)
 	{
-		warnf(NAME_Error, TEXT("@@@发现寻路时 目标点 在Poly外面！"));
+		warnf(NAME_Error, TEXT("@@@ Pathfinding: target point is outside the Poly!"));
 	}
 
 

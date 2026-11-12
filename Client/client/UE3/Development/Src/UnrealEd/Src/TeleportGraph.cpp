@@ -1098,7 +1098,7 @@ void WxTeleportGraph::HighlightAnyObject( struct HAnyObjectProxy* proxy )
 	{
 		GlobalMapSingleton->TeleportLinks(i).IsHighlighted = FALSE;
 	}
-	//ÇøÓò´«ËÍÍø
+	//Region teleport network
 	for (INT i = 0; i < GlobalMapSingleton->TeleportNetNodeList.Num(); ++i)
 	{
 		GlobalMapSingleton->TeleportNetNodeList(i).IsHighlighted = FALSE;

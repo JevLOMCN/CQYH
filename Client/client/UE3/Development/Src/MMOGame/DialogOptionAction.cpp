@@ -103,7 +103,7 @@ void DialogOptionAction_UICommand_OpenWeaponSkill::Execute()
 {
 	INT curPlayerLv = MMOFacade::getSingleton().GetMyLevel();
 	if( curPlayerLv < 25 ){
-		//等级不够，不显示
+		//Level insufficient, do not show
 		FString hintName = TEXT("MMOGame.WeaponSkill.LevelLimitedHint");
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( hintName ), MsgInfoType_Table, hintName );
 
@@ -250,7 +250,7 @@ void DialogOptionAction_UICommand_OpenEquipLevelUp::Execute()
 {
 	INT curPlayerLv = MMOFacade::getSingleton().GetMyLevel();
 	if( curPlayerLv < 12 ){
-		//等级不够，不显示
+		//Level insufficient, do not show
 		FString hintName = TEXT("MMOGame.EquipLevelUp.LevelLimitedHint");
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( hintName ), MsgInfoType_Table, hintName );
 
@@ -276,7 +276,7 @@ void DialogOptionAction_UICommand_LevelUpEquipCurEquipped::Execute()
 {
 	//INT curPlayerLv = MMOFacade::getSingleton().GetMyLevel();
 	//if( curPlayerLv < 12 ){
-	//	//等级不够，不显示
+	//	//Level insufficient, do not show
 	//	FString hintName = TEXT("MMOGame.EquipLevelUp.LevelLimitedHint");
 	//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( hintName ), MsgInfoType_Table, hintName );
 
@@ -313,7 +313,7 @@ void DialogOptionAction_UICommand_GetbackCurLevelUpEquipRightNow::Execute()
 	}
 }
 
-//离线经验
+//Offline experience
 //------------------------------------------------------------------------
 // DialogOptionAction_UICommand_ApplySpecialExp
 //------------------------------------------------------------------------
@@ -349,7 +349,7 @@ DialogOptionAction_UICommand_OpenShop::DialogOptionAction_UICommand_OpenShop()
 
 void DialogOptionAction_UICommand_OpenShop::Execute()
 {
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_OpenShopPanel);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -424,7 +424,7 @@ void DialogOptionAction_UICommand_OpenQuest::Execute()
 {
 	if (MMOQuestData::getSingleton().IsQuestRecycle(QuestTemplateID))
 	{
-		// 打开回收面板
+		// Open the recycle panel
 		UMMOUIQuestItemCollectionPanel* panel = (UMMOUIQuestItemCollectionPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_QuestItemCollection);
 		if (panel)
 		{
@@ -622,7 +622,7 @@ AbstractDialogOptionAction::~AbstractDialogOptionAction()
 
 void DialogOptionAction_SendServerOption::Execute()
 {
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_NpcDialogServerOption);
 	MMOUI::PostGameEvent(&evtGuide);
 

@@ -1,5 +1,5 @@
 //
-// 主要的NPC基类，完成角色动画管理
+// main NPC base class, handles character animation management
 //
 
 class NPC extends MMOActor implements(IMMOActorHUD, IExcelable,IReferenceID, IInteractableActor)
@@ -19,7 +19,7 @@ var NPCTemplate Template;
 var MMOActor Master;
 
 
-//副本难度类型决定
+//determined by dungeon difficulty type
 // enum EGameDifficulty
 // {
 // 	EGD_Easy              <DisplayName="EEGD_Easy">,
@@ -28,7 +28,7 @@ var MMOActor Master;
 // 	EGD_Hell               <DisplayName="EEGD_Hell">,
 // 	EGD_Inferno          <DisplayName="EEGD_Inferno">,
 // };
-//难度等级po
+//difficulty level po
 //var(MMOServer) EGameDifficulty Difficulty;
 
 var(MMO_Debug) bool bDebugRanges      <DisplayName="bDebugRanges">;
@@ -37,7 +37,7 @@ var(MMO_UI) string DefaultDialogText <DisplayName="DefaultDialogText">;
 
 
 
-//// 控制器模板
+//// controller template
 // var(MMO_Client_AI) AIController NPCAIControllerTemplate;
 
 var(MMO_Client_AI) float m_fSightRange    <DisplayName="m_fSightRange">;
@@ -49,22 +49,22 @@ var(MMO_UI) bool    m_bIsWarehouse  <DisplayName="m_bIsWarehouse">;
 var(MMO_UI) string  IdentityName <DisplayName="IdentityName">;
 var(MMO_UI) Texture2D   IdentityIcon <DisplayName="IdentityIcon">;
 
-var transient array<Quest> AcceptableQuestList; // 可接的任务列表
-var transient array<Quest> CompassableQuestList; // 可交的任务列表
+var transient array<Quest> AcceptableQuestList; // list of acceptable quests
+var transient array<Quest> CompassableQuestList; // list of quests that can be turned in
 
 var     array<int>	    AffixList;
 
-//var() array<int>    NormalAttackAbilityIds  <DisplayName="普通攻击技能ID列表">;
-//var() float AbilityUseRate      <DisplayName="非普通技能使用机率">;
+//var() array<int>    NormalAttackAbilityIds  <DisplayName="normal attack ability ID list">;
+//var() float AbilityUseRate      <DisplayName="non-normal ability use rate">;
 
 
 var DrawCylinderComponent   TraceRangeCylinder;
 
-//// remove 由技能动画代替
-////var(MMOAnim) name    m_NameAttackAnim          <DisplayName="攻击动画">;  
-//var(MMOAnim) name    m_NameAttackIdleAnim      <DisplayName="攻击待机">;
-//var(MMOAnim) name    m_NameHurtAnim            <DisplayName="受伤动画">;
-//var(MMOAnim) name    m_NameBeatBackAnim        <DisplayName="击退动画">;
+//// remove, replaced by ability animation
+////var(MMOAnim) name    m_NameAttackAnim          <DisplayName="attack animation">;
+//var(MMOAnim) name    m_NameAttackIdleAnim      <DisplayName="attack idle">;
+//var(MMOAnim) name    m_NameHurtAnim            <DisplayName="hurt animation">;
+//var(MMOAnim) name    m_NameBeatBackAnim        <DisplayName="knockback animation">;
 var name    m_NameClimbAnim           <DisplayName="m_NameClimbAnim">;
 var name    m_NameClimbJumpAnim       <DisplayName="m_NameClimbJumpAnim">;
 var name    m_NameClimbOverAnim       <DisplayName="m_NameClimbOverAnim">;
@@ -86,8 +86,8 @@ var Vector          m_vecOrigLoc;   // origin of the NPC's roaming
 var(MMO_Client_AI) float         AttackInterval  <DisplayName="AttackInterval">;  // interval between 2 attack animations
 ////var() int           NPCHealth;       // expose the health property for editor
 
-//var() float         m_fEscapeHealthRate <DisplayName="逃跑血量">;
-//var() float         m_fEscapeDistance   <DisplayName="逃跑距离">;
+//var() float         m_fEscapeHealthRate <DisplayName="flee health rate">;
+//var() float         m_fEscapeDistance   <DisplayName="flee distance">;
 
 //var () float        MinDistanceToTarget;
 //var () float        MaxDistanceToTarget;
@@ -99,42 +99,42 @@ var(MMO_Client_AI) array< PathNode >     PatrolPath    <DisplayName="PatrolPath"
 var transient Vector        SpawnLocation;
 var transient Rotator       SpawnRotation;
 
-//var() float         AIUpdateDelta       <DisplayName="AI 更新间隔">;
+//var() float         AIUpdateDelta       <DisplayName="AI update interval">;
 
 var	NPC                     NPCToFollow;
 var Vector                  TransToLead;     // translation to the npc to follow
 var(MMO_Client_AI) array< NPC >          Follower      <DisplayName="Follower">;
 
-// 低血量范围参考值
+// Low HP range reference value
 var float LowHealthParticlePercentThreshold;
 
-// 健康时的血条颜色
+// Health bar color when healthy
 var Vector HealthyColor;
 
-// 受伤时的血条颜色
+// Health bar color when hurt
 var Vector UnhealthyColor;
 
-//// 粒子组件
+//// particle component
 ////var(MMO) ParticleSystemComponent LowHealthParticleEffect;
 
-// 血条的材质模板
+// Health bar material template
 var MaterialInstanceConstant TheHealthHUDMatTemplate;
 
-// 血条材质
+// Health bar material
 var transient MaterialInstanceConstant MyHealthHUDMatInstance;
 
-// 是否绘制血条
+// Whether to draw the health bar
 var bool EnableDrawHealthBar;
 
-// 血条缩放大小
+// Health bar scale
 var float HealthBarScale;
 
-// 血条偏移
+// Health bar offset
 var Vector HealthBarPositionOffset;
 
 var String QuestIconName;
 
-//// 最后一次被攻击的时间
+//// time of last attack received
 var float LastTakeDamageTime;
 
 var(MMO_Gameplay)      int     DropMoneyCountMin  <DisplayName="DropMoneyCountMin">;
@@ -146,8 +146,8 @@ var(MMO_Gameplay)      int     DropMoneyMax  <DisplayName="DropMoneyMax">;
 var(MMO_ClientClimb) float       JumpUpDistance   <DisplayName="JumpUpDistance">;
 var(MMO_ClientClimb) float       ClimbUpDistance  <DisplayName="ClimbUpDistance">;
 
-// 临时参数 Demo中NPC因为尺寸问题导致脸部渲染出错 所以暂时用静态模型代替
-//var( MMOTest )  bool    UseStaticMesh   <DisplayName="使用静态模型">;
+// temporary parameter: in the Demo the NPC face renders incorrectly due to size issues, so a static mesh is used temporarily
+//var( MMOTest )  bool    UseStaticMesh   <DisplayName="use static mesh">;
 //var( MMOTest )  StaticMeshComponent TempStaticMesh ;
 //var( MMOTest)   StaticMeshComponent    HeadUpComponent1;
 //var( MMOTest)   StaticMeshComponent    HeadUpComponent2;
@@ -159,10 +159,10 @@ var(MMO_Client_AI)   bool    CryForHelp              <DisplayName="CryForHelp">;
 var(MMO_Client_AI)   float   HealthPercentToCFH      <DisplayName="HealthPercentToCFH">;
 var(MMO_Client_AI)   float   RangeOfHelp             <DisplayName="RangeOfHelp">;
 
-//var()   float   CriticalBeatBackDistance        <DisplayName="爆击击退距离">;
-//var()   float   NormalBeatBackDistance          <DisplayName="普通击退距离">;
+//var()   float   CriticalBeatBackDistance        <DisplayName="critical knockback distance">;
+//var()   float   NormalBeatBackDistance          <DisplayName="normal knockback distance">;
 
-//var()   bool    NeedTriggerDeath                <DisplayName="触发死亡事件">;
+//var()   bool    NeedTriggerDeath                <DisplayName="trigger death event">;
 
 var bool    bPendingClimb;
 var Volume  PendingClimbVolume;
@@ -170,7 +170,7 @@ var Volume  PendingClimbVolume;
 
 //---------------------------------------------------------------
 //---------------------------------------------------------------
-// 有效功能的代码写在下面
+// code for effective functionality is written below
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
@@ -183,9 +183,9 @@ enum EQuestHUDStatus
 	EQHUDS_None,
 };
 
-var int MinimapIconID; //小地图UI用
-var int SceneHintID; //场景里的名字 
-var int WorldmapIconID; //小地图UI用
+var int MinimapIconID; //used by minimap UI
+var int SceneHintID; //name in the scene
+var int WorldmapIconID; //used by minimap UI
 
 var transient EQuestHUDStatus HeadUpType;
 
@@ -196,23 +196,23 @@ var   StaticMeshComponent    HeadUpComponent;
 var Vector  ServerMoveDest; // debug only
 
 //---------------------------------------------------------------
-// 可破坏部件
+// destructible parts
 //---------------------------------------------------------------
-//// 当前绑定的可破坏部件,deleted by jimzhang 2012.7.11
+//// currently bound destructible parts, deleted by jimzhang 2012.7.11
 //var array<DestructablePartAttachInfo> AttachedDestructableParts;
 
-// 初始时的可破坏部件列表
+// initial list of destructible parts
 var(MMOAttach) editinline array<DestructablePartAttachInfo> InitAttachDestructableParts <DisplayName="InitAttachDestructableParts">;
 
 
 //---------------------------------------------------------------
-// 状态表现
+// state presentation
 //---------------------------------------------------------------
 
 
 //var(MMOStatusProc) editinline DeathProcDataSet     DeathBeginProcSet;      
 
-//// 死亡表现
+//// death presentation
 //var(MMOStatusProc) editinline array<StatusProcData> DeathBeginProcList;
 //var(MMOStatusProc) editinline array<StatusProcData> DeathEndProcList;
 
@@ -241,7 +241,7 @@ var(MMOServer) int CorpseTime <ExportExcel="10">;
 var(MMOServer) int RespawnTimeMin <ExportExcel="11">;
 var(MMOServer) int RespawnTimeMax <ExportExcel="12">;
 var(MMOServer) int Exp <ExportExcel="13">;
-// 范围为0-16
+// range is 0-16
 var(MMOServer) int ForceID <ExportExcel="14">;
 var(MMOServer) string NPCScriptName <DisplayName="NPCScriptName"|ExportExcel="15">;
 
@@ -262,14 +262,14 @@ var(MMOServer) ENPC_QUALITY Quality <ExportExcel="26">;
 var(MMOServer) ECHAR_SPECIES_TYPE SpeciesType <ExportExcel="27">;
 var(MMOServer) bool Affix <ExportExcel="28">;
 
-//Start 用于SingleNPCSpawnPoint
+//Start used for SingleNPCSpawnPoint
 var                        int   AutoServerID;
 var(MMOServer)  bool  IsAutoSpawn;
 var(MMOServer)	 bool  IsAutoReSpawn;
-//End 用于SingleNPCSpawnPoint
+//End used for SingleNPCSpawnPoint
 
 var(anim) transient float LeftTimeToCheckAboutRestAnim; 
-var int NextSoundTime;          // 注意：此变量使用过程中是无符号的
+var int NextSoundTime;          // note: this variable is unsigned when in use
 
 var EActorClassType OverrideActorType;
 
@@ -307,7 +307,7 @@ native function string GetDebugInfo();
 native function InitBodySize();
 
 native function InitNpcByTemplate(NPCTemplate InTemplate);
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	DebugNativePostBeginPlay();
@@ -333,7 +333,7 @@ simulated event PostBeginPlay()
 
 	//ActorAttributes = new(self) class'ActorAttribute'(ActorAttributes);
 	
-	//add by jimzhang 让npc的门派=势力，便于与角色统一
+	//add by jimzhang make NPC sect = faction, to be consistent with characters
 	ActorAttributes.Faction = ForceID;
 
 	if(Controller == none)
@@ -372,7 +372,7 @@ simulated event Destroyed()
 	//class'MMOHUD'.static.RemoveDrawHUD(self);
 }
 
-//// 初始化工作将会有许多,根据实际功能需求添加,无用的属性不进行复制
+//// there will be a lot of initialization work, add as needed by actual features, useless properties are not copied
 //event InitFromNpcTemplate(NPCTemplate InTemplate)
 //{
 //	local DestructablePartAttachInfo asm;	
@@ -478,7 +478,7 @@ simulated event Destroyed()
 //		asm = new asm.Class ( asm );
 //		AttachDestructablePart(asm);
 
-//		//add by jimzhang 2012.7.18,恢复到idle状态，
+//		//add by jimzhang 2012.7.18, restore to idle state,
 //		if(asm.SkelMeshComponent != none &&   asm.SkelMeshComponent.AnimSets.Length>0)
 //		{
 //			asm.SkelMeshComponent.PlayAnim(  'Idle' ,0.0 , true );
@@ -488,7 +488,7 @@ simulated event Destroyed()
 	
 
 //	//`log("________ InitAttachParSys:" @ InitAttachParSys.Length );
-//	// 从模板添加粒子特效
+//	// add particle effect from template
 //	for(i = 0; i < InitAttachParSys.Length; ++i)
 //	{
 //		psai = new InitAttachParSys[i].Class ( InitAttachParSys[i] );
@@ -546,9 +546,9 @@ native function ProcessStatusProc(array<StatusProcData> procs);
 //	local float randNumb;
 
 //	//`log("********************* ProcessStatusProc" @self);
-//	//随机///////////////////////////////////////////////////////////////////////////////////
+//	//random///////////////////////////////////////////////////////////////////////////////////
 //	randNumb = RandRange(0, 1);
-//	//获取随机选择的index
+//	//get the randomly selected index
 //	for(i = 0; i < procs.Length; ++i)
 //	{
 //		if(randNumb <= procs[i].Rate)
@@ -596,7 +596,7 @@ function SpawnReward()
 
 }
 
-// 获取控制器
+// get controller
 function PossessedBy(Controller C, bool bVehicleTransition)
 {
 	super.PossessedBy( C, bVehicleTransition );
@@ -604,13 +604,13 @@ function PossessedBy(Controller C, bool bVehicleTransition)
 	//Controller.PushState('Idle');     // the pawn shouldn't depend on the controller. @ming
 }
 
-//// 死亡后丢掉武器
+//// drop weapon after death
 //function ThrowWeaponOnDeath()
 //{
 //}
 
 
-// 创建掉落在地上的物理对象
+// create the physics object dropped on the ground
 function CreateDropKActor(StaticMesh sm, vector position, rotator rot)
 {
 	local KActor KA;
@@ -628,7 +628,7 @@ function CreateDropKActor(StaticMesh sm, vector position, rotator rot)
 	KA.StaticMeshComponent.WakeRigidBody();
 }
 
-// 移除无效的可破坏部件信息
+// remove invalid destructible part info
 function RemoveInvalidDestructableParts()
 {
 	local int i;
@@ -648,7 +648,7 @@ function RemoveInvalidDestructableParts()
 	}
 }
 
-// 获取动画控制打断类型，比如受伤害动作是否打断其他正在进行的动作，add by jimzhang 2012.8.10
+// Get animation control interrupt type, e.g. whether hurt animation interrupts other ongoing animations, add by jimzhang 2012.8.10
 event int GetAnimTypeByActor()
 {
 	if(ActorType == EACT_Boss)
@@ -672,10 +672,10 @@ event OnCheckDestructableEquipments()
 	{
 		if((GetHealthPercent() <= dpai.ExplodeHPPercent) && !dpai.DropByNotify)
 		{
-			// 创建爆炸效果
+			// create explosion effect
 			CreateDestructablePartExplodeEmitterBySocket(dpai);
 
-			// 创建掉落 
+			// create drop
 			if(dpai.DestructType == EDRT_Drop)
 			{
 				CreateDropKActor(dpai.MeshAsset,
@@ -693,10 +693,10 @@ event OnCheckDestructableEquipments()
 	//`log("[MMOSFX] 3 ---------------------------------------------------");
 }
 
-// 根据不同的绑定类型创建可破坏部件的爆炸特效
+// create destructible part explosion effects according to different binding types
 function CreateDestructablePartExplodeEmitterBySocket(DestructablePartAttachInfo dpai)
 {
-	// 创建爆炸效果
+	// create explosion effect
 	if(dpai.ExplodeEmitter != none)
 	{
 		CreateDestructablePartExplodeEmitter(
@@ -706,7 +706,7 @@ function CreateDestructablePartExplodeEmitterBySocket(DestructablePartAttachInfo
 	} // emitter
 }
 
-// 创建可破坏部件的爆炸特效
+// create destructible part explosion effect
 function CreateDestructablePartExplodeEmitter(Emitter temp, vector pos, rotator rot)
 {
 	local Emitter sfxEmitter;
@@ -716,7 +716,7 @@ function CreateDestructablePartExplodeEmitter(Emitter temp, vector pos, rotator 
 	sfxEmitter.ParticleSystemComponent.ActivateSystem();
 }
 
-// 动画通知死亡时掉落武器
+// Animation notifies to drop weapon on death
 event OnDeathTrowWeapons()
 {
 	local DestructablePartAttachInfo dpai;
@@ -724,10 +724,10 @@ event OnDeathTrowWeapons()
 	`log("****************** Drop Weapon");
 	foreach AttachedDestructableParts(dpai)
 	{
-		// 创建掉落
+		// create drop
 		if((dpai.DestructType == EDRT_Drop) && dpai.DropByNotify)
 		{
-			// 创建爆炸效果
+			// create explosion effect
 			CreateDestructablePartExplodeEmitterBySocket(dpai);
 
 			CreateDropKActor(dpai.MeshAsset,
@@ -736,7 +736,7 @@ event OnDeathTrowWeapons()
 		}
 	}
 
-	// 死亡后要清除所有的绑定
+	// all bindings must be cleared after death
 	while(AttachedDestructableParts.Length > 0)
 	{
 		DetachDestructablePart(AttachedDestructableParts[0]);
@@ -851,17 +851,17 @@ native function ProcessDefaultDie(byte DieCause);
 
 native function PlayActionById(int ActionId);
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues)
 {	
-	// 继承自ACTOR的类只能用native函数导出
+	// Classes inheriting from ACTOR can only export via native functions
 }
 
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row)
 {
-	// 继承自ACTOR的类只能用native函数导出
+	// Classes inheriting from ACTOR can only export via native functions
 }
 
 native function ExportExcelHeaders(out array<string> Header, out array<string> DefaultValues);
@@ -869,7 +869,7 @@ native function DataToExcel(out array<string> Row);
 native function ImportFromExcel(array<string> values);
 event ScriptImportFromExcel(array<string> Values)
 {	
-	// 继承自ACTOR的类只能用native函数导出
+	// Classes inheriting from ACTOR can only export via native functions
 }
 native function InitDataToExcel();
 native function int GetTemplateID() const;
@@ -919,7 +919,7 @@ DefaultProperties
 		RBChannel=RBCC_Untitled3
 		bUpdateSkelWhenNotRendered=false
 	End Object
-	//Mesh来自GamePawn的基类成员(貌似是设置出生角色)
+	//Mesh comes from the GamePawn base class member (seems to set the spawn character)
 	Mesh=InitialSkeletalMesh;
 	Components.Add(InitialSkeletalMesh);
 	//Begin Object Class=StaticMeshComponent Name=TempStaticMesh1
@@ -1004,7 +1004,7 @@ DefaultProperties
 	DropMoneyMin=10
 	DropMoneyMax=100
 	//AIUpdateDelta=0.2
-	//DeathBeginProcList(0)=（(Rate=0),(Proc(0)=MMOStatusProc_Ragdoll'DeathProcess.DefaultDeathProc')）
+	//DeathBeginProcList(0)=((Rate=0),(Proc(0)=MMOStatusProc_Ragdoll'DeathProcess.DefaultDeathProc'))
 	//ControllerClass=class'MMONPCProxyController'
 
 	PickPriority=EPP_Normal

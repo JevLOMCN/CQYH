@@ -231,7 +231,7 @@ void UMMOGameState_Login::OnEnter()
 		ResetRenderTarget();
 	}
 
-	// 保持这个在最后面
+	// keep this last
 #ifdef _DEBUG
 	RunTestCase();
 #endif
@@ -306,7 +306,7 @@ void UMMOGameState_Login::OnEnter()
 	//		rootObj->GotoAndPlayI( 0 );
 	//	}
 
-	//	//第一次登录会直接进入Login界面 这里不需要调用 
+	//	//the first login goes directly into the Login screen, no need to call this here
 	//	static UBOOL IsFirstOpenGame = TRUE;
 	//	if(  IsFirstOpenGame )
 	//	{
@@ -433,7 +433,7 @@ void UMMOGameState_Selecting::OnEnter()
 	// clear main player effect
 	EffectProcessor::GetSingleton().DeleteAllComponent();
 
-	// 换角色的时候清除相关的道具
+	// clear related items when switching characters
 
 	MMOFacade::getSingleton().ClearSoldItems();
 	MMOFacade::getSingleton().ClearItems();
@@ -448,26 +448,26 @@ void UMMOGameState_Selecting::OnEnter()
 	MMOFacade::getSingleton().GetMainPlayer()->bHoldWeapon = FALSE;
 
 	MailManager::getSingleton().ClearAllMails();
-	//师徒相关数据
+	//master/apprentice related data
 	MasterStudentManager::getSingleton().ClearAll();
 	MMOQuestManager::getSingleton().Clear();
-	//场景
+	//scene
 	MMOMapDataManager::getSingleton().ClearTeleportDynamicData();
 	
 	//MMOArenaManager::getSingleton().ClearArena();
-	// 成就
+	// Achievement
 	MMOAchievementManager::getSingleton().Clear();
-	// 家族
+	// clan
 	MMOGuildManager::getSingleton().Clear();
-	// 新手引导
+	// Tutorial
 	MMOGuideManager::getSingleton().Clear();
-	// 战场
+	// battlefield
 	MMOBattleManager::getSingleton().SetBattleState( EBTLS_NONE );
 	// cd
 	MMOCoolDownManager::getSingleton().ClearAllCD();
-	// 帮助系统
+	// help system
 	MMOHelperManager::getSingleton().Clear();
-	// 新系统开启
+	// new system unlocked
 	MMOSystemActivateManager::getSingleton().Clear();
 
 	MMOHandbookManager::getSingleton().Clear();
@@ -480,9 +480,9 @@ void UMMOGameState_Selecting::OnEnter()
 	FriendManager::getSingleton().ClearAll();
 	MMOHeavenManager::getSingleton().NotifyGameStateChange();
 	MallManager::getSingleton().NotifyGameStateChange();
-	//清除hurt数据
+	//clear hurt data
 	MMOHurtManager::getSingleton().RestHurt();
-	//活动
+	//Activity
 	ActivityManager::getSingleton().Clear();
 
 	MMOJourneyManager::getSingleton().Clear();
@@ -491,13 +491,13 @@ void UMMOGameState_Selecting::OnEnter()
 
 	MMOJigsawManager::getSingleton().RemoveMessageButtionBar();
 
-	//拍卖行
+	//auction house
 	MMOAuctionManager::getSingleton().Reset();
 
  	LoginBase::getSingleton().EnterSelectRole();
  	LoginBase::getSingleton().SelectRole(LoginBase::getSingleton().SelectRoleIndex);
 
-	// 清除所有的UI数据
+	// clear all UI data
 	for(UIMaps::TIterator PairIt(AllUIMaps); PairIt; ++PairIt)
 	{
 		if(PairIt.Value()){
@@ -527,7 +527,7 @@ void UMMOGameState_Selecting::OnEnter()
 		if(	LoginBase::getSingleton().IsFromLogin == TRUE)
 		{
 			LoginBase::getSingleton().IsFromLogin = FALSE;
-			//MMO::ActiveKismetRemoteEvent(TEXT("2-3"));//此kismet结束后通过触发action显示Panel_Login_Select
+			//MMO::ActiveKismetRemoteEvent(TEXT("2-3"));//after this kismet ends, an action triggers showing Panel_Login_Select
 			MMO::ActiveKismetRemoteEvent(TEXT("Login-Select"));
 
 #if BETA_7_7
@@ -569,7 +569,7 @@ void UMMOGameState_Selecting::OnEnter()
 			//GFullScreenMovie->GameThreadWaitForMovie();
 			//GFullScreenMovie->GameThreadStopMovie();
 
-			//MMO::ActiveKismetRemoteEvent(TEXT("2-0-A"));//此kismet结束后通过触发action显示Panel_Login_Create
+			//MMO::ActiveKismetRemoteEvent(TEXT("2-0-A"));//after this kismet ends, an action triggers showing Panel_Login_Create
 			MMO::ActiveKismetRemoteEvent(TEXT("Login-Select-Create"));
 		}
 		else
@@ -678,13 +678,13 @@ void UMMOGameState_Loading::OnLeave()
 		//	LoadMovie->eventSetVisible(FALSE);
 		LoadMovie->eventPreLeave();
 	}
-	// Loading结束后，清除需要在Loading过程中延续播放的环境音乐
+	// After Loading ends, clear the ambient music that needs to keep playing during Loading
 	if (GWorld && GWorld->GetWorldInfo())
 	{
 		GWorld->GetWorldInfo()->ClearAcrossLevelMusicByCueName(TEXT("Bgm_RoleRoom"));	// zhaojun@snda, trick
 	}
 
-	// 加载完要过一段时间才检测
+	// only check after a delay once loading is done
 	g_lastCheckTime = 0;
 	s_averageFPS = 0;
 }
@@ -700,7 +700,7 @@ void UMMOGameState_Loading::OnAftLeave()
 	//	LoadMovie->GetVariableObject(TEXT("root"))->SetVisible(FALSE);
 	//	LoadMovie->eventSetVisible(FALSE);
 	//}
-	//// Loading结束后，清除需要在Loading过程中延续播放的环境音乐
+	//// After Loading ends, clear the ambient music that needs to keep playing during Loading
 	//if (GWorld && GWorld->GetWorldInfo())
 	//{
 	//	GWorld->GetWorldInfo()->ClearAcrossLevelMusicByCueName(TEXT("Bgm_RoleRoom"));	// zhaojun@snda, trick
@@ -758,13 +758,13 @@ void UMMOGameState_InGame::OnEnter()
 
 
 
-	//场景传送站更新
+	//scene teleporter update
 	MMOMapDataManager::getSingleton().ActiveCurSceneTeleports();
-	//更新地图区域(需要在NotifyEnterScene前，map中会用到数据)
+	//update map region (must be before NotifyEnterScene, the map uses this data)
 	MMOMapDataManager::getSingleton().InitCurWorldMapRegionData();
 	Mir2Attack::getSingleton().InitPlayerClassX();
 	MMOFacade::getSingleton().NotifyEnterScene();
-	// TODO:根据上次显示状态恢复所有UI
+	// TODO: restore all UI according to the last display state
  	MMOUI::GetUIManager()->ShowAllPanels(FALSE,TRUE);
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("Buff"), TRUE, "");
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("Minimap"), TRUE, "");
@@ -773,10 +773,10 @@ void UMMOGameState_InGame::OnEnter()
 	MMOUI::GetUIManager()->ShowPanelEx( MMOUI::GetUIManager()->Panel_HudInfo_TeamHint , TRUE, "");
 	MMOUI::GetUIManager()->ShowPanelEx( MMOUI::GetUIManager()->Panel_Friend_FriendChatHint , TRUE, "");
 
-	//竞技场排队
+	//arena queue
 	//if( MMOArenaManager::getSingleton().GetArenaStep() == ArenaStep_Queuing || MMOArenaManager::getSingleton().GetArenaStep() == ArenaStep_WaitEnter )
 	//{
-	//	//总觉得这么写有些不妥，切地图时是否会变状态呢？
+	//	//somehow feels this is not right, does the state change when switching maps?
 	//	MMOArenaManager::getSingleton().OpenArenaQueue( 0 , FALSE );
 	//}
 	
@@ -787,30 +787,30 @@ void UMMOGameState_InGame::OnEnter()
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("MenuBar"), TRUE, "");
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("TeamMate"), TRUE, "");
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("DamageLevel"), TRUE, "");
-	//MMOUI::GetUIManager()->ShowPanel(TEXT("BattleState"), TRUE, "");	//暂时注释掉，陈凯要求的
+	//MMOUI::GetUIManager()->ShowPanel(TEXT("BattleState"), TRUE, "");	//commented out for now, requested by Chen Kai
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("HintButtonBar"), TRUE, "");	
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("MsgButtonBar"), TRUE, "");
 	MMOUI::GetUIManager()->ShowPanelEx(TEXT("MessageBox"), TRUE, "");	
 	//MMOUI::GetUIManager()->delegateShowHintSceneWidget();
-    //Drop 依据配置 是否默认可见会发生变化
+    //Drop default visibility changes according to config
     //MMOUI::GetUIManager()->ShowPanelByDefaultVisible( TEXT("DropItemTips"), "" );
 
-	//是否显示HurtUI
+	//whether to show HurtUI
 	MMOUI::GetUIManager()->ShowHurtPanel(MMOUI::GetUIManager()->DrawHurt);
 
-	//skillbar最后show，因为最后show的会设置focusplayer，响应键盘
+	//show skillbar last, because the last one shown sets the focusplayer and responds to the keyboard
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Skillbar, TRUE, TEXT(""));
 
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_PickWidget_DorpItemTips, TRUE, "");	
    
-	//如果是死亡状态
+	//if in dead state
 	if(  MMOFacade::getSingleton().GetMainPlayer()->eventIsDead() ){
 		MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Death,TRUE,"");
 	}
 
-	// 切场景服务器不发，要自己更新了
+	// the server doesn't send this when switching scenes, so update it ourselves
 	MailManager::getSingleton().NotifyNewMailCount();
-	//是否为战场，显示计分板
+	//whether it is a battlefield, show the scoreboard
 	MMOBattleManager *pBattleMgr = &MMOBattleManager::getSingleton();
 	if( pBattleMgr->IsInBattle() ){
 		//show battle UI
@@ -825,7 +825,7 @@ void UMMOGameState_InGame::OnEnter()
 	MMOHeavenManager::getSingleton().NotifyGameStateChange();
 	MasterStudentManager::getSingleton().NotifyEnterGame();
 	MallManager::getSingleton().NotifyGameStateChange();
-	//加载邮件系统最近联系人
+	//load recent contacts of the mail system
 	MailManager::getSingleton().LoadData();
 
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
@@ -847,12 +847,12 @@ void UMMOGameState_InGame::OnEnter()
 		player->ResetPlaceActorToGroundTimer();
 	}
 
-	// 导航
+	// navigation
 	MMONavigationManager::getSingleton().InitPathEffect();
 	FSMIO::getSingleton().Ctrl.SetKeyType(KT_NONE);
 	
 
-	// 成就（收到G2C_SYNC_REPUTATION的时候，已经有声望的成就达成，那个时候向服务器发送成就完成，服务器收不到，所以在进游戏的时候发）
+	// achievements (when G2C_SYNC_REPUTATION is received, an achievement with existing reputation may already be complete; sending achievement completion to the server then is not received, so send it when entering the game)
 	for (int i = 0; i < MAX_NPC_FORCE_ID; ++ i)
 	{
 		INT reputation = MMOFacade::getSingleton().GetPlayerReputation(MMOFacade::getSingleton().GetMainPlayer(), i);
@@ -863,7 +863,7 @@ void UMMOGameState_InGame::OnEnter()
 	MMOGameEvent_Achievement evtAch2(adVariousForceCount, 0, 0, 0);
 	MMOUI::PostGameEvent(&evtAch2);
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_EnterGame);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -872,7 +872,7 @@ void UMMOGameState_InGame::OnEnter()
 	MMOGameEvent_SceneLoadFinish evt;
 	MMOUI::PostGameEvent(&evt);
 
-	// 必须在LoadingFinish之后发
+	// must be sent after LoadingFinish
 	CMessageHandler::GetInstance().Send_CombatPoseOn(FALSE,0);
 
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Login_Queue, FALSE, "");
@@ -903,7 +903,7 @@ void UMMOGameState_InGame::OnLeave()
 	CMessageHandler::GetInstance().ClearAllCharAppearList();
 #endif
 
-	// 新手引导
+	// Tutorial
 	MMOGuideManager::getSingleton().Clear();
 
 	MMONavigationManager::getSingleton().ShutdownPathEffect();

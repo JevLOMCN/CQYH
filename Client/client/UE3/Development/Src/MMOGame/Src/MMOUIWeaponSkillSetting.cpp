@@ -46,7 +46,7 @@ void UMMOUIWeaponSkillSetting::ShowWeaponSkillInfoPanel( UBOOL isShow, INT skill
 		//_WeaponSkillSettingPanelMc->SetVisible( TRUE );
 		_ToOpWeapon._ConID = containerID;
 		_ToOpWeapon._SlotID = slotID;
-		////如果打开的不是同一个武器技能插槽的信息
+		////If the opened info is not for the same weapon ability slot
 		//if( _CurOperationSkillSlot >= 0 && ( skillSlotIdx != _CurOperationSkillSlot ) && ( _SkillLevelUpItem._ConID >= 0 && _SkillLevelUpItem._SlotID >= 0 ) ){
 		//	UnSetWeaponSkillLevelUpItem();
 		//}
@@ -85,7 +85,7 @@ void UMMOUIWeaponSkillSetting::ResetUI()
 	//
 	UpdateWeaponSkillInfoPanel( _CurOperationSkillSlot );
 
-	//解锁背包铭文物品
+	//Unlock bag inscription item
 	if( _SkillReplaceItem._ConID >= 0 && _SkillReplaceItem._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( _SkillReplaceItem._ConID, _SkillReplaceItem._SlotID, -1 );
 		_SkillReplaceItem._ConID = -1;
@@ -144,13 +144,13 @@ void UMMOUIWeaponSkillSetting::BagSlotChange( INT bagId, INT slotId )
 		return;
 	}
 
-	//武器改变，刷新武器技能
+	//Weapon changed, refresh weapon abilities
 	if( _ToOpWeapon._ConID == bagId && _ToOpWeapon._SlotID == slotId ){
 		UpdateWeaponSkillInfoPanel( _CurOperationSkillSlot );
 	}
 
 	INT slotHotKey = MMOSkillManager::getSingleton().GetSkillSlotDefaultBindEnum( _CurOperationSkillSlot );
-	//替换的技能物品改变
+	//Replaced ability item changed
 	FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( bagId, slotId );
 	if( pItemInfo != NULL && _CurLevelUpItemID == pItemInfo->m_nTemplateID ){
 		UBOOL isSkillActive = FALSE;
@@ -180,11 +180,11 @@ void UMMOUIWeaponSkillSetting::BagSlotChange( INT bagId, INT slotId )
 	//		UnSetWeaponSkillLevelUpItem();
 	//	}
 	//	else{
-	//		//重新设置数量
+	//		//Reset count
 	//		SetWeaponSkillLevelUpItem( _SkillLevelUpItem._ConID, _SkillLevelUpItem._SlotID );
 	//	}
 
-	//	//属性界面数据
+	//	//Attribute UI data
 	//	UpdateWeaponSkillInfoPanel( _CurOperationSkillSlot );
 	//}
 }
@@ -270,7 +270,7 @@ UBOOL UMMOUIWeaponSkillSetting::OnRightMouseClick(class UGFxObject* mc,BYTE Slot
 	//			return TRUE;
 	//		}
 	//		else if( panelSlotID == EWpSkillSetting_SkillLeveUpItem ){
-	//			//当前替换的武器技能
+	//			//Weapon ability currently being replaced
 	//			UnSetWeaponSkillLevelUpItem();
 	//		}
 
@@ -313,11 +313,11 @@ UBOOL UMMOUIWeaponSkillSetting::OnDragDrop( class UGFxObject* srcSlotMC,class UG
 		INT panelSlotID = (INT)destSlotMC->GetFloat( TEXT("EquipID") );
 		if( destSlotType == ESPType_WeaponSkillSetting ){
 			if( panelSlotID == EWpSkillSetting_Skill ){
-				//当前铸魂的武器
+				//Weapon currently being soul-forged
 				ReplaceWeaponSkill( _CurOperationSkillSlot, srcContainerID, srcSlotID );
 			}
 			//else if( panelSlotID == EWpSkillSetting_SkillLeveUpItem ){
-			//	//放入升级材料
+			//	//Place upgrade materials
 			//	FString errorHint = SetWeaponSkillLevelUpItem( srcContainerID, srcSlotID );
 			//	if( !errorHint.IsEmpty() ){
 			//		MMOUI::GetUIManager()->delegateAddScreenMessage( *errorHint );
@@ -334,7 +334,7 @@ UBOOL UMMOUIWeaponSkillSetting::OnDragDrop( class UGFxObject* srcSlotMC,class UG
 				return TRUE;
 			}
 			//else if( panelSlotID == EWpSkillSetting_SkillLeveUpItem ){
-			//	//技能升级材料
+			//	//Ability upgrade materials
 			//	UnSetWeaponSkillLevelUpItem();
 			//}
 		}
@@ -356,17 +356,17 @@ void UMMOUIWeaponSkillSetting::UpdateWeaponSkillInfoPanel( INT skillSlotIdx )
 	INT slotHotKey = MMOSkillManager::getSingleton().GetSkillSlotDefaultBindEnum( skillSlotIdx );
 	UMMOAbility *weaponSkill = mmoEquipMgr.GetWeaponRuneSkillByCmdKey( slotHotKey, _ToOpWeapon._ConID, _ToOpWeapon._SlotID, isSkillActive );
 
-	//当前魂值
+	//Current soul value
 	INT curSoulPoints = Player->GetMoney( E_MONEYTYPE_SOUL_PTS );
 	if( _RequireMoneyCurConditionTf != NULL ){
 		_RequireMoneyCurConditionTf->SetString( TEXT("text"), appItoa( curSoulPoints ) );
 	}
 
-	//升级材料
+	//Upgrade materials
 	AutoCheckAndSetWeaponSkillLeveUpItem( weaponSkill );
 
 	if( !isSkillActive || weaponSkill == NULL || weaponSkill->MainSkill == NULL ){
-		//尚未激活或是没有主技能
+		//Not yet activated or no main ability
 		GFXPlayer->eventCallSetItemData( _CurWeaponSkillSlot, 0, TEXT(""), -1 , ESPType_WeaponSkillSetting, TEXT("") );
 		_WeaponSkillNameTf->SetString( TEXT("text"), TEXT("") );
 		_CurSkillLvTf->SetString( TEXT("text"), TEXT("") );
@@ -377,11 +377,11 @@ void UMMOUIWeaponSkillSetting::UpdateWeaponSkillInfoPanel( INT skillSlotIdx )
 		return;
 	}
 
-	//技能图标
+	//Ability icon
 	UINT uniqueSkillID = MMOSkillManager::CombinateAbilityID( weaponSkill->eventGetAbilityId(), weaponSkill->SpellCommonAttribute.Level, weaponSkill->GetRuneSlot() );
 	GFXPlayer->eventCallSetItemData( _CurWeaponSkillSlot , 0 , weaponSkill->GetAbilityIconName() , uniqueSkillID, ESPType_WeaponSkillSetting ,TEXT("") );
 
-	//技能名字
+	//Ability name
 	FString skillName;
 	skillName = weaponSkill->ClientCommonAttribute.AbilityName;
 	if( weaponSkill->MainSkill != NULL ){
@@ -389,11 +389,11 @@ void UMMOUIWeaponSkillSetting::UpdateWeaponSkillInfoPanel( INT skillSlotIdx )
 	}
 	_WeaponSkillNameTf->SetString( TEXT("text"), skillName );
 
-	//当前技能等级
+	//Current ability level
 	INT curSkillLv = weaponSkill->SpellCommonAttribute.Level;
 	_CurSkillLvTf->SetString( TEXT("text"), appItoa( curSkillLv ) );
 
-	//升级目标技能等级
+	//Upgrade target ability level
 	MMOSkillManager &mmoSkillMgr = MMOSkillManager::getSingleton();
 	UMMOAbility *nextLvSkill = mmoSkillMgr.GetAbilityWithRuneByNextLevel( weaponSkill );
 	UBOOL isMaxLv = ( nextLvSkill == NULL );
@@ -404,7 +404,7 @@ void UMMOUIWeaponSkillSetting::UpdateWeaponSkillInfoPanel( INT skillSlotIdx )
 		_NextSkillLvTf->SetString( TEXT("text"), appItoa( curSkillLv + 1 ) );
 	}
 
-	//当前主技能等级
+	//Current main ability level
 	FString curConditionText;
 	const UMMOAbility *myLearnedMainSkill = mmoSkillMgr.FindMyLearnedMainSkill( weaponSkill->eventGetAbilityId() );
 	INT curParentSkillLv = 0;
@@ -420,7 +420,7 @@ void UMMOUIWeaponSkillSetting::UpdateWeaponSkillInfoPanel( INT skillSlotIdx )
 	}
 	_CurConditionTf->SetString( TEXT("text"), curConditionText );
 
-	//需求主技能等级
+	//Required main ability level
 	FString requireText = weaponSkill->MainSkill->eventGetAbilityName();
 	requireText += appItoa( curSkillLv + 1 );
 	requireText += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.SkillLvPostfix") );
@@ -457,7 +457,7 @@ void UMMOUIWeaponSkillSetting::UpdateWeaponSkillInfoPanel( INT skillSlotIdx )
 //============================================================================================================
 void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility *weaponSkill )
 {
-	//清理
+	//cleanup
 	_SkillLevelUpItems.Empty();
 	if( _WeaponSkillLevelUpCntTf != NULL ){
 		_WeaponSkillLevelUpCntTf->SetString( TEXT("htmlText"), TEXT("") );
@@ -473,7 +473,7 @@ void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility
 
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 
-	//获得铭文升级消耗数据
+	//Get inscription upgrade cost data
 	INT targetSkillLv = weaponSkill->SpellCommonAttribute.Level + 1;
 	UINT uniqueSkillID = MMOSkillManager::CombinateAbilityID( weaponSkill->eventGetAbilityId(), targetSkillLv, weaponSkill->GetRuneSlot() );
 	RuneSkillLevelUpConsum *runeSkillLevelUpItemData = MMOSkillManager::getSingleton().GetRuneSkillLevelUpConsum( uniqueSkillID );
@@ -482,7 +482,7 @@ void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility
 		return;
 	}
 
-	//设置图标
+	//Set icon
 	_CurLevelUpItemID = runeSkillLevelUpItemData->_ItemID;
 	UItem *pItemToHelpLevelUp = mmoFacade.FindItemTemplate( _CurLevelUpItemID );
 	if( pItemToHelpLevelUp == NULL ){
@@ -491,13 +491,13 @@ void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility
 	}
 	GFXPlayer->eventCallSetItemData( _WeaponSkillLevelUpSlot, 1, mmoFacade.GetItemIconNamePersonalized( pItemToHelpLevelUp ), pItemToHelpLevelUp->ItemId, ESPType_WeaponSkillSetting, TEXT(""), pItemToHelpLevelUp->ItemColor+1, -1, -1 );
 
-	//设置数量
+	//Set count
 	FString cntString;
 	INT levelUpNeedItemCnt = runeSkillLevelUpItemData->_ItemCnt;
-	//是否满级
+	//Whether max level
 	if( levelUpNeedItemCnt > 0 ){
 		INT totalHaveCnt = 0;
-		//轮询包裹找出此类物品数量
+		//Iterate the bag to find the count of this kind of item
 		UINT bagCapability = Player->ItemManager->CurCapacity( E_CONSLOT_DEFAULT );
 		for( UINT j = 0; j < bagCapability; ++j){
 			const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
@@ -511,7 +511,7 @@ void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility
 				_SkillLevelUpItems.Push( newPos );
 			}
 		}
-		//是否足够，不足标红
+		//Whether enough; mark red if insufficient
 		if( totalHaveCnt < levelUpNeedItemCnt ){
 			cntString = UITextParser::HTMLBeginFont( UITextParser::GetTipsColor(TEXT("AlertColor")));
 			//
@@ -533,7 +533,7 @@ void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility
 	//
 	//UpdateLevelUpBtnState();
 
-	////所需金钱
+	////Required money
 	//if( _RequireMoneyConditionTf != NULL ){
 	//	_RequireMoneyConditionTf->SetString( TEXT("htmlText"), cntString );
 	//}
@@ -574,7 +574,7 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 		_SkillLevelUpItem._ConID = -1;
 		_SkillLevelUpItem._SlotID = -1;
 
-		//刷新相关显示
+		//refresh related display
 		if( _WeaponSkillLevelUpCntTf != NULL ){
 			_WeaponSkillLevelUpCntTf->SetString( TEXT("htmlText"), TEXT("") );
 		}
@@ -582,20 +582,20 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 		return rstHint;
 	}
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pInfo == NULL ){
 		rstHint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND") );
 		return rstHint;
 	}
 
-	//是否在界面中放入了铸魂武器
+	//Whether a soul-forged weapon is placed in the UI
 	if( _ToOpWeapon._ConID < 0 ||  _ToOpWeapon._SlotID < 0 ){
 		rstHint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_NEED_WEAPON_INPUT") );
 		return rstHint;
 	}
 
-	//铸魂武器在此槽上的技能
+	//Ability of the soul-forged weapon in this slot
 	UBOOL isSkillActive = FALSE;
 	INT slotHotKey = MMOSkillManager::getSingleton().GetSkillSlotDefaultBindEnum( _CurOperationSkillSlot );
 	UMMOAbility *weaponSkill = mmoEquipMgr.GetWeaponRuneSkillByCmdKey( slotHotKey, _ToOpWeapon._ConID, _ToOpWeapon._SlotID, isSkillActive );
@@ -604,18 +604,18 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 		return rstHint;
 	}
 
-	//获得铭文升级消耗数据
+	//Get inscription upgrade cost data
 	INT targetSkillLv = weaponSkill->SpellCommonAttribute.Level + 1;
 	UINT uniqueSkillID = MMOSkillManager::CombinateAbilityID( weaponSkill->eventGetAbilityId(), targetSkillLv, weaponSkill->GetRuneSlot() );
 	RuneSkillLevelUpConsum *runeSkillLevelUpItemData = MMOSkillManager::getSingleton().GetRuneSkillLevelUpConsum( uniqueSkillID );
 	if( runeSkillLevelUpItemData == NULL ){
 		warnf(NAME_Error, TEXT("======!!!!======= [UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem GetRuneSkillLevelUpConsum[%d-%d-%d] NOT Found]"), weaponSkill->eventGetAbilityId(), weaponSkill->SpellCommonAttribute.Level, weaponSkill->GetRuneSlot() );
-		//最高等级
+		//Max level
 		rstHint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_MAX") );
 		return rstHint;
 	}
 
-	//是否是暗属性石
+	//Whether it is a dark attribute stone
 	if(pInfo->m_nTemplateID != runeSkillLevelUpItemData->_ItemID ){
 		UItem* pItem = mmoFacade.FindItemTemplate( runeSkillLevelUpItemData->_ItemID );
 		rstHint = TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_UP_NOT_A_SUITABLE_ITEM"); 
@@ -627,7 +627,7 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 		return rstHint;
 	}
 
-	//解锁背包内原先放入界面中的装备
+	//unlock the equipment previously placed in the UI from the bag
 	if( _SkillLevelUpItem._ConID >= 0 && _SkillLevelUpItem._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _SkillLevelUpItem._ConID == E_CONSLOT_DEFAULT){
 			MMOFacade::getSingleton().LockItem( _SkillLevelUpItem._ConID, _SkillLevelUpItem._SlotID, -1 );
@@ -637,10 +637,10 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 	_SkillLevelUpItem._ConID = containerID;
 	_SkillLevelUpItem._SlotID = slotID;
 
-	//设置界面ItemSlot
-	//计算数量
+	//set UI ItemSlot
+	//Calculate count
 	//if( !WeaponSkillLevelUpItemCnt.IsValidIndex( weaponSkill->SpellCommonAttribute.Level - 1 ) ){
-	//	//都认为已经满级了
+	//	//All considered max level
 	//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_MAX") ) );
 	//	return FALSE;
 	//}
@@ -648,7 +648,7 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 	//UINT levelUpNeedItemCnt = WeaponSkillLevelUpItemCnt( weaponSkill->SpellCommonAttribute.Level - 1 );
 	INT levelUpNeedItemCnt = runeSkillLevelUpItemData->_ItemCnt;
 
-	//是否满级
+	//Whether max level
 	if( levelUpNeedItemCnt <= 0 ){
 		rstHint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_MAX") );
 		return rstHint;
@@ -660,7 +660,7 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 			FString itemName = pItem->GetDisplayName();
 			rstHint = FString::Printf( *MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_UP_NEED_ITEM") ), levelUpNeedItemCnt, *itemName );
 		}
-		//可以放上去，但是升级会失败
+		//Can be placed, but the upgrade will fail
 	}
 	//UINT itemCnt = ( pInfo->m_nCurDur < levelUpNeedItemCnt ? pInfo->m_nCurDur : levelUpNeedItemCnt );
 	//debugf( TEXT("===============[UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem] %d->%d"), pInfo->m_nCurDur, itemCnt );
@@ -677,17 +677,17 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 		_WeaponSkillLevelUpCntTf->SetString( TEXT("htmlText"), cntString );
 	}
 
-	//设置
+	//set
 	UItem *pItemToOperation = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	GFXPlayer->eventCallSetItemData( _WeaponSkillLevelUpSlot, 1, mmoFacade.GetItemIconNamePersonalized( pItemToOperation, pInfo ), pItemToOperation->ItemId, 
 		ESPType_WeaponSkillSetting, TEXT(""), pItemToOperation->ItemColor+1, _SkillLevelUpItem._ConID, _SkillLevelUpItem._SlotID );
 
-	//锁住背包内原先放置的灵
+	//lock the spirit previously placed in the bag
 	//if( pBagPanel != NULL ){
 		MMOFacade::getSingleton().LockItem( _SkillLevelUpItem._ConID, _SkillLevelUpItem._SlotID, ESPType_WeaponSkill );
 	//}
 
-	//刷新相关显示
+	//refresh related display
 
 	return rstHint;
 }
@@ -698,7 +698,7 @@ FString UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem( INT containerID, IN
 //============================================================================================================
 void UMMOUIWeaponSkillSetting::LevleUpWeaponSkill( INT skillSlotIdx )
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_WeaponSkillLvUp);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -716,13 +716,13 @@ void UMMOUIWeaponSkillSetting::LevleUpWeaponSkill( INT skillSlotIdx )
 //-----------------------------------------------------------------------------------------------------------
 UBOOL UMMOUIWeaponSkillSetting::UpdateLevelUpStateAndHint( INT skillSlotIdx )
 {
-	//检查是否有升级目标武器
+	//Check whether there is a weapon to upgrade
 	if( _ToOpWeapon._ConID < 0 || _ToOpWeapon._SlotID < 0 ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_SETTING_NEED_TARGET") ) ,MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_SKILL_SETTING_NEED_TARGET"));
 		return FALSE;
 	}
 
-	//检查消耗品(暗属性石)数量
+	//Check the count of consumables (dark attribute stones)
 	UBOOL isSkillActive = FALSE;
 	INT slotHotKey = MMOSkillManager::getSingleton().GetSkillSlotDefaultBindEnum( skillSlotIdx );
 	UMMOAbility *weaponSkill = MMOEquipManager::getSingleton().GetWeaponRuneSkillByCmdKey( slotHotKey, _ToOpWeapon._ConID, _ToOpWeapon._SlotID, isSkillActive );
@@ -733,7 +733,7 @@ UBOOL UMMOUIWeaponSkillSetting::UpdateLevelUpStateAndHint( INT skillSlotIdx )
 
 	//UINT cntIdx = weaponSkill->SpellCommonAttribute.Level - 1;
 	//if( !WeaponSkillLevelUpItemCnt.IsValidIndex( cntIdx ) ){
-	//	//都认为已经满级了
+	//	//All considered max level
 	//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_MAX") ) );
 	//	return;
 	//}
@@ -753,13 +753,13 @@ UBOOL UMMOUIWeaponSkillSetting::UpdateLevelUpStateAndHint( INT skillSlotIdx )
 		warnf(NAME_Error, TEXT("======!!!!======= [UMMOUIWeaponSkillSetting::SetWeaponSkillLevelUpItem FindItemTemplate[%d] NOT Found]"), runeSkillLevelUpItemData->_ItemID );
 		return FALSE;
 	}
-	//是否满级
+	//Whether max level
 	if( needCnt <= 0 ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_MAX") ),MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_MAX"));
 		return FALSE;
 	}
 
-	//是否符合升级要求
+	//Whether upgrade requirements are met
 	if( !_CurLevelUpRequireOK ){
 		const UMMOAbility *requireMainSkill = weaponSkill->MainSkill;
 		if( requireMainSkill != NULL ){
@@ -771,14 +771,14 @@ UBOOL UMMOUIWeaponSkillSetting::UpdateLevelUpStateAndHint( INT skillSlotIdx )
 		return FALSE;
 	}
 
-	//检查是否有升级的物品
+	//Check whether there are items to upgrade
 	//if( _SkillLevelUpItem._ConID < 0 || _SkillLevelUpItem._SlotID < 0 ){
 	//	FString hint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_LEVEL_UP_NEED_ITEM") );
 	//	MMOUI::GetUIManager()->delegateAddScreenMessage( FString::Printf( *hint, needCnt, *pLevelUpConsumItem->GetDisplayName() ) );
 	//	return;
 	//}
 
-	////检查升级的物品是否足够
+	////Check whether there are enough items for the upgrade
 	//FClientItemInfo *pInfo = MMOFacade::getSingleton().FindItem( _SkillLevelUpItem._ConID, _SkillLevelUpItem._SlotID );
 	//if( pInfo == NULL ){
 	//	return;
@@ -823,10 +823,10 @@ void UMMOUIWeaponSkillSetting::NotifyLevleUpWeaponSkill( INT result )
 			//		MMOUI::GetUIManager()->delegateAddScreenMessage( errorHint );
 			//	}
 			//}
-			//属性界面数据
+			//Attribute UI data
 			UpdateWeaponSkillInfoPanel( _CurOperationSkillSlot );
 		}
-		////刷新技能，技能跟着武器，装备了的武器无法升级武器技能，所以不用刷新
+		////Refresh abilities; abilities follow the weapon, and an equipped weapon cannot have its weapon ability upgraded, so no refresh needed
 		//UBOOL isSkillActive = FALSE;
 		//UMMOAbility *weaponSkill = MMOEquipManager::getSingleton().GetWeaponRuneSkillByCmdKey( _CurOperationSkillSlot, _ToOpWeapon._ConID, _ToOpWeapon._SlotID, isSkillActive );
 		//if( weaponSkill != NULL && Player != NULL ){
@@ -836,7 +836,7 @@ void UMMOUIWeaponSkillSetting::NotifyLevleUpWeaponSkill( INT result )
 		//	INT weaponSkillRuneID = weaponSkill->GetRuneSlot();
 		//	INT curEquippedSkillRuneID = curEquipedSkill->GetRuneSlot();
 		//	if( curEquipedSkill != NULL && weaponSkillRuneID == curEquippedSkillRuneID ){
-		//		//此技能装备了，升级成功后需刷新
+		//		//This ability is equipped, needs refresh after a successful upgrade
 		//		UMMOUISkillBar* pSkillBar = (UMMOUISkillBar*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_Skillbar);
 		//		if( pSkillBar != NULL ){
 		//			pSkillBar->UpdateSkillSlot( curEquipedSkill->SlotID );
@@ -859,7 +859,7 @@ void UMMOUIWeaponSkillSetting::ReplaceWeaponSkill( INT skillSlotIdx, INT contain
 		return;
 	}
 
-	//提示确认替换
+	//Prompt to confirm replacement
 	FScriptDelegate funYes(EC_EventParm);
 	funYes.Object = this;
 	funYes.FunctionName = TEXT( "OnConfirmReplaceWeaponSkill" );
@@ -876,7 +876,7 @@ void UMMOUIWeaponSkillSetting::ReplaceWeaponSkill( INT skillSlotIdx, INT contain
 	//}
 	_SkillReplaceItem._ConID = containerID;
 	_SkillReplaceItem._SlotID = slotID;
-	//锁背包铭文物品
+	//Lock bag inscription item
 	if( _SkillReplaceItem._ConID >= 0 && _SkillReplaceItem._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( _SkillReplaceItem._ConID, _SkillReplaceItem._SlotID, ESPType_WeaponSkillSetting );
 	}
@@ -889,14 +889,14 @@ UBOOL UMMOUIWeaponSkillSetting::CheckReplaceWeaponSkill( INT skillSlotIdx, INT c
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	MMOEquipManager &mmoEquipMgr = MMOEquipManager::getSingleton();
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pInfo == NULL ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND") ) ,MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND"));
 		return FALSE;
 	}
 
-	//是否是是技能物品
+	//Whether it is an ability item
 	UItem *pItemToOperation = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	if( pItemToOperation == NULL || pItemToOperation->ItemType != TEXT("ITEMTYPE_RUNE") ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_NOT_A_SKILL_RUNE") ) ,MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_NOT_A_SKILL_RUNE"));
@@ -915,7 +915,7 @@ UBOOL UMMOUIWeaponSkillSetting::CheckReplaceWeaponSkill( INT skillSlotIdx, INT c
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_SETTING_NEED_TARGET") ) ,MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_SKILL_SETTING_NEED_TARGET"));
 		return FALSE;
 	}
-	//铭文技能是否符合职业需求
+	//Whether the inscription ability meets class requirements
 	//if( itemAbility->SpellCommonAttribute.Class != pItemToOperation->RequireClass ){
 	FClientItemInfo *pWeaponInfo = mmoFacade.FindItem( _ToOpWeapon._ConID, _ToOpWeapon._SlotID );
 	if( pWeaponInfo == NULL ){
@@ -931,7 +931,7 @@ UBOOL UMMOUIWeaponSkillSetting::CheckReplaceWeaponSkill( INT skillSlotIdx, INT c
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_SKILL_REPLACE_NOT_FIT_CLASS") ) ,MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_SKILL_REPLACE_NOT_FIT_CLASS") );
 			return FALSE;
 	}
-	//不能替换进无法绑定此键位的技能
+	//Cannot replace in an ability that cannot bind this key
 	MMOSkillManager &mmoSkillMgr = MMOSkillManager::getSingleton();
 	INT slotHotKey = mmoSkillMgr.GetSkillSlotDefaultBindEnum( skillSlotIdx );
 	UBOOL isBindInThis = mmoSkillMgr.IsSkillBindIn( itemAbility->SpellCommonAttribute.BindSlot, slotHotKey );
@@ -967,7 +967,7 @@ void UMMOUIWeaponSkillSetting::OnCancelReplaceWeaponSkill( UGFxObject *mc )
 {
 	_ReplaceWSkillConfirmBox = NULL;
 
-	//解锁背包铭文物品
+	//Unlock bag inscription item
 	if( _SkillReplaceItem._ConID >= 0 && _SkillReplaceItem._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( _SkillReplaceItem._ConID, _SkillReplaceItem._SlotID, -1 );
 		_SkillReplaceItem._ConID = -1;
@@ -989,10 +989,10 @@ void UMMOUIWeaponSkillSetting::NotifyReplaceWeaponSkill( INT result )
 	FString hint;
 	FString strString;
 	if( result ){
-		//成功
+		//Success
 		hint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ReplaceWeaponSkillSuccess") );
 		strString = TEXT("MMOGame.WeaponSkill.ReplaceWeaponSkillSuccess");
-		//数据刷新在监听包裹物品的函数里做了
+		//Data refresh is done in the function that listens to bag items
 	}
 	else{
 		hint = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ReplaceWeaponSkillFailed") );

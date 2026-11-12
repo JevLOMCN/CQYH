@@ -51,7 +51,7 @@ native final function ASAbortQuest(int id);
 native final function ASAcceptQuestWithoutNpc(int id);
 native final function ASCompleteQuestWithoutNpc(int id);
 native final function ASSelectAward(GFxObject icon, int idx, int itemTemplateID);
-// 悬赏任务
+// bounty quest
 native final function ASUpdateRewardQuestDetail(int id);
 native final function ASUpgradeAvailableLimit();
 native final function ASRefreshRewardQuestList(bool autoRefresh);
@@ -62,13 +62,13 @@ native final function ASAcceptRewardQuest(int id);
 native final function ASAbandonRewardQuest(int id);
 native final function ASUpdateRewardQuestBuyTimes(int times);
 native final function ASBuyTimes(int times);
-// 剧情任务
+// story quest
 native final function ASUpdateCurQuestInfo();
 native final function ASUpdateQuestChapterList();
 native final function ASUpdateQuestStageList(int chapter);
 native final function ASViewStoryQuestStageInfo(int chapter, int stage);
 
-// 道具回收任务
+// Item recycling quest
 native final function ASSubmitItem(int questId, int itemId, int itemIndex);
 
 function AbortQuestOK(GFxObject mc)

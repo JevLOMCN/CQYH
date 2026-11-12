@@ -1,5 +1,5 @@
 //
-// 角色属性管理，战斗属性数值计算
+// character attribute management, combat attribute calculation
 //
 class ActorAttribute extends Object
 	native
@@ -10,115 +10,115 @@ class ActorAttribute extends Object
 
 var array<INT> AttributeList;
 //---------------------------------------------------------------
-// 战斗属性结构、计算函数
+// combat attribute structs and calculation functions
 //---------------------------------------------------------------
 
-// 等级属性
+// level attributes
 struct native LevelAttribute
 {
 
-	// 等级
+	// level
 	var() int Level;
 
-	// 最大等级
+	// max level
 	var() int MaxLevel;
 
-	// 当前经验
+	// current experience
 	var() int CurrentExp;
 
-	// 升级经验
+	// experience to level up
 	var() int MaxExp;
 };
 
-// 基础属性
+// base attributes
 struct native BaseAttribute
 {
-	// 力道 影响外攻
+	// strength, affects external attack
 	var() int Strength;
 
-	// 气劲 影响内攻
+	// qi, affects internal attack
 	var() int Intellect;
 
-	// 筋骨 影响HP HP回复 外防
+	// physique, affects HP, HP recovery, external defense
 	var() int Stamina;
 
-	// 内息 影响角色的MP、MP回复、内功防御
+	// inner breath, affects character MP, MP recovery, internal defense
 	var() int Spirit;
 
-	// 身法 影响角色的闪避、化劲
+	// agility, affects character dodge, resilience
 	var() int Agility;
 
-	// 意念 影响角色的命中，致命
+	// willpower, affects character hit and critical
 	var() int Impression;
 };
 
-// 攻击属性
+// attack attributes
 struct native AttackAttribute
 {
-	// 外攻攻击
+	// external attack
 	var int CurrentMeleeAttack;
 	var() int MeleeAttackMin;
 	var() int MeleeAttackMax;
 
-	// 内攻攻击
+	// internal attack
 	var int CurrentSpellAttack;
 	var() int SpellAttackMin;
 	var() int SpellAttackMax;
 
-	// 命中率 角色攻击命中的程度，普通攻击、技能攻击都有命中问题
+	// hit rate, how well the character's attacks hit; both normal and ability attacks have hit checks
 	var() float HitRating;
 
-	// 致命 战斗中出现加倍伤害的几率，单位：% 
+	// critical, chance of double damage in combat, unit: %
 	var() float CriticalChance;
 
-	// 攻击浮动值范围
+	// attack fluctuation range
 	var() Vector2D AttackRatioRange;
 };
 
-// 防御属性
+// defense attributes
 struct native DefenseAttribute
 {
-	// 外防 物理伤害用护甲来减免伤害
+	// external defense, physical damage is reduced by armor
 	var() int Armor;
 	
-	// 内防 法术抗性 法术伤害用搞性来减免伤害
+	// internal defense, spell resistance, spell damage is reduced by resistance
 	var() int SpellResistance;
 
-	// 闪避 角色躲避攻击的能力
+	// dodge, character's ability to avoid attacks
 	var() float Dodge;
 
-	// 化劲 降低被致命的几率，单位：%  就是挈性
+	// resilience, reduces chance of being critically hit, unit: %
 	var() float Resilience;
 
-	// 格挡参数
+	// block parameters
 	var() float BlockChance;
 	var() float BlockReduce;
 };
 
-// 扩展属性
+// extended attributes
 struct native ExtendAttribute
 {
-	// 伤害加成
+	// damage bonus
 	var() int DamageBonus;
 };
 
-// 伤害计算结果
+// damage calculation result
 struct native DamageResult
 {
-	// 伤害类型
+	// damage type
 	var EDamageResultType Type;
 
-	// HP增加或减少
+	// HP increase or decrease
 	var int HPChange;
 
-	// MP增加或减少
+	// MP increase or decrease
 	var int MPChange;
 
-	// 爆击伤害量
+	// critical hit damage amount
 	var int CriticalHit;
-	//主角自己受伤
+	//main character is hurt
 	var bool MainRole; 
-	// 格挡减免伤害量
+	// damage reduced by block
 	var int BlockReduce;
 };
 
@@ -140,67 +140,67 @@ struct native HeavenAttribute
 //var(MMO) Reputation ReputationList[ MAX_NPC_FORCE_ID ];
 var array<Reputation> ReputationArray;
 
-var      int        MoveTypeId;//移动模式，0正常，1棋子移动模式
-var      int        MoveDirId; //移动方向副参数模式，0默认，1234，左右前后
+var      int        MoveTypeId;//move mode, 0 normal, 1 chess piece move mode
+var      int        MoveDirId; //move direction sub-parameter mode, 0 default, 1234 left/right/front/back
 var      byte       PkMode;
 var      int        PkValue;
 var      byte       TitleID;
-var      int        Growth;     //成长行
-var      bool       IsGreyName; //是否灰名
+var      int        Growth;     //growth row
+var      bool       IsGreyName; //whether grey name
 var      byte       PetLevel;
-var      string     FrameEx1;   //名字特殊效果1
-var      string     FrameEx2;   //名字特殊效果2
-var      string     ColorEx1;   //名字特殊颜色1
-var      string     ColorEx2;   //名字特殊颜色2
+var      string     FrameEx1;   //name special effect 1
+var      string     FrameEx2;   //name special effect 2
+var      string     ColorEx1;   //name special color 1
+var      string     ColorEx2;   //name special color 2
 //------------------------------------------------------------------------
 
 var localized string ClassName[6];
 
-// 等级属性
+// level attributes
 var(MMO) LevelAttribute LevelAttributes;
 
-// 基础属性
+// base attributes
 var(MMO) BaseAttribute BaseAttributes;
 
-// 基础伤害
+// base damage
 var(MMO) AttackAttribute BaseAttackAttribute;
 
-// 基础防御
+// base defense
 var(MMO) DefenseAttribute BaseDefenseAttribute;
 
 
 
-// 当前血量
+// current HP
 var(MMO) int HP;
 
-// 最大血量
+// max HP
 var(MMO) int MaxHP;
 
-// 当前蓝量
+// current MP
 var(MMO) int MP;
 
-// 最大蓝量
+// max MP
 var(MMO) int MaxMP;
 
-// 是否能回血、回蓝
+// whether HP/MP can regenerate
 var(MMO) bool EnableRegenHPMP;
 
-// 门派
+// sect
 var(MMO) int Faction;
 
 var(MMO) EPlayerClass   ClassType;
 var(MMO) EGenderType    GenderType;
 
-var init array<int> ClientPlayerAttributes; //服务器同步的数组
+var init array<int> ClientPlayerAttributes; //array synced from server
 
-// 装备附加属性
+// equipment bonus attributes
 var BaseAttribute       BonusAttributes;
 var AttackAttribute     BonusAttackAttributes;
 var DefenseAttribute    BonusDefenseAttributes;
 
-//境界
+//realm
 var HeavenAttribute      heavenAttributes;
-//坐骑
+//mount
 var int MountID;
 var array<int> MountList;
 // wing (wings.txt ID) the character wears, 0: none
@@ -408,7 +408,7 @@ function ChangeBonusDefenseAttributes( DefenseAttribute attri, bool add )
 	}
 }
 
-// 计算攻击属性
+// calculate attack attributes
 function AttackAttribute GetAttackAttribute()
 {
 	local AttackAttribute attack;
@@ -428,7 +428,7 @@ function AttackAttribute GetAttackAttribute()
 	return attack;
 }
 
-// 计算防御属性
+// calculate defense attributes
 function DefenseAttribute GetDefenseAttribute()
 {
 	local DefenseAttribute defense;
@@ -447,7 +447,7 @@ function DefenseAttribute GetDefenseAttribute()
 }
 
 
-// 自动回血回蓝
+// auto HP/MP regeneration
 function RegenHPMP(float deltaTime)
 {
 	if(!EnableRegenHPMP)

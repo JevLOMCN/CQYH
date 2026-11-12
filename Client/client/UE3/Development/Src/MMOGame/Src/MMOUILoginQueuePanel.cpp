@@ -67,26 +67,26 @@ void UMMOUILoginQueuePanel::UpdateQueueTime(INT32 total, INT32 pos)
 	UINT32 time = 0;
 	BOOL showTime = FALSE;
 
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	FLOAT curTimeSec = MMOFacade::getSingleton().ConvertSystemTimeToTmTSecond( curTime );
 
-	//与上次时间差
+	//Time difference from last time
 	FLOAT secDiff = abs(curTimeSec - MMOLoginManager::getSingleton().GetLastQueueTime());
 
-	//名次差
+	//Rank difference
 	FLOAT posDiff = abs(MMOLoginManager::getSingleton().GetLastQueuePos() - pos);
 
 	FLOAT myPosTime = 0.0f;
 
 	if(posDiff != 0)
 	{
-		//一个位子需要的时间
+		//Time needed for one position
 		myPosTime = (secDiff / posDiff) > 0 ? (secDiff / posDiff) : 1;
 	}
 
-	//一个位子大概需要的时间
+	//Approximate time needed for one position
 	if (secDiff >= 0 && posDiff >= 0)
 	{
 		time = myPosTime * pos;

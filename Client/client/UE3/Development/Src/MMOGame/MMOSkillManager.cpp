@@ -80,7 +80,7 @@ void MMOSkillManager::Init()
 
 void MMOSkillManager::ResetPersonalData()
 {
-	//变身后技能组
+	//ability group after transformation
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	if( ctrl != NULL ){
 		ctrl->SetTransformState( FALSE );
@@ -91,7 +91,7 @@ void MMOSkillManager::ResetPersonalData()
 	if( mainActor != NULL ){
 		mainActor->ResetAbilities();
 	}
-	//学会的主技能
+	//learned main ability
 	_MyLearnedMainSkills.Empty();
 	_MyLearnedmainSkillsByBook.Empty();
 	for( TMap< INT, TMap< INT, UMMOAbility* > >::TIterator it(_MyLearnedSkillsByEquip); it; ++it ){
@@ -99,11 +99,11 @@ void MMOSkillManager::ResetPersonalData()
 		equipAbilitiesMap.Empty();
 	}
 	_MyLearnedSkillsByEquip.Empty();
-	//刚学会的技能
+	//newly learned ability
 	_NewLearnedSkills.Empty();
-	//刚解锁的技能槽
+	//newly unlocked ability slot
 	_NewUnlockSkillSlots.Empty();
-	//技能动态记录的数据
+	//data dynamically recorded for ability
 	_SkillDynData.Empty();
 }
 
@@ -222,7 +222,7 @@ void MMOSkillManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 
 			INT toUpdateSkillEquipID = -1;
 			if( lvUpSkillEvt->SkillRuneID == 0 ){
-				//是主技能的更新,默认更新当前起效的技能
+				//update of main ability, by default updates the currently effective ability
 				UMMOAbility *selfLearnedAbility = FindMyLearnedMainSkillByBook( toUpdateSkillID );
 				if( selfLearnedAbility != NULL ){
 					toUpdateSkillEquipID = -1;
@@ -234,7 +234,7 @@ void MMOSkillManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			
 			UpdateAbility( lvUpSkillEvt->SkillID, 0, lvUpSkillEvt->NewLevel, toUpdateSkillEquipID );
 
-			//相关的系统提示
+			//related system prompt
 			AMMOPlayer *mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 			UMMOAbility *ability = mainPlayer->GetMainAbilityById( lvUpSkillEvt->SkillID );
 			if( ability != NULL ){
@@ -243,7 +243,7 @@ void MMOSkillManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 				MMOChatManager::getSingleton().AddSystemMessage( sMsg );
 			}
 
-			////技能设置面板
+			////ability settings panel
 			//UMMOUISkillSettingPanel *skillSettingPanel = (UMMOUISkillSettingPanel*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_SkillSetting );
 			//if( skillSettingPanel != NULL && skillSettingPanel->IsVisible ){
 			//	skillSettingPanel->UpdateCurSkills();
@@ -256,7 +256,7 @@ void MMOSkillManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			//
 			MMOPowerManager::getSingleton().UpdatePartPower(PowerPart_SkillPow);
 
-			// 引导任务
+			// Guide quest
 			MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_UpgradeSkill);
 		}
 		break;
@@ -274,7 +274,7 @@ void MMOSkillManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 	case GameEvent_ShowSkillRange:
 		{
 			if( TRUE ){
-				//美术表现欠佳，策划要求暂时下架此功能
+				//art presentation is poor, designer requests this feature be taken down for now
 				break;
 			}
 
@@ -427,7 +427,7 @@ void MMOSkillManager::AddMyLearnedMainSkillsBySkillBook()
 				continue;
 			}
 			else{
-				//来自装备的技能
+				//ability from equipment
 				UpdateAbility( skillID, 0, abilityLearnedByBook->SpellCommonAttribute.Level );
 			}
 		}
@@ -452,13 +452,13 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 
 	////
 	//if( equipID != -1 ){
-	//	//通过装备获得的
+	//	//obtained through equipment
 	//	UMMOAbility* myLearnedSkillByEquip = FindMyLearnedMainSkillByEquip( skillID );
 	//	if( myLearnedSkillByEquip != NULL ){
-	//		//已经通过其他装备获得过，需要更新等级
+	//		//already obtained through other equipment, level needs updating
 	//		INT curSkillLv = myLearnedSkillByEquip->SpellCommonAttribute.Level;
 	//		if( skillLv > curSkillLv ){
-	//			//前一次获得的技能等级较低，需要替换
+	//			//the previously obtained ability level is lower, needs replacing
 	//			UpdateAbility( skillID, 0, curSkillLv );
 	//			return;
 	//		}
@@ -475,15 +475,15 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 		AddMyLearnedMainSkillByBook( uniqueSkillID );
 	}
 
-	//选取真正起效的技能
+	//select the ability that actually takes effect
 	UINT toAddAbilityUniqueID;
 	UMMOAbility *selfLearnedAbility = FindMyLearnedMainSkillByBook( skillID );
 	if( selfLearnedAbility != NULL ){
-		//自己学会的技能优先选
+		//abilities learned by self take priority
 		toAddAbilityUniqueID = MMOSkillManager::CombinateAbilityID( selfLearnedAbility->eventGetAbilityId(), selfLearnedAbility->SpellCommonAttribute.Level );
 	}
 	else{
-		//其次是装备上附带获取的技能
+		//next are abilities granted by equipment
 		INT curActiveEquipSkillEquipID = FindCurrentActiveEquipSkill( skillID );
 		UMMOAbility *curActiveEquipAbility = FindMyLearnedMainSkillByEquip( skillID, curActiveEquipSkillEquipID );
 		if( curActiveEquipAbility == NULL ){
@@ -495,11 +495,11 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 
 	UMMOAbility *curActiveAbilityLearned = FindMyLearnedMainSkill( skillID );
 	if( curActiveAbilityLearned == NULL ){
-		//新学会的技能，正常加入
+		//newly learned ability, add normally
 		AddMyLearnedMainSkill( toAddAbilityUniqueID );
 	}
 	else{
-		//已学会过的技能，只做更新
+		//already learned ability, only update
 		UINT toUpdateSkillID = 0;
 		UINT toUpdateSkillLv = 0;
 		UINT noUsed = 0;
@@ -511,7 +511,7 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 
 	//
 	if( isSkillNew ){
-		//新技能
+		//new ability
 		AddNewLearnedSkill( uniqueSkillID );
 
 		MMOGameEvent_SkillUiUpdate uiEvt( MMOGameEvent_SkillUiUpdate::ESkillUiEvent_NewSkillLearned );
@@ -520,7 +520,7 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 
 		MMOPowerManager::getSingleton().UpdatePartPower(PowerPart_SkillPow);
 
-		//聊天频道提示
+		//chat channel prompt
 		FString sMsg;
 		sMsg = FString::Printf( *MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.SkillBookLearned" )), *UITextParser::HTMLFormatMessageSkillColor( toAddAbility ) );
 		if(skillID==3400)
@@ -530,7 +530,7 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 
 		MMOChatManager::getSingleton().AddSystemMessage( sMsg ); 
 
-		//特效提示
+		//effect prompt
 		AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 		if( mainPlayer == NULL ){
 			return;
@@ -542,7 +542,7 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 	UMMOAbility* ability = FindAbilityTemplate(uniqueSkillID);
 	if (ability)
 	{
-		// 成就
+		// Achievement
 		MMOGameEvent_Achievement evtAch1(adLearnSpell, skillID, 0, 0);
 		MMOUI::PostGameEvent(&evtAch1);
 
@@ -574,11 +574,11 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 		MMOGameEvent_Achievement evtAch3(adActiveSpellCount, activeAbilityCount, 0, 0);
 		MMOUI::PostGameEvent(&evtAch3);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_LearnSkill);
 		MMOUI::PostGameEvent(&evtGuide);
 
-		//  引导任务
+		//  tutorial quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_LearnSkill, skillID);
 	}
 }
@@ -586,30 +586,30 @@ void MMOSkillManager::HandleAllAddedMainSkills( INT skillID, INT skillLv, INT eq
 void MMOSkillManager::HandleAllDelMainSkills( INT skillID, INT equipID )
 {
 	if( equipID != -1 ){
-		//通过装备获得的
+		//obtained through equipment
 		DelMyLearnedMainSkillByEquip( skillID, equipID );
 
-		//如果有两件同一技能的装备
+		//if there are two equipment pieces with the same ability
 		INT curActiveEquipSkillEquipID = FindCurrentActiveEquipSkill( skillID );
 		if( curActiveEquipSkillEquipID != -1 ){
 			UMMOAbility *curActiveEquipAbility = FindMyLearnedMainSkillByEquip( skillID, curActiveEquipSkillEquipID );
 			if( curActiveEquipAbility != NULL ){
-				//另有一件装备提供此技能
+				//another equipment piece provides this ability
 				UMMOAbility *selfLearnedSkill = FindMyLearnedMainSkillByBook( skillID );
 				if( selfLearnedSkill == NULL ){
-					//此技能由装备学会，需要更新人物技能
+					//this ability is learned from equipment, character abilities need updating
 					UpdateAbility( skillID, curActiveEquipAbility->SpellCommonAttribute.Level, curActiveEquipSkillEquipID );
 				}
 			}
 		}
 		else{
-			//是否自身学过该类技能
+			//whether self has learned this kind of ability
 			UMMOAbility *selfLearnedSkill = FindMyLearnedMainSkillByBook( skillID );
 			if( selfLearnedSkill == NULL ){
-				//没学过这技能，就得删除当前有效技能列表中删除
+				//if not learned, it must be removed from the current effective ability list
 				DelMyLearnedMainSkill( skillID );
 
-				//换装备时处理了
+				//handled when changing equipment
 				MMOGameEvent_SkillUiUpdate uiEvt( MMOGameEvent_SkillUiUpdate::ESkillUiEvent_NewSkillForget );
 				uiEvt.MagicInt = skillID;
 				MMOUI::PostGameEvent(&uiEvt);
@@ -617,9 +617,9 @@ void MMOSkillManager::HandleAllDelMainSkills( INT skillID, INT equipID )
 		}
 	}
 	else{
-		//自身习得
+		//self-learned
 		DelMyLearnedMainSkillByBook( skillID );
-		//是否装备上也有这类技能可以代替使用
+		//whether equipment also has this kind of ability that can be used instead
 		INT curActiveEquipSkillEquipID = FindCurrentActiveEquipSkill( skillID );
 		if( curActiveEquipSkillEquipID != -1 ){
 			UMMOAbility *curEquipSkill = FindMyLearnedMainSkillByEquip( skillID, curActiveEquipSkillEquipID );
@@ -628,7 +628,7 @@ void MMOSkillManager::HandleAllDelMainSkills( INT skillID, INT equipID )
 			}
 		}
 		else{
-			//也没有可用的装备技能
+			//also no usable equipment ability
 			DelMyLearnedMainSkill( skillID );
 			//
 			MMOGameEvent_SkillUiUpdate uiEvt( MMOGameEvent_SkillUiUpdate::ESkillUiEvent_NewSkillForget );
@@ -644,7 +644,7 @@ void MMOSkillManager::HandleAllDelMainSkills( INT skillID, INT equipID )
 	MMOPowerManager::getSingleton().UpdatePartPower(PowerPart_SkillPow);
 }
 //==================================================================================================================
-//现在起效的所有所学技能（自身学习和装备获得）
+//all learned abilities currently in effect (self-learned and from equipment)
 const TMap< INT, UMMOAbility* > &MMOSkillManager::GetMyLearnedMainSkills()
 {
 	return _MyLearnedMainSkills;
@@ -709,7 +709,7 @@ void MMOSkillManager::DelMyLearnedMainSkill( UINT skillID )
 	_MyLearnedMainSkills.Remove( skillID );
 }
 //==================================================================================================================
-//自身习得的技能
+//self-learned abilities
 UMMOAbility *MMOSkillManager::FindMyLearnedMainSkillByBook( INT skillID )
 {
 	UMMOAbility **pAbility = _MyLearnedmainSkillsByBook.Find( skillID );
@@ -743,7 +743,7 @@ void MMOSkillManager::DelMyLearnedMainSkillByBook( INT skillID )
 	
 }
 //==================================================================================================================
-//通过身上的装备暂时获得的技能
+//abilities temporarily obtained through worn equipment
 INT MMOSkillManager::FindCurrentActiveEquipSkill( INT skillID )
 {
 	TMap< INT, UMMOAbility* > *pEquipAbilitiesMap = _MyLearnedSkillsByEquip.Find( skillID );
@@ -777,7 +777,7 @@ INT MMOSkillManager::FindCurrentActiveEquipSkill( INT skillID )
 
 	return curActiveEquipID;
 }
-//通过身上的装备暂时获得的技能
+//abilities temporarily obtained through worn equipment
 void MMOSkillManager::GetEquipmentEquipSkillBy( INT onEquipSlotIdx, TArray<UMMOAbility*> &equipSkillArray )
 {
 	equipSkillArray.Empty();
@@ -960,7 +960,7 @@ INT MMOSkillManager::GetSkillbarSlotIdxByKeyCmd( INT cmdIdx )
 	for (INT i = 0; i < UCONST_SkillBarSlotMax; ++i)
 	{
 		if( _SkillBarSlotRedirect[i] == cmdIdx ){
-			//slot一一对应cmdIdx
+			//slot corresponds one-to-one with cmdIdx
 			return i;
 		}
 	}
@@ -974,12 +974,12 @@ UBOOL MMOSkillManager::RedirectSkillSlot( INT slotIdx, INT toCmdKey, UBOOL isNee
 		return FALSE;
 	}
 	if( slotIdx == 0 || toCmdKey == ECK_Slot1 ){
-		//0键不能换
+		//key 0 cannot be changed
 		return FALSE;
 	}
 
 	if( toCmdKey < ECK_Slot1 || toCmdKey > ECK_Slot6 ){
-		//默认只能这几个键
+		//by default only these keys are allowed
 		return FALSE;
 	}
 	_SkillBarSlotRedirect[slotIdx] = toCmdKey;
@@ -1004,7 +1004,7 @@ UBOOL MMOSkillManager::ExchangeRedirectSkillSlot( INT slotIdx1, INT slotIdx2, UB
 	}
 
 	if( slotIdx1 == 0 || slotIdx2 == 0 ){
-		//0键不能换
+		//key 0 cannot be changed
 		return FALSE;
 	}
 
@@ -1049,7 +1049,7 @@ void MMOSkillManager::ReflashSkillSlotRedirection( INT32* addr, INT size )
 	for( INT i = 0; i < UCONST_SkillBarSlotMax; ++i ){
 		INT serverData= pp[i];
 		if( serverData < ECK_Slot1 || serverData > ECK_Slot12 ){
-			//数据错了，用默认的
+			//data is wrong, use default
 			continue;
 		}
 		RedirectSkillSlot( i, (ECommandKey)serverData );
@@ -1131,7 +1131,7 @@ void MMOSkillManager::SetSkillSlotIcon( INT id, const FString& IconName )
 
 
 //==================================================================================================================================
-//技能数据
+//ability data
 //==================================================================================================================================
 
 TArray<class UMMOAbility*> MMOSkillManager::GetAllAbilities() const
@@ -1154,7 +1154,7 @@ void MMOSkillManager::ReflashSkillOutlineData()
 	_AllMainAbilityIDList.AddZeroed( EPCT_MAX );
 	for(int i = 0;i < _AllMainAbilityIDList.Num() ; ++i )
 	{
-		//所有技能大类
+		//all ability categories
 		_AllMainAbilityIDList(i).AddZeroed( ESUIType_Total );
 	}
 
@@ -1174,7 +1174,7 @@ void MMOSkillManager::ReflashSkillOutlineData()
 		INT tESUIT = GetESUITypeByAbility( readData );
 		if( (tESUIT >= 0) && (0 == readData->RuneSlotID) )
 		{
-			//展开适用的职业 一般就对应一个职业
+			//expand applicable classes, generally corresponds to a single class
 			ConvertSpellType(ClassUsble, readData->Class);
 
 			for( int n = 0; n < ClassUsble.Num(); ++n )
@@ -1284,7 +1284,7 @@ void MMOSkillManager::ClearAbilityTemplates()
 	_AllMainAbilityIDList.AddZeroed( EPCT_MAX );
 	for(int i = 0;i < _AllMainAbilityIDList.Num() ; ++i )
 	{
-		//所有技能大类
+		//all ability categories
 		_AllMainAbilityIDList(i).AddZeroed( ESUIType_Total );
 	}
 }
@@ -1295,11 +1295,11 @@ void MMOSkillManager::ClearAbilityTemplates()
 //	if( !tData )
 //		return;
 //
-//	//先获得符文对应的主技能 
+//	//first get the main ability corresponding to the rune
 //	UMMOAbility* tMainActive = MMOFacade::getSingleton().GetMainPlayer()->GetMainAbilityById( tData->wSpellID );
 //
-//	//符文等级是与主技能相同的
-//	//绕 好吧 一切为了流量
+//	//rune level is the same as the main ability
+//	//roundabout, well, all for traffic
 //	if( !tMainActive )
 //		return;
 //
@@ -1333,7 +1333,7 @@ void MMOSkillManager::IniRuneData( )
 	{
 		if( it->second )
 		{
-			//RuneSlot走的是SpellSlot协议 比Sync走的早一些 同样角色进来 会有问题
+			//RuneSlot uses the SpellSlot protocol, which arrives earlier than Sync, the same character entering would have problems
 			//it->second->SetRuneSlot( 0 );
 			it->second->RuneDurability = 0;
 			it->second->RuneDurabilityType = 0;
@@ -1360,8 +1360,8 @@ UMMOAbility* MMOSkillManager::LoadAbility(UINT skillID, UINT skillRuneID, UINT s
 	AbilityTemplateMap::iterator it = _abilityTemplateMap.find(uniqueTemplateID);
 	if(it != _abilityTemplateMap.end())
 	{
-		// 有重复的就不再创建,给出warning
-		M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("此技能数据已经加载[%s] [ID:%d,LV:1,Rune:%d]"), *dataPath, skillID, skillRuneID));
+		// do not create duplicates, give a warning
+		M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("This ability data is already loaded [%s] [ID:%d,LV:1,Rune:%d]"), *dataPath, skillID, skillRuneID));
 		return NULL;
 	}
 
@@ -1401,10 +1401,10 @@ UMMOAbility* MMOSkillManager::LoadAbility(UINT skillID, UINT skillRuneID, UINT s
 		abilityTemplete->AddToRoot();
 		AddAbilityTemplate(uniqueTemplateID, abilityTemplete);
 
-		//玩家可见主动技能非符文
+		//player-visible active ability, not rune
 		bool IsMainActive = false;
 
-		//技能归类
+		//ability classification
 		int tESUIT = GetESUITypeByAbility( abilityTemplete );
 
 		if( 0 == abilityTemplete->GetRuneSlot() && ESUIType_Active == tESUIT)
@@ -1417,7 +1417,7 @@ UMMOAbility* MMOSkillManager::LoadAbility(UINT skillID, UINT skillRuneID, UINT s
 		//	abilityTempleteOfLvOne->SkillGuiID = ++guiID;
 		//}
 
-		//记录主技能，方便游戏中使用查询
+		//record main abilities for easy lookup during gameplay
 		TArray<UBOOL> ClassUsble;
 		ClassUsble.AddZeroed( EPCT_MAX );
 
@@ -1425,7 +1425,7 @@ UMMOAbility* MMOSkillManager::LoadAbility(UINT skillID, UINT skillRuneID, UINT s
 			&& (0 == abilityTemplete->GetRuneSlot())
 			&& (skillLv == 1) )
 		{
-			//展开适用的职业 一般就对应一个职业
+			//expand applicable classes, generally corresponds to a single class
 			ConvertSpellType(ClassUsble, abilityTemplete->SpellCommonAttribute.Class);
 
 			for( int n = 0; n < ClassUsble.Num(); ++n )
@@ -1441,8 +1441,8 @@ UMMOAbility* MMOSkillManager::LoadAbility(UINT skillID, UINT skillRuneID, UINT s
 	}
 	else
 	{
-		// TODO:放配置
-		M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("主技能模板没有加载成功 [%s] [ID:%d,LV:%d,Rune:%d]"), *dataPath, skillID, 0, skillRuneID));
+		// TODO: put in config
+		M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("Main ability template failed to load [%s] [ID:%d,LV:%d,Rune:%d]"), *dataPath, skillID, 0, skillRuneID));
 		return NULL;
 	}
 
@@ -1454,18 +1454,18 @@ UMMOAbility* MMOSkillManager::LoadAbilityFromLevelOne( UINT skillID, UINT skillR
 	UMMOAbility* abilityTempleteOfLvOne = LoadAbility( skillID, skillRuneID, 0, dataPath );
 	if(abilityTempleteOfLvOne)
 	{
-		//changed by JimZhang@snda.com 在模板中将等级展开
+		//changed by JimZhang@snda.com expand levels in the template
 		if(abilityTempleteOfLvOne->bCanExpandAbilityByLevel)
 		{
 			//UBOOL isAdded = FALSE;
-			//第一级的技能已经加过，这里从第二级开始
+			//level 1 ability has already been added, start from level 2 here
 			for(int level = abilityTempleteOfLvOne->SpellCommonAttribute.Level + 1; level <= MAX_SPELL_LEVEL; level++)
 			{
 				UINT Key = MMOSkillManager::CombinateAbilityID(abilityTempleteOfLvOne->SpellCommonAttribute.Id, level, abilityTempleteOfLvOne->GetRuneSlot() );
 
 				if( FindAbilityTemplateNoWarning(Key) )
 				{
-					// 有重复的就不再创建
+					// do not create duplicates
 					continue;
 				}
 
@@ -1474,13 +1474,13 @@ UMMOAbility* MMOSkillManager::LoadAbilityFromLevelOne( UINT skillID, UINT skillR
 
 				if(subAbility)
 				{
-					//将展开的技能等级写入
+					//write the expanded ability levels
 					subAbility->SpellCommonAttribute.Level = level;
 					subAbility->AddToRoot();
 
 					//if( IsMainActive )
 					//{
-					//	//等级上不展开
+					//	//do not expand by level
 					//	subAbility->SkillGuiID = guiID;
 					//}
 
@@ -1525,8 +1525,8 @@ UBOOL MMOSkillManager::InitAbility( UMMOAbility* ability )
 		}
 		else
 		{
-			// TODO:放配置
-			warnf(NAME_Warning, TEXT("技能升级数据没有找到, %s ID:%d Lv:%d Rune:%d"), *ability->GetFullName(),
+			// TODO: put in config
+			warnf(NAME_Warning, TEXT("Ability upgrade data not found, %s ID:%d Lv:%d Rune:%d"), *ability->GetFullName(),
 				ID, ability->SpellCommonAttribute.Level, ability->GetRuneSlot());
 			return FALSE;
 		}
@@ -1548,7 +1548,7 @@ UBOOL MMOSkillManager::InitAbility( UMMOAbility* ability )
 
 		if( !spellDat->SpellName.IsEmpty() )
 		{
-			//策划要求 #10371，用spell_var的名字代替upk配置名
+			//designer request #10371, use spell_var name instead of upk config name
 			ability->ClientCommonAttribute.AbilityName = spellDat->SpellName;
 		}
 		
@@ -1561,8 +1561,8 @@ UBOOL MMOSkillManager::InitAbility( UMMOAbility* ability )
 	}
 	else
 	{
-		// TODO:放配置
-		warnf(NAME_Log, TEXT("技能变量没有找到, %s ID:%d Lv:%d Rune:%d"), *ability->GetFullName(),
+		// TODO: put in config
+		warnf(NAME_Log, TEXT("Ability variable not found, %s ID:%d Lv:%d Rune:%d"), *ability->GetFullName(),
 			ID, ability->SpellCommonAttribute.Level, ability->GetRuneSlot());
 		return FALSE;
 	}
@@ -1599,7 +1599,7 @@ class UMMOAbility* MMOSkillManager::FindAbilityTemplate(UINT templateID)
 	}
 
 	INT baseAbilityID = CombinateAbilityID(skillID, 0, skillRuneID);
-	//// 先找spell.txt表项技能，如果没加载就把此表项技能先加载全（所有等级）
+	//// first look up the spell.txt table entry ability; if not loaded, load all of this entry's abilities first (all levels)
 	//it = _abilityTemplateMap.find(baseAbilityID);
 
 	it = _abilityTemplateMap.find(templateID);
@@ -1607,10 +1607,10 @@ class UMMOAbility* MMOSkillManager::FindAbilityTemplate(UINT templateID)
 	FString dataPath;
 	if(it == _abilityTemplateMap.end() )
 	{
-		const AbilityTemplateDataIndex* dat = AbilityTemplateDataIndexManager::getSingleton().FindData(baseAbilityID);//只有1级数据
+		const AbilityTemplateDataIndex* dat = AbilityTemplateDataIndexManager::getSingleton().FindData(baseAbilityID);//only level 1 data
 		if(!dat)
 		{
-			M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("[MMOSkillManager::FindAbilityTemplate] 主技能模板索引数据没从spell.txt中找到[ID:%d,LV:%d,Rune:%d]"), skillID, skillLv, skillRuneID));
+			M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("[MMOSkillManager::FindAbilityTemplate] Main ability template index data not found in spell.txt [ID:%d,LV:%d,Rune:%d]"), skillID, skillLv, skillRuneID));
 
 			return NULL;
 		}
@@ -1621,7 +1621,7 @@ class UMMOAbility* MMOSkillManager::FindAbilityTemplate(UINT templateID)
 			LoadAbility(dat->TemplateID, dat->RuneSlotID, skillLv, dataPath);
 		}
 
-		// 加载完了再查一次，没有的话就说明真没有了
+		// look up again after loading; if still missing, it truly does not exist
 		it = _abilityTemplateMap.find(templateID);
 	}
 
@@ -1630,7 +1630,7 @@ class UMMOAbility* MMOSkillManager::FindAbilityTemplate(UINT templateID)
 		return it->second;
 	}
 
-	M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("技能模板没找到，有可能是没有展开[%s] [ID:%d,LV:%d,Rune:%d]"), *dataPath, skillID, skillLv, skillRuneID));
+	M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("Ability template not found, it may not have been expanded [%s] [ID:%d,LV:%d,Rune:%d]"), *dataPath, skillID, skillLv, skillRuneID));
 	return NULL;
 
 #if 0
@@ -1750,7 +1750,7 @@ UBOOL MMOSkillManager::IsSkillUsableForPlayer( UMMOAbility *pInAbility, INT play
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
-//读取技能
+//read abilities
 void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("LoadAbilityTemplates"), 0);
@@ -1759,7 +1759,7 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 
 	M_SCOPE_MEM_PROF(__MEMPROF__, TEXT("Facade::LoadAbilityTemplates"));
 
-#if 0 // 延期加载
+#if 0 // deferred loading
 	AbilityTemplateDataIndexManager::DataTypeMap::const_iterator it = AbilityTemplateDataIndexManager::getSingleton().GetDataMap().begin();
 	for (; it != AbilityTemplateDataIndexManager::getSingleton(). GetDataMap().end(); ++it)
 	{
@@ -1778,10 +1778,10 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 
 #if 0
 
-    //所有玩家可见主动技能（非符文）的唯一标识从0开始
+    //unique identifier of all player-visible active abilities (non-rune) starts from 0
     int  guiID = -1;
 
-	//所有职业
+	//all classes
 	_AllMainAbilityIDList.AddZeroed( EPCT_MAX );
 	
 	TArray<UBOOL> ClassUsble;
@@ -1789,7 +1789,7 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 
 	for(int i = 0;i < _AllMainAbilityIDList.Num() ; ++i )
 	{
-		//所有技能大类
+		//all ability categories
 		_AllMainAbilityIDList(i).AddZeroed( ESUIType_Total );
 	}
 
@@ -1811,7 +1811,7 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 			if( !Package )
 			{
 				M_AddDataError(TEXT("spell.txt"),
-					FString::Printf(TEXT("无法加载任务数据包: %s"), *pkgs(i) );
+					FString::Printf(TEXT("Cannot load quest data package: %s"), *pkgs(i) );
 				continue;;
 			}
 
@@ -1824,9 +1824,9 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 				UMMOAbility* pAbilityTemplete = Cast<UMMOAbility>(Package->GetNetObjectAtIndex(j));
 				if(pAbilityTemplete)
 				{
-                    //玩家可见主动技能非符文
+                    //player-visible active ability, not rune
                     bool IsMainActive = false;
-					//技能归类
+					//ability classification
 					int tESUIT = GetESUITypeByAbility( pAbilityTemplete );
 
 					if( 0 == pAbilityTemplete->GetRuneSlot() && ESUIType_Active == tESUIT){
@@ -1836,7 +1836,7 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
                         pAbilityTemplete->SkillGuiID = ++guiID;
 					}
 
-					//changed by JimZhang@snda.com 在模板中将等级展开
+					//changed by JimZhang@snda.com expand levels in the template
 					UBOOL isAdded = FALSE;
 					for(int level=pAbilityTemplete->SpellCommonAttribute.Level;level<=MAX_SPELL_LEVEL;level++)
 					{
@@ -1848,12 +1848,12 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 								int UUU=0;
 							}*/
 							UINT Key = MMOSkillManager::CombinateAbilityID(pAbility->SpellCommonAttribute.Id, level, pAbility->GetRuneSlot() );
-							//将展开的技能等级写入
+							//write the expanded ability levels
 							pAbility->SpellCommonAttribute.Level = level;
 							pAbility->AddToRoot();
                             if( IsMainActive )
                             {
-                                //等级上不展开
+                                //do not expand by level
                                 pAbility->SkillGuiID = guiID;
                             }
 
@@ -1864,10 +1864,10 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 							//	//pAbility->RemoveFromRoot();
 							//}
 
-							//所有技能索引只记录一级
+							//all ability indexes record only level 1
 							if( (isAdded == FALSE) && (tESUIT >= 0) )
 							{
-								//展开适用的职业 一般就对应一个职业
+								//expand applicable classes, generally corresponds to a single class
 								ConvertSpellType(ClassUsble, pAbility->SpellCommonAttribute.Class);
 
 								for( int n = 0;n < ClassUsble.Num(); ++ n )
@@ -1889,7 +1889,7 @@ void MMOSkillManager::LoadAbilityTemplates(EPlayerClass playerClass)
 	//ReadSpellVar();
 	//ReadRuneVar();
 	//AutoLinkAbilityRune();
-	//读取技能升级表 需要符文完成链接之后进行
+	//read ability upgrade table, must be done after rune linking is complete
 	//ReadSpellProgress();
 
 #endif
@@ -1904,10 +1904,10 @@ UBOOL MMOSkillManager::SetSpellVar(UMMOAbility* pAbility,const TCHAR* pName,cons
 
 	FString strName = pName;
 	if( !strName.StartsWith(TEXT("sat")) ){
-		//不是服务器枚举，客户端也没这属性
+		//not a server enum, client has no such attribute either
 		return  TRUE;
 	}
-	//获得客户端真实的属性名
+	//get the real client attribute name
 	strName = strName.Right( strName.Len() - 3 );
 
 	//INT		iValue  = appAtoi(pValue);
@@ -2046,14 +2046,14 @@ UBOOL MMOSkillManager::AddAbilityTemplate( UINT k, UMMOAbility* ability)
 	MMOSkillManager::DecomposeAbilityID( k, skillID, skillLv, skillRuneID );
 	if(i != _abilityTemplateMap.end())
 	{
-		M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("重复的技能模板:ID:%d,Lv:%d,Rune:%d[%s]->[%s]"), skillID, skillLv, skillRuneID,
+		M_AddDataError(TEXT("spell.txt"), FString::Printf(TEXT("Duplicate ability template: ID:%d,Lv:%d,Rune:%d[%s]->[%s]"), skillID, skillLv, skillRuneID,
 			*ability->ClientCommonAttribute.AbilityName, *i->second->ClientCommonAttribute.AbilityName));
 
-		//断开主技能与符文技能的连接
-		//(可能被连接过了，为了使用安全丢弃这个数据)
+		//disconnect main ability from rune ability
+		//(may have been linked already, discard this data for safety)
 		if( skillRuneID > 0 )
 		{
-			//是符文技能
+			//is a rune ability
 			UINT uniqueSkillID = MMOSkillManager::CombinateAbilityID( skillID, skillLv, 0 );
 			UMMOAbility *mainAbility = FindAbilityTemplateNoWarning( uniqueSkillID );
 			if( mainAbility != NULL )
@@ -2062,7 +2062,7 @@ UBOOL MMOSkillManager::AddAbilityTemplate( UINT k, UMMOAbility* ability)
 			}
 		}
 		else{
-			//是主技能
+			//is a main ability
 			INT runeSkillCnt = ability->SubRuneList.Num();
 			for( INT i = 1; i <= runeSkillCnt; ++i )
 			{
@@ -2085,10 +2085,10 @@ UBOOL MMOSkillManager::AddAbilityTemplate( UINT k, UMMOAbility* ability)
 		ability->ParseGroupIds();
 		_abilityTemplateMap.insert(std::make_pair(k, ability));
 
-		//连接主技能与符文技能
+		//link main ability and rune ability
 		if( skillRuneID > 0 )
 		{
-			//是符文技能
+			//is a rune ability
 			UINT uniqueSkillID = MMOSkillManager::CombinateAbilityID( skillID, skillLv, 0 );
 			UMMOAbility *mainAbility = FindAbilityTemplate( uniqueSkillID );
 			if( mainAbility != NULL )
@@ -2099,11 +2099,11 @@ UBOOL MMOSkillManager::AddAbilityTemplate( UINT k, UMMOAbility* ability)
 			ability->MainSkill = mainAbility;
 		}
 		//else{
-		//	//是主技能
-		//	//bClassType5为True是NPC技能
+		//	//is a main ability
+		//	//bClassType5 being True means NPC ability
 		//	if( !ability->SpellCommonAttribute.Class.bClassType5 )
 		//	{
-		//		//只有角色技能有子技能
+		//		//only character abilities have sub-abilities
 		//		for( INT i = 1; i <= UCONST_MaxSubRuneNum; ++i )
 		//		{
 		//			UINT uniqueSkillID = MMOSkillManager::CombinateAbilityID( skillID, skillLv, i );
@@ -2134,15 +2134,15 @@ void MMOSkillManager::AutoLinkAbilityRune()
 	while(it != _abilityTemplateMap.end())
 	{
 		tAbility = it->second;
-		//如果是一个符文 
+		//if it is a rune
 		if( tAbility!=NULL && tAbility->GetRuneSlot() >0 )
 		{
-			//找到其对应的主技能
+			//find its corresponding main ability
 			UINT Key = MMOSkillManager::CombinateAbilityID( tAbility->SpellCommonAttribute.Id, tAbility->SpellCommonAttribute.Level,0 );
 			tMainAbility = FindAbilityTemplate( Key);
 			if( tMainAbility )
 			{
-				//添加到主技能的符文列表
+				//add to the main ability's rune list
 				tMainAbility->AddSubRune( tAbility->GetRuneSlot(),tAbility );
 			}
 		}
@@ -2155,7 +2155,7 @@ void MMOSkillManager::AutoLinkAbilityRune()
 //======================================================================================================================================================
 //
 //======================================================================================================================================================
-//UI表现上对技能的归类
+//Ability categorization in the UI presentation
 INT MMOSkillManager::GetESUITypeByAbility( UMMOAbility *pAbility )
 {
 		/*
@@ -2182,26 +2182,26 @@ INT MMOSkillManager::GetESUITypeByAbility( UMMOAbility *pAbility )
 		*/
 		/*
 		[ESpell_CastType]
-		SCa_Type1=被动技能
-		SCa_Type2=主动技能
-		SCa_Type3=子技能
-		SCa_Type4=可直接施放的技能
+		SCa_Type1=passive ability
+		SCa_Type2=active ability
+		SCa_Type3=sub-ability
+		SCa_Type4=directly castable ability
 		*/
 	if( ! pAbility )
 		return -1;
-	//隐藏的技能
+	//hidden ability
 	if( ! pAbility->ClientCommonAttribute.ShowOnUI )
 		return -1;
-	//被动技能
+	//passive ability
 	if( pAbility->SpellCommonAttribute.CastType == E_spct_Passive )
 		return ESUIType_Passive;
-	//普通主动技能
+	//normal active ability
 	if( pAbility->SpellCommonAttribute.QTEType == E_spqte_None  && pAbility->SpellCommonAttribute.CastType == E_spct_Active  ) 
 		return ESUIType_Active;
-	//返回对应的QTE类型
+	//return the corresponding QTE type
 	if( pAbility->SpellCommonAttribute.QTEType > 0  && pAbility->SpellCommonAttribute.CastType == E_spct_Active  )
 		return ESUIType_Passive + pAbility->SpellCommonAttribute.QTEType;
-	//子技能及其它
+	//sub-abilities and others
 	else
 		return -1;
 }
@@ -2211,19 +2211,19 @@ INT MMOSkillManager::GetESUITypeByAbility( const struct AbilityTemplateDataIndex
 {
 	if( ! pData )
 		return -1;
-	//隐藏的技能
+	//hidden ability
 	if( ! pData->ShowOnUI )
 		return -1;
-	//被动技能
+	//passive ability
 	if( pData->CastType == E_spct_Passive )
 		return ESUIType_Passive;
-	//普通主动技能
+	//normal active ability
 	if( pData->QTEType == E_spqte_None  && pData->CastType == E_spct_Active  ) 
 		return ESUIType_Active;
-	//返回对应的QTE类型
+	//return the corresponding QTE type
 	if( pData->QTEType > 0  && pData->CastType == E_spct_Active  )
 		return ESUIType_Passive + pData->QTEType;
-	//子技能及其它
+	//sub-abilities and others
 	else
 		return -1;
 }
@@ -2334,7 +2334,7 @@ INT MMOSkillManager::GetSkillBindHotkey( const FSpell_BindSlot &skillBindData )
 }
 
 //======================================================================================================================================================
-//交互技能
+//interaction ability
 UBOOL MMOSkillManager::LoadSpecialSkills()
 {
 	//CTabFile* tabFile = NULL;
@@ -2342,13 +2342,13 @@ UBOOL MMOSkillManager::LoadSpecialSkills()
 	//	return FALSE;
 	//}
 
-	////剔除标题行
+	////Remove the header row
 	//for( INT i = 0+1; i< tabFile->GetRowCount(); i++ ){
 	//	//TArray<FString>& ArrayString = ArrayString2D(i);
 	//	UINT len = tabFile->GetColCount();
 	//	if( len < 3 ){
 	//		M_AddDataError(TEXT("spell.txt"), FString::Printf(
-	//			TEXT("列数错误，第 %d 行"), i ));
+	//			TEXT("column count error, row %d"), i ));
 	//		continue;
 	//	}
 
@@ -2387,7 +2387,7 @@ TArray< SpecialSkill > MMOSkillManager::GetSpecialSkillOfType( SpecailSkillType 
 }
 
 //======================================================================================================================================================
-//是否记录变身中的技能变化
+//whether to record ability changes during transformation
 UBOOL MMOSkillManager::IsSkillChangeNeedCache( INT hotKey )
 {
 	UMMOAbility **ppCachedSkill = _InTransformSkillCache.Find( hotKey );
@@ -2426,7 +2426,7 @@ UMMOAbility *MMOSkillManager::GetInTransformCachedSkillByID( INT skillTemplateID
 	return NULL;
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-//记录变身中的技能变化
+//record ability changes during transformation
 void MMOSkillManager::InTransformStateSkillChanged( INT hotKey, INT skillMainID, INT skillLevel, INT skillRuneIdx, UBOOL isLocked )
 {
 	INT uniqueSkillID = MMOSkillManager::CombinateAbilityID( skillMainID, skillLevel, skillRuneIdx );
@@ -2435,11 +2435,11 @@ void MMOSkillManager::InTransformStateSkillChanged( INT hotKey, INT skillMainID,
 		pNewSkill = MMOSkillManager::getSingleton().FindAbilityTemplate( uniqueSkillID );
 		if( pNewSkill == NULL ){
 			M_AddDataError(TEXT("spell.txt"), FString::Printf(
-				TEXT("变身技能未找到，SkillID:%d LV:%d RuneID:%d"),
+				TEXT("Transform ability not found, SkillID:%d LV:%d RuneID:%d"),
 				skillMainID, skillLevel, skillRuneIdx ));
 		}
 		else{
-			//记录技能对应的快捷键,可能会被擦除，不过PlayerController的EquipNewSpellAndAutoUnequipOld会重新设置上
+			//record the hotkey corresponding to the ability, may be erased, but EquipNewSpellAndAutoUnequipOld of PlayerController will set it again
 			pNewSkill->SlotHotKeyID = hotKey;
 		}
 	}
@@ -2448,7 +2448,7 @@ void MMOSkillManager::InTransformStateSkillChanged( INT hotKey, INT skillMainID,
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-//回复记录的技能变化
+//restore recorded ability changes
 void MMOSkillManager::RecoverCachedSkillsInTransform()
 {
 	AMMOPlayerController *mainPlayerCtrl = MMOFacade::getSingleton().GetMainController();
@@ -2456,7 +2456,7 @@ void MMOSkillManager::RecoverCachedSkillsInTransform()
 		return;
 	}
 	
-	//新清空记录
+	//newly clear records
 	for( TMap< INT, UMMOAbility* >::TIterator itor( _InTransformSkillCache ); itor; ++itor ){
 		ECommandKey hotKey = (ECommandKey)itor.Key();
 		UMMOAbility *oldEquipedSkill = itor.Value();
@@ -2499,7 +2499,7 @@ UBOOL MMOSkillManager::EquipTransformSkillGroupAndCachOldSkills( INT skillGroupI
 		return FALSE;
 	}
 	warnf(NAME_Warning, TEXT("======!!!!==================================== [EquipTransformSkillGroupAndCachOldSkills AT %d]"), skillGroupID );
-	//新清空记录
+	//newly clear records
 	_InTransformSkillCache.Empty();
 	for( INT i = 0; i < SKILL_EQUIP_MAX; ++i ){
 		ECommandKey hotKey = GetGetTransformSkillGroupBindHotKey(i);
@@ -2538,12 +2538,12 @@ UMMOAbility *MMOSkillManager::GetEquippedSkillBySkillID( INT skillTemplateID )
 	}
 
 	UMMOAbility* pEquipedSkill = NULL;
-	//在变身状态,取得被缓存了的装配技能
+	//while transformed, get the cached equipped ability
 	if( mainCtrl->IsTransformed() ){
 		pEquipedSkill = GetInTransformCachedSkillByID( skillTemplateID );
 	}
 
-	//正常状态
+	//normal state
 	if( pEquipedSkill == NULL ){
 		UUIKeyMapManager* keyMapMgr = mainCtrl->KeyMapManager;
 		if( keyMapMgr != NULL){
@@ -2565,12 +2565,12 @@ UMMOAbility *MMOSkillManager::GetEquippedSkill( INT slotHotKey, UBOOL onlyOnSkil
 	}
 
 	UMMOAbility* pEquipedSkill = NULL;
-	//在变身状态,取得被缓存了的装配技能
+	//while transformed, get the cached equipped ability
 	if( mainCtrl->IsTransformed() && onlyOnSkillBar == FALSE ){
 		pEquipedSkill = GetInTransformCachedSkill( slotHotKey );
 	}
 
-	//正常状态
+	//normal state
 	if( pEquipedSkill == NULL ){
 		UUIKeyMapManager* keyMapMgr = mainCtrl->KeyMapManager;
 		if( keyMapMgr != NULL){
@@ -2593,7 +2593,7 @@ INT MMOSkillManager::GetEquippedSkillTemplateID( INT slotHotKey )
 
 	//
 	INT equipedSkillID = -1;
-	//在变身状态,取得被缓存了的装配技能
+	//while transformed, get the cached equipped ability
 	if( mainCtrl->IsTransformed() ){
 		UMMOAbility *cachedSkill = GetInTransformCachedSkill( slotHotKey );
 		if( cachedSkill != NULL ){
@@ -2601,7 +2601,7 @@ INT MMOSkillManager::GetEquippedSkillTemplateID( INT slotHotKey )
 		}
 	}
 
-	//正常状态
+	//normal state
 	if( equipedSkillID <= 0 ){
 		UUIKeyMapManager* keyMapMgr = mainCtrl->KeyMapManager;
 		if( keyMapMgr != NULL){
@@ -2622,19 +2622,19 @@ void MMOSkillManager::UpdateAbility( INT mainAbilityID, INT abilityRuneID, INT l
 		return;
 	}
 
-	//是否装备过该技能
+	//whether this ability was equipped
 	UMMOAbility *pEquipedSkill = GetEquippedSkillBySkillID( mainAbilityID );
-	INT slotBindHotKey = ( pEquipedSkill != NULL ? pEquipedSkill->SlotHotKeyID : -1 );//一定要先得，mainPlayer->UpdateAbility会做清理
+	INT slotBindHotKey = ( pEquipedSkill != NULL ? pEquipedSkill->SlotHotKeyID : -1 );//must be obtained first, mainPlayer->UpdateAbility will clean up
 
-	//先更新技能数据（换高等级技能）,清除旧技能CD，hotKeyBingding信息
+	//first update ability data (change to higher level ability), clear old ability CD and hotKeyBinding info
 	mainPlayer->UpdateAbility( mainAbilityID, abilityRuneID, level );
 
-	//后，如果先前装配的是该技能，替换快捷键绑定的技能到该技能的新等级
+	//afterwards, if this ability was equipped before, replace the ability bound to the hotkey with the new level of this ability
 	if( pEquipedSkill != NULL && abilityRuneID == pEquipedSkill->GetRuneSlot() ){
 		//
 		UBOOL isCached = mainCtrl->IsTransformed() && IsSkillChangeNeedCache( slotBindHotKey );
 		if( isCached ){
-			//正装配着该技能
+			//this ability is currently equipped
 			InTransformStateSkillChanged( slotBindHotKey, mainAbilityID, level, abilityRuneID, FALSE );
 		}
 		else if( mainCtrl->KeyMapManager ){
@@ -2645,20 +2645,20 @@ void MMOSkillManager::UpdateAbility( INT mainAbilityID, INT abilityRuneID, INT l
 	//
 	UINT toUpdateAbilityUniqueID = MMOSkillManager::CombinateAbilityID( mainAbilityID, level, abilityRuneID );
 	if( abilityRuneID == 0 ){
-		//是主技能更新
+		//is a main ability update
 		if( equipID != -1 ){
-			//更新装备获取的技能信息
+			//update ability info obtained from equipment
 			AddMyLearnedMainSkillByEquip( toUpdateAbilityUniqueID, equipID );
 		}
 		else{
-			//更新自身学会的技能信息
+			//update self-learned ability info
 			AddMyLearnedMainSkillByBook( toUpdateAbilityUniqueID );
 		}
 
 		//
 		UMMOAbility *toUpdateAbility = FindAbilityTemplate( toUpdateAbilityUniqueID );
 		if( toUpdateAbility != NULL ){
-			//直接替换新的
+			//directly replace with new
 			_MyLearnedMainSkills.FindOrAdd( mainAbilityID ) = toUpdateAbility;
 		}
 	}
@@ -2670,18 +2670,18 @@ void MMOSkillManager::UpdateAbility( INT mainAbilityID, INT abilityRuneID, INT l
 }
 
 //===============================================================================================
-//设置主技能
+//Set main ability
 void MMOSkillManager::SendEquipSpell( INT slotHotKey, INT skillID )
 {
 	//UMMOAbility *curEquippedSkill = GetEquippedSkill( slotHotKey );
 	//INT curEquippedSkillID = ( curEquippedSkill != NULL ? curEquippedSkill->eventGetAbilityId() : 0 );
 	//if( curEquippedSkill == NULL || curEquippedSkillID != skillID ){
-	//	//与原设置不相同才设置
+	//	//set only if different from the original setting
 		CMessageHandler::GetInstance().Send_EquipSpell( slotHotKey, skillID );
 	//}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-//设置符文技能
+//set rune ability
 void MMOSkillManager::SendEquipRuneSkill( INT slotHotKey, INT runeSlotId )
 {
 	//UMMOAbility *curEquippedSkill = GetEquippedSkill( slotHotKey );
@@ -2711,7 +2711,7 @@ ECommandKey MMOSkillManager::GetGetTransformSkillGroupBindHotKey( INT bindSlotId
 	return ECK_MAX;
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-//变身后技能组
+//ability group after transformation
 UBOOL MMOSkillManager::LoadTransformSkillGroup()
 {
 	//TArray<TArray<FString>> ArrayString2D;
@@ -2782,7 +2782,7 @@ void SpellVarDataProcessor::ParseData( SpellVarData* obj, class CTabFile* dataRo
 	obj->Value4 = TReadDataValue_FString<SpellVarManager>(TEXT("Value4"), dataRow, rowIdx);
 
 	obj->DetailDescription = TReadDataValue_FString<SpellVarManager>(TEXT("DetailDescription"), dataRow, rowIdx);
-	//新版tips增加了一些内容
+	//new tips added some content
 	obj->SpellName = TReadDataValue_FString<SpellVarManager>(TEXT("SpellName"), dataRow, rowIdx);
 	obj->MainSpeciality = TReadDataValue_FString<SpellVarManager>(TEXT("MainSpeciality"), dataRow, rowIdx);
 	obj->SecondSpeciality = TReadDataValue_FString<SpellVarManager>(TEXT("SecondSpeciality"), dataRow, rowIdx);

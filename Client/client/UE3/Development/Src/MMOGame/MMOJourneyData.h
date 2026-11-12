@@ -16,21 +16,21 @@ enum
 
 enum JourneyType
 {
-	JT_STORY = 0,			 // 剧情
-	JT_MONSTER,				 // 怪物
-	JT_ACHIEVEMENT,			 // 成就
-	JT_EMERGENCY,            // 事件          
+	JT_STORY = 0,			 // story
+	JT_MONSTER,				 // monster
+	JT_ACHIEVEMENT,			 // achievement
+	JT_EMERGENCY,            // event
 	JT_BOSS,				 // BOSS
-	JT_ACTIVITY,             // 活动
-	JT_GUIDE,                // 引导
-	JT_GUILD,                // 公会
+	JT_ACTIVITY,             // activity
+	JT_GUIDE,                // guide
+	JT_GUILD,                // guild
 	JT_TOTAL,
 };
 
 enum JourneyMonsterType
 {
-	JMT_NORMAL = 0,			 // 普通怪
-	JMT_ELITE,				 // 精英怪
+	JMT_NORMAL = 0,			 // normal monster
+	JMT_ELITE,				 // elite monster
 	JMT_BOSS,				 // BOSS
 };
 
@@ -44,7 +44,7 @@ struct MonsterMapData
 	FVector2D MonsterPoint;
 };
 
-// 强者之路数据
+// Path of the Strong data
 struct JourneyData
 {
 	INT32 Id;

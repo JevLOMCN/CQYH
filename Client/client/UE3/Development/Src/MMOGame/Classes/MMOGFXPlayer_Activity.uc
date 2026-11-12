@@ -43,7 +43,7 @@ native function ASClickBackLogin();
 native function ASClickQuitGame();
 native function ASClickQuitGetReward(int nIndex);
 
-//副本大厅相关
+//Dungeon lobby related
 native function ASShowActivityFBView();
 native function ASShowActivityTeamView();
 native function ASClickActivityTeamList(int nTeamId);

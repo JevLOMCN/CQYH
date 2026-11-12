@@ -1,5 +1,5 @@
 //
-// 新的NPC出生点
+// new NPC spawn point
 //
 class NPCNewSpawnPoint extends Actor
 	placeable

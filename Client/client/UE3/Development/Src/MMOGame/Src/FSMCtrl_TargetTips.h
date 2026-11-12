@@ -1,9 +1,9 @@
 /**
  *
- * 游戏虚拟机(FSM)————目标物体信息状态机
+ * Game state machine (FSM) - target object info state machine
  * Add by jimZhang@sdna.com 2014.5.9 
  * 
- * 用来触发一些鼠标拣选物体需要显示的信息
+ * Used to trigger info that needs to be shown when the mouse picks an object
  * 
  */
 
@@ -39,9 +39,9 @@ public:
 
 };
 
-//目标物体弹出tips
+//Target object pops up tips
 
-//目标的头像条-------------------------------------------------------------------------------
+//Target portrait bar-------------------------------------------------------------------------------
 class FSMCtrl_TargetInfoHUD: public IFSMCtrl
 {
 public:
@@ -49,7 +49,7 @@ public:
 	void	Action();
 };
 
-//传送门tips---------------------------------------------------------------------------------
+//Portal tips---------------------------------------------------------------------------------
 class FSMCtrl_TeleportTips: public IFSMCtrl
 {
 public:
@@ -61,7 +61,7 @@ private:
 	UBOOL	IsShowTips;
 };
 
-//Doodad的tips-------------------------------------------------------------------------------
+//Doodad tips-------------------------------------------------------------------------------
 class FSMCtrl_DoodadTips: public IFSMCtrl
 {
 public:

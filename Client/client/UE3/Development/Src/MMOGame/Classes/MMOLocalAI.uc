@@ -1,44 +1,44 @@
 
 
-/** 自动化本地AI处理，模拟玩家进行常规操作 */
+/** Automated local AI handling, simulates a player doing routine operations */
 
 class MMOLocalAI extends Object
     config(MMOLocalAI)
 	native
 	dependson(TypeDefine);
 
-// 单条任务
+// Single quest
 struct native LOCAL_AI_TASK
 {
     var ELocalAICheckType check_type;
     var int task_id;
 };
 
-// 登陆名和密码（如果有值表示启动此功能，否则关闭此功能）
+// Login name and password (if set, this feature is enabled, otherwise disabled)
 var config string UserName;
 var config string Password;
 var config string ConnectIP;
-// 强制新建一个角色进行测试
+// Force creating a new character for testing
 var config bool NewPlayer;
-// 强制从指定主线任务开始做起
+// Force starting from the specified main quest
 var config int TaskStartID;
-// 做几个任务
+// How many quests to do
 var config int TaskDoCount;
-// 是否是详细任务模式
+// Whether in detailed quest mode
 var config bool TaskDetailMode;
 
-// 本应用是否运行中
+// Whether this application is running
 var bool AIWorking;
-// 任务列表
+// Quest list
 var array< LOCAL_AI_TASK > WorkTask;
 
-native function Run();                      // 事务处理逻辑
-native function OnNetClose();               // 网络关闭的时候
-native function OnLogoEnd();                // 启动LOGO播放结束
-native function OnLoginResult(bool ret);    // 登陆结果
-native function OnCreateRole();             // 创建角色
-native function OnMapLoaded();              // 地图加载结束
-native function OnTaskState();              // 任务状态发生变化
+native function Run();                      // Transaction handling logic
+native function OnNetClose();               // When network closes
+native function OnLogoEnd();                // Startup LOGO playback finished
+native function OnLoginResult(bool ret);    // Login result
+native function OnCreateRole();             // Create character
+native function OnMapLoaded();              // Map loading finished
+native function OnTaskState();              // Quest state changed
 
 cpptext
 {

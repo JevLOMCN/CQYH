@@ -38,10 +38,10 @@ var MaterialInstanceConstant BallMIC2;
 
 
 var bool MPVisible;
-var bool NeedReInitSceneUI;//需要重新初始化与场景有关的UI，在场景加载开始渲染时更新一次
+var bool NeedReInitSceneUI;//need to reinitialize scene-related UI, updated once when the scene starts rendering after loading
 
 
-var int CurrentSkillBarID; // 技能栏编号，目前有3个
+var int CurrentSkillBarID; // ability bar number, currently 3
 var bool Registered;
 
 var EMoveCtrlKey WSADKey[5];
@@ -122,7 +122,7 @@ event PostWidgetInit()
 
 }
 
-//as来，点切换技能
+//From AS, click switch ability
 function SwitchSkillBar()
 {
 	//local int i;
@@ -146,7 +146,7 @@ function ActiveChatBox()
 
 
 
-//打开技能快捷替换框
+//Open the ability quick replace box
 function OpenSkillHotBar( GFxObject mc )
 {
 	local int i,j,off;
@@ -154,7 +154,7 @@ function OpenSkillHotBar( GFxObject mc )
 	local MMOAbility abi;
 	local array<ASValue> args;
 
-	//return;//暂时不用
+	//return;//not used for now
 	`log("OpenSkillHotBar");
 	off = 0;
 	if( GetVariableObject("root.Skillbar_mc.SkillHotBar_mc").GetBool("visible") )
@@ -205,7 +205,7 @@ function ASOnUI( bool bOnUI , string McName)
 
 function ClickLink(float x,float y,float z)//hyper link
 {
-	return;//先不寻路
+	return;//no pathfinding for now
 
 	PlayController.MouseHitWorldLocation.X = x;
 	PlayController.MouseHitWorldLocation.y = y;
@@ -248,11 +248,11 @@ event ReturnLogin()
 	class'MMOUIManager'.static.ActiveGameState(EGameState_Login);
 	//Local Vector vec;
 	//MMOPlayerController( GetPC()).SwitchUIPlayer(EST_Login);
-	//恢复起始状态
+	//Restore initial state
 // 	GetVariableObject("root").GotoAndPlayI( 0 );
 // 	GetVariableObject("root.system_mc").SetVisible( false );
 // 	GetVariableObject("root").SetVisible( false );
-	//删除MsgBox
+	//Delete MsgBox
 	//UnInitMoviePlayer();
 	//MMOGame(GetPC().WorldInfo.Game).SceneType = EST_Login;
 	//vec.x = 27008.00; vec.y=21152.00; vec.Z=-928;
@@ -262,7 +262,7 @@ event ReturnLogin()
 	//MMOPlayerController(GetPC()).ReturnLogin();
 }*/
 
-// OSCARTODO: 这个貌似没有用到过？
+// OSCARTODO: this seems to have never been used?
 //function ConfirmLogout()
 //{
 //	MsgBoxMgr.AddModalMessageBox( localize("MsgBox","text15" ,"MMOGame" ), 0, GoLogout, none);
@@ -324,7 +324,7 @@ event OpenStallBuy( MMOPlayer Player  )
 	//_StallBuy.Open( player );
 }
 
-//itemslot抛出
+//itemslot throw out
 native function ASThrowSlot( GFxObject mc );
 
 function OnThrowItemOk(GFxObject mc)
@@ -368,8 +368,8 @@ function ChangeEquip(GFxObject SrcMc ,GFxObject DesMc)
 // 	`log("change:"@SrcEquipID@DesEquipID);
 
 
-	//移动装备物品更换会收到这个UI消息
-	if( SrcType == ESPType_Bag )//源是包裹
+	//This UI message is received when moving equipment items to change
+	if( SrcType == ESPType_Bag )//source is bag
 	{
 		switch (  DesType )
 		{
@@ -540,7 +540,7 @@ function Init(optional LocalPlayer player)
 
 // event SetUIPlayerVisible(bool bVisible)
 // {
-// 	//不用这个了
+// 	//not used anymore
 // 	return;
 // 
 // 
@@ -549,7 +549,7 @@ function Init(optional LocalPlayer player)
 // 	{
 // 		if( !MPVisible )
 // 		{
-// 			OnChangeScene();//清洗一些和地图有关的数据
+// 			OnChangeScene();//clean up some map-related data
 // 			InitMoviePlayer();
 // 			
 // 		}
@@ -582,11 +582,11 @@ event OnChangeScene()
 
 
 
-//添加拾取物品提示
+//Add pickup item hint
 native function AddPickItemInfo( int ItemId );
-//播放拾取物品提示
+//Play pickup item hint
 native function PlayGetItemInfo( int ItemId );
-//拾取物品提示播放完毕通知 
+//Pickup item hint playback finished notification
 native function ASGetItemEnded();
 
 DefaultProperties

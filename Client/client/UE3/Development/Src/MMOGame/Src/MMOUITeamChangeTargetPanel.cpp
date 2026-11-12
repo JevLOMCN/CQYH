@@ -62,7 +62,7 @@ void UMMOUITeamChangeTargetPanel::UpdateTeamTargetListFB(INT nDifficulty)
 {
 	CurTab = 2;
 	//CurDifficulty = nDifficulty;
-	CurDifficulty = 3;//只开极难这个级别
+	CurDifficulty = 3;//only the extreme difficulty is opened
 	INT idx = 0;
 	UGFxObject* dataProvider = GFXPlayer->CreateArray();
 	SetFBTargetList(dataProvider, idx, nDifficulty);
@@ -80,7 +80,7 @@ void UMMOUITeamChangeTargetPanel::SetActivityTargetList(UGFxObject* dataProvider
 		if((*itr).nPersonNumMin == 1)
 			continue;
 		UGFxObject* data = GFXPlayer->CreateObject(TEXT("Object"));
-		//活动没有难度，先都设置最简单难度
+		//Activities have no difficulty, set to easiest for now
 		data->SetInt(TEXT("difficulty"),0);
 		data->SetString(TEXT("text_0"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Team.TargetType_Activity")));
 		data->SetString(TEXT("text_1"), itr->sActivityName);

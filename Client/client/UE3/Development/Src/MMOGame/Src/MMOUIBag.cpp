@@ -140,7 +140,7 @@ void UMMOUIBag::Init()
 		GFXPlayer->AddBeforeViewUpdateDelegate( FScriptDelegate(this, TEXT("BeforeViewUpdate")) );
 	}
 
-	//经验瓶
+	//experience bottle
 	UGFxObject * pGfxObj = GetObject( TEXT("ExpContainerPanelMc") );
 	if( pGfxObj != NULL ){
 		ExpContainerSlot = pGfxObj->GetObject( TEXT("ExpContainerSlot") );
@@ -157,16 +157,16 @@ void UMMOUIBag::NativeInitLoad()
 	Super::NativeInitLoad();
 
 #ifdef UI_OPTIMIZATION
-	//加载完后，立刻增加到Priority层级，
+	//after loading, immediately add to the Priority layer,
 	INT	panelPriority = this->GFXPlayer->GetPanelPriority(FriendlyName);
 	this->SetInt("CurPriority",panelPriority+1);	
-	eventShowPanel(TRUE, panelPriority); // 用新重构后的接口
+	eventShowPanel(TRUE, panelPriority); // use the newly refactored interface
 #endif	
 }
 
 void UMMOUIBag::PostOnShow(UBOOL show)
 {
-	// bag是默认的ItemSlotActionListener，所以不用设置到当前
+	// bag is the default ItemSlotActionListener, so no need to set it to current
 	if(show==FALSE)
 	{
 		MMOUI::GetUIManager()->ClearCurrentItemSlotActionListener();
@@ -346,7 +346,7 @@ void UMMOUIBag::NativeInitOnce()
 			if( ItemSlot != NULL )
 			{
 				ItemSlot->SetFloat("itemid",i); 
-				//这边有诡异作用
+				//Strange effect here
 				ItemSlotList.AddItem( ItemSlot );
 			}
 		}
@@ -366,7 +366,7 @@ void UMMOUIBag::OnDecomposeEquipCancel()
 
 UBOOL UMMOUIBag::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault)
 {
-	if(!bDefault){//背包是默认处理，等其他界面处理完再处理
+	if(!bDefault){//bag is default handling, handle it after other UIs are done
 		return FALSE;
 	}
 	switch (SlotType)
@@ -428,7 +428,7 @@ BOOL UMMOUIBag::MoveItemToBagResource(BYTE SlotType,BYTE ContainerID,INT SlotID)
 			emptySlot = MMOFacade::getSingleton().GetEmptyItemSlot( desContainerID );
 		}
 
-		if( emptySlot >= 0 )//有空位
+		if( emptySlot >= 0 )//there is an empty slot
 		{
 			CMessageHandler::GetInstance().Send_MoveItem( desContainerID , emptySlot , ContainerID  , SlotID);
 			return TRUE;
@@ -468,7 +468,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 			INT destSlot = 0;
 			MMOUI::GetEquippedSlotByEquipType( pEquip->GetEquipAppearenceTemplate()->EquipType, destCon, destSlot );
 			if( destCon == E_CONSLOT_EQUIPPED ){
-				//会被替换上的装备
+				//equipment that will be swapped in
 				ClientActionCondition_EquipItem checker;
 				FClientActionConditionContex contex;
 				contex.Item = pItemInfo;
@@ -477,7 +477,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 					return TRUE;
 				}
 
-				//被替换下的装备
+				//equipment that will be swapped out
 				FClientItemInfo* destItemInfo = mmoFacade.FindItem( E_CONSLOT_EQUIPPED, destSlot );
 				UItem* itemTemp = NULL;
 				if( destItemInfo ){
@@ -499,7 +499,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 					nWeight = itemTemp->Weight;
 				}
 
-				//先判断重量够不够，能不能穿
+				//first check whether weight is sufficient and whether it can be worn
 				if( pItem->ItemType == TEXT("ITEMTYPE_EQUIP") && pItem->ItemSubType != TEXT("ITEMSUBTYPE_EQUIP_WEAPON") ){
 					if( mmoFacade.CheckWeight( pItem->Weight, nWeight, WT_Armor ) == FALSE ){
 						return FALSE;
@@ -525,7 +525,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 				return FALSE;
 			}
 
-			// 如果是需要绑定的但还没有绑定
+			// if it needs binding but is not bound yet
 			if( pItemInfo->m_byBindType != E_BINDTYPE_BINDED && pEquip->ItemBindType == E_BINDTYPE_BOE ){
 				AskEquipBind( pItemInfo );
 			}
@@ -539,7 +539,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 	}
 	else if( pItem->ItemSubType == TEXT("ITEMSUBTYPE_DEPOSIT_EXP") ){
 		if( pItemInfo->m_nCurDur < pItemInfo->m_nMaxDur ){
-			//储值未满，挂载继续储值
+			//stored value not full, attach and continue storing
 			CMessageHandler::GetInstance().Send_MoveItem( E_CONSLOT_DEPOSIT, DEPOSIT_EXP_SLOT, E_CONSLOT_DEFAULT, slotIdx );
 
 			eventCallAsShowExpContainer( TRUE );
@@ -583,7 +583,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 	}
 
 
-	//特殊物品：祝福油
+	//special item: blessing oil
 	if( pItem->GetTemplateID() == MMOUI::GetUIManager()->LuckyOilItemId ){
 		FClientItemInfo* pMainHandCurEquippedItemInfo = mmoFacade.FindItem( E_CONSLOT_EQUIPPED , EET_Normal_MainHand );
 		if( pMainHandCurEquippedItemInfo ){
@@ -593,7 +593,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 			MMOChatManager::getSingleton().AddSystemMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Bag.NoWeaponCantUseOil")) );
 		}
 	}
-	// 如果有脚本直接发给服务器使用
+	// if there is a script, send directly to server for use
 	else if( pItem->Script.Len() > 0 ){
 		CMessageHandler::GetInstance().Send_UseItem( conIdx, slotIdx, pItemInfo->m_nTemplateID );
 	}
@@ -611,7 +611,7 @@ UBOOL UMMOUIBag::UseContainerItem( INT conIdx, INT slotIdx )
 	}
 	else if( pItem->ItemType == TEXT("ITEMTYPE_DEPOSIT") && pItem->ItemSubType == TEXT("ITEMSUBTYPE_DEPOSIT_EXP") ){
 		if( pItemInfo->m_nCurDur >= pItemInfo->m_nMaxDur ){
-			//储值已满，使用
+			//stored value full, use
 			UBOOL isShowConfirmBox = FALSE;
 			GConfig->GetBool( TEXT("PopUpMsgBox"), TEXT("ConfirmUseExpContainer"), isShowConfirmBox , GDefaultGameIni );
 			if( isShowConfirmBox ){
@@ -663,7 +663,7 @@ UBOOL UMMOUIBag::OnRightMouseClickInExpContainer( INT slotIdx )
 	if( pItem->ItemType == TEXT("ITEMTYPE_DEPOSIT") ){
 		INT destSlot = MMOFacade::getSingleton().GetEmptyItemSlot( E_CONSLOT_DEFAULT );
 		if( destSlot < 0 ){
-			//背包没空间了
+			//bag has no space
 			FString errStrKey = TEXT("MMOErrorInfo.EClientActionConditionCheckType.ECACCT_Bag_Full");
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( errStrKey ), MsgInfoType_Table, errStrKey );
 			return FALSE;
@@ -691,7 +691,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 	{
 		switch( DestSlotType )
 		{
-		case ESPType_Invalid:// 扔掉背包中的
+		case ESPType_Invalid:// discard from bag
 			{
 				INT actorLevel = MMOFacade::getSingleton().GetMyLevel();
 				if( actorLevel < s_ActorLvAllowGameSystem ){
@@ -730,8 +730,8 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 					return FALSE;
 				}
 
-				//检查是否被锁界面功能锁定
-				//原物品检查
+				//check whether locked by UI function lock
+				//source item check
 				UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(srcItemInfo->m_nTemplateID);
 
 				ClientActionCondition_SwampItem checker;
@@ -745,7 +745,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 					return TRUE;
 				}
 
-				//目标物品检查
+				//target item check
 				FClientItemInfo *destItemInfo = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
 				if(destItemInfo)
 				{
@@ -770,7 +770,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 				}
 			}
 			break;
-		case ESPType_Hero://英雄装备
+		case ESPType_Hero://hero equipment
 			{
 				UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(srcItemInfo->m_nTemplateID);
 				UEquip* equip = Cast<UEquip>(itemTemp);
@@ -787,7 +787,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 				}
 
 				if(itemTemp && equip && srcItemInfo->m_byBindType != E_BINDTYPE_BINDED
-					&& equip->ItemBindType == E_BINDTYPE_BOE) // 如果没绑定
+					&& equip->ItemBindType == E_BINDTYPE_BOE) // if not bound
 				{
 					AskEquipBind(srcItemInfo);
 				}
@@ -801,7 +801,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 			break;
 		case ESPType_Recover:
 			{
-				//是否魔血石
+				//whether it is a mana blood stone
 				if (SrcContainerID == E_CONSLOT_RECOVER && DestContainerID == E_CONSLOT_DEFAULT)
 				{
 					FClientItemInfo* destItemInfo = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
@@ -837,7 +837,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 					return TRUE;
 				}
 
-				//目标物品检查
+				//target item check
 				FClientItemInfo* destItemInfo = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
 				UItem* itemDest = NULL;
 
@@ -861,7 +861,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 					return FALSE;
 
 				if(itemTemp && equip && srcItemInfo->m_byBindType != E_BINDTYPE_BINDED
-					&& equip->ItemBindType == E_BINDTYPE_BOE) // 如果没绑定
+					&& equip->ItemBindType == E_BINDTYPE_BOE) // if not bound
 				{
 					AskEquipBind(srcItemInfo);
 				}
@@ -875,13 +875,13 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 		case ESPType_SkillBar:
 			{
 				UBOOL dragDropResult = FALSE;
-				//这边稍微hack下，因为不点skillbar的话，当前player的焦点是不会跑到skillbar的player上的
+				//a bit of a hack here, because without clicking the skillbar, the current player's focus will not go to the skillbar's player
 				UMMOUISkillBar* skillbar = Cast<UMMOUISkillBar>( MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Skillbar ) );
 				if(skillbar)
 				{
 					dragDropResult = skillbar->OnDragDrop( SrcSlotMC , DestSlotMC , SrcSlotType , SrcContainerID , SrcSlotID , DestSlotType , DestContainerID , DestSlotID);
 
-					// 新手引导
+					// Tutorial
 					MMOGameEvent_Guide evtGuide(EGUET_DragItemToSkillBar);
 					MMOUI::PostGameEvent(&evtGuide);
 				}
@@ -921,7 +921,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 				if(destItemInfo == NULL)
 				{
 					AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
-					//魂瓶
+					//soul bottle
 					if(SrcContainerID == E_CONSLOT_DEPOSIT&&DestContainerID == E_CONSLOT_DEFAULT)
 					{
 						UItem* tItem = Player->ItemManager->GetItemBySlot(E_CONSLOT_DEPOSIT,0);
@@ -942,7 +942,7 @@ UBOOL UMMOUIBag::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSl
 				FClientItemInfo* destItemInfo = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
 				if(destItemInfo == NULL)
 				{
-					//魔血石
+					//mana blood stone
 					if(SrcContainerID == E_CONSLOT_RECOVER && DestContainerID == E_CONSLOT_DEFAULT)
 					{
 						CMessageHandler::GetInstance().Send_MoveItem( E_CONSLOT_DEFAULT,DestSlotID,E_CONSLOT_RECOVER,0 );
@@ -986,7 +986,7 @@ BOOL UMMOUIBag::CheckWeight(UItem* item, UItem* itemDest)
 	if (itemDest)
 		nWeight = itemDest->Weight;
 
-	//先判断重量够不够，能不能穿
+	//first check whether weight is sufficient and whether it can be worn
 	if(item->ItemType == TEXT("ITEMTYPE_EQUIP") && item->ItemSubType != TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 	{
 		if (MMOFacade::getSingleton().CheckWeight(item->Weight,nWeight,WT_Armor) == FALSE)
@@ -1002,7 +1002,7 @@ BOOL UMMOUIBag::CheckWeight(UItem* item, UItem* itemDest)
 
 UBOOL UMMOUIBag::OnDoubleClickSlot(UGFxObject* SrcSlotMC, BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID,UBOOL bDefault)
 {
-	// #16707	双击使用道具
+	// #16707	double-click to use item
 	if(SrcSlotType == ESPType_Bag && CanUseDoubleClickItem())
 	{
 		OnRightMouseClick(SrcSlotMC, SrcSlotType, SrcContainerID, SrcSlotID, bDefault);
@@ -1136,7 +1136,7 @@ UItem* UMMOUIBag::GetItemInCurBag(INT Index )
 
 	switch( GetBagEnum() )
 	{
-	case E_CONSLOT_DEFAULT://道具
+	case E_CONSLOT_DEFAULT://item
 		if( IM->BagItemList.Num() > Index)
 			return IM->BagItemList(Index);
 		break;
@@ -1191,7 +1191,7 @@ BYTE UMMOUIBag::GetBagEnum()
 	/*case EBLT_Quest:
 		return E_CONSLOT_QUEST;*/
 	}
-	//过滤页面都是DEFAULT
+	//filter pages are all DEFAULT
 	return E_CONSLOT_DEFAULT;
 }
 //------------------------------------------------------------------------
@@ -1363,7 +1363,7 @@ void UMMOUIBag::BagPage(INT pageId)
 {
 	pageIdCur=pageId;
 	slotCountCur=0;
-	slotCountDown=-1;//背包格子里的东西隔一帧开始刷新
+	slotCountDown=-1;//things in bag slots start refreshing one frame later
 }
 
 UBOOL UMMOUIBag::GetItemFilterFrame( UItem* item , INT label , INT filterTab )
@@ -1413,7 +1413,7 @@ UBOOL UMMOUIBag::GetItemFilterFrame( UItem* item , INT label , INT filterTab )
 //------------------------------------------------------------------------
 void UMMOUIBag::BagLabel(INT labelId)
 {	
-	//点击标签
+	//click tab
 	LastLabel = CurLabel;
 
 	ClearNewHint();
@@ -1422,7 +1422,7 @@ void UMMOUIBag::BagLabel(INT labelId)
 	
 	INT pageId = LabelBagPage(labelId);
 	
-	//翻页被去掉，目前就默认翻第一页
+	//page turning removed, currently defaults to the first page
 	//FString mcName = TEXT("bagTab");
 	//mcName += appItoa(pageId);
 	//UGFxObject* mc = GetObject( mcName );
@@ -1477,7 +1477,7 @@ void UMMOUIBag::HintNewItemLabel(INT containerId)
 	default: 
 		return;
 	}
-	//现在不要标签new了
+	//no longer need tab new
 	//if(LabelButton[tabIdx])
 	//{
 	//	UGFxObject* labelNewHint = LabelButton[tabIdx]->GetObject("newHint");
@@ -1528,7 +1528,7 @@ void UMMOUIBag::UpdateMoneyDisplay()
 	if(data){
 		data->SetPureString( TEXT("moneyString0") , UITextParser::HTMLMoneyIconString( E_MONEYTYPE_02 , MMOFacade::getSingleton().GetPlayerMoney64(E_MONEYTYPE_02) ) );
 		
-		//改成背包重量
+		//changed to bag weight
 		data->SetInt(TEXT("moneyString1") ,MallManager::getSingleton().GetRealMoney());
 
 		eventCallSetMoney(data);
@@ -1583,7 +1583,7 @@ void UMMOUIBag::BagSlotChangeEx(BYTE ContainerID,INT SlotID)
 		UBOOL isToGray = GetItemFilterFrame( item , CurLabel , CurTab );
 		MMOFacade::getSingleton().GrayItem( ESGMark_Bag, ContainerID, SlotID, isToGray );
 
-		//商店打开得情况下
+		//when shop is open
 		if (ShopManager::getSingleton().GetShopShow())
 		{
 			UBOOL gray = GrayItemInBagNotInNpcShop(clientItemInfo,item);
@@ -1618,7 +1618,7 @@ void UMMOUIBag::BagSlotChange(INT ContainerID, INT SlotID)
 		}
 	}
 
-	//经验瓶
+	//experience bottle
 	if( ContainerID == E_CONSLOT_DEPOSIT && IsVisible )
 	{
 		ExpContainerChanged(ContainerID, SlotID);
@@ -1640,7 +1640,7 @@ void UMMOUIBag::ItemDelete(INT ContainerID, INT SlotID)
 	}
 }
 //------------------------------------------------------------------------
-//显示的时候做些数据更新
+//do some data updates when displaying
 void UMMOUIBag::NativeOnShow(UBOOL v)
 {
 	if(v)
@@ -1692,7 +1692,7 @@ void UMMOUIBag::SkillBookMsgBox(INT ItemSlot)
 
 	if( !tSkillBook->IsUseblForActor( MainPlayer ) )
 	{
-		//无法学习该技能 
+		//cannot learn this ability
 		sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.SkillCannotLearne" ) ),
 			*learnSkillName,*tSkillBook->Description );
 		MMOChatManager::getSingleton().AddSystemMessage( sMsg );
@@ -1704,7 +1704,7 @@ void UMMOUIBag::SkillBookMsgBox(INT ItemSlot)
 		tAbilityLearned = MainPlayer->GetAbilityById( tAbilityInBook->eventGetAbilityId(), tAbilityInBook->GetRuneSlot() );
 	if( tAbilityLearned )
 	{
-		//已经学会过该技能 
+		//already learned this ability
 		/*sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.SkillBookAlreadyLearned" ) ),*learnSkillName );
 		MMOChatManager::getSingleton().AddSystemMessage( sMsg );
 		MMOUI::GetUIManager()->delegateAddScreenMessage(sMsg,MsgInfoType_Table, TEXT("MMOGame.GamePlay.SkillBookAlreadyLearned" ));*/
@@ -1770,7 +1770,7 @@ void UMMOUIBag::DeleteItem( INT ConId , INT SlotId , INT TemplateId )
 		INT stack = 0;
 		/*if( itemTemp->ItemDuration == E_DURTYPE_STACK ) 
 		{
-			//类型是可堆叠
+			//type is stackable
 			stack = item->m_nCurDur;
 		}
 		else
@@ -1805,7 +1805,7 @@ void UMMOUIBag::OnEquipItemOK(class UGFxObject* mc)
 	}
 }
 //==================================================================================================================
-//锁住当前页物品
+//lock items on current page
 void UMMOUIBag::LockItem( BYTE ContainerID, INT SlotID, INT isToLockIn )
 {
 	UGFxObject *pItemSlot = BagGroup->GetObject( FString::Printf( TEXT("slot%d_mc"), SlotID ) );
@@ -1834,7 +1834,7 @@ void UMMOUIBag::LockItem( BYTE ContainerID, INT SlotID, INT isToLockIn )
 	//default: 
 	//	return;
 	//}
-	////默认锁住当前页得物品
+	////lock items on current page by default
 	//INT realSlot = SlotID + UCONST_MaxBagSlotCount * CurPageIdx;
 	//if( isToLock ){
 	//	pContainer->FindOrAdd( realSlot ) = ISS_Unusable;
@@ -1846,7 +1846,7 @@ void UMMOUIBag::LockItem( BYTE ContainerID, INT SlotID, INT isToLockIn )
 }
 
 //==========================================================================================================
-//打灰物品
+//items to gray out
 void UMMOUIBag::GrayItem( BYTE ContainerID, INT SlotID, struct FClientItemInfo *pItemInfo )
 {
 	UGFxObject *pItemSlot = BagGroup->GetObject( FString::Printf( TEXT("slot%d_mc"), SlotID ) );
@@ -1870,7 +1870,7 @@ void UMMOUIBag::GrayItem( BYTE ContainerID, INT SlotID, struct FClientItemInfo *
 	}
 	else{
 		isToGray = ( ( pItemInfo->IsGrayMarkedInUI & ESGMark_Bag ) != 0 );
-		////要是当前背包过滤设置不是"全部物品"，只按包裹的过滤来
+		////if the current bag filter setting is not "all items", follow only the bag's filter
 		//UBOOL isGrayByBag = ( ( pItemInfo->IsGrayMarkedInUI & ESGMark_Bag ) != 0 );
 		//eventCallUCGraySlot( pItemSlot, isGrayByBag );
 	}
@@ -2146,7 +2146,7 @@ void UMMOUIBag::OpenPack(INT itemId)
 		UItem* item = MMOFacade::getSingleton().FindItemTemplate( currentContainer, i );
 		if(!item)
 		{
-			//空格
+			//empty slot
 			continue;
 		}
 		if (item->ItemId == itemId)
@@ -2176,7 +2176,7 @@ void UMMOUIBag::UpdateAllBagSlotCDByItemUse( INT type , INT cdID )
 		UItem* item = MMOFacade::getSingleton().FindItemTemplate( currentContainer, i );
 		if(!item)
 		{
-			//空格
+			//empty slot
 			continue;
 		}
 		UMMOAbility* skill = item->GetToUseAbility();
@@ -2184,7 +2184,7 @@ void UMMOUIBag::UpdateAllBagSlotCDByItemUse( INT type , INT cdID )
 		
 		if(!skill)
 		{
-			//道具无技能
+			//item has no ability
 			continue;
 		}
 
@@ -2259,7 +2259,7 @@ void UMMOUIBag::SetBagSlotCD( INT containerId , INT slotId )
 	UItem* item = MMOFacade::getSingleton().FindItemTemplate( containerId , slotId );
 	if(!item)
 	{
-		//空格子
+		//empty slot
 		StopItemSlotCD(itemSlot);
 		return;
 	}
@@ -2387,7 +2387,7 @@ void UMMOUIBag::ASSignatureItem()
 //{
 //	UMMOUIBase::SetItemSlotData( mc, tItem, SlotType, ContainerID, SlotID,inISS);
 //
-//	//补个刀
+//	//add another hit
 //	if(!mc)
 //	{
 //		return;
@@ -2425,7 +2425,7 @@ void UMMOUIBag::ASSignatureItem()
 //		}
 //
 //
-//		//这里改成包裹里不满足本职业的武器标记成x，因为该图标和交易摆摊时锁定物品图标相同，所以会有歧义。但目前只有这个图标了。
+//		//changed here to mark weapons in the bag that do not suit this class with x, since this icon is the same as the locked item icon in trade/stall, causing ambiguity. But for now only this icon exists.
 //		if( tItem->ItemType == TEXT("ITEMTYPE_EQUIP") && !mc->GetBool( TEXT("isSlotUnusable") ) )
 //		{
 //			const UEquip *pEquip = ConstCast<UEquip>( tItem );
@@ -2571,7 +2571,7 @@ UBOOL UMMOUIBag::SkipCaptureInputKey(const FString& key,BYTE eIE,const FString& 
 
 	if( IsVisible )
 	{
-		// 鼠标滚动，且不在界面内
+		// Mouse wheel scroll, and not inside the UI
 		if ((key == TEXT("MouseScrollUp") || key == TEXT("MouseScrollDown")) && (strHoverControllerName == TEXT("")))
 			return TRUE;
 	}
@@ -2661,7 +2661,7 @@ void UMMOUIBag::PrepareForRepair()
 	repairUILayout.Layout( pCharactorPanel );
 }
 //=====================================================================================================
-//经验瓶系统
+//experience bottle system
 //=====================================================================================================
 void UMMOUIBag::ExpContainerChanged( INT containerID, INT slotID )
 {
@@ -2683,10 +2683,10 @@ void UMMOUIBag::ExpContainerChanged( INT containerID, INT slotID )
 		return;
 	}
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( ExpContainerSlot, 1, mmoFacade.GetItemIconNamePersonalized( pItem, pItemInfo ), pItem->ItemId, ESPType_ExpContainer, TEXT(""), pItem->ItemColor+1, CurLoadedExpContainer._ConID, CurLoadedExpContainer._SlotID );
 
-	//设置储量
+	//set storage amount
 	INT expProgressCur = pItemInfo->m_nCurDur;
 	INT expProgressMax = pItem->DefaultDuration;
 	eventCallAsSetExpContainerProgress( expProgressCur, expProgressMax );
@@ -2703,7 +2703,7 @@ void UMMOUIBag::NotifyExpContainerFillIn( INT value )
 		expProgressMax = pItemInfo->m_nMaxDur;
 	}
 
-	//设置储量
+	//set storage amount
 	if( IsVisible ){
 		ExpContainerChanged( CurLoadedExpContainer._ConID, CurLoadedExpContainer._SlotID );
 	}
@@ -2738,13 +2738,13 @@ UBOOL UMMOUIBag::LoadExpContainer( INT containerID, INT slotID )
 		CurLoadedExpContainer._ConID = CONSLOT_DEPOSIT;
 		CurLoadedExpContainer._SlotID = -1;
 
-		//刷新相关显示
+		//refresh related display
 		eventCallAsSetExpContainerProgress( 0, 0 );
 
 		return TRUE;
 	}
 
-	//设置
+	//set
 	FClientItemInfo *pItemInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pItemInfo == NULL ){
 		FString errStrKey = TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND");
@@ -2759,14 +2759,14 @@ UBOOL UMMOUIBag::LoadExpContainer( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//是否是灵匣
+	//whether it is a spirit box
 	if( pItem->ItemDuration != E_DURTYPE_DEPOSIT || pItem->ItemType != TEXT("ITEMTYPE_DEPOSIT") ){
 		FString errStrKey = TEXT("MMOGame.ExpContainer.Error_ToLoadIsNotExpContainer");
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( errStrKey ), MsgInfoType_Table, errStrKey );
 		return FALSE;
 	}
 
-	////解锁背包内原先放入界面中的装备
+	////unlock the equipment previously placed in the UI from the bag
 	//if( CurLoadedExpContainer._ConID >= 0 && CurLoadedExpContainer._SlotID >= 0 ){
 	//	MMOFacade::getSingleton().LockItem( CurLoadedExpContainer._ConID, CurLoadedExpContainer._SlotID, -1 );
 	//}
@@ -2774,14 +2774,14 @@ UBOOL UMMOUIBag::LoadExpContainer( INT containerID, INT slotID )
 	CurLoadedExpContainer._ConID = CONSLOT_DEPOSIT;
 	CurLoadedExpContainer._SlotID =  DEPOSIT_EXP_SLOT;//slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( ExpContainerSlot, 1, mmoFacade.GetItemIconNamePersonalized( pItem, pItemInfo ), pItem->ItemId, ESPType_ExpContainer, TEXT(""), pItem->ItemColor+1, CurLoadedExpContainer._ConID, CurLoadedExpContainer._SlotID );
 
-	//锁住背包内原先放置的灵
+	//lock the spirit previously placed in the bag
 	//MMOFacade::getSingleton().LockItem( CurLoadedExpContainer._ConID, CurLoadedExpContainer._SlotID, ESPType_ExpContainer );
 
-	//刷新相关显示
-	//设置储量
+	//refresh related display
+	//set storage amount
 	eventCallAsSetExpContainerProgress( pItemInfo->m_nCurDur, pItem->DefaultDuration );
 
 	return TRUE;
@@ -2824,7 +2824,7 @@ void UMMOUIBag::GrayAllInBagNotInNpcShop(BOOL isToGray)
 			UBOOL gray = GrayItemInBagNotInNpcShop(pItemInfo,pItemInBag);
 			mmoFacade.GrayItem( ESGMark_Bag, E_CONSLOT_DEFAULT, j, gray );
 		}
-		else //不变灰
+		else //do not gray out
 		{
 			BagPage(0);
 		}
@@ -2848,7 +2848,7 @@ BOOL UMMOUIBag::GrayItemInBagNotInNpcShop(FClientItemInfo *pItemInfo,UItem *pIte
 			bindType = pItemInBag->ItemBindType;
 		}
 
-		//需要变灰
+		//needs graying out
 		if(!pItemInBag->CanSell)
 		{
 			gray = TRUE;

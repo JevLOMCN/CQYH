@@ -1,5 +1,5 @@
 //
-// 联动物体接口
+// Linked object interface
 //
 interface IMMOLinkageObject;
 
@@ -9,7 +9,7 @@ enum ELinkageMovementType
 	LMT_Rotate <DisplayName="Rotate">
 };
 
-// 父物体当前完成的比例
+// Completion ratio of the parent object
 function UpdateFromSource(float parentPercent);
 
 function float GetCurrentMovedPercent();

@@ -58,7 +58,7 @@ event CallUpdateAvailableQuestTraceList(GFxObject provider)
 
 native final function ASUpdateAcceptedQuestTraceList();
 native final function ASUpdateAvailableQuestTraceList();
-// Flash同步各种问题，改为C++计时
+// Flash has various sync problems, changed to C++ timing
 //native final function ASUpdateQuestTimeout(int questId, int timeSecondsLeft);
 //native final function ASOnTimeLimitQuestTimeout(int questId);
 native final function ASUseQuestItem(int questId, int itemId);

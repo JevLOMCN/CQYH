@@ -109,7 +109,7 @@ struct ChangeMeshItemDataProcessor
 			}
 			else
 			{
-				warnf(NAME_Error, TEXT("换装发型配置没有找到：%s"), *obj->SubItem.Mesh);
+				warnf(NAME_Error, TEXT("Outfit-change hairstyle config not found: %s"), *obj->SubItem.Mesh);
 			}
 		}
 		else if(obj->MainTypeValue == CMT_FACE_MODEL)
@@ -121,7 +121,7 @@ struct ChangeMeshItemDataProcessor
 			}
 			else
 			{
-				warnf(NAME_Error, TEXT("换装脸型配置没有找到：%s"), *obj->SubItem.Mesh);
+				warnf(NAME_Error, TEXT("Outfit-change face type config not found: %s"), *obj->SubItem.Mesh);
 			}
 		}
 
@@ -132,7 +132,7 @@ struct ChangeMeshItemDataProcessor
 		}
 		else
 		{
-			warnf(NAME_Error, TEXT("换装Icon贴图没有找到：%s"), *obj->SubItem.Icon);
+			warnf(NAME_Error, TEXT("Outfit-change icon texture not found: %s"), *obj->SubItem.Icon);
 		}
 	}
 #endif

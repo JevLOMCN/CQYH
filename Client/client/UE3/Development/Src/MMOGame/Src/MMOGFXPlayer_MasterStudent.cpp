@@ -26,7 +26,7 @@ void UMMOGFXPlayer_MasterStudent::Init()
 }
 void UMMOGFXPlayer_MasterStudent::ASSendCongratulation(INT nType,INT nRoleID,const FString& strCon)
 {
-	//祝贺
+	//congratulations
 	const AMMOPlayer* pkPlayer       =   MMOFacade::getSingleton().GetMainPlayer();
 	INT nLevel = 0;
 
@@ -37,18 +37,18 @@ void UMMOGFXPlayer_MasterStudent::ASSendCongratulation(INT nType,INT nRoleID,con
 		
 		if(MasterStudentManager::getSingleton().GetMasterStudentState() == E_MASTER_TEACHER)
 		{
-			//是徒弟升级
+			//apprentice leveled up
 			if(pkStudent)
 				nLevel = pkStudent->nLevel - pkStudent->nCZLevel;
 		}
 		else if(nRoleID == master.nRoleID)
 		{
-			//是师傅升级
+			//master leveled up
 			nLevel = master.nLevel - master.nCZLevel;
 		}
 		else
 		{
-			//是同门升级
+			//fellow disciple leveled up
 			if(pkStudent)
 				nLevel = pkStudent->nLevel - pkStudent->nCZLevel;
 		}
@@ -84,7 +84,7 @@ void UMMOGFXPlayer_MasterStudent::ASSendCongratulation(INT nType,INT nRoleID,con
 }
 void UMMOGFXPlayer_MasterStudent::ASClearMasterApplyList()
 {
-	//全部拒绝
+	//reject all
 	const ApllicantsList& list = MasterStudentManager::getSingleton().GetMasterApllyList();
 	for (ApllicantsList::const_iterator itr  = list.begin(); itr != list.end(); ++itr)
 	{
@@ -371,7 +371,7 @@ void UMMOGFXPlayer_MasterStudent::ASRightMenuStudentDetailList(INT nID)
 		const StudentListData* pMaster = MasterStudentManager::getSingleton().GetStudentDataByID(nID);	
 		if(pMaster == NULL)
 		{
-			//是否是师傅
+			//whether is master
 			const MasterDetailInfo& masterInfo = MasterStudentManager::getSingleton().GetMasterDetailInfo();
 			if (masterInfo.nRoleID == nID)
 			{

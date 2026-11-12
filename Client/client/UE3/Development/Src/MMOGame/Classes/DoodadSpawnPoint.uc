@@ -1,7 +1,7 @@
 //
-// NPC 出生点
+// NPC spawn point
 //
-// implements(IMMOActorHUD) Editor 中没有Player
+// implements(IMMOActorHUD) no Player in Editor
 class DoodadSpawnPoint extends Actor
 	placeable
 	dependson(NPC)
@@ -18,19 +18,19 @@ cpptext
 {
 	//virtual INT GetServerID(){ return AutoServerID; }
 	//virtual INT GetObjectServerType() const { return (INT)sbtNpcSpawnPoint; }
-	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda 永远不在游戏中加载
+	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda never loaded in game
 }
 
 event Tick(  float deltaTime  )
 {
 	super.Tick( deltaTime );
-	//绘制会缓冲
+	//drawing is buffered
 	//if ( !class'Engine'.static.IsGame() )
 	//	DrawMyHUD( HUD( class'HUD'.static ) );
 }
 function bool OnlyDrawHUDForOwner(){return false;}
 
-//在HUD上显示SpawnPoint 信息
+//show SpawnPoint info on the HUD
 function bool DrawMyHUD( MMOHud H )
 {
 	//local Vector screenPos;
@@ -42,7 +42,7 @@ function bool DrawMyHUD( MMOHud H )
 	//local int nNPCCount;
 
 
-	//objectIconWorldPos = Location;//实际位置
+	//objectIconWorldPos = Location;//actual position
 	//objectIconWorldPos.Z += 120;
 	//screenPos = H.Canvas.Project(objectIconWorldPos);
 

@@ -76,7 +76,7 @@ function ASSelectBattle( int idx )
 {
 	_PVPBattle.SelectBattle( idx );
 }
-//随机战场列表勾选
+//Random battlefield list checkbox
 function ASToggleBattle( int id, bool isSelected )
 {
 	_PVPBattle.MultiSelectBattle( id, isSelected );

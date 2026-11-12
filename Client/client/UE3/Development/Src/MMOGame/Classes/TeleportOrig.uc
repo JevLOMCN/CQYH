@@ -1,5 +1,5 @@
 //
-// TeleportOrig 传送源点
+// TeleportOrig teleport origin
 //
 
 class TeleportOrig extends Actor implements (IPickableActor, IInteractableActor)
@@ -19,7 +19,7 @@ var(MMOServer) int MinPortalLevel;
 var(MMOServer) int MaxPortalLevel;
 
 var(UI) Vector TipsPosOffset;
-// 调试用范围线框 - 近战范围
+// debug range wireframe - melee range
 var(Editor) editoronly DrawCylinderComponent TeleportRange;
 
 var() ParticleSystemComponent TeleportStaticEffect             <DisplayName="Static Effect">;
@@ -128,7 +128,7 @@ DefaultProperties
 	//ToSceneClientRangeRadius=200
 	InitEnabled=true
 
-		// 添加调试用范围线框 - 近战范围
+		// add debug range wireframe - melee range
 	Begin Object Class=DrawCylinderComponent  Name=DebugRangeNear0
 		CylinderColor=(R=255,G=0,B=0,A=255)
 		CylinderRadius=800.0

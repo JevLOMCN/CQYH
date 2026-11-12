@@ -209,19 +209,19 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByMap(UINT32 mapId, UGFxObject* questA
 			continue;
 		}
 		
-		// 主线任务放在剧情任务里
+		// Main quests go under story quests
 		if (quest->QuestType == E_qt_Trunk)
 		{
 			continue;
 		}
 
-		// 活动任务放在活动分类里
+		// Activity quests go under the activity category
 		if (quest->QuestType == E_qt_Activity)
 		{
 			continue;
 		}
 
-		// 40级以上的任务不显示
+		// Quests above level 40 are not shown
 		if (quest->QuestLevel > 40)
 		{
 			continue;
@@ -244,7 +244,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByMap(UINT32 mapId, UGFxObject* questA
 		}
 	}
 
-	// 如果该类型没有任务, 不显示
+	// If this type has no quests, do not show
 	if (questList.size() == 0)
 	{
 		return;
@@ -284,7 +284,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByMap(UINT32 mapId, UGFxObject* questA
 		}
 	}
 
-	// 子列表头		
+	// Sub-list header
 	object->SetInt(TEXT("quest_item_type"), EQIT_Group);
 	object->SetBool(TEXT("quest_is_expanded"), expanded);
 	
@@ -302,7 +302,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByMap(UINT32 mapId, UGFxObject* questA
 	questArray->SetElementObject(index, object);
 	++ index;
 
-	// 子列表项
+	// Sub-list item
 	INT playerLevel = MMOFacade::getSingleton().GetMainPlayer()->ActorAttributes->LevelAttributes.Level;
 	INT lowLevelDiffCfg = 0;
 	GConfig->GetInt(TEXT("Quest"), TEXT("LowLevelDiff"), lowLevelDiffCfg, GGameIni);
@@ -322,7 +322,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByMap(UINT32 mapId, UGFxObject* questA
 			continue;
 		}
 
-		// 主线任务放在剧情任务里
+		// Main quests go under story quests
 		if (quest->QuestType == E_qt_Trunk)
 		{
 			continue;
@@ -388,7 +388,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByType(EQUEST_TYPE questType, UGFxObje
 		break;
 	}
 
-	// 如果该类型没有任务, 不显示
+	// If this type has no quests, do not show
 	if (questList.Num() == 0)
 	{
 		return;
@@ -426,7 +426,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByType(EQUEST_TYPE questType, UGFxObje
 		}
 	}
 
-	// 子列表头		
+	// Sub-list header
 	object->SetInt(TEXT("quest_item_type"), EQIT_Group);
 	object->SetInt(TEXT("quest_type"), questType);
 	object->SetBool(TEXT("quest_is_expanded"), expanded);
@@ -453,7 +453,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByType(EQUEST_TYPE questType, UGFxObje
 	questArray->SetElementObject(index, object);
 	++ index;
 
-	// 子列表项
+	// Sub-list item
 	INT playerLevel = MMOFacade::getSingleton().GetMainPlayer()->ActorAttributes->LevelAttributes.Level;
 	INT lowLevelDiffCfg = 0;
 	GConfig->GetInt(TEXT("Quest"), TEXT("LowLevelDiff"), lowLevelDiffCfg, GGameIni);
@@ -472,7 +472,7 @@ void UMMOUIQuestPanel::_UpdateQuestSubListByType(EQUEST_TYPE questType, UGFxObje
 			continue;
 		}
 
-		// 主线任务放在剧情任务里
+		// Main quests go under story quests
 		if (quest->QuestType == E_qt_Trunk)
 		{
 			continue;
@@ -550,7 +550,7 @@ void UMMOUIQuestPanel::UpdateQuestList()
 	//_UpdateQuestSubList(E_qt_Master, questArray, index);
 	//_UpdateQuestSubList(E_qt_Guide, questArray, index);
 	
-	// 奇遇类，活动类任务单独显示
+	// Adventure and activity quests are shown separately
 	if (_CurQuestStateGroup == EQS_Accept)
 	{
 		_UpdateQuestSubListByType(E_qt_Adventure, questArray, index);

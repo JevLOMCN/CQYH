@@ -1,12 +1,12 @@
 //MMOServerToggleActor
 //hemu@snda
-//用于场景交互中 机关及门
+//Used for mechanisms and doors in scene interaction
 
 class MMOServerToggleDoorTrigger extends MMOServerToggleActor
 	placeable
 	ClassGroup(__Server_Old__);
 
-//群组ID
+//Group ID
 var( )  int                   GroupId           <DisplayName="GroupId">;
 
 DefaultProperties

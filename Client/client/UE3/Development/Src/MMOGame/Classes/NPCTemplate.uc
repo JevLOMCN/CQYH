@@ -1,5 +1,5 @@
 //
-// 主要的NPC基类，完成角色动画管理
+// main NPC base class, handles character animation management
 //
 
 class NPCTemplate extends Object implements(IExcelable,IReferenceID)
@@ -9,7 +9,7 @@ class NPCTemplate extends Object implements(IExcelable,IReferenceID)
 	;
 
 //---------------------------------------------------------------
-// 状态表现
+// state presentation
 //---------------------------------------------------------------
 
 struct native StatusProcData
@@ -26,7 +26,7 @@ struct native ActionProcData
 
 struct native DropGroupSet
 {
-	// 百分分之比
+	// percentage
 	var() int Weight			                                                <DisplayName="Weight" | ExportExcel="Client">;
 	var() INT DropGroup	                                                        <DisplayName="DropGroupID" | ExportExcel="Client">;
 };
@@ -86,7 +86,7 @@ var(MMOServer) int RespawnTimeMax				                                <DisplayNam
 var(MMOServer) int AIData				                                        <DisplayName="AIData" | ExportExcel="Server">;
 var(MMOServer) editconst const int AIDataID 				                    <DisplayName="AIDataID" | ExportExcel="Server">;
 
-// 范围为0-16
+// range is 0-16
 var(MMOServer) int ForceID					                                    <DisplayName="ForceID" | ExportExcel="Server">;
 var(MMOServer) init string NPCScriptName	                                    <DisplayName="NPCScriptName" | ExportExcel="Server">;
 
@@ -119,7 +119,7 @@ var(MMOServer) float RadiusScale				                                <DisplayName
 var(MMOServer) bool DieIDMonitor                                                <ExportExcel="Server">;
 var(MMOServer) int CorpseDoodadID                                               <ExportExcel="Server">;
 
-// 相关说明详见需求：11627
+// see requirement 11627 for details
 var(MMOServer) int BeKilledVarIndex                                             <DisplayName="BeKilledVarIndex" | ExportExcel="Server">;
 var(MMOServer) int KillPlayerVarIndex                                           <DisplayName="KillPlayerVarIndex" | ExportExcel="Server">;
 
@@ -183,14 +183,14 @@ var(MMO_UI) bool IsMerchant	                                                    
 var(MMO_UI) bool IsWarehouse	                                                <DisplayName="IsWarehouse" | ExportExcel="Client">;
 var(MMO_UI) bool IsNormalFunction                                               <DisplayName="IsNormalFunction">;
 var(MMO_UI) bool IsGuildDungeon                                                 <DisplayName="IsGuildDungeon" | ExportExcel="Client">;
-// 角色类型
+// character type
 var(MMO_UI) EActorClassType ActorType                                           <DisplayName="ActorType" | ExportExcel="Client">;
 var(MMO_UI) bool FaceToActorWhenInteract                                        <DisplayName="FaceToActorWhenInteract" | ExportExcel="Client">;
 var(MMO_UI) bool DisablePick                                                    <DisplayName="DisablePick" | ExportExcel="Client">;
 var(MMO_UI) bool HideHUDName                                                    <DisplayName="HideHUDName" | ExportExcel="Client">;
 
 //----------------------------------------------------------------------
-// 增减以下字段后需要到void UITextParser::Parse( 最后打好补丁！！！
+// after adding or removing the following fields, the patch must be finalized at the end of void UITextParser::Parse( !!!
 //----------------------------------------------------------------------
 var(MMO_UI_Diag) DialogOptionConfig EnableDiag_PlayerBank                       <DisplayName="PlayerBank" | ExportExcel="Both">;
 var(MMO_UI_Diag) DialogOptionConfig EnableDiag_GuildBank                        <DisplayName="GuildBank" | ExportExcel="Both">;
@@ -240,7 +240,7 @@ var(Wind) float WindStrength;
 var(GuildBuilding) SkeletalMeshComponent BuildingMesh;
 
 //-------------------------------------------------------
-// 导出到Excel
+// export to Excel
 //-------------------------------------------------------
 
 native function bool IsNeedArchetype();

@@ -87,9 +87,9 @@ void UMMOUINPCShop::OpenBlackMaret( int id)
 
 void UMMOUINPCShop::UpdateShopData()
 {
-	//清理
+	//cleanup
 	ClearWidget(); // FIX:
-	//默认不筛选
+	//No filter by default
 	if( ShopContent )
 	{
 		UGFxObject* filterObj = ShopContent->GetObject( TEXT("checkboxFilter_mc") );
@@ -305,7 +305,7 @@ void UMMOUINPCShop::UpdateItemSlot( UGFxObject* itemSlotMc, UBOOL show, const FS
 		priceTxtMc->SetVisible(show);
 	}
 	
-	// TODO:查证这个是不是不要了
+	// TODO: verify whether this is no longer needed
 // 	UGFxObject* silverMc = itemSlotMc->GetObject( TEXT("tF_Silver") );
 // 	if( silverMc )
 // 	{
@@ -364,7 +364,7 @@ void UMMOUINPCShop::UpdateListItem()
 		vecAllList = ShopManager::getSingleton().GetMaterialItemlist();
 		break;
 
-	case E_ITEMTYPE_MAX: // 回购
+	case E_ITEMTYPE_MAX: // buyback
 		//vecAllList = 0;
 		UpdateSoldItemView();
 		return;
@@ -522,7 +522,7 @@ void UMMOUINPCShop::ClickRepairAll()
 
 	CMessageHandler::GetInstance().Send_RepairAll();
 
-	////修理英雄所有装备，add by Jimzhang
+	////Repair all hero equipment, add by Jimzhang
 	//AMMOPlayer* pHero = MMOFacade::getSingleton().GetMainHero();
 	//if(pHero && pHero->ItemManager)
 	//{
@@ -546,7 +546,7 @@ void UMMOUINPCShop::RepairItem(INT ContainerID, INT SlotID)
 		UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(itemInfo->m_nTemplateID);
 		if(itemTemp)
 		{
-			// 如果是装备并且耐久有损耗的才修理
+			// Only repair if it is equipment with durability loss
 			if(Cast<UEquip>(itemTemp))
 			{
 				if(itemInfo->m_nCurDur != itemInfo->m_nMaxDur)
@@ -567,7 +567,7 @@ UBOOL UMMOUINPCShop::OnLeftMousePress(class UGFxObject* mc,BYTE SlotType,BYTE Co
 {
 	//if(SlotType == ESPType_Shop)
 	//{
-	//	// 引导事件
+	//	// Tutorial event
 	//	MMOGameEvent_Guide evtGuide(EGUET_BuyItem);
 	//	MMOUI::PostGameEvent(&evtGuide);
 
@@ -579,7 +579,7 @@ UBOOL UMMOUINPCShop::OnLeftMousePress(class UGFxObject* mc,BYTE SlotType,BYTE Co
 	//		{
 	//			if( item->ItemDuration == E_DURTYPE_STACK && item->MaxStackNum > 1 )
 	//			{
-	//				//可堆叠的多件物品才弹框
+	//				//Only pop up for stackable multi-item stacks
 	//				ShowShopPurchaseDialog(SlotID);
 	//			}
 	//			else
@@ -610,12 +610,12 @@ UBOOL UMMOUINPCShop::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE C
 		SellItem(ContainerID, SlotID);
 		return TRUE;
 	}
-	else if(SlotType == ESPType_Shop) // 右键直接买1个
+	else if(SlotType == ESPType_Shop) // right click buys 1 directly
 	{
 		//INT ShopSlot = mc->GetInt(TEXT("iteminfoid"));
 		//INT TempId = mc->GetInt( TEXT("ItemTemplateID") );
 		//SendBuyShopItem( ShopSlot , 1 , TempId );
-			// 引导事件
+			// Tutorial event
 			MMOGameEvent_Guide evtGuide(EGUET_BuyItem);
 			MMOUI::PostGameEvent(&evtGuide);
 
@@ -634,7 +634,7 @@ UBOOL UMMOUINPCShop::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE C
 						}
 						else
 						{
-							//可堆叠的多件物品才弹框
+							//Only pop up for stackable multi-item stacks
 							ShowShopPurchaseDialog(SlotID);
 						}
 						
@@ -654,12 +654,12 @@ UBOOL UMMOUINPCShop::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE C
 			}
 		return TRUE;
 	}
-	else if(SlotType == ESPType_ShopSell) // 右键点出售面板中的就购回
+	else if(SlotType == ESPType_ShopSell) // right click on item in the sell panel to buy back
 	{
 		CMessageHandler::GetInstance().Send_BuybackItem(SlotID);
 		return TRUE;
 	}
-	else if(SlotType == ESPType_BlackMarket) // 黑市
+	else if(SlotType == ESPType_BlackMarket) // black market
 	{
 		INT id = mc->GetInt(TEXT("iteminfoid"));
 		
@@ -812,7 +812,7 @@ void UMMOUINPCShop::UpdateTabButton()
 		++used;
 	}
 
-	if(used < TabNum) // 回购
+	if(used < TabNum) // buyback
 	{
 		SetupTab(used, E_ITEMTYPE_MAX, TEXT("img://MMO_UIImg.img_tab_shop_6") , MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Shop.Buyback")));
 		++used;
@@ -821,7 +821,7 @@ void UMMOUINPCShop::UpdateTabButton()
 
 void UMMOUINPCShop::SoldItemChange()
 {
-	// 如果是回购标记
+	// If it is a buyback flag
 	if(CurTab == E_ITEMTYPE_MAX)
 	{
 		INT soldItemCnt = MMOFacade::getSingleton().GetSoldItemCount();
@@ -856,7 +856,7 @@ void UMMOUINPCShop::UpdateSoldItemView()
 				continue;
 			}
 
-			// 只能卖成金币
+			// Can only be sold for gold coins
 			INT price = MMOFacade::getSingleton().GetEquipNpcPrice(itemTemp, info);
 			UpdateItemSlot(mc, TRUE, itemTemp->GetDisplayName(), MONEYTYPE_01,
 				/*itemTemp->ItemDuration == E_DURTYPE_STACK ? info->m_nCurDur * price :*/ price , 0 , 0 ,info->GetCurStackCount(itemTemp),0,listName);
@@ -879,7 +879,7 @@ void UMMOUINPCShop::NpcShopTab( INT itemID )
 	
 	if(E_ITEMTYPE_MAX == CurTab)
 	{
-		// 显示时请求回购列表
+		// Request the buyback list when shown
 		CMessageHandler::GetInstance().Send_ViewSoldItems();
 	}
 	else
@@ -981,12 +981,12 @@ void UMMOUINPCShop::DoSellItem(INT containerID, INT slotID)
 				return;
 			}
 
-			// 如果是装备就不要用耐久值作为出售数量
+			// If it is equipment, do not use durability as the sell quantity
 			if(Cast<UEquip>(itemTemp))
 			{
 				CMessageHandler::GetInstance().Send_SellItem( containerID, slotID, 1 , itemInfo->m_nTemplateID );
 			}
-			else // 不是装备的耐久代表堆叠数量
+			else // for non-equipment, durability represents stack count
 			{
 				CMessageHandler::GetInstance().Send_SellItem( containerID, slotID, itemInfo->m_nCurDur , itemInfo->m_nTemplateID );
 			}
@@ -1020,17 +1020,17 @@ void UMMOUINPCShop::PostOnShow(UBOOL show)
 
 	if (show)
 	{
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_ShowShopPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 
-		//隐藏shopMessage
+		//Hide shopMessage
 		MMOShopManager::getSingleton().notifyShowShopMessage(FALSE);
 		//SetSlotEnable();
 
 	}
 	else{
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_CloseShopPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 
@@ -1095,7 +1095,7 @@ void UMMOUINPCShop::ShopMsgAck( UBOOL agree , int count)
 		SendBuyShopItem( MessageItemShopSlot , count , MessageItem->GetTemplateID() );
 		
 	}
-	//隐藏shopMessage
+	//Hide shopMessage
 	MMOShopManager::getSingleton().notifyShowShopMessage(FALSE);
 }
 
@@ -1151,7 +1151,7 @@ void UMMOUINPCShop::PostAdvance(FLOAT inDeltaTime )
 			static INT fTimeSpan = 0;
 			if(++fTimeSpan > 10)
 			{
-				fTimeSpan = 0;//延迟判断一次距离
+				fTimeSpan = 0;//delay the distance check once
 				INT CurDistance = (selectActor->Location-MMOFacade::getSingleton().GetMainController()->Pawn->Location).Size2D();
 				if(CurDistance >= nTargetMaxDistance)
 					Show(FALSE);
@@ -1213,7 +1213,7 @@ void UMMOUINPCShop::UpdateBlackMarketItemCount(INT id, INT count)
 				countMc->SetText(itemCountString);
 			}
 			
-			//置灰
+			//Gray out
 			if ( count <= 0 && itemData->LimitType != 0)
 				eventUCGraySlot( name, TRUE );
 			else

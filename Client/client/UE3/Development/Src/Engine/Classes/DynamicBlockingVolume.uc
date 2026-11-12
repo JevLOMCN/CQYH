@@ -15,7 +15,7 @@ class DynamicBlockingVolume extends BlockingVolume
 var(MMOServer) bool bEnabled; // oscar@snda
 
 // oscar@snda
-// 是否只是客户端使用的（如果是不用导出）
+// Whether it is client-only (if so, no need to export)
 //var(MMOServer) bool IsClientOnly;
 
 enum EBlockingActionType
@@ -25,10 +25,10 @@ enum EBlockingActionType
 	eBAT_Inverse <DisplayName="Inverse">
 };
 
-// 自动编号的服务器ID
+// Auto-numbered server ID
 var(MMOServer) int ServerID;
 
-// 触发时的动作类型
+// Action type when triggered
 var(MMOServer) EBlockingActionType ActionType;
 // oscar@snda
 

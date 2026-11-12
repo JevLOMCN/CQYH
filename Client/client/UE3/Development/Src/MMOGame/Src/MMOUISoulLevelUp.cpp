@@ -58,7 +58,7 @@ void UMMOUISoulLevelUp::BagSlotChange( INT bagId, INT slotId )
 	FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( bagId, slotId );
 
 	if( _ToLvUpSoul._ConID == bagId && _ToLvUpSoul._SlotID == slotId ){
-		//需升级的魂
+		//Soul to upgrade
 		if( pItemInfo == NULL ){
 			UnSetLevelUpSoul();
 		}
@@ -67,10 +67,10 @@ void UMMOUISoulLevelUp::BagSlotChange( INT bagId, INT slotId )
 		}
 	}
 	else if( _HelpLvUpSoulItem._ConID == bagId && _HelpLvUpSoulItem._SlotID == slotId ){
-		//提升升级成功率的物品
+		//Item that raises upgrade success rate
 	}
 	else{
-		//升级吸收的魂
+		//Soul absorbed for upgrade
 		for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
 			if( _SacrificeSoul[i]._ConID == bagId && _SacrificeSoul[i]._SlotID == slotId ){
 				if( pItemInfo == NULL ){
@@ -79,7 +79,7 @@ void UMMOUISoulLevelUp::BagSlotChange( INT bagId, INT slotId )
 				else{
 					INT unSetCnt = AutoUnSetPackedSoulScrifice( bagId, slotId );
 					if( unSetCnt > 0 ){
-						//放入的灵堆叠数量不够
+						//The placed spirit stack count is insufficient
 						MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") );
 					}
 					break;
@@ -191,7 +191,7 @@ UBOOL UMMOUISoulLevelUp::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObjec
 		return FALSE;
 	}
 
-	//从背包到融灵
+	//from bag to spirit fusion
 	if( srcSlotType == ESPType_Bag ){
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
@@ -240,7 +240,7 @@ UBOOL UMMOUISoulLevelUp::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObjec
 		return TRUE;
 	}
 	else if( destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		INT panelSlotID = (INT)srcSlotMC->GetFloat( TEXT("EquipID") );
 		if( srcSlotType == ESPType_SoulLevelUp ){
 			switch( panelSlotID )
@@ -284,9 +284,9 @@ void UMMOUISoulLevelUp::ResetUI()
 //soul level up
 void UMMOUISoulLevelUp::UpdateSoulLevelUp()
 {
-	//待升级的灵
+	//Spirit to upgrade
 	SetLevelUpSoul( _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID );
-	//吸收的灵
+	//Absorbed spirit
 	for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
 		if( _SacrificeSoul[i]._ConID >= 0 ){
 			FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( _SacrificeSoul[i]._ConID, _SacrificeSoul[i]._SlotID );
@@ -380,13 +380,13 @@ INT UMMOUISoulLevelUp::UpdateSuccessRatio()
 	//get next level soul information
 	const SoulInfo* pNextLvSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pLvUpSoulInfo->_UpgradeSoulID );
 	if( pNextLvSoulInfo == NULL ){
-		//就认为是最高级了
+		//Consider it max level
 		_SuccessRitoTf->SetText( TEXT("") );
 		return 0;
 	}
 
 	INT curValue = 0;
-	//吸收的灵魂
+	//Absorbed soul
 	for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
 		if( _SacrificeSoul[i]._ConID < 0 || _SacrificeSoul[i]._SlotID < 0 ){
 			continue;
@@ -420,7 +420,7 @@ INT UMMOUISoulLevelUp::UpdateSuccessRatio()
 		rate = 100;
 	}
 
-	//提升成功率道具成功率加成
+	//Success rate bonus from success-rate-boosting item
 	_HelpLvUpSoulItem;
 
 	//
@@ -443,7 +443,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 
-	//设置待升级的魂
+	//Set soul to upgrade
 	FClientItemInfo *pSoulItemInfo = NULL;
 	UItem *pSoulItem = NULL;
 	const SoulInfo* pSoulInfo = NULL;
@@ -464,7 +464,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 		//
 		pSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pSoulItemInfo->m_nTemplateID );
 		if( pSoulInfo == NULL ){
-			//放入的不是灵物品
+			//The item placed is not a spirit item
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") ) ,MsgInfoType_Table, TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL"));
 			return FALSE;
 		}
@@ -472,14 +472,14 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 		//
 		UBOOL isAlreadyInUse = pSoulItemInfo->IsDragIntoOtherUI > -1;
 		if( isAlreadyInUse && ( _ToLvUpSoul._ConID != containerID && _ToLvUpSoul._SlotID != slotID ) ){
-			//正在被使用（应该是在灵吸收栏中或是交易中）
+			//Being used (probably in the spirit absorption slot or in a trade)
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE") );
 			return FALSE;
 		}
 	}
 
 
-	//解锁背包内原先放置的魂
+	//Unlock the soul previously placed in the bag
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	if( _ToLvUpSoul._ConID >= 0 && _ToLvUpSoul._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _ToLvUpSoul._ConID == E_CONSLOT_DEFAULT ){
@@ -487,7 +487,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 		//}
 	}
 
-	//清空，取下魂
+	//Clear, remove soul
 	if( ( pSoulItemInfo == NULL ) && ( _ToLvUpSoul._ConID >= 0 && _ToLvUpSoul._SlotID >= 0 ) ){
 		//if( pBagPanel != NULL && _ToLvUpSoul._ConID == E_CONSLOT_DEFAULT ){
 			MMOFacade::getSingleton().LockItem( _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID, -1 );
@@ -500,10 +500,10 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 		_ToLvUpSoul._ConID = -1;
 		_ToLvUpSoul._SlotID = -1;
 
-		//刷新信息
+		//Refresh info
 		UpdateSoulInfo();
 
-		//成功率刷新
+		//Refresh success rate
 		UpdateSuccessRatio();
 
 		return TRUE;
@@ -513,7 +513,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 	_ToLvUpSoul._ConID = containerID;
 	_ToLvUpSoul._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( _ToLvUpSoulMc, pSoulItem, ESPType_SoulLevelUp, _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID );
 	if( pSoulItem != NULL ){
 		GFXPlayer->eventCallSetItemData( _ToLvUpSoulMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pSoulItem ), pSoulItem->ItemId, ESPType_SoulLevelUp, TEXT(""), pSoulItem->ItemColor+1, _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID );
@@ -522,15 +522,15 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoul( INT containerID, INT slotID )
 		GFXPlayer->eventCallSetItemData( _ToLvUpSoulMc , 0 , TEXT("") , -1, ESPType_SoulLevelUp, TEXT("") , ITEMCOLOR_INVALID, -1, -1 );
 	}
 	
-	//锁住背包内原先放置的魂
+	//Lock the soul previously placed in the bag
 	//if( pBagPanel != NULL && _ToLvUpSoul._ConID == E_CONSLOT_DEFAULT ){
 		MMOFacade::getSingleton().LockItem( _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID, ESPType_SoulLevelUp );
 	//}
 
-	//刷新信息
+	//Refresh info
 	UpdateSoulInfo();
 
-	//成功率刷新
+	//Refresh success rate
 	UpdateSuccessRatio();
 
 	return TRUE;
@@ -580,7 +580,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 	UGFxObject *pSlotMc = _SacrificeSoulMc[targetSlotID];
 	FOperationItemBagPos &toSacrifySoulPos = _SacrificeSoul[targetSlotID];
 
-	//设置吸收的魂
+	//Set absorbed soul
 	FClientItemInfo *pSoulItemInfo = NULL;
 	UItem *pSoulItem = NULL;
 	const SoulInfo* pSoulInfo = NULL;
@@ -601,7 +601,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 		//
 		pSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pSoulItemInfo->m_nTemplateID );
 		if( pSoulInfo == NULL ){
-			//放入的不是灵物品
+			//The item placed is not a spirit item
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL"));
 			return FALSE;
 		}
@@ -614,13 +614,13 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 			if( pSoulItemInfo->IsDragIntoOtherUI == ESPType_SoulLevelUp && !isInLevelUpSlot ){
 				UBOOL isEnough = IsEnoughSoulsCanAddMoreScrifice( containerID, slotID );
 				if( !isEnough ){
-					//放入的灵堆叠数量不够
+					//The placed spirit stack count is insufficient
 					MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") );
 					return FALSE;
 				}
 			}
 			else{
-				//正在被使用（应该是在灵升级栏中或是交易中）
+				//Being used (probably in the spirit upgrade slot or in a trade)
 				MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE"));
 				return FALSE;
 			}
@@ -628,10 +628,10 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 	}
 
 
-	//解锁背包内原先放置的魂
+	//Unlock the soul previously placed in the bag
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	if( ( pSoulItemInfo == NULL ) && ( toSacrifySoulPos._ConID >= 0 && toSacrifySoulPos._SlotID >= 0 ) ){
-		//清空，取下魂
+		//Clear, remove soul
 		//if( pBagPanel != NULL && toSacrifySoulPos._ConID == E_CONSLOT_DEFAULT ){
 			INT puttedCnt = 0;
 			for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
@@ -652,7 +652,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 		toSacrifySoulPos._ConID = -1;
 		toSacrifySoulPos._SlotID = -1;
 
-		//成功率刷新
+		//Refresh success rate
 		UpdateSuccessRatio();
 
 		return TRUE;
@@ -662,7 +662,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 	toSacrifySoulPos._ConID = containerID;
 	toSacrifySoulPos._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( pSlotMc, pSoulItem, ESPType_SoulLevelUp, toSacrifySoulPos._ConID, toSacrifySoulPos._SlotID );
 	if( pSoulItem != NULL ){
 		GFXPlayer->eventCallSetItemData( pSlotMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pSoulItem ), pSoulItem->ItemId, ESPType_SoulLevelUp, TEXT(""), pSoulItem->ItemColor+1, toSacrifySoulPos._ConID, toSacrifySoulPos._SlotID );
@@ -671,12 +671,12 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSacrifice( INT containerID, INT slotID, I
 		GFXPlayer->eventCallSetItemData( pSlotMc , 0 , TEXT("") , -1, ESPType_SoulLevelUp, TEXT("") , ITEMCOLOR_INVALID, -1, -1 );
 	}
 
-	//锁住背包内原先放置的魂
+	//Lock the soul previously placed in the bag
 	//if( pBagPanel != NULL && toSacrifySoulPos._ConID == E_CONSLOT_DEFAULT ){
 		MMOFacade::getSingleton().LockItem( toSacrifySoulPos._ConID, toSacrifySoulPos._SlotID, ESPType_SoulLevelUp );
 	//}
 
-	//成功率刷新
+	//Refresh success rate
 	UpdateSuccessRatio();
 
 	return TRUE;
@@ -696,7 +696,7 @@ UBOOL UMMOUISoulLevelUp::SetLevelUpSoulSuccessHelp( INT containerID, INT slotID 
 //=============================================================================================================================
 void UMMOUISoulLevelUp::ConfirmSoulLevelUp()
 {
-	//没有需要升级的灵
+	//No spirit to upgrade
 	if( _ToLvUpSoul._ConID < 0 || _ToLvUpSoul._SlotID < 0 ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_NOT_INPUT") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_NOT_INPUT") );
 		return;
@@ -713,7 +713,7 @@ void UMMOUISoulLevelUp::ConfirmSoulLevelUp()
 		scarificeSoulSlotVector.push_back( _SacrificeSoul[i]._SlotID );
 	}
 
-	//没有吸收的灵，不可能升级成功
+	//No absorbed spirit, upgrade cannot succeed
 	if( scarificeSoulContVector.empty() ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_NEED_SACRIFICE_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_NEED_SACRIFICE_SOUL") );
 		return;
@@ -727,14 +727,14 @@ void UMMOUISoulLevelUp::ConfirmSoulLevelUp()
 void UMMOUISoulLevelUp::OnNotifySoulLevelUpResult( int result )
 {
 	if( result != FALSE ){
-		//成功，有BagSlotChange通知，那里把刷新做掉了
-		//不支持连续升级，这里就置空了
+		//Success; BagSlotChange notification handles the refresh
+		//Continuous upgrade not supported, so clear it here
 		UnSetLevelUpSoul();
 
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_SUCCEED") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_SUCCEED"));
 	}
 	else{
-		//失败
+		//Failed
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_FAILED") ),MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_FAILED") );
 	}
 }

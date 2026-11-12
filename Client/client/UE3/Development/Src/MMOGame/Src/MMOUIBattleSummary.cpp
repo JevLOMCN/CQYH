@@ -59,7 +59,7 @@ void UMMOUIBattleSummary::ResetBattleSummaryShow()
 	//
 	UBOOL canLeave = pBattleManager->IsBattleEnding();
 	LeaveBattle_btn->SetVisible( canLeave );
-	//隐藏按钮
+	//hide button
 	HideBattle_btn->SetVisible( !canLeave );
 }
 //
@@ -80,7 +80,7 @@ void UMMOUIBattleSummary::UpdateBattleSummary( int tabIdx )
 	//leave button
 	UBOOL canLeave = pBattleManager->IsBattleEnding();
 	LeaveBattle_btn->SetVisible( canLeave );
-	//隐藏按钮
+	//hide button
 	HideBattle_btn->SetVisible( !canLeave );
 	//update current showed panel
 	if( CurTabPanel == EBSUM_ScorePanel ){
@@ -88,7 +88,7 @@ void UMMOUIBattleSummary::UpdateBattleSummary( int tabIdx )
 		UpdateBattleScoreList();
 	}
 	else if( CurTabPanel == EBSUM_PlayDescPanel ){
-		//最好只在当前战场第一次打开时刷新
+		//best to refresh only the first time the current battlefield is opened
 		UpdateBattlePlayDesc();
 	}
 	//show it's panel
@@ -104,24 +104,24 @@ void UMMOUIBattleSummary::UpdateAllTeamScore()
 	
 	//MMOBattleManager *pBattleManager = &MMOBattleManager::getSingleton();
 	//if( pBattleManager->GetCurBattleSidesCnt() == 3 ){
-	//	//三方战役
+	//	//three-way battle
 	//	TeamScore_mc->GotoAndStopI(2);
-	//	//第三方
+	//	//third party
 	//	UGFxObject *team2Score_tf = TeamScore_mc->GetObject("Team_tf2");
 	//	if( team2Score_tf != NULL ){
 	//		team2Score_tf->SetText( appItoa( pBattleManager->GetBattleTeamScore( 2 ) ) );
 	//	}
 	//}
 	//else{
-	//	//两方战役
+	//	//two-way battle
 	//	TeamScore_mc->GotoAndStopI(1);
 	//}
-	////己方
+	////own side
 	//UGFxObject *myTeamScore_tf = TeamScore_mc->GetObject("Team_tf0");
 	//if( myTeamScore_tf != NULL ){
 	//	myTeamScore_tf->SetText( appItoa( pBattleManager->GetBattleTeamScore( EBTLTMS_Team0 ) ) );
 	//}
-	////对方
+	////opposing side
 	//UGFxObject *team1Score_tf = TeamScore_mc->GetObject("Team_tf1");
 	//if( team1Score_tf != NULL ){
 	//	team1Score_tf->SetText( appItoa( pBattleManager->GetBattleTeamScore( EBTLTMS_Team1 ) ) );
@@ -188,7 +188,7 @@ void UMMOUIBattleSummary::UpdateBattleScoreList()
 		UGFxObject* itemTitleObj = NULL;
 		if( pBattlePlayer->_BtlTeamID != lastTeamID ){
 
-			////空行
+			////blank line
 			//if( lastTeamID != -1 ){
 			//	itemTitleObj = GFXPlayer->CreateObject( TEXT("ActionScript3.TreeListData") );
 			//	itemTitleObj->SetInt( TEXT("index"), idx );
@@ -200,7 +200,7 @@ void UMMOUIBattleSummary::UpdateBattleScoreList()
 			//	++idx;
 			//}
 
-			//加入标题
+			//add title
 			lastTeamID = pBattlePlayer->_BtlTeamID;
 
 			itemTitleObj = GFXPlayer->CreateObject( TEXT("UI_BattleSummary.BattleSummaryAS3.BtlScoreListTitleData") );
@@ -226,7 +226,7 @@ void UMMOUIBattleSummary::UpdateBattleScoreList()
 			++idx;
 		}
 
-		//人员得分
+		//member score
 		UGFxObject* itemObj = GFXPlayer->CreateObject( TEXT("UI_BattleSummary.BattleSummaryAS3.BtlScoreListItemData") );
 		//check(itemObj != NULL);	
 		if(itemObj == NULL)
@@ -292,7 +292,7 @@ void UMMOUIBattleSummary::NotifyBattleEnd()
 	//
 	UBOOL canLeave = pBattleManager->IsBattleEnding();
 	LeaveBattle_btn->SetVisible( canLeave );
-	//隐藏按钮
+	//hide button
 	HideBattle_btn->SetVisible( !canLeave );
 	//
 	const FBattlePlayer *pMyScore = pBattleManager->GetMyBattleScoreInfo();
@@ -303,7 +303,7 @@ void UMMOUIBattleSummary::NotifyBattleEnd()
 	BYTE myTeamID = pMyScore->_BtlTeamID;
 	BYTE winTeamID = pBattleManager->GetWinTeamID();
 
-	//离开按钮
+	//leave button
 	FString btnStr;
 	btnStr = ( ( myTeamID == winTeamID ) ? MMOUI::ParseLocalizedPropertyPath( "MMOGame.BattleField.BattleNorm1") : MMOUI::ParseLocalizedPropertyPath( "MMOGame.BattleField.BattleNorm2") );
 	LeaveBattle_btn->SetString( TEXT("label"), btnStr );

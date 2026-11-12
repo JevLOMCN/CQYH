@@ -17,7 +17,7 @@
 using namespace FSM;
 
 
-//FSM控制类注册--------------------------------------------------------------------------------------------------
+//FSM control class registration--------------------------------------------------------------------------------------------------
 ADD_FSM_CTRL(FSMCtrl_KeepRunning)
 ADD_FSM_CTRL(FSMCtrl_SearchDoodad)
 ADD_FSM_CTRL(FSMCtrl_AIInSafeZone)
@@ -80,7 +80,7 @@ void FSMCtrl_KeepRunning::Action()
 	return;
 }
 
-//搜索附近doodad,并交互------------------------------------------------------------------------------------------------------
+//Search nearby doodad, and interact------------------------------------------------------------------------------------------------------
 UBOOL FSMCtrl_SearchDoodad::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_SearchDoodad");
@@ -124,7 +124,7 @@ void FSMCtrl_SearchDoodad::Action()
 extern INT g_SerialID;
 extern INT g_LastRequestAbilitySerialId;
 extern INT g_LastRequestAbilityId;
-//进出安全区表演Ai----------------------------------------------------
+//Enter/leave safe zone performance Ai----------------------------------------------------
 UBOOL FSMCtrl_AIInSafeZone::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_AIInSafeZone");
@@ -140,7 +140,7 @@ UBOOL FSMCtrl_AIInSafeZone::Update(FLOAT DelTime)
 		return TRUE;
 	}
 
-	//检测是否要释放4000or4001技能
+	//Check whether to cast ability 4000 or 4001
 	if(	FSM::Ctrl.IsWantToSendRequest4000Or4001Ability &&
 		FSM::Char.Controller		&&
 		FSM::Char.MainPlayer)
@@ -188,7 +188,7 @@ UBOOL FSMCtrl_AIInSafeZone::Update(FLOAT DelTime)
 
 void FSMCtrl_AIInSafeZone::Action()
 {
-	if(MMO::GetCurrentGameState() == EGameState_InGame){//在游戏中
+	if(MMO::GetCurrentGameState() == EGameState_InGame){//In game
 		FSMIO::getSingleton().CDTime.ResetCD_SafeZoneDelayTime();
 		if(	FSM::Char.MainPlayer->IsInSafeZone && FSM::Char.MainPlayer->ActorAttributes->byCombatPoseOn==FALSE )
 		{
@@ -200,12 +200,12 @@ void FSMCtrl_AIInSafeZone::Action()
 		}
 	}
 }
-//快速查看玩家信息----------------------------------------------------
+//Quick view player info----------------------------------------------------
 UBOOL FSMCtrl_ShowPlayerInfo::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_ShowPlayerInfo");
 
-	//Ctrl+行走键，进行快速查看指定玩家
+	//Ctrl+walk key, quick view the specified player
 	if( FSM::Ctrl.state_Switching_Flag  &&
 		FSM::Ctrl.KeyType == KT_SECONDARY &&
 		//FSM::Ability.DesireAbility==FALSE &&
@@ -240,7 +240,7 @@ void FSMCtrl_ShowPlayerInfo::Action()
 
 }
 
-//玩家头顶名字按钮----------------------------------------------------
+//Player overhead name button----------------------------------------------------
 UBOOL FSMCtrl_ShowHintBtn::Update(FLOAT DelTime)
 {
 	CTRL_TICK_F("FSMCtrl_ShowHintBtn");

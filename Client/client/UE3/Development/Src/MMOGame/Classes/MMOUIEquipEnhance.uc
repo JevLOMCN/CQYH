@@ -27,14 +27,14 @@ var GFxObject TransEnhanceMnyCsm_tf;
 var GFxObject TransEnhanceCurDgr_tf;
 var GFxObject TransEnhance_btn;
 
-//当前强化（转移强化）插槽中的物品所在包裹中的位置(-1为空)
+//Position in the bag of the item currently in the enhance (transfer enhance) slot (-1 is empty)
 var int CurWorkingItemBagID;
 var int CurWorkingItemContainID;
-//当前需转移强化至物品插槽中，该物品所在包裹中的位置(-1为空)
+//Position in the bag of the item to transfer the enhancement to in the item slot (-1 is empty)
 var int CurTransEnhanceToItemBagID;
 var int CurTransEnhanceToItemContainID;
 
-//条件是否满足，可以开始强化（取消强化）
+//Whether conditions are met and enhance (cancel enhance) can start
 var bool IsMatOK;
 var bool IsMnyOK;
 var bool IsDegreeOK;
@@ -55,7 +55,7 @@ enum enumEquipSlotID
 
 var enumEquipEnhanceMode EnumCurEnhanceMode;
 
-//监控事件，以实时更新条件
+//Monitor events to update conditions in real time
 native function BagSlotChange( INT BagId,INT SlotId );
 native function PlayerMoneyChange(EMONEY_TYPE MoneyType, int DeltaMoney);
 //
@@ -72,69 +72,69 @@ event OnUnSubscribeItemSlotAction()
 }
 
 native function Equip GetBagEquip( int bagSlotCon, int bagSlotID );
-//检查是否为可以强化（取消强化）
+//Check whether it can be enhanced (cancel enhance)
 native function bool CheckCanGo();
-//检查是否为此界面正在使用的物品
+//Check whether it is an item currently in use by this UI
 native function bool CheckInUse( int ItemInBagID );
-//通过取回已经设置的UI值来判定是否所有材料齐全，避免每次都轮询背包所有材料格
+//Determine whether all materials are present by reading back the already-set UI values, avoiding polling all material cells in the bag every time
 native function ReChkMatCondtionByUI();
-//检查是否可做转移
+//Check whether transfer is possible
 native function bool CheckCanTransEnhance( int bagSlotCon, int bagSlotIdx );
 
-//放入强化（取消强化）的装备
+//Put in the equipment to enhance (cancel enhance)
 native function SetWorkingSlotData( int bagSlotCon, int bagSlotID, Item slotItem );
 native function SetTransSlotTarget(  int bagSlotCon, int bagSlotID, Item slotItem);
 native function int CurBagIdxOfTargetEquip();
 native function int CurBagIdxOfTransTargetEquip();
 native function int CurContainOfTargetEquip();
 native function int CurContainOfTransTargetEquip();
-//更新
+//Update
 native function UpdatePanel();
 //
 native function UpdateMakeEnhanceInfo();
 //
 native function UpdateTransEnhanceInfo();
-//更新所需耗材信息
+//Update required material info
 native function UpdateMaterialConsume();
-//更新某个耗材数量
+//Update the count of a material
 native function int UpdateMaterialCnt( GFxObject TfCurHave, GFxObject TfCnt, int itemID, int MatCsmNeed );
-//更新（转移）强化金钱耗费
+//Update (transfer) enhance money cost
 native function UpdateFee();
-//更新（转移）强化物品当前强化等级，最大强化等级，强化属性
+//Update (transfer) enhance item's current enhance level, max enhance level, enhance attributes
 native function UpdateEquipInfo();
 
 //
 
-//清空解锁放入的装备
+//Clear the unlocked equipment that was put in
 native function ResetEnhanceItems();
-//AS调用，用于回复默认界面
+//Called by AS, used to restore the default UI
 native function ShowDefaultContent( int mode);
 //
 native function ResetUIMode();
-//清空界面内容
+//Clear UI content
 native function ResetPanelInfo();
 //
 native function ResetMakeEnhanceInfo();
 //
 native function ResetTransEnhanceInfo();
-//清空耗材slot
+//Clear material slots
 native function ResetMaterialConsume( int startIdx );
-//回复到默认标签页,通知Flash
+//Restore to the default tab, notify Flash
 event ChangeContentTabBtn( int tabIdx )
 {
 	ActionScriptVoid( "UCShowContent" );
 }
 //
 native function ResetCondition();
-//检查状态，设置界面按钮提示等
+//Check state, set UI button hints, etc.
 native function CheckOperation();
 
-//操作响应
+//Operation response
 native function MakeEnhanceItem();
 native function NotifyMakeEnhanceItemResult( bool isSucceed );
 //
 native function TransferEnhanceItem();
-//控制操作可行性
+//Control operation feasibility
 native function SetOkBtn();
 
 //===============================================================================================================

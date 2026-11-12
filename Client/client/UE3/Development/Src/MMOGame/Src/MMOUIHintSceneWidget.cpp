@@ -56,7 +56,7 @@ void UMMOUIHintSceneWidget::CloseHintSceneWidget()
 //
 void UMMOUIHintSceneWidget::ShowHintSceneMessage( const FString &text, INT textSize )
 {
-	// 过场动画时不要检测提示
+	// Do not check hints during cutscenes
 	AMMOPlayerController* pCtrl = MMOFacade::getSingleton().GetMainController();
 	if(pCtrl && pCtrl->IsPlayingMatinee()==FALSE)
 	{

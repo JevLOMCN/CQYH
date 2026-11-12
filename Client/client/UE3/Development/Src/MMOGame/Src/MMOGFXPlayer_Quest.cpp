@@ -224,7 +224,7 @@ void UMMOGFXPlayer_Quest::ASUpdateQuestChapterList()
 
 void UMMOGFXPlayer_Quest::ASUpdateQuestStageList(INT chapter)
 {
-	// 目前章节任务是从第4章开始的，先临时偏移下
+	// chapter quests currently start from chapter 4, temporarily offset for now
 	_QuestStoryPanel->UpdateQuestStageList(chapter);
 }
 
@@ -241,7 +241,7 @@ void UMMOGFXPlayer_Quest::ASSubmitItem(INT questId, INT itemId, INT itemIndex)
 		return;
 	}
 
-	// 获得需求属性
+	// get required attribute
 	INT itemColorReq = 0;
 	INT itemLevelReq = 0;
 	FString itemSubTypeReq = TEXT("");
@@ -271,9 +271,9 @@ void UMMOGFXPlayer_Quest::ASSubmitItem(INT questId, INT itemId, INT itemIndex)
 	UItem* item = MMOFacade::getSingleton().FindItemTemplate(itemId);
 	if (!item)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具不存在"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item does not exist"), 
 			MsgInfoType_Table, 
-			TEXT("道具不存在"));
+			TEXT("Item does not exist"));
 		return;
 	}
 
@@ -287,33 +287,33 @@ void UMMOGFXPlayer_Quest::ASSubmitItem(INT questId, INT itemId, INT itemIndex)
 
 	if (itemInfo->m_nTemplateID != itemId)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具不存在"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item does not exist"), 
 			MsgInfoType_Table, 
-			TEXT("道具不存在"));
+			TEXT("Item does not exist"));
 		return;
 	}
 
 	if (item->ItemColor != itemColorReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具品质不符合要求"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item quality does not meet the requirement"), 
 			MsgInfoType_Table, 
-			TEXT("道具品质不符合要求"));
+			TEXT("Item quality does not meet the requirement"));
 		return;
 	}
 
 	if (item->ItemLevel != itemLevelReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具等级不符合要求"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item level does not meet the requirement"), 
 			MsgInfoType_Table, 
-			TEXT("道具等级不符合要求"));
+			TEXT("Item level does not meet the requirement"));
 		return;
 	}
 
 	if (item->ItemSubType != itemSubTypeReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具类型不符合要求"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item type does not meet the requirement"), 
 			MsgInfoType_Table, 
-			TEXT("道具类型不符合要求"));
+			TEXT("Item type does not meet the requirement"));
 		return;
 	}
 

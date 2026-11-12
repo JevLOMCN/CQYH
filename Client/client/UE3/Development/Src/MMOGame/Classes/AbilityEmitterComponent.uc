@@ -7,7 +7,7 @@ class AbilityEmitterComponent extends AbilityComponent
 
 var(Common) EEmitterType     EmitterType;
 
-// 特效效模板
+// effect template
 var(Common) ParticleSystem ParticleSystemTemplate;
 
 var(Common) array<ParticleSystem> RandParticleSystemTemplates;
@@ -33,7 +33,7 @@ var(Common) bool    bLittleYawRand;
 var(Common) bool bUseBaseRotation;
 
 
-// 播放受伤特效的绑定点，如果没有就用角色的位置
+// bind point for playing the hit effect, use the character's position if none
 var(Common) name AttachSocketName <DynamicList="SocketList">;
 
 var(Common) float Scale;
@@ -43,7 +43,7 @@ var(Common) bool bUseSocketRotation;
 var(Common) Vector RelativeLocation;
 var(Common) Rotator RelativeRotation;
 
-// 闪电型或火球型特效,目标点类型
+// lightning or fireball effect, target point type
 var(Common) EProjectileTargetType ProjectileTargetType; 
 var(Common) editinline array<AbilityComponent> EmitterEndEffectList;
 
@@ -57,11 +57,11 @@ var(FlyTo) float Speed;
 // const time
 var(FlyTo) float FlyTime;
 
-//抛物线向上偏角[0,90) 
+//parabola upward deflection angle [0,90)
 var(FlyTo) float MaxHeight;
-//抛物线较正朝向时间比值(0,1)
+//parabola orientation-correction time ratio (0,1)
 var(FlyTo) float TimeToFinishFixRotation<ClampMin = 0.0 | ClampMax = 1.0>;
-// 在未有目标时,飞行的方向[-360, 360]
+// flight direction when there is no target [-360, 360]
 var(FlyTo) Rotator FlyDirection;
 var(FlyTo) Rotator DirectionDelta;
 
@@ -70,10 +70,10 @@ var(FlyTo) Rotator DirectionDelta;
 //var(FlyTo) Vector BezierControlPoint2;
 var(FlyTo) array<TwoVector> BezierControlPointList;
 
-// 环绕速度方向,仅环绕类型有效
+// orbit velocity direction, only valid for orbit type
 var(RotateProjectile) Rotator FirstSpawnDirection;
 var(RotateProjectile) Rotator RotateVelocity;
-// 环绕半径, 仅环绕类型有效
+// orbit radius, only valid for orbit type
 var(RotateProjectile) float RotateRadius;
 
 /** Light from the Emitter */

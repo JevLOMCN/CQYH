@@ -73,7 +73,7 @@ void UMMOUIArenaHint::StartFight( INT arenaTime )
 
 void UMMOUIArenaHint::UpdateTime( float dt )
 {
-	//¾º¼¼³¡	
+	//Arena
 	if( Step == ArenaHintStepFighting )
 	{
 		INT lastQueueTime = (INT)(ArenaTime);

@@ -333,7 +333,7 @@ UBOOL UWorld::PreSaveRoot(const TCHAR* Filename, TArray<FString>& AdditionalPack
 			FString PackageFilename;
 			if (GPackageFileCache->FindPackageFile(*StreamingLevel->PackageName.ToString(), NULL, PackageFilename))
 			{
-				//自动在保存时给Level赋值Index hemu@snda  120327
+				//Automatically assign Index to Level on save hemu@snda  120327
 				StreamingLevel->SubLevelID=LevelIndex;
 				AdditionalPackagesToCook.AddItem(StreamingLevel->PackageName.ToString());
 			}
@@ -2628,7 +2628,7 @@ void UWorld::UpdateLevelStreaming( FSceneViewFamily* ViewFamily, BOOL bBkWorld )
 			continue;
 		}
 		/*
-		//Start 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
+		//Start Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
 		UBOOL	isContained=FALSE;
 		if( / *GIsGame &&* /  WorldInfo->SubLevelVisbleGroupIDList.Num() >0 )
 		{
@@ -2645,7 +2645,7 @@ void UWorld::UpdateLevelStreaming( FSceneViewFamily* ViewFamily, BOOL bBkWorld )
 			isContained = TRUE;
 		if( ! isContained )
 			continue;
-		//End 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
+		//End Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
 */
 
 		// Don't bother loading sub-levels in PIE for levels that aren't visible in editor
@@ -7425,7 +7425,7 @@ UBOOL ULevelStreamingAlwaysLoaded::ShouldBeLoaded( const FVector& ViewLocation )
 // NVCHANGE_END_TURB: TSC - allow PhysX-specific levels
 
 	/*
-	//Start 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
+	//Start Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
 	AWorldInfo*	WorldInfo =  GWorld ? GWorld->GetWorldInfo() : NULL;
 	UBOOL				isContained = FALSE;
 	if( / *GIsGame &&* /  WorldInfo!=NULL && WorldInfo->SubLevelVisbleGroupIDList.Num() >0 )
@@ -7443,7 +7443,7 @@ UBOOL ULevelStreamingAlwaysLoaded::ShouldBeLoaded( const FVector& ViewLocation )
 		isContained = TRUE;
 	if( ! isContained )
 		return FALSE;
-	//End 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328*/
+	//End Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328*/
 	if( GWorld != NULL )
 	{
 		AGameInfo* GameInfo = GWorld->GetGameInfo();

@@ -69,7 +69,7 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 	{
 	case EPCT_PlayerClassA:
 		{
-			// 战士
+			// Warrior
 			if( gt == EGT_Male )
 			{
 				em = pEquipAppTemp->MeshList_WA_M;
@@ -84,7 +84,7 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 		break;
 	case EPCT_PlayerClassB:
 		{
-			// 法师
+			// Mage
 			if( gt == EGT_Male )
 			{
 				em = pEquipAppTemp->MeshList_MA_M;
@@ -127,7 +127,7 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 		break;
 	case EPCT_PlayerClassE:
 		{
-			// 道士
+			// Taoist
 			if( gt == EGT_Male )
 			{
 				em = pEquipAppTemp->MeshList_TA_M;
@@ -179,7 +179,7 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 
 	if( em != NULL )
 	{
-		// 找到了职业性别对应的EM，无需继续处理
+		// Found the EM for the class and gender, no need to continue
 		UEquipMesh* EquipMesh = Cast<UEquipMesh>( StaticConstructObject(
 			em->GetClass(), this, NAME_None, 0, em ) );
 		MeshList.AddItem( EquipMesh );
@@ -198,7 +198,7 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 		return;
 	}
 
-	// 未找到对应的EM，查看通用EM列表
+	// Corresponding EM not found, check the common EM list
 	TArray<UEquipMesh*>& ToSelectSet = (gt == EGT_Male ? pEquipAppTemp->MeshListTemplate_M : pEquipAppTemp->MeshListTemplate_F);
 	TArray<UEquipMesh*>& ToSelectRandomSet = (gt == EGT_Male ? pEquipAppTemp->RandomMeshListTemplate_M : pEquipAppTemp->RandomMeshListTemplate_F);
 

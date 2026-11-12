@@ -62,7 +62,7 @@ void HandbookDataProcessor::ParseData(HandbookData* obj, class CTabFile* dataRow
 		data.Sound = TEXT("");
 	}
 
-	// 用于发行版资源列表
+	// used for the release build resource list
 	if (obj)
 	{
 		obj->Sound = data.Sound;

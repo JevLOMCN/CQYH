@@ -1,5 +1,5 @@
 //
-// 废物利用一下
+// reuse the waste
 //
 class SkeletalMeshComponentEx extends SkeletalMeshComponent
 	native

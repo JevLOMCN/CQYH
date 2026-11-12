@@ -16,7 +16,7 @@
 #define M_ENABLE_ASYNC_PROC_CHAR 0
 #define ACTIVATION_LEN 32
 
-// oscar@snda 是否开启网络协议缓存处理
+// oscar@snda whether to enable network protocol cache handling
 #define M_ENABLE_NET_MSG_BUFF 0
 
 
@@ -255,7 +255,7 @@ public:
 	void Send_GetCurAllSpecialExp();
 	void Send_GetCurAllSpecialExpInfo();
 
-	//连带支付
+	//Joint payment
 	void Send_ChainGameMoney( UBOOL openChain );
     //map
     void Send_SelMapDifficulty(int SelDifficulty);
@@ -419,7 +419,7 @@ private:
 	M_DECL_PARSE_FUN(m2c_error_notify);
 
 
-    // 金钱同步
+    // Money sync
     M_DECL_PARSE_FUN(g2c_sync_money);
     M_DECL_PARSE_FUN(g2c_money_change);
 	
@@ -427,7 +427,7 @@ private:
 	M_DECL_PARSE_FUN(g2c_ping_ack);
 
 	M_DECL_PARSE_FUN(g2c_clear_spell_cache);
-	// 坐骑同步
+	// Mount sync
 	M_DECL_PARSE_FUN(g2c_sync_mount_list);
 	M_DECL_PARSE_FUN(g2c_activate_mount);
 	M_DECL_PARSE_FUN(g2c_char_on_mount);

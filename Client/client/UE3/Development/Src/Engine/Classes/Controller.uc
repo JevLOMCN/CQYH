@@ -114,7 +114,7 @@ var		float							SightCounter;					// Used to keep track of when to check player
 var		float							SightCounterInterval;			// how often player visibility is checked
 var     bool                            bEarlyOutOfSighTestsForSameType;// when an AI already has an enemy of this type, early out from sight tests to me
 var     int                             nPlayerColisionType;
-var     float                           fPlayerColisionRatio;           //碰撞阻挡，方向与对方的夹角正弦值，从0-1之间，1基本不阻挡，0就是阻挡夹角180°
+var     float                           fPlayerColisionRatio;           //Collision blocking, sine of the angle between the direction and the other party, from 0-1; 1 basically doesn't block, 0 blocks at a 180° angle
 /** multiplier to cost of NavigationPoints that another Pawn is currently anchored to */
 var float InUseNodeCostMultiplier;
 

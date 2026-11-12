@@ -1,5 +1,5 @@
 //
-// 绑定特效
+// Bind effect
 //
 class MMOStatusProc_AttachParticle extends Object implements(IMMOStatusProc)
 	native
@@ -33,7 +33,7 @@ event OnExecute(MMOActor actor)
 		for(i = 0; i < wpMesh.Length; ++i)
 		{
 			//sfx = new( self ) class'ParticleSystemComponent';
-			// self是一个模板，不能产生例子实体
+			// self is a template and cannot produce an instance
 			sfx = new( wpMesh[i] ) class'ParticleSystemComponent';  // zhaojun@snda
 			sfx.SetTemplate(EffectTemplate);
 			sfx.SetScale(EffectScale);			

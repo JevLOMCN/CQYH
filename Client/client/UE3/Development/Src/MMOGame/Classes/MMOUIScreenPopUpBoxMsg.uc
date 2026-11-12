@@ -2,11 +2,11 @@ class MMOUIScreenPopUpBoxMsg extends MMOUIBase
 	dependson(TypeDefine)
 	native(UI);
 
-//播放获得技能提示
+//Play gained ability hint
 native function PlayScreenPopUpBoxMsg( int msgId , EScreenMsgType type );
 native function PlayScreenPopUpBoxMsgByString( EScreenMsgType type, String title, String content, String iconPath, String extraString );
 
-//获得技能提示播放完毕通知 
+//Gained ability hint playback finished notification
 native function MsgPlayEnd();
 
 //===============================================================================================================

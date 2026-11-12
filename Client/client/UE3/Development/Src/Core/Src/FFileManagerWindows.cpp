@@ -18,7 +18,7 @@
 #pragma pack(pop)
 
 //------------------------------------------------------------------------------------------------
-// 文件名HASH映射
+// File name HASH mapping
 //------------------------------------------------------------------------------------------------
 #if M_HASH_FILE_NAME
 
@@ -86,7 +86,7 @@ FString TryFindHashFileName( const TCHAR* FilenameSrc )
 #endif
 
 // Encode manager Add by JimZhang@snda.com
-//加密算法
+//Encryption algorithm
 FArchiveEncode::FArchiveEncode()
 {
 	UINT	 seedEncode = 897502;
@@ -94,7 +94,7 @@ FArchiveEncode::FArchiveEncode()
 	{
 		offsetEnCode[i] = i;
 	}
-	//乱序
+	//Shuffle
 	srand(seedEncode);
 	BYTE buf;
 	int  iBuf;
@@ -105,7 +105,7 @@ FArchiveEncode::FArchiveEncode()
 		offsetEnCode[i]		= offsetEnCode[iBuf];
 		offsetEnCode[iBuf]	= buf;
 	}
-	//解乱序
+	//Unshuffle
 	for(int i=0;i<256;i++)
 	{
 		offsetDeCode[offsetEnCode[i]] = i;
@@ -336,7 +336,7 @@ void FArchiveFileWriterWindows::Serialize( void* V, INT Length )
 	while( Length > (Copy=ARRAY_COUNT(Buffer)-BufferCount) )
 	{
 		appMemcpy( Buffer+BufferCount, V, Copy );
-		////加密运算
+		////Encryption operation
 		//DoEncode(Buffer+BufferCount,Copy);
 		BufferCount += Copy;
 		Length      -= Copy;
@@ -346,7 +346,7 @@ void FArchiveFileWriterWindows::Serialize( void* V, INT Length )
 	if( Length )
 	{
 		appMemcpy( Buffer+BufferCount, V, Length );
-		////加密运算
+		////Encryption operation
 		//DoEncode(Buffer+BufferCount,Length);
 		BufferCount += Length;
 	}

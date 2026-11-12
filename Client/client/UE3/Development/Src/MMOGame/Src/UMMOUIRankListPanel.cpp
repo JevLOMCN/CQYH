@@ -109,55 +109,55 @@ void UMMOUIRankListPanel::UpdateRankList()
 	const RANK_LIST eRankList = RankListManager::getSingleton().GetType();
 	switch(eRankList)
 	{
-	case	rlLevel:					// 等级排行榜
+	case	rlLevel:					// level ranking
 		{
 			UpdatePersonLevelRank();
 			break;
 		}
-	case	rlPower:					// 战斗力排行榜
-	//case	rlArmerPower:				// 装备战斗力排行榜
-	//case	rlSpiritPower:				// 境界战斗力排行榜
-	//case	rlItemPower:                // 体格战斗力
+	case	rlPower:					// combat power ranking
+	//case	rlArmerPower:				// equipment combat power ranking
+	//case	rlSpiritPower:				// realm combat power ranking
+	//case	rlItemPower:                // physique combat power
 		{
 			UpdatePersonPowerRank();
 			break;
 		}
-	//case	rlMoney:					// 财富排行榜
+	//case	rlMoney:					// wealth leaderboard
 	//	{
 	//		UpdatePersonRichRank();
 	//		myRank = MMOFacade::getSingleton().GetPlayerMoney(E_MONEYTYPE_02);
 	//		break;
 	//	}
-	case	rlAchievement:				// 成就点数排行榜
+	case	rlAchievement:				// achievement points ranking
 		{		
 			UpdatePersonAchievementRank();
 			myRank = MMOAchievementData::getSingleton().GetAchievementPoint();
 			break;
 		}
-	case	rlMaster:					// 名师值排行榜
+	case	rlMaster:					// famous master value ranking
 		{
 			UpdatePersonMasterRank();
 			myRank = MMOFacade::getSingleton().GetPlayerMoney(E_MONEYTYPE_MASTER_EXP);
 			break;
 		}
-			// 家族排行榜
-	case	rlGuild_Level:				// 家族等级排行榜
+			// family ranking
+	case	rlGuild_Level:				// family level ranking
 		{
 			UpdateGuildLevelRank();
 			break;
 		}
-	case	rlGuild_Money:				// 家族金钱排行榜
+	case	rlGuild_Money:				// family money ranking
 		{
 			UpdateGuildFoundRank();
 			break;
 		}
-	case	rlGuild_Resource_Herb:		// 家族资源01
+	case	rlGuild_Resource_Herb:		// family resource 01
 		{
 			UpdateGuildResourceRank();
 			break;
 		}
 
-			// 竞技场排行榜
+			// arena ranking
 	//case	rlRoleArenaScore:				
 	//	{
 	//		UpdateTournamentLadderRank();
@@ -169,7 +169,7 @@ void UMMOUIRankListPanel::UpdateRankList()
 	//		break;
 	//	}
 
-	case	rlPkValue:					// pk值排行榜
+	case	rlPkValue:					// pk value ranking
 		{
 			UpdateTournamentPKRank();
 			AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
@@ -180,7 +180,7 @@ void UMMOUIRankListPanel::UpdateRankList()
 			
 			break;
 		}
-	case	rlTotalKillCount:			// 总杀人数
+	case	rlTotalKillCount:			// total kills
 		{
 			UpdateTournamentKillRank();
 			break;
@@ -199,17 +199,17 @@ void UMMOUIRankListPanel::UpdateRankList()
 	//		UpdatePersonExpRank();
 	//		break;
 	//	}
-	//case rlActivity01:                  //比奇霸主
+	//case rlActivity01:                  //Bichi Overlord
 	//	{
 	//		UpdateActivetyRank_BQBZ();
 	//	}
 	//	break;
-	case rlActivity02:                   //九层妖塔
+	case rlActivity02:                   //Nine-Layer Demon Tower
 		{
 			UpdateActivityRank_JCYT();
 		}
 		break;
-	case rlArena1v1:                   //擂台
+	case rlArena1v1:                   //arena
 		{
 			UpdateActivetyRank_Arena1v1();
 		}
@@ -537,7 +537,7 @@ void UMMOUIRankListPanel::OnPersonTreeItemClick(INT index)
 {
 	switch (index)
 	{
-		//总战力
+		//Total combat power
 	case 0:
 		{
 			CMessageHandler::GetInstance().Send_QueryRanklist((INT32)rlPower, 0);
@@ -545,14 +545,14 @@ void UMMOUIRankListPanel::OnPersonTreeItemClick(INT index)
 			RankListManager::getSingleton().NotifyUpdateCategoryButton();
 			break;
 		}
-		//等级
+		//level
 	case 1:
 		{
 			CMessageHandler::GetInstance().Send_QueryRanklist((INT32)rlLevel, 0);
 			RankListManager::getSingleton().SetPageIndex(rlLevel, 0);
 			break;
 		}
-		//一周杀戮
+		//Weekly kills
 		/*case 1:
 		{
 		CMessageHandler::GetInstance().Send_QueryRanklist((INT32)rlTotalKillCount, 0);
@@ -567,21 +567,21 @@ void UMMOUIRankListPanel::OnPersonTreeItemClick(INT index)
 			RankListManager::getSingleton().SetPageIndex(rlPkValue, 0);
 			break;
 		}
-		//财富
+		//Wealth
 	//case 3:
 		//{
 			//CMessageHandler::GetInstance().Send_QueryRanklist((INT32)rlMoney, 0);
 			//RankListManager::getSingleton().SetPageIndex(rlMoney, 0);
 			//break;
 		//}
-		//成就
+		//Achievement
 	case 3:
 		{
 			CMessageHandler::GetInstance().Send_QueryRanklist((INT32)rlAchievement, 0);
 			RankListManager::getSingleton().SetPageIndex(rlAchievement, 0);
 		}
 		break;
-		//名师
+		//Famous master
 	case 4:
 		{
 			CMessageHandler::GetInstance().Send_QueryRanklist((INT32)rlMaster, 0);
@@ -1227,7 +1227,7 @@ void UMMOUIRankListPanel::UpdatePersonExpRank()
 	//		else
 	//			itemObj->SetString(TEXT("GuildName"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Rank.Empty")));
 	//		itemObj->SetInt(TEXT("Level"), pPlayerBaseInfo->_Level);
-	//		//获得当前经验
+	//		//Get current experience
 	//		itemObj->SetString(TEXT("Exp"),appItoa(GetExp(pPlayerBaseInfo->_Level, GET_RANKLIST_EXP_FROM_KEY((*it)->Value))));
 
 	//		dataProvider->SetElementObject(index, itemObj);
@@ -1842,7 +1842,7 @@ void UMMOUIRankListPanel::OnPowerTabClick()
 	pRadioButton->SetBool(TEXT("selected"), TRUE);
 }
 
-//活动
+//Activity
 void UMMOUIRankListPanel::OnActivityTabClick()
 {
 	
@@ -1854,7 +1854,7 @@ void UMMOUIRankListPanel::OnActivityTreeItemClick(INT index)
 {
 	switch(index)
 	{
-	case 0: // 九层妖塔
+	case 0: // Nine-Layer Demon Tower
 		{
 			CMessageHandler::GetInstance().Send_QueryRanklist(_currentActivityType, 0);
 			RankListManager::getSingleton().SetPageIndex(RANK_LIST(_currentActivityType), 0);
@@ -1932,7 +1932,7 @@ INT UMMOUIRankListPanel::GetCurrentRangeIndex()
 			pPage = pGuildObject->GetObject(TEXT("GuildPageFound_mc"));
 			break;
 		}
-	case	rlGuild_Resource_Herb:		// 家族资源
+	case	rlGuild_Resource_Herb:		// family resources
 		{
 			pPage = pGuildObject->GetObject(TEXT("GuildPageResource_mc"));
 			break;
@@ -2084,7 +2084,7 @@ void UMMOUIRankListPanel::SetSelectRadioButton(INT index)
 			pPage = pGuildObject->GetObject(TEXT("GuildPageFound_mc"));
 			break;
 		}
-	case	rlGuild_Resource_Herb:		// 家族资源
+	case	rlGuild_Resource_Herb:		// family resources
 		{
 			pPage = pGuildObject->GetObject(TEXT("GuildPageResource_mc"));
 			break;
@@ -2250,7 +2250,7 @@ void UMMOUIRankListPanel::SetSelectCategoryButton(INT index)
 			pPage = pGuildObject->GetObject(TEXT("GuildPageFound_mc"));
 			break;
 		}*/
-	case	rlGuild_Resource_Herb:		// 家族资源
+	case	rlGuild_Resource_Herb:		// family resources
 		{
 			pPage = pGuildObject->GetObject(TEXT("GuildPageResource_mc"));
 			break;
@@ -2391,7 +2391,7 @@ void UMMOUIRankListPanel::BeforeViewUpdate(float DeltaTime)
 			refresh = FALSE;
 			UpdateRankList();
 
-			//比奇霸主实时更新
+			//Bichi Overlord real-time update
 			//if (RankListManager::getSingleton().GetType() == rlActivity01)
 			//{
 				//OnActivityTreeItemClick(1);
@@ -2411,7 +2411,7 @@ void UMMOUIRankListPanel::CheckShowRank(float DeltaTime)
 	{
 		if (showRankTime >= SHOW_RANK_TIME)
 		{
-			// 当前时间
+			// Current time
 			__time32_t today;
 			_time32(&today);
 			struct tm *todayTimeTemp = _localtime32(&today);

@@ -381,7 +381,7 @@ void UMMOGFXPlayer_Handbook::ASGotoMonsterPage(const FString& monsterName)
 		}
 		else
 		{
-			FString error = TEXT("未找到该图鉴BOOS信息");
+			FString error = TEXT("Handbook BOSS info not found");
 			MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		}
 	}
@@ -408,7 +408,7 @@ void UMMOGFXPlayer_Handbook::ASGotoMapPage(const FString& mapName)
 		}
 		else
 		{
-			FString error = TEXT("未找到该图鉴地图信息");
+			FString error = TEXT("Handbook map info not found");
 			MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		}
 	}
@@ -479,14 +479,14 @@ void UMMOGFXPlayer_Handbook::ASGotoPosition(INT mapId)
 	INT curMapId = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 	if (curMapId == mapId)
 	{
-		FString error = TEXT("已经到达当前地图");
+		FString error = TEXT("Already on the current map");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		return;
 	}
 
 	if (!MMONavigationManager::getSingleton().FindAndMoveToTeleport(curMapId, mapId, 0, FALSE))
 	{
-		FString error = TEXT("地图不可到达");
+		FString error = TEXT("Map cannot be reached");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		return;
 	}
@@ -523,7 +523,7 @@ void UMMOGFXPlayer_Handbook::ASGotoEquipPage(int itemId)
 		}
 		else
 		{
-			FString error = TEXT("未找到对应的装备信息");
+			FString error = TEXT("Equipment info not found");
 			MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		}
 	}

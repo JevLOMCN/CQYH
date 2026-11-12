@@ -110,7 +110,7 @@ void AMMOHud::DrawHUDPostGFx()
 //			{
 //				switch(thisHit[0].dmg.Type)
 //				{
-//					case DRT_Result7: //爆击
+//					case DRT_Result7: //critical hit
 //						if( thisHit[0].dmg.MainRole )				
 //						{
 //							class'MMOUIManager'.static.ShowCriticaledNumber(  screenPos.X, screenPos.y , Abs( thisHit[0].dmg.HPChange ),thisHit[0].HitLocation );
@@ -120,19 +120,19 @@ void AMMOHud::DrawHUDPostGFx()
 //							class'MMOUIManager'.static.ShowCriticalNumber(  screenPos.X, screenPos.y , Abs( thisHit[0].dmg.HPChange ) ,thisHit[0].HitLocation);
 //						}
 //						break;
-//					case DRT_Result2: //免疫
+//					case DRT_Result2: //immune
 //						class'MMOUIManager'.static.ShowImmunity( screenPos.X, screenPos.y ,thisHit[0].HitLocation);
 //						break;
-//					case DRT_Result1: //未命中
+//					case DRT_Result1: //miss
 //						class'MMOUIManager'.static.ShowMiss( screenPos.X, screenPos.y ,thisHit[0].HitLocation);
 //						break;
-//					case DRT_Result3: //格档
+//					case DRT_Result3: //block
 //						class'MMOUIManager'.static.ShowBlockNumber( screenPos.X, screenPos.y , Abs( thisHit[0].dmg.HPChange ) ,thisHit[0].HitLocation);
 //						break;
-//					case DRT_Result5: //闪避
+//					case DRT_Result5: //dodge
 //						class'MMOUIManager'.static.ShowDodge( screenPos.X, screenPos.y ,thisHit[0].HitLocation);
 //						break;
-//					case DRT_Result4: //招架
+//					case DRT_Result4: //parry
 //						class'MMOUIManager'.static.ShowParry( screenPos.X, screenPos.y ,thisHit[0].HitLocation);
 //						break;
 //					case DRT_Result6:
@@ -309,7 +309,7 @@ void AMMOHud::NativePostRender()
 		//PC->DrawDebugLine(PC->Pawn->Location, PC->MouseHitWorldLocation, 255, 0, 0, FALSE);
 
 #if !FINAL_RELEASE
-		//计算角色的视角位置为了调试光线和检查移动后的碰撞
+		//compute the character's view position for debugging rays and checking collision after movement
 		if(PlayerOwner->ViewTarget)
 		{		
 			APawn* ViewTar = Cast<APawn>(PlayerOwner->ViewTarget);
@@ -393,8 +393,8 @@ void AMMOHud::AddHitStats(struct FDamageResult dmg,FVector HitLocation)
 
 void AMMOHud::SetWidgetInCenter( UGFxObject *Obj)
 {
-	//使控件居中
-	//子级控件的得到的是相对位置 这里 还需要从头计算
+	//center the control
+	//a child control gets a relative position, it needs to be recomputed from the top here
 
 	float posx,posy;
 	UGFxObject *Parent;
@@ -412,7 +412,7 @@ void AMMOHud::SetWidgetInCenter( UGFxObject *Obj)
 	{
 		pox = Parent->GetFloat("x");
 		poy = Parent->GetFloat("y");
-		//需要转化为本地的相对坐标
+		//Need to convert to local relative coordinates
 		posx -= pox;
 		posy -=	poy;
 		Parent = Parent->GetObject("parent");

@@ -18,7 +18,7 @@ void Exporter_DoodadSpawn::PrePorcess(INT& GlobalAutoID)
 {
 	DOODAD_SPAWN_DATA_HEADER  Header;
 	//------------------------------------------------------------------------
-	// 分类对象
+	// Classify objects
 	//------------------------------------------------------------------------
 	for (INT i = 0; i < GWorld->Levels.Num(); ++i)
 	{
@@ -42,7 +42,7 @@ void Exporter_DoodadSpawn::PrePorcess(INT& GlobalAutoID)
 	}
 
 	INT autoID = 0;
-	// 自动编号
+	// Auto-numbering
 	for( DoodadSpawnGroupVector::iterator it = DoodadSpawnGroupList.begin(); it != DoodadSpawnGroupList.end() ; ++it)
 	{
 		ADoodadSpawnGroup* tDoodad = *it;
@@ -124,14 +124,14 @@ void Exporter_DoodadSpawn::WriteHeader( FBufferArchive& ar)
 	blkHdrs.nBlockOffset = sizeof(SCENE_FILE_BLOCK_HEADER);
 
 	ar.ByteOrderSerialize(&blkHdrs, sizeof(SCENE_FILE_BLOCK_HEADER) );
-	// 先存储位置，后面再修改参数
+	// Store the position first, modify parameters later
 	arBlkHdrs = (SCENE_FILE_BLOCK_HEADER*)( ar.GetData() + ar.Tell() - sizeof(SCENE_FILE_BLOCK_HEADER) );
 
 }
 //------------------------------------------------------------------------
 void Exporter_DoodadSpawn::WriteData( FBufferArchive& ar )
 {
-	// =====================NPCSpawnPointList写到内存=====================
+	// =====================Write NPCSpawnPointList to memory=====================
 	arBlkHdrs->nBlockSize = memPointAr.TotalSize();
 	// nBlockOffset 
 	arBlkHdrs->nBlockOffset = ar.Tell();

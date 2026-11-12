@@ -15,7 +15,7 @@ var NavigationHandle _NavigationHandle;
 var Vector _Destination;
 var Vector _DestinationTemp;
 
-var ParticleSystem _PathPointEffect;    // 路点特效
+var ParticleSystem _PathPointEffect;    // Waypoint effect
 
 var config bool ShowDebugPath;
 var config int PathEffectInterval;
@@ -31,7 +31,7 @@ event bool Pram_NavMeshPath_Toward(NavigationHandle NavHandle, Vector Point)
 {
 	class'NavMeshPath_Toward'.static.TowardPoint( NavHandle, Point );
 	NavHandle.PopulatePathfindingParamCache();
-	return class 'NavMeshGoal_At'.static.AtLocation(NavHandle, Point);  // zhaojun@snda, 修正寻路bug
+	return class 'NavMeshGoal_At'.static.AtLocation(NavHandle, Point);  // zhaojun@snda, zhaojun@snda, fix pathfinding bug
 	
 	/*return class'NavMeshGoal_At'.static.AtActor(NavHandle,
 		MMOPlayerController(m_Owner).TargetLocationMarker,

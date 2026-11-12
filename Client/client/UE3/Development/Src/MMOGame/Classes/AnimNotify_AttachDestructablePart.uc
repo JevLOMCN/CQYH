@@ -1,10 +1,10 @@
 //
-// 通知在特定的时候绑定一个模型
+// notify to attach a model at a specific time
 //
 class AnimNotify_AttachDestructablePart extends AnimNotify_Scripted
 	dependson(NPC);
 
-// 初始时的可破坏部件列表
+// initial list of destructible parts
 var(MMO) editinline DestructablePartAttachInfo DestructablePartTemplate;
 
 var(MMO) bool NotifyScript;
@@ -34,7 +34,7 @@ event Notify( Actor Owner, AnimNodeSequence AnimSeqInstigator )
 
 	if(NotifyScript)
 	{
-		// TODO: 用脚本配置名来调用，似乎要用C++扩展。
+		// TODO: call by script config name, seems to need a C++ extension.
 		actor.OnAttachDestructablePart(AttachedInstance);
 	}
 }

@@ -103,7 +103,7 @@ UBOOL MMOUIBackDecoratedMgr::ReadBackDecoratedMakeUpCfg()
 
 	UINT rowCnt = tabFile->GetRowCount();
 	UINT startIdx = 2;
-	//实际数据从第3行开始，标题行，N/A行
+	//Actual data starts from row 3; header row, N/A row
 	//_BackDecoratedCfgs.Add( rowCnt > startIdx ? (rowCnt - startIdx) : 0 );
 
 	for( UINT i = startIdx ; i < rowCnt; ++i )

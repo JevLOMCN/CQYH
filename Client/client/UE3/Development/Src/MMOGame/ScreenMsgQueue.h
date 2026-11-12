@@ -6,7 +6,7 @@
 #include <map>
 #include <algorithm>
 
-// 显示消息的类型
+// type of message displayed
 enum EScreenMessageType
 {
 	ESMT_Invalid,
@@ -19,7 +19,7 @@ enum EScreenMessageType
 	ESMT_FBUnlock
 };
 
-//// 显示消息的类型
+//// type of message displayed
 //enum EScreenMessageDisplayType
 //{
 //	ESMDT_Skill,
@@ -28,7 +28,7 @@ enum EScreenMessageType
 //	ESMDT_FBUnlock
 //};
 
-// 放在屏幕上的哪个区域显示，同一个区域就是要列队显示的
+// which screen area it is displayed in; messages in the same area are queued
 enum EScreenMsgChannel
 {
 	ESMC_TopCenter,
@@ -63,7 +63,7 @@ public:
 
 	virtual EScreenMessageType GetType() const = 0;
 
-	// 返回显示这条消息需要的时间，一般由UI效果表现决定
+	// returns the time needed to display this message, generally determined by the UI effect
 	virtual float DisplayMessage(MessageData* msgData) = 0;
 };
 

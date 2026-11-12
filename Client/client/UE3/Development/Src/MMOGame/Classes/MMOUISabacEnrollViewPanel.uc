@@ -24,7 +24,7 @@ event CallUpdateDesc(string desc)
 	ActionScriptVoid("UCUpdateDec");
 }
 
-// ·­Ò³
+// Turn page
 native final function ASEnrollPageUp();
 native final function ASEnrollPageDown();
 

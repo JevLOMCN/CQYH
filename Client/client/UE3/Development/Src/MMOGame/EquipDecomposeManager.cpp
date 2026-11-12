@@ -176,7 +176,7 @@ void EquipDecomposeManager::ComposeEquip(INT itemId)
 
 		if(ComposeTemplate.cost > mainPlayer->GetMoney(MONEYTYPE_02))
 		{
-			//金币不足
+			//Not enough gold
 			MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EquipDecompose.GeneralError0")),MsgInfoType_Table,TEXT("MMOGame.EquipDecompose.GeneralError0"));
 			return;
 		}
@@ -187,13 +187,13 @@ void EquipDecomposeManager::ComposeEquip(INT itemId)
 				continue;
 			if(MMOFacade::getSingleton().GetItemCountInBag( ComposeTemplate.matId[i], E_CONSLOT_DEFAULT ) < ComposeTemplate.matCnt[i])
 			{
-				//材料不足
+				//Not enough materials
 				MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.EquipDecompose.GeneralError1")),MsgInfoType_Table,TEXT("MMOGame.EquipDecompose.GeneralError1"));
 				return;
 			}
 		}
 
-		//发送合成消息
+		//Send synthesis message
 		CMessageHandler::GetInstance().Send_Compose((UINT32)itemId);
 	}
 	else
@@ -212,7 +212,7 @@ void EquipDecomposeManager::BeginDecompose()
 	//m_eDecomposeStatus = EDS_Decompose;
 	ChangeState(EDS_Decompose);
 	
-	//锤子鼠标
+	//Hammer cursor
 	MMOFacade::getSingleton().SetMouseCursor(EMC_Cross);
 	g_lockMouseCursorForUI = true;
 
@@ -223,7 +223,7 @@ void EquipDecomposeManager::EndDecompose()
 {
 	//m_eDecomposeStatus = EDS_None;
 	ChangeState(EDS_None);
-	//普通鼠标
+	//Normal cursor
 	MMOFacade::getSingleton().SetMouseCursor(EMC_Arrow);
 	g_lockMouseCursorForUI = false;
 }
@@ -364,7 +364,7 @@ UBOOL EquipDecomposeManager::DecomposeEquip(INT iConId, INT iSlotId)
 		return FALSE;
 	}
 
-	//享有灵石的装备
+	//Equipment that has a spirit stone
 	for(INT i = 0; i < MAX_SOCKET_COUNT; ++i)
 	{
 		if(info->m_nSoulID[i] > 0)
@@ -386,7 +386,7 @@ UBOOL EquipDecomposeManager::DecomposeEquip(INT iConId, INT iSlotId)
 		}
 	}
 
-	//是否是铭文武器
+	//Whether it is an inscription weapon
 	for( int i = 0; i < EQUIP_RUNE_SKILL_MAX; ++i ){
 		UINT weaponSkillID = info->m_wRune[i];
 		//if( weaponSkillID == RUNE_BIND_SLOT_CLOSE || weaponSkillID == RUNE_BIND_SLOT_OPEN ){
@@ -407,7 +407,7 @@ UBOOL EquipDecomposeManager::DecomposeEquip(INT iConId, INT iSlotId)
 
 	}
 
-	//绿字属性装备
+	//Green-text attribute equipment
 	for (int i=0;i < MAX_RANDOM_ATTR_COUNT;i++)
 	{
 		if (info->m_wRandomAttrID[i] > 0)
@@ -429,7 +429,7 @@ UBOOL EquipDecomposeManager::DecomposeEquip(INT iConId, INT iSlotId)
 
 	INT hintLevel = 20;
 	GConfig->GetInt(TEXT("EquipDecompose"),TEXT("HitLevel"), hintLevel , GDefaultGameIni);
-	//高等级装备
+	//High-level equipment
 	if(item->ItemLevel >= hintLevel)
 	{
 		//@TODO

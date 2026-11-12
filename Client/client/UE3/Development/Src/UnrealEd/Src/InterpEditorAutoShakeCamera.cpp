@@ -3,7 +3,7 @@
 	Filename: 	InterpEditorAutoShakeCamera
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	WxInterpEd Matinee自动添加震屏动画 
+	Purpose:	WxInterpEd Matinee auto-add screen shake animation
 *********************************************************************/
 
 #include "UnrealEd.h"

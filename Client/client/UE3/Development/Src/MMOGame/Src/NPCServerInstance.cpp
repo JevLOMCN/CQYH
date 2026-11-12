@@ -12,7 +12,7 @@ void ANPCServerInstance::SetServerLocation(FVector NewLoc)
 	// zhaojun@snda
 	//if (ServerLocation != NewLoc)
 	//{
-		// 这里不需要
+		// Not needed here
 // #if defined(CLIENT_GRID_EXT)
 // 		gServerGridWorld.OnSyncPosFromServer(this, ServerLocation, NewLoc);
 // #endif

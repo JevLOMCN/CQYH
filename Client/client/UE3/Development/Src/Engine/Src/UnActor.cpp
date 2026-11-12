@@ -1788,7 +1788,7 @@ void AActor::PostLoad()
 
 void AActor::ProcessEvent( UFunction* Function, void* Parms, void* Result )
 {
-	// oscar@snda 导出数据时在编辑器中需要用到这个
+	// oscar@snda this is needed in the editor when exporting data
 	if( GIsEditor || ((GWorld && GWorld->HasBegunPlay()) || HasAnyFlags(RF_ClassDefaultObject)) && !GIsGarbageCollecting )
 	{
 		Super::ProcessEvent( Function, Parms, Result );

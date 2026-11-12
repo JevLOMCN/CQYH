@@ -17,12 +17,12 @@ enum
 
 struct HandbookData
 {
-	UINT32 Id;						// 图鉴id
-	UINT32 Type;					// 分类
-	UINT32 Index;					// 索引
-	TArray<UINT32> TemplateId;		// 模板id，npc，道具...
-	UINT32 AchievementId;			// 获取成就Id
-	FString Name;					// 图鉴名称
+	UINT32 Id;						// codex id
+	UINT32 Type;					// category
+	UINT32 Index;					// index
+	TArray<UINT32> TemplateId;		// template id, npc, item...
+	UINT32 AchievementId;			// achievement Id obtained
+	FString Name;					// codex name
 	FString Text0;					
 	FString Text1;
 	FString Text2;

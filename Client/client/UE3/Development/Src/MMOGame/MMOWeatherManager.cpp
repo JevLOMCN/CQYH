@@ -58,7 +58,7 @@ void MMOWeatherManager::Update(FLOAT deltaTime)
 {
 	CTRL_TICK("MMOWeatherManager");
 
-	// 暂时屏蔽昼夜系统
+	// temporarily disable day/night system
 #if 0
 	if (_HourPerDay < 0.01f)
 	{
@@ -79,7 +79,7 @@ void MMOWeatherManager::Update(FLOAT deltaTime)
 		_AnimTime = 0.0f;
 	}
 
-	// 整点触发一次(相当于真实世界5分钟触发一次)
+	// triggers once on the hour (equivalent to once every 5 real-world minutes)
 	if (abs((INT)(_CurrentTime) - (INT)(_OldEventTime)) >= 1)
 	{
 		_ActivateDayTimePlanEvent();
@@ -95,7 +95,7 @@ void MMOWeatherManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 
 void MMOWeatherManager::InitStartTime(UINT32 startTime)
 {
-	// 暂时屏蔽昼夜系统
+	// temporarily disable day/night system
 #if 0
 	__time32_t localTime = startTime;
 	struct tm* date = _localtime32(&localTime);
@@ -128,9 +128,9 @@ FLOAT MMOWeatherManager::GetCurTime() const
 
 void MMOWeatherManager::EnterScene(UINT8 weaterType)
 {
-	// 暂时屏蔽昼夜系统
+	// temporarily disable day/night system
 #if 0
-	// 开启昼夜
+	// enable day/night
 	_DayTimeHelper = NULL;
 	for (FActorIterator iter; iter; ++iter)
 	{
@@ -146,7 +146,7 @@ void MMOWeatherManager::EnterScene(UINT8 weaterType)
 	}
 #endif
 
-	// 开启天气
+	// enable weather
 	_WeatherHelper = NULL;
 	if (GWorld && GWorld->GetWorldInfo() && GWorld->GetWorldInfo()->MyWeatherManager)
 	{
@@ -161,7 +161,7 @@ void MMOWeatherManager::EnterScene(UINT8 weaterType)
 
 void MMOWeatherManager::_UpdateWeatherTips()
 {
-	// 临时屏蔽
+	// Temporarily disabled
 #if 0
 	FString weatherStr = TEXT("");
 	switch (_CurWeatherType)

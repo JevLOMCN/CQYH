@@ -1,14 +1,14 @@
 //
-// 相机导航碰撞框，当玩家与该碰撞框接触时，相机自动平滑过度到这个角度
+// Camera navigation collision box; when the player touches this collision box, the camera automatically transitions smoothly to this angle
 //
 
 class MMOVolume_EnableAbility extends Volume
 	placeable;
 
-// 进入时是否能使用技能
+// Whether abilities can be used on entering
 var(MMO) bool EnterEnableAbility;
 
-// 退出时是否能使用技能
+// Whether abilities can be used on exiting
 var(MMO) bool ExitEnableAbility;
 
 simulated event PostBeginPlay()

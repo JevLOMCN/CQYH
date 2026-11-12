@@ -1,5 +1,5 @@
 //
-// 动画通知扩展类,Notify调用IMMOStatusProc动作
+// animation notify extension class, Notify calls the IMMOStatusProc action
 //
 class AnimNotify_StatusProc extends AnimNotify_Scripted
 	dependson(MMOActor);
@@ -10,7 +10,7 @@ struct native StatusProcData
 	var() editinline array<IMMOStatusProc> Proc;
 };
 
-// AnimNotify调用的MMOStatusProc
+// MMOStatusProc called by AnimNotify
 var(MMOStatusProc) editinline array<StatusProcData> AniNotifyProcList;
 var(MMOStatusProc) editinline array<StatusProcData> AniNotifyEndProcList;
 

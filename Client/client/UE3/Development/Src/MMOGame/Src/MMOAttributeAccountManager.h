@@ -9,27 +9,27 @@
 
 #include "MMOAttrListener.h"
 
-//特殊公式
+//special formula
 enum ESpecialAttributeInPanel
 {
-	SAIP_PKValue = catTotal, //pk值是特殊的
-	SAIP_Fatigue, //疲劳度是特殊的
-	SAIP_PhyDamageReduce, //物理伤害减免
+	SAIP_PKValue = catTotal, //pk value is special
+	SAIP_Fatigue, //fatigue is special
+	SAIP_PhyDamageReduce, //physical damage reduction
 	SAIP_MagDamageReduce,
-	SAIP_CritRate, //暴击率
-	SAIP_DodgeRate, //闪避率
-	SAIP_HitRate, //命中率
-	SAIP_AttSpeedAdd, //攻速加成
-	SAIP_CritReduceRate, //暴击抵抗率
+	SAIP_CritRate, //crit rate
+	SAIP_DodgeRate, //dodge rate
+	SAIP_HitRate, //hit rate
+	SAIP_AttSpeedAdd, //attack speed bonus
+	SAIP_CritReduceRate, //crit resistance rate
 	SAIP_MpRecover,
 };
 
 enum EValueShowType
 {
-	EVST_Int, //整形
-	EVST_Att, //攻击力是特殊的
-	EVST_Decimal, //2位小数
-	EVST_Rate, //2位小数%
+	EVST_Int, //integer
+	EVST_Att, //attack power is special
+	EVST_Decimal, //2 decimal places
+	EVST_Rate, //2 decimal places %
 	EVST_HP,
 	EVST_MP,
 	EVST_Bag,
@@ -40,20 +40,20 @@ enum EValueShowType
 
 struct StructAttributeItem
 {
-	//按理应该是EPCT_Max，
+	//logically should be EPCT_Max,
 	FString AttributeName[EPCT_MAX];
 	FString TipsDesc[EPCT_MAX];
 
-	//属性值，如果需要计算就为0
+	//attribute value, 0 if it needs to be calculated
 	INT AttributeValueType[EPCT_MAX];
-	//特殊区间属性
+	//special range attribute
 	INT AttributeValueTypeB[EPCT_MAX];
 
-	//关联属性
+	//related attribute
 	INT AttributeTypeA[EPCT_MAX];
 	INT AttributeTypeB[EPCT_MAX];
 
-	//除以100
+	//divide by 100
 	FLOAT AttributeMulParaA[EPCT_MAX];
 	FLOAT AttributeMulParaB[EPCT_MAX];
 
@@ -106,10 +106,10 @@ public:
 
 	void SetAttrOwnerMode( AttrListenerType type );
 
-	//是否是属性界面里显示的属性
+	//whether it is an attribute shown in the attribute UI
 	UBOOL IsRelationAttribute( INT groupId , INT index , INT Attri );
 	
-	//是否是战斗/生命力计算的属性
+	//whether it is an attribute used in combat/life calculation
 	UBOOL IsBattleAttribute( INT Attri );
 
 

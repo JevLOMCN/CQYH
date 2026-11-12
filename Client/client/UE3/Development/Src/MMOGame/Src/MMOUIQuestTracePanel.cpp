@@ -26,7 +26,7 @@ void UMMOUIQuestTracePanel::PostOnShow(UBOOL v)
 
 	if (v)
 	{
-		// 这个面板不要了
+		// This panel is no longer needed
 		Show(FALSE);
 		return;
 
@@ -257,7 +257,7 @@ void UMMOUIQuestTracePanel::ASUpdateAvailableQuestTraceList()
 	UpdateAvailableQuestTraceList();
 }
 
-// Flash同步各种问题，改为C++计时
+// Flash has various sync problems, changed to C++ timing
 /*
 void UMMOUIQuestTracePanel::ASUpdateQuestTimeout(INT questId, INT timeSecondsLeft)
 {
@@ -283,7 +283,7 @@ void UMMOUIQuestTracePanel::ASUseQuestItem(int questId, int itemId)
 		return;
 	}
 
-	// 使用道具完成任务
+	// use item to complete quest
 	if (quest->FinishItem)
 	{
 		INT itemSlot = -1;

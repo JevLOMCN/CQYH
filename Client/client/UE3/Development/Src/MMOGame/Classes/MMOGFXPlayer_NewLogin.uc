@@ -92,7 +92,7 @@ function ASDeleteRole()
 	SelectPanel.DeleteRole();
 }
 
-function ASDirectSelectRole(int SelectRoleIndex) //双击人物选择框
+function ASDirectSelectRole(int SelectRoleIndex) //Double-click character selection box
 {
 	ASSelectRole(SelectRoleIndex);
 	ASEnterGame(SelectRoleIndex);
@@ -108,19 +108,19 @@ function ASEnterGame(int SelectRoleIndex)
 	SelectPanel.EnterGame(SelectRoleIndex);
 }
 
-//旋转按钮抬起 左手坐标系
+//Rotate button released, left-handed coordinate system
 function ASTurnBtnUp()
 {
 	SelectPanel.TurnBtnUp();
 }
 
-//选择角色面板 向右转 
+//Select character panel, rotate right
 function ASSelectTurnRightPress()
 {
 	SelectPanel.SelectTurnRightPress();	
 }
 
-//选择角色面板 向左转 
+//Select character panel, rotate left
 function ASSelectTurnLeftPress()
 {
 	SelectPanel.SelectTurnLeftPress();	
@@ -151,19 +151,19 @@ function ASReturnCreatePanel()
 {
 	CreatePanel.ASReturnCreatePanel();
 }
-//旋转按钮抬起 左手坐标系
+//Rotate button released, left-handed coordinate system
 function ASCreateTurnBtnUp()
 {
 	CreatePanel.CreateTurnBtnUp();
 }
 
-//选择角色面板 向右转 
+//Select character panel, rotate right
 function ASCreateTurnRightPress()
 {
 	CreatePanel.CreateTurnRightPress();	
 }
 
-//选择角色面板 向左转 
+//Select character panel, rotate left
 function ASCreateTurnLeftPress()
 {
 	CreatePanel.CreateTurnLeftPress();	

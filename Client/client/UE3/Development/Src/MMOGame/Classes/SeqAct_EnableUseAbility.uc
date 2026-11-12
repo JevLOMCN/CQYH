@@ -1,5 +1,5 @@
 //
-// 设置客户端是否能使用技能
+// set whether the client can use abilities
 //
 class SeqAct_EnableUseAbility extends SequenceAction
 	;

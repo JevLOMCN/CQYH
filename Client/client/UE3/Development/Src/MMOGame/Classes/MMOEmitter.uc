@@ -4,12 +4,12 @@ class MMOEmitter extends Emitter
 
 
 
-// 组件结束方式
+// component end mode
 var EAbilityComponentStopType StopType;
-// 组件生命期时长
+// component lifetime duration
 var float Duration;
 
-// 实体子弹在服务器端有ID
+// Solid bullets have an ID on the server side
 var int ServerID;
 var Missile MissileData;
 

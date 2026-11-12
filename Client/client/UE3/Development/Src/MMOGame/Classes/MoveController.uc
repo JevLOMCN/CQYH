@@ -1,6 +1,6 @@
 /*
- * 除了主角所有的对象的移动控制都由这个类来执行,这个基本类也只有这个功能
- * 如果游戏里涉及本地AI对象的话,可以从这个类继承或用其它AI Controller
+ * Movement control of all objects except the main character is executed by this class; this base class has only this function
+ * If the game involves local AI objects, inherit from this class or use another AI Controller
  * 
  * 
  */
@@ -9,12 +9,12 @@ class MoveController extends AIController
 	implements(IClientInteraction);
 
 // transient
-var bool bNeedFindPath; // 移动到目标点是否需要寻路
+var bool bNeedFindPath; // whether pathfinding is needed to move to the target point
 
 var transient EPhysics  OldPhysic;
 var transient Vector    NextLocation;
 
-//接口
+//interface
 native function OnLeftMouseKey(Actor srcActor,bool bRelease,Vector StartTrace,Vector EndTrace);
 
 event PostBeginPlay()
@@ -57,7 +57,7 @@ function ScriptMoveTo(Vector Des, optional Vector FocusPoint, optional bool bFin
 	bNeedFindPath = bFindPath;
 	//MMOActor(Pawn).SetMoveType(EMT_Run);
 	
-	// 加上怪物的高度一半，服务器是在质心位置
+	// add half the monster's height, the server uses the center of mass position
 
 	SetDestinationPosition(Des + zOffset);
 

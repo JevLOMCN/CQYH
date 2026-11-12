@@ -23,7 +23,7 @@ void Exporter_Teleports::ProcessData(INT& GlobalAutoID)
 	INT autoTgtID = 1;
 	//INT autoNodeID = 0;
 
-	// 先自动编号
+	// Auto-number first
 // 	for(TObjectIterator<ATeleportOrig> it; it; ++it)
 // 	{		
 // 		(*it)->AutoServerID = autoID;
@@ -119,7 +119,7 @@ void Exporter_Teleports::ProcessData(INT& GlobalAutoID)
 
 				ss << tmpBuf;
 			}
-			//传送站节点
+			//Teleport station node
 			else if(actor && (actor->GetClass() == ATeleportNetNode::StaticClass()))
 			{
 				ATeleportNetNode* teleport = Cast<ATeleportNetNode>(actor);

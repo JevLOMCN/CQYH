@@ -23,7 +23,7 @@ enum EMapSize_Priorrity
 	EMSP_PHigh	    <DisplayName="High">,
 };
 
-// 是否只是客户端使用的（如果是不用导出）
+// Whether it is client-only (if so, no need to export)
 var(MMOMapSize) bool IsExport;
 var(MMOMapSize) int AerialPhotoPrecent;
 //var(MMOMapSize) editconst EMapSize_Type MapSizeType;

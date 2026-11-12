@@ -2056,7 +2056,7 @@ void UStaticMesh::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedE
 	LightMapResolution = Max(LightMapResolution, 0);
 
 	// [ming@snda
-	// 限制Light map最大尺寸不超过256
+	// Limit the max Light map size to no more than 256
 	LightMapResolution = Min( 256, LightMapResolution );
 	// ming@snda]
 
@@ -5072,7 +5072,7 @@ void UStaticMeshComponent::PostEditChangeProperty(FPropertyChangedEvent& Propert
 		OverriddenLightMapRes = Max(OverriddenLightMapRes + 3 & ~3,4);
 
 		// [ming@snda
-		// 限制Lightmap最大尺寸
+		// Limit the max Lightmap size
 		OverriddenLightMapRes = Min( 256, OverriddenLightMapRes );
 		// ming@snda]
 	}
@@ -5282,12 +5282,12 @@ void UStaticMeshComponent::CheckForErrors()
 				if(box.Min.X < -GWorld->GetWorldInfo()->LevelGridSize)
 				{
 					GWarn->MapCheck_Add( MCTYPE_ERROR, Owner, 
-						TEXT("貌似这货碰撞模型在负的X空间！并且超过了一个关卡格子距离。"), NULL);
+						TEXT("This collision mesh appears to be in negative X space and more than one level grid cell away."), NULL);
 				}
 				else
 				{
 					GWarn->MapCheck_Add( MCTYPE_WARNING, Owner, 
-						TEXT("貌似这货碰撞模型在负的X空间！如果问题不大可以不用管它。"), NULL, MCGROUP_KISMET );
+						TEXT("This collision mesh appears to be in negative X space. If it is not a big problem it can be ignored."), NULL, MCGROUP_KISMET );
 				}
 			}
 
@@ -5296,12 +5296,12 @@ void UStaticMeshComponent::CheckForErrors()
 				if(box.Min.Y < -GWorld->GetWorldInfo()->LevelGridSize)
 				{
 					GWarn->MapCheck_Add( MCTYPE_ERROR, Owner, 
-						TEXT("貌似这货碰撞模型在负的Y空间！并且超过了一个关卡格子距离。"), NULL);
+						TEXT("This collision mesh appears to be in negative Y space and more than one level grid cell away."), NULL);
 				}
 				else
 				{
 					GWarn->MapCheck_Add( MCTYPE_WARNING, Owner, 
-						TEXT("貌似这货碰撞模型在负的Y空间！如果问题不大可以不用管它。"), NULL, MCGROUP_KISMET );
+						TEXT("This collision mesh appears to be in negative Y space. If it is not a big problem it can be ignored."), NULL, MCGROUP_KISMET );
 				}
 			}
 
@@ -5310,12 +5310,12 @@ void UStaticMeshComponent::CheckForErrors()
 				if(box.Min.Z < -GWorld->GetWorldInfo()->LevelGridSize)
 				{
 					GWarn->MapCheck_Add( MCTYPE_ERROR, Owner, 
-						TEXT("貌似这货碰撞模型在负的Z空间！并且超过了一个关卡格子距离。"), NULL);
+						TEXT("This collision mesh appears to be in negative Z space and more than one level grid cell away."), NULL);
 				}
 				else
 				{
 					GWarn->MapCheck_Add( MCTYPE_WARNING, Owner, 
-						TEXT("貌似这货碰撞模型在负的Z空间！如果问题不大可以不用管它。"), NULL, MCGROUP_KISMET );
+						TEXT("This collision mesh appears to be in negative Z space. If it is not a big problem it can be ignored."), NULL, MCGROUP_KISMET );
 				}
 			}
 	}
@@ -5595,7 +5595,7 @@ void AStaticMeshActor::NativePostBeginPlay()
 	{
 #if _DEBUG && 0
 		FString meshName = GetName();
-		// 10969是边界村出门的地方
+		// 10969 is the exit of the border village
 		if(meshName.InStr(TEXT("10969")) != INDEX_NONE)
 		{
 			int i = 0;
@@ -5636,7 +5636,7 @@ void AStaticMeshActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 	//	UStaticMesh* StaticMesh = StaticMeshComponent->StaticMesh;
 	//	if(!StaticMesh)
 	//	{
-	//		GWarn->MapCheck_Add(MCTYPE_ERROR, this, TEXT("模型资源没有正确设置"), NULL);
+	//		GWarn->MapCheck_Add(MCTYPE_ERROR, this, TEXT("Model resource is not set correctly"), NULL);
 	//		return;
 	//	}
 

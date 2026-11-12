@@ -159,16 +159,16 @@ VLevelData* GetLevelDataBySetName(FString strName)
 
 
 /*
-	settingName  设置关键字
-	settingType  设置的数值类型
-	setLevel     1-5 的等级数据
-	inType       是否显示在右侧的高级设置列表里
+	settingName  setting keyword
+	settingType  value type of the setting
+	setLevel     level data 1-5
+	inType       whether to show in the advanced settings list on the right
 */
 #define M_FindSysSetting(settingName, settingType,setLevel,inType) displayDetailOptions.AddItem(FDisplayDetailOption(TEXT(settingName), settingType, setLevel,inType,NULL))
 
 void InitDisplayDetailOptionList()
 {	
-	// 这里去SystemSettings.cpp中的 FSystemSetting FSystemSettings::SystemSettings[] 挑选
+	// Pick here from FSystemSetting FSystemSettings::SystemSettings[] in SystemSettings.cpp
 	TArray<FDisplayDetailOption> displayDetailOptions;
 	{
 		//M_FindSysSetting("DrawSilhouettes", SST_BOOL),
@@ -213,7 +213,7 @@ void InitDisplayDetailOptionList()
 		}
 
 		//M_FindSysSetting("SleepTimeMS", SST_INT);
-		// 按光、影、特效、硬件特性这个来归组
+		// Grouped by light, shadow, effects, hardware features
 
 		M_FindSysSetting("RenderHDR", SST_BOOL,&VFRenderHDR,TRUE);
 
@@ -222,7 +222,7 @@ void InitDisplayDetailOptionList()
 		M_FindSysSetting("AmbientOcclusion", SST_BOOL,&VFAmbientOcclusion,TRUE);
 
 #if !SHIPPING_PC_GAME
-		// 这个只在调试用下
+		// This is only used for debugging
 		//M_FindSysSetting("RestrictWholeSceneDynamicShadowParameters", SST_BOOL);
 #endif
 
@@ -265,7 +265,7 @@ void InitDisplayDetailOptionList()
 
 UGFxObject* UMMOUIOptionConfig::CreateDisplayDetailOptionList()
 {
-	// 需要实现相应的FLASH数据结构，并在这里创建为数据列表传入，需要显示名的，用DisplayDetailOption.SettingsName为格式在stringmap中去汉化
+	// Need to implement the corresponding FLASH data structure and create it here as a data list to pass in; for those needing a display name, use DisplayDetailOption.SettingsName as the format to localize in stringmap
 	 UGFxObject* datList = GFXPlayer->CreateArray();
 	 for (INT i = 0,j = 0; i < g_displayDetailOptions.Num(); ++i)
 	 {
@@ -339,7 +339,7 @@ void UMMOUIOptionConfig::ApplyAdvanceSettingByUI(UGFxObject* datList)
 							funYes.FunctionName = TEXT("OnDefaultOK");	
 
 							UGFxObject* MsgboxWindow = MMOMsgBoxManager::getSingleton().AddModalMessageBox(
-								TEXT("调整贴图质量需要重启游戏才能生效！"), 0, funYes, funYes, FALSE);
+								TEXT("Changing texture quality requires a game restart to take effect!"), 0, funYes, funYes, FALSE);
 						}
 
 						GSystemSettings.SetInt(pkSystem->SettingName,nValue);
@@ -639,7 +639,7 @@ void UMMOUIOptionConfig::FillToUI()
 			dt->SetInt( _T("GPU_List_Selected_Idx"), SelectedAdapterId );
 		}
 
-		//整体效果等级 1 - 5  0是自定义
+		//Overall effect level 1 - 5  0 is custom
 		dt->SetInt(_T("DrawEffectLevel"), GSystemSettings.CompatLevelComposite);
 		if(GSystemSettings.CompatLevelComposite != 0)
 		{
@@ -657,7 +657,7 @@ void UMMOUIOptionConfig::FillToUI()
         dt->SetObject(_T("WndSize"), size_lst);
         dt->SetInt(_T("WndSizeIdx"), selIdx);
 		
-		//性能调节设置
+		//Performance tuning settings
 		dt->SetBool(TEXT("auto_adjust_perf"), GSystemSettings.bAutoAdjustPerformance);
 		dt->SetBool(TEXT("notice_auto_adjust"), GSystemSettings.bHintBeforeAutoAdjust);
 
@@ -690,7 +690,7 @@ void UMMOUIOptionConfig::FillToUI()
 		}
 
   //      UAudioDevice* ad = GEngine->GetAudioDevice();
-		//if(ad) // oscar@snda TODO：查为什么没有创建出来
+		//if(ad) // oscar@snda TODO: find out why it was not created
 		//{
 		//	dt->SetBool(_T("SoundAll"),   ad->VolumeTotal_op    );
 		//	dt->SetBool(_T("SoundBack"),  ad->VolumeBackMusic_op);
@@ -845,7 +845,7 @@ void UMMOUIOptionConfig::ApplyByUI(class UGFxObject* dt)
 
 		ctrl->ConsoleCommand(FString::Printf(TEXT("setresvsync %dx%d %s %s"), dr.Width, dr.Height, full ? TEXT("F") : TEXT("W"), vsync ? TEXT("Y") : TEXT("N")));
 
-		// 只有在5级粒子特效才能不关物理粒子
+		// Physics particles can only stay on at particle effect level 5
 		/*
 		// not used
 		if (GSystemSettings.ParticleLevel >= 5)
@@ -900,7 +900,7 @@ void UMMOUIOptionConfig::ApplyByUI(class UGFxObject* dt)
 		warnf(NAME_Log, TEXT("+++++ApplyByUI Select SysRes: %d x %d"), GSystemSettings.ResX, GSystemSettings.ResY);
 		CLEAR_WARN_COLOR();
 
-		// oscar@snda [#4499] XP下退出全屏导致桌面花了，要帮M$擦屁股
+		// oscar@snda [#4499] Exiting fullscreen on XP corrupts the desktop, have to clean up after M$
 		//RefreshWnd(::GetDesktopWindow());
 		//RefreshWnd(::FindWindowEx(GetDesktopWindow(), NULL, _T("Shell_TrayWnd"), _T("")));
 		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
@@ -999,7 +999,7 @@ void UMMOUIOptionConfig::ApplyEffectLevelVideoData()
 	INT nMaxPlayerCount = GSystemSettings.MaxShowPlayerCount;
 
 	/*
-	由于部分分层数据是在界面这边 没有写进systemsetting.h中 所以自动调节效果等级后要调该等级下的数据 
+	Because some layered data is on the UI side and not written into systemsetting.h, after automatically adjusting the effect level, the data for that level must be adjusted
 	*/
 	/*const FCompatibilityLevelInfo MachineCompatLevel = appGetCompatibilityLevelV2();*/
 	INT nLevelVodeo = GSystemSettings.CompatLevelComposite;

@@ -63,7 +63,7 @@ void UMMOUIGuildBuildingUpgradeSinglePanel::ShowGuildBuildingUpgradePanel(UINT32
 	UINT64 buildingId = MMOGuildData::getSingleton().GetGuildBuildingId(npcTempId);
 	if (buildingId == 0)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("NPC对应建筑等级错误"), MsgInfoType_Table, TEXT("MMOGame.Guild.UpgradeWelfareNow"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("NPC building level mismatch"), MsgInfoType_Table, TEXT("MMOGame.Guild.UpgradeWelfareNow"));
 		return;
 	}
 
@@ -170,7 +170,7 @@ void UMMOUIGuildBuildingUpgradeSinglePanel::DeleteConfirm(UINT64 buildingId, UIN
 	_BuildingIdHigh = UINT32(buildingId >> 32);
 	_BuildingIdLow = UINT32(buildingId);
 
-	FString text = TEXT("是否确认拆除该建筑，拆除后只会返还少量资源");
+	FString text = TEXT("Demolish this building? Only a small amount of resources will be refunded");
 	DeleteConfirmBox = MMOMsgBoxManager::getSingleton().AddMessageBox(text, npcId, funYes, funNo);
 }
 
@@ -226,7 +226,7 @@ void UMMOUIGuildBuildingUpgradeSinglePanel::ASDestroyBuildingSingle(int building
 
 void UMMOUIGuildBuildingUpgradeSinglePanel::ASUpgradeBuildingSingle(INT buildingIdHigh, INT buildingIdLow, int npcId)
 {
-	// 队列满
+	// queue full
 	GuildBuildingUpgradeList guildBuildingUpgradeList = MMOGuildData::getSingleton().GetGuildBuildingUpgradeList();
 	if (guildBuildingUpgradeList.size() >= GUILD_MAX_UPGRADE_BUILDING_COUNT)
 	{
@@ -234,7 +234,7 @@ void UMMOUIGuildBuildingUpgradeSinglePanel::ASUpgradeBuildingSingle(INT building
 		return;
 	}
 
-	// 等级满
+	// level maxed
 	UINT64 idHigh = buildingIdHigh;
 	UINT64 idLow = buildingIdLow;
 	UINT64 buildingId = (idHigh << 32) | idLow;
@@ -249,39 +249,39 @@ void UMMOUIGuildBuildingUpgradeSinglePanel::ASUpgradeBuildingSingle(INT building
 		return;
 	}
 
-	// 资源不足
+	// insufficient resources
 	GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 	if (baseInfo.Money < buildingData.GuildMoneyReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("公会资金不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient guild funds"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Herb < buildingData.HerbReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("粮食不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient grain"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Wood < buildingData.WoodReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("木材不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient wood"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Crystal < buildingData.CrystalReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("石料不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient stone"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Silver < buildingData.SilverReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("铁矿不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient iron ore"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 
-	// 前置建筑
+	// prerequisite building
 	UINT32 preBuildingLv = MMOGuildData::getSingleton().GetGuildBuildingMaxLevel(buildingData.PreBuildingType);
 	if (preBuildingLv < buildingData.PreBuildingLevel)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("前置建筑等级过低"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Prerequisite building level too low"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 
@@ -290,7 +290,7 @@ void UMMOUIGuildBuildingUpgradeSinglePanel::ASUpgradeBuildingSingle(INT building
 		CMessageHandler::GetInstance().Send_UpgradeGuildBuilding(G_B_UPGRADE_BY_NPC, npcId, buildingType);
 	}
 	else
-	{// 如果是从属地管理界面打开
+	{// If opened from the territory management UI
 		CMessageHandler::GetInstance().Send_UpgradeGuildBuilding(G_B_UPGRADE_BY_PANEL, buildingId, buildingType);
 	}
 }

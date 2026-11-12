@@ -173,7 +173,7 @@ void UMMOUIMailReadPanel::ASAcquireMailItems(INT mailID)
 	 const FString& sender,const FString& subject,const FString& content,INT totalCD,INT cd)
  {
 	 _CurrentMailID = mailID; 
-	 //物品表里绑金的ID=0
+	 //Bound gold ID in the item table = 0
 	 if(mailAttachmentItemID >= 0)
 	 {
 		 UGFxObject* itemSlot = GetObject( TEXT("mail_item_0") );
@@ -194,7 +194,7 @@ void UMMOUIMailReadPanel::ASAcquireMailItems(INT mailID)
 			 }
 			 else
 			 {
-				  FString strHint = FString::Printf(TEXT("该邮件含无效的物品id:%d"),mailAttachmentItemID);
+				  FString strHint = FString::Printf(TEXT("This mail contains an invalid item id: %d"),mailAttachmentItemID);
 				  MMOUI::GetUIManager()->delegateAddScreenMessage(strHint); 
 			 }
 		 }

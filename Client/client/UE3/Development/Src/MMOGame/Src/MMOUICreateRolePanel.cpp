@@ -138,7 +138,7 @@ void UMMOUICreateRolePanel::CreateRole(const FString&  createName)
 		return;
 	}
 
-	//注意 本地0为错误代码 但是服务器从0开始
+	//Note: local 0 is the error code but the server starts from 0
 	LoginBase::getSingleton().CreateRoleName = createName;
 	CMessageHandler::GetInstance().Send_CreateRole(*createName,
 		LoginBase::getSingleton().CreateRoleClass,
@@ -179,7 +179,7 @@ void UMMOUICreateRolePanel::DispatchChangeEvent(INT career,INT sex, INT careerLa
 		break;
 	}
 
-	if(sex==1)//男
+	if(sex==1)//male
 	{
 		EventName = EventName+TEXT("M");
 	}
@@ -200,7 +200,7 @@ void UMMOUICreateRolePanel::CreateSexChanged(INT sex)
 		return;
 	}
 
-	//AS： sex 0男 1女
+	//AS: sex 0 male 1 female
 	AMMOPlayerController* PC	= MMOFacade::getSingleton().GetMainController();
 	AMMOPlayer* MainPlayer		= MMOFacade::getSingleton().GetMainPlayer();
 	if( PC ==NULL || MainPlayer==NULL )
@@ -356,9 +356,9 @@ BOOL UMMOUICreateRolePanel::CheckCreateRoleNameInput(const FString& roleName)
 {
 	/*
     *hemu@snda
-    *检测是否有非英文输入法打开
-    *如不判断输入法打开时，Input最后一个汉字位时打入词组，
-    *会过早调用SetCreateRoleName，清掉最后一个拼音,带掉最后一个汉字
+    *Detect whether a non-English input method is open
+    *If input method open is not checked, when a phrase is typed at the last Chinese character position of Input,
+    *SetCreateRoleName is called too early, clearing the last pinyin and dropping the last Chinese character
     */
     if( GEngine && GEngine->Client )
     {
@@ -379,7 +379,7 @@ BOOL UMMOUICreateRolePanel::CheckCreateRoleNameInput(const FString& roleName)
 	//if((Size>=20 || Count>=14) && roleName.Len()>LoginBase::getSingleton().CreateRoleName.Len())
 	if (roleName !=LoginBase::getSingleton().CreateRoleName)
 	{
-		//陈凯新策略，中文字母全部按8个来限制
+		//Chen Kai's new policy: Chinese and letters are all limited to 8
 		UGFxObject* createMc = GetObject( TEXT("input_mc") );
 		if(createMc)
 		{
@@ -399,8 +399,8 @@ BOOL UMMOUICreateRolePanel::CheckCreateRoleNameInput(const FString& roleName)
 		}
 
 
-#if 0   //去除此段
-		//策划陈凯要求英文和数字的长度最大是12，  一个汉字算1.5个字符进行长度限制 大写字符按汉字处理
+#if 0   //remove this section
+		//Designer Chen Kai requires the max length of English and digits to be 12; one Chinese character counts as 1.5 characters for the length limit; uppercase characters are treated as Chinese characters
 
 		INT nChineseNum = (INT)(Size - Count)*0.5;
 
@@ -468,7 +468,7 @@ BOOL UMMOUICreateRolePanel::CheckCreateRoleNameInput(const FString& roleName)
 	return FALSE;
 }
 /*
-	方便创建角色时判断 大写字母和汉字统一处理
+	Convenient for checking when creating a character; uppercase letters and Chinese characters are handled uniformly
 */
 INT UMMOUICreateRolePanel::CheckName( const FString& InputName, INT &Count ,INT &Size)
 {
@@ -495,7 +495,7 @@ INT UMMOUICreateRolePanel::CheckName( const FString& InputName, INT &Count ,INT 
 		
 		else if(c>=TCHAR('A')&&c<=TCHAR('Z'))
 		{
-			//方便创建角色时判断 大写字母和汉字统一处理
+			//Convenient for checking when creating a character; uppercase letters and Chinese characters are handled uniformly
 			/*Count++;
 			Size++;*/
 			Count++;
@@ -507,7 +507,7 @@ INT UMMOUICreateRolePanel::CheckName( const FString& InputName, INT &Count ,INT 
 			Size+=3;
 		}
 
-		//新增，可以增加火星文
+		//Added, allows Martian script
 		else{
 			Count++;
 			Size+=2;

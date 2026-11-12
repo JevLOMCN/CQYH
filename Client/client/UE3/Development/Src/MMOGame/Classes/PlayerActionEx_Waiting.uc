@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_Waiting，等待
+// PlayerActionEx_Waiting, waiting
 //
 class PlayerActionEx_Waiting extends PlayerActionEx_Base
 	native;

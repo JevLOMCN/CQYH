@@ -1,28 +1,28 @@
 //
-// IExcelable接口，能输出Excel的对象可实现此接口
+// IExcelable interface, objects that can output Excel can implement this interface
 //
 interface IExcelable
 	native;
 
 //
-// 重要：如果实现了脚本版本的函数，就不要实现native版本的，两个都实现会造成数据冲突
+// Important: if the script version of a function is implemented, do not implement the native version; implementing both causes data conflicts
 //
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues);
 
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row);
 
 native function ExportExcelHeaders(out array<string> Header, out array<string> DefaultValues);
 native function DataToExcel(out array<string> Row);
 native function InitDataToExcel();
 
-// 从EXCEL导入数据
+// Import data from EXCEL
 native function ImportFromExcel(array<string> values);
 event ScriptImportFromExcel(array<string> Values);
-//// 输出数据到Excel
+//// Output data to Excel
 //cpptext
 //{
 //	bool DataToExcel(TArray<FString>& Row);

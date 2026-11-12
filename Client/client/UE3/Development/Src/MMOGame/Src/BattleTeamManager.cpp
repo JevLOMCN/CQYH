@@ -104,8 +104,8 @@
 //	tm.PlayerName = roleName;
 //	tm.ServerID = roleID;
 //	tm.Sex = 0;
-//	tm.SingleScore = 0; //这个没有
-//	tm.TeamScore = 0;//这个没有
+//	tm.SingleScore = 0; //this does not exist
+//	tm.TeamScore = 0;//this does not exist
 //	tm.Level = 1;
 //
 //	_MemberList.AddItem(tm);
@@ -199,7 +199,7 @@
 //	_IconID = msg->wIconID;
 //	if( msg->byMemberCount > 0 )
 //	{
-//		//服务器把0号成员设为队长（创建人）
+//		//Server sets member 0 as leader (creator)
 //		_TeamLeaderID = msg->stMemberList[0].dwRoleID;
 //	}
 //	
@@ -211,8 +211,8 @@
 //		tm.PlayerName = UTF8_TO_TCHAR(msg->stMemberList[i].szRoleName);
 //		tm.ServerID = msg->stMemberList[i].dwRoleID;
 //		tm.Sex = msg->stMemberList[i].bySex;
-//		tm.SingleScore = 0; //这个没有
-//		tm.TeamScore = 0;//这个没有
+//		tm.SingleScore = 0; //this does not exist
+//		tm.TeamScore = 0;//this does not exist
 //		tm.Level = msg->stMemberList[i].byLevel;
 //
 //		_MemberList.AddItem(tm);

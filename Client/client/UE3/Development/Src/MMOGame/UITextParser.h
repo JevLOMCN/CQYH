@@ -17,9 +17,9 @@ struct ParseContext
 {
 	ANPC* NPC;
 
-	//现在有三个参数啦
+	//now there are three parameters
 	/*bool HasParameter0;
-	FString Parameter0; // 特殊用法;*/
+	FString Parameter0; // special usage;*/
 	ContextParameter Parameters[PARSE_MAX_PARAMETERS];
 	bool SkipAppendNPCDialogOption;
 
@@ -102,7 +102,7 @@ struct DialogContext
 		OptionActionMap.clear();
 	}
 
-	// 客户端自己的选项文字用负值
+	// client's own option text uses negative values
 	void AdvanceClientActionID()
 	{
 		--ClientActionAutoID;
@@ -180,7 +180,7 @@ public:
 	static FString HTMLBeginParagraph(const FString& alignMode = TEXT("left"));
 	static FString HTMLEndParagraph();
 
-	//获得tips颜色
+	//get tips color
 	static FString GetTipsColor(const TCHAR* key = NULL);
 	static FString GetNormalColor( const TCHAR* key = NULL);
 
@@ -229,7 +229,7 @@ public:
 	static FString HTMLFormatItemWeightAttribute( UItem* item );
 	static FString HTMLFormatItemLevelUpPoints( ItemInfo* itemInfo );
 	static FString HTMLFormatItemPurityAttribute( UItem* item );
-    //Equip动态调整
+    //Equip dynamic adjustment
     static FString HTMLFormatItemRandomAttribute( UEquip* item, ItemInfo* itemInfo = NULL );
 	static void HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInfo* itemInfo, FString &mixParaText, FString &randParaText );
     static FString HTMLFormatItemLuckyAttribute( UEquip* item, ItemInfo* itemInfo = NULL );
@@ -268,13 +268,13 @@ public:
 	//Message
 	static FString HTMLFormatMessageSkillColor( UMMOAbility* skill );
 	static FString HTMLFormatMessageTitleColor( struct TitleData* title );
-	//根据道具品质放色
+	//apply color by item quality
 	static FString HTMLFormatItemColorString( UItem* item );
 	INT			   SplitStringTagWithUTF8MaxLength(const FString& strSrc,FString& strSplit,INT nLength);
 	INT			   UTF8Length(const FString& strSrc,INT nMaxLen = 0);
 	INT			   UTF8LengthMaxPosModify(const FString& strSrc,INT nMaxPos);
 
-	//价格换算
+	//price conversion
 	static FString ConvertPrice(INT64 money);
 	static FString RightAlignTabs;
 	static FString DummyText;
@@ -417,7 +417,7 @@ public:
 	virtual void Parse(ParseContext& ctx, DialogContext& diagCtx, TCHAR*& srcTxt, INT& srcIdx, INT totalLen );
 };
 
-//现在都用UITextParser_CommonParameter就可以了，但是服务器那边没有改掉，还是用的p0,p1,p2，所以暂时先加上
+//now UITextParser_CommonParameter is enough, but the server side has not been changed and still uses p0,p1,p2, so add it for now
 class UITextParser_Paramater1 : public ITextParser
 {
 public:
@@ -519,7 +519,7 @@ public:
 };
 
 //------------------------------------------------------------------------
-// 特殊的问卷调查选项处理
+// special handling of questionnaire options
 class UITextParser_QURL : public ITextParser
 {
 public:

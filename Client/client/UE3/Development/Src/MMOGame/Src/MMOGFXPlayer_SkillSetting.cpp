@@ -21,7 +21,7 @@ extern bool g_displayDragDropIcon;
 //============================================================================================================================
 void UMMOGFXPlayer_SkillSetting::ASLevelUpSkill( int uniqueSkillID )
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_SkillLevelUp);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -45,13 +45,13 @@ void UMMOGFXPlayer_SkillSetting::ASLevelUpSkill( int uniqueSkillID )
 	if( skillNextLevel == NULL ){
 		return;
 	}
-	//修炼点不足
+	//not enough cultivation points
 	INT levelUpPts = MMOFacade::getSingleton().GetPlayerMoney( E_MONEYTYPE_SPELL_PTS );
 	if( levelUpPts < skillNextLevel->LvUpRequirePoints ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillTree.ERROR_skill_level_up_needPts") ),MsgInfoType_Table,TEXT("MMOGame.SkillTree.ERROR_skill_level_up_needPts") );
 		return;
 	}
-	//隐藏Tips
+	//hide Tips
 	MMOUI::GetUIManager()->delegateHideTips();
 
 	CMessageHandler::GetInstance().Send_SpellLevelUp( (UINT16)skillID );
@@ -68,7 +68,7 @@ void UMMOGFXPlayer_SkillSetting::ASShowTips_SkillLvUpBtn( UGFxObject *mc, INT un
 	//hint = UITextParser::HTMLBeginParagraph();
 	//hint += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillTree.ActiveSkillLvUpHint") );
 	//hint += UITextParser::HTMLEndParagraph();
-	//修炼点
+	//cultivation points
 	UMMOAbility *skill = MMOSkillManager::getSingleton().FindAbilityTemplate( uniqueSkillID );
 	if( skill == NULL ){
 		return;
@@ -94,7 +94,7 @@ void UMMOGFXPlayer_SkillSetting::ASShowTips_SkillLvUpBtn( UGFxObject *mc, INT un
 	}
 	hint += UITextParser::HTMLEndParagraph();
 
-	//人物等级需求提示
+	//character level requirement tip
 	AMMOPlayer *mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	INT limitedLevel = ( SkillLevelUpLimitLv >= skillNextLevel->LvUpRequireRoleLevel ? SkillLevelUpLimitLv : skillNextLevel->LvUpRequireRoleLevel );
 	if( mainPlayer && mainPlayer->ActorAttributes->LevelAttributes.Level < limitedLevel ){
@@ -150,7 +150,7 @@ void UMMOGFXPlayer_SkillSetting::ASSetSkill( INT skillSetIdx, INT uniqueSkillID 
 //============================================================================================================================
 void UMMOGFXPlayer_SkillSetting::ASShowSkillDetail( UGFxObject *mc, INT skillUniqueID, INT showPosX, INT showPosY )
 {
-	//不要了
+	//not needed
 	//if( _SkillSetting == NULL ){
 	//	return;
 	//}

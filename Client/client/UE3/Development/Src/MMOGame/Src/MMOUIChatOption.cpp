@@ -9,7 +9,7 @@ IMPLEMENT_CLASS(UMMOUIChatOption)
 void UMMOUIChatOption::PostOnShow( UBOOL v )
 {
 	Super::PostOnShow(v);
-	//复制一份频道信息用来修改和恢复
+	//copy a set of channel info for modification and restoration
 	if(v)
 	{
 		MMOChatManager::getSingleton().ReCopyChatFilter();
@@ -51,7 +51,7 @@ void UMMOUIChatOption::ChannelNameChanged(const FString& newName)
 	FString name = newName;
 	if(name.IsEmpty())
 	{
-		//不允许空
+		//empty not allowed
 		return;
 	}
 	MMOUI::ReplaceCensoredWord(name);
@@ -116,7 +116,7 @@ void UMMOUIChatOption::ClickChannel( int index )
 
 void UMMOUIChatOption::Init()
 {
-	//这串常量有两组……不是很好
+	//this set of constants has two groups... not great
 	ChatChannelStr.AddZeroed( ECC_Num );	
 	ChatChannelStr(ECC_World) = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Chat.World") );
 	ChatChannelStr(ECC_Team) = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Chat.Team") );
@@ -206,7 +206,7 @@ void UMMOUIChatOption::ClickReset()
 void UMMOUIChatOption::ClickApply()
 {
 	MMOChatManager::getSingleton().ApplyCopyChatFilter();
-	//存档
+	//save
 	MMOChatManager::getSingleton().SaveRecord();
 
 	MMOChatManager::getSingleton().NotifyUpdateChannelTabClicked();

@@ -20,7 +20,7 @@ DefaultProperties
 	MovieInfoStr="UI_DamageLevel.DamageLevel"
 	IsLockedDynamicLoad=true
 	bCloseOnLevelChange=FALSE
-	Priority=2 // 让这个在最下面接受响应键盘、鼠标事件
+	Priority=2 // Keep this at the bottom to receive keyboard and mouse events
 	bAllowInput=false
 	bAllowFocus=false
 }

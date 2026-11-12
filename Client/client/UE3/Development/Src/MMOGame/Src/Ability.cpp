@@ -1274,7 +1274,7 @@ void UMMOAbility::ExportExcelHeaders(TArray<FString>& Header,TArray<FString>& De
 
 void UMMOAbility::ExportExcelHeaders2(TArray<FString>& Header,TArray<FString>& DefaultValues)
 {
-	//Item.AddItem("Index"); // 底层统一处理了
+	//Item.AddItem("Index"); // Handled uniformly by the lower layer
 	Header.AddItem("SpellID");
 	DefaultValues.AddItem("0");
 
@@ -1518,56 +1518,56 @@ UBOOL UMMOAbility::CanUseManaCheck(AMMOActor* InActor)
 	return TRUE;
 }
 
-//获得指定子符文Slot位置的符文Icon
+//Get the rune Icon at the specified sub-rune Slot position
 FString  UMMOAbility::GetSubRuneIconName(int RuneSlot )
 {
 	if( RuneSlot <0 || RuneSlot >= SubRuneList.Num() )
 		return "Texture2D'MMO_UIIcon.Blank'"; 
 	return SubRuneList( RuneSlot-1 )->RuneIconName;
 }
-//获得符文Icon
+//Get rune Icon
 FString  UMMOAbility::GetRuneIconName( )
 {
 	//FString str = GetAbilityIconName();
 	return RuneIconName;
 }
 
-//获得SkillGuiRuneID
+//Get SkillGuiRuneID
 INT  UMMOAbility::GetSkillGuiRuneID( )
 {
-    //@Temp 现在美术素材没有 直接使用现有的一套
+    //@Temp no art assets for now, directly use an existing set
     //return SkillGuiRuneID;
     return GetRuneSlot();
 }
 
-//添加关联子符文
+//Add associated child rune
 void UMMOAbility::AddSubRune(int RuneSlot,UMMOAbility *SubRune )
 {
 	if( RuneSlot < 1 ){
 		return;
 	}
-	//符文数不是确定的
-	//重新分配也不爽，但鉴于预处理，还是把时间牺牲在这里了
+	//Rune count is not fixed
+	//Reallocation is also unpleasant, but given preprocessing, time is sacrificed here
 	if( SubRuneList.Num() < RuneSlot ){
 		SubRuneList.AddZeroed( RuneSlot - SubRuneList.Num() );
 	}
 	SubRune->MainSkill = this;
 	//Texture2D'MMO_UIIcon.Rune.2003_Rune2_1'
-	//0代表没有 Slot1~5
-	//@Temp 现在美术素材没有 直接使用现有的一套
+	//0 means none, Slot1~5
+	//@Temp no art assets for now, directly use an existing set
 	SubRune->RuneIconName = FString::Printf(TEXT("img://MMO_UIIcon.Rune.%d_Rune%d_"), 2003/*SpellCommonAttribute.Id*/,SubRune->GetRuneSlot() );
 	SubRuneList( RuneSlot-1 ) = SubRune;
-    //所有主动技能符文均是5个
+    //All active ability runes number 5
     SubRune->SkillGuiRuneID = SkillGuiID*UCONST_MaxSubRuneNum + RuneSlot;
 }
 
-//得到当前的装配的RuneSlot
+//Get the currently equipped RuneSlot
 int UMMOAbility::GetRuneSlot( )
 {
 	return SpellCommonAttribute.RuneSlotID;
 }
 
-//设置装配RuneSlot
+//Set equipped RuneSlot
 void UMMOAbility::SetRuneSlot( int inRuneSlot )
 {
 	SpellCommonAttribute.RuneSlotID = inRuneSlot ;
@@ -1800,7 +1800,7 @@ void UGhostSpawner::OnAction(INT CreatorId,INT TargetId,INT InPoint)
 		 // set light data
 		 if(EmitterData->MyPointLightComponent)
 		 {
-			 // 整体效果等级在3级以下自动关闭动态光源，0是自定义
+			 // Automatically turn off dynamic lights when the overall effect level is below 3; 0 is custom
 			 if (GSystemSettings.AutoFPSLevel > M_SCALE_DOWN_ABILITY_POINT_LIGHT)
 			 {
 				 UObject* InOuter = UObject::GetTransientPackage();
@@ -2019,7 +2019,7 @@ void UAbilityPreviewResources::RebulidMesh(USkeletalMeshComponent* BaseSMC, USke
 		AttackerMergedMesh->Parts(i).Mesh = pMesh;
 		for( INT j = 0; j < meshArray[i].Num(); ++j )
 		{
-			// 腰带不会有皮肤贴图 所以去掉i==5的情况
+			// Belt has no skin texture so drop the i==5 case
 			if( j == 0 && i != 5 && meshArray[i](j)->bNeedSkinTexture )
 			{
 				AttackerMergedMesh->Parts(i).Textures.AddItem( SkinTextures(i) );

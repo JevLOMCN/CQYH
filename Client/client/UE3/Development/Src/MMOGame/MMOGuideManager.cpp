@@ -595,7 +595,7 @@ void MMOGuideManager::_DetachGuidePanel(UINT32 id)
 		return;
 	}
 
-	// 找不到
+	// not found
 	GuideObjectMap::iterator iter = _GuideObjectMap.find(id);
 	if (iter == _GuideObjectMap.end())
 	{
@@ -788,7 +788,7 @@ void MMOGuideManager::_UpdateGuideState(UINT32 id)
 		return;
 	}
 
-	// 语音类的引导，激活就完成了
+	// voice type guide, completes once activated
 	if (data.Type == EGDT_Sound)
 	{
 		MMOGuideData::getSingleton().UpdateGuideState(id, GS_Complete);
@@ -828,7 +828,7 @@ void MMOGuideManager::_ActivateGuide(UINT32 id)
 
 void MMOGuideManager::_DeactiveGuide(UINT32 id)
 {
-	// 当前未激活
+	// currently not activated
 	if (MMOGuideData::getSingleton().GetGuideState(id) != GS_Activated)
 	{
 		return;
@@ -836,7 +836,7 @@ void MMOGuideManager::_DeactiveGuide(UINT32 id)
 
 	_DetachGuidePanel(id);
 
-	// 记录状态
+	// record state
 	MMOGuideData::getSingleton().UpdateGuideState(id, GS_Complete);
 	SaveRecord();
 }
@@ -918,7 +918,7 @@ void MMOGuideManager::_UpdateBagSlotGuide(UMMOUIBase* targetPanel, UGFxObject* g
 		return;
 	}
 
-	// 需要对准背包格子
+	// needs to aim at the bag slot
 	int playerJob = mainPlayer->GetClassId();
 	if (playerJob >= EPCT_PlayerClassA && playerJob <= EPCT_PlayerClassE)
 	{

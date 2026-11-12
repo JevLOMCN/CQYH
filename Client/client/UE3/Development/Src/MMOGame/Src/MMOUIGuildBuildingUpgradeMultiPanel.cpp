@@ -212,7 +212,7 @@ void UMMOUIGuildBuildingUpgradeMultiPanel::DeleteConfirm(UINT64 id)
 	_BuildingIdHigh = UINT32(id >> 32);
 	_BuildingIdLow = UINT32(id);
 
-	FString text = TEXT("是否确认拆除该建筑，拆除后只会返还少量资源");
+	FString text = TEXT("Demolish this building? Only a small amount of resources will be refunded");
 	DeleteConfirmBox = MMOMsgBoxManager::getSingleton().AddMessageBox(text, 0, funYes, funNo);
 }
 
@@ -266,7 +266,7 @@ void UMMOUIGuildBuildingUpgradeMultiPanel::ASDestroyBuildingMulti(int buildingId
 
 void UMMOUIGuildBuildingUpgradeMultiPanel::ASUpgradeBuildingMulti(INT buildingIdHigh, INT buildingIdLow)
 {
-	// 队列满
+	// queue full
 	GuildBuildingUpgradeList guildBuildingUpgradeList = MMOGuildData::getSingleton().GetGuildBuildingUpgradeList();
 	if (guildBuildingUpgradeList.size() >= GUILD_MAX_UPGRADE_BUILDING_COUNT)
 	{
@@ -274,7 +274,7 @@ void UMMOUIGuildBuildingUpgradeMultiPanel::ASUpgradeBuildingMulti(INT buildingId
 		return;
 	}
 
-	// 等级满
+	// level maxed
 	UINT64 idHigh = buildingIdHigh;
 	UINT64 idLow = buildingIdLow;
 	UINT64 buildingId = (idHigh << 32) | idLow;
@@ -289,39 +289,39 @@ void UMMOUIGuildBuildingUpgradeMultiPanel::ASUpgradeBuildingMulti(INT buildingId
 		return;
 	}
 
-	// 资源不足
+	// insufficient resources
 	GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 	if (baseInfo.Money < buildingData.GuildMoneyReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("公会资金不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient guild funds"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Herb < buildingData.HerbReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("粮食不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient grain"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Wood < buildingData.WoodReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("木材不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient wood"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Crystal < buildingData.CrystalReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("石料不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient stone"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Silver < buildingData.SilverReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("铁矿不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient iron ore"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 
-	// 前置建筑
+	// prerequisite building
 	UINT32 preBuildingLv = MMOGuildData::getSingleton().GetGuildBuildingMaxLevel(buildingData.PreBuildingType);
 	if (preBuildingLv < buildingData.PreBuildingLevel)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("前置建筑等级过低"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Prerequisite building level too low"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 

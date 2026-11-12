@@ -82,7 +82,7 @@ event InitOnce()
 			if( ItemSlot != none )
 			{
 				ItemSlot.SetFloat("itemid",i); 
-				//这边有诡异作用
+				//Strange effect here
 				ItemSlotList.AddItem( ItemSlot );
 			}
 		}

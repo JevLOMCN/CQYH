@@ -1,5 +1,5 @@
 //
-// ÒôĞ§²ÄÖÊ±à¼­Æ÷
+// Sound material editor
 //
 
 class MMOSoundMaterialEditObject extends Object

@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_Base，玩家操作基类
+// PlayerActionEx_Base, player action base class
 //
 class PlayerActionEx_Base extends Object
 	native

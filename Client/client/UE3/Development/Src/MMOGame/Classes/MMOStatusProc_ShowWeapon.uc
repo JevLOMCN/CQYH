@@ -1,5 +1,5 @@
 //
-// …Ë÷√ ∞»°
+// Set pickup
 //
 class MMOStatusProc_ShowWeapon extends Object implements(IMMOStatusProc)
 	native

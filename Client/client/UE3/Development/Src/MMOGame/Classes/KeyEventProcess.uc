@@ -1,5 +1,5 @@
 //
-// Key消息处理状态类
+// KeyKey message handling state class
 //
 class KeyEventProcess extends Object
 	abstract

@@ -1,5 +1,5 @@
 
-// 服务器Trigger事件通知
+// server Trigger event notification
 
 class SeqEvent_Server_UseTrigger extends SequenceEvent;
 

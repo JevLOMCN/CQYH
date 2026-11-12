@@ -14,7 +14,7 @@ var()   bool bLoop;
 var()   float   LoopTime;
 var()   EAnimLevel  AnimLevel;
 var()   bool bForcePlay;
-// ÆðÊ¼²¥·ÅÖ¡( >= 0)
+// start playing frame ( >= 0)
 var()   int StartFrame;
 
 var()   float BlendInTime;

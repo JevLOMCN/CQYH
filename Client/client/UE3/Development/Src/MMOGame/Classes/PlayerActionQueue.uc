@@ -1,5 +1,5 @@
 //
-// PlayerActionQueue，玩家操作队列
+// PlayerActionQueue, player action queue
 //
 class PlayerActionQueue extends Object
 	native;

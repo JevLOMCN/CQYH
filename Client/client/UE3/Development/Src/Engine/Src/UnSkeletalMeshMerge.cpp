@@ -165,7 +165,7 @@ UBOOL FSkeletalMeshMerge::DoMerge( UBOOL mergeVertices, UBOOL keepVertexDataInCh
 						// Must have at least root shared between each mesh!
 						if (i==0)
 						{
-							debugf(NAME_Error, TEXT("无法合并模型，至少要根骨名字相同，请动画美术检查 模型:%s"), *SrcMesh->GetFullName());
+							debugf(NAME_Error, TEXT("Cannot merge meshes: at least the root bone names must match. Animation artist please check mesh: %s"), *SrcMesh->GetFullName());
 							return FALSE;
 						}
 						INT ParentBoneIndex = SrcMesh->RefSkeleton(i).ParentIndex;
@@ -384,7 +384,7 @@ void FSkeletalMeshMerge::GenerateNewSectionArray( TArray<FNewSectionInfo>& NewSe
 				INT MaterialIndex = Section.MaterialIndex;
 				if( MaterialIndex >= SrcMesh->Materials.Num() )
 				{
-					warnf( NAME_Error, TEXT("模型的材质ID不正确，请角色美术检查：%s"), *SrcMesh->GetFullName() );
+					warnf( NAME_Error, TEXT("Incorrect material ID on mesh. Character artist please check: %s"), *SrcMesh->GetFullName() );
 					MaterialIndex = SrcMesh->Materials.Num() - 1;
 				}
 				else

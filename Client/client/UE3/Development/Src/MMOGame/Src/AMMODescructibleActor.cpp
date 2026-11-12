@@ -136,7 +136,7 @@ UBOOL AMMODescructibleActor::DrawMyHUD(class AMMOHud* H)
 	FLOAT healthPercent = GetHealthPercent();
 	FVector healthColorVec = Lerp( UnhealthyColor , HealthyColor , healthPercent );
 	
-	//这个看不懂，先注释掉……
+	//Don't understand this, comment out for now...
 	if( TimeSince(LastTakeDamageTime) < 2)
 		healthColorVec *= 1 + 13.0 * Abs( sin ( WorldInfo->TimeSeconds*7 ) );
 

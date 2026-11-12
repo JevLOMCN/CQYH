@@ -126,7 +126,7 @@ public:
 	virtual void Execute();
 };
 
-//æ≠—È∂Õ‘Ï
+//Experience forging
 //------------------------------------------------------------------------
 // DialogOptionAction_UICommand_ApplySpecialExp
 //------------------------------------------------------------------------

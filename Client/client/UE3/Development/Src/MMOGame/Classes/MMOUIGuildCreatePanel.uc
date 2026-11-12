@@ -33,7 +33,7 @@ event CallCreateSuccess()
 }
 
 
-// 创建家族
+// Create guild
 native final function ASCreateGuild(String guildName, String guildAnnounce);
 native final function ASInputError();
 

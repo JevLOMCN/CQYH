@@ -31,10 +31,10 @@ void UMMOUIWeaponSkill::PreOnShow(UBOOL show)
 
 	//
 	if( show ){
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowWeaponSkillPanel);
 		MMOUI::PostGameEvent(&evtGuide);
-		////10级以前不能开启
+		////Cannot be opened before level 10
 		//if( Player && Player->ActorAttributes ){
 		//	if( Player->ActorAttributes->LevelAttributes.Level < 10 ){
 		//		MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.SkillTree.CanNotOpenHint")),MsgInfoType_Table,TEXT("MMOGame.SkillTree.CanNotOpenHint"));
@@ -175,7 +175,7 @@ void UMMOUIWeaponSkill::BagSlotChange( INT bagId, INT slotId )
 		return;
 	}
 
-	//武器改变，刷新武器技能
+	//Weapon changed, refresh weapon abilities
 	if( _ToOpWeapon._ConID == bagId && _ToOpWeapon._SlotID == slotId ){
 		UpdateCurWeaponSkills();
 	}
@@ -295,7 +295,7 @@ UBOOL UMMOUIWeaponSkill::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BY
 				return TRUE;
 			}
 
-			//是否是武器
+			//Whether it is a weapon
 			if( pItem->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON") ){
 				SetCurWeapon( ContainerID, SlotID );
 			}
@@ -318,7 +318,7 @@ UBOOL UMMOUIWeaponSkill::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BY
 			{
 			case EWpSkill_WeaponOp:
 				{
-					//当前铸魂的武器
+					//Weapon currently being soul-forged
 					UnSetCurWeapon();
 				}
 				break;
@@ -389,7 +389,7 @@ UBOOL UMMOUIWeaponSkill::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObjec
 				{
 				case EWpSkill_WeaponOp:
 					{
-						//当前铸魂的武器EWpSkill_WepSkillCusm1
+						//Weapon currently being soul-forged EWpSkill_WepSkillCusm1
 						SetCurWeapon( srcContainerID, srcSlotID );
 					}
 					break;
@@ -421,7 +421,7 @@ UBOOL UMMOUIWeaponSkill::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObjec
 				{
 				case EWpSkill_WeaponOp:
 					{
-						//当前铸魂的武器
+						//Weapon currently being soul-forged
 						UnSetCurWeapon();
 					}
 					break;
@@ -453,7 +453,7 @@ void UMMOUIWeaponSkill::UpdateCurWeaponSkills()
 	//
 	UBOOL isEmpty = FALSE;
 	if( _ToOpWeapon._ConID < 0 || _ToOpWeapon._SlotID < 0 ){
-		//此武器不带技能，清空技能显示
+		//This weapon has no ability, clear ability display
 		isEmpty = TRUE;
 	}
 
@@ -505,7 +505,7 @@ void UMMOUIWeaponSkill::UpdateCurWeaponSkills()
 		weaponSkillDataObj->SetString( TEXT("skillName"), displayAbilityName );
 		weaponSkillDataObj->SetString( TEXT("iconName"), pWeaponSkill->GetAbilityIconName() );
 
-		//符文描述
+		//rune description
 		const SpellVarData* spellDat = SpellVarManager::getSingleton().FindData( uniqueSkillID );
 		if( spellDat ){
 			weaponSkillDataObj->SetString( TEXT("skillDec") , spellDat->RuneDescription );
@@ -572,7 +572,7 @@ void UMMOUIWeaponSkill::UpdateConsumeItem()
 
 	INT itemCnt = MMOFacade::getSingleton().GetItemCountInBag( curCnsmItemID, E_CONSLOT_DEFAULT );
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_DropWeaponSkill);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -673,19 +673,19 @@ void UMMOUIWeaponSkill::UpdateGuildNeeds()
 //		_WepSkillConsItem[idx]._ConID = -1;
 //		_WepSkillConsItem[idx]._SlotID = -1;
 //
-//		//刷新相关显示
+//		//Refresh related display
 //		UpdateTryGetWeaponSkillBtn();
 //
 //		return FALSE;
 //	}
 //
-//	//检查是否是合适的技能物品
+//	//Check whether it is a suitable ability item
 //	UBOOL isOK = CheckConsumeItemForWeaponSkill( contID, slotID );
 //	if( !isOK ){
 //		return isOK;
 //	}
 //
-//	//解锁背包内原先放入界面中的装备
+//	//Unlock the equipment previously placed in the UI from the bag
 //	if( _WepSkillConsItem[idx]._ConID >= 0 && _WepSkillConsItem[idx]._SlotID >= 0 ){
 //		//if( pBagPanel != NULL && _SkillLevelUpItem._ConID == E_CONSLOT_DEFAULT){
 //		MMOFacade::getSingleton().LockItem( _WepSkillConsItem[idx]._ConID, _WepSkillConsItem[idx]._SlotID, -1 );
@@ -695,7 +695,7 @@ void UMMOUIWeaponSkill::UpdateGuildNeeds()
 //	_WepSkillConsItem[idx]._ConID = contID;
 //	_WepSkillConsItem[idx]._SlotID = slotID;
 //	
-//	//设置界面ItemSlot
+//	//Set UI ItemSlot
 //	FClientItemInfo *pSkillItemInfo = MMOFacade::getSingleton().FindItem( contID, slotID );
 //	if( pSkillItemInfo != NULL ){
 //		UItem *pSkillItemTplt =  MMOFacade::getSingleton().FindItemTemplate( pSkillItemInfo->m_nTemplateID );
@@ -706,13 +706,13 @@ void UMMOUIWeaponSkill::UpdateGuildNeeds()
 //		}
 //	}
 //
-//	//锁住背包内原先放置的技能物品
+//	//Lock the ability item previously placed in the bag
 //	MMOFacade::getSingleton().LockItem( _WepSkillConsItem[idx]._ConID, _WepSkillConsItem[idx]._SlotID, ESPType_WeaponSkill );
 //
-//	//刷新相关显示
+//	//Refresh related display
 //	UpdateTryGetWeaponSkillBtn();
 //
-//	// 新手引导
+//	// Newbie guide
 //	MMOGameEvent_Guide evtGuide(EGUET_DropWeaponSkill);
 //	MMOUI::PostGameEvent(&evtGuide);
 //
@@ -726,7 +726,7 @@ void UMMOUIWeaponSkill::UpdateGuildNeeds()
 //	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 //	MMOEquipManager &mmoEquipMgr = MMOEquipManager::getSingleton();
 //
-//	//是否是是技能物品
+//	//Whether it is an ability item
 //	FClientItemInfo *pItemInfo = mmoFacade.FindItem( contID, slotID );
 //	if( pItemInfo == NULL ){
 //		errorLookUpString = TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND");
@@ -767,7 +767,7 @@ void UMMOUIWeaponSkill::UnSetCurWeapon()
 {
 	SetCurWeapon( -1, -1 );
 
-	////更新相关界面
+	////Update related UI
 	//UMMOUIWeaponSkillSetting *pWeaponSkillSettingPanel = (UMMOUIWeaponSkillSetting*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_WeaponSkillSetting );
 	//if( pWeaponSkillSettingPanel != NULL && pWeaponSkillSettingPanel->IsVisible ){
 	//	pWeaponSkillSettingPanel->ShowWeaponSkillInfoPanel( FALSE, -1, -1, -1 );
@@ -796,21 +796,21 @@ UBOOL UMMOUIWeaponSkill::SetCurWeapon( INT containerID, INT slotID )
 		_ToOpWeapon._ConID = -1;
 		_ToOpWeapon._SlotID = -1;
 
-		//刷新相关显示
+		//refresh related display
 		UpdateCurWeaponSkills();
 		//ResetAllPuttedWeaponSkillConsumeItem();
 
 		return TRUE;
 	}
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pInfo == NULL ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND") ) ,MsgInfoType_Table,TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND"));
 		return FALSE;
 	}
 
-	//是否是武器
+	//Whether it is a weapon
 	UItem *pItemToOperation = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UEquip *pWeaponToOperation = Cast<UEquip>( pItemToOperation );
 	if( pWeaponToOperation == NULL || pWeaponToOperation->ItemSubType != TEXT("ITEMSUBTYPE_EQUIP_WEAPON") ){
@@ -818,7 +818,7 @@ UBOOL UMMOUIWeaponSkill::SetCurWeapon( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//解锁背包内原先放入界面中的装备
+	//unlock the equipment previously placed in the UI from the bag
 	if( _ToOpWeapon._ConID >= 0 && _ToOpWeapon._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _ToOpWeapon._ConID == E_CONSLOT_DEFAULT ){
 			MMOFacade::getSingleton().LockItem( _ToOpWeapon._ConID, _ToOpWeapon._SlotID, -1 );
@@ -830,25 +830,25 @@ UBOOL UMMOUIWeaponSkill::SetCurWeapon( INT containerID, INT slotID )
 	_ToOpWeapon._ConID = containerID;
 	_ToOpWeapon._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( _WeaponSlotMc, 1, mmoFacade.GetItemIconNamePersonalized( pWeaponToOperation, pInfo ), pWeaponToOperation->ItemId, 
 									 ESPType_WeaponSkill, TEXT(""), pWeaponToOperation->ItemColor+1, _ToOpWeapon._ConID, _ToOpWeapon._SlotID );
 
-	//锁住背包内原先放置的灵
+	//lock the spirit previously placed in the bag
 	//if( pBagPanel != NULL ){
 		MMOFacade::getSingleton().LockItem( _ToOpWeapon._ConID, _ToOpWeapon._SlotID, ESPType_WeaponSkill );
 	//}
 
-	////这个界面打开着就需要关闭
+	////If this UI is open it needs to be closed
 	//UMMOUIWeaponSkillSetting *pWeaponSkillSettingPanel = (UMMOUIWeaponSkillSetting*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_WeaponSkillSetting );
 	//if( pWeaponSkillSettingPanel != NULL && pWeaponSkillSettingPanel->IsVisible ){
 	//	pWeaponSkillSettingPanel->ShowWeaponSkillInfoPanel( FALSE, -1, -1, -1 );
 	//}
 
-	//刷新相关显示
+	//refresh related display
 	UpdateCurWeaponSkills();
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_DropWeaponToWeaponSkill);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -918,7 +918,7 @@ void UMMOUIWeaponSkill::TryGetWeaponSkill( UBOOL isNeedCheckConfirm )
 	//		INT weaponRuneSkillType = weaponRuneSkillID/10;
 	//		if(weaponRuneSkillType==2541||weaponRuneSkillType==3003||weaponRuneSkillType==3008)
 	//		{
-	//			if(weaponRuneSkillType==2541 && MMOFacade::getSingleton().PetState==E_ps_Invalid)//没有宝宝，2541系列不提示
+	//			if(weaponRuneSkillType==2541 && MMOFacade::getSingleton().PetState==E_ps_Invalid)//no pet, 2541 series gives no prompt
 	//			{
 	//				isNeedCheckConfirm = FALSE;
 	//			}
@@ -948,7 +948,7 @@ void UMMOUIWeaponSkill::TryGetWeaponSkill( UBOOL isNeedCheckConfirm )
 	INT curConsumeItemID = GetCurConsumeID();
 	CMessageHandler::GetInstance().Send_TryGetWeaponRune( _ToOpWeapon._ConID, _ToOpWeapon._SlotID, curConsumeItemID );
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_EmbedWeaponSkill);
 	MMOUI::PostGameEvent(&evtGuide);
 }
@@ -1033,7 +1033,7 @@ void UMMOUIWeaponSkill::NotifyTryWeaponSkillResult( INT result )
 	FString hint;
 	FString strString;
 	if( result != 0 ){
-		////成功
+		////Success
 		//strString = TEXT("MMOGame.WeaponSkill.AddWeaponSkillSuccess");
 		//hint = MMOUI::ParseLocalizedPropertyPath( strString );
 
@@ -1062,7 +1062,7 @@ void UMMOUIWeaponSkill::NotifyTryWeaponSkillResult( INT result )
 				//
 				isHasSkill = TRUE;
 
-				//播放特效
+				//Play effect
 				INT weaponSkillID = mmoEquipMgr.GetWeaponRuneSkillIDBySlotIdx( i, pItemInfo );
 				if( weaponSkillID != _CurWeaponCurSkill( i ) ){
 					hasPlayedAnim = TRUE;
@@ -1078,7 +1078,7 @@ void UMMOUIWeaponSkill::NotifyTryWeaponSkillResult( INT result )
 
 					ScreenMessageQueue::getSingleton().AddMessage( ESMC_TopCenter, pNewMsgData );
 
-					//问题提示
+					//Question prompt
 					MMOChatManager::getSingleton().AddSystemMessage(  FString::Printf( *chatHintFormat, *skillName ) );
 				}
 			}
@@ -1115,10 +1115,10 @@ void UMMOUIWeaponSkill::NotifyTryWeaponSkillResult( INT result )
 			}
 		}
 
-		//换技能
+		//Change ability
 		//MMOEquipManager::getSingleton().EquipSkillsToFitCurWeapon( TRUE );
 
-		//  引导任务
+		//  tutorial quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Posy);
 	}
 	else{
@@ -1160,7 +1160,7 @@ void UMMOUIWeaponSkill::GrayAllBagNotEquip( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;

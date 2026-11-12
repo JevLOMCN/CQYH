@@ -101,7 +101,7 @@ void JourneyDataProcessor::ParseData(JourneyData* obj, class CTabFile* dataRow, 
 		{
 			data.SoundList.AddItem(sound);
 
-			// 用于发行版资源列表
+			// used for the release build resource list
 			if (obj)
 			{
 				obj->SoundList.AddItem(sound);
@@ -413,7 +413,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 			switch(MMOFacade::getSingleton().GetMainActor()->GetClassId())
 			{
 			case EPCT_PlayerClassG: // 1.05 Lancer: reuses Warrior reputation rewards (no Spear columns)
-			case EPCT_PlayerClassA://战士
+			case EPCT_PlayerClassA://Warrior
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -425,7 +425,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 				}
 				break;
 			case EPCT_PlayerClassH: // 1.05 Sorcerer: reuses Mage reputation rewards
-			case EPCT_PlayerClassB://法师
+			case EPCT_PlayerClassB://Mage
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -436,7 +436,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 					}
 				}
 				break;
-			case EPCT_PlayerClassC://刺客
+			case EPCT_PlayerClassC://Assassin
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -447,7 +447,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 					}
 				}
 				break;
-			case EPCT_PlayerClassD://弓手
+			case EPCT_PlayerClassD://Archer
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -458,7 +458,7 @@ INT32 MMOJourneyData::GetReputationAwardsCount(INT32 forceId)
 					}
 				}
 				break;
-			case EPCT_PlayerClassE://道士
+			case EPCT_PlayerClassE://Taoist
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{

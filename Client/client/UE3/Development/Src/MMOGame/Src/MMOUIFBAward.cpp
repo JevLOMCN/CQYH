@@ -15,7 +15,7 @@ void UMMOUIFBAward::PostOnShow( UBOOL show )
 	if( show ){
 		FExportMap &mapInfo = MMOMapDataManager::getSingleton().GetCurMap();
 		if( EGameState_InGame != MMO::GetCurrentGameState() || mapInfo.ServerMapType != E_est_Dungeon ){
-			//在loading时，或是不在副本，不显示
+			//Do not show while loading or when not in a dungeon
 			Show( FALSE );
 			return;
 		}
@@ -65,7 +65,7 @@ void UMMOUIFBAward::UpdateMyAward()
 	{
 		pAwardsSlot = MyFBAward[i]->GetObject( TEXT("AnimSlotShow_mc") );
 
-		//取得抽奖顺序，因为服务器不传这数据，客户端自己记录
+		//Get the lottery order; the server does not send this data, the client records it itself
 		bool isGotAward = false;
 		INT dataIdx = 0;
 		INT prevClickIdx = -1;
@@ -83,13 +83,13 @@ void UMMOUIFBAward::UpdateMyAward()
 			}
 		}
 
-		//越界检查
+		//Out of bounds check
 		if( dataIdx >= MAX_FB_AWARDS_CNT ){
 			warnf( NAME_Error, TEXT("Update FBAward(%d) dataIdx Overflow[%d]"), i, dataIdx );
 			continue;
 		}
 
-		//隐藏提示
+		//Hide hint
 		if( MyAwardHintTf[i] != NULL ){
 			MyAwardHintTf[i]->SetVisible( !isGotAward );
 		}
@@ -105,7 +105,7 @@ void UMMOUIFBAward::UpdateMyAward()
 
 			INT rewardCnt = pAwardData->m_Award[dataIdx].uiItemCnt;
 			INT itemID = pAwardData->m_Award[dataIdx].uiItemID;
-			if( itemID < E_MONEYTYPE_MAX ){//说明是钱
+			if( itemID < E_MONEYTYPE_MAX ){//it is money
 				if( itemID >= E_MONEYTYPE_01 ){
 					FString moneyName;
 					FString moneyIcon = UITextParser::GetMoneyIconImgAndName( moneyName, itemID );
@@ -120,10 +120,10 @@ void UMMOUIFBAward::UpdateMyAward()
 					GFXPlayer->SetNoninteractiveIconSlot( pAwardsSlot, itemID, moneyIcon, iconDesc, ESPType_FBAwards );
 				}
 			}
-			else{//此为装备
+			else{//this is equipment
 				pItem = MMOFacade::getSingleton().FindItemTemplate( itemID );
 				
-				//设置奖品
+				//Set prize
 				FString strName;
 				if( pItem != NULL ){
 					strName = pItem->GetDisplayName();
@@ -132,16 +132,16 @@ void UMMOUIFBAward::UpdateMyAward()
 				strName += appItoa(rewardCnt);
 				GFXPlayer->SetNoninteractiveIconSlotByItem( pAwardsSlot, pItem, strName, ESPType_FBAwards );
 			}
-			//隐藏抽奖
+			//Hide lottery
 			//MyFBAward[i]->GetObject("awardMask_mc")->SetVisible( false );
-			//屏蔽抽奖
+			//Block lottery
 			MyBtnAward[i]->SetBool( TEXT("enabled"), false );
 			
-			//开始宝箱
+			//Open treasure chest
 			MyBtnAward[i]->SetBool( TEXT("selected"), true );
-			//显示奖品
+			//Show prize
 			MyFBAward[i]->SetVisible( true );
-			//播放获得奖品动画
+			//Play prize obtained animation
 			if( !bAwardAnimPlayed[i] ){
 				//pAwardsSlot->GotoAndPlayI( 1 );
 				MyFBAward[i]->GotoAndPlayI( 1 );
@@ -204,7 +204,7 @@ void UMMOUIFBAward::UpdateMemberAward()
 			pAwardsMc->GetObject("score_mc")->GotoAndStopI( pAwardData->m_uiFBGradedPt+1 );
 			//pAwardsMc->GetObject("score_mc")->SetVisible( true );
 		}
-		else{//没这号人
+		else{//no such person
 			pAwardsMc->GetObject("score_mc")->SetVisible( false );
 		}
 		//show 3 awarded items, if has
@@ -212,17 +212,17 @@ void UMMOUIFBAward::UpdateMemberAward()
 		UGFxObject *pAwardsMny = NULL;
 		UItem *pItem = NULL;
 		for( INT j = 0; j < MAX_FB_Award; ++j ){
-			////奖励钱设空
+			////Set reward money to empty
 			//pAwardsMny = pAwardsMc->GetObject( TEXT("awardMny_mc") );
 			//pAwardsMny->SetVisible( false );
-			//按得到的奖品数量设置
+			//Set according to the number of prizes obtained
 			pAwardsSlot = pAwardsMc->GetObject( FString::Printf( TEXT("awardSlot_mc%d"), j ) );
-			if( (UINT)j < pAwardData->m_uiFBAwardCount && bIsTeammate ){//有这人，有这奖品
+			if( (UINT)j < pAwardData->m_uiFBAwardCount && bIsTeammate ){//has this person and this prize
 				pAwardsSlot->SetVisible( true );
 				
 				INT rewardCnt = pAwardData->m_Award[j].uiItemCnt;
 				INT itemID = pAwardData->m_Award[j].uiItemID;
-				if( itemID < E_MONEYTYPE_MAX ){//说明是钱
+				if( itemID < E_MONEYTYPE_MAX ){//it is money
 					if( itemID >= E_MONEYTYPE_01 ){
 						FString moneyName;
 						FString moneyIcon = UITextParser::GetMoneyIconImgAndName( moneyName, itemID );
@@ -239,10 +239,10 @@ void UMMOUIFBAward::UpdateMemberAward()
 						GFXPlayer->SetNoninteractiveIconSlot( pAwardsSlot, itemID, moneyIcon, appItoa(rewardCnt), ESPType_FBAwards );
 					}
 				}
-				else{//此为装备
+				else{//this is equipment
 					pItem = MMOFacade::getSingleton().FindItemTemplate( itemID );
 
-					//设置奖品
+					//Set prize
 					FString strName;
 					if( pItem != NULL ){
 						strName = pItem->GetDisplayName();
@@ -250,7 +250,7 @@ void UMMOUIFBAward::UpdateMemberAward()
 					GFXPlayer->SetNoninteractiveIconSlotByItem( pAwardsSlot, pItem, appItoa(rewardCnt), ESPType_FBAwards );
 				}
 			}
-			else{//没此奖品或是没这号人
+			else{//no such prize or no such person
 				pAwardsSlot->SetVisible( false );
 				//SetAwardSlotInfo( pAwardsSlot, NULL, 0 );
 			}
@@ -276,7 +276,7 @@ void UMMOUIFBAward::InitFBAwardMode()
 }
 
 //==============================================================================================================================================
-//抽奖按钮被点击
+//Draw button was clicked
 void UMMOUIFBAward::ClickAward( INT iIdx )
 {
 	UBOOL isOK = CheckAwardQualificationAndHint( iIdx, TRUE );
@@ -308,14 +308,14 @@ UBOOL UMMOUIFBAward::CheckAwardQualificationAndHint( INT iIdx, UBOOL isNeedScree
 	UBOOL canFree = FALSE;
 	switch( iIdx )
 	{
-	//第一个奖
+	//First prize
 	case enumAOGFbAwardType1:
 		{
 			canFree = TRUE;
 			MyAwardHintTf[enumAOGFbAwardType1]->SetString( TEXT("htmlText"), MMOUI::ParseLocalizedPropertyPath( TEXT( "MMOGame.FBGeneral.FBAwardHint1" ) ) );
 		}
 		break;
-	//第二个奖
+	//Second prize
 	case enumAOGFbAwardType2:
 		{
 			if( fbInfo->Reward2_free > (INT)mySumData->m_uiGradedPt ){
@@ -340,19 +340,19 @@ UBOOL UMMOUIFBAward::CheckAwardQualificationAndHint( INT iIdx, UBOOL isNeedScree
 			}
 		}
 		break;
-	//第三个奖
+	//Third prize
 	case enumAOGFbAwardType3:
 		{
 			BOOL bVip = ( Player->GetVipType() > 0 );
 			if( !bVip ){
-				//如果不是Vip
+				//If not VIP
 				INT64 nowVipAwardMny = Player->GetMoney( E_MONEYTYPE_02 );
 				FString awardHint = UITextParser::HTMLMoneyIconString( E_MONEYTYPE_02 , fbInfo->Reward3_cost );
 				canFree = FALSE;
 				MyAwardHintTf[enumAOGFbAwardType3]->SetString( TEXT("htmlText"), awardHint );
 
 				//if( fbInfo->Reward3_cost > nowVipAwardMny ){
-				//	//非Vip玩家所需金币不够
+				//	//Non-VIP player does not have enough gold
 				//	if( isNeedScreenHint ){
 				//		FString hint = MMOUI::ParseLocalizedPropertyPath( TEXT( "MMOGame.FBGeneral.FBAward3Condition" ) );
 				//		MMOUI::GetUIManager()->delegateAddScreenMessage( FString::Printf( *hint, fbInfo->Reward3_cost ) ,MsgInfoType_Table,TEXT( "MMOGame.FBGeneral.FBAward3Condition" ));
@@ -371,7 +371,7 @@ UBOOL UMMOUIFBAward::CheckAwardQualificationAndHint( INT iIdx, UBOOL isNeedScree
 	return TRUE;
 }
 //==============================================================================================================================================
-//时间到，打开所有可以打开的奖励
+//Time is up, open all rewards that can be opened
 void UMMOUIFBAward::TimeUpToShowAll()
 {
 	UBOOL bOpened;
@@ -424,18 +424,18 @@ void UMMOUIFBAward::Init()
 	//
 	InitFBAwardMc();
 
-	//初始化
+	//Initialize
 	ResetUI();
 }
 
 //==============================================================================================================================================
 void UMMOUIFBAward::InitFBAwardMc()
 {
-	//本人名字
+	//Own name
 	MyName_mc = GetObject( TEXT("tf_myName") );
-	//本人头像
+	//Own portrait
 	MyPortrait_mc = GetObject( TEXT("ownPortrait_mc") );
-	//本人得分
+	//Own score
 	MyScore_mc = GetObject( TEXT("myScore_mc") );
 	//
 	MyFBAward[0] = GetObject( TEXT("awardItemAni1_mc") );
@@ -476,18 +476,18 @@ void UMMOUIFBAward::InitFBAwardMc()
 //==============================================================================================================================================
 void UMMOUIFBAward::ResetUI()
 {
-	//重置为未开启过开
+	//Reset to never opened
 	bPlayed = false;
-	//打开抽奖按钮
+	//Enable lottery button
 	for( INT i = 0; i < MAX_FB_Award; ++i ){
-		//重置动画播放
+		//Reset animation playback
 		bAwardAnimPlayed[i] = 0;
 		MyFBAward[i]->SetVisible( false );
 		MyBtnAward[i]->SetBool( TEXT("enabled"), true );
 	}
-	//初始化数据
+	//Initialize data
 	//InitFBAwardMode();
-	//隐藏战友奖品
+	//Hide teammate prizes
 	FString objName = TEXT("awardSlot_mc");
 	for( INT i = 0; i < 4; ++i ){
 		for( INT j = 0; j < MAX_FB_Award; ++j ){	
@@ -499,13 +499,13 @@ void UMMOUIFBAward::ResetUI()
 	}
 
 	//MyFBAward[2]->GetObject("awardMask_mc")->SetText( str );
-	//隐藏按钮
+	//hide button
 	//CloseFBAwardBtn->SetVisible( false );
 	//BackFBSummaryBtn->SetVisible( false );
 }
 
 //==============================================================================================================================================
-//开始抽奖（抽奖？）
+//Start the draw (draw?)
 void UMMOUIFBAward::OpenToPlay( INT iTime )
 {
 	if( !bPlayed ){

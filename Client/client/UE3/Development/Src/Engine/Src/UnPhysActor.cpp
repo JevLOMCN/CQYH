@@ -166,8 +166,8 @@ void AActor::SyncActorToRBPhysics()
 				SpecificName = Comp->StaticMesh->GetFullName();
 			}
 
-			//@Temp Tick中Log hemu@snda.com
-			//还没查到为何设置StaticMeshComponent后BodyInstance没有传入到CollisionComponent中去
+			//@Temp Log in Tick hemu@snda.com
+			//Haven't found out why BodyInstance is not passed to CollisionComponent after setting StaticMeshComponent
 			debugf( TEXT("AActor::SyncActorToRBPhysics: Invalid or Missing BodyInstance in CollisionComponent. (check to make certain your object actually has a collision volume) for: %s  CollisionComp: %s  %s DetailedInfo: %s"), *GetFullName(), *SpecificName, *CollisionComponent->GetName() , *GetDetailedInfo() );
 		}
 #endif //!FINAL_RELEASE

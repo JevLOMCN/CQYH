@@ -297,7 +297,7 @@ void UAvatarData::RebulidMesh(USkeletalMeshComponent* BaseSMC, USkeletalMeshComp
 		MergedMesh->Parts(i).Mesh = pMesh;
 		for( INT j = 0; j < meshArray[i].Num(); ++j )
 		{
-			// 腰带不会有皮肤贴图 所以去掉i==5的情况
+			// Belt has no skin texture so drop the i==5 case
 			if( j == 0 && i != 5 && ( !MergeShoulder || i != EBMT_Face ) && meshArray[i](j)->bNeedSkinTexture )
 			{
 				MergedMesh->Parts(i).Textures.AddItem( SkinTextures(i) );
@@ -387,7 +387,7 @@ void UAvatarData::PostRebuildMesh()
 	MergedComp->SetLightEnvironment(BaseComponent->LightEnvironment);
 
 	INT idx;
-	// todo: 换肤色
+	// todo: change skin color
 	//if( SkinColorSet.Num() > 0 )
 	//{
 	//	idx = Clamp<INT>( TestSkinColorIdx, 0, SkinColorSet.Num() - 1 );

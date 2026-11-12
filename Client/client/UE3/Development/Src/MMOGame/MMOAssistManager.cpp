@@ -508,7 +508,7 @@ void MMOAssistManager::_UseSlowHpItem(FLOAT deltaTime)
 		return;
 	}
 
-	// 如果没开启
+	// If not enabled
 	if (!info.Enable)
 	{
 		_AssistItemTimeProcess[info.ProtectType] = info.Time;
@@ -848,8 +848,8 @@ void MMOAssistManager::_UpdateAssistItem(FLOAT deltaTime)
 		return;
 	}
 
-	// 如果严格按照时间来吃，就不支持瞬间掉血或者蓝马上吃一次，两者矛盾
-	// 策划如果要改，让他们看Bug #23647,来来回回改好几遍了
+	// If potions are strictly used by time, using one instantly on HP loss or low MP is not supported; the two conflict
+	// If designers want to change this, have them see Bug #23647, it has been changed back and forth several times
 	_AssistItemCheckTimeProcess += deltaTime;
 	if (_AssistItemCheckTimeProcess >= ASSIST_ITEM_CHECK_TIME)
 	{

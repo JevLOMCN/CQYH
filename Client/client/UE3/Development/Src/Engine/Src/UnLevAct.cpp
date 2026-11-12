@@ -2311,7 +2311,7 @@ FCheckResult* UWorld::MultiLineCheck
 						Link->Time *= Dilation;
 						Hits[NumHits++] = *Link;
 					}
-					//check(NumHits<ARRAY_COUNT(Hits));	// zhaojun@snda, 超过64个,后面忽略			
+					//check(NumHits<ARRAY_COUNT(Hits));	// zhaojun@snda, more than 64, ignore the rest
 				}
 			}
 		}
@@ -3049,11 +3049,11 @@ void AWorldInfo::PostLoad()
 		DefaultPostProcessSettings.bOverride_Scene_ColorGradingLUT = DefaultPostProcessSettings.ColorGrading_LookupTable != 0;
 	}
 
-	//Start 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
+	//Start Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
 	TArray<byte> tSubLevelVisbleGroupIDList;
 	if( GWorld )
 		tSubLevelVisbleGroupIDList = GWorld->SubLevelVisbleGroupIDList;
-	//End 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
+	//End Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
 
 	//@testing hemu@ SubLevel Testing
 	tSubLevelVisbleGroupIDList.Push( 0 );
@@ -3069,8 +3069,8 @@ void AWorldInfo::PostLoad()
 	// Iterate over each LevelStreaming object
 	for( INT LevelIndex=StreamingLevels.Num()-1; LevelIndex>=0; LevelIndex-- )
 	{
-		//Start 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
-		//优先权问题
+		//Start Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
+		//Priority issue
 		UBOOL				isContained = FALSE;
 		if( GIsGame /*&&  WorldInfo!=NULL*/ && tSubLevelVisbleGroupIDList.Num() >0 )
 		{
@@ -3092,7 +3092,7 @@ void AWorldInfo::PostLoad()
 			//StreamingLevels.Remove(LevelIndex);
 			continue;
 		}
-		//End 忽略"游戏中"&&"不在SubLevelVisbleGroupIDList"中的SubLevel  hemu@snda.com 120328
+		//End Ignore SubLevels that are "in game" && "not in SubLevelVisbleGroupIDList"  hemu@snda.com 120328
 
 		// See if its an 'always loaded' one
 		ULevelStreamingAlwaysLoaded* AlwaysLoadedLevel = Cast<ULevelStreamingAlwaysLoaded>( StreamingLevels(LevelIndex) );

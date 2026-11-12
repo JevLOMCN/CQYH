@@ -268,7 +268,7 @@ void MMOBattleManager::NotifyPlayerBaseInfo( UINT32 roleID )
 	}
 
 	pBattlePlayer->_PlayerName = pPlayerInfo->_RoleName;
-	//pBattlePlayer->_ServerName = FString::Printf( TEXT("服务器%d"), BattleTestPlayerIdx );
+	//pBattlePlayer->_ServerName = FString::Printf( TEXT("Server %d"), BattleTestPlayerIdx );
 	pBattlePlayer->_Sex = pPlayerInfo->_Sex;
 	pBattlePlayer->_ClassID = pPlayerInfo->_RoleClass;
 	pBattlePlayer->_Lv = pPlayerInfo->_Level;
@@ -345,7 +345,7 @@ eBattlePlayerState MMOBattleManager::CvtToBattleState( INT iState )
 	return EBPS_ALIVE;
 }
 //================================================================================================
-//战场加入
+//Battlefield join
 void MMOBattleManager::ResetJoinedBattleData()
 {
 	_PrepareJoinedBtlID = -1;
@@ -510,7 +510,7 @@ void MMOBattleManager::NotifyEnterBattle( INT battleID )
 	}
 	minimapPanel->NotifyLeaveBattleQueue();
 }
-//确认加入
+//Confirm join
 void MMOBattleManager::ConfirmJoinBattle( UBOOL isAgree )
 {
 	//clear the data of the selecting battle
@@ -521,7 +521,7 @@ void MMOBattleManager::ConfirmJoinBattle( UBOOL isAgree )
 	//clear the data of last battle players
 	ResetEnteredBattle();
 }
-//战场信息
+//Battlefield info
 INT MMOBattleManager::GetBattleTemplateCnt()
 {
 	//return _BattlesInfo->GetBattleTemplateCnt();
@@ -621,7 +621,7 @@ void MMOBattleManager::ParseBattleCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg, 
 		G2C_SYNC_COMBAT_STAT::ROLE_STAT_DATA* pSummaryData = ( G2C_SYNC_COMBAT_STAT::ROLE_STAT_DATA* )&serverMsg->DataList[i];
 		FBattlePlayer *pBattlePlayer = GetOrAddPlayer( pSummaryData->dwRoleID );
 
-		//0为己方
+		//0 is own side
 		pBattlePlayer->_BtlTeamID = pSummaryData->byFaction;
 		pBattlePlayer->_ID = pSummaryData->dwRoleID;
 
@@ -630,7 +630,7 @@ void MMOBattleManager::ParseBattleCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg, 
 
 			if( pPlayerInfo != NULL ){
 				pBattlePlayer->_PlayerName = pPlayerInfo->_RoleName;
-				//pBattlePlayer->_ServerName = FString::Printf( TEXT("服务器%d"), BattleTestPlayerIdx );
+				//pBattlePlayer->_ServerName = FString::Printf( TEXT("Server %d"), BattleTestPlayerIdx );
 				pBattlePlayer->_Sex = pPlayerInfo->_Sex;
 				pBattlePlayer->_ClassID = pPlayerInfo->_RoleClass;
 				pBattlePlayer->_Lv = pPlayerInfo->_Level;
@@ -666,14 +666,14 @@ void MMOBattleManager::ParseBattleCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg, 
 		pBattleSummary->Show( TRUE );
 	}
 	else{
-		//服务器的策略，每次最多15个
+		//Server policy, at most 15 each time
 		//UINT sendCnt = 0;
 		TMap< UINT, UBOOL >::TIterator it(roleInfoNeed);
 		for( ; it ; ++it ){
 			MMOFacade::getSingleton().RequestPlayerBaseInfo( it.Key() );
 			//++sendCnt;
 		}
-		//记录还没发的
+		//Record those not yet sent
 		//_RoleInfoIncompleteListUnSended.Empty();
 		//for( ; it; ++it ){
 		//	_RoleInfoIncompleteListUnSended.FindOrAdd( it.Key() ) = TRUE;
@@ -684,7 +684,7 @@ void MMOBattleManager::ParseBattleCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg, 
 	//	M2C_SYNC_ROLE_INFO* serverMsg = (M2C_SYNC_ROLE_INFO*)ms_MsgBuffer;
 	//	serverMsg->wMsg = m2c_sync_role_info;
 	//	serverMsg->dwRoleID = it.Key();
-	//	strxcpy( serverMsg->szRoleName, TEXT("玩家名字"), ROLE_NAME_LEN);
+	//	strxcpy( serverMsg->szRoleName, TEXT("Player name"), ROLE_NAME_LEN);
 	//	serverMsg->byClass = 1;
 	//	serverMsg->bySex = 1;
 	//	Parse_m2c_sync_role_info( (const char*)serverMsg, sizeof(M2C_SYNC_ROLE_INFO) );
@@ -724,12 +724,12 @@ void MMOBattleManager::TestAddData()
 
 	pBattlePlayer->_Awards._Points = BattleTestPlayerIdx * 300;
 
-	pBattlePlayer->_ServerName = FString::Printf( TEXT("服务器%d"), BattleTestPlayerIdx );
-	pBattlePlayer->_PlayerName = FString::Printf( TEXT("玩家%d"), BattleTestPlayerIdx );
+	pBattlePlayer->_ServerName = FString::Printf( TEXT("Server %d"), BattleTestPlayerIdx );
+	pBattlePlayer->_PlayerName = FString::Printf( TEXT("Player %d"), BattleTestPlayerIdx );
 
 	pBattlePlayer->_State = EBPS_ALIVE;
 	pBattlePlayer->_IsLeader = ( BattleTestPlayerIdx % 19 == 0 );
-	//0为己方
+	//0 is own side
 	pBattlePlayer->_BtlTeamID = BattleTestPlayerIdx%EBTLTMS_MAX;
 	//}
 	SetBattleTeamScore( pBattlePlayer->_BtlTeamID, BattleTestPlayerIdx+1 );
@@ -746,16 +746,16 @@ INT MMOBattleManager::GetTimeSinceBattleBegin()
 {
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 
-	//本地的战场开始时间
+	//Local battlefield start time
 	__time32_t localBattleStartServerTime = _BattleStartUtcTime;
 	_localtime32(&localBattleStartServerTime);
 
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	UINT32 curTimeSec = mmoFacade.ConvertSystemTimeToTmTSecond( curTime );
 
-	//本地与服务器的时间差
+	//Time difference between local and server
 	INT32 secDiff = mmoFacade.GetClientToSceneSecondDiff();
 
 	warnf( NAME_Log, TEXT("GetTimeSinceBattleBegin  curTime:H-%d,M-%d,S-%d"), curTime.wHour, curTime.wMinute, curTime.wSecond );

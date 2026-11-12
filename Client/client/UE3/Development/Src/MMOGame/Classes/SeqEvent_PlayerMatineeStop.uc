@@ -1,6 +1,6 @@
 
-// 停止当前的场景中播放中的Matinee动画，条件：Matinee的'允许中断'属性在工具中被设为TRUE
-// 停止后继续执行所有输出结点
+// stop the Matinee animation currently playing in the scene, condition: the Matinee 'allow interrupt' property is set to TRUE in the tool
+// after stopping, continue executing all output nodes
 
 class SeqEvent_PlayerMatineeStop extends SequenceEvent
 	native;

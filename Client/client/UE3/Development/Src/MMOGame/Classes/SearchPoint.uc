@@ -1,5 +1,5 @@
 //
-// TeleportOrig ´«ËÍÔ´µã
+// TeleportOrig teleport origin
 //
 
 class SearchPoint extends Actor

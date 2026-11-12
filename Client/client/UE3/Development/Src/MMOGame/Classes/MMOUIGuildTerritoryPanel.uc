@@ -27,7 +27,7 @@ event CallSetWindowTitle(string title)
 	ActionScriptVoid("UCSetWindowTitle");
 }
 
-// ¼Ò×åÊôµØ
+// Guild territory
 native final function ASCancelUpgradeBuilding(int buildingIdHigh, int buildingIdLow);
 native final function ASCancelUpgradeWelfare(int id);
 native final function ASShowBuildingUpgradePanel(int buildingType);

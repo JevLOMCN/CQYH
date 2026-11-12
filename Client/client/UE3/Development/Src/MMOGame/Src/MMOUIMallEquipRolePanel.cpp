@@ -56,14 +56,14 @@ void UMMOUIMallEquipRolePanel::OnShowMallEquipPanel(INT nGoodsID)
 	AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	if(mainPlayer == NULL)
 		return;
-	//职业不符
+	//Class mismatch
 	EPlayerClass job = (EPlayerClass)mainPlayer->ActorAttributes->ClassType;
 	if(!(MMO::CanBeUsedByPlayerClass(job, item->RequireClass)))
 	{
 		MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Mall.EquipRoleRoomingNoJob")),MsgInfoType_Table,TEXT("MMOGame.Mall.EquipRoleRoomingNoJob"));
 		return;
 	}
-	//性别不符
+	//Gender mismatch
 	EGenderType gender = (EGenderType)mainPlayer->ActorAttributes->GenderType;
 	if(!((item->RequireGender == EGenderType::EGT_None) || (item->RequireGender == gender)))
 	{
@@ -152,7 +152,7 @@ void UMMOUIMallEquipRolePanel::SysModelEquip()
 	if(mainPlayer == NULL)
 		return;
 
-	// ShowPlayer == NULL 时执行一次初始化
+	// Run initialization once when ShowPlayer == NULL
 	if( ShowPlayer == NULL )
 	{
 		eventClonePlayer(mainPlayer);

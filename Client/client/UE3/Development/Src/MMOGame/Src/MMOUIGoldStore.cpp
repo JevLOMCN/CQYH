@@ -454,7 +454,7 @@ void UMMOUIGoldStore::NativeSoldMoney()
 		//if(noButton_mc)
 		//{
 		//	noButton_mc->SetPosition(197.0f,100.0f);
-		//	noButton_mc->SetString( TEXT("label") , TEXT("Óöµ½ÎÊÌâ")  );
+		//	noButton_mc->SetString( TEXT("label") , TEXT("Having a problem")  );
 		//}
 	}
 }

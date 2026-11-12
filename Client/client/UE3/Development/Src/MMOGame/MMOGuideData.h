@@ -18,44 +18,44 @@ enum
 	MAX_PLAYER_CLASS_COUNT = 5
 };
 
-// 引导数据
+// guide data
 struct GuideData
 {
-	UINT32 Id;												// 引导id
-	UBOOL Enable;											// 开启
-	UINT32 Type;											// 显示类型
-	FString Desc;											// 引导描述
-	EGuideEventType ActivateType;							// 激活事件
-	EGuideEventType DeactiveType;							// 终止事件
+	UINT32 Id;												// guide id
+	UBOOL Enable;											// enabled
+	UINT32 Type;											// display type
+	FString Desc;											// guide description
+	EGuideEventType ActivateType;							// activation event
+	EGuideEventType DeactiveType;							// termination event
 
-	UINT32 LevelReq;										// 等级需求
-	UINT32 GuideReq;										// 引导需求
-	UINT32 QuestReq;										// 任务需求
-	UINT32 ItemReq[5];										// 道具需求
-	UINT32 SkillReq[5];										// 技能需求
-	UINT32 ItemQuaReq;										// 道具品质需求
-	UINT32 NpcReq;											// 对话的NPC
-	EDOODAD_TYPE DoodadTypeReq;								// Doodad类型
-	EPlayerClass ClassReq;									// 职业需求
+	UINT32 LevelReq;										// level requirement
+	UINT32 GuideReq;										// guide requirement
+	UINT32 QuestReq;										// quest requirement
+	UINT32 ItemReq[5];										// item requirement
+	UINT32 SkillReq[5];										// skill requirement
+	UINT32 ItemQuaReq;										// item quality requirement
+	UINT32 NpcReq;											// NPC to talk to
+	EDOODAD_TYPE DoodadTypeReq;								// Doodad type
+	EPlayerClass ClassReq;									// class requirement
 
-	FString Picture[MAX_PLAYER_CLASS_COUNT];				// 图片说明
+	FString Picture[MAX_PLAYER_CLASS_COUNT];				// picture caption
 
-	FString Sound;											// 语音名称
-	FString SoundIcon;										// 语音图标
+	FString Sound;											// voice name
+	FString SoundIcon;										// voice icon
 
-	FString TargetWindowName;								// 关联窗口名称
-	FString TargetComponentName[MAX_TARGET_COMPONENT_COUNT];// 关联组件名称
-	FVector2D Offset;										// 相对于关联组件偏移
-	UBOOL IsBoxed;											// 是否有边框特效
-	FVector2D BoxOffset;									// 边框特效的偏移
-	FVector2D BoxSize;										// 边框特效的大小
-	EGuideBoxType BoxType;									// 边框特效的类型
-	EGuideArrowTipsType ArrowTipsType;						// 箭头说明文字类型
-	UBOOL TraceBagSlot;										// 是否追踪背包格子
-	UBOOL TraceMenuBar;										// 是否追踪MenuBar
-	ETraceMenuBarType TraceMenuBarType;						// 追踪MenuBar类型
-	UINT32 TraceMenuType;									// 追踪MenuType
-	UINT32 TraceMenuChildType;								// 追踪MenuChildType
+	FString TargetWindowName;								// associated window name
+	FString TargetComponentName[MAX_TARGET_COMPONENT_COUNT];// associated component name
+	FVector2D Offset;										// offset relative to the associated component
+	UBOOL IsBoxed;											// whether it has a border effect
+	FVector2D BoxOffset;									// offset of the border effect
+	FVector2D BoxSize;										// size of the border effect
+	EGuideBoxType BoxType;									// type of the border effect
+	EGuideArrowTipsType ArrowTipsType;						// arrow tip text type
+	UBOOL TraceBagSlot;										// whether to track bag slot
+	UBOOL TraceMenuBar;										// whether to track MenuBar
+	ETraceMenuBarType TraceMenuBarType;						// MenuBar tracking type
+	UINT32 TraceMenuType;									// track MenuType
+	UINT32 TraceMenuChildType;								// track MenuChildType
 	UBOOL TraceJourney;
 	UINT32 TraceJourneyType;
 

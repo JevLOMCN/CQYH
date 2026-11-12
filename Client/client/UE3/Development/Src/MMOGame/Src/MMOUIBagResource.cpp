@@ -18,7 +18,7 @@ IMPLEMENT_CLASS(UMMOUIBagResource)
 #define BageResource_Page2 216
 extern UBOOL g_bMouseInPanel;
 
-//临时添加
+//temporarily added
 #define BageResource_Money1 10000
 #define BageResource_Money2 20000
 #define BageResource_Money3 30000
@@ -54,7 +54,7 @@ void UMMOUIBagResource::Init()
 	GConfig->GetInt( TEXT("UnlockNeedMoney"), TEXT("BagResourceMoney2") , ExpandMoney2 , GDefaultGameIni );
 	GConfig->GetInt( TEXT("UnlockNeedMoney"), TEXT("BagResourceMoney3") , ExpandMoney3 , GDefaultGameIni );
 
-	//临时添加
+	//temporarily added
 	ExpandMoney1 = BageResource_Money1;
 	ExpandMoney2 = BageResource_Money2;
 	ExpandMoney3 = BageResource_Money3;
@@ -124,7 +124,7 @@ void UMMOUIBagResource::SetItemSlotData( class UGFxObject* mc, class UItem* tIte
 {
 	Super::SetItemSlotData( mc, tItem, SlotType, ContainerID, SlotID,inISS);
 
-	//补个刀
+	//finishing blow
 	if(!mc)
 	{
 		return;
@@ -137,7 +137,7 @@ void UMMOUIBagResource::SetItemSlotData( class UGFxObject* mc, class UItem* tIte
 		FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindItem( ContainerID , SlotID );
 
 
-		//这里改成包裹里不满足本职业的武器标记成x，因为该图标和交易摆摊时锁定物品图标相同，所以会有歧义。但目前只有这个图标了。
+		//changed here so weapons in the bag that do not suit this class are marked with x; since this icon is the same as the locked-item icon when trading or stalling, there is ambiguity. But currently this is the only icon.
 		if( tItem->ItemType == TEXT("ITEMTYPE_EQUIP") && !mc->GetBool( TEXT("isSlotUnusable") ) )
 		{
 			AMMOPlayer* pl=  MMOFacade::getSingleton().GetMainPlayer();
@@ -321,7 +321,7 @@ void UMMOUIBagResource::BagPage(INT labelId)
 		return;
 	
 	slotCountCur=0;
-	slotCountDown=-1;//背包格子里的东西隔一帧开始刷新
+	slotCountDown=-1;//things in bag slots start refreshing one frame later
 }
 void UMMOUIBagResource::BagTab(INT tabId)
 {
@@ -535,7 +535,7 @@ void UMMOUIBagResource::BagSlotChangeEx(INT ContainerID, INT SlotID)
 		UBOOL isToGray = GetItemFilterFrame( item , CurLabel , CurTab );
 		MMOFacade::getSingleton().GrayItem( ESGMark_Bag, ContainerID, SlotID, isToGray );
 
-		//商店打开得情况下
+		//when shop is open
 		if (ShopManager::getSingleton().GetShopShow())
 		{
 			UBOOL gray = GrayItemInBagNotInNpcShop(clientItemInfo,item);
@@ -646,7 +646,7 @@ UBOOL UMMOUIBagResource::OnLeftMouseClick(class UGFxObject* mc,BYTE SlotType,BYT
 
 UBOOL UMMOUIBagResource::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault)
 {
-	if(!bDefault){//背包是默认处理，等其他界面处理完再处理
+	if(!bDefault){//bag is default handling, handle it after other UIs are done
 		return FALSE;
 	}
 
@@ -703,7 +703,7 @@ BOOL UMMOUIBagResource::MoveItemToBag(BYTE SlotType,BYTE ContainerID,INT SlotID)
 			emptySlot = MMOFacade::getSingleton().GetEmptyItemSlot( desContainerID );
 		}
 
-		if( emptySlot >= 0 )//有空位
+		if( emptySlot >= 0 )//there is an empty slot
 		{
 			CMessageHandler::GetInstance().Send_MoveItem( desContainerID , emptySlot , ContainerID  , SlotID);
 			return TRUE;
@@ -756,7 +756,7 @@ UBOOL UMMOUIBagResource::UseContainerItem( INT conIdx, INT slotIdx )
 }
 
 //==========================================================================================================
-//打灰物品
+//items to gray out
 void UMMOUIBagResource::GrayItem( BYTE ContainerID, INT SlotID, struct FClientItemInfo *pItemInfo )
 {
 	UGFxObject *pItemSlot = BagGroup->GetObject( FString::Printf( TEXT("slot%d_mc"), SlotID ) );
@@ -843,7 +843,7 @@ UBOOL UMMOUIBagResource::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject
 		return FALSE;
 	}
 
-	if(SrcSlotType == ESPType_BagResource && DestSlotType == ESPType_Invalid) // 扔掉
+	if(SrcSlotType == ESPType_BagResource && DestSlotType == ESPType_Invalid) // discard
 	{
 		INT actorLevel = MMOFacade::getSingleton().GetMyLevel();
 		if( actorLevel < s_ActorLvAllowGameSystem ){
@@ -872,15 +872,15 @@ UBOOL UMMOUIBagResource::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject
 
 		return TRUE;
 	}
-	else if(SrcSlotType == ESPType_BagResource && DestSlotType == ESPType_BagResource)  // 交换
+	else if(SrcSlotType == ESPType_BagResource && DestSlotType == ESPType_BagResource)  // swap
 	{
 		if(SrcContainerID!=DestContainerID)
 		{
 			return FALSE;
 		}
 
-		//检查是否被锁界面功能锁定
-		//原物品检查
+		//check whether locked by UI function lock
+		//source item check
 		UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(srcItemInfo->m_nTemplateID);
 
 		ClientActionCondition_SwampItem checker;
@@ -894,7 +894,7 @@ UBOOL UMMOUIBagResource::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject
 			return TRUE;
 		}
 
-		//目标物品检查
+		//target item check
 
 		FClientItemInfo *destItemInfo = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
 		if(destItemInfo)
@@ -920,7 +920,7 @@ UBOOL UMMOUIBagResource::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject
 		}
 	}
 	else if((SrcSlotType == ESPType_BagResource && DestSlotType == ESPType_Bag)
-		|| (SrcSlotType == ESPType_Bag && DestSlotType == ESPType_BagResource)) // 交换
+		|| (SrcSlotType == ESPType_Bag && DestSlotType == ESPType_BagResource)) // swap
 	{
 		if(MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID))
 		{
@@ -982,7 +982,7 @@ void UMMOUIBagResource::GrayAllInBagNotInNpcShop(BOOL isToGray)
 			UBOOL gray = GrayItemInBagNotInNpcShop(pItemInfo,pItemInBag);
 			mmoFacade.GrayItem( ESGMark_Bag, E_CONSLOT_RESOURCE, j, gray );
 		}
-		else //不变灰
+		else //do not gray out
 		{
 			BagPage(pageIdCur);
 		}
@@ -1006,7 +1006,7 @@ BOOL UMMOUIBagResource::GrayItemInBagNotInNpcShop(FClientItemInfo *pItemInfo,UIt
 			bindType = pItemInBag->ItemBindType;
 		}
 
-		//需要变灰
+		//needs graying out
 		if(!pItemInBag->CanSell)
 		{
 			gray = TRUE;

@@ -11,7 +11,7 @@
 
 using namespace ExternalMessage;
 
-//----------------------------------------------------------请求friendlist
+//----------------------------------------------------------request friendlist
 void CMessageHandler::Request_FriendList()
 {
 	//C2M_FRIEND_LIST msg;
@@ -45,7 +45,7 @@ void CMessageHandler::SendFriendChat( INT RoleId , FString ChatContent )
 //---------------------------------------------------------------------------------------------------------
 void CMessageHandler::RequestAddFriend( FString RoleName , INT RoleId  )
 {
-	//有ID填ID，没ID填0看名字
+	//Fill in ID if there is one, otherwise fill 0 and look up by name
 	C2M_FRIEND_ADD msg;
 	msg.wMsg = c2m_friend_add;
 	msg.dwRoleID  = RoleId;
@@ -95,7 +95,7 @@ void CMessageHandler::ChangeFriendGroup( INT RoleId, INT GroupId   )
 }
 //----------------------------------------------------------
 
-//----------------------------------------------------进入场景初始化同步------
+//----------------------------------------------------enter scene initialization sync------
 void CMessageHandler::Parse_g2c_friend_group_list(const char* buf, UINT32 size)
 {
 	G2C_FRIEND_GROUP_LIST* msg = (G2C_FRIEND_GROUP_LIST*)buf;
@@ -120,14 +120,14 @@ void CMessageHandler::Parse_g2c_friend_group_list(const char* buf, UINT32 size)
 	}
 	
 }
-//-----------------------------------------------------进入场景时同步签名-----
+//-----------------------------------------------------sync signature on entering scene-----
 void CMessageHandler::Parse_m2c_self_info(const char* buf, UINT32 size)
 {
 	M2C_SELF_INFO* msg = (M2C_SELF_INFO*)buf;
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	
 }
-//-----------------------------------------------------进入场景初始化同步-----
+//-----------------------------------------------------enter scene initialization sync-----
 void CMessageHandler::Parse_m2c_friend_list(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_LIST* msg = (M2C_FRIEND_LIST*)buf;
@@ -164,19 +164,19 @@ void CMessageHandler::Parse_m2c_friend_list(const char* buf, UINT32 size)
 			
 			if( FRIEND_GROUP_ENEMY == msg->stFriendInfoWithGroup[i].byGroup )
 			{
-				//仇人
+				//Enemy
 				if(!FriendManager::getSingleton().InMyEnemyList(Friend.RoleId))
 					FriendManager::getSingleton().EnemyList.AddItem(Friend);
 			}
 			else if( msg->stFriendInfoWithGroup[i].bMutual )
 			{			
-				//双向,是好友
+				//Two-way, is friend
 				FriendManager::getSingleton().PushToFriendGroup( msg->stFriendInfoWithGroup[i].byGroup , Friend );
 									
 			}
 			else
 			{
-				//关注
+				//Follow
 				if(!FriendManager::getSingleton().IsMyAttention(Friend.RoleId))
 				{
 					Friend.Location = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Friend.Attention") );
@@ -186,15 +186,15 @@ void CMessageHandler::Parse_m2c_friend_list(const char* buf, UINT32 size)
 		}
 	}
 
-	//同步完好友后，读取好友相关的存档
+	//After syncing friends, read friend related saved data
 	FriendManager::getSingleton().LoadKillInfoData();
 	FriendManager::getSingleton().LoadNearContact();
 	FriendChatManager::getSingleton().LoadChatLogFromFile();
-	//排序名字
+	//Sort names
 	FriendManager::getSingleton().SortAllFriend();
 }
 
-//----------------------------------------------------------双向好友吧
+//----------------------------------------------------------two-way friends
 void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_INFO_CHANGE* msg = (M2C_FRIEND_INFO_CHANGE*)buf;
@@ -232,14 +232,14 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 						{
 							if((FS_OFFLINE == fMember->Online)&& (msg->stFriendInfo.byFriendState == FS_ONLINE))
 							{
-								//你的好友上线了
+								//Your friend came online
 								FString text = FString::Printf( *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Friend.FriendOnline")) , *(fMember->ActorName) );
 								MMOChatManager::getSingleton().AddSystemMessage( text );
 								MMOUI::GetUIManager()->delegateAddScreenMessage( text ,MsgInfoType_Normal,text);
 							}
 							else if((FS_ONLINE == fMember->Online)&& (msg->stFriendInfo.byFriendState == FS_OFFLINE))
 							{
-								//你的好友下线了
+								//Your friend went offline
 								FString text = FString::Printf( *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Friend.FriendOffline")) , *(fMember->ActorName) );
 								MMOChatManager::getSingleton().AddSystemMessage( text);
 								MMOUI::GetUIManager()->delegateAddScreenMessage( text ,MsgInfoType_Normal,text);
@@ -250,7 +250,7 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 
 					FriendManager::getSingleton().UpdateNerContactListMember(fMember);
 
-					//别的不用更新了,需要排序，重更新
+					//No need to update others, needs sorting, update again
 					
 					MMOGameEvent_OneInt evt1( GameEvent_UpdateFriendGroup , i );
 					MMOUI::PostGameEvent( &evt1 );
@@ -267,7 +267,7 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 			}
 		}
 		
-		//没找到，说明不是好友……尝试仇人
+		//Not found, so not a friend... try enemies
 		MMOFriendMember* enemy = FriendManager::getSingleton().GetEnemyMemberByRoleId(msg->stFriendInfo.dwRoleID);
 		if( enemy )
 		{
@@ -284,7 +284,7 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 			return;
 		}
 
-		//说明不是仇人，剩下黑名单，黑名单策划不要求更新信息
+		//Means not an enemy, what remains is the blacklist; designer does not require updating blacklist info
 		MMOFriendMember* blackP = FriendManager::getSingleton().GetBlackMemberByRoleId(msg->stFriendInfo.dwRoleID);
 		if( blackP )
 		{
@@ -325,7 +325,7 @@ void CMessageHandler::Parse_m2c_personal_enemy_add(const char* buf, UINT32 size)
 	}
 	else
 	{
-		//等协议再更新，先用默认值
+		//Update when the protocol is ready, use default values for now
 	}
 	if(!FriendManager::getSingleton().InMyEnemyList(msg->dwRoleID))
 	{
@@ -360,7 +360,7 @@ void CMessageHandler::Parse_m2c_friend_add(const char* buf, UINT32 size)
 			MMOUI::GetUIManager()->delegateAddScreenMessage( text ,MsgInfoType_Table,TEXT("MMOGame.Friend.BecomeFriendWith"));
 			FriendManager::getSingleton().AddNewFriend( msg->dwRoleID , roleName , 0  );
 
-			// 成就事件：好友数量变化
+			// Achievement event: friend count changed
 			INT total = 0;
 			for (INT i = 0; i < FriendManager::getSingleton().GetFriendGroupNum() ; ++ i )
 			{
@@ -381,13 +381,13 @@ void CMessageHandler::Parse_m2c_friend_add(const char* buf, UINT32 size)
 			FriendManager::getSingleton().AddNewFriend( msg->dwRoleID , roleName , AttentionGroupId );
 		}
 
-		// 引导任务
+		// Guide quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Friend);
 	}
 
 }
 
-//--------------------------------------------取消关注对方--------------
+//--------------------------------------------unfollow the other party--------------
 void CMessageHandler::Parse_m2c_friend_del(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_DEL* msg = ( M2C_FRIEND_DEL* )buf;
@@ -398,7 +398,7 @@ void CMessageHandler::Parse_m2c_friend_del(const char* buf, UINT32 size)
 	}
 }
 
-//--------------------------------------------被对方取消关注--------------
+//--------------------------------------------unfollowed by the other party--------------
 void CMessageHandler::Parse_m2c_friend_deleted_by(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_DELETED_BY* msg = ( M2C_FRIEND_DELETED_BY* )buf;
@@ -434,7 +434,7 @@ void CMessageHandler::Parse_m2c_friend_added_by(const char* buf, UINT32 size)
 	if( player )
 	{
 		FString roleName(UTF8_TO_TCHAR(msg->szRoleName));
-		if( FriendManager::getSingleton().IsMyAttention( msg->dwRoleID) ) //我也关注他，所以就从关注移动到好友
+		if( FriendManager::getSingleton().IsMyAttention( msg->dwRoleID) ) //I also follow him, so move from follow to friend
 		{
 			MMOFriendMember* member = FriendManager::getSingleton().GetAttentionInfo(msg->dwRoleID);
 			if (member)
@@ -448,7 +448,7 @@ void CMessageHandler::Parse_m2c_friend_added_by(const char* buf, UINT32 size)
 
 			FriendManager::getSingleton().MovePlayerToGroup( msg->dwRoleID , AttentionGroupId , DefaultFriendGroupId );
 
-			// 成就事件:好友数量变化
+			// Achievement event: friend count changed
 			INT total = 0;
 			for (INT i = 0; i < FriendManager::getSingleton().GetFriendGroupNum(); ++ i)
 			{
@@ -462,11 +462,11 @@ void CMessageHandler::Parse_m2c_friend_added_by(const char* buf, UINT32 size)
 
 			FriendManager::getSingleton().AddedAttentionBy( msg->dwRoleID , roleName );
 		}
-		else if( FriendManager::getSingleton().IsMyFriend( msg->dwRoleID )) //这种是非法的
+		else if( FriendManager::getSingleton().IsMyFriend( msg->dwRoleID )) //This case is illegal
 		{
 			
 		}
-		else  // 提醒我是否关注他
+		else  // Remind me whether to follow him
 		{
 			FriendManager::getSingleton().AddedAttentionBy( msg->dwRoleID , UTF8_TO_TCHAR(msg->szRoleName) );
 		}
@@ -496,7 +496,7 @@ void CMessageHandler::Parse_g2c_sync_shield_list(const char* buf, UINT32 size)
 		MMOFriendMember role(EC_EventParm);
 		
 		role.RoleId = msg->arrRoleID[i];
-		role.ActorName = TEXT("未知玩家");
+		role.ActorName = TEXT("Unknown player");
  
 		PlayerBaseInfo *playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo( role.RoleId );
 
@@ -570,8 +570,8 @@ void CMessageHandler::SendMoveToBlackList( INT roleId , FString roleName )
 {
 	C2M_SHIELD msg;
 	msg.wMsg = c2m_shield;
-	//roleid 和 rolename用一个就行了
-	//roleid != 0 就用 name
+	//Using either roleid or rolename is enough
+	//If roleid != 0 use name
 	msg.dwRoleID = roleId;
 	strxcpy( msg.szRoleName , *roleName, ROLE_NAME_LEN );
 	_Send( &msg, sizeof(msg));
@@ -619,7 +619,7 @@ void CMessageHandler::Parse_g2c_sync_msg_paopao(const char* buf, UINT32 size)
 
 			if( mapType == E_est_Static || mapType == E_est_Line || mapType == E_est_Guild )
 			{
-				//野外地图
+				//Field map
 				AMMOActor* pkActor = MMOFacade::getSingleton().GetCharacter(msg->dwParam1);
 				if(pkActor)
 				{			

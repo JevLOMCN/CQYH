@@ -264,7 +264,7 @@ void MMOAuctionManager::Send_SearchByFilter()
 	//as->byMinRequireLevel = _searchFilter.LevelMin;
 	//as->byMaxRequireLevel = _searchFilter.LevelMax;
 	//
-	//as->byRequireClass = _searchFilter.PlayerClass == 0 ? -1 : (1 << (_searchFilter.PlayerClass - 1)); // -1代表所有职业
+	//as->byRequireClass = _searchFilter.PlayerClass == 0 ? -1 : (1 << (_searchFilter.PlayerClass - 1)); // -1 means all classes
 	//as->byAuctionStatus = _searchFilter.AuctionState;
 
 	//as->byItemIDCount = _searchFilter.FindIDList.Num();
@@ -299,7 +299,7 @@ void MMOAuctionManager::ConvertServerAuctionItemList( AuctionItemList& arr, UINT
 
 		if (!itemTemp)
 		{
-			warnf(NAME_Error, TEXT("拍卖道具的模板没有找到:%d"), itemInfo.m_nTemplateID);
+			warnf(NAME_Error, TEXT("Auction item template not found:%d"), itemInfo.m_nTemplateID);
 			continue;
 		}
 
@@ -357,7 +357,7 @@ void MMOAuctionManager::OnServer_QueryAuctionItem(M2C_AUCTION_QUERY* msg)
 		info.ConvertFromServer(&msg->stAuction);
 		if (!info.ItemTemplate)
 		{
-			warnf(NAME_Error, TEXT("OnServer_QueryAuctionItem拍卖道具的模板没有找到:%d"), info.m_nTemplateID);
+			warnf(NAME_Error, TEXT("OnServer_QueryAuctionItemAuction item template not found:%d"), info.m_nTemplateID);
 			return;
 		}
 		
@@ -408,7 +408,7 @@ void MMOAuctionManager::OnServer_ItemSell(AUCTION_ITEM_INFO* item)
 	info.ConvertFromServer(item);
 	if (!info.ItemTemplate)
 	{
-		warnf(NAME_Error, TEXT("OnServer_ItemSell拍卖道具的模板没有找到:%d"), info.m_nTemplateID);
+		warnf(NAME_Error, TEXT("OnServer_ItemSellAuction item template not found:%d"), info.m_nTemplateID);
 		return;
 	}
 
@@ -448,19 +448,19 @@ void MMOAuctionManager::OnServer_ItemBuy(AUCTION_ITEM_INFO* item)
 	info.ConvertFromServer(item);
 	if (!info.ItemTemplate)
 	{
-		warnf(NAME_Error, TEXT("OnServer_ItemBuy拍卖道具的模板没有找到:%d"), info.m_nTemplateID);
+		warnf(NAME_Error, TEXT("OnServer_ItemBuyAuction item template not found:%d"), info.m_nTemplateID);
 		return;
 	}
 
 	MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("Auction.Buy.Succeeded")) , MsgInfoType_Table, TEXT("Auction.Buy.Succeeded"));
 
-	// 买到之后就要从失败表中删除
+	// After buying, it must be removed from the failed table
 	if(TryRemoveFromList(_auctionMyFailedAuctionItemList, item->dwAuctionID))
 	{
 		NotifyFailedList();
 	}
 
-	// 添加到BuyingList
+	// Add to BuyingList
 	//TryAddToList(_auctionMyBuyingItemList, info);
 	
 
@@ -492,13 +492,13 @@ void MMOAuctionManager::OnServer_AuctionFinish( M2C_AUCTION_FINISHED* msg )
 	TryRemoveFromList(_auctionViewItemList, msg->dwAuctionID);
 	NotifySearchResult();
 
-	//如果是自己寄卖的东西，就不要做下面的操作了
+	//If it is an item consigned by oneself, skip the operations below
 	if (Check_IsMySellingItem(msg->dwAuctionID))
 	{
 		return;
 	}
 
-	// 竞拍成功，Failed/Buying列表中移除
+	// Bid succeeded, remove from Failed/Buying lists
 	if(msg->bySuccess)
 	{
 		if(TryRemoveFromList(_auctionMyFailedAuctionItemList, msg->dwAuctionID))
@@ -514,9 +514,9 @@ void MMOAuctionManager::OnServer_AuctionFinish( M2C_AUCTION_FINISHED* msg )
 // 		MMOUI::GetUIManager()->delegateAddScreenMessage(
 // 			MMOUI::ParseLocalizedPropertyPath(TEXT("Auction.Finish.Succeeded")));
 	}
-	else // 竞拍失败，添加到Failed列表,并从Buying移除
+	else // Bid failed, add to Failed list and remove from Buying
 	{
-		//判断是否是自己寄卖的物品
+		//Check whether it is an item consigned by oneself
 		if (Check_IsMySellingItem(msg->dwAuctionID) == FALSE)
 		{
 // 			MMOUI::GetUIManager()->delegateAddScreenMessage(
@@ -535,10 +535,10 @@ void MMOAuctionManager::OnServer_AuctionFinish( M2C_AUCTION_FINISHED* msg )
 			NotifyMyBuyingList();
 		}
 
-		//竞拍失败，重新刷当前页面
+		//Bid failed, refresh the current page
 		NotifyUpdateCurrentPageInfo();
 
-		// 向服务器查找下确保状态正确
+		// Query the server again to make sure the state is correct
 		//CMessageHandler::GetInstance().Send_AuctionQuery(msg->dwAuctionID);
 	}
 }
@@ -590,7 +590,7 @@ void MMOAuctionManager::OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* i
 
 		if (!itemTemp)
 		{
-			warnf(NAME_Error, TEXT("拍卖道具的模板没有找到:%d"), itemInfo.m_nTemplateID);
+			warnf(NAME_Error, TEXT("Auction item template not found:%d"), itemInfo.m_nTemplateID);
 			continue;
 		}
 
@@ -656,7 +656,7 @@ void MMOAuctionManager::OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* it
 
 		if (!itemTemp)
 		{
-			warnf(NAME_Error, TEXT("拍卖道具的模板没有找到:%d"), itemInfo.m_nTemplateID);
+			warnf(NAME_Error, TEXT("Auction item template not found:%d"), itemInfo.m_nTemplateID);
 			continue;
 		}
 
@@ -692,7 +692,7 @@ void MMOAuctionManager::OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* it
 
 	if (_currentTabPage == EATID_Order)
 	{
-		//排序
+		//Sort
 		_auctionMyBoughtItemList.sort(CompareOrderTime);
 	}
 
@@ -826,7 +826,7 @@ UGFxObject* MMOAuctionManager::CreateAuctionItemListDataObject( UMMOGFXPlayer* g
 
 		dat->SetInt(TEXT("StackCount"), itemInfo.GetCurStackCount(itemInfo.ItemTemplate)/*(itemInfo.ItemTemplate->ItemDuration == E_DURTYPE_STACK ? itemInfo.m_nCurDur : 1)*/);
 		
-		//dat->SetBool(TEXT("ShowUnitPrice"), _searchFilter.bUnitPrice); 纯UI实现
+		//dat->SetBool(TEXT("ShowUnitPrice"), _searchFilter.bUnitPrice); pure UI implementation
 
 		INT price = MMOAuctionManager::getSingleton().GetMoneyRatio(itemInfo.nPrice);
 		dat->SetInt(TEXT("CurrentAuctionPrice"), price);
@@ -899,7 +899,7 @@ UGFxObject* MMOAuctionManager::CreateAuctionItemListDataObject( UMMOGFXPlayer* g
 		AMMOPlayer *player = MMOFacade::getSingleton().GetMainPlayer();
 		if (player)
 		{
-			//是否自己出售的物品
+			//Whether the item is sold by oneself
 			if (player->ServerID == itemInfo.dwSellerRoleID)
 			{
 				dat->SetBool("IsMyOwnItem",TRUE);
@@ -909,7 +909,7 @@ UGFxObject* MMOAuctionManager::CreateAuctionItemListDataObject( UMMOGFXPlayer* g
 				dat->SetBool("IsMyOwnItem",FALSE);
 			}
 
-			//是否是自己参与竞拍的物品
+			//Whether the item is one the player is bidding on
 			if (player->ServerID == itemInfo.dwBuyerRoleID)
 			{
 				dat->SetBool("IsMyBiddingItem",TRUE);
@@ -971,7 +971,7 @@ UGFxObject* MMOAuctionManager::CreateAuctionItemCategoryListDataObject( UMMOGFXP
 		datList->SetElementObject(idx, dat);
 		++idx;
 
-		if(item->SubType.Num() > 1) // 如果只用一个子类就不显示了
+		if(item->SubType.Num() > 1) // If there is only one subtype, do not show it
 		{
 			for (INT j = 0; j < item->SubType.Num(); ++j)
 			{
@@ -1227,10 +1227,10 @@ void MMOAuctionManager::BuyFromFaildAuctionList( INT auctionID, INT price )
 
 void MMOAuctionManager::Buy( const ClientAuctionItemInfo& info, INT price )
 {
-	//// 如果大于一口价使用一口价
+	//// If greater than the buyout price, use the buyout price
 	//INT realPrice = info.GetNextPrice();
 	//
-	//// 只能大于当前价格
+	//// Can only be greater than the current price
 	//if(price > info.nPrice && price < realPrice)
 	//{
 	//	realPrice = price;
@@ -1271,7 +1271,7 @@ BOOL MMOAuctionManager::Check_DefaultAuctionPrice(const ClientAuctionItemInfo& i
 
 			if (nPrice < info.GetNextPrice())
 			{
-				//添加一个滚屏提示
+				//Add a scrolling text prompt
 				FString error = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOErrorInfo.ERROR_CODE_DEF.errAuctionBuyingPriceLow"));
 				MMOUI::GetUIManager()->delegateAddScreenMessage(error,MsgInfoType_Table,TEXT("MMOErrorInfo.ERROR_CODE_DEF.errAuctionBuyingPriceLow"));
 				return TRUE;
@@ -1286,19 +1286,19 @@ bool MMOAuctionManager::CheckItemIsAuction(UINT32 itemId)
 {
 	const ClientAuctionItemInfo* info;
 
-	//先从拍落物品找
+	//First look in the outbid items
 	info = const_cast<ClientAuctionItemInfo*>(FindAuctionItem(_auctionMyFailedAuctionItemList, itemId));
 	if (info)
 	{
-		//在拍落列表，证明自己不是最高价
+		//In the outbid list, which means you are not the highest bidder
 		return FALSE;
 	}
 
-	//从竞拍列表找
+	//Look in the bidding list
 	info = const_cast<ClientAuctionItemInfo*>(FindAuctionItem(_auctionMyBuyingItemList, itemId));
 	if (info)
 	{
-		//在竞拍列表，证明自己是最高价
+		//In the bidding list, which means you are the highest bidder
 		return TRUE;
 	}
 	return FALSE;
@@ -1444,7 +1444,7 @@ void MMOAuctionManager::SaveFailedList()
 	_auctionMyFailedAuctionItemIDList.Empty(_auctionMyFailedAuctionItemList.size());
 	_auctionMyFailedAuctionItemIDList.Add(_auctionMyFailedAuctionItemList.size());
 
-	// 先将当前失败的保存下来
+	// First save the current failures
 	INT j = 0;
 	AuctionItemList::const_iterator it = _auctionMyFailedAuctionItemList.begin();
 	for (j; it != _auctionMyFailedAuctionItemList.end(); ++it,++j)
@@ -1474,7 +1474,7 @@ void MMOAuctionManager::SaveFailedList()
 
 void MMOAuctionManager::LoadFailedList()
 {
-	// 从磁盘加载之前失败的列表
+	// Load the previous failure list from disk
 	FArchive* ar = 0;
 	MMOFacade::getSingleton().BeginLoadAccountBinary(&ar, TEXT("Auction"));
 	if(ar)

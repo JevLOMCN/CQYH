@@ -1,12 +1,12 @@
 /*
- * 游戏里通用配置数据
+ * common config data in the game
  * 
  * 
  */
 class GamePlayInfo extends Object
 	editinlinenew;
 
-// 动画集数据
+// animation set data
 struct AnimSetInfo
 {
 	var() EPlayerClass Type;
@@ -16,7 +16,7 @@ struct AnimSetInfo
 var() array<AnimSetInfo> SetInfos;
 
 
-// 武器姿态后缀名
+// weapon stance suffix name
 struct EWeaponPoseString
 {
 	//var() EWeaponPoseType PoseType;

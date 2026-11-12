@@ -13,10 +13,10 @@ class UMMOAbility;
 typedef std::map<UINT, class UMMOAbility*, std::less<UINT>, STLAllocator< std::pair<INT, class UMMOAbility*>, UE3STLAllocatorPolicy> > AbilityTemplateMap;
 
 static const INT SKILL_EQUIP_MAX = 6;
-static const UINT MAX_SKILL_NORMAL_LEVEL = 300;//暂时没有限制
+static const UINT MAX_SKILL_NORMAL_LEVEL = 300;//no limit for now
 #define RandomItem 80105
 
-//技能UI更新通知
+//ability UI update notification
 struct MMOGameEvent_SkillUiUpdate : public MMOGameEvent
 {
 public:
@@ -114,7 +114,7 @@ public:
 	INT GetESUITypeByAbility( UMMOAbility *pAbility );
 	INT GetESUITypeByAbility( const struct AbilityTemplateDataIndex *pData );
 
-	//设置对应值
+	//set corresponding value
 	UBOOL SetSpellVar(UMMOAbility* pAbility,const TCHAR* pName,const TCHAR* pValue);
 	//
 	void LoadAbilityTemplates(EPlayerClass playerClass);
@@ -166,9 +166,9 @@ public:
 	UMMOAbility *GetEquippedSkill( INT slotHotKey, UBOOL onlyOnSkillBar = FALSE );
 	INT GetEquippedSkillTemplateID( INT slotHotKey );
 	UMMOAbility *GetEquippedSkillBySkillID( INT skillTemplateID );
-	//技能升级
+	//ability upgrade
 	void UpdateAbility( INT mainAbilityID, INT abilityRuneID, INT level, INT equipID = -1 );
-	//新学的技能
+	//newly learned ability
 	UBOOL IsNewLearnedSkillInSlot( INT slotEnum );
 	UBOOL IsNewLearnedSkill( INT skillID );
 
@@ -176,12 +176,12 @@ public:
 	void RemoveNewLearnedSkill( INT skillID );
 
 	void ClearNewLearnedSkills(){ _NewLearnedSkills.Empty(); }
-	//技能槽解锁
+	//ability slot unlock
 	UBOOL IsNewUnlockSlot( INT slotEnum );
 	void AddNewSkillSlot( INT slotEnum );
 	void RemoveNewSkillSlot( INT slotEnum );
 	void ClearNewSkillSlots(){ _NewUnlockSkillSlots.Empty(); }
-	//学会的技能
+	//learned abilities
 	void AddMyLearnedMainSkillsBySkillBook();
 
 	const TMap< INT, UMMOAbility* > &GetMyLearnedMainSkills();
@@ -208,20 +208,20 @@ public:
 	void AddMyLearnedMainSkillByEquip( UINT uniqueSkillID, INT equipID );
 	void DelMyLearnedMainSkillByEquip( INT skillID, INT equipID );
 
-	//技能的一些实时数据（现在主要是技能经验）
+	//some real-time ability data (currently mainly ability experience)
 	void SetMySkillExp( INT skillID, UINT exp );
 	SkillDynamicData* FindSkillExtraData( INT skillID );
 	SkillDynamicData* FindSkillExtraData( UMMOAbility *pAbility );
 	void DelSkillExtraData( INT skillID );
-	//铭文技能升级消耗
+	//inscription ability upgrade cost
 	RuneSkillLevelUpConsum *GetRuneSkillLevelUpConsum( UINT uniqueSkillID ){
 		return _RuneSkillLevelUpMap.Find( uniqueSkillID );
 	}
-	//交互技能
+	//interaction ability
 	UBOOL LoadSpecialSkills();
 	const SpecialSkill *FindSpecialSkill( UINT uniqueSkillID );
 	TArray< SpecialSkill > GetSpecialSkillOfType( SpecailSkillType specialType );
-	//变身技能组
+	//transformation ability group
 	UBOOL LoadTransformSkillGroup();
 	const TransformSkillGroup *FindTransformSkillGroupByBuffID( INT buffID );
 	UBOOL IsSkillChangeNeedCache( INT hotKey );
@@ -233,9 +233,9 @@ public:
 	ECommandKey GetGetTransformSkillGroupBindHotKey( INT bindSlotIdx );
 private:
 	AbilityTemplateMap _abilityTemplateMap;
-	//所有职业 技能链表
+	//all classes ability list
 	TArray< TArray< TArray< INT > > > _AllMainAbilityIDList;
-	//符文碎片
+	//rune fragments
 	TArray<INT> vecRuneDebrisIds;
 
 	TMap< INT, INT > _SkillSlotCmdDefault;
@@ -247,7 +247,7 @@ private:
 	TMap< INT, SkillDynamicData > _SkillDynData;
 	
 private:
-	//键值为技能ID(非唯一ID)
+	//key is the ability ID (not unique ID)
 	TMap< INT, UMMOAbility* > _MyLearnedMainSkills;
 	TMap< INT, UMMOAbility* > _MyLearnedmainSkillsByBook;
 	TMap< INT, TMap< INT, UMMOAbility* > > _MyLearnedSkillsByEquip;
@@ -256,10 +256,10 @@ private:
 	//
 	TMap< UINT, RuneSkillLevelUpConsum > _RuneSkillLevelUpMap;
 private:
-	//交互技能
+	//interaction ability
 	TMap< INT, SpecialSkill > _SpecialSkillsMap;
 private:
-	//变身后技能组
+	//ability group after transformation
 	TMap< INT, TransformSkillGroup > _TransformSkillGroupMap;
 	TMap< INT, UMMOAbility* > _InTransformSkillCache;
 	

@@ -139,13 +139,13 @@ void ItemTemplateDataProcessor::TParseData( UItem* obj, class CTabFile* dataRow,
 	//memcpy(&obj->RequireClass, &tmpVal, sizeof(FSpell_ClassType));
 
 	FString tmpVal = TReadDataValue_FString<DataMgr>(TEXT("RequireClass"), dataRow, rowIdx);
-	// NOTE：新增加职业要修改以下相关的
+	// NOTE: adding a new class requires modifying the following related code
 	obj->RequireClass.bClassType1 = tmpVal.InStr(TEXT("clsWarrior")) != INDEX_NONE;
 	obj->RequireClass.bClassType2 = tmpVal.InStr(TEXT("clsMage")) != INDEX_NONE;
 	obj->RequireClass.bClassType3 = tmpVal.InStr(TEXT("clsRogue")) != INDEX_NONE;
 	obj->RequireClass.bClassType4 = tmpVal.InStr(TEXT("clsArcher")) != INDEX_NONE;
-	obj->RequireClass.bClassType5 = tmpVal.InStr(TEXT("clsNpc")) != INDEX_NONE; // 这个是NPC
-	obj->RequireClass.bClassType6 = tmpVal.InStr(TEXT("clsTaoist")) != INDEX_NONE; // 新增加的6才是道士
+	obj->RequireClass.bClassType5 = tmpVal.InStr(TEXT("clsNpc")) != INDEX_NONE; // this is NPC
+	obj->RequireClass.bClassType6 = tmpVal.InStr(TEXT("clsTaoist")) != INDEX_NONE; // the newly added 6 is Taoist
 	// 1.05 backport: Dragon Lancer (clsSpear) and Sorcerer (clsSorcerer)
 	obj->RequireClass.bClassType7 = tmpVal.InStr(TEXT("clsSpear")) != INDEX_NONE;
 	obj->RequireClass.bClassType8 = tmpVal.InStr(TEXT("clsSorcerer")) != INDEX_NONE;
@@ -172,7 +172,7 @@ void ItemTemplateDataProcessor::TParseData( UItem* obj, class CTabFile* dataRow,
 	//if( spellID > 0 ){
 	//	UINT Key = 0;
 	//	if( obj->ItemType == TEXT("ITEMTYPE_RUNE") ){
-	//		//铭文物品，这里特殊处理
+	//		//inscription item, special handling here
 	//		MMOEquipManager::getSingleton().GetSkillUniqueIDOnWeapon( Key, spellID );
 	//	}
 	//	else{
@@ -181,7 +181,7 @@ void ItemTemplateDataProcessor::TParseData( UItem* obj, class CTabFile* dataRow,
  //		obj->GetToUseAbility() = MMOSkillManager::getSingleton().FindAbilityTemplate( Key );
  //		if(obj->GetToUseAbility()==NULL)
  //		{
- //			M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("物品%s的技能属性错误，找不到id=%d的技能"), *obj->ItemName,spellID ));
+ //			M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("Item %s ability attribute error, cannot find ability with id=%d"), *obj->ItemName,spellID ));
  //		}
 	//}
 	//else{

@@ -187,7 +187,7 @@ HRGN CU_SetupRegion(HDC pDC
 		UINT iPos = iOffsetX;
 		do
 		{
-			//跳过透明色找到下一个非透明色的点.
+			//Skip transparent color to find the next non-transparent point.
 			while(iPos < iOffsetX + uWidth
 				&& ::GetPixel(memDC, iPos, iOffsetY + y) == TransColor
 				)
@@ -196,24 +196,24 @@ HRGN CU_SetupRegion(HDC pDC
 				iPos++;
 			}
 
-			//记住这个起始点
+			//Remember this start point
 			int iLeftX = iX;
 
-			//寻找下个透明色的点
+			//Look for the next transparent point
 			while (iPos < iOffsetX + uWidth  && ::GetPixel(memDC, iPos, iOffsetY + y) != TransColor)
 			{
 				++iX;
 				++iPos;
 			}
 
-			//创建一个包含起点与重点间高为1像素的临时“region”
+			//Create a temporary "region" containing the 1-pixel-high strip between the start and end points
 			rgnTemp = ::CreateRectRgn(iLeftX, y, iX, y+1);
 
-			//合并到主"region".
+			//Merge into the main "region".
 			rgn = ::CombineRgn(rgn, rgnTemp, rgn, RGN_OR);
 			//CombineRgn(&rgn, &rgnTemp, RGN_OR);
 
-			//删除临时"region",否则下次创建时会出错
+			//Delete the temporary "region", otherwise an error occurs on the next creation
 			//rgnTemp.DeleteObject();
 			::DeleteObject(rgnTemp);
 

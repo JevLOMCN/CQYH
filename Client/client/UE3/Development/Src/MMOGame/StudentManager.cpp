@@ -3,7 +3,7 @@
 	Filename: 	StudentManager
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	师徒系统Model StudentManager 管理当前的请求拜师的徒弟
+	Purpose:	master/apprentice system Model StudentManager manages apprentices currently requesting apprenticeship
 *********************************************************************/
 #include "stdafx.h"
 //#include "Facade.h"
@@ -144,7 +144,7 @@ void StudentManager::NotifyUpdateStudentList()
 
 void StudentManager::ApplySelected()
 {
-    //同意拜师 
+    //accept apprenticeship
     StudentMapIterator i = BeginIterator();
     for ( ;  i ; )
     {

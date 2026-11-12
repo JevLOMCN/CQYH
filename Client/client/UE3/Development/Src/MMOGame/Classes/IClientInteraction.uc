@@ -1,5 +1,5 @@
 //
-// 交互行为处理接口，add by JimZhang@snda.com
+// Interaction handling interface, add by JimZhang@snda.com
 //
 interface IClientInteraction
 	native;

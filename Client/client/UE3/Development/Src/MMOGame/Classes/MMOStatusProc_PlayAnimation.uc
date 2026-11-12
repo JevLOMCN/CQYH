@@ -1,5 +1,5 @@
 //
-// 打开动作
+// Open action
 //
 class MMOStatusProc_PlayAnimation extends Object implements(IMMOStatusProc)
 	native

@@ -50,7 +50,7 @@ extern const FLOAT MTSpinDelay;
 extern FLOAT MTTimeout; 
 
 
-// 不方便写在.h中，全写这里当成员变量
+// Inconvenient to write in .h, all written here as member variables
 bool gexp_isChildProcess = false;
 INT gexp_NumChildProcesses = 8;
 INT gexp_currentProcessIdx = -1;

@@ -11,9 +11,9 @@
 
 struct EquipComposeTemplate
 {
-	INT itemId;  //卷轴id
-	INT equipId; //装备id
-	INT cost;    //金币消耗
+	INT itemId;  //Scroll id
+	INT equipId; //Equipment id
+	INT cost;    //Gold cost
 	INT matId[COMPOSE_CONSUME_COUNT];
 	INT matCnt[COMPOSE_CONSUME_COUNT];
 	UBOOL bBroadCast;
@@ -118,10 +118,10 @@ private:
 
 	EDecomposeStatus m_eDecomposeStatus;
 
-	//保存装备分解的结果
+	//Save the equipment decomposition result
 	TArray<DecomposeResult> m_DecomposeResult;
 
-	INT m_iCurComposedId; //当前正在合成的卷轴id
+	INT m_iCurComposedId; //ID of the scroll currently being synthesized
 };
 
 #endif

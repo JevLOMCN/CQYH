@@ -26,7 +26,7 @@ enum HitPowerLevel
 	HPL_WEAK,
 };
 
-// ·½ÏòÊÇCreator -> Target
+// direction is Creator -> Target
 //var() float XYMomentum;
 //var() float ZMomentum;
 //var() float HitValue;

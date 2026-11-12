@@ -1693,7 +1693,7 @@ void UParticleModuleLocationSkelVertSurface::PostEditChangeProperty(FPropertyCha
 // added by zhaojun@snda
 #define AVERAGESURFACE
 
-// 升序数组，查找数组中最接近且大于Target的索引
+// Ascending array, find the index in the array closest to and greater than Target
 template<class _Ty>
 INT FindClosestBigger(const _Ty* SourceArray, INT nCountInArray, const _Ty& Target)
 {

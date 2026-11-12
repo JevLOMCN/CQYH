@@ -21,7 +21,7 @@ void Exporter_SearchPoint::ProcessData(INT& GlobalAutoID)
 	INT autoOriID = 1;
 	//INT autoTgtID = 1;
 
-	// ÏÈ×Ô¶¯±àºÅ
+	// Auto-number first
 // 	for(TObjectIterator<ASearchPoint> it; it; ++it)
 // 	{		
 // 		(*it)->AutoServerID = autoID;

@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_MoveNearToPoint，移动接近到点
+// PlayerActionEx_MoveNearToPoint, move close to point
 //
 class PlayerActionEx_MoveNearToPoint extends PlayerActionEx_Base
 	native;

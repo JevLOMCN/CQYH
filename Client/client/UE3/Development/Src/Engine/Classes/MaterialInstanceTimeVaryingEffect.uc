@@ -1,5 +1,5 @@
 /**
- * 材质效果列表数据类
+ * Material effect list data class
  */
 class MaterialInstanceTimeVaryingEffect extends Object
 	native(Material);

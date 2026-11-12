@@ -149,7 +149,7 @@ bool DataChecker::IsValid(UObject* DataAsset, FString &Error, int nLevel)
 											UVOverlapped = TRUE;
 										}
 										
-										// oscar@snda 有完全重叠的情况
+										// oscar@snda there are cases of full overlap
 										if(!UVOverlapped)
 										{
 											if((UV1 == TUV1) && (UV2 == TUV2) && (UV3 == TUV3))
@@ -507,12 +507,12 @@ FString DataChecker::GetAllErrorMsg()
 	{
 		if(nStaticMeshErrorCount > 0)
 		{
-			AllError += FString::Printf(TEXT("StaticMesh数量为:%d, 不符合规格的为:%d, 占比百分之%d  \r\n\r\n"),
+			AllError += FString::Printf(TEXT("StaticMesh count: %d, non-compliant: %d, %d percent  \r\n\r\n"),
 				nStaticMeshCount, nStaticMeshErrorCount, 100*nStaticMeshErrorCount/nStaticMeshCount);
 		}
 		else
 		{
-			AllError += FString::Printf(TEXT("StaticMesh数量为:%d, 全部合格！\r\n\r\n"), nStaticMeshCount);
+			AllError += FString::Printf(TEXT("StaticMesh count: %d, all compliant!\r\n\r\n"), nStaticMeshCount);
 		}
 	}
 
@@ -520,18 +520,18 @@ FString DataChecker::GetAllErrorMsg()
 	{
 		if(nMaterialErrorCount > 0)
 		{
-			AllError += FString::Printf(TEXT("Material数量为:%d, 不符合规格的为:%d, 占比百分之%d \r\n\r\n "),
+			AllError += FString::Printf(TEXT("Material count: %d, non-compliant: %d, %d percent \r\n\r\n "),
 				nMaterialCount, nMaterialErrorCount, 100*nMaterialErrorCount/nMaterialCount);
 		}
 		else
 		{
-			AllError += FString::Printf(TEXT("Material数量为:%d, 全部合格！\r\n\r\n"), nMaterialCount);
+			AllError += FString::Printf(TEXT("Material count: %d, all compliant!\r\n\r\n"), nMaterialCount);
 		}
 	}
 
 	if(nMaterialInstanceCount > 0)
 	{
-		AllError += FString::Printf(TEXT("MaterialInstance数量为:%d, 不符合规格的为:%d, 占比Material百分之%d \r\n\r\n "),
+		AllError += FString::Printf(TEXT("MaterialInstance count: %d, non-compliant: %d, %d percent of Materials \r\n\r\n "),
 				nMaterialInstanceCount, nMaterialInstanceErrorCount, nMaterialCount > 0 ? 100*nMaterialInstanceCount/nMaterialCount : 100);		
 	}
 
@@ -539,12 +539,12 @@ FString DataChecker::GetAllErrorMsg()
 	{
 		if(nTextureErrorCount > 0)
 		{
-			AllError += FString::Printf(TEXT("Texture数量为:%d, 不符合规格的为:%d, 占比百分之%d \r\n\r\n"),
+			AllError += FString::Printf(TEXT("Texture count: %d, non-compliant: %d, %d percent \r\n\r\n"),
 				nTextureCount, nTextureErrorCount, 100*nTextureErrorCount/nTextureCount);
 		}
 		else
 		{
-			AllError += FString::Printf(TEXT("Texture数量为:%d, 全部合格！\r\n\r\n"), nTextureCount);
+			AllError += FString::Printf(TEXT("Texture count: %d, all compliant!\r\n\r\n"), nTextureCount);
 		}
 	}
 	

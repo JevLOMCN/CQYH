@@ -9,10 +9,10 @@
 #define M_DEBUG_ACHIEVEMENT 0
 #define KILL_NPC_ACHIEVEMENT_MIN (1 << 16)
 
-// 成就划分id段: 
-// 普通成就: id >= 0 && id < ACHIEVEMENT_MAX
-// 公会成就: id >= ACHIEVEMENT_MAX && id < ACHIEVEMENT_MAX + GUILD_MAX_ACHIEVEMENT_NUM
-// 杀怪成就: id >= KILL_NPC_ACHIEVEMENT_MIN
+// Achievement id ranges:
+// Normal achievement: id >= 0 && id < ACHIEVEMENT_MAX
+// Guild achievement: id >= ACHIEVEMENT_MAX && id < ACHIEVEMENT_MAX + GUILD_MAX_ACHIEVEMENT_NUM
+// Monster-kill achievement: id >= KILL_NPC_ACHIEVEMENT_MIN
 
 enum
 {
@@ -46,15 +46,15 @@ enum AchievementClass
 	AC_TOTAL
 };
 
-// 成就展开类型
+// Achievement expand type
 enum AchievementDetailType
 {
-	ADT_NULL = 0,				// 没细节
-	ADT_CONDITION,				// 条件类
-	ADT_PROGRESS				// 计数类显示进度
+	ADT_NULL = 0,				// no details
+	ADT_CONDITION,				// condition type
+	ADT_PROGRESS				// counting type shows progress
 };
 
-// 成就数据
+// Achievement data
 struct AchievementData
 {
 	UINT16 Id;
@@ -124,7 +124,7 @@ typedef TDataManger<AchievementData, AchievementDataProcessor> AchievementDataMa
 typedef std::map<UINT16, struct AchievementData, M_UE3_STL_ALLOC_MAP(UINT16, AchievementData)> AchievementDataMap;
 
 //////////////////////////////////////////////////////////////////////////
-// 杀怪成就数据
+// Monster-kill achievement data
 struct KillNpcAchievementData
 {
 	UINT16 KillId;
@@ -185,7 +185,7 @@ typedef TDataManger<KillNpcAchievementData, KillNpcAchievementDataProcessor> Kil
 typedef std::map<UINT16, struct KillNpcAchievementData, M_UE3_STL_ALLOC_MAP(UINT16, KillNpcAchievementData)> KillNpcAchievementDataMap;
 
 //////////////////////////////////////////////////////////////////////////
-// 公会成就数据
+// Guild achievement data
 struct GuildAchievementData
 {
 	UINT16 Id;
@@ -243,7 +243,7 @@ struct GuildAchievementDataProcessor
 typedef TDataManger<GuildAchievementData, GuildAchievementDataProcessor> GuildAchievementDataManager;
 typedef std::map<UINT16, struct GuildAchievementData, M_UE3_STL_ALLOC_MAP(UINT16, GuildAchievementData)> GuildAchievementDataMap;
 
-// 公会条件数据
+// Guild condition data
 struct GuildConditionData
 {
 	UINT16 ConditionType;
@@ -291,23 +291,23 @@ typedef TDataManger<GuildConditionData, GuildConditionDataProcessor> GuildCondit
 typedef std::map<UINT32, struct GuildConditionData, M_UE3_STL_ALLOC_MAP(UINT32, GuildConditionData)> GuildConditionDataMap;
 
 //////////////////////////////////////////////////////////////////////////
-// 成就完成信息
+// Achievement completion info
 struct AchievementInfo
 {
-	// 基本信息
+	// Basic info
 	UINT32 Id;					
-	UINT32 Date;				// 获取时间
-	UBOOL IsTraced;				// 是否被追踪
-	UBOOL IsCompassable;		// 是否完成成就
-	UBOOL IsObtain;				// 是否获取成就
-	UBOOL IsGetReward;			// 是否获取奖励
+	UINT32 Date;				// obtain time
+	UBOOL IsTraced;				// whether tracked
+	UBOOL IsCompassable;		// whether achievement is completed
+	UBOOL IsObtain;				// whether achievement is obtained
+	UBOOL IsGetReward;			// whether reward is obtained
 
-	// 完成信息
-	INT CurProgress;			// 计数型(有的可能是负数，例如声望)
+	// Completion info
+	INT CurProgress;			// counting type (may be negative, e.g. reputation)
 	INT MaxProgress;								
-	UINT8 CurComplete;		    // 条件型
+	UINT8 CurComplete;		    // condition type
 
-	// 比较信息
+	// Comparison info
 	UBOOL IsObtainCompare;
 	UINT32 DateCompare;
 
@@ -333,7 +333,7 @@ typedef std::map<UINT32, struct AchievementInfo, M_UE3_STL_ALLOC_MAP(UINT32, Ach
 
 typedef std::list<UINT32, M_UE3_STL_ALLOC(UINT32)> AchievementIdList;
 typedef std::set<UINT32> AchievementIdSet;
-// 成就分类列表,这里的UIN32高位是BaseClass，低位是SubClass
+// Achievement category list, the high bits of UIN32 here are BaseClass, the low bits are SubClass
 typedef std::map<UINT32, AchievementIdList, M_UE3_STL_ALLOC_MAP(UINT32, AchievementIdList)> AchievementClassMap;
 
 class MMOAchievementData : public SingletonMeyers<MMOAchievementData>
@@ -373,7 +373,7 @@ public:
 	UINT32 GetAchievementClassKey(UINT32 baseClass, UINT32 subClass);
 	const AchievementClassMap& GetAchievementClassMap();
 
-	// 数据更新
+	// Data update
 	void UpdateCommonAchievementList(ROLE_DB_ACHIEVEMENT_DATA* list);
 	void UpdateCommonAchievementInfo(INT type, INT value1, INT value2, INT value3);
 
@@ -390,7 +390,7 @@ public:
 	void UpdateAchievementCompleteInfo(UINT32 id, UINT32 date);
 	void UpdateAchievementRewardObtain(UINT32 id);
 
-	// 数据访问
+	// Data access
 	UBOOL IsAchievementObtain(UINT32 id);
 	UBOOL IsAchievementHasReward(UINT32 id);
 	UBOOL IsAchievementRewardObtain(UINT32 id);
@@ -449,11 +449,11 @@ protected:
 	UINT32 _BaseClassCompleteCount[AC_TOTAL];
 	UINT32 _BaseClassTotalCount[AC_TOTAL];
 
-	AchievementIdList _AchievementCompleteList;		// 已经完成的成就
-	AchievementIdSet _AchievementRewardSet;			// 可以领取奖励的成就
+	AchievementIdList _AchievementCompleteList;		// completed achievements
+	AchievementIdSet _AchievementRewardSet;			// achievements whose reward can be claimed
 
-	AchievementIdSet _PersonalAchievementTraceSet;  // 已经追踪的个人成就
-	AchievementIdSet _GuildAchievementTraceSet;  // 已经追踪的公会成就
+	AchievementIdSet _PersonalAchievementTraceSet;  // tracked personal achievements
+	AchievementIdSet _GuildAchievementTraceSet;  // tracked guild achievements
 };
 
 #endif

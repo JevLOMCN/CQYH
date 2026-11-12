@@ -274,7 +274,7 @@ void UMMOUINewStallSettingPanel::AddItem(int srcConId, int srcSlotId, int dstSlo
 		return;
 	}
 
-	// 绑定物品无法出售
+	// Bound items cannot be sold
 	FClientActionConditionContex contex1(ECACCT_UseItem_CheckBind);
 	CheckClientActionCondition(contex1);
 	if (itemInfo && itemInfo->m_byBindType == E_BINDTYPE_BINDED)
@@ -285,7 +285,7 @@ void UMMOUINewStallSettingPanel::AddItem(int srcConId, int srcSlotId, int dstSlo
 		return;
 	}
 
-	// 此物品不能摆摊出售
+	// This item cannot be sold at a stall
 	ClientActionCondition_StallItem checker;
 	FClientActionConditionContex contex;
 	contex.ItemTemplate = item;
@@ -295,7 +295,7 @@ void UMMOUINewStallSettingPanel::AddItem(int srcConId, int srcSlotId, int dstSlo
 		return;
 	}
 
-	// 物品正在出售
+	// Item is being sold
 	if (itemInfo && itemInfo->IsOnSale)
 	{
 		MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.GamePlay.IsOnSale")), 
@@ -304,7 +304,7 @@ void UMMOUINewStallSettingPanel::AddItem(int srcConId, int srcSlotId, int dstSlo
 		return;
 	}
 
-	// 弹出框
+	// Pop-up box
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Stall_StallMsg, TRUE, "");
 	UMMOUINewStallMsgPanel* panel = Cast<UMMOUINewStallMsgPanel>(MMOUI::GetUIManager()->FindUIPanel(MMOUI::GetUIManager()->Panel_Stall_StallMsg));
 	if (panel)
@@ -378,7 +378,7 @@ void UMMOUINewStallSettingPanel::UpdateItemSlot(INT stallSlot, INT srcConId, INT
 		itemTotalPrice = UITextParser::HTMLMoneyIconString(MONEYTYPE_02, price * count);
 
 		GFXPlayer->SetItemSlotData(itemObject, item, ESPType_StallSetting, srcConId, srcSlotId);
-		//本地价格记录
+		//Local price record
 		UStallManager::getSingleton().UpdateStallSettingPrice(item->ItemId, price);
 	}
 
@@ -397,7 +397,7 @@ void UMMOUINewStallSettingPanel::UpdateItemSlot(INT stallSlot, INT srcConId, INT
 	UGFxObject* itemDescObject = itemObject->GetObject(TEXT("tf_dec"));
 	if (itemDescObject)
 	{
-		itemDescObject->SetString(TEXT("text"), itemPrice.IsEmpty() ? TEXT("") : TEXT("价格"));
+		itemDescObject->SetString(TEXT("text"), itemPrice.IsEmpty() ? TEXT("") : TEXT("Price"));
 	}
 
 	UGFxObject* itemPriceObject = itemObject->GetObject(TEXT("tF_Gold"));
@@ -409,7 +409,7 @@ void UMMOUINewStallSettingPanel::UpdateItemSlot(INT stallSlot, INT srcConId, INT
 	UGFxObject* itemTotalDescObject = itemObject->GetObject(TEXT("tf_dec_total"));
 	if (itemTotalDescObject)
 	{
-		itemTotalDescObject->SetString(TEXT("text"), itemTotalPrice.IsEmpty() ? TEXT("") : TEXT("总价"));
+		itemTotalDescObject->SetString(TEXT("text"), itemTotalPrice.IsEmpty() ? TEXT("") : TEXT("Total Price"));
 	}
 
 	UGFxObject* itemTotalPriceObject = itemObject->GetObject(TEXT("tF_Gold_Total"));
@@ -449,7 +449,7 @@ UBOOL UMMOUINewStallSettingPanel::OnRightMouseClick(class UGFxObject* mc, BYTE S
 		return TRUE;
 	}
 
-	// 右键点击背包中道具处理为上架
+	// Right-click on a bag item is handled as listing it for sale
 	if (SlotType == ESPType_Bag /*|| SlotType == ESPType_BagResource*/)
 	{
 		INT emptySlotId = UStallManager::getSingleton().GetEmptyStallSettingSlot();

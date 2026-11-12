@@ -1,5 +1,5 @@
 //
-// 设置技能图标
+// Set ability icon
 //
 class MMOStatusProc_SetSkillSlotIcon extends Object implements(IMMOStatusProc)
 	native

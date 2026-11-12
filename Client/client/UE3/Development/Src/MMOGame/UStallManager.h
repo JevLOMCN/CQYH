@@ -10,16 +10,16 @@
 #include "MMOUtil.h"
 
 #define MAX_STALL_SLOT_COUNT 10
-#define OPEN_STALL_LEVEL 7			// 任务:23994
-#define MIN_STALL_PRICE 100			// 最低出售金额100金
-#define MAX_STALL_PRICE 2000000000	// 每个格子最高总价
-#define MAX_PRICE  10000000000       //玩家最多拥有金额 100亿
+#define OPEN_STALL_LEVEL 7			// quest: 23994
+#define MIN_STALL_PRICE 100			// minimum sale amount 100 gold
+#define MAX_STALL_PRICE 2000000000	// maximum total price per grid cell
+#define MAX_PRICE  10000000000       //maximum amount a player can own, 10 billion
 
 enum EStallUpgradeType
 {
-	ESUT_DAY3 = 0,		// 3天
-	ESUT_DAY7,			// 7天
-	ESUT_DAY15,			// 15天
+	ESUT_DAY3 = 0,		// 3 days
+	ESUT_DAY7,			// 7 days
+	ESUT_DAY15,			// 15 days
 	ESUT_MAX
 };
 
@@ -159,20 +159,20 @@ public:
 	void RealCloseStall(AMMOPlayer* player);
 	void ChangeActorStallState(AMMOPlayer* player, UINT8 stallState);
 
-	// 摊位升级
+	// stall upgrade
 	void SetStallUpgradeLeftTime(UINT32 leftTime);
 	UINT32 GetStallUpgradeLeftTime() { return _StallUpgradeLeftTime; }
 	void ChangeStallLevel(UINT32 roleId, UINT8 level);
 
-	// 交易记录
+	// trade record
 	const StallRecordInfoList& GetStallRecordInfoList() { return _StallRecordInfoList; }
 
-	// 关注
+	// follow
 	void AddAttention(const FString& stallName);
 	void RemoveAttention(const FString& stallName);
 	UBOOL IsAttentionStall(const FString& stallName);
 
-	// 税率
+	// tax rate
 	void SetTax(INT tax);
 	INT GetTax() { return _StallTax; }
 

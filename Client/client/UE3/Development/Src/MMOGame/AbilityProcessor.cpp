@@ -830,7 +830,7 @@ void EmitterComponent::OnAction(UBOOL bOn)
 		//	RadiusScale *= mmoActor->CollisionRadiusRate;
 		//}
 
-		EElementaryType EleType = EETT_Elementary0; // 无属性
+		EElementaryType EleType = EETT_Elementary0; // No element
 		AMMOActor* TempCreator = GetCreatorCharacter();
 		if (TempCreator && TempCreator->ElementaryCreatorId != 0)
 		{
@@ -967,7 +967,7 @@ void EmitterComponent::OnAction(UBOOL bOn)
 		// set light data
 		if (EmitterData->MyPointLightComponent)
 		{
-			// 整体效果等级在3级以下自动关闭动态光源，0是自定义
+			// Automatically turn off dynamic lights when the overall effect level is below 3; 0 is custom
 			if (GSystemSettings.AutoFPSLevel > M_SCALE_DOWN_ABILITY_POINT_LIGHT)
 			{
 				UObject* InOuter = UObject::GetTransientPackage();
@@ -1792,7 +1792,7 @@ void CameraAnimComponent::OnAction(UBOOL bOn)
 	BaseComponent::OnAction(bOn);
 
 #if !SHIPPING_PC_GAME
-	// 录相时不要这个功能
+	// This feature is not wanted when recording video
 	if(GIsBenchmarking)
 	{
 		return;
@@ -2295,7 +2295,7 @@ void PhysicHitComponent::OnAction(UBOOL bOn /* = TRUE */)
 				Momentum *= (BaseActor->UseingAvatar->eventGetWeightScale());
 			}
 
-			// 只要是策划配了是轻的，再重的也是轻的，这里乘上原本的质量，即忽略原本质量的影响
+			// As long as the designer configured it as light, it is light no matter how heavy; multiply by the original mass here, i.e. ignore the effect of the original mass
 			Momentum *= BaseActor->Mesh->PhysicsAssetInstance->BodiesTotalMass;
 			BaseActor->Mesh->AddImpulse(Momentum, ApplyPoint);
 		}
@@ -2390,7 +2390,7 @@ void HitPointComponent::OnAction(UBOOL bOn /* = TRUE */)
 							bSkip = TRUE;
 						}
 					}
-					//掉落物品不接受技能物理影响
+					//Dropped items do not accept ability physics effects
 					if (Link->Actor->IsA(AMMODropActor::StaticClass()))
 					{
 						bSkip = TRUE;
@@ -4116,7 +4116,7 @@ void AbilityProcessor::Tick(FLOAT DeltaTime)
 					{
 						MainPlayer->CurrentAbilityState = EAS_End;
 						MainPlayer->AbilityStateCD = 0.0f;
-						warnf(NAME_Log, TEXT("AbilityProcessor::Tick: 技能超时, MainPlayer->CurrentAbilityState = EAS_End----%d"),abilityData->SpellCommonAttribute.Id );
+						warnf(NAME_Log, TEXT("AbilityProcessor::Tick: ability timed out, MainPlayer->CurrentAbilityState = EAS_End----%d"),abilityData->SpellCommonAttribute.Id );
 					}
 				}
 			}
@@ -4156,7 +4156,7 @@ void AbilityProcessor::Tick(FLOAT DeltaTime)
 					node->State = EAS_End;
 				}
 
-				// 引导技能
+				// Channeled ability
 				if (node->AbilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)
 				{
 					if (node->bLeadAbilityOver == TRUE)
@@ -4223,7 +4223,7 @@ void AbilityProcessor::OnRecvPrepareSpell(UINT CasterID, UINT AbilityID, UINT Ab
 	{
 		// no caster, no saving cast data to buffer
 		#if SHOW_ABILITY_LOG
-			warnf(TEXT("找不到施法者"));
+			warnf(TEXT("Caster not found"));
 		#endif
 		return;
 	}
@@ -4264,11 +4264,11 @@ void AbilityProcessor::OnRecvPrepareSpell(UINT CasterID, UINT AbilityID, UINT Ab
 	else
 	{
 #if SHOW_ABILITY_LOG
-		debugf(TEXT("施法者不是自己？"));
+		debugf(TEXT("Caster is not the player?"));
 #endif
 	}
 
-	// 如果是主角自己放的技能,更新技能当前目标信息就行
+	// If it is an ability cast by the main character itself, just update the ability's current target info
 	if (mmoActor && mmoActor->IsMainPlayer() && abilityData->bClientPlayFirst)
 	{
 		LONG64 Skey = CombinateID64(AbilityID, CasterID, SerialID);
@@ -4305,7 +4305,7 @@ void AbilityProcessor::OnRecvPrepareSpell(UINT CasterID, UINT AbilityID, UINT Ab
 
 		FLOAT DataTime = abilityData->SpellCommonAttribute.PrepareTimeMin;
 
-		if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) //蓄力
+		if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) //Charge-up
 		{
 			DataTime = abilityData->SpellCommonAttribute.PrepareTimeMax; // * node->TimeScale;
 		}
@@ -4386,11 +4386,11 @@ void AbilityProcessor::OnRecvPrepareSpell(UINT CasterID, UINT AbilityID, UINT Ab
 			{
 				if (abilityData->ClientCommonAttribute.bShowLeadUI)
 				{
-					if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type2) // 吟唱
+					if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type2) // Chanting
 					{
 						pc->OnAbilityTimerBarStart(abilityData, node->Rate );
 					}
-					else if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) // 蓄力
+					else if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) // Charge-up
 					{
 						pc->OnAbilityTimerBarStart(abilityData, node->Rate);
 					}
@@ -4406,7 +4406,7 @@ void AbilityProcessor::OnRecvPrepareSpell(UINT CasterID, UINT AbilityID, UINT Ab
 				MMOChatManager::getSingleton().AddSystemMessage(abilityData->ClientCommonAttribute.AbilityName);
 			}
 
-			// 使用技能, 完成任务
+			// Use ability, complete quest
 			MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_UseSkill, AbilityID);
 		}
 	}
@@ -4466,7 +4466,7 @@ void AbilityProcessor::PlayAbilityBeforeServer(UINT CasterID, UINT AbilityID, UI
 
 	FLOAT DataTime = abilityData->SpellCommonAttribute.PrepareTimeMin;
 
-	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) //蓄力
+	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) //Charge-up
 	{
 		DataTime = abilityData->SpellCommonAttribute.PrepareTimeMax; // * node->TimeScale;
 	}
@@ -4583,11 +4583,11 @@ void AbilityProcessor::PlayAbilityBeforeServer(UINT CasterID, UINT AbilityID, UI
 
 		//if (abilityData->ClientCommonAttribute.bShowLeadUI)
 		//{
-		//	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type2) // 吟唱
+		//	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type2) // Chanting
 		//	{
 		//		pc->OnAbilityTimerBarStart(abilityData, node->Rate );
 		//	}
-		//	else if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) // 蓄力
+		//	else if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) // Charge-up
 		//	{
 		//		pc->OnAbilityTimerBarStart(abilityData, node->Rate);
 		//	}
@@ -4598,7 +4598,7 @@ void AbilityProcessor::PlayAbilityBeforeServer(UINT CasterID, UINT AbilityID, UI
 		//	MMOChatManager::getSingleton().AddSystemMessage(abilityData->ClientCommonAttribute.AbilityName);
 		//}
 
-		//// 使用技能, 完成任务
+		//// Use ability, complete quest
 		//MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest_Client_UseSkill, AbilityID);
 	}
 
@@ -4647,10 +4647,10 @@ void AbilityProcessor::OnMainRoleEndAbility(INT AbilityId, INT SerialId)
 		//PushEffect(Skey);
 	}
 
-	////被动技能有cd，增加cd标志,add by JimZhang@snda.com
+	////Passive abilities have cooldowns, add cooldown flag, add by JimZhang@snda.com
 	//if(pos->second){
 	//	UMMOAbility* abilityData = pos->second->AbilityData;
-	//	if (abilityData && abilityData->SpellCommonAttribute.CastType == E_spct_Passive)//被动技能
+	//	if (abilityData && abilityData->SpellCommonAttribute.CastType == E_spct_Passive)//Passive ability
 	//	{
 	//		if(abilityData->GetCoolDownBufTime(MMOFacade::getSingleton().GetMainActor())>0.1){
 	//			MMOFacade::getSingleton().GetMMOBuffManager()->DeleteBuff(CasterId, AbilityId*100+9);
@@ -4705,7 +4705,7 @@ void AbilityProcessor::OnRecvCastSpell(G2C_CHAR_CAST_SPELL* InData)
 	pos->second->ClearSpellComponents();
 
 	FLOAT DataTime = 0.f;
-	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)	  // 引导
+	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)	  // Channeling
 	{
 		DataTime = abilityData->SpellCommonAttribute.Interval;
 	}
@@ -4788,7 +4788,7 @@ void AbilityProcessor::OnRecvCastSpell(G2C_CHAR_CAST_SPELL* InData)
 		}
 	}
 
-	// 可能有子弹特效需要模拟播放
+	// There may be projectile effects that need to be simulated
 	if (InData->byTargetCount == 0)
 	{
 		UAbilityHitPointComponent* hitData = NULL;
@@ -5288,8 +5288,8 @@ void AbilityProcessor::PushBullet(UMMOAbility* AbilityData, UAbilityHitPointComp
 								FVector HitPoint, HitNormal;
 								
 								// fix bug #23747
-								// 子弹在无锁定状态下，会被所有带Collision的Actor阻挡，如果这个Actor是角色，又不会掉血，就会很怪
-								// 正好服务器格子有bBlockBullet，改为直接查询格子数据
+								// Without a lock-on, a projectile is blocked by every Actor with Collision; if that Actor is a character that takes no damage, it looks very strange
+								// The server grid cells happen to have bBlockBullet, so query the grid cell data directly instead
 								/*
 								UBOOL bFind = LineCheck(BaseActor, StartPoint, EndPoint, HitPoint, HitNormal);
 								if (bFind)
@@ -5370,7 +5370,7 @@ void AbilityProcessor::OnRecvEffect(UINT CreatorId, UINT AbilityID, UINT Ability
 
 
 
-	//更新玩家伤害值
+	//Update player damage value
 	MMOHurtManager::getSingleton().UpdateAllHurt(CreatorId,node->Param1);
 
 
@@ -5426,7 +5426,7 @@ void AbilityProcessor::OnRecvEffect(UINT CreatorId, UINT AbilityID, UINT Ability
 				AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 				if (creator && player && creator->ServerID == player->ServerID)
 				{
-					// 如果怪物是被Buff杀死的, 服务器不会告知是否死亡
+					// If the monster was killed by a Buff, the server does not tell whether it died
 					/*
 					if ((Flag & (1 << sfbDead)) > 0)
 					{
@@ -5496,7 +5496,7 @@ void AbilityProcessor::OnRecvBreakCast(G2C_CHAR_BREAK_CAST* InData)
 	{
 		AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 		check(pc);
-		if (pos->second->AbilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)	// 引导
+		if (pos->second->AbilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)	// Channeling
 		{
 			pc->OnAbilityTimerBarEnd(pos->second->AbilityData, InData->byIsBreak);
 		}
@@ -5541,12 +5541,12 @@ void AbilityProcessor::OnRecvBreakCast(G2C_CHAR_BREAK_CAST* InData)
 EDamageResultType AbilityProcessor::FlagConvertToClientType(UINT Flag)
 {
 	/*
-	sfbCrit = sfbModifyDamageBegin,	// 暴击
-	sfbBlock,						// 格挡
-	sfbDodge,						// 闪避
-	sfbParry,						// 招架
-	sfbMiss,						// 未命中
-	sfbNormal,						// 普通
+	sfbCrit = sfbModifyDamageBegin,	// Critical hit
+	sfbBlock,						// Block
+	sfbDodge,						// Dodge
+	sfbParry,						// Parry
+	sfbMiss,						// Miss
+	sfbNormal,						// Normal
 	*/
 	EDamageResultType Ret = DRT_Result0;
 	Ret = (Flag & (1<<sfbCrit) ? DRT_Result7 : Ret);
@@ -5598,7 +5598,7 @@ void AbilityProcessor::OnRecvError(INT ErrCode, INT Param1, INT Param2)
 		}
 		else
 		{
-			warnf(NAME_Log, TEXT("OnRecvError:收到技能错误消息，非主动技能 ErrCode=%d, Param1=%d, Param2=%d"), ErrCode, Param1, Param2);
+			warnf(NAME_Log, TEXT("OnRecvError:received ability error message, not an active ability ErrCode=%d, Param1=%d, Param2=%d"), ErrCode, Param1, Param2);
 		}
 	}
 }
@@ -5639,7 +5639,7 @@ void AbilityProcessor::PushEffect(EffectNode* node)
 	//	debugf(L"catch");
 	//}
 
-	// fix bug #22491，陷阱类的技能(比如火墙)，施法者可能已经走出9屏，这里可能为NULL，但是仍然需要伤害特效，所以后续逻辑判断
+	// fix bug #22491, for trap-type abilities (e.g. fire wall), the caster may have walked out of the 9-screen range and may be NULL here, but the damage effect is still needed, so handle it in later logic
 	AActor* BaseActor = MMOFacade::getSingleton().GetActor(node->CasterID);
 
 	// get the hit point data
@@ -5683,7 +5683,7 @@ void AbilityProcessor::PushEffect(EffectNode* node)
 	{
 		dep = MMOFacade::getSingleton().GetDamgeTemplateData(ResultType, 0, 0, 0);
 	}
-	else if (ResultType == DRT_Result6)	// 普通攻击
+	else if (ResultType == DRT_Result6)	// Normal attack
 	{
 		if (HitGroup.WeaponHitType == EWHT_HitType1
 			|| HitGroup.WeaponHitType == EWHT_HitType2
@@ -5699,7 +5699,7 @@ void AbilityProcessor::PushEffect(EffectNode* node)
 
 		dep2 = MMOFacade::getSingleton().GetDamgeTemplateData(ResultType, 0, 0, EleType);
 	}
-	else if (ResultType == DRT_Result7)	 // 爆机
+	else if (ResultType == DRT_Result7)	 // Explosive crit
 	{
 		dep = MMOFacade::getSingleton().GetDamgeTemplateData(ResultType, HitGroup.WeaponHitType, 0, 0);
 
@@ -6020,7 +6020,7 @@ void AbilityProcessor::OnMissileChangeMovement(INT Id, FVector& Dst, FRotator& I
 //	debugf(TEXT( "------------------------------------------------------------------AddNewBuff buffid = %d" ), TemplateId  );
 //
 //
-//	//add by jimzhang 2012.7.18,增加buff的起始和结束状态触发行为
+//	//add by jimzhang 2012.7.18, add buff start and end state trigger behavior
 //	buff->eventDoStart(actor);
 //
 //
@@ -6331,7 +6331,7 @@ void AbilityProcessor::PlayClientAbility(INT CasterID, UMMOAbility* ToUseAbility
 
 	FLOAT DataTime = abilityData->SpellCommonAttribute.PrepareTimeMin;
 
-	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) //蓄力
+	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type5) //Charge-up
 	{
 		DataTime = abilityData->SpellCommonAttribute.PrepareTimeMax; // * node->TimeScale;
 	}
@@ -6340,7 +6340,7 @@ void AbilityProcessor::PlayClientAbility(INT CasterID, UMMOAbility* ToUseAbility
 
 	node->OverrideSpellTime = node->NormalizeTime(node->OverrideSpellTime);
 
-	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)	  // 引导
+	if (abilityData->SpellCommonAttribute.PrepareType == ES_PT_Type1)	  // Channeling
 	{
 		DataTime = abilityData->SpellCommonAttribute.Interval;
 	}
@@ -6495,7 +6495,7 @@ void AMMOEmitter::ShowMissileCollision()
 		//FlushPersistentDebugLines();
 
 
-		if (MissileData->RangeType == E_sprt_Single)	// 目标对象
+		if (MissileData->RangeType == E_sprt_Single)	// Target object
 		{
 
 		}

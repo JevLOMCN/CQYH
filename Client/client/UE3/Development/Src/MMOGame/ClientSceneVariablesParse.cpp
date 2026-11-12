@@ -8,7 +8,7 @@
 #include "MMOArenaManager.h"
 using namespace ExternalMessage;
 
-//mapID 为key
+//mapID is the key
 typedef TMap< INT, ClientSceneVariableActionTemplate > ClientSceneVariableActionMap;
 
 ClientSceneVariableActionMap g_ClientSceneVariableActionMap;
@@ -17,13 +17,13 @@ void InitClientSceneVariableActionList()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("InitClientSceneVariableActionList"), 0);
 
-	//一般副本
+	//Normal dungeon
 	DungeonSceneVariableAction dungeonAction;
 	g_ClientSceneVariableActionMap.FindOrAdd( ESceneVType_Dungeon ) = dungeonAction;
-	//抢旗战场
+	//Capture-the-flag battlefield
 	BattleFlagSceneVariableAction battleFlagAction;
 	g_ClientSceneVariableActionMap.FindOrAdd( ESceneVType_FlagBattle ) = battleFlagAction;//103
-	//竞技场
+	//Arena
 	ArenaSceneVariableAction arenaAction;
 	g_ClientSceneVariableActionMap.FindOrAdd( ESceneVType_Arena ) = arenaAction;
 }
@@ -86,10 +86,10 @@ bool Act_Battle_State( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DAT
 
 	switch( value )
 	{
-	//未定义
+	//Undefined
 	case 0:
 		break;
-	//战场开始
+	//Battle starts
 	case 1:
 		{
 			MMOBattleManager *pBattleMgr = &MMOBattleManager::getSingleton();
@@ -119,7 +119,7 @@ bool Act_Battle_State( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DAT
 			}
 		}
 		break;
-	//红方胜利
+	//Red team wins
 	case 2:
 		{
 			pBattleMgr->SetBattleState( EBTLS_ENDING );
@@ -127,7 +127,7 @@ bool Act_Battle_State( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DAT
 			pBattleMgr->NotifyBattleEnd( FALSE, EBTLTMS_Team1 );
 		}
 		break;
-	//蓝方胜利
+	//Blue team wins
 	case 3:
 		{
 			pBattleMgr->SetBattleState( EBTLS_ENDING );
@@ -135,7 +135,7 @@ bool Act_Battle_State( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DAT
 			pBattleMgr->NotifyBattleEnd( FALSE, EBTLTMS_Team2 );
 		}
 		break;
-	//平局
+	//Draw
 	case 4:
 		{
 			pBattleMgr->SetBattleState( EBTLS_ENDING );
@@ -207,7 +207,7 @@ bool Act_Battle_TeamTwoScoreChange( INT sceneID, const G2C_SYNC_SCENE_VARIABLES:
 
 
 
-//同步时间
+//Sync time
 bool Act_Battle_SyncTime( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data )
 {
 	INT SixtySecBeforeStartTime = data.nValue;
@@ -309,7 +309,7 @@ bool Act_Battle_FlagBattleEvent( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VA
 		}
 		break;
 
-	//红队魔盘掉在了地上
+	//Red team's magic disc dropped on the ground
 	case 9:
 		{
 			TArray<FActorInMapUI*> actorArray;
@@ -333,14 +333,14 @@ bool Act_Battle_FlagBattleEvent( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VA
 			}
 		}
 		break;
-	//红队魔盘被送回了基地中
+	//Red team's magic disc was returned to base
 	case 13:
 		{
 			MMOMapDataManager::getSingleton().RemoveMapDymcActorGlobalOfType( EACTMUI_BattleFlag, EBTLTMS_Team1 );
 		}
 		break;
 
-	//蓝队魔盘掉在了地上
+	//Blue team's magic disc dropped on the ground
 	case 10:
 		{
 			TArray<FActorInMapUI*> actorArray;
@@ -364,20 +364,20 @@ bool Act_Battle_FlagBattleEvent( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VA
 			}
 		}
 		break;
-	//蓝队魔盘被送回了基地中
+	//Blue team's magic disc was returned to base
 	case 14:
 		{
 			MMOMapDataManager::getSingleton().RemoveMapDymcActorGlobalOfType( EACTMUI_BattleFlag, EBTLTMS_Team2 );
 		}
 		break;
-	//红队夺得了蓝队魔盘，红队总分+100
+	//Red team captured the blue team's magic disc, red team total score +100
 	case 11:
 		{
 			MMOMapDataManager::getSingleton().RemoveMapDymcActorGlobalOfType( EACTMUI_BattleFlag, EBTLTMS_Team1 );
 			MMOMapDataManager::getSingleton().RemoveMapDymcActorGlobalOfType( EACTMUI_BattleFlag, EBTLTMS_Team2 );
 		}
 		break;
-	//蓝队夺得了红队魔盘，蓝队总分+100
+	//Blue team captured the red team's magic disc, blue team total score +100
 	case 12:
 		{
 			MMOMapDataManager::getSingleton().RemoveMapDymcActorGlobalOfType( EACTMUI_BattleFlag, EBTLTMS_Team1 );
@@ -395,9 +395,9 @@ bool Act_Battle_FlagBattleEvent( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VA
 }
 
 //==========================================================================================================================
-//Dungeon副本
+//Dungeon instance
 //==========================================================================================================================
-//同步时间
+//Sync time
 bool Act_Dungeon_SyncStartTime( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data )
 {
 	MMOMapDataManager &mapDataMgr = MMOMapDataManager::getSingleton();
@@ -425,7 +425,7 @@ bool Act_Dungeon_SyncStartTime( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VAR
 					leftSecond = 0;
 				}
 			}
-			else{//正计时
+			else{//Count up
 				leftSecond = -sinceStartTimeSec;
 			}
 			//
@@ -504,7 +504,7 @@ bool Act_Dungeon_State( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DA
 	else{
 		notifySceneTarget->_CurValue = data.nValue;
 
-		//通过统计子条件来计算主条件完成度
+		//Calculate the main condition's completion by counting sub-conditions
 		CurSceneTarget &mainProgress = curSceneTargets(mainTargetIdx);
 		INT completeChildProgressCnt = 0;
 		for( INT j = 0; j < UCONST_MaxSceneMinorTarget; ++j ){
@@ -560,7 +560,7 @@ bool Act_Dungeon_Achievement( INT sceneID,  const G2C_SYNC_SCENE_VARIABLES::VARI
 	//}
 
 	//curFBAchievement->_score = data.nValue;
-	//直接通知完成了
+	//Notify completion directly
 	curFBAchievement->_score = ( data.nValue > 0 ? thisTemplate->TargetValue : 0 );
 
 	//if completed at current
@@ -572,7 +572,7 @@ bool Act_Dungeon_Achievement( INT sceneID,  const G2C_SYNC_SCENE_VARIABLES::VARI
 	return true;
 }
 //========================================================================================================
-//竞技场
+//Arena
 //========================================================================================================
 bool Act_Arena_Prepare( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data )
 {

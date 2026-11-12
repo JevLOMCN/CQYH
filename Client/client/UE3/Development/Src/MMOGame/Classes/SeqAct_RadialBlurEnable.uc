@@ -1,5 +1,5 @@
 //
-// ÉèÖÃRadialBlur¿ª¹Ø
+// set RadialBlur switch
 //
 class SeqAct_RadialBlurEnable extends SequenceAction;
 

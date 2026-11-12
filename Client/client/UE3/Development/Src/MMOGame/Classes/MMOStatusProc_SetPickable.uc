@@ -1,5 +1,5 @@
 //
-// …Ë÷√ ∞»°
+// Set pickup
 //
 class MMOStatusProc_SetPickable extends Object implements(IMMOStatusProc)
 	native

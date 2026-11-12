@@ -10,9 +10,9 @@ enum EClientVariableType
 	ECVT_Begin = 0,
 	ECVT_Game_Config = ECVT_Begin,
 
-	ECVT_Quest,												// 任务变量
+	ECVT_Quest,												// quest variables
 	
-	ECVT_SkillBarSlotBegin,									// 动作条设置
+	ECVT_SkillBarSlotBegin,									// action bar settings
 	ECVT_SkillBarSlotData2_,
 	ECVT_SkillBarSlotData3_,
 	ECVT_SkillBarSlotData4_,
@@ -28,7 +28,7 @@ enum EClientVariableType
 	ECVT_SkillBarSlotData14_,
 	ECVT_SkillBarSlotEnd,
 
-	ECVT_KeyManagerBegin,									// 快捷键设置
+	ECVT_KeyManagerBegin,									// hotkey settings
 	ECVT_KeyManager01_,
 	ECVT_KeyManager02_,
 	ECVT_KeyManager03_,
@@ -84,7 +84,7 @@ enum EClientVariableType
 	ECVT_TraceRelation,
 	ECVT_ContralType,
 
-	ECVT_Guide_Begin,										// 新手引导(MAX_GUIDE_COUNT = 128个)
+	ECVT_Guide_Begin,										// newbie guide (MAX_GUIDE_COUNT = 128)
 	ECVT_Guide_Data_1 = ECVT_Guide_Begin,
 	ECVT_Guide_Data_2,
 	ECVT_Guide_Data_3,
@@ -94,28 +94,28 @@ enum EClientVariableType
 	ECVT_Sound_Config1 = ECVT_Guide_End,
 	ECVT_Sound_Config2,
 
-	ECVT_Achievement_Trace_Personal1,						// 成就追踪
+	ECVT_Achievement_Trace_Personal1,						// achievement tracking
 	ECVT_Achievement_Trace_Personal2,
 	ECVT_Achievement_Trace_Guild,
 
-	ECVT_Journey_Trace,										// 玛法日志
+	ECVT_Journey_Trace,										// Mafa journal
 
-	ECVT_Assist_Skill,										// F12技能
+	ECVT_Assist_Skill,										// F12 skill
 	ECVT_Assist_Protect_Begin,
-	ECVT_Assist_Protect_Item = ECVT_Assist_Protect_Begin,	// F12保护(划分为8个4位，每4位：第一位记录是否开启，后三位记录道具索引)
-	ECVT_Assist_Protect_Value1,								// F12保护(高位HP,低位MP)
+	ECVT_Assist_Protect_Item = ECVT_Assist_Protect_Begin,	// F12 protection (divided into eight 4-bit groups; per group: first bit records whether enabled, last three bits record item index)
+	ECVT_Assist_Protect_Value1,								// F12 protection (high bits HP, low bits MP)
 	ECVT_Assist_Protect_Value2,
 	ECVT_Assist_Protect_Value3,
 	ECVT_Assist_Protect_Value4,
-	ECVT_Assist_Protect_Time1,								// F12保护(每8位记录一个时间)
+	ECVT_Assist_Protect_Time1,								// F12 protection (one time per 8 bits)
 	ECVT_Assist_Protect_Time2,
 	ECVT_Assist_Protect_End,
 
-	ECVT_Game_Config2 = ECVT_Assist_Protect_End,			//game_congif扩展
+	ECVT_Game_Config2 = ECVT_Assist_Protect_End,			//game_congif extension
 	ECVT_End
 };
 
-#define KF_Max ((((ECVT_KeyManagerEnd - ECVT_KeyManagerBegin + 1) * 4) - 1) / 3) // 最大多少个（服务端客户端变化数据库只有这么大）
+#define KF_Max ((((ECVT_KeyManagerEnd - ECVT_KeyManagerBegin + 1) * 4) - 1) / 3) // maximum count (the server/client change database is only this large)
 
 class MMOClientVariableManager : public SingletonMeyers<MMOClientVariableManager>
 {

@@ -11,15 +11,15 @@ function ASRegisterAuctionView(MMOUIAuctionView mc)
 	RegisterUI( mc, class'MMOUIManager'.default.Panel_AuctionView);
 }
 
-// 搜索拍卖信息
+// Search auction info
 native final function ASSearch(GFxObject dt);//moved
 native final function ASSearch_ResetFilter();//moved
 
-// 标签名发生变化
+// Tab name changed
 native final function ASClickTabPage(int idx);//moved
 
 
-// 购买页面
+// Buy page
 native final function ASBuyPage_AuctionClick(int dwAuctionID, int price,int msgType);//moved
 native final function ASBuyPage_AuctionFixedPriceClick(int dwAuctionID, int price);//moved
 
@@ -27,12 +27,12 @@ native final function ASBuyPage_AuctionFailedClick(int dwAuctionID, int price,in
 native final function ASBuyPage_AuctionFailedFixedPriceClick(int dwAuctionID, int price);//moved
 
 
-// 出售页面
+// Sell page
 native final function ASSellPage_CancelSellClick(int dwAuctionID);//moved
 native final function ASSellPage_AuctionSellItemClick(GFxObject dt);//moved
 
 
-// 浏览页面
+// Browse page
 native final function ASViewPage_ClickHeaderSort(int colIdx, bool descending);//moved
 native final function ASViewPage_AuctionClick(int dwAuctionID, int price,int msgType);//moved
 native final function ASViewPage_AuctionFixedPriceClick(int dwAuctionID, int price);//moved
@@ -44,7 +44,7 @@ native final function ASViewPage_PrevPageClick(int pgNum);//moved
 native final function ASViewPage_NextPageClick(int pgNum);//moved
 native final function ASViewPage_GotoPageClick(int pgNum);//moved
 
-//close的时候取消物品锁定
+//closeCancel item lock on close
 native function ASOnPanelClose( string PanelName );//moved
 
 native final function ASTreeListPage_ClickItem(int itemId);//moved

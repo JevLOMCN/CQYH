@@ -45,7 +45,7 @@ void UMMOUISimplePlayerInfo::InitPlayerRoleId( INT roleId )
 
 	UpdatePlayerInfo();
 
-	//还有个请求包要发的，目前先不发
+	//There is also a request packet to send, not sent for now
 }
 
 void UMMOUISimplePlayerInfo::OnNativeGameEvent(struct MMOGameEvent* evt)
@@ -92,7 +92,7 @@ void UMMOUISimplePlayerInfo::UpdatePlayerInfo()
 			data->SetString( TEXT("HeadIcon") , MMOFacade::getSingleton().GetPlayerIcon( simpleInfo.ClassId , simpleInfo.Sex ) );
 			data->SetString( TEXT("MapName") , TEXT("") );
 			data->SetString( TEXT("Team") , TEXT("") );
-			data->SetPureString( TEXT("Guild") , (simpleInfo.GuildName.Len() > 0 ? simpleInfo.GuildName : TEXT("【暂无公会】")));
+			data->SetPureString( TEXT("Guild") , (simpleInfo.GuildName.Len() > 0 ? simpleInfo.GuildName : TEXT("[No Guild]")));
 			//simpleInfo.Sex;
 			eventCallUpdatePlayerInfo(data);
 		}

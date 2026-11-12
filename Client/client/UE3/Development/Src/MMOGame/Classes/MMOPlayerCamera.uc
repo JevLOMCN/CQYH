@@ -1,5 +1,5 @@
 //
-// 主要的相机类
+// Main camera class
 //
 class MMOPlayerCamera extends Camera
 	native
@@ -8,52 +8,52 @@ class MMOPlayerCamera extends Camera
 	;
 
 var config vector TraceExtend;
-// 最大的相机距离与最近距离
+// Max and min camera distance
 var config float FarCameraDistance;
 var config float NearCameraDistance;
 
-// Yaw偏移值
+// YawYaw offset value
 var config float CameraYawOffset;
 
-// Pitch偏移值
+// PitchPitch offset value
 var config float FarCameraPitch;
 var config float NearCameraPitch;
 
-// 目标点位置偏移,屏幕上下值
+// Target point position offset, screen vertical value
 var config float FarCameraLookAtOffset;
 var config float NearCameraLookAtOffset;
 
-// 最远距离时的FOV
+// FOV at max distance
 var config float FarFov;
 var config float NearFov;
 
-// 当前距离的比例
+// Ratio of current distance
 var config float DistanceRatio;
 
-// 拉近到多少比例
+// Zoom in to what ratio
 var float TargetDistancePullPercent;
 
-// 拉近速度
+// Zoom in speed
 var float TargetDistancePullSpeed;
-// 当前相机导航的参考点
+// Reference point of current camera navigation
 var MMOVolume_CammeraNavigator CamNavVolume;
-// 目标Yaw值
+// Target Yaw value
 var float TargetYaw;
 var float TargetPitch;
 var float CachedPitch;
 var bool PitchDirty;
 
-// 默认的转动速度
+// Default rotation speed
 var float DefaultYawSpeed;
 var float DefaultPitchSpeed;
 
-// 默认的跟随速度  
+// Default follow speed
 var config bool DefaultSmoothMove;
 var config float DefaultMoveSpeed;
 var config float DefaultMoveScale;
 var config bool EnableDebugMode;
 
-// 缓存一下上次的
+// Cache the previous one
 var TViewTarget LastViewTarget;
 var bool IsMapJustLoaded;
 var bool EnableSmoothCameraPos;
@@ -95,20 +95,20 @@ var array<Material> MeshTranslucencyMaterials;
 final native function CreateMaterial( MeshComponent MeshComp );
 
 
-//Pow函数，放在native中计算提高速度，a为基数，b为指数
-//也可以使用(**)运算符
+//Pow function, computed in native for speed; a is the base, b is the exponent
+//The (**) operator can also be used
 final native function float Pow( float a, float b);
 
 native function UpdateDebug();
 
 
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	local MMOCameraActor A;
 	super.PostBeginPlay();
 	IsMapJustLoaded = true;
-	//默认情况下，加载地图后直接将相机就位
+	//By default, the camera is placed directly after the map loads
 	EnableSmoothCameraPos = false;
 	EnableSmoothCameraRot = false;
 	if(EnableDebugMode)
@@ -170,16 +170,16 @@ function ChangeShotCameraMode(ECharactorSelectCamera CameraType,float h)
 
 
 //---------------------------------------------------------------
-// UpdateViewTarget()方法说明
-// 这个类继承了基类的Camera摄像机类.
-// 当这个类创建的时候，则会自动调用基类GamePawn的虚方法GetDefaultCameraMode(需要重载)(ps.其实UE3里,没有虚函数,他们extends后,都属于重写,本身他就有这方法,可以进基类的uc文件看他怎么写的).
-// 如果想自己创建新的摄像机模式，则需要重载GamePawn的GetDefaultCameraMode的方法.
+// UpdateViewTarget() method description
+// This class inherits from the base Camera class.
+// When this class is created, the base GamePawn virtual method GetDefaultCameraMode (must be overridden) is called automatically (ps. in UE3 there are no virtual functions, extends is always an override and the method already exists; check the base uc file to see how it is written).
+// To create a new camera mode, override GamePawn's GetDefaultCameraMode method.
 // Camera Mode var  Name  CameraStyle;
-// Camera类里的CameraStyle成员变量，就是通过GamePawn的GetDefaultCameraMode实现的。(ps.我觉得这个方法名用Set更合适，不过他不是方法，是需要继承的，所以Get也没错)
-// 我在继承的GamePawn类(KWPawn)里返回了Isometric,那么,我们在Camera.uc里，找到UpdateViewTarget方法，将其复制过来(其实也可以不复制，复制的好处是原始的摄像机模式保留)
-// 在switch( CameraStyle )的地方添加对Isometric的处理（Isometric随便定义，不过你怎么case的就在你定义的Pawn里怎么Get
-// 在这个类里可以设置
-// 这是一个可以简单使用且有品质保证的摄像机类上的基本功能，增加或者说是扩展了另一款同等级GameCamera的功能
+// The CameraStyle member variable in the Camera class is implemented via GamePawn's GetDefaultCameraMode. (ps. I think Set would be a better name, but it is not a method, it must be inherited, so Get is also fine)
+// In my derived GamePawn class (KWPawn) I return Isometric, so in Camera.uc find the UpdateViewTarget method and copy it over (copying is optional; the benefit is that the original camera mode is kept)
+// Add handling for Isometric where switch( CameraStyle ) is (Isometric can be named anything, but whatever you case on must match what you Get in your Pawn)
+// Can be set in this class
+// This is the basic functionality of an easy-to-use, quality-assured camera class; it adds to or extends the functionality of another GameCamera of the same level
 //---------------------------------------------------------------
 
 native final function BeforeUpdateTick(float DeltaTime);
@@ -221,7 +221,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 
 	if(CurrentCameraActor != none)
 		CamActor = CurrentCameraActor;
-	//如果当前指定了相机Actor，则直接跳过本地的计算
+	//If a camera Actor is currently specified, skip the local calculation directly
 	if( CamActor != None )
 	{
 		if( isCameraActorImmediatly )
@@ -307,12 +307,12 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 				break;
 
 				//---------------------------------------------------------------
-				// 自定义摄像机模式开始
+				// Custom camera mode begin
 				//---------------------------------------------------------------
 
-				//从自定义的Pawn类(MMOPlayer)的GetDefaultCameraMode传来
+				//Comes from GetDefaultCameraMode of the custom Pawn class (MMOPlayer)
 			case 'Isometric':
-				//如果当前正在释放技能，则可能带上相关的镜头动画，则暂时关闭平滑移动跟随
+				//If an ability is currently being cast, it may carry a camera animation, so temporarily disable smooth follow
 				if( ActiveAnims.Length > 0 && EnableSmoothCameraPos )
 				{
 					if(EnableDebugMode)
@@ -320,15 +320,15 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					//bSmooth=EnableSmoothCameraPos;
 					EnableSmoothCameraPos=false;
 				}
-				//如果技能释放完毕，则恢复默认的镜头跟随状态
+				//When the ability finishes, restore the default camera follow state
 				else if( EnableSmoothCameraPos != DefaultSmoothMove )
 				{
 					EnableSmoothCameraPos = DefaultSmoothMove;
 				}
-				//修改摄像机朝向
+				//Modify camera orientation
 				Rot = CalcRotation( DeltaTime );
 
-				//修改摄像机的位置
+				//Modify camera position
 				Pos = CalcPosition( Rot, CalcLookAtOffset( Rot ), DeltaTime );
 
 				OutVT.POV.Location = Pos;
@@ -350,7 +350,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 				break;
 
 				//---------------------------------------------------------------
-				// 自定义摄像机模式结束
+				// Custom camera mode end
 				//---------------------------------------------------------------
 
 			case 'FirstPerson'	: // Simple first person, view through viewtarget's 'eyes'
@@ -363,11 +363,11 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 	}
 	curVT = OutVT;
 
-	//地图读取之后就采取平滑拉近的相机
+	//After the map is loaded, use the smooth zoom-in camera
 	if(IsMapJustLoaded)
 	{   
 		IsMapJustLoaded=false;
-		//是否开启区别较大，放在Ini中配置
+		//Whether it is enabled differs a lot, so configure it in the Ini
 		EnableSmoothCameraPos=DefaultSmoothMove;
 		EnableSmoothCameraRot=true;
 		if(EnableDebugMode)
@@ -384,13 +384,13 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 	AfterUpdateTick(DeltaTime);
 }
 
-// 拉近镜头
+// Zoom camera in
 native final function ZoomIn();
-// 拉远镜头
+// Zoom camera out
 native final function ZoomOut();
 
 
-// 取得当前Dof焦点距离
+// Get current Dof focus distance
 function float  GetDofLerpParameter()
 {
 	local bool inMatinee;
@@ -421,7 +421,7 @@ function float GetDofFocusDistance()
 	return NearDofFocusDistance + ( FarDofFocusDistance - NearDofFocusDistance )  * par;
 }
 
-// 取得当前Dof焦点半径
+// Get current Dof focus radius
 function float GetDofFocusRadius()
 {
 	local float par;
@@ -429,7 +429,7 @@ function float GetDofFocusRadius()
 	return NearDofFocusRadius + ( FarDofFocusRadius - NearDofFocusRadius )  * par;
 }
 
-// 取得当前dof衰减系数
+// Get current dof falloff coefficient
 function float GetDofFalloffExponent()
 {
 	local float par;
@@ -437,25 +437,25 @@ function float GetDofFalloffExponent()
 	return NearDofFalloffExponent + ( FarDofFalloffExponent - NearDofFalloffExponent )  * par;
 }
 
-// 取得当前的FOV，根据远近参数线性插值
+// Get current FOV, linearly interpolated by near/far parameter
 function float GetCurrentFOV()
 {
 	return NearFov + (FarFOV - NearFov) * TargetDistancePullPercent;
 }
 
-// 取得当前的距离偏移
+// Get current distance offset
 native final function float GetCurrentDistance();
 // {
 // 	return TargetDistancePullPercent * (FarCameraDistance -NearCameraDistance) + NearCameraDistance;
 // }
 
-// 取得当前的上下look at偏移值
+// Get current up/down look at offset
 function float GetCurrentLookAtOffset()
 {
 	return -(NearCameraLookAtOffset + (FarCameraLookAtOffset - NearCameraLookAtOffset) * TargetDistancePullPercent);
 }
 
-// 取得当前的PITCH，根据远近参数线性插值
+// Get current PITCH, linearly interpolated by near/far parameter
 function int GetTargetPitch()
 {
 	//if(PitchDirty)
@@ -478,7 +478,7 @@ function int GetTargetPitch()
 	return CachedPitch;
 }
 
-// 取得当前的YAW，根据远近参数线性插值
+// Get current YAW, linearly interpolated by near/far parameter
 function int GetTargetYaw()
 {
 	local int curYaw;
@@ -631,11 +631,11 @@ function Vector CalcPosition( Rotator CurrRot, Vector LookAt, float DeltaTime )
 	local float fRealMoveSpeed;
 	local LinearColor LColor;
 	local Color C;
-	//LooAt为当前相机观察目标的位置 Pos为期望相机所处位置
+	//LooAt is the position of the target the camera is currently looking at, Pos is the desired camera position
 	Pos = LookAt - Vector(CurrRot) * GetCurrentDistance();
 
 	//`log("_______ CalcPosition");
-	// 只有在不拉镜头时才进行平滑跟随
+	// Only smooth follow when not zooming the camera
 	if( EnableSmoothCameraPos && (DistanceRatio == self.TargetDistancePullPercent))
 	{
 		//`log("_______ EnableSmoothCameraPos");
@@ -664,7 +664,7 @@ function Vector CalcPosition( Rotator CurrRot, Vector LookAt, float DeltaTime )
 				LColor.A = accuMove/fDiffLength;
 				LColor.R = 0.0;
 				LColor.G = 1.0;
-				//期望移动到的位置
+				//Desired position to move to
 				RotPos = Pos+Normal( Vector( CurrRot ) )*1400;
 				DrawDebugLine (Pos,RotPos,0,255,0,true);
 				DrawDebugPoint(Pos, 10, LColor, true);
@@ -680,7 +680,7 @@ function Vector CalcPosition( Rotator CurrRot, Vector LookAt, float DeltaTime )
 				//LColor.R =RandRange(0,1);
 				LColor.G=0;
 				LColor.B = 1.0;
-				//实际移动到的位置
+				//Actual position moved to
 				C.R = 255;
 				C.G = 255;
 				C.B = 0;
@@ -691,12 +691,12 @@ function Vector CalcPosition( Rotator CurrRot, Vector LookAt, float DeltaTime )
 			if( EnableDebugMode )
 			{   		
 				`Log("[MMOPlayerCamera]DiffLen_RealSpeed_AccuMove:"@fDiffLength@fRealMoveSpeed@accuMove@"Pos_Dir:"@Pos@nDiff);
-				`Log("[BeginPos：]"@CameraCache.POV.Location);
+				`Log("[BeginPos:]"@CameraCache.POV.Location);
 			}
 		}
 		else
 		{
-			//如果速度过大，则放弃平滑计算，直接移动到目标位置
+			//If the speed is too high, skip the smoothing calculation and move directly to the target position
 			if( EnableDebugMode )
 				`Log("[MMOPlayerCameraJump] fDiffLength fRealMoveSpeed accuMove" @accuMove@fDiffLength@fRealMoveSpeed);
 		}

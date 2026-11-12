@@ -25,7 +25,7 @@ const FString MMOAttributeAccountManager::GetAttributeName( INT groupId , INT in
 {
 	if( AttributeGroupList.Num() <= groupId || AttributeGroupList(groupId).AttributeList.Num() < index )
 	{
-		//越界
+		//out of bounds
 		return TEXT("");
 	}
 	if( !CurAttrListener )
@@ -74,12 +74,12 @@ const FString MMOAttributeAccountManager::GetAttributeName( INT groupId , INT in
 	return res;
 }
 
-//----------得到属性值
+//----------get attribute value
 const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT index ) const
 {
 	if( AttributeGroupList.Num() <= groupId || AttributeGroupList(groupId).AttributeList.Num() < index )
 	{
-		//越界
+		//out of bounds
 		return TEXT("");
 	}
 	const StructAttributeItem& item = AttributeGroupList(groupId).AttributeList(index);
@@ -107,14 +107,14 @@ const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT i
 		return TEXT("0");
 	}
 
-	//等级常量
+	//level constant
 	/*INT levelPara = MMOFacade::getSingleton().GetAttributeConfigData( CurAttrListener->GetLevel() , CurAttrListener->GetClassId() , catValue );
 	if( levelPara == 0 )
 	{
 	return TEXT("0");
 	}*/
 
-	//有些属性是非常特殊的
+	//some attributes are very special
 	switch( item.AttributeValueType[curClass] )
 	{
 	case SAIP_PKValue:
@@ -151,7 +151,7 @@ const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT i
 	if( item.ValueShowType == EVST_Rate )
 	{
 		res = FString::Printf( TEXT("%.0f%%") , (FLOAT)CurAttrListener->GetAttribute( item.AttributeValueType[curClass] )/100 );
-		//区间值属性
+		//range-value attribute
 		if( item.AttributeValueTypeB[curClass] != 0 )
 		{
 			res += TEXT("-");
@@ -161,7 +161,7 @@ const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT i
 	else if( item.ValueShowType == EVST_Int )
 	{
 		res = appItoa( CurAttrListener->GetAttribute( item.AttributeValueType[curClass] ) );
-		//区间值属性
+		//range-value attribute
 		if( item.AttributeValueTypeB[curClass] != 0 )
 		{
 			res += TEXT("-");
@@ -181,7 +181,7 @@ const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT i
 	}
 	else if( item.ValueShowType == EVST_Att )
 	{
-		//这个基本只有攻击力在用
+		//basically only attack power uses this
 		res = FString::Printf( TEXT("%.0f") , (FLOAT)CurAttrListener->GetAttribute( item.AttributeValueType[curClass] )/10000 );
 
 		if( item.AttributeValueTypeB[curClass] != 0 )
@@ -249,7 +249,7 @@ UBOOL MMOAttributeAccountManager::IsRelationAttribute( INT groupId , INT index ,
 {
 	if( AttributeGroupList.Num() <= groupId || AttributeGroupList(groupId).AttributeList.Num() < index )
 	{
-		//越界
+		//out of bounds
 		return FALSE;
 	}
 
@@ -336,13 +336,13 @@ FString MMOAttributeAccountManager::GetDamagePoint()
 	{
 		return TEXT("0");
 	}
-	//等级常数
+	//level constant
 	INT levelPara = MMOFacade::getSingleton().GetAttributeConfigData( CurAttrListener->GetLevel() , CurAttrListener->GetClassId() , catDefault );
 	if( levelPara == 0 || MMOUI::GetUIManager()->DodgeConstPara == 0 )
 	{
 		return TEXT("0");
 	}
-	//法师特殊
+	//mage special
 	INT res = 0 ;
 	FLOAT aveDamage = 0;
 	FLOAT critRate = 0;
@@ -367,11 +367,11 @@ FString MMOAttributeAccountManager::GetDamagePoint()
 	}
 
 
-	//暴击因子
+	//crit factor
 	// JO*(WJOSIJERg
 	//FLOAT crt = (FLOAT)CurAttrListener->GetAttribute( catCrit ) / levelPara*MMOUI::GetUIManager()->CrtConstPara + critRate/10000;	
 	//crt = 1 + crt * CurAttrListener->GetAttribute( catCritDamageModificationRate )/10000;
-	////命中因子
+	////hit factor
 	//FLOAT acc = CurAttrListener->GetAttribute( catAccurate );
 	//acc =  acc / ( levelPara*MMOUI::GetUIManager()->DodgeConstPara ) + 4.0/3.0 ;
 	//acc =  0.75 - 1/acc ;
@@ -382,13 +382,13 @@ FString MMOAttributeAccountManager::GetDamagePoint()
 	//res = aveDamage * crt * damageAddRate * acc;
 	// JO*(WJOSIJERg end
 
-	//伤害能力=（平均物理伤害/攻击速度）*（1+暴击率*（暴伤倍率-1））* （1+伤害加成）*1.25*min（1，(0.8*精准率)）
+	//damage ability=(average physical damage/attack speed)*(1+crit rate*(crit damage multiplier-1))* (1+damage bonus)*1.25*min(1,(0.8*accuracy rate))
 	return appItoa(res);
 }
 
 FString MMOAttributeAccountManager::GetLifePoint()
 {
-	//有效生命=生命上限*1/(1-平均伤免)*1/(1-闪避率-招架率-格挡率*0.5）*1/min(1.2，(1+韧性率))+ max(0,格挡值*（格挡率-0.33）)
+	//effective life=max life*1/(1-average damage reduction)*1/(1-dodge rate-parry rate-block rate*0.5)*1/min(1.2,(1+tenacity rate))+ max(0,block value*(block rate-0.33))
 	
 	//AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	if( !CurAttrListener )
@@ -402,7 +402,7 @@ FString MMOAttributeAccountManager::GetLifePoint()
 	}
 
 	FLOAT res = 0 ;
-	//	免伤部分：平均伤免 =1-2/( 1/(1-物理伤免) + 1/（1-魔法伤免）)
+	//	damage reduction part: average damage reduction =1-2/( 1/(1-physical damage reduction) + 1/(1-magic damage reduction))
 	INT phyDef = CurAttrListener->GetAttribute( catPhyDef );
 	FLOAT phyDamageReduce = (FLOAT)phyDef/( phyDef + levelPara*MMOUI::GetUIManager()->PhyDefConstPara );
 	INT magDef = CurAttrListener->GetAttribute( catMagDef );
@@ -410,9 +410,9 @@ FString MMOAttributeAccountManager::GetLifePoint()
 	
 	FLOAT aveDamageReduce = 1 - 2/( 1/( 1 - phyDamageReduce ) + 1/( 1 - magDamageReduce ) ) ;
 	FLOAT damageReduce = 1 - aveDamageReduce;	
-	// 闪避招架部分
+	// dodge and parry part
 
-	//0.75 - 1/( 闪避/(等级常数 * 闪避系数) + 4/3 )
+	//0.75 - 1/( dodge/(level constant * dodge coefficient) + 4/3 )
 
 	// JO*(WJOSIJERg
 	//FLOAT dodge = CurAttrListener->GetAttribute( catDodge );
@@ -420,7 +420,7 @@ FString MMOAttributeAccountManager::GetLifePoint()
 	//FLOAT dodgeRate = ( 0.75 - 1/dodge ) + CurAttrListener->GetAttribute(catDodgeRate)/10000;
 	//FLOAT parry = 1 - dodgeRate - (FLOAT)CurAttrListener->GetAttribute( catParryRate )/10000 - (FLOAT)CurAttrListener->GetAttribute( catBlockRate )/10000*0.5;
 	//parry = Max<FLOAT>(0.2,parry);
-	////防爆部分
+	////crit resistance part
 
 	//FLOAT crtReduce = CurAttrListener->GetAttribute( catCritResistance );
 	//crtReduce = crtReduce/ ( levelPara*MMOUI::GetUIManager()->CrtConstPara );
@@ -446,7 +446,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 {
 	if( !AttributeGroupList.IsValidIndex(groupId) || !AttributeGroupList(groupId).AttributeList.IsValidIndex(index) )
 	{
-		//越界
+		//out of bounds
 		return TEXT("");
 	}
 
@@ -461,7 +461,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	INT curClassTipsText = 0;
 	INT curClassTipsType = 0;
 	INT curClassTipsValue = 0;
-	//tips文字是否根据职业区分
+	//whether tips text differs by class
 	if( item.DifferTips )
 	{
 		curClassTipsText = CurAttrListener->GetClassId();
@@ -470,7 +470,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	{		
 		curClassTipsText = EPCT_PlayerClassA;	
 	}
-	//tips属性类型是否根据职业区分
+	//whether tips attribute type differs by class
 	if( item.DifferTipsValueType )
 	{
 		curClassTipsType = CurAttrListener->GetClassId();
@@ -479,7 +479,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	{
 		curClassTipsType = EPCT_PlayerClassA;
 	}
-	//tips属性值参数是否根据职业区分
+	//whether tips attribute value parameters differ by class
 	if( item.DifferTipsValuePara )
 	{
 		curClassTipsValue = CurAttrListener->GetClassId();
@@ -496,8 +496,8 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 // JO*(WJOSIJERg
 	//if( item.AttributeTypeA[curClassTipsType] >= catEndExAttr )
 	//{
-	//	//特殊公式
-	//	//等级常量
+	//	//special formula
+	//	//level constant
 	//	INT levelPara = MMOFacade::getSingleton().GetAttributeConfigData( CurAttrListener->GetLevel() , CurAttrListener->GetClassId() , catValue );
 	//	if( levelPara == 0 )
 	//	{
@@ -508,7 +508,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	//	{
 	//	case SAIP_PhyDamageReduce:
 	//		{
-	//			//物理防御/（物理防御 + 等级常数*物理防御系数）
+	//			//physical defense/(physical defense + level constant*physical defense coefficient)
 	//			INT phyDef = CurAttrListener->GetAttribute( catPhyDef );
 	//			paraA = (FLOAT)phyDef/( phyDef + levelPara*MMOUI::GetUIManager()->PhyDefConstPara )*100;
 	//		}
@@ -521,7 +521,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	//		break;
 	//	case SAIP_CritRate:
 	//		{
-	//			//暴击/(等级常数 * 暴击系数） + 系统加成值
+	//			//crit/(level constant * crit coefficient) + system bonus value
 	//			INT crt = CurAttrListener->GetAttribute( catCrit );
 	//			FLOAT crtAdd = 0;
 	//			switch( CurAttrListener->GetClassId() )
@@ -545,7 +545,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	//		break;
 	//	case SAIP_DodgeRate:
 	//		{
-	//			//0.75 - 1/( 闪避/(等级常数 * 闪避系数) + 4/3 )
+	//			//0.75 - 1/( dodge/(level constant * dodge coefficient) + 4/3 )
 	//			FLOAT dodge = CurAttrListener->GetAttribute( catDodge );
 	//			dodge = dodge/levelPara*MMOUI::GetUIManager()->DodgeConstPara + 4.0/3.0;
 	//			paraA = ( 0.75 - 1/dodge )*100;
@@ -554,7 +554,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	//		break;
 	//	case SAIP_HitRate:
 	//		{
-	//			//A： 0.75 - 1/(精准/(等级常数 * 闪避系数） + 4/3)
+	//			//A: 0.75 - 1/(accuracy/(level constant * dodge coefficient) + 4/3)
 	//			FLOAT acc = CurAttrListener->GetAttribute( catAccurate );
 	//			acc =  acc / ( levelPara*MMOUI::GetUIManager()->DodgeConstPara ) + 4.0/3.0 ;
 	//			paraA = ( 0.75 - 1/acc )*100;
@@ -562,7 +562,7 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	//		break;
 	//	case SAIP_CritReduceRate:
 	//		{
-	//			//韧性/(等级常数 * 暴击系数） + 系统加成值
+	//			//tenacity/(level constant * crit coefficient) + system bonus value
 	//			FLOAT crtReduce = CurAttrListener->GetAttribute( catCritResistance );
 	//			paraA = crtReduce/ ( levelPara*MMOUI::GetUIManager()->CrtConstPara )*100;
 	//		}
@@ -686,27 +686,27 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 		groupAttribute.AttributeList.AddItem( attributeItem );
 	}
 
-	//攻击力
+	//attack power
 	INT pos = 0;
 	initBaseAttributeByHighAndLow(catMaxPhyAtk,catPhyAtk,0,pos);
 
-	//魔法
+	//magic
 	pos = 1;
 	initBaseAttributeByHighAndLow(catMaxMagAtk,catMagAtk,0,pos);
 
-	//道术
+	//taoism
 	pos = 2;
 	initBaseAttributeByHighAndLow(catMaxTaoAtk,catTaoAtk,0,pos);
 
-	//防御
+	//defense
 	pos = 3;
 	initBaseAttributeByHighAndLow(catMaxPhyDef,catPhyDef,0,pos);
 
-	//魔防
+	//magic defense
 	pos = 4;
 	initBaseAttributeByHighAndLow(catMaxMagDef,catMagDef,0,pos);
 
-	//生命
+	//life
 	pos = 5;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_HP;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_HP;
@@ -714,7 +714,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catMaxHp;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 
-	//魔法
+	//magic
 	pos = 6;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_MP;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_MP;
@@ -722,7 +722,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catMaxMp;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 
-	//幸运
+	//luck
 	pos = 7;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catLuck;	
@@ -730,7 +730,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 
 // JO*(WJOSIJERg
-	////力量
+	////strength
 	//INT pos = 0;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catStrength;
 	//groupAttribute.AttributeList(pos).DifferTips = TRUE;	
@@ -744,7 +744,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	//groupAttribute.AttributeList(pos).AttributeTypeB[EPCT_PlayerClassA] = catStrength;
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassD] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassD , catPhyDef ).catStrength/10000;
 	//
-	////敏捷
+	////agility
 	//pos = 1;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catAgility;
 	//groupAttribute.AttributeList(pos).DifferTips = TRUE;	
@@ -761,7 +761,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassC] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassC , catDodge ).catAgility/10000;
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassD] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassD , catCrit ).catAgility/10000;
 
-	////智力
+	////intelligence
 	//pos = 2;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catIntellect;
 	//groupAttribute.AttributeList(pos).DifferTips = TRUE;	
@@ -778,7 +778,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassC] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassC , catCritResistance ).catIntellect/10000;
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassD] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassD , catCritResistance ).catIntellect/10000;
 
-	////体质
+	////constitution
 	//pos = 3;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catStamina;
 	//groupAttribute.AttributeList(pos).DifferTips = TRUE;	
@@ -795,7 +795,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassC] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassC , catHpRecovery ).catStamina/10000;
 	//groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassD] = (FLOAT)MMOFacade::getSingleton().GetAttribute2ConfigStructData( EPCT_PlayerClassD , catHpRecovery ).catStamina/10000;
 
-	////精神
+	////spirit
 	//pos = 4;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catSpirit;
 	//groupAttribute.AttributeList(pos).DifferTips = TRUE;	
@@ -887,7 +887,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 		groupAttribute.AttributeList.AddItem( attributeItem );
 	}
 
-	//破防御
+	//defense penetration
 	INT pos = 0;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -895,7 +895,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catAntiPhyDef;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//破魔防
+	//magic defense penetration
 	pos = 1;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -903,7 +903,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catAntiMagDef;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//准确度
+	//accuracy
 	pos = 2;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -911,7 +911,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catAccurate;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//暴击率
+	//crit rate
 	pos = 3;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -919,7 +919,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catCrit;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//暴击伤害
+	//crit damage
 	pos = 4;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -927,7 +927,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catCritDmg;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//伤害加成
+	//damage bonus
 	pos = 5;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -935,7 +935,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catDmgEnhance;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//攻击速度
+	//attack speed
 	pos = 6;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -943,7 +943,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catAtkSpeed;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//攻击力
+	//attack power
 	/*INT pos = 0;
 	groupAttribute.AttributeList(pos).DifferName = TRUE;
 	groupAttribute.AttributeList(pos).DifferValueType = TRUE;
@@ -984,7 +984,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeMulParaB[EPCT_PlayerClassD] = 0.0001;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassE] = 0.0001;*/
 
-	//攻速加成
+	//attack speed bonus
 	/*pos = 1;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -992,14 +992,14 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = SAIP_AttSpeedAdd;*/
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0.01;
 
-	//精准
+	//accuracy
 	/*pos = 2;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catAccurate;	
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = SAIP_HitRate;*/
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
-	//暴击
+	//crit
 	/*pos = 3;
 	groupAttribute.AttributeList(pos).DifferName = TRUE;	
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1008,7 +1008,7 @@ void MMOAttributeAccountManager::initAttAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = SAIP_CritRate;*/
 
 
-	//暴伤倍率
+	//crit damage multiplier
 	//pos = 4;
 	//groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1043,7 +1043,7 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 		groupAttribute.AttributeList.AddItem( attributeItem );
 	}
 
-	//敏捷度
+	//agility
 	INT pos = 0;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -1051,7 +1051,7 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catAgility;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 
-	//魔法躲避
+	//magic dodge
 	pos = 1;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1059,7 +1059,7 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catMagDodge;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0.01;
 
-	//减暴击
+	//crit reduction
 	pos = 2;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1067,7 +1067,7 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catCritResist;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0.01;
 
-	//减暴伤
+	//crit damage reduction
 	pos = 3;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
@@ -1075,7 +1075,7 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catCritDmgResist;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//伤害减免
+	//damage reduction
 	pos = 4;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1083,7 +1083,7 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catDmgResist;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//中毒躲避
+	//poison evasion
 	pos = 5;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1091,59 +1091,59 @@ void MMOAttributeAccountManager::initDefAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catPoisonResist;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//生命上限
+	//max life
 	//INT pos = 0;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Decimal;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catMaxHp;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catMaxHp;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
-	//生命恢复
+	//life regen
 	//pos = 1;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Decimal;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catHpRecovery;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catHpRecovery;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
-	//物理防御
+	//physical defense
 	//pos = 2;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catPhyDef;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = SAIP_PhyDamageReduce;
 	
-	//魔法防御
+	//magic defense
 	//pos = 3;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catMagDef;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = SAIP_MagDamageReduce;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
-	//格挡值
+	//block value
 	// JO*(WJOSIJERg
 	//pos = 4;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catBlockValue;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catBlockValue;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
-	////格挡率
+	////block rate
 	//pos = 5;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catBlockRate;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catBlockRate;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0.01;
 	//groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
-	////招架率
+	////parry rate
 	//pos = 6;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catParryRate;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catParryRate;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0.01;
 	//groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
-	////闪避
+	////dodge
 	//pos = 7;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catDodge;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = SAIP_DodgeRate;
 	////groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 	//
-	////韧性
+	////tenacity
 	//pos = 8;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catCritResistance;	
@@ -1174,7 +1174,7 @@ void MMOAttributeAccountManager::initMpAttribute( INT groupId )
 		groupAttribute.AttributeList.AddItem( attributeItem );
 	}
 
-	//法力上限
+	//max mana
 	INT pos = 0;
 	groupAttribute.AttributeList(pos).DifferName = TRUE;
 	groupAttribute.AttributeList(pos).DifferTips = TRUE;
@@ -1182,7 +1182,7 @@ void MMOAttributeAccountManager::initMpAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catMaxMp;	
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catMaxMp;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
-	//法力恢复
+	//mana regen
 	pos = 1;
 	groupAttribute.AttributeList(pos).DifferName = TRUE;
 	groupAttribute.AttributeList(pos).DifferTips = TRUE;
@@ -1214,7 +1214,7 @@ void MMOAttributeAccountManager::initOtherAttribute( INT groupId )
 		groupAttribute.AttributeList.AddItem( attributeItem );
 	}
 
-	//药品生命恢复
+	//potion life recovery
 	INT pos = 0;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1222,7 +1222,7 @@ void MMOAttributeAccountManager::initOtherAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//药品魔法恢复
+	//potion mana recovery
 	pos = 1;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Rate;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Rate;
@@ -1230,27 +1230,27 @@ void MMOAttributeAccountManager::initOtherAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//pk值
+	//pk value
 	pos = 2;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = SAIP_PKValue;	
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//经验加成
+	//exp bonus
 	//pos = 3;
 	//groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
 	//groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catExpLootModRate;	
 	//groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	//groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//疲劳度
+	//fatigue
 	/*pos = 1;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = SAIP_Fatigue;	
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;*/
 
-	//最大背包重量
+	//max bag weight
 	pos = 3;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Bag;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Bag;
@@ -1258,7 +1258,7 @@ void MMOAttributeAccountManager::initOtherAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//最大穿戴重量
+	//max equipment weight
 	pos = 4;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Armor;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Armor;
@@ -1266,7 +1266,7 @@ void MMOAttributeAccountManager::initOtherAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//最大腕力
+	//max wrist strength
 	pos = 5;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Weap;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_Weap;
@@ -1274,7 +1274,7 @@ void MMOAttributeAccountManager::initOtherAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = 0;
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 0;
 
-	//双倍经验
+	//Double experience
 	pos = 6;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_ExpEtra;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_ExpEtra;
@@ -1290,7 +1290,7 @@ void MMOAttributeAccountManager::Init()
 
 	warnf(NAME_Log, TEXT("MMOAttributeAccountManager::Init >>>"));
 
-	//属性拥有者
+	//attribute owner
 	static MMOAttrListener_Mine attrMine;
 	static MMOAttrListener_OtherPlayer attrOther;
 
@@ -1301,7 +1301,7 @@ void MMOAttributeAccountManager::Init()
 
 	MMOAttrListener* CurAttrListener = NULL;
 
-	//属性条
+	//attribute bar
 	AttributeGroupList.AddZeroed( Attribute_GroupNum );
 	for ( INT i = 0 ; i < Attribute_GroupNum ; i++ )
 	{
@@ -1315,7 +1315,7 @@ void MMOAttributeAccountManager::Init()
 	initDefAttribute(2);
 	//initMpAttribute(3);
 	initOtherAttribute(3);
-	//战,法,刺,猎
+	//warrior, mage, assassin, hunter
 
 	// 1.05 classes: the per-class columns above are only filled for A..E.
 	// Lancer (G) shows the Warrior attribute layout, Sorcerer (H) the Mage layout.

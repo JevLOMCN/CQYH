@@ -6,54 +6,54 @@ var GFxObject _ConfirmBox;
 
 enum ERClickMenuType
 {
-	ERCMType_TargetInfo,    //目标
+	ERCMType_TargetInfo,    //target
 	ERCMType_TeamMember,
 	ERCMType_TeamMate,
-	ERCMType_ChatPlayer, //聊天中的名字
+	ERCMType_ChatPlayer, //name in chat
 	ERCMType_TeamNearby,
-	ERCMType_Friend,            //好友
-	ERCMType_Contact,       //好友界面非好友和关注的页签
-	ERCMType_BattleMember, //战队队友
-	ERCMType_FriendGroup, //好友分组
-	ERCMType_Attention, //关注列表
+	ERCMType_Friend,            //friend
+	ERCMType_Contact,       //non-friend and followed tab of the friend UI
+	ERCMType_BattleMember, //battle team teammate
+	ERCMType_FriendGroup, //friend group
+	ERCMType_Attention, //follow list
 	ERCMType_Black,
-	ERCMType_GuildMember, //家族成员
-	ERCMType_Dungeon,//副本右键
-	ERCMType_BattleEnter,//战场排队
-	ERCMType_RankListPlayer, //玩家排行榜
-	ERCMType_RankListGuild, //公会排行榜
-	ERCMType_MasterStudent, //师徒右键
-	ERCMType_ChangeMapLine, //地图分线列表
-	ERCMType_GuildAlliance, //公会联盟
+	ERCMType_GuildMember, //clan member
+	ERCMType_Dungeon,//dungeon right click
+	ERCMType_BattleEnter,//battlefield queue
+	ERCMType_RankListPlayer, //player ranking list
+	ERCMType_RankListGuild, //guild ranking list
+	ERCMType_MasterStudent, //master/apprentice right click
+	ERCMType_ChangeMapLine, //map line list
+	ERCMType_GuildAlliance, //guild alliance
 	ERCMType_AuctionPlayer,
-	ERCMType_GuildEnemy, //公会敌对
+	ERCMType_GuildEnemy, //guild enemy
 };
 
 enum ERClickMenuLevel
 {
-	ERCMLevel_Main, //主
-	ERCMLevel_Child, //二级
+	ERCMLevel_Main, //main
+	ERCMLevel_Child, //secondary
 };
 
 var array<delegate<ClickFunc> > FuncList;
-var array<delegate<ClickFunc> > FuncListChild; // 二级的
+var array<delegate<ClickFunc> > FuncListChild; // secondary
 var const int ButtonMaxNum;
-var String OwnerName; // 右键指向目标玩家，id或者name？
+var String OwnerName; // target player the right click points to, id or name?
 var MMOActor OwnerActor;
 //var MMOTeamMember OwnerMember;
 //var MMONearbyPlayer OwnerNearPlayer;
 //var TeamManager TM;
 //var FriendManager FM;
 var int OwnerRoleId;
-var int OwnerIndex;//序号
-var int OwnerGroupId;//组号
+var int OwnerIndex;//index
+var int OwnerGroupId;//group number
 var int high;//
 var int lineStep;//
 var int step;
-var MMOUIRClickMenuChild MenuChild; //二级右键菜单
-var GFxObject CurClickButton; //点击的按钮
+var MMOUIRClickMenuChild MenuChild; //secondary right-click menu
+var GFxObject CurClickButton; //clicked button
 var GFxObject RCMenuBg; //bg
-var GFxObject MenuOwnerTF; //拥有者名textField
+var GFxObject MenuOwnerTF; //owner name textField
 
 var int ChildStep;
 var int ChildHigh;
@@ -123,7 +123,7 @@ native function bool SkipCaptureInputKey(String key, EInputEvent eIE, const stri
 //		MenuByNearPlayer( index );
 //		break;	
 //	case ERCMType_Friend:
-//		MenuByFriend( RoleId , RoleName ); //这里RoleId的字段是GroupId
+//		MenuByFriend( RoleId , RoleName ); //here the RoleId field is GroupId
 //		break;
 //	case ERCMType_Attention:
 //		MenuByAttention( index , RoleName ); 
@@ -189,7 +189,7 @@ function AddChangeNameOk(GFxObject mc)
 native function AddNewGroupOk(GFxObject mc);
 native function DelFriendOk( GFxObject mc );
 
-function MsgBoxNo( GFxObject mc ) //不处理
+function MsgBoxNo( GFxObject mc ) //no handling
 {
 //
 }
@@ -217,83 +217,83 @@ final native function ClickMoveToBlackList( int inMenuIdx );
 final native function ClickRemoveFromBlackList( int inMenuIdx );
 //final native function ClickMoveFriendToGroup( int inMenuIdx ); //move
 final native function ClickSendMail( int inMenuIdx );
-final native function ClickMoveFriend( int inMenuIdx ); //点击移动好友
-final native function ClickInviteBattleTeam( int inMenuIdx );//邀请来战队
-final native function ClickRemoveBattleTeam( int inMenuIdx );//踢掉战队成员
+final native function ClickMoveFriend( int inMenuIdx ); //click move friend
+final native function ClickInviteBattleTeam( int inMenuIdx );//invite to battle team
+final native function ClickRemoveBattleTeam( int inMenuIdx );//kick battle team member
 final native function ClickNewGroup( int inMenuIdx );
 final native function ClickChangeGroupName( int inMenuIdx );
 
-//常规类
+//General
 	native function ClickDeleteFriend( int inMenuIdx );
-	//查看资料
+	//view profile
 	native function ClickViewProfile( int inMenuIdx );
-	//查看简易资料
+	//View brief profile
 	native function ClickSimpleProfile( int inMenuIdx );
-	//点击跟随/取消跟随
+	//click follow/unfollow
 	native function ClickFollow( int inMenuIdx );
 	native function ClickNullFollow( int inMenuIdx );
 
-//公会类
-	//邀请加入公会
+//guild category
+	//Invite to join guild
 native function ClickInviteToJoinGuild( int inMenuIdx );
-	//推荐加入公会
+	//Recommend to join guild
 native function ClickRecommendJoinGuild( int inMenuIdx );
-	//申请加入公会
+	//Apply to join guild
 native function ClickApplyToJoinGuild( int inMenuIdx );
-	//踢出公会
+	//Kick from guild
 native function ClickKickOutGuild( int inMenuIdx );
-	//公会禁言
+	//Guild mute
 native function ClickForbidChatOn( int inMenuIdx );
 native function ClickForbidChatOff( int inMenuIdx );
-	//公会联盟
+	//Guild alliance
 native function ClickCancelAlliance( int inMenuIdx );
-	//复制公会名称(通过玩家)
+	//Copy guild name (via player)
 native function ClickCopyGuildName(int inMenuIdx);
-	//复制公会名称(通过界面)
+	//Copy guild name (via UI)
 native function ClickCopyGuildNameByPanel(int inMenuIdx);
-	//公会宣战
+	//Guild declare war
 native function ClickGuildWar(int inMenuIdx);
 
-//打开公会信息页面
+//Open guild info page
 native function ClickOpenGuild( int inMenuIdx );
 
-//师徒类
-	//拜师
+//Master/apprentice
+	//become apprentice
 native function ClickApplyMaster( int inMenuIdx );
 native function ClickApplyStudent( int inMenuIdx );
-	//收徒
+	//Take apprentice
 native function ClickReadmastermsg( int inMenuIdx );
-	//逐出师门
+	//Expel from master's school
 native function ClickExpell( int inMenuIdx );
-//背叛师门
+//Betray master
 native function ClickBetryMaster( int inMenuIdx );
 
-//结婚
-	//求婚
+//Marry
+	//Propose
 native function ClickMerry( int inMenuIdx );
-	//离婚
+	//Divorce
 native function ClickDivorce( int inMenuIdx );
 
-//常规类设置
-	//屏蔽聊天
+//general settings
+	//block chat
 native function ClickCommon1( int inMenuIdx );
-	//取消屏蔽
+	//unblock
 native function ClickCommon2( int inMenuIdx );
-	//举报玩家
+	//Report player
 native function ClickCommon3( int inMenuIdx );
-	//追踪位置
+	//Track position
 native function ClickCommon4( int inMenuIdx );
-//复制名字
-	//复制名字
+//copy name
+	//copy name
 native function ClickCopyName( int inMenuIdx );
 
-//查看角色信息
+//View character info
 native function ClickViewProfileOnRank( int inMenuIdx );
 
 native function FireStudent(GFxObject m);
 native function OnFireStudentCancel();
 
-//背叛师门
+//Betray master
 native function LeaveMaster(GFxObject m);
 native function LeaveMasterCancel();
 

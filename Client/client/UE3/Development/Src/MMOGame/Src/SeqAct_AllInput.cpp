@@ -188,7 +188,7 @@ void USeqAct_ShowMatineeSubtitle::Activated()
 		show = false;
 	}
 	
-	// 显示时先清空字幕
+	// Clear subtitles first when showing
 	{
 		MMOGameEvent_MatineeSubtitle evts(FString(TEXT("")), MMOGameEvent_MatineeSubtitle::EMSET_UpdateSubtitle);
 		MMOUI::PostGameEvent(&evts);

@@ -23,7 +23,7 @@ extern FLOAT g_UpdateClearAbilityCacheTime;
 
 namespace FSM{
 
-	//状态集合--------------------------------------------------------------------
+	//State set--------------------------------------------------------------------
 	FSMState_Input			Input;
 	FSMState_Charactor		Char;
 	FSMState_Target			Target;
@@ -72,7 +72,7 @@ IFSMState::IFSMState(void)
 	FSMStateManager::getSingleton().AddGameState(this);
 }
 
-//鼠键系列状态----------------------------------------------------------------
+//Mouse/key series states----------------------------------------------------------------
 void FSMState_Input::Init()
 {
 	ShiftDown		= FALSE;				
@@ -110,7 +110,7 @@ void FSMState_Input::Update(FLOAT DelTime)
 	}
 }
 
-//主角相关系列状态-------------------------------------------------------------
+//Main character related series states-------------------------------------------------------------
 void FSMState_Charactor::Init()
 {
 	MainPlayer		= NULL;
@@ -149,7 +149,7 @@ void FSMState_Charactor::Update(FLOAT DelTime)
 	}
 }
 
-//各种倒计时系列状态----------------------------------------------------------
+//Various countdown series states----------------------------------------------------------
 void FSMState_CDTime::Init()
 {
 	KeyPressedTime		= 0.0f;
@@ -196,14 +196,14 @@ void FSMState_CDTime::Update(FLOAT DelTime)
 
 	if(FocusTime>0)FocusTime+=DelTime;
 
-	//安全区检测时间
+	//Safe zone check time
 	AiInSafeZoneTime -= DelTime;
-	//检测武器绑定是否正确的时间
+	//Time to check whether weapon binding is correct
 	CheckWeaponBindTime -= DelTime;
-	//bossQTE检测时间
+	//bossQTE check time
 	AiBossQTETime	 -= DelTime;
 
-	//消息冰冻时间更新
+	//Message freeze time update
 	if(pController && pController->WaitingForTheAbilityRespond>0)
 	{
 		AbilityRespondTime -= DelTime;
@@ -249,7 +249,7 @@ void FSMState_CDTime::Update(FLOAT DelTime)
 	
 }
 
-//技能系列状态----------------------------------------------------------------
+//Ability series states----------------------------------------------------------------
 void FSMState_Ability::Init()
 {
 	DesireFClassAbility = NULL;
@@ -275,7 +275,7 @@ void FSMState_Ability::Update(FLOAT DelTime)
 	}
 
 
-	//激发的技能进行更新
+	//Update triggered abilities
 	if(CacheAbility){
 		UsableAbility= Mir2Attack::getSingleton().OptimizeAbility(CacheAbility,UsableAbility); 
 	}
@@ -285,13 +285,13 @@ void FSMState_Ability::Update(FLOAT DelTime)
 	//UsableAbility=DesireAbility; 
 	//if(UsableAbility)
 	//{
-	//	warnf(TEXT("刷新技能----------%d"),UsableAbility->SpellCommonAttribute.Id);
+	//	warnf(TEXT("Refresh ability----------%d"),UsableAbility->SpellCommonAttribute.Id);
 
 	//	//static INT lastId = 0;
 	//	//if(lastId!=UsableAbility->SpellCommonAttribute.Id)
 	//	//{
 	//	//	lastId=UsableAbility->SpellCommonAttribute.Id;
-	//	//	warnf(TEXT("刷新技能----------%d"),lastId);
+	//	//	warnf(TEXT("Refresh ability----------%d"),lastId);
 	//	//}
 	//}
 
@@ -303,12 +303,12 @@ void FSMState_Ability::Update(FLOAT DelTime)
 	{
 		PickTarget = FALSE;
 	}
-	//技能是否使用
+	//Whether the ability is used
 	AMMOPlayerController* pController =	MMOFacade::getSingleton().GetMainController();
 	AMMOPlayer* pMainPlayer  =	MMOFacade::getSingleton().GetMainPlayer();
 
 	AbilityEnable	= pController->CanUseAnyAbility(UsableAbility);
-	//蓝不够	
+	//Not enough mana
 	if(UsableAbility && pMainPlayer && UsableAbility->CanUseManaCheck(pMainPlayer)==FALSE)
 	{
 		AbilityEnable = FALSE;
@@ -317,19 +317,19 @@ void FSMState_Ability::Update(FLOAT DelTime)
 
 //UMMOAbility*	FSMState_Ability::GetDefaultAbility()
 //{
-//	//默认技能
+//	//Default ability
 //	switch( MMOFacade::getSingleton().GetMainActor()->GetClassId() )
 //	{
-//	case EPCT_PlayerClassA://战士
+//	case EPCT_PlayerClassA://Warrior
 //		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(1000, 0);
 //		break;
-//	case EPCT_PlayerClassB://法师
+//	case EPCT_PlayerClassB://Mage
 //		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(2500, 0);
 //		break;
-//	case EPCT_PlayerClassC://刺客
+//	case EPCT_PlayerClassC://Assassin
 //		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(1500, 0);
 //		break;
-//	case EPCT_PlayerClassD://弓手
+//	case EPCT_PlayerClassD://Archer
 //		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(2000, 0);
 //		break;
 //	default:
@@ -342,7 +342,7 @@ void FSMState_Ability::Update(FLOAT DelTime)
 //{
 //	if(Ability&&Ability->ClientCommonAttribute.UseDefaultAbility)
 //	{
-//		//蓝不够	//copy from server by JimZhang
+//		//Not enough mana	//copy from server by JimZhang
 //		AMMOPlayerController* pController =	MMOFacade::getSingleton().GetMainController();
 //		AMMOPlayer* pMainPlayer  =	MMOFacade::getSingleton().GetMainPlayer();
 //		if(pController && pMainPlayer && Ability->CanUseManaCheck(pMainPlayer)==FALSE)
@@ -353,36 +353,36 @@ void FSMState_Ability::Update(FLOAT DelTime)
 //	return Ability;
 //}
 
-//控制系列状态----------------------------------------------------------
+//Control series states----------------------------------------------------------
 void FSMState_Ctrl::Init()
 {
 	IsBattleState	= FALSE;
-	IsGuildBattle	= FALSE;			//公会战状态
+	IsGuildBattle	= FALSE;			//Guild battle state
 	//GameControlType = GC_DIABLO3;
 	IsSelectCtrl	= FALSE;
 	IsMoveCtrl		= FALSE;
 	IsActionCtrl	= FALSE;
 
-	state_Switching_Flag = FALSE;		//状态切换标志
-	state_Standby	= TRUE;				//待机状态
-	state_Moving	= FALSE;			//移动状态
-	state_Attack	= FALSE;			//攻击状态
-	state_Interact	= FALSE;			//交互状态
-	state_AiDesire	= FALSE;			//搜寻状态
+	state_Switching_Flag = FALSE;		//State switching flag
+	state_Standby	= TRUE;				//standby state
+	state_Moving	= FALSE;			//moving state
+	state_Attack	= FALSE;			//attack state
+	state_Interact	= FALSE;			//interact state
+	state_AiDesire	= FALSE;			//search state
 
-	state_AlwaysWalk = FALSE;			//强制走路
-	state_AlwaysWalkBase = FALSE;		//强制走状态基础态
+	state_AlwaysWalk = FALSE;			//force walk
+	state_AlwaysWalkBase = FALSE;		//force walk base state
 
 	state_OpenPrivateChat = FALSE;
 	KeyType_Keeping = KT_NONE;
 
-//	ctrlFlag_IgnoreShiftBtn=FALSE;	//免shift键
-//	ctrlFlag_DDCS=FALSE;			//刀刀刺杀
-//	ctrlFlag_ZNBY=FALSE;			//智能半月
-//	ctrlFlag_ZDZR=FALSE;			//自动逐日
-//	ctrlFlag_ZDLH=FALSE;			//自动烈火
-//	ctrlFlag_ZDYS=FALSE;			//自动隐身
-//	ctrlFlag_ZDKD=FALSE;			//自动开盾
+//	ctrlFlag_IgnoreShiftBtn=FALSE;	//no shift key needed
+//	ctrlFlag_DDCS=FALSE;			//every-hit assassinate
+//	ctrlFlag_ZNBY=FALSE;			//smart crescent slash
+//	ctrlFlag_ZDZR=FALSE;			//auto sun-chasing slash
+//	ctrlFlag_ZDLH=FALSE;			//auto flaming sword
+//	ctrlFlag_ZDYS=FALSE;			//auto stealth
+//	ctrlFlag_ZDKD=FALSE;			//auto shield
 
 	ctrlAttackAi_LastDelay	= 0.25f;
 	ctrlAttackAi_LockTime	= 0.05f;
@@ -397,7 +397,7 @@ void FSMState_Ctrl::Update(FLOAT DelTime)
 }
 
 
-//目标系列状态----------------------------------------------------------------
+//target series states----------------------------------------------------------------
 void FSMState_Target::Init()
 {
 	CurTargetActor			= NULL;
@@ -430,17 +430,17 @@ void FSMState_Target::Init()
 	UpdateSceneHintID		= 0;
 }
 
-//平滑位置，
+//smooth position,
 FVector FSMState_Target::SmoothTargetPos(FVector TargetPos)
 {
 	AMMOPlayer*			  pMainPlayer	=	MMOFacade::getSingleton().GetMainPlayer();
 	AMMOPlayerController* pController	=	MMOFacade::getSingleton().GetMainController();
-	//这是一段神奇的筛选，鉴于格子寻路的误差性，和操作平滑性的需求
+	//this is a magical filter, given the inaccuracy of grid pathfinding and the need for smooth control
 	if(pMainPlayer && pController)
 	{
 		FVector Location = pMainPlayer->Location - FVector(0.0,0.0,pMainPlayer->CylinderComponent->CollisionHeight);
 
-		//校正目标点,消除水平层面上的寻路误差
+		//correct the target point, eliminating horizontal pathfinding error
 		FLOAT HorizontalDelta = abs(Location.Z - TargetPos.Z);
 		//if(HorizontalDelta<256.0)
 		//if(HorizontalDelta>256.0)
@@ -459,7 +459,7 @@ FVector FSMState_Target::SmoothTargetPos(FVector TargetPos)
 	return TargetPos;
 }
 
-//寻找一个接近的合适的位置，
+//find a suitable nearby position,
 FVector FSMState_Target::OptimizeTargetPos(FVector TargetPos)
 {
 	AMMOPlayer*			  pMainPlayer	=	MMOFacade::getSingleton().GetMainPlayer();
@@ -468,7 +468,7 @@ FVector FSMState_Target::OptimizeTargetPos(FVector TargetPos)
 	if(pMainPlayer && pController){
 		FVector Location = pMainPlayer->Location - FVector(0.0,0.0,pMainPlayer->CylinderComponent->CollisionHeight);
 	
-		//由于点击点距离过近，延伸一定距离
+		//the click point is too close, extend a certain distance
 		FLOAT dis = (TargetPos-Location).Size2D();
 		FLOAT minDis = pMainPlayer->CylinderComponent->CollisionRadius*3.0;
 		if( dis<minDis && dis>0.001)
@@ -518,7 +518,7 @@ INT	 FSMState_Target::OptimizeTargetID(FRotator Rotator,FVector Location,FLOAT R
 		CurDistance = ObjVector.Size2D();
 		if(CurDistance<MaxDistance && CurDistance>MinDistance )
 		{
-			//计算方向系数-------------------------------------------
+			//calculate direction coefficient-------------------------------------------
 			ObjVector.Z = 0.0f;
 			FRotator ObjRotator = ObjVector.Rotation();
 			INT    Weight		= abs(ObjRotator.Yaw - Rotator.Yaw);
@@ -647,7 +647,7 @@ void FSMState_Target::Update(FLOAT DelTime)
 	AMMOPlayerController* pController	=	MMOFacade::getSingleton().GetMainController();
 	
 	if(pController){
-		//判定能否穿透UI
+		//determine whether it can pass through the UI
 		MMOFacade::UpdateCaptureInput();
 
 		LastMouseHitNavMeshLocation = pController->MouseHitNavMeshLocation;
@@ -661,7 +661,7 @@ void FSMState_Target::Update(FLOAT DelTime)
 		// ~zhaojun@snda
 		pController->NativeGetPickPointActorPreferred();// Point();
 
-		//设置拣选actor
+		//set the picked actor
 		CaptureInput = MMOFacade::GetCaptureInput();
 		//if(CaptureInput==FALSE)
 		{
@@ -677,11 +677,11 @@ void FSMState_Target::Update(FLOAT DelTime)
 		//	SetTargetActor(NULL);
 		//}
 
-		//鼠标点更新
+		//mouse point update
 		if(CurTargetMMOActor==NULL)
 		{
 			CurTargetPos =SmoothTargetPos(pController->MouseHitNavMeshLocation);
-			CurOptimizeTargetPos = CurTargetPos;  // OptimizeTargetPos(CurTargetPos); 不在需要做远离脚下点的操作
+			CurOptimizeTargetPos = CurTargetPos;  // OptimizeTargetPos(CurTargetPos); no longer need to move away from the point under the feet
 		}
 		else
 		{
@@ -689,13 +689,13 @@ void FSMState_Target::Update(FLOAT DelTime)
 			CurOptimizeTargetPos = CurTargetPos;
 		}	
 
-		//技能攻击目标已死
+		//ability attack target is dead
 		if(AbilityTargetMMOActor && AbilityTargetMMOActor->eventIsDead())
 		{
 			AbilityTargetMMOActor = NULL;
 		}
 
-		//攻击目标已死
+		//attack target is dead
 		if( AttackMMOActor && (AttackMMOActor->eventIsDead() || AttackMMOActor->IsPendingKill()))
 		{
 			AttackMMOActor = NULL;
@@ -710,7 +710,7 @@ void FSMState_Target::Update(FLOAT DelTime)
 			MMOUI::PostGameEvent(&evt);
 
 		}
-		//攻击目标变得不可选
+		//attack target became unselectable
 		else if( AttackMMOActor && !AttackMMOActor->IsPickable)
 		{
 			AttackMMOActor = NULL;
@@ -723,7 +723,7 @@ void FSMState_Target::Update(FLOAT DelTime)
 		}
 
 
-		////攻击目标已走
+		////attack target has left
 		//AMMOPlayer* MainPlayer  =	MMOFacade::getSingleton().GetMainPlayer();
 		//if( AttackMMOActor && MainPlayer)
 		//{
@@ -736,7 +736,7 @@ void FSMState_Target::Update(FLOAT DelTime)
 		//	}
 		//}
 
-		//锁定目标远离
+		//locked target moved away
 		AMMOPlayer* MainPlayer  =	MMOFacade::getSingleton().GetMainPlayer();
 		if(MainPlayer && DesireMMOActor)
 		{
@@ -755,7 +755,7 @@ void FSMState_Target::Update(FLOAT DelTime)
 			}			
 		}
 
-		//技能锁定目标远离
+		//ability locked target moved away
 		if(MainPlayer && AbilityTargetMMOActor)
 		{
 			FVector dis = MainPlayer->ServerLocation - AbilityTargetMMOActor->ServerLocation;
@@ -813,10 +813,10 @@ void FSMState_Target::Update(FLOAT DelTime)
 
 }
 
-//触发事件标志----------------------------------------------------------------
+//trigger event flags----------------------------------------------------------------
 void FSMState_Trigger::Init()
 {
-	IsTargetTrigger = FALSE;		//目标变化触发事件	
+	IsTargetTrigger = FALSE;		//target change trigger event
 	IsDesireTrigger	= FALSE;
 	IsDesirePosTrigger=FALSE;
 	IsWaitingSendMove =FALSE;

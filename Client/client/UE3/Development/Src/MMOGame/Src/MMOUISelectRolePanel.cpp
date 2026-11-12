@@ -57,7 +57,7 @@ void UMMOUISelectRolePanel::PostOnShow(UBOOL v)
 	Super::PostOnShow(v);
 	if(v==TRUE)
 	{
-		//默认最后登录的角色
+		//Default to the last logged-in character
 		setLastSelectRole();
 
 		UpdateRoleList();
@@ -67,7 +67,7 @@ void UMMOUISelectRolePanel::PostOnShow(UBOOL v)
 		MMO::ActiveKismetRemoteEvent(TEXT("Select_Loop"));
 		LoginBase::getSingleton().IsCreateOption = FALSE;
 
-		//游戏时间
+		//Play time
 		UINT32 leftSec = MMOVipManager::getSingleton().GetMyLeftGameTimeInSec();
 		FString titleStr = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Recharge.HintLeftTime") );
 		eventCallASSetGameLeftTime( titleStr, (INT)leftSec );
@@ -90,7 +90,7 @@ void UMMOUISelectRolePanel::ASRoleMove(INT offX,INT offY)
 
 void UMMOUISelectRolePanel::PostAdvance(FLOAT DeltaTime)
 {
-	//Avatar旋转状态
+	//Avatar rotation state
 	FRotator newRot;
 
 	if( AvatarTurn == EATF_None )
@@ -205,9 +205,9 @@ void UMMOUISelectRolePanel::UpdateRoleListUI()
 			{
 				FString infoStr;
 				itemObj->SetBool(TEXT("HasRole"), true );
-				//名字
+				//Name
 				itemObj->SetString(TEXT("RoleName"), roleInfo.RoleName );
-				//等级
+				//level
 				int iLevel = roleInfo.byLevel;
 				if( iLevel <= 0 )
 				{
@@ -216,16 +216,16 @@ void UMMOUISelectRolePanel::UpdateRoleListUI()
 				infoStr =  MMOUI::ParseLocalizedPropertyPath( "MMOGame.Common.RoleLevel" ) + FString(TEXT(" "));
 				infoStr +=appItoa( iLevel );
 				itemObj->SetString(TEXT("Level"), infoStr );
-				//职业名称
+				//Class name
 				infoStr =  MMOUI::ParseLocalizedPropertyPath( FString("MMOGame.School.SchoolName") + appItoa( roleInfo.byCareer ) );
 				itemObj->SetString(TEXT("CareerName"), infoStr );
-				//性别
+				//gender
 				itemObj->SetInt(TEXT("Sex"), roleInfo.bySex -1  );
-				//职业
+				//class
 				itemObj->SetInt(TEXT("Career"), roleInfo.byCareer );
-				// 删除时间
+				// Deletion time
 				itemObj->SetInt(_T("OverTime"), 0);
-				// 角色ID
+				// character ID
 				itemObj->SetInt(_T("RoleID"), roleInfo.dwRoleID);
 			}
 
@@ -255,7 +255,7 @@ void UMMOUISelectRolePanel::UpdateRoleListUI()
 		}
 		if(nCount == 0)
 		{
-			//没有角色
+			//No character
 			LoginBase::getSingleton().SetHiddenInLogin( MainPlayer, true );
 		}
 	}
@@ -340,7 +340,7 @@ void UMMOUISelectRolePanel::CallBackDeleteRole( UGFxObject* mc )
 		}
 	}
 	FScriptDelegate funcNULL(EC_EventParm);
-	MMOMsgBoxManager::getSingleton().AddMessageBox(_T("验证码错误。"), 0, funcNULL, funcNULL);
+	MMOMsgBoxManager::getSingleton().AddMessageBox(_T("Incorrect verification code."), 0, funcNULL, funcNULL);
 }
 
 
@@ -361,7 +361,7 @@ void UMMOUISelectRolePanel::ASCheckFirstOnSelect(UGFxObject *mc)
 
 void UMMOUISelectRolePanel::ASRequestReturnLogin()
 {
-	//OnDisconnected 之后再调
+	//call after OnDisconnected
 
 	if(CMessageHandler::GetInstance().IsConnection()){
 		CMessageHandler::GetInstance().Send_ReturnLogin();

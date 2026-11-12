@@ -66,9 +66,9 @@ void UMMOUICharacter::Init()
 	slotValue[2] = E_NES_NECK;
 	slotValue[3] = E_NES_ARM;
 	slotValue[4] = E_NES_BODY;
-	slotValue[5] = E_NES_BACK; //披风
+	slotValue[5] = E_NES_BACK; //cloak
 	slotValue[6] = E_NES_WRIST_L;
-	slotValue[7] = E_NES_WAIST; //腰带
+	slotValue[7] = E_NES_WAIST; //belt
 	slotValue[8] = E_NES_WRIST_R;
 	slotValue[9] = E_NES_FINGER_L;
 	//slotValue[10] = E_NES_LEG;
@@ -215,7 +215,7 @@ void UMMOUICharacter::UpdateAttributePanel()
 
 	UGFxObject* dataArray = GFXPlayer->CreateArray();
 
-	for ( INT i = 0 ; i < attriGroup.Num() ; i++ )//跳过基础属性
+	for ( INT i = 0 ; i < attriGroup.Num() ; i++ )//skip basic attributes
 	{
 		UGFxObject* groupData = GFXPlayer->CreateObject( TEXT("Object") );
 		UGFxObject* attributeArray = GFXPlayer->CreateArray();
@@ -245,7 +245,7 @@ void UMMOUICharacter::UpdateAttributePanel()
 
 void UMMOUICharacter::ClearUI()
 {
-	// TODO: 以后装备数量变了修改这个16
+	// TODO: change this 16 if the equipment count changes later
 	if( showPanel )
 	{
 		for (INT i = 0; i < E_NES_TOTAL; ++i)
@@ -473,7 +473,7 @@ void UMMOUICharacter::EnterScene()
 	{
 		GFXPlayer->NeedInitSceneUI = true;
 
-		//自动根据地图，刷新声望追踪
+		//automatically refresh reputation tracking based on map
 		INT curMyMapID = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 		ReputationTemp*   pReputationTemp = MMOFacade::getSingleton().GetReputationTempBySceneID(curMyMapID);
 		if( pReputationTemp ){
@@ -493,7 +493,7 @@ void UMMOUICharacter::ChangeScene()
 	UMMOUIBase::ChangeScene();
 	//CreateShowLevel();
 
-	//自动根据地图，刷新声望追踪
+	//automatically refresh reputation tracking based on map
 	INT curMyMapID = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 	ReputationTemp*   pReputationTemp = MMOFacade::getSingleton().GetReputationTempBySceneID(curMyMapID);
 	if( pReputationTemp ){
@@ -831,7 +831,7 @@ void UMMOUICharacter::PlayerAttributeChange(INT AtrrId,INT inValue)
 	//	{
 	//		StructAttributeItem attriItem = groupList(i).AttributeList(j);
 	//		
-	//		//如果有关联属性，就更新这条
+	//		//if there is a related attribute, update this entry
 	//		//if( attriMgr.IsRelationAttribute( i , j , AtrrId ) )
 	//		//{
 	//			UGFxObject* itemData = GFXPlayer->CreateObject( TEXT("Object") );
@@ -848,7 +848,7 @@ void UMMOUICharacter::PlayerAttributeChange(INT AtrrId,INT inValue)
 	UpdateAttributePanel();
 
 	return;
-	//后面都不用了
+	//none of the following is needed
 	/*
 	UActorAttribute* ActorAttributes = Player->ActorAttributes;
 	INT OriginValue = MMOFacade::getSingleton().GetAttributeConfigData( MMOFacade::getSingleton().GetMyLevel() , Player->GetClassId() , AtrrId );
@@ -937,7 +937,7 @@ void UMMOUICharacter::PlayerAttributeChange(INT AtrrId,INT inValue)
 
 		break;
 	case catMaxMp:
-		if( Player->GetClassId() == EPCT_PlayerClassB ) //法师特殊
+		if( Player->GetClassId() == EPCT_PlayerClassB ) //mage special case
 		{
 			OriginValue = ( (FLOAT)ActorAttributes->GetAttribute( catSpirit )*100/250+100 )*OriginValue/100 + PlusValue;
 		}
@@ -962,7 +962,7 @@ void UMMOUICharacter::PlayerAttributeChange(INT AtrrId,INT inValue)
 
 			INT OriginMaxMp = MMOFacade::getSingleton().GetAttributeConfigData( MMOFacade::getSingleton().GetMyLevel() , Player->GetClassId() , catMaxMp );
 			INT OriginMaxMpPlus = MMOFacade::getSingleton().GetAttribute2ConfigData( MMOFacade::getSingleton().GetMyLevel() , Player->GetClassId() , catMaxMp );
-			if( Player->GetClassId() == EPCT_PlayerClassB ) //法师特殊
+			if( Player->GetClassId() == EPCT_PlayerClassB ) //mage special case
 			{
 				OriginMaxMp = ( (FLOAT)ActorAttributes->GetAttribute( catSpirit )*100/250+100 )*OriginMaxMp/100 + OriginMaxMpPlus;
 			}
@@ -1048,7 +1048,7 @@ UBOOL UMMOUICharacter::OnLeftMousePress(class UGFxObject* mc,BYTE SlotType,BYTE 
  //----------------------------------------------------------------------------------------------------------------------------------------------
 UBOOL UMMOUICharacter::OnEquipPanelRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault)
 {
-	if(bDefault)//默认处理，当右击无人响应时候，自动卸载到背包里
+	if(bDefault)//default handling: when right-click gets no response, automatically unequip into the bag
 	{
 		if(SlotType == ESPType_Charactor)
 		{
@@ -1100,7 +1100,7 @@ UBOOL UMMOUICharacter::OnEquipPanelRightMouseClick(class UGFxObject* mc,BYTE Slo
 				UItem* item = MMOFacade::getSingleton().FindItemTemplate(info->m_nTemplateID);
 				INT DestSlot = MMOFacade::getSingleton().GetEmptyItemSlot(E_CONSLOT_DEFAULT);
 
-				//魔血石
+				//mana blood stone
 				if (item->ItemType == TEXT("ITEMTYPE_RECOVER"))
 				{
 					if(DestSlot >= 0)
@@ -1131,7 +1131,7 @@ UBOOL UMMOUICharacter::OnEquipPanelRightMouseClick(class UGFxObject* mc,BYTE Slo
 							MMOUI::GetEquippedSlotByEquipType(equip->GetEquipAppearenceTemplate()->EquipType, DestCon, DestSlot);
 							if( DestCon == E_CONSLOT_EQUIPPED )
 							{
-								//会被替换上的装备
+								//equipment that will be swapped in
 								ClientActionCondition_EquipItem checker;
 								FClientActionConditionContex contex;
 								contex.Item = info;
@@ -1141,7 +1141,7 @@ UBOOL UMMOUICharacter::OnEquipPanelRightMouseClick(class UGFxObject* mc,BYTE Slo
 									return TRUE;
 								}
 
-								//被替换下的装备
+								//equipment that will be swapped out
 								FClientItemInfo* destItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED, DestSlot);
 								
 								if(destItemInfo)
@@ -1184,7 +1184,7 @@ UBOOL UMMOUICharacter::OnEquipPanelRightMouseClick(class UGFxObject* mc,BYTE Slo
 						}*/
 
 
-						// 如果是需要绑定的但还没有绑定
+						// if it needs binding but is not bound yet
 						if(info->m_byBindType != E_BINDTYPE_BINDED
 							&& equip->ItemBindType == E_BINDTYPE_BOE)
 						{
@@ -1213,7 +1213,7 @@ BOOL UMMOUICharacter::CheckWeight(UItem* item, UItem* itemDest)
 	if (itemDest)
 		nWeight = itemDest->Weight;
 
-	//先判断重量够不够，能不能穿
+	//first check whether weight is sufficient and whether it can be worn
 	if(item->ItemType == TEXT("ITEMTYPE_EQUIP") && item->ItemSubType != TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 	{
 		if (MMOFacade::getSingleton().CheckWeight(item->Weight,nWeight,WT_Armor) == FALSE)
@@ -1256,7 +1256,7 @@ UBOOL UMMOUICharacter::OnEquipPanelDragDrop(class UGFxObject* SrcSlotMC,class UG
 	if (SrcContainerID == DestContainerID && SrcSlotID == DestSlotID)
 		return FALSE;
 
-	if((SrcSlotType == ESPType_Charactor || SrcSlotType == ESPType_Recover) && DestSlotType == ESPType_Invalid) // 扔掉
+	if((SrcSlotType == ESPType_Charactor || SrcSlotType == ESPType_Recover) && DestSlotType == ESPType_Invalid) // discard
 	{
 		FClientItemInfo* info = MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID);
 		if(info)
@@ -1272,16 +1272,16 @@ UBOOL UMMOUICharacter::OnEquipPanelDragDrop(class UGFxObject* SrcSlotMC,class UG
 			}*/
 
 			//MMOUI::GetUIManager()->delegateDeleteItem(SrcContainerID, SrcSlotID);
-			//身上的装备不能丢
+			//equipment worn on the body cannot be discarded
 			MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOErrorInfo.EClientActionConditionCheckType.ECACCT_EquipItem_NotThrow")));
 
 		}
 
 		return TRUE;
 	}
-	else if(SrcSlotType == ESPType_Charactor && DestSlotType == ESPType_Charactor)  // 交换
+	else if(SrcSlotType == ESPType_Charactor && DestSlotType == ESPType_Charactor)  // swap
 	{
-		//源
+		//source
 		FClientItemInfo* srcItemInfo = MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID);
 		if(srcItemInfo)
 		{
@@ -1300,7 +1300,7 @@ UBOOL UMMOUICharacter::OnEquipPanelDragDrop(class UGFxObject* SrcSlotMC,class UG
 			}
 		}
 
-		//目标
+		//target
 		FClientItemInfo* destItemInfo = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
 		if(destItemInfo)
 		{
@@ -1322,7 +1322,7 @@ UBOOL UMMOUICharacter::OnEquipPanelDragDrop(class UGFxObject* SrcSlotMC,class UG
 		INT srcSlotEquipType = SrcSlotMC->GetInt(TEXT("itemid"));
 		INT destSlotEquipType = DestSlotMC->GetInt(TEXT("itemid"));
 
-		// 不同类型的格子不能互换
+		// slots of different types cannot be swapped
 		if(srcSlotEquipType != destSlotEquipType)
 		{
 			return TRUE;
@@ -1332,7 +1332,7 @@ UBOOL UMMOUICharacter::OnEquipPanelDragDrop(class UGFxObject* SrcSlotMC,class UG
 
 		return TRUE;
 	}
-	else if(SrcSlotType == ESPType_Charactor && DestSlotType == ESPType_Bag) // 脱装备
+	else if(SrcSlotType == ESPType_Charactor && DestSlotType == ESPType_Bag) // unequip
 	{
 		FClientItemInfo* srcItemInfo = MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID);
 		if( srcItemInfo )
@@ -1350,9 +1350,9 @@ UBOOL UMMOUICharacter::OnEquipPanelDragDrop(class UGFxObject* SrcSlotMC,class UG
 			}
 		}
 
-		//目标物品
+		//target item
 		FClientItemInfo* info = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
-		if(info) // 如果目标格子有装备并且没绑定的
+		if(info) // if the target slot has equipment that is not bound
 		{
 			UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(info->m_nTemplateID);
 			
@@ -1616,14 +1616,14 @@ void UMMOUICharacter::UpdatePlayerReputation(class AMMOPlayer* Pl,INT ForceID,IN
 	if(Pl==NULL)return;
 	if(Pl->IsMainPlayer()==FALSE)return;
 
-	//声望提示
+	//reputation prompt
 	INT lastLevel	= GetReputationLevel(ForceID,lastReputation);
 	INT curLevel	= GetReputationLevel(ForceID,newReputation);
 	FString ReputationLevelName	= GetReputationLevelName(ForceID,newReputation);
 	FString ForceName	= GetReputationForceName(ForceID);
 	UBOOL   bForceVisible = GetReputationVisible(ForceID);
 
-	//自动更新追踪的声望条
+	//automatically update tracked reputation bar
 	if(ForceID ==  MMOUI::GetUIManager()->GetTraceRelationForceID())
 	{
 		UpdateTraceReputationDisplay();
@@ -1632,14 +1632,14 @@ void UMMOUICharacter::UpdatePlayerReputation(class AMMOPlayer* Pl,INT ForceID,IN
 	//if(lastLevel==curLevel){
 	//	
 	//	FString msgBuf = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Reputation.ReputationDataAdd"));
-	//	FString cs  =FString::Printf(  *msgBuf/* TEXT("声望提升了%d点")*/, newReputation-lastReputation );
+	//	FString cs  =FString::Printf(  *msgBuf/* TEXT("Reputation increased by %d")*/, newReputation-lastReputation );
 	//	FString msg = str2 + cs;
 	//	MMOChatManager::getSingleton().AddSystemMessage( msg ); 		
 	//}
 	//else
 	//{
 	//	FString msgBuf = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Reputation.ReputationDataUpdate"));
-	//	FString msg = str2 + msgBuf/*TEXT("声望提升到")*/ + str1;
+	//	FString msg = str2 + msgBuf/*TEXT("Reputation increased to")*/ + str1;
 	//	MMOUI::GetUIManager()->delegateAddScreenMessage( msg );
 	//	MMOChatManager::getSingleton().AddSystemMessage( msg ); 
 	//}
@@ -1762,7 +1762,7 @@ void UMMOUICharacter::UpdateTraceReputationDisplay()
 				INT		reputation	= MMOFacade::getSingleton().GetPlayerReputation(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
 				UBOOL	activeState = MMOFacade::getSingleton().GetPlayerActiveState(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
 				UBOOL    awardState  = MMOFacade::getSingleton().GetPlayerAwardState(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
-				//如果配置了不可见，就不让显示		
+				//if configured as invisible, do not display
 				activeState = activeState && ReputationList(i).Visible;
 
 				ReputationObj->SetInt("trackForceID",ForceID);
@@ -1817,7 +1817,7 @@ void UMMOUICharacter::UpdateReputationData()
 	//	{
 	//		INT		reputation	= MMOFacade::getSingleton().GetPlayerReputation(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
 	//		BOOL	activeState = MMOFacade::getSingleton().GetPlayerActiveState(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
-	//		//如果配置了不可见，就不让显示		
+	//		//if configured as invisible, do not display
 	//		activeState = activeState && ReputationList(i).Visible;
 
 	//		for(int j=0;j<ReputationName.Num();j++)
@@ -1905,7 +1905,7 @@ void UMMOUICharacter::ASClickTitle( INT TitleId )
 		title->IsNew = FALSE;
 		UpdateTitleData(FALSE);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ChooseTitle);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -2063,13 +2063,13 @@ void UMMOUICharacter::PlayerMoneyChange(BYTE MoneyType,INT DeltaMoney)
 {
 	if(MoneyType == MONEYTYPE_FATIGUE)
 	{		
-		//这是个特殊属性
+		//this is a special attribute
 		PlayerAttributeChange( SAIP_Fatigue , MMOFacade::getSingleton().GetPlayerMoney((EMONEY_TYPE)MoneyType) );
 
 	}
     else if( MONEYTYPE_MASTER_EXP == MoneyType )
     {
-        //目前没有
+        //none currently
         //ValidSetBaseInfoText( "player_MasterExp",  FString::Printf(TEXT("%d"), Money) );
     }
 
@@ -2103,7 +2103,7 @@ void UMMOUICharacter::ResetCharactorData()
 }
 
 //====================================================================================================
-//体格强化
+//Physique enhancement
 
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -2213,7 +2213,7 @@ void UMMOUICharacter::ASHideTotalEnhancProp()
 
 //=====================================================================================================
 //=====================================================================================================
-//体格强化
+//Physique enhancement
 void UMMOUICharacter::ASSelectEquipSlot(INT slotId)
 {
 	if( _EnhcPanel == NULL )

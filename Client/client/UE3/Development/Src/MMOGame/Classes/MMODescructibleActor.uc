@@ -1,5 +1,5 @@
 //
-// 用于实现场景中可破坏的物体
+// Used to implement destructible objects in the scene
 //
 class MMODescructibleActor extends FracturedStaticMeshActor implements(IAbilityDamageable, IMMOActorHUD, IServerTrigger)
 	placeable
@@ -7,56 +7,56 @@ class MMODescructibleActor extends FracturedStaticMeshActor implements(IAbilityD
 	config(Game)
 	native;
 
-// 低血量范围参考值
+// Low HP range reference value
 var(MMO) float LowHealthParticlePercentThreshold <DisplayName="LowHealthParticlePercentThreshold">;
 
-// 健康时的血条颜色
+// Health bar color when healthy
 var(MMO) Vector HealthyColor <DisplayName="HealthyColor">;
 
-// 受伤时的血条颜色
+// Health bar color when hurt
 var(MMO) Vector UnhealthyColor <DisplayName="UnhealthyColor">;
 
-// 被击中时的特效模板
+// Effect template when hit
 var(MMO) Emitter HurtEffectTemplate <DisplayName="HurtEffectTemplate">;
 
-// 死亡时的特效模板
+// Effect template on death
 var(MMO) Emitter DiedEffectTemplate <DisplayName="DiedEffectTemplate">;
 
-// 粒子组件
+// Particle component
 var(MMO) ParticleSystemComponent LowHealthParticleEffect <DisplayName="LowHealthParticleEffect">;
 
-// 血条的材质模板
+// Health bar material template
 var(MMO) MaterialInstanceConstant TheHealthHUDMatTemplate <DisplayName="TheHealthHUDMatTemplate">;
 
-// 血条材质
+// Health bar material
 var transient MaterialInstanceConstant MyHealthHUDMatInstance;
 
-// 是否绘制血条
+// Whether to draw the health bar
 var(MMO) bool EnableDrawHealthBar <DisplayName="EnableDrawHealthBar">;
 
-// 血条缩放大小
+// Health bar scale
 var(MMO) float HealthBarScale <DisplayName="HealthBarScale">;
 
-// 血条偏移
+// Health bar offset
 var(MMO) Vector HealthBarPositionOffset <DisplayName="HealthBarPositionOffset">;
 
-// 最后一次被攻击的时间
+// Time of the last attack
 var float LastTakeDamageTime;
 
 
-// 阵营标识, 两阵营标识做 AND 操作，不为0是友好
+// Faction ID, AND two faction IDs; non-zero means friendly
 var int FriendlyMask;
 
-// 角色属性
+// Character attributes
 var(MMO) ActorAttribute ActorAttributes <DisplayName="ActorAttributes">;
 
-// 消失时间
+// Disappear time
 var(MMO) float FadeOutTime <DisplayName="FadeOutTime">;
 var float FadeLife;
 
 var(MMOServer) int TriggerID;
 var(MMOServer) ETriggerType TriggerType;
-// 关联的阻挡框
+// Associated blocking box
 var(MMOServer) array<DynamicBlockingVolume> AssociatedBlockingVolume;
 var(MMOServer) ETriggerInitState InitTriggerState;
 var(MMOServer) array<NPCSpawnPoint> NPCSpawnPoints;
@@ -72,13 +72,13 @@ var(MMOServer_EventArea) array<IServerArea> LinkedEventArea;
 var(MMOServer_LoadingTrigger) int LoadingTime;
 
 var(MMOServer_OpenTeleport) array<TeleportOrig> LinkedTeleportList;
-// 取得攻击防御属属性
+// Get attack/defense attributes
 function ActorAttribute GetActorAttribute()
 {
 	return ActorAttributes;
 }
 
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -92,7 +92,7 @@ simulated event PostBeginPlay()
 	MyHealthHUDMatInstance.SetParent(TheHealthHUDMatTemplate);
 }
 
-// 计算血量的百分比
+// Calculate HP percentage
 native function float GetHealthPercent();
 //{
 //	return float(ActorAttributes.HP) / float(ActorAttributes.MaxHP);
@@ -190,14 +190,14 @@ event bool IsDead()
 }
 
 
-// 摧毁事件
+// Destroy event
 event Destroyed()
 {
 	super.Destroyed();
 	//OnDestroy_RemoveFromTargetableList();
 }
 
-// 死亡
+// Death
 function ActorDied(Controller EventInstigator, vector HitLocation, class<DamageType> DamageType, Actor DamageCauser)
 {
 //	local MMOEmitterSpawnable sfx;
@@ -218,7 +218,7 @@ function ActorDied(Controller EventInstigator, vector HitLocation, class<DamageT
 }
 
 //---------------------------------------------------------------
-// 技能碰撞事件
+// Ability collision event
 //---------------------------------------------------------------
 event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
 {
@@ -249,7 +249,7 @@ event Bump( Actor Other, PrimitiveComponent OtherComp, Vector HitNormal )
 	//`log("$$$$$--------$$$$$$$$$ Bump" @Other);
 }
 
-// 消失碎片
+// Disappearing fragments
 state FadeOut
 {
 	event PushedState( )
@@ -282,7 +282,7 @@ state FadeOut
 	}
 }
 
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 native function RegisterToFacade();
 
 native function ETriggerType GetTriggerType();
@@ -291,33 +291,33 @@ native function ETrapEventType GetTrapEventType();
 native function int GetTriggerID();
 native function SetAutoID(int id);
 
-// 取得关联的阻挡框
+// Get the associated blocking box
 native function array<DynamicBlockingVolume> GetBlockingVolumes();
 
-// 取得物体大小
+// Get object size
 native function Box GetObjectServerBounds();
 
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
-// 开始状态是否是，开启、关闭、不可用
+// Whether the initial state is open, closed, or unavailable
 native function ETriggerInitState GetServerInitState();
 
-// 返回一个调试用的标识名
+// Return an identifier name for debugging
 native function string GetClientName();
 
-// 取得关联的NPC出生点
+// get the associated NPC spawn point
 native function array<NPCSpawnPoint> GetNPCSpawnPoints();
 
-// 取得关联的机关，以便在当前事件区域完成后，激活这些机关
+// Get associated mechanisms, to activate them after the current event area completes
 native function array<IServerTrigger> GetLinkedTrigger();
 
 native function int GetDelayTime();
 
-// 触发技能列表
+// Trigger ability list
 native function array<AbilityEvent> GetAbilityList();
 
-// 触发技能列表
+// Trigger ability list
 native function TeleportEvent GetTeleportEvent();
 
 native function array<IServerArea> GetLinkedEventArea();
@@ -332,7 +332,7 @@ defaultproperties
 {
 	FriendlyMask = 4
 
-	// 添加受伤的粒子组件
+	// Add hurt particle component
 	Begin Object Class=ParticleSystemComponent Name=ParticleSystemComponent2
 	bAutoActivate=false
 	End Object

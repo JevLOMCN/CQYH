@@ -3,7 +3,7 @@
 	Filename: 	UMMOGFXPlayer_PickWidget
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	掉落拾取 GFXPlayer-PickWidget
+	Purpose:	Drop pickup GFXPlayer-PickWidget
 *********************************************************************/
 
 #include "stdafx.h"
@@ -18,7 +18,7 @@ IMPLEMENT_CLASS(UMMOGFXPlayer_PickWidget)
 
 void UMMOGFXPlayer_PickWidget::OnHUDLoaded()
 {
-	//在HUD读取完成后 加入delegate
+	//add delegate after HUD finishes loading
 // 	AMMOHud *hud = MMOFacade::getSingleton().GetMyHud();
 // 
 // 	FScriptDelegate fun(EC_EventParm);

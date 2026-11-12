@@ -49,7 +49,7 @@ void UMMOUIDeathMessage::Refresh()
 
 }
 
-//显示的时候做些数据更新
+//do some data updates when displaying
 void UMMOUIDeathMessage::NativeOnShow(UBOOL v)
 {
 	Refresh();

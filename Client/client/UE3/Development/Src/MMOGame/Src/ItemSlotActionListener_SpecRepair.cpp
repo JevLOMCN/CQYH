@@ -23,7 +23,7 @@ UBOOL UItemSlotActionListener_SpecRepair::OnLeftMouseClick(class UGFxObject* mc,
 		return TRUE;
 	}
 
-	// 只修理装备，并且只有耐久度损耗才修理
+	// only repair equipment, and only repair when durability has been lost
 	if( itemTemp->ItemType != TEXT("ITEMTYPE_EQUIP") ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Bag.RepairNotEquip")) ,MsgInfoType_Table,TEXT("MMOGame.Bag.RepairNotEquip"));
 		return TRUE;
@@ -31,7 +31,7 @@ UBOOL UItemSlotActionListener_SpecRepair::OnLeftMouseClick(class UGFxObject* mc,
 
 	if( item->m_nCurDur == item->m_nMaxDur ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Bag.EquipNoNeed")),MsgInfoType_Table,TEXT("MMOGame.Bag.EquipNoNeed") );
-		// TODO: 播放不需要修改的音效，etc.
+		// TODO: play sound effects that need no modification, etc.
 		return TRUE;
 	}
 

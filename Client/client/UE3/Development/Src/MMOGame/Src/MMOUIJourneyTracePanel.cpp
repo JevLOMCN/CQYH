@@ -82,7 +82,7 @@ void UMMOUIJourneyTracePanel::OnNativeGameEvent(struct MMOGameEvent* evt)
 						INT32 lastJourneyId = MMOJourneyData::getSingleton().GetJourneyIdByLevel(lastLevel);
 						if (lastJourneyId > 0 && _CurJourneyId > lastJourneyId)
 						{
-							eventCallShowChangeLevelHint(TRUE, TEXT("向前翻页可查看上阶段未完成的任务和成就"));
+							eventCallShowChangeLevelHint(TRUE, TEXT("Page back to see unfinished quests and achievements from the previous stage"));
 						}
 						else
 						{
@@ -542,7 +542,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyQuestLevel(INT oldLevel, INT newLevel
 		MMOJourneyManager::getSingleton().ActivateJourneyType(JT_GUILD);
 	}
 
-	// 激活可接任务节点
+	// Activate acceptable quest node
 	const QuestTraceList& availableQuestList = MMOQuestData::getSingleton().GetAvailableQuestTraceList();
 	QuestTraceList::const_iterator iter = availableQuestList.begin();
 	for (; iter != availableQuestList.end(); ++iter)
@@ -628,7 +628,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyQuestState(INT questEvent, INT questI
 		{
 			if (quest->QuestType == E_qt_Emegency)
 			{
-				// 任务 #17291
+				// Quest #17291
 				bool hasEmegencyQuest = false;
 				const QuestTraceList& acceptedQuestList = MMOQuestData::getSingleton().GetAcceptedQuestTraceList();
 				QuestTraceList::const_iterator iter = acceptedQuestList.begin();
@@ -658,7 +658,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyQuestState(INT questEvent, INT questI
 			}
 			else if (quest->QuestType == E_qt_Guide)
 			{
-				// 任务 #25265
+				// Quest #25265
 				bool hasGuideQuest = false;
 				const QuestTraceList& availableQuestList = MMOQuestData::getSingleton().GetAvailableQuestTraceList();
 				QuestTraceList::const_iterator iter = availableQuestList.begin();
@@ -696,7 +696,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyQuestState(INT questEvent, INT questI
 	{
 		if (questId == INVALID_QUEST_ID)
 		{
-			// 任务 #17291
+			// Quest #17291
 			bool hasEmegencyQuest = false;
 			const QuestTraceList& acceptedQuestList = MMOQuestData::getSingleton().GetAcceptedQuestTraceList();
 			QuestTraceList::const_iterator iter = acceptedQuestList.begin();
@@ -829,7 +829,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 			switch(MMOFacade::getSingleton().GetMainActor()->GetClassId())
 			{
 			case EPCT_PlayerClassG: // 1.05 Lancer: reuses Warrior reputation rewards (no Spear columns)
-			case EPCT_PlayerClassA://战士
+			case EPCT_PlayerClassA://Warrior
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -838,7 +838,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 				}
 				break;
 			case EPCT_PlayerClassH: // 1.05 Sorcerer: reuses Mage reputation rewards
-			case EPCT_PlayerClassB://法师
+			case EPCT_PlayerClassB://Mage
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -846,7 +846,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 					}
 				}
 				break;
-			case EPCT_PlayerClassC://刺客
+			case EPCT_PlayerClassC://Assassin
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -854,7 +854,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 					}
 				}
 				break;
-			case EPCT_PlayerClassD://弓手
+			case EPCT_PlayerClassD://Archer
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -862,7 +862,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 					}
 				}
 				break;
-			case EPCT_PlayerClassE://道士
+			case EPCT_PlayerClassE://Taoist
 				{
 					for (INT i = 0; i < MAX_REPUTATION_AWARD_COUNT; ++ i)
 					{
@@ -876,12 +876,12 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 		if (awardsStr.EndsWith(TEXT(",")))
 		{
 			awardsStr = awardsStr.Mid(0, awardsStr.Len() - 1);
-			awardsStr += TEXT("。");
+			awardsStr += TEXT(". ");
 		}
 
 		if (MMOFacade::getSingleton().GetPlayerAwardState(MMOFacade::getSingleton().GetMainPlayer(), reputationTemp->ForceID))
 		{
-			journeyObject->SetString(TEXT("journeyAwardsStr"), TEXT("奖励已经领取"));
+			journeyObject->SetString(TEXT("journeyAwardsStr"), TEXT("Reward already claimed"));
 			journeyObject->SetBool(TEXT("hasGetReward"), TRUE);
 		}
 		else
@@ -891,7 +891,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 		}
 	}
 
-	// 成就奖励
+	// Achievement reward
 	AchievementIdSet achievementSet = MMOAchievementData::getSingleton().GetAchievementReward();
 	if (achievementSet.size() > 0)
 	{
@@ -906,7 +906,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 				{
 					achievementRewardsObject->SetString(TEXT("achievement_name"), data.Name);
 
-					FString rewardText = TEXT("奖励:");
+					FString rewardText = TEXT("Reward: ");
 					if (data.RewardType[0] == adtItem)
 					{
 						UItem* item = MMOFacade::getSingleton().FindItemTemplate(data.RewardValue[0]);
@@ -947,8 +947,8 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 				{
 					achievementRewardsObject->SetString(TEXT("achievement_name"), data.Name);
 
-					// 由于界面布局原因，只显示一个奖励
-					FString rewardText = TEXT("奖励:");
+					// Due to UI layout, only show one reward
+					FString rewardText = TEXT("Reward: ");
 					if (data.RewardType[0] == GA_AWARD_ITEM)
 					{
 						UItem* item = MMOFacade::getSingleton().FindItemTemplate(data.RewardTemp[0]);
@@ -1020,8 +1020,8 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 		int elementIndex = 0;
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_STORY) && data.StoryQuestStar > 0)
 		{
-			FString hintText = FString::Printf(TEXT("完成<font color='#5dceee'>%s</font>获得经验提升"), 
-				*LinkManager::HtmlLink_OpenPanel(TEXT("剧情任务"), TEXT("QuestStory")));
+			FString hintText = FString::Printf(TEXT("Complete <font color='#5dceee'>%s</font> to gain more experience"), 
+				*LinkManager::HtmlLink_OpenPanel(TEXT("Story Quest"), TEXT("QuestStory")));
 			storyElement = _CreateJourneyElement(JT_STORY, data.StoryQuestStar, hintText, FALSE, TRUE);
 			journeyArray->SetElementObject(elementIndex, storyElement);
 			elementIndex ++;
@@ -1029,7 +1029,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_MONSTER) && data.MonsterStar > 0)
 		{
-			FString hintText = TEXT("杀怪可获得大量经验和道具");
+			FString hintText = TEXT("Kill monsters for lots of experience and items");
 			monsterElement = _CreateJourneyElement(JT_MONSTER, data.MonsterStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, monsterElement);
 			elementIndex ++;
@@ -1037,8 +1037,8 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_ACHIEVEMENT) && data.AchievementStar > 0)
 		{
-			FString hintText = FString::Printf(TEXT("完成<font color='#5dceee'>%s</font>可获得额外经验"),
-				*LinkManager::HtmlLink_AchievementClass(TEXT("成就"), data.AchievementBaseClass, data.AchievementSubClass));
+			FString hintText = FString::Printf(TEXT("Complete <font color='#5dceee'>%s</font> for bonus experience"),
+				*LinkManager::HtmlLink_AchievementClass(TEXT("Achievement"), data.AchievementBaseClass, data.AchievementSubClass));
 			achievementElement = _CreateJourneyElement(JT_ACHIEVEMENT, data.AchievementStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, achievementElement);
 			elementIndex ++;
@@ -1046,8 +1046,8 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_EMERGENCY) && data.EmegencyQuestStar > 0)
 		{
-			FString hintText = FString::Printf(TEXT("触发区域<font color='#5dceee'>%s</font>,获得额外经验"),
-				*LinkManager::HtmlLink_OpenPanel(TEXT("事件"), TEXT("Quest")));
+			FString hintText = FString::Printf(TEXT("Enter the area <font color='#5dceee'>%s</font> for bonus experience"),
+				*LinkManager::HtmlLink_OpenPanel(TEXT("Event"), TEXT("Quest")));
 			emergencyElement = _CreateJourneyElement(JT_EMERGENCY, data.EmegencyQuestStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, emergencyElement);
 			elementIndex ++;
@@ -1055,7 +1055,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_BOSS) && data.BossStar > 0)
 		{
-			FString hintText = TEXT("BOSS可能掉落稀有装备");
+			FString hintText = TEXT("Bosses may drop rare equipment");
 			bossElement = _CreateJourneyElement(JT_BOSS, data.BossStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, bossElement);
 			elementIndex ++;
@@ -1063,8 +1063,8 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_ACTIVITY) && data.ActivityQuestStar > 0)
 		{
-			FString hintText = FString::Printf(TEXT("完成<font color='#5dceee'>%s</font>,获得更多奖励"), 
-				*LinkManager::HtmlLink_OpenPanel(TEXT("活动任务"), TEXT("Quest")));
+			FString hintText = FString::Printf(TEXT("Complete <font color='#5dceee'>%s</font> for more rewards"), 
+				*LinkManager::HtmlLink_OpenPanel(TEXT("Event Quest"), TEXT("Quest")));
 			activityElement = _CreateJourneyElement(JT_ACTIVITY, data.ActivityQuestStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, activityElement);
 			elementIndex ++;
@@ -1072,8 +1072,8 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 
 		if (MMOJourneyData::getSingleton().IsJourneyTypeActivate(JT_GUIDE) && data.GuideQuestStar > 0)
 		{
-			FString hintText = FString::Printf(TEXT("做<font color='#5dceee'>%s</font>了解新功能使用"), 
-				*LinkManager::HtmlLink_OpenPanel(TEXT("教学任务"), TEXT("Quest")));
+			FString hintText = FString::Printf(TEXT("Do <font color='#5dceee'>%s</font> to learn how to use new features"), 
+				*LinkManager::HtmlLink_OpenPanel(TEXT("Tutorial Quest"), TEXT("Quest")));
 			guideElement = _CreateJourneyElement(JT_GUIDE, data.GuideQuestStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, guideElement);
 			elementIndex ++;
@@ -1085,19 +1085,19 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 			GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 			if (baseInfo.Id > 0)
 			{
-				hintText = TEXT("参与公会活动，获得实力提升");
+				hintText = TEXT("Join guild activities to grow stronger");
 			} 
 			else
 			{
-				hintText = FString::Printf(TEXT("加入<font color='#5dceee'>%s</font>,争霸天下"),
-					*LinkManager::HtmlLink_OpenPanel(TEXT("公会"), TEXT("GuildMain")));
+				hintText = FString::Printf(TEXT("Join <font color='#5dceee'>%s</font> and fight for supremacy"),
+					*LinkManager::HtmlLink_OpenPanel(TEXT("Guild"), TEXT("GuildMain")));
 			}
 			guildElement = _CreateJourneyElement(JT_GUILD, data.GuildStar, hintText, FALSE, FALSE);
 			journeyArray->SetElementObject(elementIndex, guildElement);
 			elementIndex ++;
 		}
 
-		// 已接任务
+		// accepted quests
 		int storyIndex = 0;
 		int emergencyIndex = 0;
 		int activityIndex = 0;
@@ -1128,7 +1128,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 			}
 			else if (quest->QuestType == E_qt_Emegency)
 			{
-				// 任务 #19995
+				// Quest #19995
 				//if (quest->QuestLevel >= data.MinLevel && quest->QuestLevel <= data.MaxLevel)
 				//{
 				//	_AddAcceptedQuestObject(emergencyElement, questId, emergencyIndex);
@@ -1164,7 +1164,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 			}
 		}
 
-		// 可接任务(推荐任务)
+		// Acceptable quests (recommended quests)
 		const QuestTraceList& availableQuestList = MMOQuestData::getSingleton().GetAvailableQuestTraceList();
 		iter = availableQuestList.begin();
 		for(; iter != availableQuestList.end(); ++ iter)
@@ -1233,16 +1233,16 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 						{
 							if (data.Id == maxActivatedJourneyId)
 							{
-								hintText = FString::Printf(TEXT("大侠请先努力修炼，待%d级之后再来体验后续章节"), data.MaxLevel + 1);
+								hintText = FString::Printf(TEXT("Hero, please train hard first. Come back at level %d to experience the next chapters"), data.MaxLevel + 1);
 							}
 							else if (data.Id < maxActivatedJourneyId)
 							{
-								hintText = TEXT("当前章节任务已全部完成");
+								hintText = TEXT("All quests in the current chapter are complete");
 							}
 						}
 						else
 						{
-							hintText = TEXT("已完成所有任务");
+							hintText = TEXT("All quests complete");
 						}
 						storyElement->SetString(TEXT("hintText"), *hintText);
 					}
@@ -1250,7 +1250,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 			}
 		}
 
-		// monster相关
+		// monster related
 		for (int i = 0; i < data.MonsterList.Num(); ++ i)
 		{
 			if (data.MonsterList(i).MonsterId == 0)
@@ -1267,7 +1267,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 				data.MonsterList(i).MonsterPoint);
 		}
 
-		// boss相关
+		// boss related
 		for (int i = 0; i < data.BossList.Num(); ++ i)
 		{
 			if (data.BossList(i).MonsterId == 0)
@@ -1284,7 +1284,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 				data.BossList(i).MonsterPoint);
 		}
 
-		// 成就相关
+		// achievement related
 		AchievementIdSet personalSet = MMOAchievementData::getSingleton().GetPersonalAchievementBeTraced();
 		AchievementIdSet::iterator personalIter = personalSet.begin();
 		for (; personalIter != personalSet.end(); ++ personalIter)
@@ -1301,7 +1301,7 @@ void UMMOUIJourneyTracePanel::UpdateJourneyTraceInfo(INT journeyId, INT expandTy
 			_AddAchievementObject(achievementElement, id, achievementIndex);
 		}
 
-		// 展开项
+		// Expanded item
 		_SetJourneyElementExpand(storyElement, expandType == JT_STORY);
 		_SetJourneyElementExpand(monsterElement, expandType == JT_MONSTER);
 		_SetJourneyElementExpand(achievementElement, expandType == JT_ACHIEVEMENT);
@@ -1434,7 +1434,7 @@ void UMMOUIJourneyTracePanel::ASObtainAchievementReward(INT achievementId)
 
 	if (mainPlayer->eventIsDead())
 	{
-		FString text = TEXT("死亡状态无法领取奖励");
+		FString text = TEXT("Cannot claim rewards while dead");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, text);
 		return;
 	}

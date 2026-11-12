@@ -20,7 +20,7 @@ void CMessageHandler::Parse_g2c_sync_doodad_list(const char* buf, UINT32 size)
 	for(int i = 0; i < byDoodadCount; ++i)
 	{
 		pDoodad = &msg->astAppearData[i];
-		//从服务器坐标转换为本地坐标
+		//Convert from server coordinates to local coordinates
 		FVector vDoodadLocation( pDoodad->wCurrentX, pDoodad->wCurrentY, pDoodad->wCurrentZ );
 		FRotator vDoodadRoyaw(0, ConvertToClientDegree(pDoodad->wFaceDirection), 0);
 
@@ -63,7 +63,7 @@ void CMessageHandler::Parse_g2c_doodad_appear(const char* buf, UINT32 size)
 	}
 
 	DOODAD_APPEAR_DATA *pDoodad = &msg->AppearData;
-	//从服务器坐标转换为本地坐标
+	//Convert from server coordinates to local coordinates
 	FVector vDoodadLocation( pDoodad->wCurrentX, pDoodad->wCurrentY, pDoodad->wCurrentZ );
 	FRotator vDoodadRoyaw(0, ConvertToClientDegree(pDoodad->wFaceDirection), 0);
 

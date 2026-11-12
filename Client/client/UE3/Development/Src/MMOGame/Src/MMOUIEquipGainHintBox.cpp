@@ -84,7 +84,7 @@ void UMMOUIEquipGainHintBox::ItemsChanged( INT bagId, INT slotId )
 			//}
 
 			if( i == cnt - 1 ){
-				//当前显示的被删除了
+				//The currently displayed one was deleted
 				Show( FALSE );
 			}
 			

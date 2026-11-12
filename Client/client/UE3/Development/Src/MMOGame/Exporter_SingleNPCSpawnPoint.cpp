@@ -6,7 +6,7 @@
 #if !SHIPPING_PC_GAME
 
 using namespace std;
-//导出场景中指定单独摆放的NPC
+//Export NPCs placed individually in the scene
 Exporter_SingleNPCSpawnPoint::Exporter_SingleNPCSpawnPoint(void)
 {
 }
@@ -20,7 +20,7 @@ void Exporter_SingleNPCSpawnPoint::PrePorcess(INT& GlobalAutoID)
 {
 	NPC_SINGLE_SPAWN_HEADER  *spntHdr = new NPC_SINGLE_SPAWN_HEADER;
 	//------------------------------------------------------------------------
-	// 分类对象
+	// Classify objects
 	//------------------------------------------------------------------------
 	for (INT i = 0; i < GWorld->Levels.Num(); ++i)
 	{
@@ -39,7 +39,7 @@ void Exporter_SingleNPCSpawnPoint::PrePorcess(INT& GlobalAutoID)
 	}
 
 // 	INT autoID = 0;
-// 	// 自动编号
+// 	// Auto-numbering
 // 	for( vector< ANPCServerInstance * >::iterator it = NPCSpawnPointList.begin(); it != NPCSpawnPointList.end() ; ++it)
 // 	{
 // 		ANPCServerInstance* tNPC = *it;
@@ -165,14 +165,14 @@ void Exporter_SingleNPCSpawnPoint::WriteHeader( FBufferArchive& ar)
 	blkHdrs.nBlockOffset = sizeof(SCENE_FILE_BLOCK_HEADER);
 
 	ar.ByteOrderSerialize(&blkHdrs, sizeof(SCENE_FILE_BLOCK_HEADER) );
-	// 先存储位置，后面再修改参数
+	// Store the position first, modify parameters later
 	arBlkHdrs = (SCENE_FILE_BLOCK_HEADER*)( ar.GetData() + ar.Tell() - sizeof(SCENE_FILE_BLOCK_HEADER) );
 
 }
 //------------------------------------------------------------------------
 void Exporter_SingleNPCSpawnPoint::WriteData( FBufferArchive& ar )
 {
-	// =====================NPCSpawnPointList写到内存=====================
+	// =====================Write NPCSpawnPointList to memory=====================
 	arBlkHdrs->nBlockSize = memPointAr.TotalSize();
 	// nBlockOffset 
 	arBlkHdrs->nBlockOffset = ar.Tell();

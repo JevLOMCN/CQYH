@@ -95,7 +95,7 @@ const FMaterial* FMaterialInstanceResource::GetMaterial() const
 	warnf(NAME_Error, *debugLog);
 	GLog->Flush();
 
-	// oscar@snda 返回默认的材质
+	// oscar@snda return the default material
 	return GEngine->DefaultMaterial->GetRenderProxy(bSelected,bHovered)->GetMaterial();
 }
 

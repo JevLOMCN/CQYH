@@ -11,20 +11,20 @@ enum E_FB_RankType{
 //
 var bool bShowCloseBtn;
 
-//var GFxObject Skip_btn;//跳过按钮
-var GFxObject ClearanceTimePt_mc;//评分
-var GFxObject ClearanceTime_mc;//秒
-//击杀技巧
-var GFxObject KillSkillPt_mc;//评分
+//var GFxObject Skip_btn;//skip button
+var GFxObject ClearanceTimePt_mc;//score
+var GFxObject ClearanceTime_mc;//seconds
+//Kill technique
+var GFxObject KillSkillPt_mc;//score
 var GFxObject Killed_mc;
 var GFxObject Destroyed_mc;
 var GFxObject Strategy_mc;
-//成就
-var GFxObject AccomplishPt_mc;//评分
+//Achievement
+var GFxObject AccomplishPt_mc;//score
 var GFxObject AccomplishPanel_mc;
-//综合评分
+//Overall rating
 var GFxObject GradedExp_mc;
-//额外加成
+//Extra bonus
 var GFxObject VIPExp_mc;
 var GFxObject GuildExp_mc;
 var GFxObject ActivityExp_mc;

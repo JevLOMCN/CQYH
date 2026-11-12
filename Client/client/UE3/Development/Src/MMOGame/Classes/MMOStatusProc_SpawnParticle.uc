@@ -1,5 +1,5 @@
 //
-// ≤•∑≈Ãÿ–ß
+// Play effect
 //
 class MMOStatusProc_SpawnParticle extends Object implements(IMMOStatusProc)
 	native

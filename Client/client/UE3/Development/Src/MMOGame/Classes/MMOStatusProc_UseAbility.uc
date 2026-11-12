@@ -1,5 +1,5 @@
 //
-// 使用技能
+// Use ability
 //
 class MMOStatusProc_UseAbility extends Object implements(IMMOStatusProc)
 	native

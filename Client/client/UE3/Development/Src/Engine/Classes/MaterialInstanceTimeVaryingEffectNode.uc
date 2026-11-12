@@ -1,15 +1,15 @@
 /**
- * 材质效果数据结点
+ * Material effect data node
  */
 class MaterialInstanceTimeVaryingEffectNode extends Object
 	native(Material)
 	editinlinenew;
 
 
-// 效果模版ID
+// Effect template ID
 var() int EffectTemplateId;
 
-// 效果描述
+// Effect description
 var() string EffectDescribe;
 
 var() array<ScalarParameterValueOverTime>		ScalarParameterValues;

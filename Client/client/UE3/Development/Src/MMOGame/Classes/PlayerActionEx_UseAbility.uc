@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_UseAbility，使用技能
+// PlayerActionEx_UseAbility, use ability
 //
 class PlayerActionEx_UseAbility extends PlayerActionEx_Base
 	native;

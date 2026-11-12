@@ -1,6 +1,6 @@
 //
-// 游戏逻辑通用数据管理器,全局共享一个
-// 存有音效,特效,动画,技能等游戏通用数据,本类提供对相关资源的快速查找与读取功能,不实际执行游戏逻辑
+// general game logic data manager, one shared globally
+// holds common game data such as sound, effects, animation, abilities; this class provides fast lookup and reading of the related resources, and does not actually execute game logic
 //
 class GamePlayDataManager extends Object
 	hidecategories(Object)
@@ -14,21 +14,21 @@ class GamePlayDataManager extends Object
 
 struct native MenuInfo
 {
-    // 菜单类型
+    // menu type
 	var() EMenuType menuType;
-    // 中文标识及描述
+    // identifier and description
 	var() init string MenuName;
-    // 绑定的面板名
+    // bound panel name
 	var() string PanelName; 
-    // 该面板的标签页，如果没有填空
+    // tab page of this panel, leave empty if none
     var() string TabName;
-    // flash里的图标帧名
+    // icon frame name in flash
 	var() string IconName;
-    // 按键码（不用填了，由快捷键系统自动填写）
+    // key code (no need to fill in, filled automatically by the hotkey system)
 	var() string KeyName;
-	//带有的组件列表
+	//list of components included
 	var() array<string> ComponentList;
-    // 子菜单列表
+    // submenu list
 	var() int RequireLevel;
 	var() array<MenuInfo> ChildList;
 };
@@ -89,14 +89,14 @@ struct native AnimationNode
 
 struct native AnimMixNode
 {
-	//源动画
+	//source animation
 	var() editconst EAnimMixSource   SourceAnim;
-	//目标动画
+	//target animation
 	var() editconst EAnimMixTarget    TargetAnim;
-	//对应的混合动画
+	//corresponding blend animation
 	var() AnimationNode                     Anim;
 };
-//混合动画表
+//blend animation table
 var(AnimMix) array< AnimMixNode >     AnimMixList;
 
 
@@ -158,7 +158,7 @@ struct native WeaponUseSound
 	var() array<SoundCue>  SoundToPlay;
 };
 
-// 通用武器使用声音
+// sounds used by common weapons
 var() editinline array<WeaponUseSound> CommonWeaponSoundList;
 
 var() editinline DamageProcessData DamageTemplateData;

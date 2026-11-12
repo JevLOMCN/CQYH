@@ -291,14 +291,14 @@ bool CTabFile::Init(const TCHAR* pcszFileName)
 		{
 			if(pcszValue && appStrlen(pcszValue) > 0)
 			{
-				warnf(NAME_Error, TEXT("重复的表头字段：'%s' %d 列,文件:%s"), pcszValue, nIndex, pcszFileName);
-				appMsgf(AMT_OK, TEXT("重复的表头字段：'%s' %d 列,文件:%s"), pcszValue, nIndex, pcszFileName);
+				warnf(NAME_Error, TEXT("Duplicate header field: '%s' column %d, file: %s"), pcszValue, nIndex, pcszFileName);
+				appMsgf(AMT_OK, TEXT("Duplicate header field: '%s' column %d, file: %s"), pcszValue, nIndex, pcszFileName);
 				goto Exit0;
 			}
 			else
 			{
-				warnf(NAME_Error, TEXT("表头字段为空！%d 列, 文件:%s"), nIndex, pcszFileName);
-				appMsgf(AMT_OK, TEXT("表头字段为空！%d 列, 文件:%s"), nIndex, pcszFileName);
+				warnf(NAME_Error, TEXT("Empty header field! column %d, file: %s"), nIndex, pcszFileName);
+				appMsgf(AMT_OK, TEXT("Empty header field! column %d, file: %s"), nIndex, pcszFileName);
 				goto Exit0;
 			}
 		}

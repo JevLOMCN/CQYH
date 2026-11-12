@@ -342,10 +342,10 @@ void MMOAchievementData::_InitCommonAchievementInfo()
 		info.Id = data.Id;
 		if (data.DetailType == ADT_PROGRESS)
 		{
-			// 如果是计数型成就, 只设置第一个条件
+			// If it is a counting achievement, only set the first condition
 			if (data.ConditionType[0] == adTotal)
 			{
-				// adTotal为暂时不能完成的条件
+				// adTotal is a condition that cannot be completed for now
 				info.MaxProgress = 1;
 			}
 			else if (data.ConditionType[0] == adForceReputation ||
@@ -371,7 +371,7 @@ void MMOAchievementData::_InitCommonAchievementInfo()
 		}
 		else
 		{
-			// 无效条件认为完成
+			// Invalid conditions are considered complete
 			for (INT i = 0; i < MAX_CONDITION_TYPE_COUNT; ++ i)
 			{
 				if (data.ConditionType[i] == adInvalid)
@@ -416,7 +416,7 @@ void MMOAchievementData::_InitGuildAchievementInfo()
 		AchievementInfo info;
 		info.Id = ACHIEVEMENT_MAX + data.Id;
 		
-		// 无效条件认为完成
+		// Invalid conditions are considered complete
 		for (INT i = 0; i < MAX_GUILD_ACHIEVEMENT_CONDITION_COUNT; ++ i)
 		{
 			if (data.ConditionType[i] == GUILD_ACHI_NONE)
@@ -760,10 +760,10 @@ bool GreatDate(UINT32 id1, UINT32 id2)
 
 void MMOAchievementData::_RefreshAchievementCompleteList()
 {
-	// 近期获得成就
+	// Recently obtained achievements
 	_AchievementCompleteList.sort(GreatDate);
 
-	// 特殊处理下adAchievement条件的成就
+	// Special handling for achievements with adAchievement conditions
 	AchievementIdList::iterator iterList = _AchievementCompleteList.begin();
 	for (; iterList != _AchievementCompleteList.end(); ++ iterList)
 	{
@@ -797,7 +797,7 @@ void MMOAchievementData::UpdateCommonAchievementList(ROLE_DB_ACHIEVEMENT_DATA* l
 			continue;
 		}
 
-		// 同步获取时间和奖励领取标志
+		// Sync obtain time and reward-claimed flag
 		iter->second.Date = (UINT32)(list->wAchievement[data.Id]);
 		iter->second.IsObtain = iter->second.Date != 0 ? TRUE : FALSE;
 		iter->second.IsCompassable = iter->second.IsObtain;
@@ -808,10 +808,10 @@ void MMOAchievementData::UpdateCommonAchievementList(ROLE_DB_ACHIEVEMENT_DATA* l
 		{
 			if (data.DetailType == ADT_PROGRESS)
 			{
-				// 如果是计数型成就, 只设置第一个条件
+				// If it is a counting achievement, only set the first condition
 				if (data.ConditionType[0] == adTotal)
 				{
-					// adTotal为暂时不能完成的条件
+					// adTotal is a condition that cannot be completed for now
 					iter->second.CurProgress = 1;
 				}
 				else if (data.ConditionType[0] == adForceReputation ||
@@ -844,7 +844,7 @@ void MMOAchievementData::UpdateCommonAchievementList(ROLE_DB_ACHIEVEMENT_DATA* l
 
 			if (!(iter->second.IsGetReward))
 			{
-				// 如果有奖励, 加入奖励成就列表
+				// If there is a reward, add to the reward achievement list
 				for (int i = 0; i < MAX_REWARD_COUNT; ++ i)
 				{
 					if (data.RewardType[i] > 0)
@@ -856,7 +856,7 @@ void MMOAchievementData::UpdateCommonAchievementList(ROLE_DB_ACHIEVEMENT_DATA* l
 			}
 		}
 
-		// 统计数据
+		// Statistics
 		if (data.BaseClass < AC_TOTAL)
 		{
 			_BaseClassTotalCount[data.BaseClass] ++;
@@ -909,7 +909,7 @@ void MMOAchievementData::UpdateKillNpcAchievementList(UINT16 killCount[MAX_KILL_
 
 			if (!(iter->second.IsGetReward))
 			{
-				// 如果有奖励, 加入奖励成就列表
+				// If there is a reward, add to the reward achievement list
 				if (killIndex < MAX_KILL_NPC_ACHIEVEMENT_COUNT)
 				{
 					if (data.RewardExp[killIndex] > 0)
@@ -920,7 +920,7 @@ void MMOAchievementData::UpdateKillNpcAchievementList(UINT16 killCount[MAX_KILL_
 			}
 		}
 
-		// 统计数据
+		// Statistics
 		if (data.BaseClass < AC_TOTAL)
 		{
 			_BaseClassTotalCount[data.BaseClass] ++;
@@ -991,7 +991,7 @@ void MMOAchievementData::UpdateAchievementVariable(INT32 index, INT32 value)
 		MMOKillRecordManager::getSingleton().NotifyKillPlayerRecord(value);
 	}
 	else if (index == 111 || index == 112)
-	{// 新手礼包和祝福油成就
+	{// Newbie gift pack and blessing oil achievement
 		MMOGameEvent_Achievement evtAch(adUseItemIDCount, index, value, 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
@@ -999,7 +999,7 @@ void MMOAchievementData::UpdateAchievementVariable(INT32 index, INT32 value)
 		index == avdKillMageCount ||			
 		index == avdKillRogueCount ||			
 		index == avdKillArcherCount)
-	{// 杀人计数
+	{// Kill count
 		UINT32 count = _AchievementVariable[avdKillWarriorCount] + 
 			_AchievementVariable[avdKillMageCount] + 
 			_AchievementVariable[avdKillRogueCount] + 
@@ -1008,53 +1008,53 @@ void MMOAchievementData::UpdateAchievementVariable(INT32 index, INT32 value)
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdComposePurpleItem)
-	{// 合成紫装计数
+	{// Purple equipment synthesis count
 		MMOGameEvent_Achievement evtAch(adColorItemCompose, ITEMCOLOR_PURPLE, _AchievementVariable[avdComposePurpleItem], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdComposeOrangeItem)
-	{// 合成橙装计数
+	{// Orange equipment synthesis count
 		MMOGameEvent_Achievement evtAch(adColorItemCompose, ITEMCOLOR_ORANGE, _AchievementVariable[avdComposeOrangeItem], 0);
 		MMOUI::PostGameEvent(&evtAch);
 
 	}
 	else if (index == avdDecomposePurpleItem)
-	{// 分解紫装计数
+	{// Purple equipment decomposition count
 		MMOGameEvent_Achievement evtAch(adColorItemDeCompose, ITEMCOLOR_PURPLE, _AchievementVariable[avdDecomposePurpleItem], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdDecomposeOrangeItem)
-	{// 分解橙装计数
+	{// Orange equipment decomposition count
 		MMOGameEvent_Achievement evtAch(adColorItemDeCompose, ITEMCOLOR_ORANGE, _AchievementVariable[avdDecomposeOrangeItem], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdRankPow)
-	{// 排行榜
+	{// Leaderboard
 		MMOGameEvent_Achievement evtAch(adRanklist, avdRankPow, _AchievementVariable[avdRankPow], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdRankLevel)
-	{// 排行榜
+	{// Leaderboard
 		MMOGameEvent_Achievement evtAch(adRanklist, avdRankLevel, _AchievementVariable[avdRankLevel], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdRankMoney)
-	{// 排行榜
+	{// Leaderboard
 		MMOGameEvent_Achievement evtAch(adRanklist, avdRankMoney, _AchievementVariable[avdRankMoney], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdRankPkValue)
-	{// 排行榜
+	{// Leaderboard
 		MMOGameEvent_Achievement evtAch(adRanklist, avdRankPkValue, _AchievementVariable[avdRankPkValue], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdRankMasterExp)
-	{// 排行榜
+	{// Leaderboard
 		MMOGameEvent_Achievement evtAch(adRanklist, avdRankMasterExp, _AchievementVariable[avdRankMasterExp], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
 	else if (index == avdRankAchievementPts)
-	{// 排行榜
+	{// Leaderboard
 		MMOGameEvent_Achievement evtAch(adRanklist, avdRankAchievementPts, _AchievementVariable[avdRankAchievementPts], 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
@@ -1092,7 +1092,7 @@ void MMOAchievementData::UpdateAchievementCompareList(ROLE_DB_ACHIEVEMENT_DATA* 
 		}
 		else if (id >= ACHIEVEMENT_MAX && id < ACHIEVEMENT_MAX + GUILD_MAX_ACHIEVEMENT_NUM)
 		{
-			// 公会成就没有获取时间，无法比较，这里先写，等待以后服务器加功能
+			// Guild achievements have no obtain time and cannot be compared; written here for now, waiting for the server to add the feature
 			UINT16 dataId = GetGuildAchievementDataId(id);
 			GuildAchievementData data;
 			if (GetGuildAchievementData(dataId, data))
@@ -1103,7 +1103,7 @@ void MMOAchievementData::UpdateAchievementCompareList(ROLE_DB_ACHIEVEMENT_DATA* 
 		}
 		else
 		{
-			// 杀怪成就没有获取时间，无法比较，这里先写，等待以后服务器加功能
+			// Monster-kill achievements have no obtain time and cannot be compared; written here for now, waiting for the server to add the feature
 			UINT16 killId = HIWORD(id);
 			UINT16 killIndex = LOWORD(id);
 			KillNpcAchievementData data;
@@ -1233,7 +1233,7 @@ UINT32 MMOAchievementData::GetAchievementPointCompare()
 		}
 		else if (id >= ACHIEVEMENT_MAX && id < ACHIEVEMENT_MAX + GUILD_MAX_ACHIEVEMENT_NUM)
 		{
-			// 公会成就没有获取时间，无法比较，这里先写，等待以后服务器加功能
+			// Guild achievements have no obtain time and cannot be compared; written here for now, waiting for the server to add the feature
 			UINT16 dataId = GetGuildAchievementDataId(id);
 			GuildAchievementData data;
 			if (GetGuildAchievementData(dataId, data))
@@ -1250,7 +1250,7 @@ UINT32 MMOAchievementData::GetAchievementPointCompare()
 		}
 		else
 		{
-			// 杀怪成就没有获取时间，无法比较，这里先写，等待以后服务器加功能
+			// Monster-kill achievements have no obtain time and cannot be compared; written here for now, waiting for the server to add the feature
 			UINT16 killId = HIWORD(id);
 			UINT16 killIndex = LOWORD(id);
 			KillNpcAchievementData data;
@@ -1285,10 +1285,10 @@ void MMOAchievementData::UpdateCommonAchievementInfo(INT type, INT value1, INT v
 			continue;
 		}
 
-		// 更新条件
+		// Update condition
 		if (data.DetailType == ADT_PROGRESS)
 		{
-			// 如果是计数型成就，只更新第一个条件
+			// If it is a counting achievement, only update the first condition
 			if (data.ConditionType[0] == type)
 			{
 				if (data.ConditionType[0] == adTotal)
@@ -1375,7 +1375,7 @@ void MMOAchievementData::UpdateCommonAchievementInfo(INT type, INT value1, INT v
 					}
 					else if (data.ConditionType[i] == adRanklist)
 					{
-						// 因为是排名, 所以小于value2的也算数
+						// Because it is a ranking, anything smaller than value2 also counts
 						if (value1 == data.ConditionValue1[i] && value2 > 0 && value2 <= data.ConditionValue2[i])
 						{
 							iter->second.CurComplete |= 1 << i;
@@ -1427,7 +1427,7 @@ void MMOAchievementData::UpdateCommonAchievementInfo(INT type, INT value1, INT v
 
 		if (iter->second.IsCompassable)
 		{
-			// 用一个Map缓存一下, 避免重复发送
+			// Cache in a Map to avoid duplicate sends
 			MMOAchievementManager::getSingleton().CompleteCommonAchievement(id);
 		}
 
@@ -1458,7 +1458,7 @@ void MMOAchievementData::UpdateGuildAchievementList(char info[GUILD_MAX_ACHI_ARR
 			continue;
 		}
 
-		// 这里同步的只有领过奖励的成就
+		// Only achievements whose reward has been claimed are synced here
 		iter->second.Date = 0;
 		iter->second.IsGetReward = FALSE;
 		if ((dataId / 8) < GUILD_MAX_ACHI_ARRAY_LENGTH)
@@ -1470,7 +1470,7 @@ void MMOAchievementData::UpdateGuildAchievementList(char info[GUILD_MAX_ACHI_ARR
 		iter->second.IsObtain = iter->second.CurComplete == 0xF;
 		iter->second.IsCompassable = iter->second.IsObtain;
 
-		// 服务器上线同步成就完成信息和游戏中领奖都是这一条协议，只能这么区分一下，避免重复计数
+		// Server-online achievement completion sync and in-game reward claiming use the same protocol, so it can only be distinguished this way to avoid double counting
 		if (MMO::GetCurrentGameState() != EGameState_InGame)
 		{
 			if (iter->second.IsObtain)
@@ -1478,7 +1478,7 @@ void MMOAchievementData::UpdateGuildAchievementList(char info[GUILD_MAX_ACHI_ARR
 				_AchievementCompleteList.push_back(id);
 			}
 
-			// 统计数据
+			// Statistics
 			if (data.BaseClass < AC_TOTAL)
 			{
 				_BaseClassTotalCount[data.BaseClass] ++;
@@ -1547,7 +1547,7 @@ void MMOAchievementData::UpdateGuildAchievementInfo(char info[GUILD_ACHI_TYPE_NU
 
 void MMOAchievementData::ClearGuildAchievementInfo()
 {
-	// fix bug  #23398 公会成就在没有公会的时候(解散，逐出，退出)，要清除
+	// fix bug  #23398 Guild achievements must be cleared when there is no guild (disbanded, kicked, left)
 	_BaseClassCompleteCount[AC_GUILD1] = 0;
 	_BaseClassCompleteCount[AC_GUILD2] = 0;
 	_BaseClassCompleteCount[AC_GUILD3] = 0;
@@ -1579,7 +1579,7 @@ void MMOAchievementData::ClearGuildAchievementInfo()
 
 		iter->second.Date = 0;
 		iter->second.CurComplete = 0;
-		// 初始化完成条件, 无效条件认为完成
+		// Initialize completion conditions, invalid conditions are considered complete
 		for (INT i = 0; i < MAX_GUILD_ACHIEVEMENT_CONDITION_COUNT; ++i)
 		{
 			if (data.ConditionType[i] == GUILD_ACHI_NONE)
@@ -1641,7 +1641,7 @@ void MMOAchievementData::UpdateKillNpcAchievementInfo(UINT16 killId, UINT16 kill
 		}
 
 		iter->second.CurProgress = killCount >= data.KillCount[curKillIndex] ? data.KillCount[curKillIndex] : killCount;
-		// 服务器不会通知杀怪成就是否完成，这里根据数量自己判断
+		// The server does not notify whether monster-kill achievements are complete, judge here by count
 		iter->second.IsObtain = iter->second.CurProgress >= iter->second.MaxProgress;
 		iter->second.IsCompassable = iter->second.IsObtain;
 		
@@ -1682,7 +1682,7 @@ void MMOAchievementData::UpdateAchievementCompleteInfo(UINT32 id, UINT32 date)
 
 				if (!(iter->second.IsGetReward))
 				{
-					// 如果有奖励, 加入奖励成就列表
+					// If there is a reward, add to the reward achievement list
 					for (int i = 0; i < MAX_REWARD_COUNT; ++ i)
 					{
 						if (data.RewardType[i] > 0)
@@ -1707,7 +1707,7 @@ void MMOAchievementData::UpdateAchievementCompleteInfo(UINT32 id, UINT32 date)
 
 				if (!(iter->second.IsGetReward))
 				{
-					// 如果有奖励, 加入奖励成就列表
+					// If there is a reward, add to the reward achievement list
 					for (int i = 0; i < MAX_GUILD_ACHIEVEMENT_AWARD_COUNT; ++ i)
 					{
 						if (data.RewardType[i] != GA_AWARD_NONE)
@@ -1733,7 +1733,7 @@ void MMOAchievementData::UpdateAchievementCompleteInfo(UINT32 id, UINT32 date)
 
 				if (!(iter->second.IsGetReward))
 				{
-					// 如果有奖励, 加入奖励成就列表
+					// If there is a reward, add to the reward achievement list
 					if (killIndex < MAX_KILL_NPC_ACHIEVEMENT_COUNT)
 					{
 						if (data.RewardExp[killIndex] > 0)
@@ -1745,7 +1745,7 @@ void MMOAchievementData::UpdateAchievementCompleteInfo(UINT32 id, UINT32 date)
 			}
 		}
 
-		// 取消追踪
+		// Cancel tracking
 		RemoveTraceAchievement(id);
 	}
 }
@@ -1832,7 +1832,7 @@ void MMOAchievementData::UpdateAchievementRewardObtain(UINT32 id)
 
 	}
 
-	// 领取一个删一个
+	// Delete one for each one claimed
 	AchievementIdSet::iterator iterReward = _AchievementRewardSet.find(id);
 	if (iterReward != _AchievementRewardSet.end())
 	{
@@ -1937,7 +1937,7 @@ void MMOAchievementData::AddTraceAchievement(UINT32 id)
 			MMOGameEvent_Journey evtJourney(MMOGameEvent_Journey::EJET_AddAchievement, id);
 			MMOUI::PostGameEvent(&evtJourney);
 
-			// 保存成就追踪
+			// Save achievement tracking
 			int index = 0;
 			UINT32 traceId = 0;
 			AchievementIdSet::iterator iterSet = _GuildAchievementTraceSet.begin();
@@ -1968,7 +1968,7 @@ void MMOAchievementData::AddTraceAchievement(UINT32 id)
 			MMOGameEvent_Journey evtJourney(MMOGameEvent_Journey::EJET_AddAchievement, id);
 			MMOUI::PostGameEvent(&evtJourney);
 
-			// 保存成就追踪
+			// Save achievement tracking
 			int index = 0;
 			AchievementIdSet::iterator iterSet = _PersonalAchievementTraceSet.begin();
 			for (; iterSet != _PersonalAchievementTraceSet.end(); ++ iterSet)
@@ -2003,7 +2003,7 @@ void MMOAchievementData::RemoveTraceAchievement(UINT32 id)
 			MMOUI::PostGameEvent(&evtJourney);
 		}
 
-		// 保存成就追踪
+		// Save achievement tracking
 		int index = 0;
 		UINT32 traceId = 0;
 		iterSet = _GuildAchievementTraceSet.begin();
@@ -2029,7 +2029,7 @@ void MMOAchievementData::RemoveTraceAchievement(UINT32 id)
 			MMOUI::PostGameEvent(&evtJourney);
 		}
 
-		// 保存成就追踪
+		// Save achievement tracking
 		int index = 0;
 		INT32 traceId[MAX_TRACE_ACHIEVEMENT_COUNT];
 		appMemset(&traceId, 0, sizeof(INT32) * MAX_TRACE_ACHIEVEMENT_COUNT);
@@ -2089,7 +2089,7 @@ void MMOAchievementData::UpdateTraceAchievement(UINT32 level)
 		}
 		else if (id >= ACHIEVEMENT_MAX && id < ACHIEVEMENT_MAX + GUILD_MAX_ACHIEVEMENT_NUM)
 		{
-			// 公会成就不作自动追踪
+			// Guild achievements are not auto-tracked
 			continue;
 		}
 		else

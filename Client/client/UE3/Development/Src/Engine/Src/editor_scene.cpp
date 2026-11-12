@@ -1363,7 +1363,7 @@ void CEditorScene::CheckForError()
 
 										ConvertXYToClient(gridPos.X, gridPos.Y);
 										GWarn->MapCheck_Add(MCTYPE_ERROR, NULL, 
-											*FString::Printf(TEXT("小面积阻挡:%s 面积:%d"), *gridPos.ToString(), nArea), *gridPos.ToString(), MCGROUP_MOBILEPLATFORM);
+											*FString::Printf(TEXT("Small blocking area: %s area: %d"), *gridPos.ToString(), nArea), *gridPos.ToString(), MCGROUP_MOBILEPLATFORM);
 									}
 								}
 							}
@@ -1411,7 +1411,7 @@ void CEditorScene::CheckForError()
 
 								//		ConvertXYToClient(gridPos.X, gridPos.Y);
 								//		GWarn->MapCheck_Add(MCTYPE_ERROR, NULL, 
-								//			*FString::Printf(TEXT("窄通道:%s 长度:%d"), *gridPos.ToString(), len), *gridPos.ToString(), MCGROUP_MOBILEPLATFORM);
+								//			*FString::Printf(TEXT("Narrow passage:%s Length:%d"), *gridPos.ToString(), len), *gridPos.ToString(), MCGROUP_MOBILEPLATFORM);
 
 								//		break;
 								//	}

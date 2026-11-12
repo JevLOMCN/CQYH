@@ -3,8 +3,8 @@ Created:	2013/06
 Filename: 	UUIKeyMapManager
 file ext:	cpp
 Author:		hemu@snda
-Purpose:	控制键盘的输入
-物理按键->Slot槽位->实际Cmd 
+Purpose:	control keyboard input
+physical key->Slot->actual Cmd
 *********************************************************************/
 
 #include "stdafx.h"
@@ -20,7 +20,7 @@ IMPLEMENT_CLASS(UUICmd_HotKey)
 
 void UUIKeyMapManager::IniServerSlotBind()
 {
-    //默认初始 Locked
+    //Default initial Locked
     for( int j = ECK_NormalAtk ; j <= ECK_Slot12 ; ++j )
     {
         UnBindingSlot( j, true );

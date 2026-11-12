@@ -42,7 +42,7 @@ void CMessageHandler::Send_SubmitApplyToMaster( INT RoleId)
 	msg.dwTeacherID = RoleId; 
 	_Send(&msg, sizeof(msg));  
 
-	// 引导任务
+	// Guide quest
 	MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Master);
 }
 void CMessageHandler::Send_AgreeStudentdApply( INT RoleId)
@@ -178,7 +178,7 @@ void CMessageHandler::Send_Twitter(UINT8 twitter)
 	_Send(&msg,sizeof(msg));
 }
 
-//经验领取
+//Experience claim
 void CMessageHandler::Send_QueryMasterExp()
 {
 	C2G_QUERY_MASTER_REWARD_EXP msg;
@@ -194,7 +194,7 @@ void CMessageHandler::Send_ReciveMasterExp(UINT32 roleId)
 }
 
 /*
-	列表刷新数据
+	List refresh data
 */
 void CMessageHandler::Parse_g2c_sync_master(const char* buf, UINT32 size)
 {
@@ -258,7 +258,7 @@ void CMessageHandler::Parse_m2c_master_grad(const char* buf, UINT32 size)
 	MasterStudentManager::getSingleton().NotifyStudentGrad(msg->dwStudentID);
 }
 /*
-	徒弟主动拜师相关消息
+	Apprentice-initiated master request related messages
 */
 void CMessageHandler::Parse_m2c_master_stud_submit_app_ack(const char* buf, UINT32 size)
 {
@@ -311,7 +311,7 @@ void CMessageHandler::Parse_m2c_master_cancel_stud_app_ntf(const char* buf, UINT
 }
 
 /*
-	师傅主动申请收徒相关消息
+	Master-initiated apprentice recruitment related messages
 */
 void CMessageHandler::Parse_m2c_master_teacher_submit_app_ack(const char* buf, UINT32 size)
 {
@@ -364,7 +364,7 @@ void CMessageHandler::Parse_m2c_master_cancel_teacher_app_ntf(const char* buf, U
 }
 
 /*
-	师门内部相关消息
+	Master/apprentice sect internal related messages
 */
 void CMessageHandler::Parse_m2c_master_leave_teacher_ack(const char* buf, UINT32 size)
 {

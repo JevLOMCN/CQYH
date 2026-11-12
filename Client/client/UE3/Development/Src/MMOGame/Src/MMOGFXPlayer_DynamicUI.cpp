@@ -101,7 +101,7 @@ void UMMOGFXPlayer_DynamicUI::UnInit()
 
 void UMMOGFXPlayer_DynamicUI::OnHUDLoaded()
 {
-	//在HUD读取完成后 加入delegate
+	//add delegate after HUD finishes loading
 	AMMOHud *hud = MMOFacade::getSingleton().GetMyHud();
 
 	FScriptDelegate fun(EC_EventParm);
@@ -144,7 +144,7 @@ void UMMOGFXPlayer_DynamicUI::OnPostRender( UCanvas*  cvs, float fDelta )
 // update drag
 void UMMOGFXPlayer_DynamicUI::PostAdvance(float DeltaTime)
 {
-	//迭代 
+	//iterate
 	//Super::PostAdvance(DeltaTime);
 	//if(g_displayDragDropIcon)
 	//{

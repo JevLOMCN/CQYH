@@ -167,9 +167,9 @@ void UMMOUILoginRevertRolePanel::UpdateRevertPanelList()
 			{
 				FString infoStr;
 				itemObj->SetBool(TEXT("HasRole"), true );
-				//名字
+				//Name
 				itemObj->SetString(TEXT("RoleName"), roleInfo.RoleName );
-				//等级
+				//level
 				int iLevel = roleInfo.byLevel;
 				if( iLevel <= 0 )
 				{
@@ -178,14 +178,14 @@ void UMMOUILoginRevertRolePanel::UpdateRevertPanelList()
 				infoStr =  MMOUI::ParseLocalizedPropertyPath( "MMOGame.Common.RoleLevel" ) + FString(TEXT(" "));
 				infoStr +=appItoa( iLevel );
 				itemObj->SetString(TEXT("Level"), infoStr );
-				//职业名称
+				//Class name
 				infoStr =  MMOUI::ParseLocalizedPropertyPath( FString("MMOGame.School.SchoolName") + appItoa( roleInfo.byCareer ) );
 				itemObj->SetString(TEXT("CareerName"), infoStr );
-				//性别
+				//gender
 				itemObj->SetInt(TEXT("Sex"), roleInfo.bySex -1  );
-				//职业
+				//class
 				itemObj->SetInt(TEXT("Career"), roleInfo.byCareer );
-				// 角色ID
+				// character ID
 				itemObj->SetInt(_T("RoleID"), roleInfo.dwRoleID);
 			}
 

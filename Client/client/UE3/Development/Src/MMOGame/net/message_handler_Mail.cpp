@@ -183,7 +183,7 @@ void CMessageHandler::Parse_m2c_mail_read(const char* buf, UINT32 size)
 	ClientMailDetail newMail;
 	appMemcpy(&newMail, msg, sizeof(M2C_MAIL_READ));
 	newMail.mailSubject = tmpCtx.TempText;
-	//<#T1008 这种客户端组装的邮件 策划要不限制长度 所以解析放在需要显示时再解析
+	//<#T1008 For this kind of client-assembled mail the designer wants no length limit, so parse it only when it needs to be displayed
 	//tmpCtx.Clear();
 	//UITextParser::getSingleton().Parse(parseCtx, tmpCtx, UTF8_TO_TCHAR(msg->szMailContent));
 	//ZeroMemory(msg->szMailContent, sizeof(msg->szMailContent));

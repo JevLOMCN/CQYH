@@ -6,14 +6,14 @@ class MMOUIChat extends MMOUIBaseSlotContainer
 
 //struct native ChatMessage
 //{
-//	var string	ChatFilterChannelMsg; //频道的话
-//	var string	ChatPlayer; //说话玩家
-//	var int	        ChatTypeId; //类型
+//	var string	ChatFilterChannelMsg; //channel message
+//	var string	ChatPlayer; //speaking player
+//	var int	        ChatTypeId; //type
 //};
 
 // struct native ChatFilterChannelMessage
 //{
-//	var int ChannelFilterType; // 频道过滤标示
+//	var int ChannelFilterType; // channel filter flag
 //	var array<ChatMessage> ChatMessageList;
 //	var bool IsDefaultChannel;
 //	var string ChannelName;
@@ -61,7 +61,7 @@ event InitOnce()
 	class'MMOUIManager'.static.SetSetFilterChannelNumDelegate(SetFilterChannelNum);
 	class'MMOUIManager'.static.SetSetFilterChannelDelegate(SetFilterChannel);
 
-	//放函数注册后面才能用
+	//Can only be used after the function is registered
 	AddDefaultFilterChannel();
 
 	Set_onShowChatInput(_onShowChatInput);
@@ -272,7 +272,7 @@ native function ASOnPanelClose( string PanelName );
 
 native function ASonRollChatPanel(bool focus);
 
-//清空聊天记录
+//Clear chat log
 function ASChatCleanAll()
 {
 	CleanChnnelChat();

@@ -1,5 +1,5 @@
 
-// 服务器通知传送门状态变化
+// server notifies portal state change
 
 class SeqEvent_Server_TeleportOpen extends SequenceEvent;
 

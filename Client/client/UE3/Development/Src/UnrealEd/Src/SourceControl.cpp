@@ -153,7 +153,7 @@ UBOOL FSourceControl::CheckOut(FSourceControlEventListener* InEventListener, con
 	{
 		ErrorString = FString::Printf( TEXT("The following packages could not be checked out:\n%s \n packages check out by %s"), *ErrorString , *CheckOutUserName);
 		appMsgf( AMT_OK, *ErrorString );
-		//song@snda.com 这行为什么总被覆盖掉
+		//song@snda.com why does this line keep getting overwritten
 		Command.bCommandSuccessful = false;
 		//song@snda.com
 	}

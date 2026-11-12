@@ -30,10 +30,10 @@ var transient ParticleSystemComponent   EmitterComponent;
 var transient MMOActor Owner;
 
 
-// 道具类型
+// Item type
 var(Item) string ItemType					<ExportExcel="2"|DynamicList="ItemType">;
 
-// 道具子类型(导出时指定即可)
+// Item subtype (just specify on export)
 //var (Item)EItemSubType ItemSubType				<ExportExcel="3"|DisplayName="ItemSubType">;
 var(Item) string ItemSubType					<ExportExcel="3"|DynamicList="ItemSubType">;
 
@@ -44,43 +44,43 @@ var(Item) EGenderType RequireGender				<ExportExcel="6"|DisplayName="RequireGend
 var(Item) int MaxEquip							<ExportExcel="7"|DisplayName="MaxEquip">;
 var(Item) int MaxOwn							<ExportExcel="8"|DisplayName="MaxOwn">;
 
-// 道具颜色
+// Item color
 var(Item) EItemColor ItemColor					<ExportExcel="9"|DisplayName="ItemColor">;
-// 道具绑定类型
+// Item bind type
 var(Item) EBIND_TYPE ItemBindType			<ExportExcel="10"|DisplayName="ItemBindType">;
-// 道具耐久
+// Item durability
 var(Item) EDUR_TYPE ItemDuration		<ExportExcel="11"|DisplayName="ItemDuration">;
-// 当前耐久
+// Current durability
 var(Item) int DefaultDuration					<ExportExcel="12"|DisplayName="DefaultDuration">;
-//放到摊位中后，会被拆分，服务器只做引用，而客户需要作出实际移动的假象 这里记录原始耐久
+//After being placed in a stall it is split; the server only keeps a reference, while the client needs to fake the actual move; this records the original durability
 //var int OriDuration;
 
 
-//道具引用的技能
+//Ability referenced by the item
 var(Item) protected{protected} MMOAbility ToUseAbility				<ExportExcel="13"|DisplayName="ToUseAbility">;
 var transient int ToUseAbility_SpellID;
 
 var(Item) int SpellLevel						<ExportExcel="14"|DisplayName="SpellLevel">;
 
-//使用道具冷却
+//Item use cooldown
 var(Item) float SelfCoolDown					<ExportExcel="15"|Convert="1000"|DisplayName="SelfCoolDown">;
 var(Item) string GroupCoolDown					<ExportExcel="16"|DisplayName="GroupCoolDown">;
 
-//装备子子类型
+//Equipment sub-subtype
 var(Item) string ItemSubSubType					<ExportExcel="17"|DynamicList="ItemSubSubType">;
 
-var init array<INT> AttributeList; //by york，属性都在这里，不用其他的属性
-//出售价格 这里是指道具出售给系统的价格 可否贩卖 该道具是否可以贩卖给商店
+var init array<INT> AttributeList; //by york, all attributes are here, no other attributes are used
+//Sell price: the price when selling the item to the system. Sellable: whether the item can be sold to a shop
 var(Item) int SellPrice							<ExportExcel="18"|DisplayName="SellPrice">;
-//使用状态 该道具在何种状态下可以使用，只按最大层次的状态做区分
+//Use state: in which state the item can be used, distinguished only by the highest-level state
 var(Item) EITEM_COMBAT_TYPE UsedStatus			<ExportExcel="19"|DisplayName="UsedStatus">;
-//是否丢弃 是否可以丢弃该物品
+//Discard: whether the item can be discarded
 var(Item) bool Drop								<ExportExcel="20"|DisplayName="Drop">;
-////可否贩卖 该道具是否可以贩卖给商店
+////Sellable: whether the item can be sold to a shop
 //var(Item) int	Shell <ExportExcel="21">;
-//可否交易 是指玩家可以否交易该道具，只有非绑定道具才可以交易
+//Tradable: whether players can trade the item; only unbound items can be traded
 //var(Item) bool Trade							<ExportExcel="21"|DisplayName="Trade">;
-//可否存储 该物品是否可放入仓库之类的存储空间中
+//Storable: whether the item can be put into storage such as a warehouse
 var(Item) bool Storage							<ExportExcel="22"|DisplayName="Storage">;
 
 var(Item) bool CanSell							<ExportExcel="32"|DisplayName="CanSell">;
@@ -110,7 +110,7 @@ var(Item) bool TradeNeedIntimacy;
 
 var(Item) bool CanResource;
 //---------------------------------------------------------------
-// 音效配置
+// Sound effect config
 //---------------------------------------------------------------
 // only for sound effect
 var(SoundFX) EItemMaterialType SoundMaterialType		<ExportExcel="28"|DisplayName="SoundMaterialType">;
@@ -128,7 +128,7 @@ var(SoundFX) EClothNoiseType ClothNoiseType             <ExportExcel="30"|Displa
 //native function PlayRandomSound(array<SoundCue> soundList);
 
 native function Init( EPlayerClass pc, EGenderType gt, bool useAdvancedApperance );
-// 物品被丢弃(可能需要放在地上)
+// Item discarded (may need to be placed on the ground)
 //native function bool OnDrop(DropItemActor Target, bool bNew,Vector DorpLocation,Rotator DropRotation);
 native function bool IsUseblForActor( MMOActor actor);
 //native function String GetLargeIconName();
@@ -136,7 +136,7 @@ native function bool IsUseblForActor( MMOActor actor);
 native function bool IsWeapon();
 native function bool IsEquip();
 
-// 当此物品被使用,装备上时,会调用OnTakeOn函数,Target为作用对象,一般在这函数里处理跟这个装备相关的内容,比如因为装备上本物品,会给目标加多少属性什么的
+// When this item is used/equipped, OnTakeOn is called, Target is the target; usually handles equipment-related content here, e.g. how many attributes this item adds to the target
 //event bool OnTakeOn(MMOActor Target)
 //{
 //	return true;
@@ -178,21 +178,21 @@ function Tick( float DeltaTime )
 {
 }
 
-//nState使用约定
+//nStatenState usage convention
 native function String GetIconName(int nState = 0);
 
 //-------------------------------------------------------
-// 导出到Excel
+// export to Excel
 //-------------------------------------------------------
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues)
 {
 
 
 }
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row)
 {	
 }

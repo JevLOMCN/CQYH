@@ -1,9 +1,9 @@
 /**
  *
- * 游戏虚拟机(FSM)————角色AI行为状态机
+ * Game state machine (FSM) - character AI behavior state machine
  * Add by jimZhang@sdna.com 2014.5.9 
  * 
- * 用来驱动一些较复杂的行为逻辑，如连续自动打怪，Attack到一个地方等
+ * Used to drive some more complex behavior logic, such as continuous auto monster fighting, Attack to a location, etc.
  * 
  */
 
@@ -19,7 +19,7 @@ public:
 	void	Action();
 };
 
-//自动做doodad----------------------------------------------------
+//Auto doodad----------------------------------------------------
 class FSMCtrl_SearchDoodad: public IFSMCtrl
 {
 public:	
@@ -28,7 +28,7 @@ public:
 };
 
 
-//进出安全区表演Ai----------------------------------------------------
+//Enter/leave safe zone performance Ai----------------------------------------------------
 class FSMCtrl_AIInSafeZone: public IFSMCtrl
 {
 public:	
@@ -36,7 +36,7 @@ public:
 	void	Action();
 };
 
-//快速查看玩家信息----------------------------------------------------
+//Quick view player info----------------------------------------------------
 class FSMCtrl_ShowPlayerInfo: public IFSMCtrl
 {
 public:	
@@ -44,7 +44,7 @@ public:
 	void	Action();
 };
 
-//玩家头顶名字按钮----------------------------------------------------
+//Player overhead name button----------------------------------------------------
 class FSMCtrl_ShowHintBtn: public IFSMCtrl
 {
 public:	

@@ -3313,7 +3313,7 @@ UBOOL UNavigationHandle::GetNextMoveLocation( FVector& out_Dest, FLOAT ArrivalDi
 					{
 						bInAtLeastOnePoly=FALSE;
 						//PathCache_RemoveIndex(0,1);
-						//add by JimZhang@snda.com,这里是Navigation的一个错误，1只是理想情况下，有时候不止1，应该根据PathIdx+1来判断
+						//add by JimZhang@snda.com, this is a Navigation bug: 1 is only the ideal case, sometimes it is more than 1; it should be judged by PathIdx+1
 						PathCache_RemoveIndex(0,PathIdx+1);
 
 					}
@@ -4846,7 +4846,7 @@ UBOOL UNavigationHandle::GetClosedPosInNavigationMash(const FVector Pos,FLOAT Mi
 							out_ClosedPos	= ClosedPosBest;
 							Distansce		= DistansceBuf;
 						}
-						////向poly内部延伸一个碰撞半径，确保是角色是可以到达的点
+						////Extend a collision radius into the poly to make sure the point is reachable by the character
 						//out_ClosedPos	= ClosedPos + (Poly->GetPolyCenter()-ClosedPos).SafeNormal2D()*CollisionRadius*1.414 +(ClosedPos-Pos).SafeNormal2D()*CollisionRadius;
 
 						//Distansce		= DistansceBuf;

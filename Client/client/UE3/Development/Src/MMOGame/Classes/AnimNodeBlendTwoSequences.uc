@@ -3,7 +3,7 @@ class AnimNodeBlendTwoSequences extends AnimNodeBlend
 
 var int     ActiveChildIdx;
 
-// fangruyi 为了确定唯一的动画(只通过动画名并不能确定是否是相同的动画)
+// fangruyi to uniquely identify an animation (the animation name alone cannot tell whether it is the same animation)
 var int     ActiveAnimKey;
 
 var byte    AnimLevel;
@@ -19,7 +19,7 @@ native function float PlayAnimation( name animName, optional int Key = 0,  optio
 	optional byte InAnimLevel = 1
 	);
 
-// 当确实有传入的这个动画在播放并执行停止,返回TRUE
+// returns TRUE when the given animation is actually playing and is stopped
 native function bool StopAnimationByName(name InAnim);
 native function bool StopAnimationByKey(int InKey);
 native function ReplayAnim();

@@ -27,8 +27,8 @@ UMMOKeyManager::UMMOKeyManager()
 	nCurVersion = 0;
 	nKeyModifyingKeyPressed=FALSE;
 	// init key names
-	vmKeyNames.Set(VK_LBUTTON,	_T("左"));
-	vmKeyNames.Set(VK_RBUTTON,	_T("右"));
+	vmKeyNames.Set(VK_LBUTTON,	_T("LMB"));
+	vmKeyNames.Set(VK_RBUTTON,	_T("RMB"));
 	vmKeyNames.Set(VK_UP,		_T("↑"));
 	vmKeyNames.Set(VK_DOWN,		_T("↓"));
 	vmKeyNames.Set(VK_LEFT,		_T("←"));
@@ -60,52 +60,52 @@ UMMOKeyManager::UMMOKeyManager()
 	}
 
 	// init function names
-	// 快捷键栏的不用初始化
-	vmFuncNames.Set(KF_OpenRole,			_T("角色"));
-	vmFuncNames.Set(KF_OpenBag,				_T("背包"));
-	vmFuncNames.Set(KF_OpenHeaven,			_T("龙卫心法"));
-	vmFuncNames.Set(KF_OpenTask,			_T("普通任务"));
-	//vmFuncNames.Set(KF_OpenPlayerInfoView,	_T("信息查看"));
-	//vmFuncNames.Set(KF_OpenIntensify,		_T("体格强化"));
-	//vmFuncNames.Set(KF_OpenMount,			_T("灵魂镶嵌"));
-	//vmFuncNames.Set(KF_OpenBaptize,			_T("装备洗炼"));
-	vmFuncNames.Set(KF_OpenGuild,			_T("公会"));
-	vmFuncNames.Set(KF_OpenFriend,			_T("好友"));
-	vmFuncNames.Set(KF_OpenMaster,			_T("师徒"));
-	vmFuncNames.Set(KF_OpenTeam,			_T("组队"));
-	vmFuncNames.Set(KF_OpenRide,			_T("坐骑"));
-//	vmFuncNames.Set(KF_OpenHero,			_T("英雄"));
-	vmFuncNames.Set(KF_OpenAchieve,			_T("成就"));
-	vmFuncNames.Set(KF_OpenOption,			_T("设置"));
-	vmFuncNames.Set(KF_QuickPick,			_T("拾取"));
-	vmFuncNames.Set(KF_OpenMinimap,			_T("地图"));
-	vmFuncNames.Set(KF_ToggleMinimapType,	_T("地图")); //_T("地图模式"));
-	//vmFuncNames.Set(KF_OpenSkill,			_T("技能装配"));
-	//vmFuncNames.Set(KF_OpenArena,			_T("竞技场"));
-	vmFuncNames.Set(KF_OpenActivity,		_T("活动日程"));
-	vmFuncNames.Set(KF_OpenRank,			_T("排行榜"));
-	vmFuncNames.Set(KF_OpenSkillUp,			_T("技能"));
-	vmFuncNames.Set(KF_OpenReputation,		_T("玛法传说"));
-	vmFuncNames.Set(KF_OpenStoryQuest,		_T("剧情梗概"));
-	vmFuncNames.Set(KF_GoldStore,			_T("金币交易行"));
+	// Hotkey bar does not need initialization
+	vmFuncNames.Set(KF_OpenRole,			_T("Character"));
+	vmFuncNames.Set(KF_OpenBag,				_T("Bag"));
+	vmFuncNames.Set(KF_OpenHeaven,			_T("Dragon Guard Art"));
+	vmFuncNames.Set(KF_OpenTask,			_T("Quests"));
+	//vmFuncNames.Set(KF_OpenPlayerInfoView,	_T("View Info"));
+	//vmFuncNames.Set(KF_OpenIntensify,		_T("Body Enhancement"));
+	//vmFuncNames.Set(KF_OpenMount,			_T("Soul Inlay"));
+	//vmFuncNames.Set(KF_OpenBaptize,			_T("Equipment Refinement"));
+	vmFuncNames.Set(KF_OpenGuild,			_T("Guild"));
+	vmFuncNames.Set(KF_OpenFriend,			_T("Friends"));
+	vmFuncNames.Set(KF_OpenMaster,			_T("Master & Apprentice"));
+	vmFuncNames.Set(KF_OpenTeam,			_T("Party"));
+	vmFuncNames.Set(KF_OpenRide,			_T("Mount"));
+//	vmFuncNames.Set(KF_OpenHero,			_T("Hero"));
+	vmFuncNames.Set(KF_OpenAchieve,			_T("Achievement"));
+	vmFuncNames.Set(KF_OpenOption,			_T("Settings"));
+	vmFuncNames.Set(KF_QuickPick,			_T("Pick Up"));
+	vmFuncNames.Set(KF_OpenMinimap,			_T("Map"));
+	vmFuncNames.Set(KF_ToggleMinimapType,	_T("Map")); //_T("Map Mode"));
+	//vmFuncNames.Set(KF_OpenSkill,			_T("Ability Setup"));
+	//vmFuncNames.Set(KF_OpenArena,			_T("Arena"));
+	vmFuncNames.Set(KF_OpenActivity,		_T("Event Schedule"));
+	vmFuncNames.Set(KF_OpenRank,			_T("Rankings"));
+	vmFuncNames.Set(KF_OpenSkillUp,			_T("Skills"));
+	vmFuncNames.Set(KF_OpenReputation,		_T("Mafa Legends"));
+	vmFuncNames.Set(KF_OpenStoryQuest,		_T("Story Synopsis"));
+	vmFuncNames.Set(KF_GoldStore,			_T("Gold Exchange"));
 
-	vmFuncNames.Set(KF_Mail,		_T("邮件"));
-	vmFuncNames.Set(KF_Mall,		_T("商城"));
-	vmFuncNames.Set(KF_Handbook,	_T("百晓生"));
-	vmFuncNames.Set(KF_Assist,	    _T("游戏设置"));
+	vmFuncNames.Set(KF_Mail,		_T("Mail"));
+	vmFuncNames.Set(KF_Mall,		_T("Mall"));
+	vmFuncNames.Set(KF_Handbook,	_T("Baixiaosheng"));
+	vmFuncNames.Set(KF_Assist,	    _T("Game Settings"));
 
-	vmFuncNames.Set(KF_ChangePkMode,		_T("切换PK模式"));
+	vmFuncNames.Set(KF_ChangePkMode,		_T("Switch PK Mode"));
 
-	vmFuncNames.Set(KF_ChangeRole,			_T("更换角色"));
-	vmFuncNames.Set(KF_EnterGroup,			_T("快速组队"));
-	vmFuncNames.Set(KF_LeaveGroup,			_T("快速出队"));
-	vmFuncNames.Set(KF_AddAttention,		_T("加关注"));
-	vmFuncNames.Set(KF_AddEnemy,			_T("加仇人"));
-	vmFuncNames.Set(KF_AddBlackList,		_T("加黑名单"));
-	vmFuncNames.Set(KF_ShowHidePlayer,		_T("显示隐藏玩家"));
-	vmFuncNames.Set(KF_ChangePetAI,		_T("切换宠物状态"));
-	vmFuncNames.Set(KF_KeepRunning,			_T("自动沿朝向奔跑"));
-	vmFuncNames.Set(KF_AUCTION, _T("至尊拍卖行"));
+	vmFuncNames.Set(KF_ChangeRole,			_T("Change Character"));
+	vmFuncNames.Set(KF_EnterGroup,			_T("Quick Party"));
+	vmFuncNames.Set(KF_LeaveGroup,			_T("Quick Leave Party"));
+	vmFuncNames.Set(KF_AddAttention,		_T("Add Follow"));
+	vmFuncNames.Set(KF_AddEnemy,			_T("Add Enemy"));
+	vmFuncNames.Set(KF_AddBlackList,		_T("Add to Blacklist"));
+	vmFuncNames.Set(KF_ShowHidePlayer,		_T("Show/Hide Players"));
+	vmFuncNames.Set(KF_ChangePetAI,		_T("Switch Pet State"));
+	vmFuncNames.Set(KF_KeepRunning,			_T("Auto-Run Forward"));
+	vmFuncNames.Set(KF_AUCTION, _T("Supreme Auction House"));
 
 	// bind default keys
 	DefaultBar(FALSE);
@@ -186,7 +186,7 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 	// oscar@snda
 
 
-	// 不管在不在输入状态都有效果的按键设置
+	// Key settings that take effect regardless of input state
 	if (Event == IE_Released)
 	{
 		switch (code)
@@ -218,15 +218,15 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 			//}
 			break;
 
-			// ENTER切换显示聊天，ESC隐藏在AS中做掉了
+			// ENTER toggles chat display, ESC hiding is done in AS
 		case VK_RETURN:
 			{
-				// 判定当前是否是聊天输入模式，并进行切换，设置焦点
+				// Determine whether currently in chat input mode, switch, and set focus
 // 				UMMOUIBase* PanelChat = MMOUI::FindUIPanel(TEXT("Chat"));
 // 				UMMOUIBase* PanelSkilbar = MMOUI::FindUIPanel(TEXT("Skillbar"));
 				UMMOUIChat* Chat = Cast<UMMOUIChat>(MMOUI::FindUIPanel(TEXT("Chat")));
 
-				// 游戏中才能切换聊天
+				// Chat can only be toggled in game
 				// Login screen: Enter presses the Login button
 				if (MMO::GetCurrentGameState() == EGameState_Login)
 				{
@@ -255,7 +255,7 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 					//FGFxEngine::GetEngine()->SetFocusMovie(PanelChat->GFXPlayer->pMovie);
 					//Chat->eventCallShowPrivateName();
 					//MMOUI::MoveToTop(Chat);
-					//Chat->Invoke(TEXT("SetTextInputFocus"),Args);	// 该句应有chat->OnFoucsGained()执行过来，这里暂时hack
+					//Chat->Invoke(TEXT("SetTextInputFocus"),Args);	// this should be reached from chat->OnFoucsGained(), hack for now
 				}
 				/*else
 				{
@@ -297,11 +297,11 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 	if (!pc)
 		return FALSE;
-	// oscar@snda 通过底层处理掉了
+	// oscar@snda handled by the lower layer
 // 	if (pc->GetInTextInput())
 // 		return FALSE;
 
-	// 按下的时候触发组合键，弹起的时候触发单键
+	// Combination keys trigger on press, single keys trigger on release
 	if (Event == IE_Pressed)
 	{
 		if (in_game)
@@ -317,7 +317,7 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 		//		FViewport* vp = GEngine->GameViewport->Viewport;
 		//		if (vp && (vp->KeyState(KEY_LeftAlt) || vp->KeyState(KEY_RightAlt)))
 		//		{
-		//			//新版不要了
+		//			//Not needed in the new version
 		//			MMOFacade::getSingleton().GetMainController()->eventReturnSelectHotKey();
 		//			return TRUE;
 		//		}
@@ -329,7 +329,7 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 				FViewport* vp = GEngine->GameViewport->Viewport;
 				if (vp && (vp->KeyState(KEY_LeftControl) || vp->KeyState(KEY_RightControl)))
 				{
-					//新版不要了
+					//Not needed in the new version
 					//MMOUI::GetUIManager()->delegateToggleTipAid();
 					return TRUE;
 				}
@@ -463,14 +463,14 @@ void UMMOKeyManager::MdfKeyEnd(BYTE key)
 		//	}
 		//}
 
-		// 只接收允许的键作为键码
+		// Only accept allowed keys as key codes
 		if (vmKeyNames.Find(key))
 		{
 			const UBOOL kctrl = MMO::GetAsyncKeyStateEx(VK_CONTROL) & 0x8000;
 			const UBOOL kalt = MMO::GetAsyncKeyStateEx(VK_MENU) & 0x8000;
 			const UBOOL kshift = MMO::GetAsyncKeyStateEx(VK_SHIFT) & 0x8000;
 
-			// 只有功能键才可以用组合
+			// Only function keys can be used in combinations
 			KKeyworkd kk;
 			if (nKeyModifying >= KF_Func_Begin)
 			{
@@ -529,7 +529,7 @@ UBOOL UMMOKeyManager::DelKeyFunction(MAP_KEYWORLD& kmp, EKeyFunction func)
 
 UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 {
-	// 如果有输入焦点就不要处理热键
+	// Do not handle hotkeys if there is input focus
 	if(g_focusInTextInput)
 	{
 		return FALSE;
@@ -544,7 +544,7 @@ UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 			return TRUE;
 		}
 		return FALSE;
-	// 按下组合键，通过
+	// Combination key pressed, pass
 	case VK_CONTROL:
 	case VK_LCONTROL:
 	case VK_RCONTROL:
@@ -560,7 +560,7 @@ UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 	
 	}
 
-	// 任何非组合键，都要停止
+	// Any non-combination key must stop
 	if (nKeyModifying != KF_Unknown)
 	{
 		MdfKeyEnd(key);
@@ -579,7 +579,7 @@ UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 	if (MMO::GetCurrentGameState() != EGameState_InGame)
 		return FALSE;
 
-	// 执行快捷键功能
+	// Execute hotkey function
 	const UBOOL kctrl = MMO::GetAsyncKeyStateEx(VK_CONTROL) & 0x8000;
 	const UBOOL kalt = MMO::GetAsyncKeyStateEx(VK_MENU) & 0x8000;
 	const UBOOL kshift = MMO::GetAsyncKeyStateEx(VK_SHIFT) & 0x8000;
@@ -588,7 +588,7 @@ UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 		const KKeyworkd& kk = it.Key();
 		if (kk.code != key)
 			continue;
-		// 单键，弹起时触发
+		// Single key, triggers on release
 		if(MMOFacade::getSingleton().GCTType == GC_MIRFOREVER  )
 		{
 			if (kk.flag == KNF_None || kk.flag == KNF_CtrlType_MirForever )
@@ -631,7 +631,7 @@ UBOOL UMMOKeyManager::DoKeyPress(BYTE key, UBOOL down)
 			apk_c++;
 		if ((kk.flag & KNF_Shift) && kshift)
 			apk_c++;
-		// 组合键，按下时触发
+		// Combination key, triggers on press
 		if (apk_c)
 			return DoFunction(it.Value(), down, TRUE);
 	}
@@ -663,102 +663,102 @@ UBOOL UMMOKeyManager::CanDoFunction(EKeyFunction k)
 
 	switch (k)
 	{
-	case KF_OpenRank:// 排行榜		
+	case KF_OpenRank:// leaderboard
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Ranking);
 		} 
 		break;
-	case KF_OpenAchieve:// 成就			
+	case KF_OpenAchieve:// achievements
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Achievement);
 		} 
 		break;
-	case KF_OpenReputation:// 声望		
+	case KF_OpenReputation:// reputation
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Repute);
 		} 
 		break;
-	case KF_OpenActivity:// 日程(活动)		
+	case KF_OpenActivity:// schedule (activities)
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Schedule);
 		}
 		break;
-	case KF_Mail:// 邮件			
+	case KF_Mail:// mail
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Mail);
 		} 
 		break;
-	case KF_Mall:// 商城				
+	case KF_Mall:// mall
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Mall);
 		}
 		break;
-	case KF_Handbook:// 百晓生			
+	case KF_Handbook:// handbook
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Handbook);
 		} 
 		break;
-	case KF_GoldStore:// 金币交易行			
+	case KF_GoldStore:// gold exchange
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_GoldStore);
 		}
 		break;
-	case KF_AUCTION://至尊拍卖行		
+	case KF_AUCTION://Supreme Auction House
 	{
 		return menuBar->IsMenuActivated(EMenuType_Child_Auction);
 	}
 		break;
-	case KF_OpenRole:// 角色			
+	case KF_OpenRole:// character
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Charactor);
 		} 
 		break;
-	case KF_OpenBag:// 背包			
+	case KF_OpenBag:// bag
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Bag);
 		} 
 		break;
-	case KF_OpenHeaven:// 龙卫心法			
+	case KF_OpenHeaven:// Dragon Guard mental art
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Heaven);
 		}
 		break;
-	case KF_OpenSkillUp:// 技能			
+	case KF_OpenSkillUp:// ability
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Skill);
 		}
 		break;
-	case KF_OpenTask:// 普通任务			
+	case KF_OpenTask:// normal quest
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_NormalQuest);
 		}
 		break;
-	case KF_OpenStoryQuest:// 剧情任务			
+	case KF_OpenStoryQuest:// story quest
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_StoryQuest);
 		}
 		break;
-	case KF_OpenTeam:// 组队			
+	case KF_OpenTeam:// team
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Team);
 		}
 		break;
-	case KF_OpenFriend:// 好友			
+	case KF_OpenFriend:// friend
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Friend);
 		}
 		break;
-	case KF_OpenMaster:// 师徒		
+	case KF_OpenMaster:// master/apprentice
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_MasterStudent);
 		}
 		break;
-	case KF_OpenGuild:// 公会			
+	case KF_OpenGuild:// guild
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Guild);
 		}
 		break;
-	case KF_OpenRide:// 坐骑			
+	case KF_OpenRide:// mount
 		{
 			return menuBar->IsMenuActivated(EMenuType_Child_Riding);
 		} 
@@ -782,7 +782,7 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 
 	UUIKeyMapManager* kmm = MMOFacade::getSingleton().GetMainController()->KeyMapManager;
 
-	// 技能键有点特殊，有需要蓄力的。
+	// Ability keys are a bit special, some need charging.
 	switch (k)
 	{
 	case KF_BarSkill1:
@@ -837,10 +837,10 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 	}
 
 	//BOOL can_use = FALSE;
-	//// 组合键时，按下即触发
+	//// For combination keys, trigger on press
 	//if (combo && down)
 	//	can_use = TRUE;
-	//// 单键时，弹起才触发
+	//// For single keys, trigger on release
 	//if (!combo && !down)
 	//	can_use = TRUE;
 	//if (!can_use)
@@ -895,7 +895,7 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 	case KF_ToggleMinimapType:	UM->ToggleShowPanelEx(UM->Panel_WorldMap, ""); return TRUE;
 		//case KF_ToggleMinimapType:
 		//	{
-		//		//判断当前焦点是否在聊天界面
+		//		//Check whether the current focus is on the chat UI
 		//		if(MMOChatManager::getSingleton().IsChatFocus()  == FALSE)
 		//		{
 		//			UMMOUIMinimap *minimapPanel = (UMMOUIMinimap*)UM->FindUIPanel( UM->Panel_Minimap );
@@ -908,7 +908,7 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 		//	}
 		//	return TRUE;
 		//case KF_OpenSkill:			UM->ToggleShowPanelEx(UM->Panel_SkillSetting, ""); return TRUE;	
-		//case KF_OpenArena:			UM->ToggleShowPanelEx(UM->Panel_BattleTeam, ""); return TRUE;//此版本注释掉
+		//case KF_OpenArena:			UM->ToggleShowPanelEx(UM->Panel_BattleTeam, ""); return TRUE;//commented out in this version
 	case KF_OpenActivity:		UM->ToggleShowPanelEx(UM->Panel_Activity, ""); return TRUE;
 	case KF_OpenRank:			UM->ToggleShowPanelEx(UM->Panel_RankList, ""); return TRUE;
 		//case KF_OpenSkillUp:		UM->ToggleShowPanelEx(UM->Panel_SkillTree, _T("ClickPanelTab1")); return TRUE;
@@ -946,18 +946,18 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 			return TRUE;
 		}
 		else{
-			MMOFacade::getSingleton().GetMainController()->eventReturnSelectHotKey();	return TRUE;//更换角色
+			MMOFacade::getSingleton().GetMainController()->eventReturnSelectHotKey();	return TRUE;//change character
 		}
 	}
 	case KF_EnterGroup:
 	{
 		TeamManager::getSingleton().NotifyQuickTeam(TRUE);
-		return TRUE;//快速组队
+		return TRUE;//quick team up
 	}
 	case KF_LeaveGroup:
 	{
 		TeamManager::getSingleton().NotifyQuickTeam(FALSE);
-		return TRUE;//快速出队
+		return TRUE;//quick leave team
 	}
 	case KF_AddAttention:
 	{
@@ -965,7 +965,7 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 		if (pDesireActor){
 			FriendManager::getSingleton().RequestAddAttention(pDesireActor->ServerID, TEXT(""));
 		}
-		return TRUE;//加关注
+		return TRUE;//add to follow list
 	}
 	case KF_AddEnemy:
 	{
@@ -977,7 +977,7 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 				CMessageHandler::GetInstance().SendAddEnemy(pDesireActor->ServerID);
 			
 		}
-		return TRUE;//加仇人
+		return TRUE;//add enemy
 	}
 	case KF_AddBlackList:
 	{
@@ -985,7 +985,7 @@ UBOOL UMMOKeyManager::DoFunction(EKeyFunction k, UBOOL down, UBOOL combo)
 		if (pDesireActor){
 			CMessageHandler::GetInstance().SendMoveToBlackList(pDesireActor->ServerID, TEXT(""));
 		}
-		return TRUE;//加黑名单	
+		return TRUE;//add to blacklist
 	}
 	case KF_ShowHidePlayer:
 	{
@@ -1130,7 +1130,7 @@ UBOOL UMMOKeyManager::ExtractKey(BYTE* buf, UINT size)
 	if (!buf || size <= 0)
 		return FALSE;
 
-	buf[0] = nCurVersion = KNF_Version;	// 标识数据有效或者版本号
+	buf[0] = nCurVersion = KNF_Version;	// marks data validity or version number
 
 	size_t kpos = 1;
 	for (MAP_KEYWORLD::TIterator it(vmKeyBind); it; ++it)
@@ -1258,15 +1258,15 @@ FString& UMMOKeyManager::KeyToString(KKeyworkd* key, FString& out, BYTE t)
 		}
 		switch (t)
 		{
-		case 0:	// 组合键全部ctrl+A
+		case 0:	// all combination keys ctrl+A
 			if (!out.IsEmpty())
 				out += _T("+");
 			out += *pstr;
 			break;
-		case 1:	// 仅普通键,ABCD...
+		case 1:	// normal keys only, ABCD...
 			out = *pstr;
 			break;
-		case 2:	// 仅组合键 ctr\alt\shift
+		case 2:	// combination keys only ctr\alt\shift
 			break;
 		default:
 			out = _T("");

@@ -30,15 +30,15 @@ enum
 	GUILD_ACTIVITY_VARIABLE_110 = 110,
     GUILD_INVALID_ID_TIME = 7200,
 
-	GUILD_OCCUPY_MAP_ID_1 = 209,			// 死亡峡谷虫巢
-	GUILD_OCCUPY_MAP_ID_2 = 161,			// 石墓四层
-	GUILD_OCCUPY_MAP_ID_3 = 155,			// 沃玛寺庙二层
-	GUILD_OCCUPY_MAP_ID_4 = 169,			// 祖玛寺庙四层
-	GUILD_OCCUPY_VARIABLE_STATE = 1,		// 公会据点战状态
-	GUILD_OCCUPY_VARIABLE_WINNER = 2,		// 占领公会ID
+	GUILD_OCCUPY_MAP_ID_1 = 209,			// Death Valley Insect Nest
+	GUILD_OCCUPY_MAP_ID_2 = 161,			// Stone Tomb Level 4
+	GUILD_OCCUPY_MAP_ID_3 = 155,			// Woma Temple Level 2
+	GUILD_OCCUPY_MAP_ID_4 = 169,			// Zuma Temple Level 4
+	GUILD_OCCUPY_VARIABLE_STATE = 1,		// guild stronghold war state
+	GUILD_OCCUPY_VARIABLE_WINNER = 2,		// occupying guild ID
 };
 
-// 公会成员排序
+// guild member sorting
 enum FullMemberSortType
 {
 	FMST_LEVEL = 0,
@@ -47,7 +47,7 @@ enum FullMemberSortType
 	FMST_TIME
 };
 
-// 公会基础信息
+// guild basic info
 struct GuildBaseInfo
 {
 	UINT32  Id;
@@ -65,10 +65,10 @@ struct GuildBaseInfo
 	FString MoneyEvents;
 	UINT32 Prosperity;
 
-	UINT32 Herb;				// 草药储备
-	UINT32 Wood;				// 楠木储备
-	UINT32 Crystal;				// 魔晶储备
-	UINT32 Silver;				// 秘银储备
+	UINT32 Herb;				// herb reserve
+	UINT32 Wood;				// nanmu wood reserve
+	UINT32 Crystal;				// magic crystal reserve
+	UINT32 Silver;				// mithril reserve
 
 	GuildBaseInfo()
 	{
@@ -94,7 +94,7 @@ struct GuildBaseInfo
 	}
 };
 
-// 公会查看信息
+// guild view info
 struct GuildViewInfo
 {
 	UINT32  Id;
@@ -127,7 +127,7 @@ struct GuildViewInfo
 };
 typedef std::list<GuildViewInfo, M_UE3_STL_ALLOC(GuildViewInfo)> GuildViewList;
 
-// 公会查询信息
+// guild query info
 struct GuildQueryInfo
 {
 	UINT32 Id;
@@ -156,7 +156,7 @@ struct GuildQueryInfo
 typedef std::map<UINT32, GuildQueryInfo, M_UE3_STL_ALLOC_MAP(UINT32, GuildQueryInfo)> QueryGuildInfoByIdMap;
 typedef std::map<FString, struct GuildQueryInfo, ComparFString, STLAllocator<std::pair<FString, struct GuildQueryInfo>, UE3STLAllocatorPolicy>> QueryGuildInfoByNameMap;
 
-// 公会正式成员信息
+// guild official member info
 struct GuildFullMemberInfo
 {
 	UINT32 Id;
@@ -172,7 +172,7 @@ struct GuildFullMemberInfo
 
 typedef std::list<GuildFullMemberInfo, M_UE3_STL_ALLOC(GuildFullMemberInfo) > GuildFullMemberInfoList;
 
-// 公会待定成员信息
+// guild pending member info
 struct GuildPendingMemberInfo
 {
 	UINT32 Id;
@@ -184,7 +184,7 @@ struct GuildPendingMemberInfo
 
 typedef std::list<GuildPendingMemberInfo, M_UE3_STL_ALLOC(GuildPendingMemberInfo) > GuildPendingMemberInfoList;
 
-// 公会关系
+// guild relation
 enum GuildRelation
 {
 	GR_NORMAL = 0,
@@ -192,7 +192,7 @@ enum GuildRelation
 	GR_ENEMY
 };
 
-// 公会结盟/敌对花费
+// guild alliance/hostility cost
 enum GuildForeignMoney
 {
 	GFM_DAY_1 = 100000,		
@@ -201,7 +201,7 @@ enum GuildForeignMoney
 	GFM_DAY_30 = 1000000,
 };
 
-// 公会外交信息
+// guild diplomacy info
 struct GuildForeignInfo 
 {
 	UINT32 Id;
@@ -214,7 +214,7 @@ struct GuildForeignInfo
 typedef std::list<GuildForeignInfo, M_UE3_STL_ALLOC(GuildForeignInfo) > GuildAllyInfoList;
 typedef std::list<GuildForeignInfo, M_UE3_STL_ALLOC(GuildForeignInfo) > GuildEnemyInfoList;
 
-// 公会申请结盟信息
+// guild alliance application info
 struct GuildApplyAllyInfo 
 {
 	UINT32 Id;
@@ -225,7 +225,7 @@ struct GuildApplyAllyInfo
 	UINT32 LeftTime;
 };
 
-// 公会仓库记录
+// guild warehouse record
 struct GuildWareAccessInfo 
 {
 	UINT32 RoleId;
@@ -236,40 +236,40 @@ struct GuildWareAccessInfo
 	INT Type;
 };
 
-// 公会属地类型
+// guild territory type
 enum GuildTerritoryType
 {
 	GTT_BUILDING = 0,
 	GTT_WELFARE
 };
 
-// 公会建筑
+// guild building
 struct GuildBuildingData
 {
-	UINT32 BuildingType;			// 建筑Id
-	FString Name;					// 建筑名称
-	UINT32 Level;					// 建筑等级
-	UINT32 MaxLevel;				// 最高等级
-	UINT32 MaxNum;					// 最大数量
-	UINT32 BaseNpcId;				// 基座NPCid
-	UINT32 NpcId;					// 建筑NPCid
-	UINT32 Effect;					// 建筑作用
-	FString Description;			// 建筑描述
-	UINT32 GuildMoneyReq;			// 公会资金需求
-	UINT32 HerbReq;					// 草药需求
-	UINT32 WoodReq;					// 楠木需求
-	UINT32 CrystalReq;				// 魔晶需求
-	UINT32 SilverReq;				// 秘银需求
-	UINT32 UpgradeTime;				// 升级时间
+	UINT32 BuildingType;			// building Id
+	FString Name;					// building name
+	UINT32 Level;					// building level
+	UINT32 MaxLevel;				// max level
+	UINT32 MaxNum;					// max count
+	UINT32 BaseNpcId;				// base NPC id
+	UINT32 NpcId;					// building NPC id
+	UINT32 Effect;					// building effect
+	FString Description;			// building description
+	UINT32 GuildMoneyReq;			// guild funds requirement
+	UINT32 HerbReq;					// herb requirement
+	UINT32 WoodReq;					// nanmu wood requirement
+	UINT32 CrystalReq;				// magic crystal requirement
+	UINT32 SilverReq;				// mithril requirement
+	UINT32 UpgradeTime;				// upgrade time
 	UINT32 RoutineReq;
-	UINT32 PreBuildingType;			// 前置建筑ID
-	UINT32 PreBuildingLevel;		// 前置建筑等级
-	UINT32 Param1;					// 参数1
-	UINT32 Param2;					// 参数2
-	UINT32 Param3;					// 参数3
-	UINT32 Param4;					// 参数4
-	UINT32 Param5;					// 参数5
-	UINT32 UpgradeSpellID;			// 对应NPC
+	UINT32 PreBuildingType;			// prerequisite building ID
+	UINT32 PreBuildingLevel;		// prerequisite building level
+	UINT32 Param1;					// parameter 1
+	UINT32 Param2;					// parameter 2
+	UINT32 Param3;					// parameter 3
+	UINT32 Param4;					// parameter 4
+	UINT32 Param5;					// parameter 5
+	UINT32 UpgradeSpellID;			// corresponding NPC
 };
 
 struct GuildBuildingDataProcessor
@@ -318,32 +318,32 @@ struct GuildBuildingInfo
 	UINT32 UpgradeEndTime;
 };
 
-// 公会福利
+// guild welfare
 struct GuildWelfareData
 {
-	UINT32 WelfareId;				// 福利Id
-	FString Name;					// 福利I名称
-	UINT32 BuffId;					// 对应的BuffId
-	UINT32 Type;					// 类型
-	UINT32 Level;					// 等级
-	UINT32 MaxLevel;				// 最高等级
+	UINT32 WelfareId;				// welfare Id
+	FString Name;					// welfare name
+	UINT32 BuffId;					// corresponding BuffId
+	UINT32 Type;					// type
+	UINT32 Level;					// level
+	UINT32 MaxLevel;				// max level
 
-	UINT8 ExchangeLevelReq;			// 兑换等级需求
-	UINT32 ExchangeMoneyReq;		// 兑换金钱需求
-	UINT32 ExchangeContributeReq;	// 兑换帮贡需求
-	UINT8 ExchangeMax;				// 兑换最大次数
-	UINT8 VipExchangeMax1;          // vip兑换最大次数
-	UINT8 VipExchangeMax2;          // vip兑换最大次数
-	UINT8 VipExchangeMax3;          // vip兑换最大次数
+	UINT8 ExchangeLevelReq;			// exchange level requirement
+	UINT32 ExchangeMoneyReq;		// exchange money requirement
+	UINT32 ExchangeContributeReq;	// exchange guild contribution requirement
+	UINT8 ExchangeMax;				// max exchange count
+	UINT8 VipExchangeMax1;          // vip max exchange count
+	UINT8 VipExchangeMax2;          // vip max exchange count
+	UINT8 VipExchangeMax3;          // vip max exchange count
 
-	UINT32 UpgradeTime;				// 升级时间
-	UINT32 UpgradePreBuildingType;	// 升级建筑需求
-	UINT32 UpgradePreBuildingLevel;	// 升级建筑等级
-	UINT32 UpgradeGuildMoneyReq;	// 升级公会资金需求
-	UINT32 UpgradeHerbReq;			// 升级草药需求
-	UINT32 UpgradeWoodReq;			// 升级木材需求
-	UINT32 UpgradeCrystalReq;		// 升级魔晶需求
-	UINT32 UpgradeSliverReq;		// 升级秘银需求
+	UINT32 UpgradeTime;				// upgrade time
+	UINT32 UpgradePreBuildingType;	// upgrade building requirement
+	UINT32 UpgradePreBuildingLevel;	// upgrade building level
+	UINT32 UpgradeGuildMoneyReq;	// upgrade guild funds requirement
+	UINT32 UpgradeHerbReq;			// upgrade herb requirement
+	UINT32 UpgradeWoodReq;			// upgrade lumber requirement
+	UINT32 UpgradeCrystalReq;		// upgrade magic crystal requirement
+	UINT32 UpgradeSliverReq;		// upgrade mithril requirement
 };
 
 struct GuildWelfareDataProcessor
@@ -396,7 +396,7 @@ struct GuildWelfareInfo
 {
 	UINT32 WelfareId;	
 	UINT32 WelfareLv;	
-	UINT32 AlreadyBuyTime;			// 已经对换的次数
+	UINT32 AlreadyBuyTime;			// times already exchanged
 };
 
 typedef std::list<GuildApplyAllyInfo, M_UE3_STL_ALLOC(GuildApplyAllyInfo) > GuildApplyAllyInfoList;
@@ -412,7 +412,7 @@ typedef std::map<INT, GuildWelfareData, M_UE3_STL_ALLOC_MAP(INT, GuildWelfareDat
 typedef std::list<GuildWelfareInfo, M_UE3_STL_ALLOC(GuildWelfareInfo) > GuildWelfareInfoList;
 typedef std::list<GuildWelfareUpgradeInfo, M_UE3_STL_ALLOC(GuildWelfareUpgradeInfo) > GuildWelfareUpgradeList;
 
-// 公会副本
+// guild dungeon
 struct GuildDungeonData
 {
 	UINT32 DungeonId;
@@ -465,7 +465,7 @@ typedef TDataManger<GuildDungeonData, GuildDungeonDataProcessor> GuildDungeonDat
 typedef std::map<UINT32, GuildDungeonData, M_UE3_STL_ALLOC_MAP(INT, GuildDungeonData)> GuildDungeonDataMap;
 typedef std::list<GUILD_DUNGEON_AWARD_INFO, M_UE3_STL_ALLOC(GUILD_DUNGEON_AWARD_INFO)> GuildDungeonAwardList;
 
-// 公会战
+// guild war
 typedef std::list<GUILD_BATTLE_ACHIEVEMENT_DATA, M_UE3_STL_ALLOC(GUILD_BATTLE_ACHIEVEMENT_DATA)> GuildWarResultList;
 typedef std::vector<GUILD_WAR_RECORD_INFO, M_UE3_STL_ALLOC(GUILD_WAR_RECORD_INFO) > GuildWarRecordList;
 
@@ -475,7 +475,7 @@ enum GuildWarSearchState
 	GWSS_COMPLETE,
 };
 
-// 比奇争霸战
+// Bichon supremacy war
 enum GuildSabacState
 {
 	GSS_NULL = 0,
@@ -484,7 +484,7 @@ enum GuildSabacState
 	GSS_GREEN,
 };
 
-// 报名公会列表
+// registered guild list
 typedef std::list<G2C_SYNC_SABAC_ENROLL_LIST::ENROLL_DATA, M_UE3_STL_ALLOC(G2C_SYNC_SABAC_ENROLL_LIST::ENROLL_DATA)> GuildSabacEnrollList;
 
 // 
@@ -518,25 +518,25 @@ struct SabacStatue
 	}
 };
 
-// 公会活动
+// guild activity
 struct GuildActivityData
 {
-	UINT16 Type;					// 活动类型
-	UINT16 Level;					// 活动等级
-	UINT32 Variable;				// 活动变量
-	FString Name;					// 活动名称
-	FString Desc;					// 活动描述
-	UINT32 NpcId;					// 活动NPC
-	UINT16 MaxCount;				// 活动最大完成次数
-	UINT32 Duration;				// 活动持续时间
+	UINT16 Type;					// activity type
+	UINT16 Level;					// activity level
+	UINT32 Variable;				// activity variable
+	FString Name;					// activity name
+	FString Desc;					// activity description
+	UINT32 NpcId;					// activity NPC
+	UINT16 MaxCount;				// max completion count of the activity
+	UINT32 Duration;				// activity duration
 
-	UINT8 BuildingReq;				// 前置建筑需求
-	UINT8 BuildingLvReq;			// 前置建筑等级需求
-	UINT32 MoneyReq;				// 资金需求
-	UINT32 HerbReq;					// 粮食需求
-	UINT32 WoodReq;					// 木材需求
-	UINT32 CrystalReq;				// 石材需求
-	UINT32 SilverReq;				// 铁矿需求	
+	UINT8 BuildingReq;				// prerequisite building requirement
+	UINT8 BuildingLvReq;			// prerequisite building level requirement
+	UINT32 MoneyReq;				// funds requirement
+	UINT32 HerbReq;					// grain requirement
+	UINT32 WoodReq;					// lumber requirement
+	UINT32 CrystalReq;				// stone requirement
+	UINT32 SilverReq;				// iron ore requirement
 };
 
 struct GuildActivityDataProcessor
@@ -589,22 +589,22 @@ enum GuildActivityState
 
 struct GuildActivityInfo
 {
-	UINT16 Type;					// 活动类型
-	UINT8 Complete;					// 完成情况
-	UINT32 StartTime;				// 开启时间
-	UINT8 State;					// 状态: 没开启，已开启，已结束
+	UINT16 Type;					// activity type
+	UINT8 Complete;					// completion status
+	UINT32 StartTime;				// start time
+	UINT8 State;					// state: not started, started, ended
 };
 
 typedef std::map<UINT16, GuildActivityInfo, M_UE3_STL_ALLOC_MAP(UINT16, GuildActivityInfo)> GuildActivityInfoMap;
 
-// 公会活动角色变量
+// guild activity character variables
 enum EGuildActivityRoleVariable
 {
-	EGARV_ID_1 = 193,			// 角色变量ID:角色当日做公会祈祷次数
-	EGARV_ID_2 = 217,			// 角色变量ID:角色上次做公会祈祷时间
-	EGARV_ID_3 = 179,           // 角色变量ID:角色上次做公会行商时间
-	EGARV_ID_4 = 187,           // 角色变量ID:角色上次泡过温泉的时间
-	EGARV_ID_5 = 189,           // 角色变量ID:角色上次杀死妖兽的时间
+	EGARV_ID_1 = 193,			// character variable ID: times the character did guild prayer today
+	EGARV_ID_2 = 217,			// character variable ID: last time the character did guild prayer
+	EGARV_ID_3 = 179,           // character variable ID: last time the character did guild trading
+	EGARV_ID_4 = 187,           // character variable ID: last time the character soaked in the hot spring
+	EGARV_ID_5 = 189,           // character variable ID: last time the character killed a demon beast
 };
 typedef std::map<UINT16, INT32, M_UE3_STL_ALLOC_MAP(UINT16, INT32)> GuildVariableMap;
 
@@ -619,7 +619,7 @@ public:
 	void Shutdown();
 	void Clear();
 
-	// 公会查看
+	// guild view
 	const GuildViewList& GetGuildViewInfoList();
 	UINT32 GetCurListFirstId();
 	UINT32 GetCurListLastId();
@@ -627,7 +627,7 @@ public:
 	void AddGuildViewInfo(const GuildViewInfo& info);
 	UBOOL GetGuildViewInfo(UINT32 guildId, GuildViewInfo& info);
 	
-	// 我的公会信息
+	// my guild info
 	const GuildBaseInfo& GetGuildBaseInfo() { return _GuildBaseInfo; }
 	void UpdateGuildBaseInfo(const GuildBaseInfo& baseInfo);
 
@@ -638,7 +638,7 @@ public:
 	void UpdateGuildEvents();
 	void UpdateGuildMoneyEvents();
 
-	// 公会成员
+	// guild members
 	void UpdateGuildFullMemberList(GUILD_MEMBER_INFO* list, UINT8 size);
 	void AddGuildFullMember(const GUILD_MEMBER_INFO& info);
 	void DelGuildFullMember(UINT32 id);
@@ -665,7 +665,7 @@ public:
 	void GuildLeaderDemise(UINT32 newLeaderId);
 	UINT8 GetGuildPostCount(UINT8 post);
 
-	// 公会仓库
+	// guild warehouse
 	void SetWarehouseItem(INT pageId, INT idx, FClientItemInfo* item);
 	void ClearWarehouseItemInfo();
 	void SetWarehouseItemInfo(INT pageId, INT idx, ItemInfo* item);
@@ -677,7 +677,7 @@ public:
 	void AddAccessInfo(INT playerId, const FString& roleName, INT itemTempId, INT count, INT time, INT type);
 	AccessInfoList& GetAccessInfoList(){ return _AccessInfoList; }
 
-	// 公会管理
+	// guild management
 	UINT16 GetGuildRights(UINT8 post);
 	UINT16 GetGuildStorageRights(UINT8 post);
 	UINT8 GetGuildSalaryPercent(UINT8 post);
@@ -685,7 +685,7 @@ public:
 	void UpdateMyGuildSalary(UINT32 salary);
 	void UpdateGuildSalaryPercent(const UINT8 (&saleryPercent)[GUILD_POSITION_COUNT]);
 
-	// 公会外交
+	// guild diplomacy
 	const GuildAllyInfoList& GetGuildAllyInfoList();
 	const GuildEnemyInfoList& GetGuildEnemyInfoList();
 	const GuildApplyAllyInfoList& GetGuildApplyAllyInfoList();
@@ -707,7 +707,7 @@ public:
 	void UpdateGuildEnemyTime(UINT32 count);
 	void UpdateGuildApplyAllyTime(UINT32 count);
 
-	// 公会建筑
+	// guild building
 	void AddGuildBuildingData(const GuildBuildingData& data);
 	const GuildBuildingDataMap& GetGuildBuildingDataMap() { return _GuildBuildingDataMap; }
 	UBOOL GetGuildBuildingData(UINT32 buildingType, UINT32 buildingLv, GuildBuildingData& data);
@@ -736,7 +736,7 @@ public:
 	void DelGuildBuildingUpgradeInfo(UINT64 buildingId);
 	UBOOL IsGuildBuildingUpgrading(UINT64 buildingId);
 
-	// 公会福利
+	// guild welfare
 	void AddGuildWelfareData(const GuildWelfareData& data);
 	UBOOL GetGuildWelfareData(UINT32 welfareId, UINT32 welfareLv, GuildWelfareData& data);
 	const GuildWelfareUpgradeList& GetGuildWelfareUpgradeList();
@@ -759,7 +759,7 @@ public:
 	void UpdateGuildBuildingUpgradeTime(UINT32 count);
 	void UpdateGuildWelfareUpgradeTime(UINT32 count);
 
-	// 公会副本
+	// guild dungeon
 	void AddGuildDungeonData(const GuildDungeonData& data);
 	const GuildDungeonDataMap& GetGuildDungeonDataMap();
 	const GuildDungeonAwardList& GetGuildDungeonAwardList();
@@ -771,13 +771,13 @@ public:
 	void SetMyGuildWarDefendId(UINT32 id);
 	UINT32 GetMyGuildWarDefendId() {return _MyGuildWarDefendId;}
 
-	// 公会查询
+	// guild query
 	UBOOL GetGuildInfoById(UINT32 guildId, GuildQueryInfo& info);
 	UBOOL GetGuildInfoByName(const FString& guildName, GuildQueryInfo& info);
 	void AddOrUpdateGuildInfo(M2C_QUERY_GUILD_NAME_ACK* msg);
 	const QueryGuildInfoByIdMap& GetQueryGuildInfoByIdMap();
 
-	// 比奇争霸战
+	// Bichon supremacy war
 	void UpdateSabacEnrollGuildList(G2C_SYNC_SABAC_ENROLL_LIST::ENROLL_DATA* list, UINT16 size);
 	void UpdateSabacOccupyGuild(UINT32 guildId);
 	UINT32 GetSabacOccupyGuildId() { return _CurOccupySabacGuildId; }
@@ -787,7 +787,7 @@ public:
 	void UpdateStatueData(const SabacStatue& statue);
 	UBOOL GetStatueData(SabacStatue& statue);
 
-	// 公会活动
+	// guild activity
 	void AddGuildActivityData(const GuildActivityData& data);
 	UBOOL GetGuildActivityData(UINT32 activityId, GuildActivityData& data);
 	void GenerateGuildActivityInfoList();
@@ -797,11 +797,11 @@ public:
 	void UpdateGuildActivityState();
 	UINT8 GetGuildActivityComplete(UINT16 activityType);
 
-	// 公会战
+	// guild war
 	const GuildWarResultList& GetGuildWarResultList();
 	void UpdateGuildWarResultList(GUILD_BATTLE_ACHIEVEMENT_DATA* list, UINT8 size);
 	void AddGuildWarResult(const GUILD_BATTLE_ACHIEVEMENT_DATA& info);
-	// 公会战告示牌
+	// guild war notice board
 	void UpdateGuildWarRecords(GUILD_WAR_RECORD_INFO* records, UINT8 size);
 	void AddGuildWarRecord(const GUILD_WAR_RECORD_INFO& recordInfo);
 	const GuildWarRecordList& GetGuildWarRecordList();
@@ -822,7 +822,7 @@ protected:
 	UBOOL _LoadGuildActivityData(const TCHAR* filePath);
 	void _UnloadGuildActivityData();
 
-	// 获取各种公会成员名字(在线，不在线，离开，驱逐)
+	// get names of various guild members (online, offline, left, expelled)
 	void _GetGuildEventsRoleName(UINT32 roleId, FString& roleName);
 	void _GetGuildEventsGuildName(UINT32 guildId, FString& guildName);
 
@@ -832,61 +832,61 @@ protected:
 protected:
 	FClientItemInfo _GuildWarehouseItemTable[E_GUILD_STORAGE_TAG_MAX][GUILD_STORAGE_MAX_ITEM_NUM_PER_TAG];
 
-	// 公会查看
+	// guild view
 	GuildViewList _GuildViewInfoList;
 
-	// 我的公会信息
+	// my guild info
 	GuildBaseInfo _GuildBaseInfo;
 	GuildEventsList _GuildEventsList;
 	GuildEventsList _GuildMoneyEventsList;
 
-	// 公会成员
+	// guild members
 	GuildFullMemberInfoList _GuildFullMemberInfoList;
 	GuildPendingMemberInfoList _GuildPendingMemberInfoList;
 
-	// 公会仓库
+	// guild warehouse
 	AccessInfoList _AccessInfoList;
 
-	// 公会管理
+	// guild management
 	UINT16 _GuildStorageRights[GUILD_POSITION_COUNT];
 	UINT8 _GuildSalaryPercent[GUILD_POSITION_COUNT];
 	UINT8 _GuildPostCount[GUILD_POSITION_COUNT];
 
-	// 公会外交
+	// guild diplomacy
 	GuildAllyInfoList _GuildAllyInfoList;
 	GuildEnemyInfoList _GuildEnemyInfoList;
 	GuildApplyAllyInfoList _GuildApplyAllyInfoList;
 
-	// 公会属地
+	// guild territory
 	GuildBuildingDataMap _GuildBuildingDataMap;
 	GuildBuildingList _GuildBuildingList;
 	GuildBuildingUpgradeList _GuildBuildingUpgradeList;
 
-	// 公会福利
+	// guild welfare
 	GuildWelfareDataMap _GuildWelfareDataMap;
 	GuildWelfareInfoList _GuildWelfareInfoList;
 	GuildWelfareUpgradeList _GuildWelfareUpgradeList;
 
-	// 公会副本
+	// guild dungeon
 	GuildDungeonDataMap _GuildDungeonDataMap;
 	GuildDungeonAwardList _GuildDungeonAwardList;
 
-	// 公会战
+	// guild war
 	GuildWarResultList _GuildWarResultList;
-	UINT32 _MyGuildWarAttackId;				// 我宣战的公会ID
-	UINT32 _MyGuildWarDefendId;				// 向我宣战的公会ID
+	UINT32 _MyGuildWarAttackId;				// ID of the guild I declared war on
+	UINT32 _MyGuildWarDefendId;				// ID of the guild that declared war on me
 	GuildWarRecordList _GuildWarRecordList;
 
-	// 公会查询
+	// guild query
 	QueryGuildInfoByIdMap _QueryGuildInfoByIdMap;
 	QueryGuildInfoByNameMap _QueryGuildInfoByNameMap;
 
-	// 比奇争霸战
+	// Bichon supremacy war
 	GuildSabacEnrollList _SabacEnrollGuildIdList;
 	UINT32 _CurOccupySabacGuildId;
 	SabacStatue _CurSabacStatue;
 
-	// 公会活动
+	// guild activity
 	GuildActivityDataMap _GuildActivityDataMap;
 	GuildActivityInfoMap _GuildActivityInfoMap;
 	GuildActivityVariableMap _GuildActivityVariableMap;

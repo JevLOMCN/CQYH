@@ -166,10 +166,10 @@ void CMessageHandler::Parse_g2c_view_stall_item(const char* buf, UINT32 size)
 
 		bufSize += sizeof(STALL_ITEM_INFO) + buflen;
 
-        //不能使用其他玩家自身的ConId，这里将数据暂存到CONSLOT_STALL_BUY
+        //Cannot use other players' own ConId, so temporarily store data into CONSLOT_STALL_BUY here
         iteminfo.m_byConSlot = E_CONSLOT_STALL_BUY;
         iteminfo.m_byItemSlot = tStallItemInfo->btStallSlot;
-        //添加到ItemInfo
+        //Add to ItemInfo
         FClientItemInfo* itemInfo = MMOFacade::getSingleton().UpdateItem(&iteminfo);
 		if (itemInfo)
 		{

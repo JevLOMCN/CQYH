@@ -76,7 +76,7 @@ void AArmorActor::OnTakeOn(class APawn* InActor,class UEquipMesh* InData)
 	BaseActor = InActor;
 	Template = InData;
 
-	// #22374 游戏状态下武器的比例没有跟着avatar的比例缩小
+	// #22374 In game state the weapon scale does not shrink along with the avatar scale
 	float actorScale = 1.0f;
 	if (BaseActor)
 	{

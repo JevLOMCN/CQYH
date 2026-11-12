@@ -56,23 +56,23 @@ void UMMOUIGuildWarStartPanel::ShowGuildWarStartPanel(INT targetGuildId)
 	FString text = TEXT("");
 	if (targetGuildId == attackId)
 	{
-		FString guildName = FString::Printf(TEXT("公会ID:%d的"), attackId);
+		FString guildName = FString::Printf(TEXT("Guild ID:%d "), attackId);
 		GuildQueryInfo info;
 		if (MMOGuildData::getSingleton().GetGuildInfoById(attackId, info))
 		{
 			guildName = info.Name;
 		}
-		text = FString::Printf(TEXT("我方公会已对<font color='#FF0000'>%s</font>公会宣战"), *guildName);
+		text = FString::Printf(TEXT("Our guild has declared war on guild <font color='#FF0000'>%s</font>"), *guildName);
 	}
 	if (targetGuildId == defendId)
 	{
-		FString guildName = FString::Printf(TEXT("公会ID:%d的"), defendId);
+		FString guildName = FString::Printf(TEXT("Guild ID:%d "), defendId);
 		GuildQueryInfo info;
 		if (MMOGuildData::getSingleton().GetGuildInfoById(defendId, info))
 		{
 			guildName = info.Name;
 		}
-		text = FString::Printf(TEXT("<font color='#FF0000'>%s</font>公会已对我方公会宣战"), *guildName);
+		text = FString::Printf(TEXT("Guild <font color='#FF0000'>%s</font> has declared war on our guild"), *guildName);
 	}
 	eventCallUpdateGuildWarStartInfo(icon, text);
 }

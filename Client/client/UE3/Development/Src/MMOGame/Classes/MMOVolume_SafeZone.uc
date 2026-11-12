@@ -1,5 +1,5 @@
 //
-// 安全区，进入此区后玩家动作需要变化
+// Safe zone, player actions need to change after entering this zone
 //
 
 class MMOVolume_SafeZone extends PhysicsVolume

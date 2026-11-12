@@ -51,7 +51,7 @@ void ANPC::SetDead()
 		}
 	}
 
-#if 0	// 死亡后就不能再被选中！ 参考AMMOActor::GetPickPriority
+#if 0	// Cannot be selected after death! See AMMOActor::GetPickPriority
 	PickPriority = EPP_MAX;
 
 	SET_WARN_COLOR_AND_BACKGROUND(COLOR_DARK_BLUE, COLOR_WHITE);
@@ -189,13 +189,13 @@ void ANPC::InitNpcByTemplate(class UNPCTemplate* InTemplate)
 
 void ANPC::DoInteract()
 {
-	//// 禁止PICK也不能交互
+	//// PICK disabled also means no interaction
 	//if(Template && Template->DisablePick)
 	//{
 	//	return;
 	//}
 
-	//// 过场动画播放时禁止交互
+	//// Interaction disabled while cutscene plays
 	//AMMOPlayerController* mainPlayerCtrl = MMOFacade::getSingleton().GetMainController();
 	//if (mainPlayerCtrl && mainPlayerCtrl->IsPlayingMatinee())
 	//{
@@ -203,17 +203,17 @@ void ANPC::DoInteract()
 	//}
 
 	//UBOOL isAttackAble = MMOFacade::getSingleton().IsAttackable(this);
-	//// 如果可攻击也不能交互
+	//// Cannot interact if attackable
 	//if(isAttackAble)
 	//{
 	//	return;
 	//}	
-	//else if(!isAttackAble && ((ActorType == EACT_Pet)  || (ActorType == EACT_PlayerSelf ))) // 友方召唤物不能被交互
+	//else if(!isAttackAble && ((ActorType == EACT_Pet)  || (ActorType == EACT_PlayerSelf ))) // Friendly summons cannot be interacted with
 	//{ 
 	//	return;
 	//}
 	//
-	//// 不是怪物才能交互
+	//// Only non-monsters can be interacted with
 	//if(!IsMonster())
 	//{
 	//	CMessageHandler::GetInstance().Send_InteractNpc(ServerID);
@@ -232,11 +232,11 @@ UBOOL ANPC::CanGuildBuildingInteract() const
 	INT curTerritoryId = MMOGuildManager::getSingleton().GetCurTerritorySceneId();
 
 	if (baseInfo.Id > 0)
-	{// 有公会
+	{// Has guild
 		if (baseInfo.Id != curTerritoryId)
-		{// 在别人属地
+		{// In another's territory
 			if (MMOGuildData::getSingleton().IsGuildAlly(curTerritoryId))
-			{// 是联盟
+			{// Is allied
 				if (Template)
 				{
 					if (Template->BuildingInteractType == EGBIT_ONLY_SELF ||
@@ -247,7 +247,7 @@ UBOOL ANPC::CanGuildBuildingInteract() const
 				}
 			}
 			else
-			{// 不是联盟
+			{// Not allied
 				if (Template)
 				{
 					if (Template->BuildingInteractType == EGBIT_ONLY_SELF ||
@@ -260,7 +260,7 @@ UBOOL ANPC::CanGuildBuildingInteract() const
 		}
 	}
 	else
-	{// 没公会，不能和属地NPC交互
+	{// No guild, cannot interact with territory NPC
 		return FALSE;
 	}
 
@@ -275,19 +275,19 @@ UBOOL ANPC::CanInteract() const
 	//}
 
 	//return TRUE;
-	// 禁止PICK也不能交互
+	// PICK disabled also means no interaction
 	if(Template && Template->DisablePick)
 	{
 		return FALSE;
 	}
 
 	UBOOL isAttackAble = MMOFacade::getSingleton().IsAttackable(this);
-	// 如果可攻击也不能交互
+	// Cannot interact if attackable
 	if(isAttackAble)
 	{
 		return FALSE;
 	}	
-	else if(!isAttackAble && ((ActorType == EACT_Pet)  || (ActorType == EACT_PlayerSelf ))) // 友方召唤物不能被交互
+	else if(!isAttackAble && ((ActorType == EACT_Pet)  || (ActorType == EACT_PlayerSelf ))) // Friendly summons cannot be interacted with
 	{ 
 		return FALSE;
 	}
@@ -297,13 +297,13 @@ UBOOL ANPC::CanInteract() const
 		return FALSE;
 	}
 
-	////超过有效交互距离也不能交互
+	////Cannot interact beyond valid interaction distance
 	//INT CurDistance = (this->Location - mainPlayerCtrl->Location).Size2D();
 
 	//if (CurDistance > MaxDistance)
 	//	return FALSE;
 
-	//如果是和公会属地的NPC交互
+	//If interacting with a guild territory NPC
 	INT curMapId = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 	if (curMapId == GUILD_TERRITORY_MAP_ID)
 	{
@@ -372,13 +372,13 @@ BYTE ANPC::GetPickPriority()
 	//}
 
 	UBOOL isAttackAble = MMOFacade::getSingleton().IsAttackable(this);
-	// 如果可攻击，直接返回为NPC
+	// If attackable, return as NPC directly
 	if(isAttackAble)
 	{
 		//return EPP_NPC;
 		return EPP_Normal;
 	}
-	//else if((ActorType == EACT_Pet) || (ActorType == EACT_PlayerSelf))  // 友方召唤物不能被交互
+	//else if((ActorType == EACT_Pet) || (ActorType == EACT_PlayerSelf))  // Friendly summons cannot be interacted with
 	//{
 	//	return EPP_MAX;
 	//}
@@ -388,7 +388,7 @@ BYTE ANPC::GetPickPriority()
 		return EPP_High;
 	}
 
-	// 如果没有配置默认对话，就不要选择了
+	// If no default dialog is configured, do not select
 // 	if(Template && Template->DefaultDialogText.IsEmpty())
 // 	{
 // 		return EPP_MAX;
@@ -419,7 +419,7 @@ BYTE ANPC::GetMouseCursor()
 			return EMC_Arrow;
 		}
 	}
-	else if((ActorType == EACT_Pet) || (ActorType == EACT_PlayerSelf) || (ActorType == EACT_Monster) )  // 友方召唤物不能被交互
+	else if((ActorType == EACT_Pet) || (ActorType == EACT_PlayerSelf) || (ActorType == EACT_Monster) )  // Friendly summons cannot be interacted with
 	{
 		return EMC_Arrow;
 	}
@@ -684,9 +684,9 @@ void ANPC::TickStatusProc(const TArray<FStatusProcData>& procs )
 	float randNumb;
 	
 	//`log("********************* ProcessStatusProc" @self);
-	//随机///////////////////////////////////////////////////////////////////////////////////
+	//Random///////////////////////////////////////////////////////////////////////////////////
 	randNumb = RandRange(0, 1);
-	//获取随机选择的index
+	//Get the randomly selected index
 	for(int i = 0; i < procs.Num(); ++i)
 	{
 		if(randNumb <= procs(i).Rate)
@@ -798,7 +798,7 @@ void ANPC::PlayRandomAnim()
 		return;
 	}
 
-	// 播放对应的动画音效
+	// Play the corresponding animation sound effect
 	if(Template && Template->AvatarTemplate && CanPlayAnimSoundNow())
 	{
 		FString aniName = (*SeqList)(idx).ToString();
@@ -931,13 +931,13 @@ void ANPC::TickSpecial(FLOAT Delta)
 
 void ANPC::PlayRandomSound(const TArray<class USoundCue*>& soundList)
 {
-    //DWORD nt = GetTickCount(); // 这个时间函数精确度不高
+    //DWORD nt = GetTickCount(); // This time function is not very precise
     //if (nt < (DWORD)NextSoundTime)
     //    return;
-    //// 策划要求NPC无论何时何类型只播放一个声音
+    //// Designer requires NPC to play only one sound regardless of when or what type
     //if (soundList.Num() > 0)
     //{
-    //    // 默认情况下，Actor中会随机处理，但这里为了知道这个音乐长度，主动随机一次，直取结果传递
+    //    // By default Actor handles randomness, but here to know this sound's length, randomize once actively and pass only the result
     //    TArray<class USoundCue*> tmp;
     //    INT idx = (INT)RandRange(0, soundList.Num() - 1);
     //    tmp.AddItem(soundList(idx));
@@ -1028,7 +1028,7 @@ void ANPC::DrawHUDPostGFx( AHUD* H )
 	FVector objectIconWorldPos;
 
 
-	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//实际位置
+	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//actual position
 	objectIconWorldPos.Z += 120;
 	screenPos = H->Canvas->Project(objectIconWorldPos);
 
@@ -1062,7 +1062,7 @@ UBOOL ANPC::DrawMyHUD(class AMMOHud* H)
 	FLOAT IconDistanceScale;
 	INT drawX, drawY;
 
-	objectIconWorldPos = Location;//实际位置
+	objectIconWorldPos = Location;//actual position
 	objectIconWorldPos.Z += 120;
 	screenPos = H->Canvas->Project(objectIconWorldPos);
 

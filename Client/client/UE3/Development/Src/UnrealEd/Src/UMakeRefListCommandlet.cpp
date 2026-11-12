@@ -54,7 +54,7 @@ extern const FLOAT MTSpinDelay;
 extern FLOAT MTTimeout; 
 
 
-// 不方便写在.h中，全写这里当成员变量
+// Inconvenient to write in .h, all written here as member variables
 bool g_isChildProcess = false;
 INT g_NumChildProcesses = 8;
 INT g_currentProcessIdx = -1;
@@ -880,7 +880,7 @@ INT UMakeRefListCommandlet::Main(const FString& Params)
 				}
 				else
 				{
-					// 这里不需要添加UPK，配置表中会清理掉
+					// No need to add UPK here, the config table will clean it up
 					//upkList.AddUniqueItem(pkgs(n));
 				}
 			}
@@ -1604,7 +1604,7 @@ INT UDumpRefListCommandlet::Main(const FString& Params)
 		TSet<FString>::TIterator itOld(tmpListOld);
 		for (; itOld; ++itOld)
 		{		
-			// 旧的不在新的里是删除的
+			// Old ones not in the new are deleted
 			const FString& oldStr = *itOld;
 			if(!tmpListNew.Find(oldStr))
 			{
@@ -1617,7 +1617,7 @@ INT UDumpRefListCommandlet::Main(const FString& Params)
 		TSet<FString>::TIterator itNew(tmpListNew);
 		for (; itNew; ++itNew)
 		{		
-			// 新的不在旧的里是增加的
+			// New ones not in the old are added
 			const FString& newStr = *itNew;
 			if(!tmpListOld.Find(newStr))
 			{

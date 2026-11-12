@@ -1,5 +1,5 @@
 //
-// ÉèÖÃÏÔÊ¾Ãû×Ö
+// Set display name
 //
 class MMOStatusProc_ShowNameHint extends Object implements(IMMOStatusProc)
 	native

@@ -1,5 +1,5 @@
 //
-// HUD接口，需要显示HUD的Actor可以实现相应的此类接口
+// HUD interface, Actors that need to show a HUD can implement this interface
 //
 interface IMMOActorHUD
 	native;

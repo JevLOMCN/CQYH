@@ -3,8 +3,8 @@ class MMOUIFriendChatHint extends MMOUIBase
 
 struct native FriendChatHintStruct
 {
-	var GFxObject ListItemGfxObject; //¿Ø¼þ
-	var string PlayerName; //Ãû×Ö
+	var GFxObject ListItemGfxObject; //control
+	var string PlayerName; //name
 	var int RoleId; // 
 };
 

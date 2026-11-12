@@ -136,29 +136,29 @@ struct ItemInfo
     UINT8 m_byBindType;
 	UINT8 m_Exclusive;
 
-    //以下属性仅限装备
-    //是否已鉴定
+    //The following attributes are for equipment only
+    //Whether identified
     UINT8 m_byIdentified;
-    //随机属性
+    //Random attribute
     UINT16 m_wRandomAttrID[MAX_RANDOM_ATTR_COUNT];
-    //强化等级
+    //Enhancement level
     UINT16 m_wRefineLevel; //To Be Deleted...
-    //签名
+    //Signature
     UINT32 m_dwRoleID;
 	UINT32 m_dwCostMoney;
 
-    //以下属性仅限武器
-    //幸运值
+    //The following attributes are for weapons only
+    //Luck value
     INT8 m_byLuck;
-	//武器升级
+	//Weapon upgrade
 	UINT8 m_byLevelupPhyPoint;
 	UINT8 m_byLevelupMagPoint;
 	UINT8 m_byLevelupTaoPoint;
-    //铸魂
+    //Soul casting
     UINT16 m_wRune[MAX_RUNE_COUNT];
 
-    //以下属性仅限防具
-    //融灵
+    //The following attributes are for armor only
+    //Spirit fusion
     UINT32 m_dwSocketCombination;
     INT32 m_nSoulID[MAX_SOCKET_COUNT];
 
@@ -177,7 +177,7 @@ struct ItemInfo
         default: return SOCKET_NONE;
         }
     }
-	// 当前堆叠数量
+	// Current stack count
 	INT GetCurStackCount(const UItem* pkTemp) const
 	{
 		if(pkTemp&&pkTemp->ItemDuration == E_DURTYPE_STACK)
@@ -223,7 +223,7 @@ struct ItemInfo
 		ReadBuf(itemver, bufsize, pData);
 		if (itemver != 3)
 		{
-			warnf(NAME_Error, TEXT("客户端与服务器的道具数据结构版本不匹配 服务器版本号: %d, 客户端版本号: 3"), itemver);
+			warnf(NAME_Error, TEXT("Client and server item data structure versions do not match. Server version: %d, client version: 3"), itemver);
 		}
 
         ReadBuf(m_llGuid, bufsize, pData);
@@ -376,7 +376,7 @@ struct Player_Money
 	INT64            allMoneys[MONEYTYPE_COUNT];
 	INT64            allMoneysLimit[MONEYTYPE_COUNT];
 
-	//32位映射------------------------------------------------
+	//32-bit mapping------------------------------------------------
 	INT32            anMoneys[MONEYTYPE_COUNT];
 	INT32            anMoneysLimit[MONEYTYPE_COUNT];
 
@@ -420,28 +420,28 @@ enum EItemSlotHint
 
 struct FClientItemInfo : public ItemInfo
 {
-    //拆分出售后 记录原始数据
+    //Record original data after split sale
     int  OriDur;
-    //出售数量
+    //Sale quantity
     int  OnSaleCount;
-	//是否被拖入其它界面(灵魂融合，灵魂升级)
+	//Whether dragged into another UI (soul fusion, soul upgrade)
 	int IsDragIntoOtherUI;
-	//是否被某界面标记
+	//Whether marked by some UI
 	UINT32 IsGrayMarkedInUI;
-	//战斗力值
+	//Combat power value
 	INT Pow;
-	//是否新获得
+	//Whether newly obtained
 	//bool IsNew;
-	//是否已经上架
+	//Whether already listed
 	bool IsOnSale;
-	//抽取熟练度中
+	//Extracting proficiency
 	bool IsOnWeaponExp;
-	//是否闪烁提示
+	//Whether to flash as a prompt
     INT NeedHintMode;
-	//子类型
+	//Subtype
 	INT ItemSubTypeNum;
 
-	//拍卖行id
+	//Auction house id
 	INT32 AuctionId;
 
     FClientItemInfo()
@@ -459,12 +459,12 @@ struct FClientItemInfo : public ItemInfo
 	{
 	}
 
-    //拆分
+    //Split
     void MinusSaleDur( int inCount )
     {
         SetSaleDur( m_nCurDur - inCount );
     }
-    //设置背包剩余叠加量
+    //Set the remaining stack amount in the bag
     void SetSaleDur( int inDur )
     {
         IsOnSale  = true;
@@ -472,21 +472,21 @@ struct FClientItemInfo : public ItemInfo
         m_nCurDur = inDur;
         OnSaleCount = OriDur - inDur;
     }
-    //重置
+    //Reset
     void ResetSaleDur()
     {
         IsOnSale  = false;
         m_nCurDur = OriDur;
         OnSaleCount = 0;
     }
-	//解除Lock部分数量
+	//Release part of the Lock quantity
 	void RecoverSaleDur(int inCount)
 	{
 		m_nCurDur += inCount;
 
 		if(m_nCurDur >= OriDur)
 		{
-			//恢复原状
+			//Restore to original state
 			ResetSaleDur();
 		}
 		else
@@ -497,7 +497,7 @@ struct FClientItemInfo : public ItemInfo
 		
 	}
 
-	//当前堆叠数量
+	//Current stack count
 	INT GetCurStackCount(const UItem* pkTemp) const
 	{
 		if(pkTemp&&pkTemp->ItemDuration == E_DURTYPE_STACK)
@@ -513,7 +513,7 @@ struct FClientItemInfo : public ItemInfo
 		}
 		return 1;
 	}
-	//简单粗暴，先把所有数据都搞进去
+	//Simple and crude, put all the data in first
 	FString ToReadableString();
 //	{
 //		INT i = 0;
@@ -534,7 +534,7 @@ struct FClientItemInfo : public ItemInfo
 //
 //		if(item && item->ItemType == TEXT("ITEMTYPE_EQUIP"))
 //		{
-//			//以下属性仅限装备
+//			//The following attributes are for equipment only
 //			ADDELESTRING(m_byIdentified);
 //			for(i = 0; i < MAX_RANDOM_ATTR_COUNT; ++i)
 //			{
@@ -543,7 +543,7 @@ struct FClientItemInfo : public ItemInfo
 //			//ADDELESTRING(m_wRefineLevel);
 //			ADDELESTRING(m_dwRoleID);
 //
-//			//以下属性仅限武器
+//			//The following attributes are for weapons only
 //			if (item->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 //			{
 //				ADDELESTRING(m_byLuck);
@@ -558,7 +558,7 @@ struct FClientItemInfo : public ItemInfo
 //			}
 //			else
 //			{
-//				//以下属性仅限防具
+//				//The following attributes are for armor only
 //				ADDELESTRING(m_dwSocketCombination);
 //				for(i = 0; i < MAX_SOCKET_COUNT; ++i)
 //				{
@@ -570,7 +570,7 @@ struct FClientItemInfo : public ItemInfo
 //		
 //
 //#undef ADDELESTRING
-//		//去掉最后一个逗号
+//		//Remove the last comma
 //		ret = ret.Mid(0,ret.Len() - 1);
 //		return ret;
 //	}
@@ -598,7 +598,7 @@ struct FClientItemInfo : public ItemInfo
 //			}
 //			m_dwRoleID = (UINT32)PARSEELESTRING();
 //			
-//			//以下属性仅限武器
+//			//The following attributes are for weapons only
 //			if (item->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 //			{
 //				m_byLuck = (INT8)PARSEELESTRING();
@@ -628,9 +628,9 @@ struct FClientItemInfo : public ItemInfo
 
 /*
 //hemu@snda
-//TActorInstanceIterator 迭代出指定类型 actor instance in GWorld
-//相对TObjectIterator提高效率 
-//Example：
+//TActorInstanceIterator iterates actor instances of the specified type in GWorld
+//More efficient than TObjectIterator
+//Example:
 TActorInstanceIterator< APlayerStart > tempIter;
 while ( *tempIter )
 {
@@ -718,37 +718,37 @@ struct AffixClientInfo
 };
 
 
-//副本评分
+//Instance rating
 struct FBSummaryData
 {
-	//通关时间
-	UINT m_uiClearanceTimePt;//评分
-	UINT m_uiClearanceTime;//秒
-	//击杀技巧
-	UINT m_uiKillSkillPt;//评分
+	//Clear time
+	UINT m_uiClearanceTimePt;//rating
+	UINT m_uiClearanceTime;//seconds
+	//Kill technique
+	UINT m_uiKillSkillPt;//rating
 	UINT m_uiKilled;
 	UINT m_uiDestroyed;
 	UINT m_uiStrategy;
-	//成就
-	UINT m_uiAccomplishPt;//评分
+	//Achievement
+	UINT m_uiAccomplishPt;//rating
 	//INT m_iAccompLishID[8];
-	//综合评分
+	//Overall rating
 	UINT m_uiGradedPt;
 	UINT m_uiGradedExp;
-	//额外加成
+	//Extra bonus
 	UINT m_uiVIPExp;
 	UINT m_uiGuildExp;
 	UINT m_uiActivityExp;
 	UINT m_uiFirstTimeExp;
 	UINT m_uiCouplesExp;
-	//总加成
+	//Total bonus
 	UINT m_uiSumUpExp;
 	UINT GetSumUpExp(){ 
 		return m_uiSumUpExp;
 		//return ( m_uiGradedExp + m_uiVIPExp + m_uiGuildExp + m_uiFirstTimeExp + m_uiCouplesExp );
 	}
 };
-//副本奖励
+//Instance reward
 struct FBAward
 {
 	UINT uiItemID;
@@ -759,14 +759,14 @@ struct FBAward
 static const UINT MAX_FB_AWARDS_CNT = 3;
 struct FBMemberAwardData
 {
-	UINT m_uiMemberID;//0表示此项空
+	UINT m_uiMemberID;//0 means this entry is empty
 	//var string MemberName;
 	UINT m_uiFBGradedPt;
 	UINT m_uiFBAwardCount;
 	FBAward m_Award[MAX_FB_AWARDS_CNT];
 };
 
-//npc头顶显示配置表
+//npc overhead display config table
 struct HintConfig
 {
 	FString NpcTypeName;
@@ -778,10 +778,10 @@ struct HintConfig
 	INT HPVisible;
 };
 
-//title表
+//title table
 struct TitleData 
 {
-	//表值，顺序
+	//Table value, order
 	INT ID;
 	INT ValidTime;
 	INT Pow;
@@ -810,10 +810,10 @@ struct TitleData
 
 };
 
-//tween data物理运动效果设置数据
+//tween data physical motion effect setting data
 struct TweenData
 {
-	//单位厘米,秒
+	//Unit: centimeters, seconds
 	FLOAT sx;
 	FLOAT sy;
 	FLOAT sz;				
@@ -858,7 +858,7 @@ struct TweenData
 
 };
 
-//mount结构
+//mount structure
 struct MountData
 {
 	INT ID;
@@ -886,7 +886,7 @@ struct WingData
 	FString AvatarName;	//object path of the wing AvatarData, e.g. Wing_Avt_Data.AvatarData_Wing_01_Lv1
 };
 
-//显示结构
+//Display structure
 struct ShowPanelAdvancedData
 {
 	FString PanelName;
@@ -904,7 +904,7 @@ struct ShowPanelAdvancedData
 	
 };
 
-//声望结构
+//Reputation structure
 struct ReputationTemp
 {
 	INT Index;
@@ -937,7 +937,7 @@ struct ReputationTemp
 };
 
 
-//二级属性列表
+//Secondary attribute list
 struct Attribute2
 {
 	INT ClassID;
@@ -1135,38 +1135,38 @@ public:
 	INT GetMoneyRatio();
 
 public:
-	//hemu 账户角色信息 IO相关--------------------------------------------Begin
+	//hemu account character info IO related--------------------------------------------Begin
 
-	//直接导出地址上连续的账户角色信息到一个指定DataTypeName类型的二进制文件
+	//Directly export consecutive account character info at the address to a binary file of the specified DataTypeName type
 	void ExportSimpleAccountData( void *pData , size_t lDataLength , FString DataTypeName , UBOOL bingUsename = TRUE );
 
 	static FString GetUserAccountStoreDir();
-	//开始导出账户角色信息到一个指定DataTypeName类型的二进制文件
-	UBOOL BeginExportAccountData( FArchive** pArchive , FString DataTypeName , UBOOL bingUsename = TRUE /*和用户名有关*/ );
+	//Begin exporting account character info to a binary file of the specified DataTypeName type
+	UBOOL BeginExportAccountData( FArchive** pArchive , FString DataTypeName , UBOOL bingUsename = TRUE /*related to username*/ );
 
-	//需要与BeginExportAccountData成对使用
+	//Must be used in pairs with BeginExportAccountData
 	void EndExportAccountData( FArchive* pArchive );
 
-	//读取账户角色信息中DataTypeName的二进制数据
+	//Read the binary data of DataTypeName in the account character info
 	UBOOL BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeName , UBOOL bingUsename = TRUE );
 
-	//需要与BeginLoadAccountBinary成对使用
+	//Must be used in pairs with BeginLoadAccountBinary
 	void EndLoadAccountBinary( FArchive* pArchive );
 
-	//hemu 账户角色信息 IO相关--------------------------------------------End
+	//hemu account character info IO related--------------------------------------------End
 
-	// 创建玩家
+	// Create player
 	AMMOPlayer* CreatePlayer(INT Id, const FVector& initLoc, const FRotator& initRot);
 
 	bool IsSelf(AMMOPlayer* player) const;
 	bool IsSelf(INT roleID) const;
 	UBOOL IsMonsterOwnedByMe( AMMOActor *pActor ) const;
 
-	// 创建NPC,如果已存在,会返回已存在的对象
+	// Create NPC, if it already exists, returns the existing object
 	ANPC* CreateNPC(INT Id, const FVector& initLoc, const FRotator& initRot);
 
 
-	// 上面两个创建函数将会被这个函数替换掉,统一玩家与npc的创建流程
+	// The two creation functions above will be replaced by this function, unifying the player and npc creation flow
 	AMMOActor* CreateCharacter(INT Id, INT CharacterType, const FVector& initLoc, const FRotator& initRot);
 
 	AMMOEmitter* CreateEmitter(INT Id, INT EmitterTemplateId);
@@ -1186,7 +1186,7 @@ public:
 	void GetDurationTimeString(UINT32 startTime, FString& timeString);
 	void GetCountdownTimeString(UINT32 endTime, FString& timeString);
 
-	// 获取主玩家
+	// Get main player
 	void AddMainCharacter(AMMOPlayer* MainCharacter);
 	//MMOPlayerControllerAI* GetMainControllerAI();
 	AMMOPlayerController* GetMainController();
@@ -1202,7 +1202,7 @@ public:
 
 	FLOAT GetMainActorCollisionHeight();
 
-	// 获取对象. NULL表示不存在
+	// Get object. NULL means it does not exist
 	AMMOActor* GetCharacter(INT Id);
 
 	AActor* GetActor(INT Id);
@@ -1216,12 +1216,12 @@ public:
 
 	void ClearAllCharacter();
 
-	// 添加/清除/获取 音效/粒子对资源. 用于打击,脚步表现
+	// Add/clear/get sound effect/particle pair resources. Used for hit and footstep presentation
 	void AddSoundParticle(INT key, FSoundParticleEffect* node);
 	void ClearSoundParticle();
 	FSoundParticleEffect* GetSoundParticle(INT key);
 
-	//词缀
+	//Affix
 	//void				AddAffixTable( const FString& Name , UAI_Affix_Table* node );
 	//UAI_Affix_Table*	FindAffixTable( INT monsterLevel , INT monsterQuantity );
 // 	BOOL InitAffix();
@@ -1235,7 +1235,7 @@ public:
 	void SetSceneDifficulty(INT sceneDifficulty);
 	INT GetSceneDifficulty() const { return _sceneDifficulty; }
 
-	// 添加/清除/获取 动画混合表
+	// Add/clear/get animation blend table
 	void							AddAnimMix(INT key, FAnimationNode* node);
 	void							ClearAnimMix();
 	FAnimationNode*	GetAnimMix(INT key);
@@ -1256,10 +1256,10 @@ public:
 
 	//UpdatePetLevel
 	void UpdatePetLevelColor(AMMOActor* actor);
-	// 清除角色身上相关
+	// Clear things related to the character
 	void ClearMainPlayer();
 
-	// 回购相关功能
+	// Buyback related features
 	void ClearSoldItems();
 	void AddSoldItem(ItemInfo* info);
 	INT GetSoldItemCount() const;
@@ -1305,7 +1305,7 @@ public:
 	FClientItemInfo* FindFirstItemPos( UINT itemID , INT* outContainerTypeID , INT* outSlotIdx) const;
 	FClientItemInfo* FindFirstItemPosInContainer( UINT itemID, INT containerTypeID, INT& outSlotIdx ) const;
 
-	//NPC回收物品价格
+	//NPC item recycle price
 	INT GetEquipNpcPrice( UItem *pItem, const ItemInfo *pItemInfo );
 
 	void AddNPCTemplate(INT k, class UNPCTemplate* npc);
@@ -1348,10 +1348,10 @@ public:
 private:
 	
 	TArray<Attribute2> vecAttribute2;
-	//基础属性读取值
+	//Base attribute read values
 	typedef std::map< INT,STLIntVector, M_UE3_STL_ALLOC_MAP(INT, STLIntVector) > Int2IntVectorMap;
 	Int2IntVectorMap BaseAttributeValue;
-	//attributeId 对应 下标值
+	//attributeId corresponds to index value
 	TArray<INT>  BaseAttributeValueMap;
 	//level power
 	TMap< INT , INT > LevelPowerMap;
@@ -1481,7 +1481,7 @@ public:
 	void SetMyCurrentMaxHP(INT CurrentHP);
 	INT GetMyMaxHP() const;
 
-	//检查玩家钱币是否足够
+	//Check whether the player has enough coins
 	UBOOL CheckEnoughMoney( EMONEY_TYPE moneyType , INT moneyValue );
 
 	void NotifyMyHPChange();
@@ -1577,10 +1577,10 @@ public:
 	//void NotifyUpdateMyTeam();
 	void NotifyUpdateTeamMate( INT UIPos , INT Pos );
 	//void NotifyChatMessage( INT ChannelId , INT TypeId , FString MsgContent,FString SenderName );
-	void SetTeamMemberHP(  INT MemberServeId ,  INT HP ,INT MAXHP , INT hasPos = -1 /*已知队伍位置就不查找了*/);
-	void SetTeamMemberMP(  INT MemberServeId ,  INT MP , INT MAXMP , INT hasPos = -1 /*已知队伍位置就不查找了*/ );
-	void SetTeamMemberLv(  INT MemberServeId ,  INT Lv , INT hasPos = -1 /*已知队伍位置就不查找了*/  );
-	void SetTeamMemberOnline(  INT MemberServeId ,  BOOL Online , INT hasPos = -1 /*已知队伍位置就不查找了*/ );
+	void SetTeamMemberHP(  INT MemberServeId ,  INT HP ,INT MAXHP , INT hasPos = -1 /*if the team position is known, skip the search*/);
+	void SetTeamMemberMP(  INT MemberServeId ,  INT MP , INT MAXMP , INT hasPos = -1 /*if the team position is known, skip the search*/ );
+	void SetTeamMemberLv(  INT MemberServeId ,  INT Lv , INT hasPos = -1 /*if the team position is known, skip the search*/  );
+	void SetTeamMemberOnline(  INT MemberServeId ,  BOOL Online , INT hasPos = -1 /*if the team position is known, skip the search*/ );
 
 	//void NotifyUpdateMyFriend();
 	//void NotifyUpdateFriendItemValue(INT GroupID,INT pos,const FString& PlayerName,INT Lv,const FString& Carrer,const FString& Location,const FString& Sign,INT RoleId,INT Online);
@@ -1602,29 +1602,29 @@ public:
 
 
 
-	//枚举字符转换
+	//Enum string conversion
 	FString ClientEnum2ServerEnum(const FString& ClientEnum, INT EscapeNum = 2);
-	//通过服务器枚举字符获得客户端对应枚举字符
+	//Get the client enum string from the server enum string
 	FString FindClientEnumString( const FString& ServerEnum, const TCHAR* SerEnumType, INT EscapeNum ) ;
-	//通过服务器枚举字符获得客户端对应枚举值
+	//Get the client enum value from the server enum string
 	INT		FindClientEnumValue( const FString& ServerEnum, const TCHAR* SerEnumType ,INT EscapeNum = 2 );
-	//通过枚举值获取枚举字符串，
+	//Get the enum string from the enum value,
 	FString FindServerEnumString( INT ServerEnumID, const TCHAR* SerEnumType );
-	//通过服务器枚举字符获得客户端对应的枚举字符
+	//Get the corresponding client enum string from the server enum string
 	FString FindClientAttrName(const FString& ServerEnum, const TCHAR* SerEnumType);
-	//客户端自己使用的字符串转枚举值
+	//Convert strings used by the client itself to enum values
 	INT		ClientStrToEnum( const FString& ClientEnum, const TCHAR* ClientEnumType);
 
-	//读取称号列表
+	//Read title list
 	UBOOL ReadTitle();
-	//读取头顶文字配置列表
+	//Read overhead text config list
 	UBOOL ReadHint();
-	//读取Tween列表
+	//Read Tween list
 	UBOOL ReadTweenData();
-	//读取掉落轨迹表
+	//Read drop trajectory table
 	UBOOL ReadTestDropTrace();
 
-	//读取mount列表
+	//Read mount list
 	UBOOL ReadMountData();
 	UBOOL ReadWingData();
 	UBOOL RefreshMountData();
@@ -1635,16 +1635,16 @@ public:
 	void  ReadHintNode(HintConfig& NpcHint, FString NpcTypeName, INT NameVisible, INT StatusVisible, INT IconVisible, INT HPVisible );
 	HintConfig*  GetHintInfo(EActorClassType ActorType,ENPC_QUALITY quality );
 
-	//读取pk值分级别列表
+	//Read pk value tier list
 	UBOOL ReadPkLevel();
-	//读取势力声望表
+	//Read faction reputation table
 	UBOOL ReadForceRelative();
-	//读取屏蔽字列表
+	//Read banned word list
 	UBOOL ReadCensoredWordList(CensoredWordType type = CensoredWord_All);
-	//获取一个技能的下一级
+	//Get the next level of an ability
 	UMMOAbility* GetAbilityByNextLevel( UMMOAbility *ability );
 	UMMOAbility* GetAbilityWithRuneByNextLevel( UMMOAbility *ability );
-	//读取随机属性
+	//Read random attributes
 	UBOOL ReadRandomAttribute();
 
 	UBOOL ReadAttribute2Config();
@@ -1655,9 +1655,9 @@ public:
 	UBOOL ReadPowerConfig();
 
 	UBOOL LoadStringMap();
-	//获得5个基础属性
+	//Get the 5 base attributes
 	INT   GetAttributeConfigData(INT nLevel,INT nClass,INT AttributeType);
-	//获得2级属性的基础值
+	//Get the base value of the secondary attributes
 	INT	  GetAttribute2ConfigData( INT nLevel,INT nClass,INT AttributeType );
 	Attribute2	  GetAttribute2ConfigStructData( INT nClass,INT AttributeType );
 	//
@@ -1665,7 +1665,7 @@ public:
 	INT GetLevelExp( INT lv);
 	INT GetSpiritPow( INT lv );
 
-	//获取某个ID的title信息
+	//Get the title info of an ID
 	void	   ResetTitleData();
 	TitleData* GetTitleData(INT ID);
 	TitleData* GetTitleDataArray(INT Index);
@@ -1673,12 +1673,12 @@ public:
 	UBOOL	   UpdateTitleArray();
 	MountData* GetMountData(INT ID);
 	FString GetWingAvatarName(INT ID);
-	//获取某个tween信息
+	//get info of a tween
 	TweenData* GetTweenData(FString stringID);
-	//获取某个ForceID的声望值
+	//Get the reputation value of a ForceID
 	INT   GetPlayerReputation(const AMMOPlayer* player, INT ForceID);
 	void  SetPlayerReputation(AMMOPlayer* player, INT Index,INT ForceID, INT newReputation, INT lastReputation);
-	//获取某个ForceID的激活值
+	//get the activation value of a ForceID
 	UBOOL  GetPlayerActiveState(const AMMOPlayer* player, INT ForceID);
 	void  SetPlayerActiveState(AMMOPlayer* player, INT Index,INT ForceID, BOOL ActiveState);
 	UBOOL  GetPlayerAwardState(const AMMOPlayer* player, INT ForceID);
@@ -1686,7 +1686,7 @@ public:
 	UBOOL  GetPlayerAwardDisplay(const AMMOPlayer* player, INT ForceID);
 
 
-	////获取两个ForceID的敌对关系
+	////get the hostile relation between two ForceIDs
 	
 
 	UBOOL IsPlayerAttackable(const AMMOPlayer * Player1, const AMMOPlayer* Player2);
@@ -1695,16 +1695,16 @@ public:
 	UBOOL IsTradeable( const AMMOPlayer* player1, const AMMOPlayer* player2 );
 	UBOOL IsAbilityCanUse( UMMOAbility *toUseAbility );
 
-	//可用的铭文技能
+	//available inscription abilities
 	UMMOAbility* FindMyUsableSkill( INT mainSkillID );
 
-	//副本相关
+	//dungeon related
 	FBSummaryData* GetFBSummary(){ 
 		return &_FBSummary; 
 	}
 	//
 
-	//chain pay 连带支付
+	//chain pay (joint payment)
 	void SetChainPay( UBOOL open );
 	UBOOL GetChainPay(){ return _chainPay; }
 
@@ -1713,14 +1713,14 @@ public:
 	FBMemberAwardData* SetFBOtherScore(const G2C_DUNGEON_FINISH_SCORE &data);
 	FBMemberAwardData* SetFBAward( const G2C_DUNGEON_REWARD &data );
 	void ResetFBAward();
-	//第一项为自己，即iIdx为0时
+	//The first entry is self, i.e. when iIdx is 0
 	FBMemberAwardData* GetFBAward( INT iIdx );
 	FBMemberAwardData* GetFBAwardByRoleID( UINT uiIdx );
 
 	//
 	UBOOL PlayerMoveToScenePos( FExportMap &toMoveSceneInfo, FVector world3DPos );
 
-	//读取二维config，返回二维FString
+	//read a 2D config, returns a 2D FString
 	static UBOOL ReadConfigString( class CTabFile*& outTabFile, const TCHAR* ConfigName, bool needEmpty = false , bool delQuotate = false);
 	static class CTabFile* ReadTabFile( const TCHAR* ConfigName);
 	static INT   GetColumnIndex(TArray<FString>& ArrayString, FString KeyName);
@@ -1731,7 +1731,7 @@ public:
 	void SetIsSpecialRepairing( UBOOL repairing ){ _isSpecialRepairing = repairing; }
 	UBOOL GetIsSpecialRepairing(){ return _isSpecialRepairing; }
 
-	//自动解包
+	//auto unpack
 	void SendOpenPackage(INT itemId);
 private:
 	void TickTitleTime(FLOAT deltaTime);
@@ -1741,15 +1741,15 @@ private:
 
 	UBOOL _chainPay;
 
-	//读取单段文字
+	//read a single segment of text
 	//UBOOL ReadStrNode(TCHAR* pData,INT &nStart,TCHAR* OutStr,UBOOL* bReturn);
-	//读取正行 确保当前行被读完
+	//read a whole line, ensure the current line is fully read
 	//UBOOL ReadLine(TCHAR* pData,INT &nStart );
 
 
-	//记录当前的游戏名字
+	//record the current game name
 	static  void IniMMOAppName();
-	//当前程序名字 
+	//current program name
 	static  FString mMMOAppName;
 
 public:
@@ -1766,7 +1766,7 @@ public:
 
 	void SetPlayerInitPosition(const FVector& pos) { _initTeleportPos = pos; }
 
-	//时间
+	//Time
 	INT32 GetClientToSceneSecondDiff(){ return ClientToServerSecDiff; }
 	void SetEnterSceneServerTime( UINT32 serverTime );
 	UINT32 GetEnterSceneServerTime(){ return EnterSceneServerUtcTime; }
@@ -1780,7 +1780,7 @@ public:
 		MainController = 0;
 	}
 	/*
-	正常游戏态的帧率 
+	Frame rate in normal game state
 	*/
 	void   AddNewGameStateFPSData(INT nFps);
 	FLOAT  GetGameSateFps();
@@ -1801,8 +1801,8 @@ protected:
 	//MMOPlayerControllerAI* MainControllerAI;
 	AMMOPlayerController* MainController;
 
-	// 所有服务器统一编号的对象,包含玩家,NPC,实体子弹
-	STLInt2IntMap FriendlyNpcMap;// 系统NPC常需要遍历，在任务
+	// objects numbered uniformly across all servers, including players, NPCs, entity bullets
+	STLInt2IntMap FriendlyNpcMap;// system NPCs often need to be traversed, in quests
 	STLInt2IntMap::iterator FriendlyNpcMapPos;
 	STLInt2IntMap CharacterMap;
 	STLInt2IntMap PlayerMap;// 
@@ -1823,8 +1823,8 @@ protected:
 
 	UBOOL _todayExpIsFull;
 
-	//纯Client的Contain也需要加上
-	//用于传入的实际Item数据,如摊位中一个其他玩家的强化武器
+	//pure Client Contain also needs to be added
+	//actual Item data passed in, e.g. another player's enhanced weapon in a stall
 	UINT8 ContainerSize[E_CONSLOT_MAX]; 
 	ItemsMap _Containers[E_CONSLOT_MAX];
 
@@ -1849,9 +1849,9 @@ protected:
 	TArray<ReputationTemp> _ReputationTempArray;
 	INT	_CanAttackWithFreePkModeArray[MAX_NPC_FORCE_ID];
 
-	// 传送过地图之后的初始位置
+	// initial position after teleporting across maps
 	FVector _initTeleportPos;
-	// 副本相关
+	// dungeon related
 	FBSummaryData _FBSummary;
 	//typedef std::vector<FBMemberAwardData> FBMemberAwardTemplateVec;
 	//FBMemberAwardTemplateVec _FBMemberAward;
@@ -1885,7 +1885,7 @@ protected:
 	INT	_sceneLevel;
 	INT _sceneDifficulty;
 
-	// 时间相关
+	// time related
 	LONG64 GameStartTime;
 	LONG64 LastUpdateTime;
 	INT ServerFrameCount;
@@ -1896,8 +1896,8 @@ protected:
 	UINT32 GatePingDelayTime;
 
 	/*
-	 InGameStateFps: 统计一个正常游戏中的帧率( loading时  最小化  不在前台时不计算在内)
-	 InGameCalTimes: 游戏中求均值得次数
+	 InGameStateFps: stats the frame rate during normal gameplay (not counted while loading, minimized or in the background)
+	 InGameCalTimes: number of times the average is computed in game
 	*/
 	FLOAT  InGameStateFps;
 	INT    InGameCalTimes;
@@ -1905,7 +1905,7 @@ protected:
 	UINT32 EnterSceneServerUtcTime;
 	INT32 ClientToServerSecDiff;
 	
-	//加载相关
+	//loading related
 	UBOOL	LastInGameScene;
 	// teleports
 
@@ -1920,7 +1920,7 @@ protected:
 	typedef std::map<FString, USoundCue*, ComparFString, STLAllocator< std::pair<FString, USoundCue*>, UE3STLAllocatorPolicy> > UISoundMap;
 	UISoundMap _UISoundMap;
 
-	//背包排序
+	//bag sort
 	ItemSortType playerSortType;
 	
 protected:

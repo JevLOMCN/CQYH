@@ -1,5 +1,5 @@
 //
-// 玩家类
+// Player class
 //
 class MMOPlayer extends MMOActor implements(IMMOActorHUD, IInteractableActor)
 	dependson(NPC)
@@ -9,7 +9,7 @@ class MMOPlayer extends MMOActor implements(IMMOActorHUD, IInteractableActor)
 	hidecategories(Object,Advanced,Attachment,Display,Debug,Camera,AI);
 
 //------------------------------------------------------------
-// 过场动画
+// Cutscene
 //------------------------------------------------------------
 //var Actor TargetMatineeActor;
 //var EPhysics PhysicsBeforeMatinee;
@@ -22,7 +22,7 @@ var transient bool IsInMatinee;
  
 
 //---------------------------------------------------------------
-// 网络协议相关变量
+// Network protocol related variables
 //---------------------------------------------------------------
 var init string UserId;
 
@@ -34,57 +34,57 @@ var init string UserId;
 var	bool        ShowManteau;
 
 var bool        SuitMode;
-//var() string	ActorName      <DisplayName="玩家名字">;
+//var() string	ActorName      <DisplayName="Player name">;
 
 var(MMOPlayer) bool    IsMale									<DisplayName="IsMale">;
 var(MMOPlayer) bool  bShowAvatar								<DisplayName="ShowAvatar">;
 var(MMOPlayer) int nShowAvatarClassID							<DisplayName="ShowAvatarClassID">;
-//在连击中是否可以转向
+//Whether turning is allowed during a combo
 var(MMOPlayer) bool CanRotWhenCombo								<DisplayName="CanRotWhenCombo">;
 
 
-// 轻功最大距离
+// Max qinggong distance
 var(MMO) float MaxFlyDistance									<DisplayName="MaxFlyDistance">;
 
-//自动检测随机动作时间
+//Auto-detect random action time
 var transient float LeftTimeToCheckAboutRestAnim;
 var transient float TimeToCheckAboutRestAnim;
 
-//临时属性
-//var(MMO) bool bMale <DisplayName="是男性么">;
+//Temporary attributes
+//var(MMO) bool bMale <DisplayName="Is male">;
 
-//是否在安全区
+//Whether in safe zone
 var bool IsInSafeZone;
 var bool IsInFreePkZone;
 
 //var Vector AbilityDir;
 var Vector TargetLocation;
 
-// 缓冲的技能，只能缓冲一次
+// Buffered ability, can only be buffered once
 //var Ability BufferAbility;
 var int BufferAbility;
 
-// 连击计时
+// Combo timer
 var float ComboCD;
 
-// 连击数
+// Combo count
 var int ComboCount;
 
 
 
-//队伍管理器
+//Team manager
 //var TeamManager TeamManager;
-//战场管理器
+//Battlefield manager
 //var BattleManager BattleMgr;
 
-//好友聊天的管理器
+//Friend chat manager
 //var MMOFriendChatManager    FriendChatManager;
 
-//初始位置，角度
+//Initial position, angle
 var vector OrignPos;
 var rotator OrignRot;
 
-// 在此时间内击中怪物算连击
+// Hitting a monster within this time counts as a combo
 var(MMOCombo) float MaxComboTime	<DisplayName="MaxComboTime">;
 
 
@@ -108,31 +108,31 @@ var int PrisonTerm;
 
 var int  VipType;
 
-// 摆摊相关
+// Stall related
 var init string StallName;
 var int StallLevel;
-// 摊位等级不同，模型不同
+// Different stall levels have different models
 var config string StallMeshName1;
 var config string StallMeshName2;
 
-var config string PlayerLevelUpEffect;  // 升级特效
-var config string PlayerReviveEffect;   // 复活特效
-var config string PlayerTeleportLeaveEffect; // 传出特效
-var config string PlayerTeleportEnterEffect; // 传入特效
-var config string PlayerSkillLearnedEffect; // 技能获得特效
-var config string PlayerSkillLevelUpEffect; // 技能升级特效
-var config string PlayerAchievementEffect;  // 成就达成特效
-var config string SabacStatueEffect;  // 沙巴克雕像特效
-var config string PlayerGainExtraExpEffect; //历练经验获得
-//加个元宝
+var config string PlayerLevelUpEffect;  // Level-up effect
+var config string PlayerReviveEffect;   // Revive effect
+var config string PlayerTeleportLeaveEffect; // Teleport-out effect
+var config string PlayerTeleportEnterEffect; // Teleport-in effect
+var config string PlayerSkillLearnedEffect; // Ability learned effect
+var config string PlayerSkillLevelUpEffect; // Ability level-up effect
+var config string PlayerAchievementEffect;  // Achievement unlocked effect
+var config string SabacStatueEffect;  // Sabak statue effect
+var config string PlayerGainExtraExpEffect; //Gained experience from training
+//Add an ingot
 var int RealMoney;
 
 
 var bool bRelevant;
 
-// 任务 #21843
-// 主角的武器升级点数是通过玩家武器道具属性计算的，但是其他玩家的是服务器单独发过来的
-// 这里统一记在玩家身上
+// Quest #21843
+// The main character's weapon upgrade points are computed from the player's weapon item attributes, but those of other players are sent separately by the server
+// Recorded uniformly on the player here
 var int WeaponUpgradePoint;
 var config int WeaponUpgradeTopLevel;
 
@@ -157,7 +157,7 @@ native function SetSilhouette( bool show, Vector sc = vect( 1.f, 1.f, 0.f ) );
 native function RefreshCollision();		//Bruce@snda
 
 
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	//local LightingChannelContainer lcc;
@@ -271,7 +271,7 @@ native function EPickPriority GetPickPriority();
 event SetRevive()
 {
 	super.SetRevive();
-	//直接调用 经常其他MMOActor挂了会跑到这里
+	//Called directly; often ends up here when other MMOActors die
 	//MMOGame(WorldInfo.Game).EnableDeathEffects( false );
 
 	if( ItemManager != none )
@@ -360,14 +360,14 @@ event EncroachedBy( actor Other )
 	//	gibbedBy(Other);
 }
 
-// 设置默认相机模式为Isometric
+// Set default camera mode to Isometric
 simulated function name GetDefaultCameraMode( PlayerController RequestedBy )
 {
 	`Log("[MMO]: Default camera mode Isometric");
 	return 'Isometric';
 }
 
-// 玩家死亡时不要丢出武器
+// Do not drop the weapon when the player dies
 function ThrowWeaponOnDeath()
 {
 }
@@ -452,7 +452,7 @@ function ClimbLadder(LadderVolume L)
 	Controller.PushState('Climbing');
 }
 
-// 进入安全区
+// Enter safe zone
 //native function OnEnterSafeZone();
 //{
 //	 `log("Debug: +++++++++++++++++ Enter MMOVolume_SafeZone" @self);
@@ -464,7 +464,7 @@ function ClimbLadder(LadderVolume L)
 //	}
 //}
 
-// 离开安全区
+// Leave safe zone
 //native function  OnLeavingSafeZone();
 //{
 //	 `log("Debug: ----------------- Leave MMOVolume_SafeZone" @self);
@@ -479,12 +479,12 @@ function ClimbLadder(LadderVolume L)
 //	}
 //}
 
-//刷新武器绑定骨骼
+//Refresh weapon bind bone
 native function ReflashWeaponSocket();
 
 native function RefreshCombatPose();
 
-//// 抽刀/拔刀
+//// Draw/unsheathe weapon
 //event OnBladeInOut()
 //{
 //	if(IsInSafeZone)
@@ -522,7 +522,7 @@ simulated event Tick( float deltaTime )
 	}
 	
 
-	//// 如果有缓冲技能并且当前技能可以接下招就
+	//// If there is a buffered ability and the current ability can chain into the next, then
 	//if(HasBufferAbility()
 	//	&& ActiveAbility.CanComboNext())
 	//{
@@ -542,7 +542,7 @@ simulated event Tick( float deltaTime )
 //	{
 //		//`log("@@@@HP"@dmg.HPChange);
 //		MMOHud(MMOPlayerController(Controller).myHUD).HudMovie.CallShotText( string(dmg.HPChange),0xff0000,0xffff00,580,310,15,0,-5,0,-100);
-//		//HudMovie.CallShotText( "未击中",0xff0000,0xffff00,screenPos.X, screenPos.y,15,0,-5,0,-100 ); 
+//		//HudMovie.CallShotText( "Miss",0xff0000,0xffff00,screenPos.X, screenPos.y,15,0,-5,0,-100 );
 //	}
 //}
 
@@ -552,7 +552,7 @@ function Vector GetAbilityTargetDirection( )
 	
 	actorDir = Normal(MMOPlayerController(Controller).MouseHitWorldLocation - Location);
 
-	actorDir.Z = 0; // 不要在高度上变化
+	actorDir.Z = 0; // Do not change in height
 
 	return actorDir;
 }
@@ -593,7 +593,7 @@ function ClearBufferAbility()
 	BufferAbility = -1;
 }
 
-// 连击数变化，一般就是连中时更新
+// Combo count changed, usually updated when consecutive hits land
 event OnComboChanged(int currentHit)
 {
 	//++ComboCount;
@@ -604,16 +604,16 @@ event OnComboChanged(int currentHit)
 	}
 }
 
-// 连击结束，隐藏显示界面
+// Combo ended, hide the display UI
 event OnComboEnd()
 {
 	ComboCount = 0;
 }
 
-// 增加连击数
+// Increase combo count
 event IncrementCombo()
 {
-	// 连中之后延长时间
+	// Extend time after a consecutive hit
 	ComboCD = MaxComboTime;
 	++ComboCount;
 
@@ -677,7 +677,7 @@ native function bool DrawMyHUD( MMOHud H );
 //		}
 //	}
 
-//	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//实际位置
+//	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//Actual position
 //	objectIconWorldPos.Z += 120;
 //	screenPos = H.Canvas.Project(objectIconWorldPos);
 
@@ -782,7 +782,7 @@ native final function PlayGainExtraExpEffect(Vector inLoc, Rotator inRot);
 
 native final function int GetMoney(EMONEY_TYPE MoneyType);
 
-//重新登录后，重置数据
+//After re-login, reset data
 native final function ResetData();
 
 // modified by zhangrui05
@@ -798,9 +798,9 @@ DefaultProperties
 	LeftTimeToCheckAboutRestAnim = 0;
 	TimeToCheckAboutRestAnim = 9.0;
 
-	////删除场景内原有的元素
+	////Delete the original elements in the scene
 	//Components.Remove(Sprite)
-	////创建动态环境光照对象--用于InitialSkeletalMesh对象(使用LightEnvironment成员赋值)
+	////Create a dynamic environment light object, used for InitialSkeletalMesh objects (assign using the LightEnvironment member)
 	//Begin Object Class=DynamicLightEnvironmentComponent Name=InitLightEnvironment
 	//  ModShadowFadeoutTime=0.25
 	//  MinTimeBetweenFullUpdates=0.2
@@ -811,7 +811,7 @@ DefaultProperties
 	//  bSynthesizeSHLight=TRUE
 	//End Object
 
-	////添加进组件库
+	////Add to component library
 	//Components.Add(InitLightEnvironment)
 
 	//Begin Object Class=SpriteComponent Name=Sprite2
@@ -882,7 +882,7 @@ DefaultProperties
 	bCanPickupInventory=true
 	bCanClimbLadders=true
 
-	// 轻功默认10米
+	// Qinggong defaults to 10 meters
 	MaxFlyDistance=1000.0f
 
 	BlockRigidBody=true

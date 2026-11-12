@@ -114,9 +114,9 @@ void UMMOUIMenuBar::ClickMenuChild( INT menuId,INT menuType,INT childMenuId,INT 
 			else
 			{
 				/*
-				非界面类的窗口 网页等的呼出
+				Calling out non-UI windows such as web pages
 				*/
-				// 开启等级已限制
+				// Unlock level already restricted
 				switch( childMenuType )
 				{
 				case EMenuType_Child_GMService:
@@ -336,7 +336,7 @@ void UMMOUIMenuBar::InitMenuSlot()
 		UpdateMenuButton(MenuInfoList, TRUE, nLevel, nLevel );
 		UpdateMenuButton(RightMenuInfoList, FALSE, nLevel, nLevel);
 
-		//进行等级开放的预处理
+		//Preprocessing for level unlocking
 		mapLevelChange.clear();
 		for(INT i=0; i<MenuInfoList.Num(); i++)
 		{
@@ -366,7 +366,7 @@ void UMMOUIMenuBar::PlayerLevelChange(INT lastLv,INT newLv)
 	if( lastLv != newLv )
 	{
 		INT LevelChangeFlag = 0;
-		if(newLv==lastLv+1)//正常升级
+		if(newLv==lastLv+1)//normal level up
 		{
 			std::map<INT, INT>::iterator pos = mapLevelChange.find(newLv);
 			if(pos!=mapLevelChange.end())
@@ -403,14 +403,14 @@ void UMMOUIMenuBar::UpdateMenuButton( TArrayNoInit<struct FMenuInfo>& menuInfo ,
 	UGFxObject* menuListData = GFXPlayer->CreateArray();
 	if( menuListData )
 	{
-		//var a:Object = {iconName:"bag",childMenuList:[{menuName:"包裹",iconName:"hero",keyName:"B",panelName:"Bag"},{menuName:"英雄",iconName:"hero",keyName:"Y",panelName:"Hero"}]};
+		//var a:Object = {iconName:"bag",childMenuList:[{menuName:"Bag",iconName:"hero",keyName:"B",panelName:"Bag"},{menuName:"Hero",iconName:"hero",keyName:"Y",panelName:"Hero"}]};
 		INT factIdx = 0;
 		for ( INT idx = 0 ; idx < menuInfo.Num() ; idx++ )
 		{
 			//if( menuInfo(idx).RequireLevel > newLv )
 			//{
-			//	//未到要求等级，不显示
-			//	//这里从不显示变为显示的话，可以加个特效
+			//	//Required level not reached, do not show
+			//	//If changing from hidden to shown here, an effect can be added
 			//	continue;
 			//}
 
@@ -422,7 +422,7 @@ void UMMOUIMenuBar::UpdateMenuButton( TArrayNoInit<struct FMenuInfo>& menuInfo ,
 
 				if (menuInfo(idx).RequireLevel > newLv)
 				{
-					menu->SetBool(TEXT("MenuVisible"),TRUE);//未到要求等级，不显示
+					menu->SetBool(TEXT("MenuVisible"),TRUE);//required level not reached, do not show
 				}
 				else
 				{
@@ -447,7 +447,7 @@ void UMMOUIMenuBar::UpdateMenuButton( TArrayNoInit<struct FMenuInfo>& menuInfo ,
 					{
 						//if( menuInfo(idx).ChildList(child).RequireLevel > newLv )
 						//{
-						//	//未到要求等级，不显示
+						//	//Required level not reached, do not show
 						//	continue;
 						//}
 
@@ -462,7 +462,7 @@ void UMMOUIMenuBar::UpdateMenuButton( TArrayNoInit<struct FMenuInfo>& menuInfo ,
 							
 							if (menuInfo(idx).ChildList(child).RequireLevel > newLv || IsMenuActivated(menuInfo(idx).ChildList(child).menuType)==FALSE	)
 							{
-								childMenu->SetBool(TEXT("MenuVisible"),TRUE);//未到要求等级，不显示
+								childMenu->SetBool(TEXT("MenuVisible"),TRUE);//required level not reached, do not show
 							}
 							else
 							{
@@ -768,7 +768,7 @@ UBOOL UMMOUIMenuBar::IsMenuActivated(INT childMenuType)
 
 void UMMOUIMenuBar::ShowNewSystem(INT systemType)
 {
-	// Debug下面不显示开启新系统提示，开发人员反应很烦
+	// Do not show new system unlock hints in Debug, developers found it annoying
 #ifdef _DEBUG
 	return;
 #else
@@ -927,7 +927,7 @@ void UMMOUIMenuBar::OpenGameServiceWnd()
 }
 //===============================================================================================================
 //===============================================================================================================
-// 菜单栏
+// menu bar
 void UMMOUIMenuBar::ASActivateNewSystem(INT systemType)
 {
 	ActivateNewSystem( systemType );

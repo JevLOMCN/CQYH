@@ -1,5 +1,5 @@
 //
-// 修改名字类型和颜色
+// Modify name type and color
 //
 class MMOStatusProc_SetNameHint extends Object implements(IMMOStatusProc)
 	native

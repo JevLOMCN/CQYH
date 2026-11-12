@@ -390,7 +390,7 @@ void ScreenMessageQueue::OnNativeGameEvent( struct MMOGameEvent* evt )
 				MessageData *pNewMsgData = new MessageData();
 				pNewMsgData->MessageType = ESMT_FBUnlock;
 				pNewMsgData->MagicValue = sceneFinishedEvt->IntData;
-				//有点卡，这里给个delay
+				//a bit laggy, add a delay here
 				pNewMsgData->DelayTime = 2;
 
 				ScreenMessageQueue::getSingleton().AddMessage( ESMC_TopCenter, pNewMsgData );

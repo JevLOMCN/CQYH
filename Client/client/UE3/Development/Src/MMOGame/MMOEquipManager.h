@@ -35,7 +35,7 @@ struct EquipMaxDur{
 	}
 };
 
-//强化数据
+//Enhancement data
 struct ValueData{
 	UINT _Type;
 	UINT _Value;
@@ -140,7 +140,7 @@ struct SoulInfo
 	SoulInfo();
 };
 
-//铭文
+//Inscription
 static const INT EQUIP_RUNE_SKILL_MAX = 2;//MAX_RUNE_COUNT;
 
 struct WeaponSkillCfg
@@ -205,14 +205,14 @@ public:
 	}
 
 public:
-	//读取物品强化信息
+	//Read item enhancement info
 	void Initialize();
 	void Shutdown();
 	//UBOOL ReadItemEnhanceConsumption();
 	//UBOOL ReadItemEnhanceResult();
 	void OnNativeGameEvent( struct MMOGameEvent* evt );
 
-	//获得强化信息
+	//Get enhancement info
 	const EnhanceData* GetEnhanceConsumptionInEquipBag( UINT bagIdx );
 	const EnhanceResult* GetEnhanceResultInEquipBag( UINT bagIdx );
 
@@ -220,7 +220,7 @@ public:
 	const EnhanceResult* GetEnhanceResult( const FString & equipSubType, const FString &equipSubSubType, UINT enhanceLv );
 	UINT32 GetEnhanceResultKey( const FString & equipSubType, const FString &equipSubSubType );
 public:
-	//铸魂
+	//Soul casting
 	UBOOL CheckEquipWeaponSkillNeedHint();
 	UBOOL EquipSkillsToFitCurWeapon( UBOOL canEquipWeaponSkill );
 	void ModifyEquippedSkillsAccordingSyncEquippedWeapon();
@@ -237,12 +237,12 @@ public:
 	void UpdateSkillLevelByCurWeapon();
 
 public:
-	//装备套装
+	//Equipment set
 	UBOOL ReadEquipSuit();
 	EquipSuit* FindEquipSuitByPartOfSuit( INT itemID );
 	EquipSuit* FindOrLoadFullEquipSuitBySuitID( INT suitID );
 
-	//修理费用
+	//Repair cost
 	INT CountEquipRepairCostAll();
 	INT GetEquipRepairCost( const UEquip *pEquip, const ItemInfo *pItemInfo, UBOOL isSpecialRepair = FALSE ) const;
 
@@ -251,13 +251,13 @@ public:
 	void CacheMaxDurForAllEquipRepair();
 	void CacheMaxDurForEquipRepair( ItemInfo *equipInfo );
 
-	//统计装备幸运值总和
+	//Sum of equipment luck values
 	UINT32 CountEquipLuckTotal();
 	//
 	UBOOL CheckItemUseableForMe( const UItem *pItem ) const;
 	UBOOL CheckEquipPropRequireForMe( const UEquip *pEquip ) const;
 
-	//武器升级
+	//Weapon upgrade
 	UBOOL IsMaxUpgradeLv( FClientItemInfo *pWeaponInfo ){
 		if( pWeaponInfo == NULL ){
 			return FALSE;
@@ -265,18 +265,18 @@ public:
 
 		return ( ( pWeaponInfo->m_byLevelupMagPoint + pWeaponInfo->m_byLevelupPhyPoint + pWeaponInfo->m_byLevelupTaoPoint ) >= WEAPON_LEVEL_MAX );
 	}
-	//装备获得提示
+	//Equipment obtained prompt
 	UBOOL DescideToShowEquipNewHint( INT conID, INT slotID );
 public:
 	UBOOL ReadWeaponRuneSkillData();
 
-	//返回值为TRUE时outuniqueSkillID中返回武器默认的技能ID
+	//When the return value is TRUE, outuniqueSkillID returns the weapon's default ability ID
 	UBOOL GetSkillUniqueIDOnWeapon( UINT &outuniqueSkillID, UINT weaponSkillID );
 
 	const WeaponSkillCfg *GetWeaponSkillCfg( UINT weaponSkillID );
 	//const WeaponSkillCfg *GetWeaponSkillCfgByItemInfo( const ItemInfo *pItemInfo, INT skillBindSlot );
 
-	//返回人物已装备武器该槽位符文技能,outIsSkillActive为该技能是否已激活
+	//Returns the rune ability of this slot on the character's equipped weapon, outIsSkillActive is whether the ability is activated
 	UMMOAbility* GetWeaponRuneSkillBySlotIdx( INT weaponSkillSlotIdx, INT contID, INT slotID, UBOOL &outIsSkillActive ){
 		ItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( contID, slotID );
 		return GetWeaponRuneSkillBySlotIdx( weaponSkillSlotIdx, pItemInfo, outIsSkillActive );
@@ -296,7 +296,7 @@ public:
 	//UMMOAbility* GetWeaponRuneSkillBase( UINT itemTemplateID, INT skillBindSlot, INT weaponSkillTypeInSlot, INT weaponSkillLv );
 	INT GetWeaponCurSkillSlotCnt( const ItemInfo *pItemInfo );
 
-	//铭文替换系统
+	//Inscription replacement system
 	UMMOAbility* GetWeaponRplcCacheRuneSkillBySlotIdx( INT weaponSkillSlotIdx, INT contID, INT slotID ){
 		ItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( contID, slotID );
 		return GetWeaponRplcCacheRuneSkillBySlotIdx( weaponSkillSlotIdx, pItemInfo );
@@ -317,22 +317,22 @@ public:
 	void BeforeServerEquipSwapHandleWeaponMainSkill( INT srcConIdx, INT srcSlotIdx, INT dstConIdx, INT dstSlotIdx );
 	void CheckEquipmentHandleWeaponMainSkill( INT toCheckEquipSkillEquipSlot );
 private:
-	//装备强化
+	//Equipment enhancement
 	EnhanceConsumptionContainer _EnhanceConsumptionContainer;
 	EnhanceEquipPropContainer _EnhanceEquipProp;
 	TMap<FString, UINT32> _EnhanceKey;
 
-	//强化界面数据
+	//Enhancement UI data
 	//INT _CurEnhanceEquipBagIdx;
 private:
-	//装备套装
+	//Equipment set
 	EquipSuitContainer _EquipSuits;
-	//key为itemID，value为套装ID
+	//key is itemID, value is set ID
 	//TMap< UINT, INT > _EquipSuitLookup;
 private:
-	//装备技能（符文技能）
+	//Equipment ability (rune ability)
 	//EquipSuitContainer _EquipSuits;
-	//key为weapon_rune_id前3列组合，
+	//key is the combination of the first 3 columns of weapon_rune_id,
 	TMap< UINT, WeaponSkillCfg > _EquipRuneSkills;
 	//
 	UBOOL _IsAutoChangeSkills;
@@ -341,16 +341,16 @@ private:
 	//
 	UINT _WeaponRplcCachedRune[EQUIP_RUNE_SKILL_MAX];
 public:
-	//融灵
+	//Spirit fusion
 	UBOOL ReadSoulInfoTemplates();
 	//SoulItem* FindSoulInfoBySoulID(INT soulID);
 	const SoulInfo* FindSoulInfoByItemTemplateID( INT itemID );
 	//void AddSoulInfoTemplate( INT key, class UMMOSoulInfo *pNode);
 private:
-	//融灵
+	//Spirit fusion
 	SoulInfoTemplateMap _SoulInfoTemplateMap;
 
-	//武器升级
+	//Weapon upgrade
 public:
 	UBOOL ReadEquipLevelUpData();
 	const EquipLvUpCfg* FindEquipLevelUpData( INT level );

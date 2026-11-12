@@ -10,7 +10,7 @@ IMPLEMENT_CLASS(UMMOUIBattleTeam)
 
 #define CreateTeamCost 1000
 #define BattleTeamBtnNum 5
-//文字框控件个数
+//number of text box controls
 #define BattleTeamContentNum 6
 
 //-------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void UMMOUIBattleTeam::UpdateBattleMemberList()
 	//}
 
 
-	//这个更新队伍消息可能独立为协议，目前没这个协议，所以就先放这里
+	//this team message update may become a separate protocol; there is none currently, so put it here for now
 	UpdateTeamInfo();
 }
 
@@ -145,7 +145,7 @@ void UMMOUIBattleTeam::OnNativeGameEvent(struct MMOGameEvent* evt)
 				}
 				else
 				{
-					//离队更新时就会切到单人页
+					//switches to the single-player page when leaving the team
 					ClickOwnPanel(BattleTeamPage_1v1);
 				}
 				break;
@@ -300,13 +300,13 @@ void UMMOUIBattleTeam::UpdateTeamInfo()
 	{
 		return;
 	}
-	//这个组队的战绩不能直接用
+	//this team's battle record cannot be used directly
 	
 	if( PageType == BattleTeamPage_1v1 )
 	{
 		if(teamInfo)
 		{
-			//这里因为没数据，所以先空赋值
+			//no data here, so assign empty values for now
 			teamInfo->SetString( TEXT("score") , appItoa(player->PersonalArenaScore) );
 			teamInfo->SetString( TEXT("rank") , TEXT("")/*appItoa(0)*/ );
 			teamInfo->SetString( TEXT("arenaCount") , TEXT("")/*appItoa(0)*/ );
@@ -357,7 +357,7 @@ void UMMOUIBattleTeam::UpdateMemberList()
 {
 	if( PageType == BattleTeamPage_1v1 )
 	{
-		//label:"总结", index:0, type:0, deepth:0, visible:true , MemberName:"1",MemberClass:"战士",MemberBattleCount:20,MemberGrade:"1-3",MemberRate:"56%
+		//label:"Summary", index:0, type:0, deepth:0, visible:true , MemberName:"1",MemberClass:"Warrior",MemberBattleCount:20,MemberGrade:"1-3",MemberRate:"56%
 		UGFxObject* teamList = GFXPlayer->CreateArray();
 		AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 
@@ -374,9 +374,9 @@ void UMMOUIBattleTeam::UpdateMemberList()
 				member->SetString( TEXT("MemberName") , player->GetActorName() );
 				member->SetString( TEXT("MemberLv") , appItoa( player->GetActorLevel() ) );
 				member->SetString( TEXT("MemberClass") , MMOUI::ParseLocalizedPropertyPath( FString( TEXT("MMOGame.School.SchoolName") ) + appItoa( player->GetClassId() ) ) );
-				member->SetString( TEXT("MemberBattleCount") , appItoa(player->GetActorLevel()) );//临时换个东西；等级
-				member->SetString( TEXT("MemberGrade") , player->GuildName );//临时换个东西；公会
-				member->SetString( TEXT("MemberRate") , appItoa( MMOPowerManager::getSingleton().GetPower() ) );//临时换个东西；战斗力
+				member->SetString( TEXT("MemberBattleCount") , appItoa(player->GetActorLevel()) );//temporarily substituted; level
+				member->SetString( TEXT("MemberGrade") , player->GuildName );//temporarily substituted; guild
+				member->SetString( TEXT("MemberRate") , appItoa( MMOPowerManager::getSingleton().GetPower() ) );//temporarily substituted; combat power
 				member->SetInt( TEXT("MemberRoleId") , player->ServerID );
 				
 
@@ -408,8 +408,8 @@ void UMMOUIBattleTeam::UpdateMemberList()
 		//			member->SetString( TEXT("MemberName") , memberList(idx).PlayerName );
 		//			member->SetString( TEXT("MemberLv") , appItoa( memberList(idx).Level ) );
 		//			member->SetString( TEXT("MemberClass") , MMOUI::ParseLocalizedPropertyPath( FString( TEXT("MMOGame.School.SchoolName") ) + appItoa( memberList(idx).ClassID ) ) );
-		//			member->SetString( TEXT("MemberBattleCount") , appItoa(0) );		//缺
-		//			member->SetString( TEXT("MemberGrade") , appItoa(0) );				//缺
+		//			member->SetString( TEXT("MemberBattleCount") , appItoa(0) );		//missing
+		//			member->SetString( TEXT("MemberGrade") , appItoa(0) );				//missing
 		//			member->SetString( TEXT("MemberRate") , appItoa( memberList(idx).TeamScore ) );
 		//			member->SetInt( TEXT("MemberRoleId") , memberList(idx).ServerID );
 		//			member->SetBool( TEXT("IsLeader") , ( BattleTeamManager::getSingleton().GetTeamLeadID() == memberList(idx).ServerID ) );
@@ -480,7 +480,7 @@ void UMMOUIBattleTeam::ASBattleTeamTurnOneToOne()
 
 void UMMOUIBattleTeam::ASBattleTeamTurnFiveToFive()
 {
-	//是否有战队的判断
+	//determine whether there is a team
 	if( false/*BattleTeamManager::getSingleton().HasTeam()*/ )
 	{
 		BattleTeamFiveToFive();

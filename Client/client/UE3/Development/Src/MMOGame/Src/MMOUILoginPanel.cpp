@@ -190,7 +190,7 @@ void UMMOUILoginPanel::LoginGame( class UGFxObject* loginData )
 		return;
 	}
 
-	// oscar@snda 如果有传命令行参数的IP就不要从列表选择
+	// oscar@snda If an IP was passed on the command line, do not select from the list
 	FString ipString;
 	if(Parse(appCmdLine(), TEXT("-ip="), ipString, FALSE))
 	{

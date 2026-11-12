@@ -91,20 +91,20 @@ bool MMOMapImgTiles::LoadUiTile( TArray<UGFxObject*>titles, FString texLoaderNam
 	return titles.Num() == iIdx + 1;
 }
 //===============================================================================================================================
-//@Desc:初始化块数据
+//@Desc: initialize block data
 void MMOMapImgTiles::Initialize( UMMOGFXPlayer *OwnerPlayer, FString mapName, FVector pos3D,
 							  UINT uTileW, UINT uTileH, INT tileImgRowNum, INT tileImgColNum,
 							 FVector2D region3Dto2D, FVector2D region2dOffsetInMap, FVector2D afterTurnedOffsetInMap, float fScale )
 {
 	_TexName = mapName;
 	_GfxPlayer = OwnerPlayer;
-	//初始化切前大图尺寸
+	//initialize the big map size before cutting
 	_MapTileSize.X = uTileW;
 	_MapTileSize.Y = uTileH;
 	//
 	_TileImgRowNum = tileImgRowNum;
 	_TileImgColNum = tileImgColNum;
-	//_Map3Dto2D为3d坐标到2d坐标的转换比例，此局域地图坐标Y轴方向与世界3d坐标Y轴相反
+	//_Map3Dto2D is the conversion ratio from 3d coordinates to 2d coordinates; this local map's Y axis direction is opposite to the world 3d Y axis
 	_Map3Dto2D = region3Dto2D;
 	if( _Map3Dto2D.X == 0 ){
 		_Map3Dto2D.X = 1;
@@ -112,9 +112,9 @@ void MMOMapImgTiles::Initialize( UMMOGFXPlayer *OwnerPlayer, FString mapName, FV
 	if( _Map3Dto2D.Y == 0 ){
 		_Map3Dto2D.Y = 1;
 	}
-	//_MapOffset坐标原点为左下角（0,0）,上方为正Y轴方向，右方为正X轴方向
+	//_MapOffset coordinate origin is the bottom-left (0,0), up is the positive Y axis, right is the positive X axis
 	_MapOffset = region2dOffsetInMap;
-	//原地图左旋后的偏移
+	//offset after rotating the original map left
 	_MapOffset2 = afterTurnedOffsetInMap;
 	//
 	_ZoomFactor = fScale;
@@ -128,11 +128,11 @@ void MMOMapImgTiles::Initialize( UMMOGFXPlayer *OwnerPlayer, FString mapName, FV
 	//
 	_IsLastOnLeft = pos2DInMap.X < _MapTileImgIdx.Y * _MapTileSize.X + _MapTileSize.X / 2;
 	_IsLastOnTop = pos2DInMap.Y < _MapTileImgIdx.X * _MapTileSize.Y + _MapTileSize.Y / 2;
-	////尽量放中间，四周都有块，在update中继续调整，先初步设置
+	////place as centered as possible, with blocks on all sides, keep adjusting in update, rough setup first
 	//_RowIdx = _IsLastOnTop ? _TileUiRowMax / 2 : ( _TileUiRowMax - 1 ) / 2;
 	//_ColIdx = _IsLastOnLeft ? _TileUiColMax / 2 : ( _TileUiColMax - 1 ) / 2;
 
-	//直接对应资源索引，范围问题InitTilesFitImgTilesNums里会调整
+	//maps directly to the resource index, range issues are adjusted in InitTilesFitImgTilesNums
 	_RowIdx = _MapTileImgIdx.Y;
 	_ColIdx = _MapTileImgIdx.X;
 	//
@@ -141,7 +141,7 @@ void MMOMapImgTiles::Initialize( UMMOGFXPlayer *OwnerPlayer, FString mapName, FV
 	_IsInitialized = TRUE;
 }
 //-----------------------------------------------------------------------------------------------
-//@Desc:使所有tile块不至于访问到不在不存在贴图
+//@Desc: keep all tile blocks from accessing nonexistent textures
 void MMOMapImgTiles::InitTilesFitImgTilesNums()
 {
 	INT tileUiRowIdxMax = _TileUiRowMax - 1;
@@ -149,21 +149,21 @@ void MMOMapImgTiles::InitTilesFitImgTilesNums()
 	INT tileImgRowIdxMax = _TileImgRowNum - 1;
 	INT tileImgColIdxMax = _TileImgColNum - 1;
 
-	//上
+	//up
 	if( _RowIdx > (UINT)_MapTileImgIdx.X ){
 		_RowIdx = (UINT)_MapTileImgIdx.X;
 	}
-	//下
+	//down
 	INT leftRow = tileUiRowIdxMax - _RowIdx;
 	INT leftRowImg = tileImgRowIdxMax - _MapTileImgIdx.X;
 	if( leftRow > leftRowImg ){
 		_RowIdx = tileUiRowIdxMax - leftRowImg;
 	}
-	//左
+	//left
 	if( _ColIdx > (UINT)_MapTileImgIdx.Y ){
 		_ColIdx = (UINT)_MapTileImgIdx.Y;
 	}
-	//右
+	//right
 	INT leftCol = tileUiColIdxMax - _ColIdx;
 	INT leftColImg = tileImgColIdxMax - _MapTileImgIdx.Y;
 	if( leftCol > leftColImg ){
@@ -196,7 +196,7 @@ void MMOMapImgTiles::InitTilesFitImgTilesNums()
 	}
 }
 //===============================================================================================================================
-//@Desc:当每个tile的大小不小于可视区域大小时候，自动调整填充数量在3X3以上的格子块，使之预先加载可能会在下一次调整时会用到的块
+//@Desc: when each tile is not smaller than the visible area, automatically adjust the fill count to 3X3 or more grid blocks, so blocks likely needed in the next adjustment are preloaded
 void MMOMapImgTiles::TilesGoAroundByPosInTile( FVector2D pos2DInMap, bool hasBound )
 {
 	FIntPoint newTileImgIdx;
@@ -297,7 +297,7 @@ void MMOMapImgTiles::TilesGoAroundByPosInTile( FVector2D pos2DInMap, bool hasBou
 		_LastTileIdx.X = newTileImgIdx.X;
 		_LastTileIdx.Y = newTileImgIdx.Y;
 	}
-	////确保不画出格的东西
+	////make sure nothing is drawn out of bounds
 	//if( isNotLeft && isNotLeft && isNotTop && isNotBottom ){
 	//	_LastTileIdx = _MapTileImgIdx;
 	//	_MapTileImgIdx = newTileImgIdx;
@@ -317,7 +317,7 @@ void MMOMapImgTiles::TilesGoAroundByPosInTile( FVector2D pos2DInMap, bool hasBou
 }
 
 //---------------------------------------------------------------------------------------------------------------
-//@Desc:当tile块即将不能覆盖住可视范围时，会自动调整tile块来填补空缺，以满足可视范围内内容块的显示
+//@Desc: when tile blocks are about to stop covering the visible range, automatically adjust tile blocks to fill the gap, so the content blocks in the visible range display
 void MMOMapImgTiles::UpdateTilesFitsView( FVector2D viewCenterPosInMap, UINT viewWidth, UINT viewHeight )
 {
 	UBOOL hasBound = FALSE;
@@ -328,7 +328,7 @@ void MMOMapImgTiles::UpdateTilesFitsView( FVector2D viewCenterPosInMap, UINT vie
 	newTileImgIdx.Y = viewCenterPosInMap.X / _MapTileSize.X; 
 	newTileImgIdx.X = viewCenterPosInMap.Y / _MapTileSize.Y;
 
-	//横
+	//horizontal
 	bool needResetY = false;
 	INT tileImgDiffY = ( _ShowTile[_RowIdx][_ColIdx]._ImgIdxY - newTileImgIdx.Y );
 	if( tileImgDiffY > 0 ){
@@ -347,7 +347,7 @@ void MMOMapImgTiles::UpdateTilesFitsView( FVector2D viewCenterPosInMap, UINT vie
 		rightDis += ( _TileUiColMax - newColIdx - 1 ) * _MapTileSize.X;
 	}
 
-	//纵
+	//vertical
 	bool needResetX = false;
 	INT tileImgDiffX = ( _ShowTile[_RowIdx][_ColIdx]._ImgIdxX - newTileImgIdx.X );
 	if( tileImgDiffX > 0 ){
@@ -421,7 +421,7 @@ void MMOMapImgTiles::UpdateTilesFitsView( FVector2D viewCenterPosInMap, UINT vie
 }
 
 //---------------------------------------------------------------------------------------------------------------
-//@Desc:只更新tile块位置
+//@Desc: only update tile block positions
 void MMOMapImgTiles::OnlyUpdateTilesPosition( FVector2D viewCenterPosInMap )
 {
 	_MainTilePos.X = -viewCenterPosInMap.X + _MapTileImgIdx.Y * _MapTileSize.X;
@@ -441,8 +441,8 @@ FVector2D MMOMapImgTiles::TilesKeepNotExceedBoundAround( FVector2D pos2DInMap, U
 }
 //===============================================================================================================================
 /*
-@desc:只是设置数据，要见效需在其后调用TileTheMap
-@Rtn:调整的偏移量
+@desc: only sets data, TileTheMap must be called afterwards to take effect
+@Rtn: the adjusted offset
 */
 FVector2D MMOMapImgTiles::KeepTilesNotExceed( UINT halfW, UINT halfH )
 {
@@ -450,7 +450,7 @@ FVector2D MMOMapImgTiles::KeepTilesNotExceed( UINT halfW, UINT halfH )
 	INT yBound = (INT)halfH;
 
 	FVector2D offset2D(0, 0);
-	//-1因为块与块之间无法紧密衔接做的交叠，这里扣除
+	//-1 because blocks cannot join tightly, so they overlap; deduct it here
 	//too right
 	INT leftTopPosX = _MainTilePos.X - _ColIdx * ( _MapTileSize.X - _TilesGap );
 	leftTopPosX *= _ZoomFactor;
@@ -483,7 +483,7 @@ FVector2D MMOMapImgTiles::KeepTilesNotExceed( UINT halfW, UINT halfH )
 }
 
 //===============================================================================================================================
-//@Desc:铺地砖
+//@Desc: tiling
 void MMOMapImgTiles::TileTheMap()
 {
 	UTexture2D* tex = NULL;
@@ -518,8 +518,8 @@ void MMOMapImgTiles::TileTheMap()
 			//texture
 			INT TileY = _MapTileImgIdx.Y + j - _ColIdx;
 			INT TileX = _MapTileImgIdx.X + i - _RowIdx;
-			////贴图编号，上下为世界坐标X轴，左右为世界坐标Y走
-			////左上那块编号0_0，往右往下增长
+			////texture number, up/down is the world X axis, left/right is the world Y axis
+			////the top-left block is numbered 0_0, increasing to the right and down
 			//INT TileX = _MapTileImgIdx.X + j - _ColIdx;
 			//INT TileY = _MapTileImgIdx.Y + i - _RowIdx;
 			//if has wrong texture index, nothing can do for now
@@ -549,7 +549,7 @@ void MMOMapImgTiles::TileTheMap()
 			}
 			else{
 				warnf(NAME_Error, TEXT("======!!!!======= [TileTheMap map not found %s_%02d_%02d]"), *_TexName, TileX, TileY );
-				//没有此图，那默认载入一张纯黑的图
+				//if this map doesn't exist, load a pure black image by default
 				tex = Cast<UTexture2D>( UObject::StaticLoadObject(	UTexture2D::StaticClass(), NULL,
 																TEXT("SeaDg03_MMOVolume_MapSize_2_mMap.SeaDg03_MMOVolume_MapSize_2_mMap_5_1"),
 																NULL, LOAD_NoWarn, NULL) );
@@ -562,7 +562,7 @@ void MMOMapImgTiles::TileTheMap()
 }
 
 //===============================================================================================================================
-//@Desc:坐标转换
+//@Desc: coordinate conversion
 //===============================================================================================================================
 FVector2D MMOMapImgTiles::Map2DPosByWorld3DPos( FVector pos3D )
 {
@@ -577,7 +577,7 @@ FVector2D MMOMapImgTiles::Map2DPosByWorld3DPos( FVector pos3D )
 
 	return afterTurnPos2D;
 }
-//@desc:把此局域地图内的2d坐标转为世界坐标，此局域地图坐标系左上角为原点（0,0）
+//@desc: convert a 2d coordinate within this local map to a world coordinate; this local map's coordinate system has its origin at the top-left (0,0)
 FVector MMOMapImgTiles::World3DPosByScaledMap2DPos( FVector2D pos2D )
 {
 	FVector2D beforeTurnPos2D;

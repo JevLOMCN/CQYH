@@ -87,7 +87,7 @@ cpptext
 
 	virtual void PostDuplicate() { Super::PostDuplicate(); SetUniqueID(-1); InitUniqueID(); }
 
-	virtual UBOOL NeedsLoadForClient() const; // oscar@snda 永远不在游戏中加载
+	virtual UBOOL NeedsLoadForClient() const; // oscar@snda never loaded in game
 }
 
 DefaultProperties

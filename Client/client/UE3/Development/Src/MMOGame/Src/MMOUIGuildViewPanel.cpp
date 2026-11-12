@@ -32,7 +32,7 @@ void UMMOUIGuildViewPanel::PostOnShow(UBOOL v)
 	{
 		UpdateGuildLeaveCD();
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowGuildViewPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 
@@ -41,7 +41,7 @@ void UMMOUIGuildViewPanel::PostOnShow(UBOOL v)
 		UINT32 clientOption = CMessageHandler::GetInstance().GetClientOption();
 		eventCallEnableGuildWar(clientOption & CLIENT_OPTION_BIT_GUILD_WAR);
 
-		// 打开面板，申请第一页的数据
+		// Open the panel, request the first page of data
 		_LockPage = FALSE;
 		_CurPageIndex = 0;
 		CMessageHandler::GetInstance().Send_ViewGuildList(GUILD_VIEW_DOWN, 0); 
@@ -328,7 +328,7 @@ void UMMOUIGuildViewPanel::FindGuild(UBOOL isId, const FString& content)
 		}
 
 		FTCHARToUTF8 szGuildName(*content);
-		// 最多8个汉字(Length = 3 * 8个char)
+		// Up to 8 Chinese characters (Length = 3 * 8 chars)
 		if (szGuildName.Length() > 24)
 		{
 			FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.LongName"));
@@ -457,7 +457,7 @@ void UMMOUIGuildViewPanel::RefuseJoinNow(UGFxObject *mc)
 }
 //////////////////////////////////////////////////////////////////////////
 
-// 申请加入家族
+// Apply to join guild
 void UMMOUIGuildViewPanel::ASApplyForJoint(INT id)
 {
 	UINT32 guildId = MakeObjectID(otGuild, id);
@@ -471,13 +471,13 @@ void UMMOUIGuildViewPanel::ASUpdateGuildViewInfo(INT id)
 	UpdateGuildBuildingList(guildId);
 }
 
-// 家族查找
+// Find guild
 void UMMOUIGuildViewPanel::ASFindGuild(UBOOL isId, const FString& content)
 {
 	FindGuild(isId, content);
 }
 
-// 翻页
+// Turn page
 void UMMOUIGuildViewPanel::ASPageUp()
 {
 	PageUp();

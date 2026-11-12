@@ -45,12 +45,12 @@ void MMOChatManager::Init()
 	GConfig->GetString( TEXT("ChatColor"), TEXT("GuildChannelFontColorString") , GuildChannelFontColorString , GUIColorIni);
 	GConfig->GetString( TEXT("ChatColor"), TEXT("TrumpetChannelFontColorString") , TrumpetChannelFontColorString , GUIColorIni);
 	//GConfig->GetString( TEXT("ChatColor"), TEXT("GMFontColorString"),GMFontColorString , GUIColorIni);
-	//聊天框颜色
+	//chat box color
 	GConfig->GetString( TEXT("ChatColor"), TEXT("ChatMyNameColorString") , ChatMyNameColorString , GUIColorIni);
 	GConfig->GetString( TEXT("ChatColor"), TEXT("ChatOtherPlayerColorString") , ChatOtherPlayerColorString , GUIColorIni);
 	GConfig->GetString( TEXT("ChatColor"), TEXT("ChatSkillColorString") , ChatSkillColorString , GUIColorIni);
 	GConfig->GetString( TEXT("ChatColor"), TEXT("ChatAchievementColorString") , ChatAchievementColorString , GUIColorIni);
-	//好友聊天颜色
+	//friend chat color
 	GConfig->GetString( TEXT("ChatColor"), TEXT("FriendChatSenderColorString") , FriendChatSenderColorString , GUIColorIni);
 	GConfig->GetString( TEXT("ChatColor"), TEXT("FriendChatMyContentColorString") , FriendChatMyContentColorString , GUIColorIni);
 	GConfig->GetString( TEXT("ChatColor"), TEXT("FriendChatOtherPlayerContentColorString") , FriendChatOtherPlayerContentColorString , GUIColorIni);
@@ -117,7 +117,7 @@ void MMOChatManager::ClearAll()
 //----------------------------------------------------------------------------------------------------------------------------
 void MMOChatManager::AddDefaultFilterChannel()
 {
-	//默认频道为 综合 私聊 组队 附近 唯独没有提示
+	//default channels are General, Private, Party, Nearby, only Tips is missing
 	INT ChannelFilterType = 0;
 	ChannelFilterType |= 0x1<<ECC_World;
 	ChannelFilterType |= 0x1<<ECC_Nearby;
@@ -157,7 +157,7 @@ void MMOChatManager::SetFilterChannel( INT pos , const FString& ChannelName , IN
 {
 	if( ChatFilterChannelList.Num() > pos )
 	{
-		//修改		
+		//modify
 		ChatFilterChannelList(pos).ChannelFilterType = FilterChannelType;
 		ChatFilterChannelList(pos).IsDefaultChannel = defaultChannel;
 		ChatFilterChannelList(pos).ChannelName = ChannelName;
@@ -166,7 +166,7 @@ void MMOChatManager::SetFilterChannel( INT pos , const FString& ChannelName , IN
 	}
 	else
 	{
-		//新加
+		//newly added
 		ChatFilterChannelMessage FilterChannelMsg;
 		FilterChannelMsg.ChannelFilterType = FilterChannelType;
 		FilterChannelMsg.IsDefaultChannel = defaultChannel;
@@ -193,7 +193,7 @@ void MMOChatManager::AddNewFilterChannelCopy(  )
 	else
 	{
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Chat.OverLim")),MsgInfoType_Table,TEXT("MMOGame.Chat.OverLim") );
-		//超过上限
+		//exceeds limit
 	}
 }
 
@@ -268,7 +268,7 @@ void MMOChatManager::ApplyCopyChatFilter()
 
 	
 
-	//更新下uichat
+	//update uichat
 	MMOUI::GetUIManager()->delegateSetFilterChannelNum( ChatFilterChannelList.Num() );
 
 	for (INT i = 0 ; i < copyChannelListNum ; i++ )
@@ -285,7 +285,7 @@ void MMOChatManager::ReceiveMessage( INT location , INT ChannelId , INT TargetId
 	debugf(TEXT("[CHAT] [%s]: %s"), *SenderName, *MsgContent);
 
 
-	// add by zhangrui 这里查一下其他角色的信息，以备不时之需，（右键菜单的相关操作可能需要这些信息）
+	// add by zhangrui look up other characters' info here just in case (right-click menu operations may need this info)
 
 	INT CharType = GetTypeFromID(SenderID);
 	if (CharType == otRole && SenderID > 0)
@@ -295,7 +295,7 @@ void MMOChatManager::ReceiveMessage( INT location , INT ChannelId , INT TargetId
 
 	int TypeId = 0;
 	
-	//判断黑名单
+	//check blacklist
 	if( FriendManager::getSingleton().InMyBlackList(SenderID) )
 	{
 		return;
@@ -330,7 +330,7 @@ void MMOChatManager::ReceiveMessage( INT location , INT ChannelId , INT TargetId
 
 	if( location == cltLighting )
 	{
-		//跑马灯公告
+		//scrolling marquee announcement
 		ParseContext ctx;
 		DialogContext dtx;		
 		UITextParser::getSingleton().Parse(ctx, dtx, MsgContent );
@@ -338,10 +338,10 @@ void MMOChatManager::ReceiveMessage( INT location , INT ChannelId , INT TargetId
 		MMOGameEvent_MarqueeNoticeInfo evt( dtx.TempText , MarqueeColor , MarqueeTimes , MarqueeSpeed );
 		MMOUI::PostGameEvent( &evt);	
 
-		//添加跑馬燈公告到系統頻道
+		//add marquee announcement to the system channel
 		AddSystemMessage(dtx.TempText);
 		return;
-		//普通聊天是否需要解析一次呢？
+		//does normal chat need to be parsed once?
 	}
 	else if( location == cltTvShow )
 	{
@@ -366,14 +366,14 @@ void MMOChatManager::ReceiveMessage( INT location , INT ChannelId , INT TargetId
 		TypeId = ECC_Trumpet;
 	}
 	
-	//公会禁言
+	//Guild mute
 	if( ChannelId == otGuild && MMOGuildData::getSingleton().IsGuildFullMemberForbitChat(SenderID) )
 	{
 		return;
 	}
 
-	//处理特殊固定字符串
-	//MsgContent = TEXT("后面是测试，<S>503902</S>");
+	//handle special fixed strings
+	//MsgContent = TEXT("test follows, <S>503902</S>");
 	INT constStringPosStart = MsgContent.InStr( TEXT("<S>"), FALSE , FALSE );
 	if( constStringPosStart >= 0 ){
 		FString constString;
@@ -386,7 +386,7 @@ void MMOChatManager::ReceiveMessage( INT location , INT ChannelId , INT TargetId
 		MsgContent = MsgContent.Left( constStringPosStart ) + constString + MsgContent.Right( MsgContent.Len() - constStringPosEnd - 4 );
 	}
 
-	//添加标记
+	//add tag
 	UBOOL isShareMapMarkMsg = ParseShareMapMark( MsgContent, TypeId, TargetId, SenderID, SenderName );
 	if( isShareMapMarkMsg ){
 		return;
@@ -443,7 +443,7 @@ void MMOChatManager::AddChatMessage( INT typeId , const FString& messageContent 
 
     if ( ( typeId != ECC_System || typeId != ECC_Hint ) && MMOUI::GetUIManager()->DeclineStrangeChat && senderID != -1 )
     {
-		//如果拒绝陌生人状态，发送者不是本人和好友的话就拒绝接收
+		//if reject-strangers state is on, and the sender is neither self nor a friend, reject receiving
         if ( !FriendManager::getSingleton().IsMyFriend(senderID) && player && player->ServerID != senderID )
             return;
     }
@@ -481,7 +481,7 @@ void MMOChatManager::AddChatMessage( INT typeId , const FString& messageContent 
 	
 	if( iSay && targetId >= 0 )
 	{
-		//我对某人私聊的回馈，这时变量senderName是目标玩家，我名字就从自己身上取
+		//feedback for my private chat to someone; here variable senderName is the target player, my name is taken from myself
 		FString temp = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Chat.ItoSay") );
 		CM.ChatPlayer = FString::Printf( *temp , *LinkManager::HtmlLink_ChatPlayer( senderName , senderID ) );
 
@@ -493,14 +493,14 @@ void MMOChatManager::AddChatMessage( INT typeId , const FString& messageContent 
 	}
 	else
 	{
-		//这发送者不是玩家
+		//this sender is not a player
 		CM.ChatPlayer = senderName;
 		
 	}
 
 	if (senderType == otNpc)
 	{
-		//解析一下对话内容
+		//parse the conversation content
 		CM.ChatFilterChannelMsg = ParseNpcDialog(CM.ChatFilterChannelMsg);
 	}
 	else if (senderType == otRole ||
@@ -527,10 +527,10 @@ void MMOChatManager::AddChatMessage( INT typeId , const FString& messageContent 
 	if (typeId != ECC_Trumpet)
 	{
 
-		//是否别人发的私聊消息
+		//whether it is a private chat message sent by someone else
 		if (typeId == ECC_Private && senderType == otRole && player->ServerID != targetId)
 		{
-			//私聊UI闪烁
+			//private chat UI flashes
 			NoitfyShowPrivateTabEffect(CM);
 		}
 
@@ -563,7 +563,7 @@ void MMOChatManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 {
 	//if( evt->GetEventType() == GameEvent_PlayerBaseInfo )
 	//{
-		//以前有用，现在没啥用了
+		//used before, no use now
 		//MMOGameEvent_PlayerBaseInfo* baseInfo = (MMOGameEvent_PlayerBaseInfo*)evt;
 
 		//if(baseInfo)
@@ -755,7 +755,7 @@ UBOOL MMOChatManager::ParseShareMapMark( const FString &chatContent, INT channel
 				return isMarkAddMsg;
 			}
 
-			//自己发的不加
+			//do not add messages sent by self
 			UBOOL isTeamLeader = TeamManager::getSingleton().IsTeamLeader();
 			if( isTeamLeader ){
 				return isMarkAddMsg;
@@ -763,7 +763,7 @@ UBOOL MMOChatManager::ParseShareMapMark( const FString &chatContent, INT channel
 
 			//
 			if( senderID != TeamManager::getSingleton().GetTeamLeaderServeId() ){
-				//不是队长发的
+				//not sent by the party leader
 				warnf( NAME_Error, TEXT("======!!!!======= [Recevied unqualified sender[%d] requesting add map marks]"), senderID );
 				return TRUE;
 			}
@@ -786,12 +786,12 @@ UBOOL MMOChatManager::ParseShareMapMark( const FString &chatContent, INT channel
 			}
 
 			if( myGuildInfo.LeaderName != senderName ){
-				//不是会长发的
+				//not sent by the guild leader
 				warnf( NAME_Error, TEXT("======!!!!======= [Recevied unqualified sender[%d] requesting add map marks]"), senderID );
 				return TRUE;
 			}
 
-			//自己发的不加
+			//do not add messages sent by self
 			UBOOL isGuildLeader = myGuildInfo.LeaderName == GetPlayerRoleName();
 			if( isGuildLeader ){
 				return isMarkAddMsg;
@@ -824,7 +824,7 @@ UBOOL MMOChatManager::ParseShareMapMark( const FString &chatContent, INT channel
 		FString regionName = markStrData(3);
 		FMapMark *pNewMapMark = mapDataMgr.AddMapMarkData( markMapID, regionName, markStrData(0), markType, markPos );
 
-		//如果开着当前地图
+		//if the current map is open
 		UMMOUIWorldMap *pWorldMapPanel = ( UMMOUIWorldMap* )MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_WorldMap );
 		if( pWorldMapPanel != NULL ){
 			FExportMap &curWorldMapInfo = mapDataMgr.GetCurWorldMap();
@@ -923,7 +923,7 @@ void MMOChatManager::LoadRecord()
 			SetFilterChannel(i,chatFilter.ChannelName,chatFilter.ChannelFilterType,chatFilter.IsDefaultChannel);
 		}
 
-		//更新下uichat
+		//update uichat
 		//MMOUI::GetUIManager()->delegateSetFilterChannelNum( ChatFilterChannelList.Num() );
 
 		//for (INT i = 0 ; i < ChatFilterChannelList.Num() ; i++ )
@@ -1094,7 +1094,7 @@ static const FString g_ChatMsgRemoveWord[] =
 	TEXT("&#62"),
 	TEXT("&#10"),
 	TEXT("&#13"),
-}; // N个
+}; // N entries
 
 FString MMOChatManager::ParseNormalMsg(const FString& msg)
 {
@@ -1136,7 +1136,7 @@ BOOL MMOChatManager::ParsePrivateChatMessage(FString Content)
 		int Pos = Content.InStr( TEXT(" "));
 		if( Pos < 0)
 		{
-			v =  FALSE;//格式错误
+			v =  FALSE;//format error
 		}
 		else
 		{
@@ -1144,12 +1144,12 @@ BOOL MMOChatManager::ParsePrivateChatMessage(FString Content)
 			FString targetName = Content.Left(Pos).RightChop(1);
 			if(/* contentString.IsEmpty() || */targetName.IsEmpty())
 			{
-				v  = FALSE;//格式错误
+				v  = FALSE;//format error
 			}
 		}
 		
 	}
-	else //格式错误
+	else //Format error
 	{
 		v = FALSE;
 	}

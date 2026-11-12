@@ -48,7 +48,7 @@ var bool IsBarTypeUpdated;
 
 var int LastHP;
 var int LastMP;
-//双倍经验
+//Double experience
 var int Exp_Extra;
 
 var int SkillSlotUpdState;
@@ -286,7 +286,7 @@ native function ASOnClickNewSkillLearnedBtn();
 
 native function ASChangePetState(int stateID);
 
-//技能设置
+//Ability settings
 native function ASShowTips_SkillSettingActive( GFxObject mc );
 native function ASHideTips_SkillSettingActive( GFxObject mc );
 native function ASSetSkill( int skillKeyType, int skillID );

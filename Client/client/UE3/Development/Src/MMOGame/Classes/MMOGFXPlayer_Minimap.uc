@@ -32,7 +32,7 @@ final native function ASShowMapLineDropList();
 
 final native function ASShowTips_PinValue(GFxObject mc);
 final native function ASHideTips_PinValue(GFxObject mc);
-//Ð¡µØÍ¼
+//Minimap
 function ASMinimapZoomIn()
 {
 	if( _Minimap != none)

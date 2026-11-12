@@ -71,7 +71,7 @@ native  function bool OnDragDrop(GFxObject SrcSlotMC, GFxObject DestSlotMC, ESlo
 
 //===============================================================================================================
 //===============================================================================================================
-//体格强化
+//Physique enhancement
 native function ASSelectEquipSlot(int slotId);
 native function ASShowTips_EquipSlot(int id);
 native function ASHideTips_EquipSlot(int id);

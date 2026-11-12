@@ -605,8 +605,8 @@ class FGFxExternalInterface : public GFx::ExternalInterface
 					if ( !pfunc )
 					{
  // oscar@snda
-						// 如果找不到就在绑定的列表中去找面板上的函数名，找到就返回
-						// 注意如果有重名的只能修改AS和UC函数
+						// If not found, look in the bound list for the function name on the panel, and return if found
+						// Note that if there are duplicate names, only AS and UC functions can be modified
 
 #if !SHIPPING_PC_GAME
 						INT foundCnt = 0;
@@ -627,7 +627,7 @@ class FGFxExternalInterface : public GFx::ExternalInterface
 								++foundCnt;
 								if(foundCnt > 1)
 								{
-									FString msg = FString::Printf(TEXT("从AS回调回来的函数有在不同的类中重名的，请修改函数名:%s"), *umethodName.ToString());
+									FString msg = FString::Printf(TEXT("A function called back from ActionScript has the same name in different classes. Please rename it: %s"), *umethodName.ToString());
 									warnf(NAME_Error, *msg);
 									appMsgf(AMT_OK, *msg);
 								}
@@ -637,7 +637,7 @@ class FGFxExternalInterface : public GFx::ExternalInterface
 
 						if(!pfunc)
 						{
-							warnf(NAME_Error, TEXT("------- 从AS回调回来的函数没有找到： fun[%s] obj[%s]"),
+							warnf(NAME_Error, TEXT("------- Function called back from ActionScript not found: fun[%s] obj[%s]"),
 								*umethodName.ToString(), *pextern->GetFullName());
 							return;
 						}
@@ -2529,8 +2529,8 @@ UBOOL FGFxEngine::InputKey_Mouse(INT ControllerId,
 		if (bNeedDispatchToTopMostMovie 
 			&& IsKeyValidForMovie(ControllerId, pTopMostMovieUnderMouse, ukey, uevent, CaptureInput))
 		{
-			if ((uevent == IE_Pressed && key->MouseButton == 0) ||		 // 左键按下，设置焦点
-				(uevent == IE_Pressed && MouseButtonPressed[0] == FALSE))// 其余键按下，且左键未被按下时设置焦点
+			if ((uevent == IE_Pressed && key->MouseButton == 0) ||		 // Left button pressed, set focus
+				(uevent == IE_Pressed && MouseButtonPressed[0] == FALSE))// Other key pressed while the left button is not pressed, set focus
 			{
 				//GFx::DisplayObject* p = Cast<>
 				if (pPanelRootEntity)
@@ -2576,7 +2576,7 @@ UBOOL FGFxEngine::InputKey_Mouse(INT ControllerId,
 
 		GFx::MouseEvent mevent ( GFx::Event::MouseWheel, 0, MousePos.X, MousePos.Y, key->MouseButton * 6 - 21 );
 
-#if 1		// oscar@snda 响应鼠标事件时只要光标下有UI元件就不再往后传递了
+#if 1		// oscar@snda when responding to mouse events, as long as there is a UI element under the cursor, don't pass it on further
 		GFx::PointF MPInMovie;		  // mouse position in movie space
 		pFocusMovie->pView->MousePosToMovieSpace(MPInMovie, GFx::PointF(MousePos.X, MousePos.Y));
 		UBOOL skipCapture = FocusedMoviePlayer->eventSkipCaptureInputKey(ukey.ToString(), uevent, TEXT(""), FVector2D(MPInMovie.x, MPInMovie.y));
@@ -2620,9 +2620,9 @@ UBOOL FGFxEngine::InputKey_Mouse(INT ControllerId,
 		}
 	}
 
-	// oscar@snda 响应鼠标事件时只要光标下有UI元件就不再往后传递了
+	// oscar@snda when responding to mouse events, as long as there is a UI element under the cursor, don't pass it on further
 #if 1
-	if(uevent == IE_Released)	// 按着鼠标会持续行走，放开时停止，故释放消息仍然向下传递, 不然玩家停不下来
+	if(uevent == IE_Released)	// Holding the mouse makes the player keep walking and releasing stops it, so release messages are still passed down, otherwise the player can't stop
 	{
 		return FALSE;  //
 	}
@@ -2862,9 +2862,9 @@ UBOOL FGFxEngine::InputKey ( INT ControllerId,
 			GFx::MouseEvent mevent ( etype, key->MouseButton, MousePos.X, MousePos.Y, 0.0f );
 
 			// oscar@snda
-			// 先看是不是有HOVER到UI上
-			// 如果HOWVER的UI要求跳过按键处理就跳出
-			// 否则就看有没有UI要处理的按键事件
+			// First check whether there is a HOVER on the UI
+			// If the HOVERed UI requires skipping key handling, break out
+			// Otherwise check whether any UI has a key event to handle
 			FIntPoint IntMousePoint;
 			if(HudViewport)
 			{
@@ -2922,7 +2922,7 @@ UBOOL FGFxEngine::InputKey ( INT ControllerId,
 		{
 			GFx::MouseEvent mevent ( GFx::Event::MouseWheel, 0, MousePos.X, MousePos.Y, key->MouseButton * 6 - 21 );
 			
-#if 1		// oscar@snda 响应鼠标事件时只要光标下有UI元件就不再往后传递了
+#if 1		// oscar@snda when responding to mouse events, as long as there is a UI element under the cursor, don't pass it on further
 			GFx::PointF MPInMovie;		  // mouse position in movie space
 			pFocusMovie->pView->MousePosToMovieSpace(MPInMovie, GFx::PointF(MousePos.X, MousePos.Y));
 			//CaptureInput = CaptureInput || FocusedMoviePlayer->eventSkipCaptureInputKey(ukey.ToString(), uevent, TEXT(""), FVector2D(MPInMovie.x, MPInMovie.y));
@@ -3338,7 +3338,7 @@ UBOOL FGFxEngine::InputAxis ( INT ControllerId, FName key, float delta, float De
 	bool bLBPressed = false;
 
 #ifdef _WINDOWS_
-	bLBPressed = GetKeyState(VK_LBUTTON) < 0;	// zhaojun@snda,暂时的解决方案，hack here
+	bLBPressed = GetKeyState(VK_LBUTTON) < 0;	// zhaojun@snda, temporary solution, hack here
 #endif
 
 	if (pTopMostMovie != NULL && pTopMostMovie->pView != NULL)	// first, send to topmost-movie
@@ -3939,17 +3939,17 @@ GFx::InteractiveObject*
 {
 	GFx::InteractiveObject* returnObj = NULL;
 
-	// 顺序问题一会再整
+	// Order issue, deal with it later
 	for (INT i = OpenMovies.Num() - 1; i >= 0; --i)
 	{
 		FGFxMovie* movie = OpenMovies(i);
 
-		if (movie->pUMovie->Priority > 10)	// hack, 不允许拾取gameloading和msgInfo, zhaojun@snda
+		if (movie->pUMovie->Priority > 10)	// hack, do not allow picking gameloading and msgInfo, zhaojun@snda
 			continue;
 
 		GFx::PointF mousePosMovieSpace;
 
-		// 1. 将系统鼠标变换到movie空间先
+		// 1. First transform the system mouse into movie space
 		
 		movie->pView->MousePosToMovieSpace(mousePosMovieSpace, mousePosScreenSpace);
 

@@ -76,7 +76,7 @@ void UMMOUIGuideOption::ASGuideOptionPanelClose()
 	MMOGameEvent_Any evt(GameEvent_QuestModeChange);
 	MMOUI::PostGameEvent(&evt);
 
-	// 引导事件：移动教学
+	// tutorial event: movement teaching
 	MMOGameEvent_Guide evtGuide(EGUET_Move);
 	MMOUI::PostGameEvent(&evtGuide);
 }

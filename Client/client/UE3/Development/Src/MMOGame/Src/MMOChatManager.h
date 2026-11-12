@@ -9,10 +9,10 @@
 #define GM_CHAT_COLOR (TEXT("#f64e1a"))
 struct ChatMessage
 {
-	FString	ChatFilterChannelMsg; //频道的话
-	FString	ChatPlayer; //说话玩家
+	FString	ChatFilterChannelMsg; //channel message
+	FString	ChatPlayer; //speaking player
 	INT		ChatActorID;
-	INT     ChatTypeId; //类型
+	INT     ChatTypeId; //type
 	INT		TargetId;
 	INT		VipType;
 	BOOL    isMe;
@@ -28,10 +28,10 @@ struct ChatMessage
 	}
 };
 
-//聊天频道的消息保存
+//save chat channel messages
 struct ChatFilterChannelMessage
 {
-	INT ChannelFilterType; // 频道过滤标示
+	INT ChannelFilterType; // channel filter flag
 	TArray<ChatMessage> ChatMessageList;
 	UBOOL IsDefaultChannel;
 	FString ChannelName;
@@ -193,7 +193,7 @@ public:
 
 	INT GetChatNearCD(){return ChatNearCD;}
 
-	// 任务 #18213
+	// quest #18213
 	UBOOL ParseSpecialCommand(const FString& cmd);
 
 	void AddHintItem(ChatMessage CM);
@@ -224,9 +224,9 @@ public:
 
 	FString TvShowColor;
 	FString MarqueeColor;
-	//跑马灯次数
+	//marquee count
 	INT MarqueeTimes;
-	//跑马灯时间
+	//marquee time
 	INT MarqueeSpeed; 
 
 	FString WorldChannelIconPath;
@@ -280,7 +280,7 @@ protected:
 	TArray<ChatFilterChannelMessage> CopyChatFilterChannelList;
 	TArray<ChatFilterChannelMessage> DefaultChatFilterChannelList;
 
-	//因为没名字，暂时缓存的消息……
+	//messages temporarily cached because there is no name...
 	TArray<ChatMessage> tempBuffList;
 
 	UBOOL CheckHasQuerryInfo( INT roleId );

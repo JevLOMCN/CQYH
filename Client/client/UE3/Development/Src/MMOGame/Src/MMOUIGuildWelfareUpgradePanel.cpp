@@ -121,7 +121,7 @@ void UMMOUIGuildWelfareUpgradePanel::UpdateGuildWelfareData(UINT32 welfareId)
 
 void UMMOUIGuildWelfareUpgradePanel::ASUpgradeWelfare(INT id)
 {
-	// 队列满
+	// queue full
 	GuildWelfareUpgradeList guildWelfareUpgradeList = MMOGuildData::getSingleton().GetGuildWelfareUpgradeList();
 	if (guildWelfareUpgradeList.size() >= GUILD_MAX_UPGRADE_AURA_COUNT)
 	{
@@ -129,7 +129,7 @@ void UMMOUIGuildWelfareUpgradePanel::ASUpgradeWelfare(INT id)
 		return;
 	}
 
-	// 等级满
+	// level maxed
 	GuildWelfareData welfareData;
 	MMOGuildData::getSingleton().GetGuildWelfareData(id, 0, welfareData);
 	UINT32 welfareLv = MMOGuildData::getSingleton().GetGuildWelfareLevel(id);

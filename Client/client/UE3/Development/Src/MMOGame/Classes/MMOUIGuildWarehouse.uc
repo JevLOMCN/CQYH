@@ -6,7 +6,7 @@ var GFxObject _Tab;
 var int _CurPage;
 const MaxSlotCount = 117;
 
-// 这个东西如果没有，会有非常诡异问题
+// Without this there will be very strange problems
 var array<GFxObject> ItemSlotList;
 
 event InitOnce()
@@ -45,9 +45,9 @@ event CallSetAccessInfoText(string htmlText)
 }
 
 native function MoreInfo();
-// 发送刷新
+// Send refresh
 native function SendFreshWarehouse();
-// 刷新
+// Refresh
 native function FreshWarehouse();
 native function TabChange(int tabId);
 native function ClearUI();
@@ -59,7 +59,7 @@ native function bool OnDragDrop(GFxObject SrcSlotMC, GFxObject DestSlotMC, ESlot
 
 native function UpdateAccessInfo();
 
-// 仓库
+// Warehouse
 native final function ASGuildWarehouseMore();
 native final function ASGuildWarehouseUpdate();
 native final function ASGuildWarehouseTab(int tabId);

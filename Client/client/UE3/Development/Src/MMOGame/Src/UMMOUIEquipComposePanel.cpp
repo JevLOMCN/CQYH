@@ -29,10 +29,10 @@ void UMMOUIEquipComposePanel::ClearUI()
 		//GFXPlayer->SetNoninteractiveIconSlotByItem( itemSlot, NULL, TEXT(""), ESPType_EquipCompose );
 		GFXPlayer->SetItemSlotData(itemSlot,NULL,ESPType_EquipCompose);
 	}
-	//合成物品
+	//Synthesize item
 	eventCallAStoSetItemName( TEXT("") );
 
-	//材料信息
+	//Material info
 	for(INT i = 0; i < COMPOSE_CONSUME_COUNT; ++i)
 	{
 		UGFxObject* mat_mc = GetObject(FString::Printf(TEXT("MatConsume_%d"),i));
@@ -48,7 +48,7 @@ void UMMOUIEquipComposePanel::ClearUI()
 
 	}
 
-	//金币信息
+	//Gold info
 	UGFxObject* coin_mc = GetObject(TEXT("CostText"));
 	if(coin_mc != NULL){
 		coin_mc->SetString( TEXT("htmlText"), TEXT("") );
@@ -71,7 +71,7 @@ void UMMOUIEquipComposePanel::UpdateUI(INT itemId)
 		GFXPlayer->SetItemSlotData(itemSlot,pEquip,ESPType_EquipCompose);
 	}
 
-	//合成物品
+	//Synthesize item
 	if( pEquip != NULL ){
 		eventCallAStoSetItemName( pEquip->GetDisplayName() );
 	}
@@ -79,10 +79,10 @@ void UMMOUIEquipComposePanel::UpdateUI(INT itemId)
 		eventCallAStoSetItemName( TEXT("") );
 	}
 
-	//材料信息
+	//Material info
 	UpdateConsume( &ComposeTemplate );
 
-	//金币信息
+	//Gold info
 	UpdateFee( &ComposeTemplate );
 }
 
@@ -106,7 +106,7 @@ void UMMOUIEquipComposePanel::BagSlotChange( INT bagId, INT slotId )
 			}
 		}
 
-		//材料信息
+		//Material info
 		if( needUpdate == TRUE ){
 			UpdateConsume( &composeTemplate );
 		}	

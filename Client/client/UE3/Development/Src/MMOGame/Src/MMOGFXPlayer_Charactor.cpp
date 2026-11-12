@@ -74,7 +74,7 @@ void UMMOGFXPlayer_Charactor::ASHideTotalEnhancProp()
 
 //=====================================================================================================
 //=====================================================================================================
-//体格强化
+//Physique enhancement
 void UMMOGFXPlayer_Charactor::ASSelectEquipSlot(INT slotId)
 {
 	if( Character == NULL || Character->_EnhcPanel == NULL )

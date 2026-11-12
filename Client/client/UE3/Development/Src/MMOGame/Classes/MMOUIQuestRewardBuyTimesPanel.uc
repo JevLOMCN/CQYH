@@ -7,7 +7,7 @@ event InitLoad(MMOGFXPlayer pl)
 }
 
 // UC->AS
-// 还能购买的剩余次数
+// Remaining purchase count
 event CallUpdateRewardQuestBuyLeftTimes(int times)
 {
 	ActionScriptVoid("UCUpdateRewardQuestBuyLeftTimes");

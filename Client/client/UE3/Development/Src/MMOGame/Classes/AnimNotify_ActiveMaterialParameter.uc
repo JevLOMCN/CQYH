@@ -1,5 +1,5 @@
 //
-// 激活TimeVarying材质的参数特效
+// activate parameter effects of TimeVarying material
 //
 class AnimNotify_ActiveMaterialParameter extends AnimNotify_Scripted
 	;

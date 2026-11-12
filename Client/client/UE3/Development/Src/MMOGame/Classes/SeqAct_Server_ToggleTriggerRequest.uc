@@ -1,4 +1,4 @@
-//ToggleTrigger 向服务器发送点击请求
+//ToggleTrigger send click request to server
 
 class SeqAct_Server_ToggleTriggerRequest extends SequenceAction
 	native;

@@ -69,7 +69,7 @@ void MMOClientVariableManager::SyncClientVariables(INT32 variables[MAX_CLIENT_VA
 	UINT size = (ECVT_Guide_End - ECVT_Guide_Begin) << 2;
 	MMOGuideManager::getSingleton().LoadRecord(buf, size);
 
-	// ³É¾Í×·×Ù
+	// Achievement tracking
 	if (variables[ECVT_Achievement_Trace_Personal1] > 0)
 	{
 		MMOAchievementData::getSingleton().AddTraceAchievement(variables[ECVT_Achievement_Trace_Personal1]);

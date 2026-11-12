@@ -73,7 +73,7 @@ function ButtonDrag( int deltaX )
 {
 	local rotator newRot;
 	newRot = ShowAvatar.Rotation;
-	newRot.Yaw += -deltaX*100; //30为鼠标移动像素和角度值的系数
+	newRot.Yaw += -deltaX*100; //3030 is the coefficient between mouse movement pixels and angle value
 	ShowAvatar.SetPhysics(PHYS_None);
 	ShowAvatar.SetRotation(newRot);
 }
@@ -90,7 +90,7 @@ function TurnPress( bool bLeft)
 
 native function PostAdvance(float DeltaTime );
 
-//体格强化
+//Physique enhancement
 native function ASSelectEquipSlot(int slotId);
 native function ASShowTips_EquipSlot(int id);
 native function ASHideTips_EquipSlot(int id);

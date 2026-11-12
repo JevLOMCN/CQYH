@@ -33,7 +33,7 @@ final native function OnCancelForceGraduate( GFxObject mc );
 native function bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string strHoverControllerName, Vector2D ClickPosInMovieSpace);
 
 /*
-	数据刷新函数
+	Data refresh functions
 */
 event CallUpdateStateChange(int nMasterState,int nSelfState)
 {

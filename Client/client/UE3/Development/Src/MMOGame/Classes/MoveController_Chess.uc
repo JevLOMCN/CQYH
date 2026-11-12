@@ -1,6 +1,6 @@
 /*
  * 
- * 棋类npc的特殊controller,
+ * special controller for board-game NPCs,
  * 
  */
 class MoveController_Chess extends MoveController
@@ -8,7 +8,7 @@ class MoveController_Chess extends MoveController
 	hidecategories(Object,Physics,Collision,MMO,Mobile,Advanced,Attachment,Display,Movement,Debug);
 
 	
-	//接口
+	//interface
 	native function OnLeftMouseKey(Actor srcActor,bool bRelease,Vector StartTrace,Vector EndTrace);
 
 

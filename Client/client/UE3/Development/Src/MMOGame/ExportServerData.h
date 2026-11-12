@@ -22,12 +22,12 @@ public:
 	virtual void WriteHeader(FBufferArchive& ar ) = 0;
 	virtual void WriteData(FBufferArchive& ar) = 0;
 
-	// 返回每个导出插件需要导出多少种类型数据（一般一个插件只处理一种class）
+	// Return how many types of data each export plugin needs to export (generally one plugin handles only one class)
 	virtual	int GetBlockNumber() const = 0;
 };
 
 //
-// 全局数据处理
+// Global data processing
 //
 class IGlobalDataExporter
 {
@@ -39,7 +39,7 @@ public:
 typedef TArray<IServerSceneExporter*> ServerSceneExporterList;
 extern ServerSceneExporterList GServerSceneExporterList;
 
-// 扩展插件，处理一些全局导出时的预处理
+// Extension plugins, handle some preprocessing for global export
 typedef TArray<IGlobalDataExporter*> GlobalDataExporterList;;
 extern GlobalDataExporterList GGlobalDataExporterList;
 

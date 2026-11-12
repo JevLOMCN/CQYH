@@ -1,5 +1,5 @@
 //
-// 音效材质编辑器
+// Sound material editor
 //
 
 class MMOAnimMixEditObject extends Object
@@ -8,12 +8,12 @@ class MMOAnimMixEditObject extends Object
 	native;
 
 //struct AnimMixNode;
-//新建这个只是为了 编辑器中使用
+//Created only for use in the editor
 var() AnimMixNode AnimMixInfo;
 /*
-//源动画
+//source animation
 var() editconst EAnimMixSource   SourceAnim;
-//目标动画
+//target animation
 var() editconst EAnimMixTarget    TargetAnim;
-//对应的混合动画
+//corresponding blend animation
 var() AnimationNode                     Anim;*/

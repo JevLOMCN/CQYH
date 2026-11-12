@@ -394,7 +394,7 @@ void FStatManager::EnableDump( )
     //EnableDumpGroup( TEXT("Art") );
     EnableDumpGroup( TEXT("Memory") );
 
-    //需要Dump的就如上添加
+    //Anything that needs a Dump is added as above
 }
 
 //hemu@snda

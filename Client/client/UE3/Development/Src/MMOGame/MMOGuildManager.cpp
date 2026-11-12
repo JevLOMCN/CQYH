@@ -111,7 +111,7 @@ void MMOGuildManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 			AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 			if (mainPlayer)
 			{
-				// 主角在退出场景，返回登录的时候，因为没有被删除，标志不会还原，所以在进游戏的时候初始化一次
+				// when the main character exits the scene and returns to login it is not deleted, so flags are not restored; initialize once when entering the game
 				mainPlayer->inSabacZoneCount = 0;
 			}
 		}
@@ -470,10 +470,10 @@ void MMOGuildManager::_UpdateGuildBuildingBasePos(FLOAT deltaTime)
 
 void MMOGuildManager::_UpdateGuildQueryInvalidIdTime(FLOAT deltaTime)
 {
-	// 任务 #23580
+	// Quest #23580
 	if (_GuildQueryInvalidIdTimeMap.size() > 0)
 	{
-		// 10分钟更新一次
+		// update every 10 minutes
 		FLOAT updateTime = 600.0f;
 		_GuildQueryInvalidIdTimeProgress += deltaTime;
 		if (_GuildQueryInvalidIdTimeProgress > updateTime)
@@ -602,7 +602,7 @@ void MMOGuildManager::NotifyApplyToJoinGuildSuccess()
 {
 	MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.ApplySuccess")),MsgInfoType_Table,TEXT("MMOGame.Guild.ApplySuccess"));
 
-	// 引导任务
+	// Guide quest
 	MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Guild);
 }
 
@@ -627,7 +627,7 @@ void MMOGuildManager::NotifyUpdateGuildViewList(UINT8 type, GUILD_VIEW_SUMMARY* 
 
 void MMOGuildManager::NotifyUpdateGuildFindList(const GUILD_VIEW_SUMMARY& result)
 {
-	// 如果在当前信息列表里找不到，加进去，方便UMMOUIGuildViewPanel::ApplyForJoint访问
+	// if not found in the current info list, add it, for easy access from UMMOUIGuildViewPanel::ApplyForJoint
 	GuildViewInfo info;
 	if (!MMOGuildData::getSingleton().GetGuildViewInfo(result.dwGuildID, info))
 	{
@@ -750,7 +750,7 @@ void MMOGuildManager::_UpdateActorGuildTitle(UINT32 id, const FString& name)
 
 void MMOGuildManager::_UpdateAllGuildTitle()
 {
-	// 更新周边角色
+	// update nearby characters
 	STLInt2IntMap* playerMap = MMOFacade::getSingleton().GetPlayerMap();
 	STLInt2IntMap::iterator playerMapItor;
 	for (playerMapItor = playerMap->begin(); playerMapItor != playerMap->end(); playerMapItor ++)
@@ -765,7 +765,7 @@ void MMOGuildManager::_UpdateAllGuildTitle()
 		}
 	}
 
-	// 更新主角
+	// update main character
 	AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	if (mainPlayer)
 	{
@@ -791,7 +791,7 @@ void MMOGuildManager::NotifyUpdateActorGuildTitle(UINT32 roleId, const FString& 
 		}
 		else
 		{
-			// 延迟更新角色公会名
+			// delayed update of character guild name
 			_NeedUpdateGuildNameRoleMap.insert(std::make_pair(roleId, guildId));
 		}
 	}
@@ -820,7 +820,7 @@ void MMOGuildManager::NotifyUpdateGuildEvents(GUILD_EVENT_INFO* events, UINT8 si
 
 void MMOGuildManager::NotifyMoreGuildEvents(GUILD_EVENT_INFO* events, UINT8 size)
 {
-	// 服务器在查询更多事件的时候，是把剩下的所有公会事件发过来，为了避免重复查询导致的重复事件，屏蔽按钮
+	// when querying more events the server sends all remaining guild events; disable the button to avoid duplicate events from repeated queries
 	UMMOUIGuildMainPanel* panel = (UMMOUIGuildMainPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_Guild_Main);
 	if (panel)
 	{
@@ -866,7 +866,7 @@ void MMOGuildManager::NotifyUpdateGuildFullMemberData(UINT32 roleId, UINT8 level
 			FString memberName = FString::Printf(TEXT("ID:%d"), roleId);
 			MMOGuildData::getSingleton().GetGuildFullMemberName(roleId, memberName);
 
-			// 任务13037
+			// Quest 13037
 			/*
 			if (lastLoginTime == 0)
 			{
@@ -931,7 +931,7 @@ void MMOGuildManager::NotifyAddGuildFullMember(const GUILD_MEMBER_INFO& info)
 	MMOGameEvent_Guild evt2(MMOGameEvent_Guild::EGET_UpdateGuildBaseInfo);
 	MMOUI::PostGameEvent(&evt2);
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -954,7 +954,7 @@ void MMOGuildManager::NotifyChangeGuildFullMemberPost(UINT32 id, UINT8 post)
 		MMOUI::PostGameEvent(&evt);
 	}
 
-	// 提示
+	// tips
 	FString roleName = TEXT("");
 	MMOGuildData::getSingleton().GetGuildFullMemberName(id, roleName);
 	FString text = FString::Printf((const TCHAR*)(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.ChangePost"))),
@@ -991,7 +991,7 @@ void MMOGuildManager::NotifyDelGuildFullMember(UINT32 id)
 		}
 	}
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -1038,7 +1038,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 			MMOGuildData::getSingleton().UpdateGuildBaseInfo(baseInfo);
 			UINT32 newValue = baseInfo.Money;
 
-			// 提示
+			// tips
 			if (newValue > oldValue)
 			{
 				FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildResAdd")), 
@@ -1054,7 +1054,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 				MMOChatManager::getSingleton().AddSystemMessage(text);
 			}
 
-			// 更新资金分配
+			// update fund distribution
 			MMOGameEvent_Guild evt1(MMOGameEvent_Guild::EGET_UpdateGuildSalary);
 			MMOUI::PostGameEvent(&evt1);
 
@@ -1075,7 +1075,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 	//	{
 	//		_GuildBaseInfo.Salary = value;
 
-	//		// 更新资金分配
+	//		// update fund distribution
 	//		MMOGameEvent_Guild evt1(MMOGameEvent_Guild::EGET_UpdateGuildSalary);
 	//		MMOUI::PostGameEvent(&evt1);
 	//	}
@@ -1087,7 +1087,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 			MMOGuildData::getSingleton().UpdateGuildBaseInfo(baseInfo);
 			UINT32 newValue = baseInfo.Wood;
 
-			// 提示
+			// tips
 			if (newValue > oldValue)
 			{
 				FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildResAdd")),
@@ -1114,7 +1114,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 			MMOGuildData::getSingleton().UpdateGuildBaseInfo(baseInfo);
 			UINT32 newValue = baseInfo.Herb;
 
-			// 提示
+			// tips
 			if (newValue > oldValue)
 			{
 				FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildResAdd")),
@@ -1141,7 +1141,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 			MMOGuildData::getSingleton().UpdateGuildBaseInfo(baseInfo);
 			UINT32 newValue = baseInfo.Crystal;
 
-			// 提示
+			// tips
 			if (newValue > oldValue)
 			{
 				FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildResAdd")),
@@ -1168,7 +1168,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 			MMOGuildData::getSingleton().UpdateGuildBaseInfo(baseInfo);
 			UINT32 newValue = baseInfo.Silver;
 
-			// 提示
+			// tips
 			if (newValue > oldValue)
 			{
 				FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildResAdd")),
@@ -1199,7 +1199,7 @@ void MMOGuildManager::NotifyUpdateGuildAttr(UINT32 type, UINT32 value)
 		break;
 	}
 
-	// 更新基本信息
+	// update basic info
 	MMOGameEvent_Guild evt2(MMOGameEvent_Guild::EGET_UpdateGuildBaseInfo);
 	MMOUI::PostGameEvent(&evt2);
 }
@@ -1242,7 +1242,7 @@ void MMOGuildManager::NotifyAddGuildAlly(UINT32 id, const FString& name, UINT8 l
 
 	_UpdateAllGuildTitle();
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -1256,7 +1256,7 @@ void MMOGuildManager::NotifyDelGuildAlly(UINT32 id)
 
 	_UpdateAllGuildTitle();
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -1280,7 +1280,7 @@ void MMOGuildManager::NotifyAddGuildEnemy(UINT32 id, const FString& name, UINT8 
 
 	_UpdateAllGuildTitle();
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -1294,7 +1294,7 @@ void MMOGuildManager::NotifyDelGuildEnemy(UINT32 id)
 
 	_UpdateAllGuildTitle();
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -1337,7 +1337,7 @@ void MMOGuildManager::NotifyGuildLeaderDemise(UINT32 oldLeaderId, UINT32 newLead
 {
 	MMOGuildData::getSingleton().GuildLeaderDemise(newLeaderId);
 
-	// 一定要先更新列表，基础信息要用到列表信息
+	// must update the list first, basic info uses the list info
 	MMOGameEvent_Guild evt1(MMOGameEvent_Guild::EGET_UpdateGuildFullMemberList);
 	MMOUI::PostGameEvent(&evt1);
 
@@ -1363,7 +1363,7 @@ void MMOGuildManager::NotifyDisbandGuild()
 		panel->Show(FALSE);
 	}
 
-	// 清空所有公会成员的Title
+	// clear the Title of all guild members
 	GuildFullMemberInfoList guildFullMemberInfoList = MMOGuildData::getSingleton().GetGuildFullMemberInfoList();
 	GuildFullMemberInfoList::iterator iter = guildFullMemberInfoList.begin();
 	for (; iter != guildFullMemberInfoList.end(); ++ iter )
@@ -1476,7 +1476,7 @@ void MMOGuildManager::NotifyUpdateGuildBuilding(UINT64 buildingId, UINT32 buildi
 {
 	if (!MMOGuildData::getSingleton().IsGuildBuildingExist(buildingId))
 	{
-		// 如果是新建的
+		// if newly created
 		GuildBuildingInfo info;
 		info.BuildingId = buildingId;
 		info.BuildingType = buildingType;
@@ -1517,7 +1517,7 @@ void MMOGuildManager::NotifyUpdateGuildBuilding(UINT64 buildingId, UINT32 buildi
 	GuildBuildingData buildingData;
 	if (MMOGuildData::getSingleton().GetGuildBuildingData(buildingType, 1, buildingData))
 	{
-		// 升级提示
+		// upgrade tips
 		FString text = TEXT("");
 		UINT32 curLevel = MMOGuildData::getSingleton().GetGuildBuildingLevel(buildingId);
 		if (curLevel == 1)
@@ -1554,7 +1554,7 @@ void MMOGuildManager::NotifyDestroyGuildBuilding(UINT64 buildingId, UINT32 build
 	GuildBuildingData buildingData;
 	if (MMOGuildData::getSingleton().GetGuildBuildingData(buildingType, 1, buildingData))
 	{
-		// 拆除提示
+		// demolish tips
 		FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.DestroyBuildingSuccess")), 
 			*(buildingData.Name));
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOGame.Guild.DestroyBuildingSuccess"));
@@ -1640,7 +1640,7 @@ void MMOGuildManager::NotifyUpdateGuildWelfare(UINT32 welfareId, UINT32 welfareL
 	GuildWelfareData welfareData;
 	if (MMOGuildData::getSingleton().GetGuildWelfareData(welfareId, welfareLv, welfareData))
 	{
-		// 升级提示
+		// upgrade tips
 		FString text = TEXT("");
 		if (welfareLv < welfareData.MaxLevel)
 		{
@@ -1691,7 +1691,7 @@ void MMOGuildManager::NotifyPurchaseGuildWelfare(UINT32 welfareId, UINT32 alread
 
 void MMOGuildManager::NotifyUpdateGuildDungeonList(GUILD_DUNGEON_INFO* list, UINT32 size)
 {
-	// 本协议没用，NPC列出所有副本
+	// this protocol is unused, the NPC lists all dungeons
 }
 
 void MMOGuildManager::NotifyOpenDungeonSuccess()
@@ -1723,7 +1723,7 @@ void MMOGuildManager::NotifyDungeonEnd(UINT32 bossId, GUILD_DUNGEON_AWARD_INFO* 
 
 void MMOGuildManager::NotifyGuildWarCD(UINT32 time)
 {
-	// 这里服务器发的绝对时间，换算一下
+	// the server sends absolute time here, convert it
 	__time32_t lastTime = time;
 	_localtime32(&lastTime);
 
@@ -1781,7 +1781,7 @@ void MMOGuildManager::NotifyGuildWarState(UINT8 state,
 				FExportMap mapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo(curMapId);
 				if (mapInfo.ServerMapType != E_est_Guild)
 				{
-					// 消息球
+					// message orb
 					MMOMsgButtonManager_Parms Parms(EC_EventParm);
 					Parms.Parm1 = GMBT_ATTACK;
 					Parms.Parm2 = defendId;
@@ -1797,7 +1797,7 @@ void MMOGuildManager::NotifyGuildWarState(UINT8 state,
 				FExportMap mapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo(curMapId);
 				if (mapInfo.ServerMapType != E_est_Guild)
 				{
-					// 消息球
+					// message orb
 					MMOMsgButtonManager_Parms Parms(EC_EventParm);
 					Parms.Parm1 = GMBT_DEFEND;
 					Parms.Parm2 = attackId;
@@ -1921,12 +1921,12 @@ void MMOGuildManager::NotifyGuildWarResult(GUILD_BATTLE_ACHIEVEMENT_DATA* list, 
 
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Guild_WarEnd, TRUE, "");
 	/*
-	// 只有在防守方公会属地的成员才能看到结果
+	// only members in the defending guild's territory can see the result
 	INT curMapId = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 	FExportMap mapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo(curMapId);
 	if (mapInfo.ServerMapType == E_est_Guild)
 	{
-		if (_CurSceneGuildId != 0 && _CurSceneGuildId == 防守方Id)
+		if (_CurSceneGuildId != 0 && _CurSceneGuildId == DefenderId)
 		{
 			MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Guild_WarEnd, TRUE, "");
 		}
@@ -1940,7 +1940,7 @@ void MMOGuildManager::NotifyGuildMemberSalaryChange(UINT32 salary)
 	UINT32 oldSalary = baseInfo.Salary;
 	MMOGuildData::getSingleton().UpdateMyGuildSalary(salary);
 
-	// 提示
+	// tips
 	FString text = TEXT("");
 	if (salary > oldSalary)
 	{
@@ -1974,14 +1974,14 @@ void MMOGuildManager::NotifyGuildWarRelation(UINT32 attackId, UINT32 defendId)
 
 void MMOGuildManager::NotifyPlayerMoneyChange(EMONEY_TYPE moneyType, INT64 DeltaMoney)
 {
-	// 更新资金分配
+	// update fund distribution
 	MMOGameEvent_Guild evt1(MMOGameEvent_Guild::EGET_UpdateGuildSalary);
 	MMOUI::PostGameEvent(&evt1);
 
 	MMOGameEvent_Guild evt2(MMOGameEvent_Guild::EGET_UpdateGuildTerritoryInfo);
 	MMOUI::PostGameEvent(&evt2);
 
-	// 更新基本信息
+	// update basic info
 	MMOGameEvent_Guild evt3(MMOGameEvent_Guild::EGET_UpdateGuildBaseInfo);
 	MMOUI::PostGameEvent(&evt3);
 }
@@ -2021,7 +2021,7 @@ void MMOGuildManager::EnterScene(INT32 sceneTempId, INT32 sceneId)
 		GuildQueryInfo info;
 		if (MMOGuildData::getSingleton().GetGuildInfoById(_CurSceneGuildId, info))
 		{
-			// 进入xxx公会的属地
+			// enter xxx guild's territory
 			FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.EnterTerritory")), *FString(info.Name));
 			MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOGame.Guild.EnterTerritory"));
 
@@ -2079,7 +2079,7 @@ void MMOGuildManager::EnterScene(INT32 sceneTempId, INT32 sceneId)
 			// #19562
 			//panel->Show(mainPlayer != NULL && mainPlayer->inSabacZoneCount > 0);
 			panel->Show(FALSE);
-			panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("争霸战结束还有:"), _GuildWarTime);
+			panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("Time left in the Conquest War: "), _GuildWarTime);
 		}
 	}
 }
@@ -2107,7 +2107,7 @@ void MMOGuildManager::NotifyGuildFullMemberForbitChat(UINT32 roleId, UBOOL isFor
 
 void MMOGuildManager::NotifyGuildDrawSalarySuccess(INT32 salary)
 {
-	// 提示
+	// tips
 	FString text = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildDrawSalary")), salary);
 	MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOGame.Guild.GuildDrawSalary"));
 }
@@ -2149,14 +2149,14 @@ void MMOGuildManager::NotifyGuildWarSearchEnd()
 			_CurGuildWarViewInfo.LeaderName = playerInfo->_RoleName;
 			viewPanel->ShowGuildWarInfoPanel();
 
-			// 刷新下匹配次数
+			// refresh match count
 			CMessageHandler::GetInstance().Send_MoreGuildInfo();
 		}
 	}
 
 	_GuildWarViewProgress = 0.0f;
 	_GuildWarViewDelayTime = 0;
-	// 让缓存的数据失效
+	// invalidate cached data
 	_CurGuildWarViewInfo.Id = 0;
 
 	MMOGameEvent_Guild evt(MMOGameEvent_Guild::EGET_CompleteSearch);
@@ -2217,11 +2217,11 @@ void MMOGuildManager::NotifyUpdateSceneVariable(INT32 mapId, UINT16 varIndex, IN
 
 void MMOGuildManager::GetSabacOccupyGuildName(FString& name)
 {
-	name = TEXT("内城还没有公会占领");
+	name = TEXT("No guild controls the inner city yet");
 	UINT32 curSabacOccupyGuildId = MMOGuildData::getSingleton().GetSabacOccupyGuildId();
 	if (curSabacOccupyGuildId > 0)
 	{
-		name = TEXT("占领公会:");
+		name = TEXT("Controlling guild: ");
 		GuildQueryInfo info;
 		if (MMOGuildData::getSingleton().GetGuildInfoById(curSabacOccupyGuildId, info))
 		{
@@ -2229,7 +2229,7 @@ void MMOGuildManager::GetSabacOccupyGuildName(FString& name)
 		}
 		else
 		{
-			name += FString(TEXT("未知公会"));
+			name += FString(TEXT("Unknown guild"));
 		}
 	}
 }
@@ -2290,13 +2290,13 @@ void MMOGuildManager::NotifySabacEnrollGuildId(UINT32 guildId)
 		MMOUI::PostGameEvent(&evt);
 	}
 
-	// 更新名字颜色
+	// update name color
 	_UpdateAllGuildTitle();
 }
 
 void MMOGuildManager::_UpdateAllGuildInfo()
 {
-	// 更新所有已知公会的状态
+	// update the state of all known guilds
 	QueryGuildInfoByIdMap queryGuildInfoMap = MMOGuildData::getSingleton().GetQueryGuildInfoByIdMap();
 	QueryGuildInfoByIdMap::iterator iter = queryGuildInfoMap.begin();
 	for (; iter != queryGuildInfoMap.end(); ++ iter)
@@ -2342,12 +2342,12 @@ void MMOGuildManager::NotifyUpdateSabacOccupyGuild(UINT32 guildId, UBOOL showMar
 			// #19562
 			//panel->Show(mainPlayer != NULL && mainPlayer->inSabacZoneCount > 0);
 			panel->Show(FALSE);
-			panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("争霸战结束还有:"), _GuildWarTime);
+			panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("Time left in the Conquest War: "), _GuildWarTime);
 		}
 	}
 
 	_UpdateAllGuildInfo();
-	// 更新名字颜色
+	// update name color
 	_UpdateAllGuildTitle();
 }
 
@@ -2355,7 +2355,7 @@ void MMOGuildManager::NotifySabacEnd(UINT32 oldGuildId, UINT32 newGuildId)
 {
 	if (oldGuildId == newGuildId)
 	{
-		// 服务器目前不保存上届沙巴克城主的信息了，无法提示卫冕
+		// the server no longer saves the previous Sabak lord's info, so defending the title cannot be prompted
 		//GuildQueryInfo info;
 		//if (MMOGuildData::getSingleton().GetGuildInfoById(newGuildId, info))
 		//{
@@ -2429,7 +2429,7 @@ void MMOGuildManager::NotifySabacState(UINT32 sabacEndTime)
 				leftTime = endTime > curTime ? (endTime - curTime) : 0;
 			}
 
-			panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("争霸战结束还有:"), leftTime);
+			panel->UpdateGuildWarHintInfo(TEXT(""), curSabacOccupyGuildName, TEXT("Time left in the Conquest War: "), leftTime);
 
 			_GuildWarTime = leftTime;
 			_GuildWarProgress = 0.0f;
@@ -2437,7 +2437,7 @@ void MMOGuildManager::NotifySabacState(UINT32 sabacEndTime)
 	}
 	
 	_UpdateAllGuildInfo();
-	// 更新名字颜色
+	// update name color
 	_UpdateAllGuildTitle();
 }
 
@@ -2489,7 +2489,7 @@ void MMOGuildManager::NotifyGuildEventsHint(UINT8 type)
 						}
 					}
 					*/
-					// 消息球
+					// message orb
 					MMOMsgButtonManager_Parms Parms(EC_EventParm);
 					Parms.Parm1 = GMBT_APPLY_ALLY;
 					MMOMsgButtonManager::getSingleton().AddNewButton(_OpenGuildMainPanelApplyAllyDelegate, Parms, E_MsgBtnShow_GuildAlly);
@@ -2508,7 +2508,7 @@ void MMOGuildManager::NotifyApplyAllianceSuccess()
 
 void MMOGuildManager::NotifySabacWinnerLogin(const FString& winnerName)
 {
-	FString text = FString::Printf(TEXT("沙巴克城主[%s]上线"), *winnerName);
+	FString text = FString::Printf(TEXT("Sabak Lord [%s] is online"), *winnerName);
 	MMOChatManager::getSingleton().AddChatMessage(ECC_System, text, TEXT(""));
 }
 
@@ -2551,7 +2551,7 @@ void MMOGuildManager::UpdateStatueHint(UBOOL forceUpdate)
 		return;
 	}
 	
-	// 距离判断,距离外不做处理，只做隐藏
+	// distance check, beyond the distance do nothing but hide
 	FLOAT dist = (_StatueActor->Location - sceneHint->Player->Location).SizeSquared2D();
 	if (dist > HudNameDisplayRangeSquared2D)
 	{
@@ -2571,7 +2571,7 @@ void MMOGuildManager::UpdateStatueHint(UBOOL forceUpdate)
 	}
 	_StatueHeadName->SetInt(TEXT("serverID"), _StatueActor->ServerID);
 
-	// 位置绑定，从3d投射到2d
+	// position binding, project from 3d to 2d
 	FVector2D screenPos;
 	FLOAT h = 0;
 	if (_StatueActor->CylinderComponent)
@@ -2622,7 +2622,7 @@ void MMOGuildManager::UpdateStatueHint(UBOOL forceUpdate)
 	}
 
 	sceneHint->eventSetPlayerTxt_Title(_StatueHeadName, TEXT("Title"), TEXT(""), TEXT(""));
-	// 公会
+	// guild
 	FString guildName = TEXT("");
 	if (!_StatueActor->GuildName.IsEmpty())
 	{
@@ -2639,7 +2639,7 @@ void MMOGuildManager::UpdateStatueHint(UBOOL forceUpdate)
 
 void MMOGuildManager::_CreateStatue(const SabacStatue& statue, ANPC* statueBase)
 {
-	// 先把原来的删了
+	// delete the old one first
 	_DestroyStatue();
 
 	if (!statueBase)
@@ -2794,7 +2794,7 @@ void MMOGuildManager::NotifyCreateStatue(const SabacStatue& statue)
 //	{
 //		if (oldStatue.RoleId == statue.RoleId)
 //		{
-//			FString text = TEXT("已经立过雕像了");
+//			FString text = TEXT("Statue already erected");
 //			MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, TEXT(""));
 //			return;
 //		}
@@ -2930,7 +2930,7 @@ void MMOGuildManager::QueryGuildInfo(UINT32 guildId)
 		return;
 	}
 
-	// 如果是无效ID
+	// if invalid ID
 	GuildQueryInvalidIdTimeMap::iterator iter = _GuildQueryInvalidIdTimeMap.find(guildId);
 	if (iter != _GuildQueryInvalidIdTimeMap.end())
 	{
@@ -3011,7 +3011,7 @@ void MMOGuildManager::UpdateOccupyGuild(UINT32 mapId, UINT32 guildId)
 
 void MMOGuildManager::GetOccupyGuildName(UINT32 mapId, FString& name)
 {
-	name = TEXT("当前地图无公会占领");
+	name = TEXT("No guild controls the current map");
 	GuildOccupyIdMap::iterator iter = _GuildOccupyIdMap.find(mapId);
 	if (iter != _GuildOccupyIdMap.end())
 	{
@@ -3021,9 +3021,9 @@ void MMOGuildManager::GetOccupyGuildName(UINT32 mapId, FString& name)
 			GuildQueryInfo info;
 			if (MMOGuildData::getSingleton().GetGuildInfoById(guildId, info))
 			{
-				name = TEXT("当前占领者: [");
+				name = TEXT("Current holder: [");
 				name += info.Name;
-				name += TEXT("] 公会");
+				name += TEXT("] guild");
 			}
 		}
 	}

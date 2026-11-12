@@ -72,20 +72,20 @@ void UMMOGFXPlayer_Option::UnInit()
 // {
 // 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_OptionQuit,TRUE, "");
 // 	UMMOUIOptionQuit* QUI =  Cast<UMMOUIOptionQuit>(FindUIPanel(MMOUI::GetUIManager()->Panel_OptionQuit));
-// 	//QUI->eventUCInitQuitTimer("将在 ", 20, " 秒后自动退出游戏...");
+// 	//QUI->eventUCInitQuitTimer("Will auto-exit the game in ", 20, " seconds...");
 // 	if(QUI){
 // 		UGFxObject* immedObj	=QUI->GetObject(TEXT("quit_immed"));
 // 		if(immedObj)
 // 		{
-// 			immedObj->SetString(TEXT("label"),TEXT("立即返回"));
+// 			immedObj->SetString(TEXT("label"),TEXT("Return now"));
 // 		}
 // 		UGFxObject* cancelObj	=QUI->GetObject(TEXT("quit_cancel"));
 // 		if(cancelObj)
 // 		{
-// 			cancelObj->SetString(TEXT("label"),TEXT("取消返回"));
+// 			cancelObj->SetString(TEXT("label"),TEXT("Cancel return"));
 // 		}
 // 
-// 		QUI->eventUCInitQuitTimer(TEXT("将在"), 10, TEXT("秒后返回登录界面"));
+// 		QUI->eventUCInitQuitTimer(TEXT("Will in"), 10, TEXT("seconds return to login screen"));
 // 	}
 // 
 // 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_OptionMenu,FALSE, "");

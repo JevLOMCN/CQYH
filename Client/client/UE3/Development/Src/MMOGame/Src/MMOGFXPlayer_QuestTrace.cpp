@@ -30,7 +30,7 @@ void UMMOGFXPlayer_QuestTrace::ASUpdateAvailableQuestTraceList()
 	}
 }
 
-// Flash同步各种问题，改为C++计时
+// Flash has various sync problems, changed to C++ timing
 /*
 void UMMOGFXPlayer_QuestTrace::ASUpdateQuestTimeout(INT questId, INT timeSecondsLeft)
 {
@@ -56,7 +56,7 @@ void UMMOGFXPlayer_QuestTrace::ASUseQuestItem(int questId, int itemId)
 		return;
 	}
 
-	// 使用道具完成任务
+	// use item to complete quest
 	if (quest->FinishItem)
 	{
 		INT itemSlot = -1;

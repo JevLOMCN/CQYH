@@ -1,5 +1,5 @@
 //
-//设置绑定的可破坏部件
+//Set bound destructible parts
 //
 class MMOStatusProc_SetMMOAttach extends Object implements(IMMOStatusProc)
 	native
@@ -8,12 +8,12 @@ class MMOStatusProc_SetMMOAttach extends Object implements(IMMOStatusProc)
 	dependson(ParticleSystemAttachInfo)
 	hidecategories(Object);
 
-// 初始时的可破坏部件列表
+// initial list of destructible parts
 var(MMOAttach) editinline array<DestructablePartAttachInfo> NewAttachDestructableParts <DisplayName="NewAttachDestructableParts">;
-// 当前绑定的粒子系统
+// currently attached particle system
 var(MMOAttach) array<ParticleSystemAttachInfo> NewAttachedParSys    <DisplayName="NewAttachedParSys">;
 
-// 绑定可破坏部件
+// attach destructible part
 function AttachDestructablePart(DestructablePartAttachInfo dpai , MMOActor actor)
 {
 	`log("________ AttachDestructablePart" @dpai.AttachSocket);
@@ -50,7 +50,7 @@ function AttachDestructablePart(DestructablePartAttachInfo dpai , MMOActor actor
 	//actor.AttachedDestructableParts.AddItem(dpai);
 }
 
-// 解除可破坏部件
+// detach destructible part
 function DetachDestructablePart(DestructablePartAttachInfo dpai , MMOActor actor)
 {
 	`log("[MMOSFX] [DetachDestructablePart] :" @dpai.MeshComponent @dpai.SkelMeshComponent);

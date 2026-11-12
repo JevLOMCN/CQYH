@@ -1,11 +1,11 @@
 //
-// 掉落物
+// Drops
 //
 class MMODropActor extends Actor implements (IPickableActor, IMMOActor, IInteractableActor)
 	config(MMOGame)
 	native;
 
-// 根据金币掉落的数量多少决定不同的模型(任务 #13020)
+// Choose different models depending on the amount of gold dropped (quest #13020)
 var config int BindItemId;
 var config int GoldItemId;
 var config string BindDropMesh1;
@@ -23,7 +23,7 @@ var config int DropDivide2;
 var config int DropDivide3;
 var config int DropDivide4;
 
-// 实际的模型组件
+// Actual model component
 var transient StaticMeshComponent Mesh;
 
 var transient int DropID;
@@ -97,7 +97,7 @@ DefaultProperties
 		bAcceptsStaticDecals=false
 		bAcceptsDynamicDecals=false
 		bAcceptsLights=false
-		//模型文件
+		//Model file
 		StaticMesh=StaticMesh'MMO_Player.Mesh.TargetLocationMark'
 		//Scale3D=(X=0.3,Y=0.3,Z=0.3)
 		//Rotation=(Pitch=16384, Yaw=0, Roll=0)

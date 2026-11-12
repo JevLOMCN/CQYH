@@ -1,5 +1,5 @@
 //
-// 动画通知扩展类
+// animation notify extension class
 //
 class AnimNotify_ClothNoise extends AnimNotify_Scripted
 	dependson(TypeDefine)

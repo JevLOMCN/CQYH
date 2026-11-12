@@ -112,7 +112,7 @@ void UMMOUIPlayerInfo::ASShowTips_HeavenBloodViewSlot(class UGFxObject* obj,INT 
 			return;
 		if (pkSlot->nValue == 0)
 		{
-			tips = TEXT("未开启");
+			tips = TEXT("Not enabled");
 		}
 		else if (MAX_BLOODSEA_SLOT_NUMBER == pkSlot->nValue)
 		{
@@ -142,7 +142,7 @@ void UMMOUIPlayerInfo::ASShowTips_HeavenBloodViewSlot(class UGFxObject* obj,INT 
 				return;
 			tips += UITextParser::HTMLBeginFont(TEXT("#555555"));
 			tips += UITextParser::HTMLNewLine();
-			tips +=  FString::Printf(TEXT("第%d重"),pkSlot->nValue + 1);
+			tips +=  FString::Printf(TEXT("Tier %d"),pkSlot->nValue + 1);
 			tips += UITextParser::HTMLNewLine();
 			MMOHeavenManager::getSingleton().GenerateGasTipsByNodeID(tips,pkNextConfig->nAttValue1,pkNextConfig->nAttValue2);
 			tips += UITextParser::HTMLEndFont();
@@ -192,16 +192,16 @@ void UMMOUIPlayerInfo::Init()
 	EventAdapter = new TGameEventAdapter<UMMOUIPlayerInfo>(this, evts);
 
 
-	//这里拷贝character界面
+	//Copy the character UI here
 	INT slotValue[E_NES_TOTAL] = {};
 	slotValue[0] = E_NES_SHOULDER;
 	slotValue[1] = E_NES_HEAD;
 	slotValue[2] = E_NES_NECK;
 	slotValue[3] = E_NES_ARM;
 	slotValue[4] = E_NES_BODY;
-	slotValue[5] = E_NES_BACK; //披风
+	slotValue[5] = E_NES_BACK; //cloak
 	slotValue[6] = E_NES_WRIST_L;
-	slotValue[7] = E_NES_WAIST; //腰带
+	slotValue[7] = E_NES_WAIST; //belt
 	slotValue[8] = E_NES_WRIST_R;
 	slotValue[9] = E_NES_FINGER_L;
 	//slotValue[10] = E_NES_LEG;
@@ -320,10 +320,10 @@ void UMMOUIPlayerInfo::OnNativeGameEvent(struct MMOGameEvent* evt)
 						}
 					}
 
-					//等级改变会改变属性
+					//Level change changes attributes
 					UpdatePlayerInfo();
 					UpdateBaseInfo();
-					//装备的图标随任务职业、性别改变
+					//Equipment icons change with quest class and gender
 					UpdateEquipInfo();
 				}
 
@@ -399,7 +399,7 @@ void UMMOUIPlayerInfo::UpdatePlayerInfo()
 	AttributeMgr.SetAttrOwnerMode(AttrListenerType_OtherPlayer);
 
 
-	//属性
+	//attributes
 	UGFxObject* dataArray = GFXPlayer->CreateArray();
 	for ( INT i = 1 ; i < attriGroup.Num() ; i++ )
 	{
@@ -424,7 +424,7 @@ void UMMOUIPlayerInfo::UpdatePlayerInfo()
 	}
 	eventCallSetAttributeData(dataArray);
 
-	//战斗力
+	//combat power
 	UGFxObject* dmgData = GFXPlayer->CreateObject( TEXT("Object") );
 	if( dmgData )
 	{
@@ -582,7 +582,7 @@ void UMMOUIPlayerInfo::UpdateSpellInfo()
 		}
 		mmoSkillMgr.SortAllAbilitiesByRequireLevel( thisClassSkills );
 
-		//组
+		//Group
 		UGFxObject* rowDataObj = GFXPlayer->CreateObject( TEXT("ActionScript3.PlayerInfoWidget.SkillViewItemData") );
 		if(rowDataObj == NULL)
 			continue;
@@ -599,7 +599,7 @@ void UMMOUIPlayerInfo::UpdateSpellInfo()
 			//
 			INT mainSkillID = mainAbility->eventGetAbilityId();
 
-			//准备数据，放入刷新数组中
+			//Prepare data, put into the refresh array
 			UGFxObject* itemSingleObj = GFXPlayer->CreateObject( TEXT("ActionScript3.PlayerInfoWidget.SkillViewSingleItemData") );
 			//
 			if(itemSingleObj == NULL)
@@ -696,7 +696,7 @@ void UMMOUIPlayerInfo::UpdateRefineInfo()
 
 				if(curSlotEnhanceLv == MAX_ENHANCE_LEVEL)
 				{
-					//顶级特殊处理
+					//Top level special handling
 					gfxObj->SetString(TEXT("iconPath"),TEXT("IconPath_Max_Max"));
 					gfxObj->SetString(TEXT("selectBg"),TEXT("IconBg_Max_Max"));
 					gfxObj->SetInt(TEXT("level"),0);
@@ -792,7 +792,7 @@ void UMMOUIPlayerInfo::UpdateSpriteInfo()
 			else
 			{
 				hint0 = UITextParser::HTMLBeginFont(TEXT("#FF0000"));
-				hint0 += TEXT("未解锁");
+				hint0 += TEXT("Locked");
 				hint0 += UITextParser::HTMLEndFont();
 				hint1 = "";
 				bLocked = true;

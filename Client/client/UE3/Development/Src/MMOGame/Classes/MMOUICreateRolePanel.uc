@@ -128,19 +128,19 @@ native final function CreateRoleCancel();
 // {
 // 	ASReturnCreatePanel();
 // }
-//旋转按钮抬起 左手坐标系
+//Rotate button released, left-handed coordinate system
 function ASCreateTurnBtnUp()
 {
 	CreateTurnBtnUp();
 }
 
-//选择角色面板 向右转 
+//Select character panel, rotate right
 function ASCreateTurnRightPress()
 {
 	CreateTurnRightPress();	
 }
 
-//选择角色面板 向左转 
+//Select character panel, rotate left
 function ASCreateTurnLeftPress()
 {
 	CreateTurnLeftPress();	

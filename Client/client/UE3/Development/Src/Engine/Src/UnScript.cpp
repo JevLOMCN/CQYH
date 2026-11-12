@@ -3251,7 +3251,7 @@ UBOOL AActor::ProcessRemoteFunction( UFunction* Function, void* Parms, FFrame* S
 	// oscar@snda
 	if(GIsEditor)
 	{
-		return FALSE; // 编辑器中导出数据时，不需要处理远程调用
+		return FALSE; // When exporting data in the editor, remote calls do not need to be handled
 	}
 	// oscar@snda
 

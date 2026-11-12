@@ -2,7 +2,7 @@ class MMOUIDialogNew extends MMOUIBaseSlotContainer
 	native(UI)
 	config(UIVisibleMask);
 
-// !!!这个需要和ActionScript3.NPCDialog.NPCDialogData中的常量对应!!!
+// !!!This must match the constants in ActionScript3.NPCDialog.NPCDialogData!!!
 enum EDialogDataType
 {
 	EDiagDataType_Dialog,

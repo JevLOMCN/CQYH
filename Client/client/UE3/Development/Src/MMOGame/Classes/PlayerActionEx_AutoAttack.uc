@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_AutoAttack，靠近到点
+// PlayerActionEx_AutoAttack, move near to point
 //
 class PlayerActionEx_AutoAttack extends PlayerActionEx_Base
 	native;

@@ -3,11 +3,11 @@ class MMOUIContactLevel extends MMOUIBase
 
 
 /*
-好友聊天重整
+Friend chat rework
 */
  var int nCurRoleID;
 // var int CurWindowId;
-// var const int WindowChatNum; //每个窗口的控件数: 4
+// var const int WindowChatNum; //number of controls per window: 4
 // 
 // 
 // var native pointer FriendChatMgr{class FriendChatManager};
@@ -26,13 +26,13 @@ class MMOUIContactLevel extends MMOUIBase
 // 
 // 
 // 
-// //窗口的列表
+// //Window list
 // var array<ContactWindowStruct> ContactWindowList;
 // 
-// //加入未读列表，addLog:是否加入log内容
+// //Add to unread list, addLog: whether to add log content
 // native function AddtoUnReadContactLog( int RoleId , string PlayerName , string Content , optional bool addLog = true );
 // native function AddtoReadContactLog( int RoleId , string PlayerName , string Content , optional bool fromSelf = false );
-// //把每个好友的聊天按RoleId加入loglist保存
+// //Save each friend's chat into the loglist by RoleId
 // native function AddtoContactLog( int RoleId , string PlayerName , string Content , optional bool fromSelf = false );
 // 
 // 
@@ -41,7 +41,7 @@ class MMOUIContactLevel extends MMOUIBase
 // native function NativeInit();
 // native function ClearUI();
 /*
-好友聊天重整
+Friend chat rework
 */
 
 event InitOnce()
@@ -67,7 +67,7 @@ native function FriendChatMsg( int RoleId , string Content );
 // native function CreateNewWindow( string PlayerName , int RoleId );
 // 
 // native function ActiveChildWindow( GFxObject Window , int ChildId );
-// //选择好友聊天，也可能是激活
+// //Select friend chat, may also be activation
 // native function SelectFriendChat( int RoleId , string RoleName );
 // 
 // native function MoveUnReadMsgToRead( int RoleId , string PlayerName );
@@ -92,7 +92,7 @@ native function FriendChatMsg( int RoleId , string Content );
 
 
 /*
-	重新整理好友聊天
+	Reorganize friend chat
 */
 event CallUCDataFriendChatList(GFxObject data)
 {

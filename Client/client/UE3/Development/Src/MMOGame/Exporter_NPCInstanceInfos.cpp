@@ -44,7 +44,7 @@ void Exporter_NPCInstanceInfos::ProcessData(INT& GlobalAutoID)
 		{
 			memset(tmpBuf, 0, sizeof(wchar_t) * C_TMPBUF_SZ);
 
-			//NPC¹¦ÄÜÊôÐÔ
+			//NPC function attributes
 			INT npcFuncType = 0;
 
 			if( inst->TemplateNew->IsReputationFunc ){

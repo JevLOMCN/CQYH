@@ -3,7 +3,7 @@
 	Filename: 	StudentManager
 	file ext:	h
 	Author:		hemu@snda
-	Purpose:	师徒系统Model StudentManager 管理当前的请求拜师的徒弟
+	Purpose:	master/apprentice system Model StudentManager manages apprentices currently requesting apprenticeship
 *********************************************************************/
 #ifndef _StudentMANAGER_H_
 #define _StudentMANAGER_H_
@@ -40,7 +40,7 @@ namespace MMO
 	{
 	public:
         
-        //徒弟排序
+        //sort apprentices
         enum MasterSortType
         {
             EMST_NAME = 0,
@@ -57,9 +57,9 @@ namespace MMO
 		void AddStudent(struct M2C_MASTER_ADD_APPLICANT* Student);
 		ClientBriefStudentInfo* FindStudent(UINT32 studentID);
 		void DeleteItem(UINT32 inID);		
-		//点击一位师傅
+		//click a master
 		void MarkStudentSelected(UINT32 studentID, bool sel);
-		//向选中的师傅提出拜师申请
+		//send apprenticeship request to the selected master
 		void ApplySelected();
 		const StudentMap& GetAllStudents() const;
 		void ClearAll();

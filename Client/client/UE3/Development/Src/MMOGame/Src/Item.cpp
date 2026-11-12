@@ -189,7 +189,7 @@ FString UItem::GetIconName(int nState)
 	}
 	FullName = FString(Obj->GetPureName().ToString() );
 
-	//是魂瓶
+	//is a soul bottle
 	if(ItemDuration == E_DURTYPE_DEPOSIT)
 	{
 		if(nState > 0)
@@ -583,7 +583,7 @@ class UMMOAbility* UItem::GetToUseAbility()
 
 		//if( ItemType == TEXT("ITEMTYPE_RUNE") )
 		//{
-		//	//铭文物品，这里特殊处理
+		//	//inscription item, special handling here
 		//	MMOEquipManager::getSingleton().GetSkillUniqueIDOnWeapon( Key, ToUseAbility_SpellID );
 		//}
 		//else
@@ -595,7 +595,7 @@ class UMMOAbility* UItem::GetToUseAbility()
 		
 		if(ToUseAbility == NULL)
 		{
-			M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("物品%s的技能属性错误，找不到id=%d的技能"), *ItemName, ToUseAbility_SpellID));
+			M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("Item %s has an invalid ability property, cannot find ability id=%d"), *ItemName, ToUseAbility_SpellID));
 		}
 	}
 

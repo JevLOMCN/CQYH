@@ -6,22 +6,22 @@
 #include <vector>
 #include <queue>
 
-// 开启系统
+// enable system
 enum EActivateSystemType
 {
-	EAST_Guild,					// 公会
-	EAST_Schedule,				// 活动
-	EAST_GoldStore,				// 金币交易行
-	EAST_LingXing,				// 灵性
-	EAST_LongWei,				// 龙卫心法
-	EAST_NormalQuest,			// 普通任务
-	EAST_QiXi,					// 气息
-	EAST_Mall,					// 商城
-	EAST_Repute,				// 声望
-	EAST_MasterStudent,			// 师徒
-	EAST_Enhance,				// 体格强化				
-	EAST_Riding,				// 坐骑			
-	EAST_Handbook,				// 百晓生
+	EAST_Guild,					// guild
+	EAST_Schedule,				// activity
+	EAST_GoldStore,				// gold trading house
+	EAST_LingXing,				// spirituality
+	EAST_LongWei,				// Dragon Guard heart method
+	EAST_NormalQuest,			// normal quest
+	EAST_QiXi,					// aura
+	EAST_Mall,					// mall
+	EAST_Repute,				// reputation
+	EAST_MasterStudent,			// master/apprentice
+	EAST_Enhance,				// physique enhancement
+	EAST_Riding,				// mount
+	EAST_Handbook,				// Baixiaosheng (handbook)
 	EAST_Tatol
 };
 
@@ -38,7 +38,7 @@ public:
 
 	virtual void OnNativeGameEvent(struct MMOGameEvent* evt);
 
-	// 新功能开启
+	// new feature enabled
 	INT GetNextSystemType();
 	INT GetChildMenuType(INT systemType);
 	UBOOL GetSystemInfo(INT systemType, FString& icon, FString& name);

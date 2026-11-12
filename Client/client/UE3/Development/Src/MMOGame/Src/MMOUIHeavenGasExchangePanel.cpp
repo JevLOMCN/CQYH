@@ -37,10 +37,10 @@ void UMMOUIHeavenGasExchangePanel::UpdateExchangeGasList()
 	const HeavenGasTemplateMap& mapItem = MMOHeavenManager::getSingleton().GetGasItemDataMap();
 	for (HeavenGasTemplateMap::const_iterator itr = mapItem.begin();itr != mapItem.end(); ++itr )
 	{
-		//不能兑换的气
+		//Qi that cannot be exchanged
 		if(itr->second->nCanExchange <= 0)
 			continue;
-		//职业限制
+		//Class restriction
 		if((nJob == itr->second->nJob) || (itr->second->nJob == -1))
 		{
 			UGFxObject* pkData = GFXPlayer->CreateObject(TEXT("UI_SkillTree.SkillTreeAS3.HeavenGasExchangeData"));

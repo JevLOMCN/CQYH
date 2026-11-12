@@ -35,9 +35,9 @@ void UMMOUIManager::RefreshSkillBarByServerData(INT32* addr, INT  size)
 	if(UI)
 	{
 		UI->RefreshSkillBarByServerData(addr, size);
-		////新人默认物品栏
+		////Newbie default item bar
 		//AMMOPlayer *mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
-		//if( mainPlayer != NULL && mainPlayer->ActorAttributes->LevelAttributes.Level < 10 && mainPlayer->ActorAttributes->LevelAttributes.CurrentExp < 10 ){//10留点余量
+		//if( mainPlayer != NULL && mainPlayer->ActorAttributes->LevelAttributes.Level < 10 && mainPlayer->ActorAttributes->LevelAttributes.CurrentExp < 10 ){//leave some margin for 10
 		//	UI->InitItemBarItemForNewComing();
 		//}
 	}
@@ -55,7 +55,7 @@ void UMMOUIManager::RefreshSkillBarByServerData(INT32* addr, INT  size)
 void UMMOUIManager::SetTraceRelationForceID(INT ForceID)
 {
 	TraceRelationForceID = ForceID;
-	//刷新显示
+	//Refresh display
 	MMOGameEvent_Any evt( GameEvent_UpdateTraceRelation );
 	MMOUI::PostGameEvent(&evt);
 }
@@ -84,7 +84,7 @@ void UMMOUIManager::SetLastPlayerNameByPanelName(FName PanelName)
 
 void UMMOUIManager::CloseLastPlayer(FName CurPlayerName)
 {
-	//删除暂留缓存的player
+	//Delete the temporarily cached player
 	if(LastDelayLoadPlayerName.GetNameString().Len()>0)
 	{
 		if(LastDelayLoadPlayerName!=CurPlayerName)
@@ -268,7 +268,7 @@ UMMOUIBase* UMMOUIManager::ShowPanelEx(FName PanelName,UBOOL Show,const FString&
 				//	SetLastPlayerName(PlayerName);
 				//}
 
-				//设置VIP随身商店标记
+				//Set VIP portable shop flag
 				UI->SetShowWithOutTarget(FALSE);
 			}
 
@@ -372,7 +372,7 @@ UMMOUIBase* UMMOUIManager::ToggleShowPanel(FName PanelName,const FString& TabNam
 	}
 	else
 	{
-		warnf(NAME_Error, TEXT("UMMOUIManager::ToggleShowPanel 找不到这个UI：%s"), *PanelName.ToString());
+		warnf(NAME_Error, TEXT("UMMOUIManager::ToggleShowPanel cannot find this UI: %s"), *PanelName.ToString());
 	}
 
 	return UI;
@@ -419,7 +419,7 @@ UMMOUIBase* UMMOUIManager::ToggleShowPanelEx(FName PanelName,const FString& TabN
 	}
 	else
 	{
-		warnf(NAME_Error, TEXT("UMMOUIManager::ToggleShowPanelEx 找不到这个UI：%s"), *PanelName.ToString());
+		warnf(NAME_Error, TEXT("UMMOUIManager::ToggleShowPanelEx cannot find this UI: %s"), *PanelName.ToString());
 	}
 
 	return UI;
@@ -889,7 +889,7 @@ void UMMOUIManager::SetSelectFriendChatDelegate(FScriptDelegate fun)
 	__SelectFriendChat__Delegate = fun;
 }
 
-//键盘模拟按下--------------------------------------------------------------------------------------------------
+//Keyboard simulated press--------------------------------------------------------------------------------------------------
 void UMMOUIManager::SetUpdateSkillBarKeyDownDelegate(FScriptDelegate fun)
 {
 	__UpdateSkillBarKeyDown__Delegate = fun;
@@ -1321,13 +1321,13 @@ void UMMOUIManager::PromptFreePK()
 		UGFxObject* butt0 = MsgboxWindow->GetObject(TEXT("yesButton_mc"));
 		if(butt0)
 		{
-			butt0->SetString( TEXT("label") , TEXT("同意")  );
+			butt0->SetString( TEXT("label") , TEXT("Agree")  );
 		}
 
 		UGFxObject* butt1 = MsgboxWindow->GetObject(TEXT("noButton_mc"));
 		if(butt1)
 		{
-			butt1->SetString( TEXT("label") , TEXT("退出")  );
+			butt1->SetString( TEXT("label") , TEXT("Quit")  );
 		}
 	}
 
@@ -1350,19 +1350,19 @@ void UMMOUIManager::SendQuitGame()
 {
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_OptionQuit,TRUE, "");
 	UMMOUIOptionQuit* QUI =  Cast<UMMOUIOptionQuit>(FindUIPanel(MMOUI::GetUIManager()->Panel_OptionQuit));
-	//QUI->eventUCInitQuitTimer("将在 ", 20, " 秒后自动退出游戏...");
+	//QUI->eventUCInitQuitTimer("Will ", 20, " seconds then exit game automatically...");
 	if(QUI)
 	{
 		QUI->_ReturnType = 0;
 		UGFxObject* immedObj	=QUI->GetObject(TEXT("quit_immed"));
 		if(immedObj)
 		{
-			immedObj->SetString(TEXT("label"),TEXT("立即退出"));
+			immedObj->SetString(TEXT("label"),TEXT("Quit Now"));
 		}
 		UGFxObject* cancelObj	=QUI->GetObject(TEXT("quit_cancel"));
 		if(cancelObj)
 		{
-			cancelObj->SetString(TEXT("label"),TEXT("继续游戏"));
+			cancelObj->SetString(TEXT("label"),TEXT("Continue Playing"));
 		}
 		QUI->eventUCInitQuitTimer(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Return.Quit.CD.Head")), 10, MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Return.Quit.CD.Tail")));
 	}
@@ -1584,7 +1584,7 @@ void UMMOUIManager::MoveByKey( BYTE MoveType,UBOOL MoveFlag)
 		}
 	}
 
-	if(MoveFlag)//增加按下
+	if(MoveFlag)//add press
 	{
 		for(int i=nIndex;i>0;i--)
 		{
@@ -1592,7 +1592,7 @@ void UMMOUIManager::MoveByKey( BYTE MoveType,UBOOL MoveFlag)
 		}
 		WSADKey[0] = MoveType;
 	}
-	else//删除按下
+	else//remove press
 	{
 		for(int i=nIndex;i<4;i++)
 		{
@@ -1683,9 +1683,9 @@ void UMMOUIManager::SaveConfigToServer()
 
 	UMMOUIManager* uimgr = MMOUI::GetUIManager();
 	INT32 val = 0, ips = 0;
-	__BitOp(val, ips++, TRUE                             , save_mode); // 固定填1，表示数据有效
+	__BitOp(val, ips++, TRUE                             , save_mode); // always fill 1, meaning data is valid
 
-	// 不要随意改变下面填充顺序
+	// Do not change the fill order below arbitrarily
 	__BitOp(val, ips++, uimgr->HintHideNameSelf          , save_mode);
 	__BitOp(val, ips++, uimgr->HintHideNameSelfTitle     , save_mode);
 	__BitOp(val, ips++, uimgr->HintHideNameOther         , save_mode);
@@ -1720,10 +1720,10 @@ void UMMOUIManager::SaveConfigToServer()
 	__BitOp(val, ips++, uimgr->HintMarkSelf				 , save_mode);
 	__BitOp(val, ips++, FSM::Ctrl.ctrlFlag_IgnoreShiftBtn, save_mode);
 	__BitOp(val, ips++, uimgr->QuestMode				 , save_mode);
-	// 至此32位已经用完，后面要加的话，要在MMOClientVariableManager里加枚举
+	// The 32 bits are used up here; to add more, add an enum in MMOClientVariableManager
 	MMOClientVariableManager::getSingleton().SetClientVariable(ECVT_Game_Config, val);
 
-	//增加一个32位扩展
+	//Add a 32-bit extension
 	INT32 val2 = 0, ips2 = 0;
 	__BitOp(val2, ips2++, uimgr->DeclineShowTrade, save_mode);
 	MMOClientVariableManager::getSingleton().SetClientVariable(ECVT_Game_Config2, val2);
@@ -1741,9 +1741,9 @@ void UMMOUIManager::SaveSoundConfigToServer()
 	INT32 data[2] ={0,0};
 	BYTE* pByteData = (BYTE*)data;
 	INT32 val = 0, ips = 0;
-	__BitOp(val, ips++, TRUE                             , save_mode); // 固定填1，表示数据有效
+	__BitOp(val, ips++, TRUE                             , save_mode); // always fill 1, meaning data is valid
 
-	// 不要随意改变下面填充顺序
+	// Do not change the fill order below arbitrarily
 	__BitOp(val, ips++, uimgr->bSoundAll		, save_mode);
 	__BitOp(val, ips++, uimgr->bSoundBack		, save_mode);
 	__BitOp(val, ips++, uimgr->bSoundEnv		, save_mode);
@@ -1828,7 +1828,7 @@ void UMMOUIManager::ApplySoundConfigByServer(INT n1,INT n2)
 
 	if (is_val)
 	{
-		// 不要随意改变下面访问顺序
+		// Do not change the access order below arbitrarily
 		uimgr->bSoundAll        = __BitOp(val, ips++, save_buf, save_mode);
 		uimgr->bSoundBack       = __BitOp(val, ips++, save_buf, save_mode);
 		uimgr->bSoundEnv        = __BitOp(val, ips++, save_buf, save_mode);
@@ -1864,7 +1864,7 @@ void UMMOUIManager::ApplySoundConfigByServer(INT n1,INT n2)
 
 
 	UAudioDevice* ad = GEngine->GetAudioDevice();
-	if(ad) // oscar@snda TODO：查为什么没有创建出来
+	if(ad) // oscar@snda TODO: find out why it was not created
 	{
 		ad->VolumeTotal_op     = uimgr->bSoundAll;
 		ad->VolumeBackMusic_op = uimgr->bSoundBack;
@@ -1891,7 +1891,7 @@ void UMMOUIManager::ApplyConfigByServer(INT n,INT n2)
 	UBOOL is_val = __BitOp(val, ips++, save_buf, save_mode);
 	if (is_val)
 	{
-		// 不要随意改变下面访问顺序
+		// Do not change the access order below arbitrarily
 		uimgr->HintHideNameSelf				= __BitOp(val, ips++, save_buf, save_mode);
 		uimgr->HintHideNameSelfTitle		= __BitOp(val, ips++, save_buf, save_mode);
 		uimgr->HintHideNameOther			= __BitOp(val, ips++, save_buf, save_mode);
@@ -1926,7 +1926,7 @@ void UMMOUIManager::ApplyConfigByServer(INT n,INT n2)
 		uimgr->HintMarkSelf					= __BitOp(val, ips++, save_buf, save_mode);
 		FSM::Ctrl.ctrlFlag_IgnoreShiftBtn	= __BitOp(val, ips++, save_buf, save_mode);
 		uimgr->QuestMode					= __BitOp(val, ips++, save_buf, save_mode);
-		//扩展
+		//Extension
 		uimgr->DeclineShowTrade				= __BitOp(val2, ips2++, save_buf, save_mode);
 
 	}
@@ -1993,7 +1993,7 @@ void UMMOUIManager::InitUIManager()
 		nSoundSfxVL			= adioDv->VolumeSfx * 100;
 	}
 
-	//描述了panel属于哪一个MoverPlayer，用于未加载前判定所属的moviePlayer
+	//Describes which MoverPlayer the panel belongs to, used to determine the owning moviePlayer before loading
 // 	MMOUI::SetPanelToMoviePlayer(Panel_Login_User,		MoviePlayer_NewLogin);
 // 	MMOUI::SetPanelToMoviePlayer(Panel_Login_Select,	MoviePlayer_NewLogin);
 // 	MMOUI::SetPanelToMoviePlayer(Panel_Login_Create,	MoviePlayer_NewLogin);

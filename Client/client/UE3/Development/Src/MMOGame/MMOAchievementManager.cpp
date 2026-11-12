@@ -98,7 +98,7 @@ void MMOAchievementManager::CompleteCommonAchievement(UINT32 id)
 		return;
 	}
 
-	// 用一个Set缓存一下, 避免重复发送
+	// Cache in a Set to avoid duplicate sends
 	AchievementIdSet::iterator iter = _AchievementCompleteSet.find(id);
 	if (iter == _AchievementCompleteSet.end())
 	{
@@ -125,7 +125,7 @@ void MMOAchievementManager::NotifyAchievementComplete(UINT32 id, UINT32 date)
 
 	if (id < ACHIEVEMENT_MAX)
 	{
-		// 收到一个删一个
+		// Delete one for each one received
 		AchievementIdSet::iterator iter = _AchievementCompleteSet.find(id);
 		if (iter != _AchievementCompleteSet.end())
 		{
@@ -133,10 +133,10 @@ void MMOAchievementManager::NotifyAchievementComplete(UINT32 id, UINT32 date)
 		}
 	}
 
-	// 有奖励的成就
+	// Achievements with rewards
 	if (MMOAchievementData::getSingleton().IsAchievementHasReward(id))
 	{
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_GetAchievement, id);
 		MMOUI::PostGameEvent(&evtGuide);
 
@@ -155,7 +155,7 @@ void MMOAchievementManager::NotifyAchievementComplete(UINT32 id, UINT32 date)
 		MMOUI::PostGameEvent(&evtJourney);
 	}
 
-	// 非游戏状态，不做特效，提示
+	// Not in game state, no effects or prompts
 	if (MMO::GetCurrentGameState() == EGameState_InGame)
 	{
 		// Hint
@@ -165,12 +165,12 @@ void MMOAchievementManager::NotifyAchievementComplete(UINT32 id, UINT32 date)
 		pNewMsgData->MagicValue = id;
 		ScreenMessageQueue::getSingleton().AddMessage(ESMC_TopCenter, pNewMsgData);
 
-		// 消息
+		// Message
 		FString msg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Achievement.Notify")), 
 			*LinkManager::HtmlLink_Achievement(id));
 		MMOChatManager::getSingleton().AddSystemMessage(msg);
 
-		// 特效
+		// Effect
 		AMMOActor* actor = MMOFacade::getSingleton().GetMainActor();
 		AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 		if (actor && player)
@@ -187,7 +187,7 @@ void MMOAchievementManager::NotifyAchievementComplete(UINT32 id, UINT32 date)
 		}
 	}
 
-	// 事件
+	// Event
 	MMOGameEvent_Achievement evtAch1(adAchievement, id, 0, 0);
 	MMOUI::PostGameEvent(&evtAch1);
 

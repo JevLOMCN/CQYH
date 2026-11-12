@@ -1,5 +1,5 @@
 //
-//ÉèÖÃ×èµ²Îï
+//Set blocker
 //
 class MMOStatusProc_SetObstacelEnable extends Object implements(IMMOStatusProc)
 	native	

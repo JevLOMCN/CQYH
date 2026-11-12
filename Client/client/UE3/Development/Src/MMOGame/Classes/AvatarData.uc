@@ -1,5 +1,5 @@
 /*
- * 模型定义
+ * model definition
  * 
  */
 
@@ -29,17 +29,17 @@ var() float AvatarDrawScale								<DisplayName="AvatarDrawScale"|ClampMin=0.1 |
 var() float HintNameOffsetZ                             <DisplayName="NameOffsetZ">;
 var() float MeshScale;
 
-// TRUE: 合并肩甲 FALSE: 合并脸部
+// TRUE: merge shoulder armor FALSE: merge face
 var()	bool			MergeShoulder					<DisplayName="MergeShoulder">;
 
-// TRUE: 使用合并的模型取代换装。新的策划方案取消了身体部件更换，仅仅保留头盔(头发)、脸部和身体可更换
+// TRUE: use the merged model instead of outfit swapping. The new design removes body part swapping, only helmet (hair), face and body can be swapped
 var()	bool			UseMergedMesh					<DisplayName="UseMergedMesh">;
 
-// 还是走老的DefaultMeshList吧，不然同时维护两套代码太容易出错
-//// 默认的身体模型（什么装备都不穿的时候显示这个）
+// still use the old DefaultMeshList, otherwise maintaining two sets of code at once is too error-prone
+//// default body model (shown when wearing no equipment)
 //var()	SkeletalMesh	DefaultBodyMesh					<DisplayName="DefaultBodyMesh">;
 //
-//// 可选的发型和脸型，新换装机制下使用
+//// optional hairstyles and face shapes, used under the new outfit swap mechanism
 //var()	array<SkeletalMesh>	HairList					<DisplayName="HairList">;
 //var()	array<SkeletalMesh>	FaceList					<DisplayName="FaceList">;
 
@@ -65,7 +65,7 @@ var(Movement) float ToggleMoveAnimCriticalValue         <ClampMin=0.0 | ClampMax
 
 var() float DefaultMoveSpeed                            <DisplayName="DefaultMoveSpeed">;
 
-// 默认为0, 从原始资源计算得到,功能过度期内,如果没有可计算的正常资源,使用DefaultMoveSpeed
+// default 0, calculated from the original resource; during the transition period, if there is no calculable normal resource, use DefaultMoveSpeed
 var float WalkSpeed;
 var float RunSpeed;
 var float FlySpeed;
@@ -73,23 +73,23 @@ var float FlySpeed;
 //var bool bLoadedPhysicAsset;
 
 
-// 初始时的可破坏部件列表
+// initial list of destructible parts
 var(MMOAttach) editinline array<DestructablePartAttachInfo> InitAttachDestructableParts <DisplayName="InitAttachDestructableParts">;
-// 当前绑定的粒子系统
+// currently attached particle system
 //var(MMOAttach) array<ParticleSystemAttachInfo> InitAttachedParSys						<DisplayName="InitAttachedParSys">;
-// 为了方便策划配置，改成struct列表的方式
+// changed to a struct list for easier designer configuration
 struct native ParticleAttachInfo
 {	
-	// 用于标识的名字
+	// name used for identification
 	//var() Name AttachName <DisplayName="AttachName">;
 
-	// 用于创建粒子特效并绑定上去
+	// used to create the particle effect and attach it
 	var() Name AttachSocket <DisplayName="AttachSocket"|DynamicList="SocketList">;
 
-	// 粒子特效模板
+	// particle effect template
 	var() ParticleSystem EmitterTemplate <DisplayName="EmitterTemplate">;
 
-	// 缩放
+	// scale
 	var() float		Scale <DisplayName="Scale">;
 
 	structdefaultproperties
@@ -128,7 +128,7 @@ var(color) transient editoronly int	TestHairColorIdx;
 var(color) linearcolor	SkinSpecular;
 var(color) linearcolor	SilhouetteColor;
 
-// 合并属性,only for editor
+// merge attributes, only for editor
 var transient init array<Texture2D> SkinTextures;		// base textures of default meshes
 var transient init array<Texture2D> SkinTexturesBase;
 var transient MMOSkeletalMeshMerge	MergedMesh;		// use the merged mesh instead of separate meshes
@@ -191,14 +191,14 @@ cpptext
 
 
 
-// 绑定可破坏部件
+// attach destructible part
 function AttachDestructablePart(DestructablePartAttachInfo dpai , MMOActor actor)
 {
 	actor.AttachDestructablePart(dpai);
 	dpai.AttachActor(actor);
 }
 
-// 解除可破坏部件
+// detach destructible part
 function DetachDestructablePart(DestructablePartAttachInfo dpai , MMOActor actor)
 {
 	actor.DetachDestructablePart(dpai);

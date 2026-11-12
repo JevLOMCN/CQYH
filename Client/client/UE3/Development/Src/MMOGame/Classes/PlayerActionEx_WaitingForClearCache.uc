@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_WaitingToMove，等待清除技能缓存，发送移动
+// PlayerActionEx_WaitingToMove, wait for ability cache to clear, send move
 //
 class PlayerActionEx_WaitingForClearCache extends PlayerActionEx_Base
 	native;

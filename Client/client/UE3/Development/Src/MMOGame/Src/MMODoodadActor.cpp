@@ -16,13 +16,13 @@ UBOOL AMMODoodadActor::CanInteract() const
 
 	if(DoodadTemplate)
 	{
-		// 任务类DOODAD只在有任务激活时可交互
+		// quest-type DOODAD is only interactable when a quest is active
 		if(DoodadTemplate->DoodadType == E_dt_Quest)
 		{
 			return IsQuestActive;
 		}
 
-		//挖尸体
+		//loot corpse
 		if(MMOFacade::getSingleton().GetMainController()->eventIsLeftAltDown())
 		{
 			if(DoodadTemplate->DoodadType == E_dt_Corpse)
@@ -66,7 +66,7 @@ BYTE AMMODoodadActor::GetPickPriority()
 
 
 
-	// 任务类DOODAD只在有任务激活时可交互
+	// quest-type DOODAD is only interactable when a quest is active
 	if(DoodadTemplate->DoodadType == E_dt_Quest)
 	{
 		if(IsQuestActive)
@@ -139,7 +139,7 @@ void AMMODoodadActor::DoInteract()
 	{
 		if( DoodadTemplate->RequireItemID > 0)
 		{
-			// 条件不满足时提示
+			// prompt when conditions are not met
 			if(MMOFacade::getSingleton().GetItemCountInBag(
 				DoodadTemplate->RequireItemID) <= 0)
 			{
@@ -165,7 +165,7 @@ void AMMODoodadActor::DoInteract()
 
 		if(IsVarRequired())
 		{
-			// 条件不满足时提示
+			// prompt when conditions are not met
 			if(!IsRequireVarOK())
 			{
 				{
@@ -276,7 +276,7 @@ void AMMODoodadActor::PlayAnimOpen()
 {
 	if(DoodadTemplate && DoodadTemplate->AnimOpen != NAME_None)
 	{
-        //// 这里先填充动画所需数据，等消息来了之后再开始播放
+        //// fill in the data needed for the animation first, start playing after the message arrives
         //DoodadManager::getSingleton().EnableRoleAnimByDoodad(this, DoodadTemplate, Location);
 
 		Mesh->PlayAnimEx(DoodadTemplate->AnimOpen, 0.0f, FALSE);
@@ -299,7 +299,7 @@ void AMMODoodadActor::PlayAnimClose()
 		Mesh->PlayAnimEx(DoodadTemplate->AnimClose, 0.0f, FALSE);
 	}
 
-    //// 一次只可能打开一个采集点，直接关闭
+    //// only one gathering point can be open at a time, close it directly
     //DoodadManager::getSingleton().StopRoleAnimByDoodad(FALSE);
 }
 
@@ -333,7 +333,7 @@ void AMMODoodadActor::SetRemainOpenCount(INT newCnt, AMMOActor* instigateActor)
 		return;
 	}
 
-	// 如果是减少了，就默认为是受到伤害
+	// if it decreased, assume damage was taken
 	if(RemainOpenCount > newCnt)
 	{
 		if(DoodadTemplate && (DoodadTemplate->DoodadType == E_dt_Destrucible))
@@ -457,7 +457,7 @@ void AMMODoodadActor::DestroyDoodadActor(INT disappearType)
 		return;
 	}
 
-	// 这里要标记一下，避免交互
+	// mark here to avoid interaction
 	IsDead = TRUE;
 
 	if(DoodadTemplate && DoodadTemplate->OperateDuration > 0.0f)
@@ -472,7 +472,7 @@ void AMMODoodadActor::DestroyDoodadActor(INT disappearType)
 	}
 	else
 	{
-		SetRemainOpenCount(0, NULL); // 死亡时要尝试播放下死亡动画
+		SetRemainOpenCount(0, NULL); // on death, try to play the death animation
 
 		if(DelayDestroyTime > 0.0f)
 		{
@@ -623,7 +623,7 @@ bool AMMODoodadActor::IsRequireVarOK() const
 {
 	if(IsVarRequired())
 	{
-		// TODO: 等读取配置统一后再修正
+		// TODO: fix after config reading is unified
 		//return MMO::IsRequiredVarOK(DoodadTemplate->RequireVarID, DoodadTemplate->RequireVarValue);
 		return TRUE;
 	}

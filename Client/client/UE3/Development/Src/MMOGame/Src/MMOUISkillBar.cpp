@@ -9,7 +9,7 @@
 
 IMPLEMENT_CLASS(UMMOUISkillBar);
 
-//控件宽度
+//Control width
 #define ExpBarMaxWidth (432)
 #define SKILL_BAR_ITEM_SLOT_SPEC_PREFIX (0xffff)
 #define SKILL_BAR_ITEM_SLOT_UNFIX_POS_ID (-1)
@@ -89,7 +89,7 @@ void UMMOUISkillBar::OnNativeGameEvent(struct MMOGameEvent* evt)
 				UpdateSkillSlot(e->IntData);
 			}
 
-			//上传一下技能栏数据
+			//Upload skill bar data
 			if( IsSlotDirty( -1 ) ){
 				Send_BarSlotData();
 			}
@@ -153,7 +153,7 @@ void UMMOUISkillBar::OnNativeGameEvent(struct MMOGameEvent* evt)
 		break;
 	case GameEvent_FinishLoading:
 		{
-			//新人默认物品栏
+			//Newbie default item bar
 			if( Player != NULL && Player->ActorAttributes->LevelAttributes.Level <= 1 && Player->ActorAttributes->LevelAttributes.CurrentExp < 10 ){
 				InitItemBarItemForNewComing();
 			}
@@ -260,7 +260,7 @@ void UMMOUISkillBar::OnItemSlotChanged( INT containerID, INT slotID )
 {
 	FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindItem( containerID, slotID );
 	if( containerID != SKILL_BAR_ONLY_ITEM_CONTAINER ){
-		//只接受包裹里的物品
+		//Only accept items in the bag
 		return;
 	}
 
@@ -278,7 +278,7 @@ void UMMOUISkillBar::OnItemSlotChanged( INT containerID, INT slotID )
 		UItem *pItem = MMOFacade::getSingleton().FindItemTemplate( itemID );
 		UBOOL isMutiItemsOnSkillBar = MMOEquipManager::getSingleton().IsItemMultiOnSkillBar( pItem );
 		if( isMutiItemsOnSkillBar ){
-			//没有固定位置，重新设置一下
+			//No fixed position, set again
 			INT inBagFirstItemSlotIdx = -1;
 			FClientItemInfo *slotItemInfo = MMOFacade::getSingleton().FindFirstItemPosInContainer( slotData.AidID, SKILL_BAR_ONLY_ITEM_CONTAINER, inBagFirstItemSlotIdx );
 			INT itemPosID = (INT)MMOEquipManager::CombinateItemPosID( SKILL_BAR_ONLY_ITEM_CONTAINER, inBagFirstItemSlotIdx );
@@ -286,16 +286,16 @@ void UMMOUISkillBar::OnItemSlotChanged( INT containerID, INT slotID )
 			//SetBarSlot( i, ESBarSlotTp_Item, itemID );
 		}
 		else{
-			//有固定位置，重新设置一下
+			//Has a fixed position, set again
 			INT changedItemPosID = (INT)MMOEquipManager::CombinateItemPosID( containerID, slotID );
 			if( slotData.ID == changedItemPosID ){
-				//重新设置一下
+				//Set again
 				SetBarSlot( i, ESBarSlotTp_Item, slotData.ID );
 			}
 		}
 	}
 
-	//上传
+	//Upload
 	if( IsSlotDirty( -1 ) ){
 		Send_BarSlotData();
 	}
@@ -331,7 +331,7 @@ void UMMOUISkillBar::OnItemSwapped( INT srcConIdx, INT srcSlotIdx, INT dstConIdx
 		}
 	}
 
-	//上传
+	//Upload
 	if( IsSlotDirty( -1 ) ){
 		Send_BarSlotData();
 	}
@@ -369,7 +369,7 @@ void UMMOUISkillBar::UpdateItemSlotForItemDeleted( INT itemTemplateID )
 		MMOEquipManager::DecomposeItemPosID( (UINT)slotData.ID, curBarItemConIdx, curBarItemSlotIdx );
 		FClientItemInfo *putItemInfo = mmoFacade.FindItem( curBarItemConIdx, curBarItemSlotIdx );
 		if( putItemInfo == NULL ){
-			//物品被删除了
+			//Item was deleted
 			UBOOL isMutiItemsOnSkillBar = mmoEquipMgr.IsItemMultiOnSkillBar( putItem );
 			if( isMutiItemsOnSkillBar ){
 				putItemInfo = mmoFacade.FindFirstItemPosInContainer( itemTemplateID, SKILL_BAR_ONLY_ITEM_CONTAINER, newItemSlotID );
@@ -385,19 +385,19 @@ void UMMOUISkillBar::UpdateItemSlotForItemDeleted( INT itemTemplateID )
 		else{
 			newItemPosID = slotData.ID;
 		}
-		//重新设置一下
+		//Set again
 		//SetBarSlot( i, ESBarSlotTp_Item, slotData.ID );
 		SetBarSlot( i, ESBarSlotTp_Item, newItemPosID );
 	}
 
-	//上传
+	//Upload
 	if( IsSlotDirty( -1 ) ){
 		Send_BarSlotData();
 	}
 }
 
 //===============================================================================================================
-//快捷栏上所有物品链接重置为包裹中第一个所记录物品ID的位置
+//All item links on the hotbar are reset to the position of the first recorded item ID in the bag
 void UMMOUISkillBar::ResetAllItemsByIDs()
 {
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
@@ -429,11 +429,11 @@ void UMMOUISkillBar::ResetAllItemsByIDs()
 			newItemPosID = (INT)MMOEquipManager::CombinateItemPosID( SKILL_BAR_ONLY_ITEM_CONTAINER, newItemSlotID );
 		}
 
-		//重新设置一下
+		//Set again
 		SetBarSlot( i, ESBarSlotTp_Item, newItemPosID );
 	}
 
-	//上传
+	//Upload
 	if( IsSlotDirty( -1 ) ){
 		Send_BarSlotData();
 	}
@@ -454,7 +454,7 @@ void UMMOUISkillBar::PlayerExpChange( INT exp, INT maxExp,INT ChangeExp )
 	expPercent = ( ( maxExp > 0 ) ? ( FLOAT( exp ) / maxExp * 100 ) : 0 );
 	expPercent = Clamp( expPercent, 0, 100 );
 
-	//实际要留一点
+	//Actually leave a little
 	INT expWidth = Clamp( ExpBarMaxWidth * expPercent / 100 , 1, ExpBarMaxWidth );
 	expData->SetInt( TEXT("maskWidth"), expWidth );
 
@@ -689,9 +689,9 @@ UBOOL UMMOUISkillBar::OnDragDrop( class UGFxObject* srcSlotMC, class UGFxObject*
 	BYTE destSlotType, BYTE destContainerID, INT destSlotID )
 {
 	if( destSlotType == ESPType_SkillBar ){
-		//放置到技能栏
+		//Place on skill bar
 		if( srcSlotType == ESPType_SkillBar ){
-			//技能栏交换位置
+			//Skill bar swap positions
 			if( srcSlotMC == NULL || destSlotMC == NULL ){
 				return TRUE;
 			}
@@ -712,7 +712,7 @@ UBOOL UMMOUISkillBar::OnDragDrop( class UGFxObject* srcSlotMC, class UGFxObject*
 		}
 
 		if( srcSlotType == ESPType_Mount && ESPType_SkillBar == destSlotType ){
-			//坐骑
+			//mount
 			if( srcSlotMC != NULL ){
 				INT mountID = srcSlotMC->GetInt( TEXT("ItemTemplateID") );
 
@@ -730,9 +730,9 @@ UBOOL UMMOUISkillBar::OnDragDrop( class UGFxObject* srcSlotMC, class UGFxObject*
 		}
 
 		if( srcSlotType == ESPType_Bag && ESPType_SkillBar == destSlotType ){
-			//物品
+			//Item
 			if( srcContainerID == CONSLOT_DEFAULT ){
-				//来自背包
+				//From bag
 				FClientItemInfo* item = MMOFacade::getSingleton().FindItem( srcContainerID , srcSlotID );
 				if( item != NULL && destSlotMC != NULL ){
 					INT desSlotIdx = destSlotMC->GetInt( TEXT("slotIndex") );
@@ -750,11 +750,11 @@ UBOOL UMMOUISkillBar::OnDragDrop( class UGFxObject* srcSlotMC, class UGFxObject*
 		}
 
 		if( srcSlotType == ESPType_SkillSetting && ESPType_SkillBar == destSlotType && srcSlotMC != NULL && destSlotMC != NULL ){
-			//拖放新技能
+			//Drag and drop new skill
 			UINT uniqueSkillID = (UINT)srcSlotMC->GetInt(TEXT("itemIndex"));
 			INT toEquipSkillSlotIdx = (INT)destSlotMC->GetInt( TEXT("slotIndex") );
 
-			//先卸载相同的
+			//First unload the same ones
 			UnequipSkill( uniqueSkillID, toEquipSkillSlotIdx );
 
 			TryToEquipOnSkill( toEquipSkillSlotIdx, uniqueSkillID );
@@ -765,7 +765,7 @@ UBOOL UMMOUISkillBar::OnDragDrop( class UGFxObject* srcSlotMC, class UGFxObject*
 	}
 
 	if( srcSlotType == ESPType_SkillBar && destSlotType != ESPType_SkillBar ){
-		//拖出去的视为丢弃设置
+		//Dragged out is treated as discard setting
 		INT srcSlotIdx = srcSlotMC->GetInt( TEXT("slotIndex") );
 
 		//FSlotContainer &srcSlotData = SkillBarSlotData( srcSlotIdx );
@@ -831,7 +831,7 @@ UBOOL UMMOUISkillBar::OnLeftMousePress( class UGFxObject* mc, BYTE slotType, BYT
 	//}
 	//FSlotContainer &slotData = SkillBarSlotData( slotIdx );
 	//if( slotData.Type != ESBarSlotTp_Skill ){
-	//	//只有技能需要处理Press连续施法
+	//	//Only skills need to handle Press continuous casting
 	//	return TRUE;
 	//}
 
@@ -913,11 +913,11 @@ UBOOL UMMOUISkillBar::DoSlotAction( INT slotIdx, UBOOL isReleased )
 				UBOOL isMutiItemsOnSkillBar = MMOEquipManager::getSingleton().IsItemMultiOnSkillBar( pItem );
 				if( isMutiItemsOnSkillBar ){
 					warnf( NAME_Warning, TEXT("======!!!!======= [Skill Bar Item Slot[%d] item pos[%d] in NOT a [%d], REFLASH!]"), slotIdx, toUseItemSlotIdx, slotData.AidID );
-					//数据差异，以物品TemplateID为准
+					//Data differs, item TemplateID takes precedence
 					INT inBagFirstItemSlotIdx = -1;
 					FClientItemInfo *slotItemInfo = MMOFacade::getSingleton().FindFirstItemPosInContainer( slotData.AidID, SKILL_BAR_ONLY_ITEM_CONTAINER, inBagFirstItemSlotIdx );
 					INT itemPosID = (INT)MMOEquipManager::CombinateItemPosID( SKILL_BAR_ONLY_ITEM_CONTAINER, inBagFirstItemSlotIdx );
-					//重新刷新一下
+					//Refresh again
 					SetBarSlot( slotIdx, ESBarSlotTp_Item, itemPosID );
 
 					toUseItemConIdx = SKILL_BAR_ONLY_ITEM_CONTAINER;
@@ -972,7 +972,7 @@ struct FSKILL_BAR_SLOT
 };
 #pragma pack(pop)
 
-//设置Slot
+//Set Slot
 void UMMOUISkillBar::RefreshSkillBarByServerData( INT32* addr, INT  size )
 {
 	FSKILL_BAR_SLOT* pp = ( FSKILL_BAR_SLOT* )addr;
@@ -984,13 +984,13 @@ void UMMOUISkillBar::RefreshSkillBarByServerData( INT32* addr, INT  size )
 	{
 		SkillBarSlotType slotType = (SkillBarSlotType)pp[i].type;
 		if( slotType == ESBarSlotTp_Skill ){
-			//技能由其他服务器消息来刷新
+			//Skills are refreshed by other server messages
 			continue;
 		}
 
 		FSlotContainer &slotData = SkillBarSlotData( i );
 		if( slotData.Type == ESBarSlotTp_Skill ){
-			//技能的slot不在这里同步，走技能同步(为了防止两边数据不一样造成技能怎么也装配不上slot，不一样是不对的)
+			//Skill slots are not synced here, they go through skill sync (to prevent data mismatch on both sides making skills unable to be assigned to a slot; mismatch is wrong)
 			warnf(NAME_Error, TEXT("======!!!!======= [RefreshSkillBarByServerData server slot[%d] is different from local.]"), i);
 			continue;
 		}
@@ -998,8 +998,8 @@ void UMMOUISkillBar::RefreshSkillBarByServerData( INT32* addr, INT  size )
 		//
 		INT slotContentID = pp[i].id;
 		if( slotType == ESBarSlotTp_MAX ){
-			//hack，用作不绑定特定位置的物品快捷键
-			//先强制写入数据，便于SetBarSlot中能取到数据
+			//hack, used for item hotkeys not bound to a specific position
+			//Force write data first, so SetBarSlot can fetch the data
 			slotData.Type = ESBarSlotTp_Item;
 			slotData.AidID = slotContentID;
 			slotData.ID = SKILL_BAR_ITEM_SLOT_UNFIX_POS_ID;
@@ -1023,7 +1023,7 @@ void UMMOUISkillBar::Send_BarSlotData()
 		psbs[i].type = SkillBarSlot[i].Type;
 		psbs[i].id = SkillBarSlot[i].ID;
 		if( psbs[i].type == ESBarSlotTp_Item && psbs[i].id == -1 && SkillBarSlot[i].AidID > 0 ){
-			//不绑定具体位置的物品
+			//Items not bound to a specific position
 			psbs[i].type = ESBarSlotTp_MAX;
 			psbs[i].id = SkillBarSlot[i].AidID;
 		}
@@ -1076,7 +1076,7 @@ UBOOL UMMOUISkillBar::TryToEquipOnSkill( INT toSetBarSlotIdx, INT uniqueSkillID 
 	ECommandKey cmdKey = GetSkillBarSlotCmdKey( toSetBarSlotIdx );//MMOSkillManager::getSingleton().GetSkillbarSlotRealCmd( toSetBarSlotIdx );
 
 	if( uniqueSkillID == 0 ){
-		//不装备技能
+		//Do not equip skill
 		MMOSkillManager::getSingleton().SendEquipSpell( cmdKey, 0 );
 
 		isSuccessed = TRUE;
@@ -1102,10 +1102,10 @@ UBOOL UMMOUISkillBar::TryToEquipOnSkill( INT toSetBarSlotIdx, INT uniqueSkillID 
 		return isSuccessed;
 	}
 
-	//设置主技能
+	//Set main ability
 	MMOSkillManager::getSingleton().SendEquipSpell( cmdKey, skillID );
 
-	//清理新技能列表
+	//Clear new skill list
 	MMOSkillManager::getSingleton().RemoveNewLearnedSkill( skillID );
 
 	isSuccessed = TRUE;
@@ -1140,7 +1140,7 @@ UBOOL UMMOUISkillBar::UnequipSkill( INT uniqueSkillID, INT exceptIdx /*= -1*/ )
 		FSlotContainer &slotData = SkillBarSlotData( i );
 		if (slotData.Type == ESBarSlotTp_Skill && MMOSkillManager::IsSameSeriesAbility( slotData.ID, uniqueSkillID ) ){
 			TryToEquipOnSkill( i, 0 );
-			//正确的逻辑来讲，只可能找到一个
+			//Logically, only one can be found
 			isSuccess = TRUE;
 			//break;
 		}
@@ -1170,13 +1170,13 @@ UBOOL UMMOUISkillBar::UnequipAllSkills( INT skillID, UBOOL isClient/* = FALSE*/ 
 				TryToEquipOnSkill( i, 0 );
 			}
 
-			//正确的逻辑来讲，只可能找到一个
+			//Logically, only one can be found
 			isSuccess = TRUE;
 			break;
 		}
 	}
 
-	//上传
+	//Upload
 	if( IsSlotDirty( -1 ) ){
 		Send_BarSlotData();
 	}
@@ -1217,13 +1217,13 @@ void UMMOUISkillBar::UpdateSkillSlot( INT slotCmdKey )
 	else{
 		FSlotContainer &origSlotData = SkillBarSlotData( slotIndex );
 		if( origSlotData.Type == ESBarSlotTp_Skill ){
-			//只清除技能数据
+			//Only clear skill data
 			SetBarSlotToNoData( slotIndex );
 		}
 	}
 }
 //==============================================================================================================
-//@Desc：技能设置只会 发通知给服务器，实际在UpdateSkillSlot中设置
+//@Desc: skill setting only sends a notification to the server, actually set in UpdateSkillSlot
 UBOOL UMMOUISkillBar::SetBarSlot( INT slotIdx, SkillBarSlotType slotType, INT templeteID )
 {
 	UBOOL isSuccess = FALSE;
@@ -1231,7 +1231,7 @@ UBOOL UMMOUISkillBar::SetBarSlot( INT slotIdx, SkillBarSlotType slotType, INT te
 	FSlotContainer &origSlotData = SkillBarSlotData( slotIdx );
 	if( origSlotData.Type == ESBarSlotTp_Skill ){
 		if( !( slotType == ESBarSlotTp_Skill && MMOSkillManager::getSingleton().IsSameSeriesAbility( templeteID, origSlotData.ID ) ) ){
-			//技能装配需要另外再走一条消息,原来装配的技能需要通知服务器取消
+			//Skill assignment needs to go through another message, the previously assigned skill needs to notify the server to cancel
 			TryToEquipOnSkill( slotIdx, 0 );
 		}
 	}
@@ -1248,7 +1248,7 @@ UBOOL UMMOUISkillBar::SetBarSlot( INT slotIdx, SkillBarSlotType slotType, INT te
 		break;
 	//case ESBarSlotTp_MAX:
 	//	{
-	//		//hack，用作不绑定特定位置的物品快捷键
+	//		//hack, used for item hotkeys not bound to a specific position
 	//		FSlotContainer &slotData = SkillBarSlotData( slotIdx );
 	//		slotData.Type = ESBarSlotTp_Item;
 	//		slotData.AidID = templeteID;
@@ -1336,21 +1336,21 @@ UBOOL UMMOUISkillBar::SetBarSlotToSkillData( INT slotIdx, UINT uniqueSkillID )
 	pSlotMc->Invoke(TEXT("UpdateData"), asArgs);
 
 	if( isSetSuccessful ){
-		//先清除原有的,技能栏上不支持一个技能放多个栏位
+		//First clear the existing one, the skill bar does not support one skill in multiple slots
 		ClearAllSlotOfSkill( uniqueSkillID, slotIdx );
 
 		slotData.Type = ESBarSlotTp_Skill;
 		slotData.ID = uniqueSkillID;
 		MarkSlotDirty( slotIdx );
 
-		//刷新灰态
+		//Refresh gray state
 		CheckSlotEnableState( slotIdx, TRUE );
 
-		//刷新CD
+		//Refresh CD
 		ECommandKey cmdKey = GetSkillBarSlotCmdKey( slotIdx );
 		UpdateAbilityCDInSlot( pAbility, cmdKey );
 
-		//某些特效
+		//Some effects
 		CheckSlotLoopEffect( slotIdx );
 	}
 
@@ -1400,7 +1400,7 @@ UBOOL UMMOUISkillBar::SetBarSlotToItemData( INT slotIdx, INT itemPosID )
 
 	if( pItemInfo == NULL ){
 		if( slotData.Type == ESBarSlotTp_Item ){
-			//用原来的ID
+			//Use the original ID
 			itemTemplateID = slotData.AidID;
 		}
 	}
@@ -1466,17 +1466,17 @@ UBOOL UMMOUISkillBar::SetBarSlotToItemData( INT slotIdx, INT itemPosID )
 		slotData.Type = ESBarSlotTp_Item;
 		slotData.ID = itemPosID;
 		slotData.AidID = itemTemplateID;
-		//上传服务器
+		//Upload to server
 		//Send_BarSlotData();
 		MarkSlotDirty( slotIdx );
 
-		//刷新灰态
+		//Refresh gray state
 		CheckSlotEnableState( slotIdx, TRUE );
 
-		//刷新CD
+		//Refresh CD
 		SetItemCDInSlot( slotIdx );
 
-		//某些特效
+		//Some effects
 		CheckSlotLoopEffect( slotIdx );
 	}
 
@@ -1547,17 +1547,17 @@ UBOOL UMMOUISkillBar::SetBarSlotToMountData( INT slotIdx, INT mountID )
 		slotData.Type = ESBarSlotTp_Mount;
 		slotData.ID = mountID;
 
-		//上传服务器
+		//Upload to server
 		//Send_BarSlotData();
 		MarkSlotDirty( slotIdx );
 
-		//刷新灰态
+		//Refresh gray state
 		CheckSlotEnableState( slotIdx, TRUE );
 
-		//取消CD
+		//Cancel CD
 		SetItemSlotCD( pSlotMc, 0, 0 );
 
-		//某些特效
+		//Some effects
 		CheckSlotLoopEffect( slotIdx );
 	}
 
@@ -1605,7 +1605,7 @@ UBOOL UMMOUISkillBar::SetBarSlotToNoData( INT slotIdx, UBOOL isInitialize /*= FA
 	
 	if( slotData.Type != ESBarSlotTp_Invalid ){
 		//if( slotData.Type == ESBarSlotTp_Skill ){
-		//	//技能需要另外通知一条消息
+		//	//Skills need to notify with another message
 		//	TryToEquipOnSkill( slotIdx, 0 );
 		//}
 		slotData.Type = ESBarSlotTp_Invalid;
@@ -1616,13 +1616,13 @@ UBOOL UMMOUISkillBar::SetBarSlotToNoData( INT slotIdx, UBOOL isInitialize /*= FA
 			MarkSlotDirty( slotIdx );
 		}
 
-		//刷新灰态
+		//Refresh gray state
 		CheckSlotEnableState( slotIdx, TRUE );
 
-		//取消CD
+		//Cancel CD
 		SetItemSlotCD( pSlotMc, 0, 0 );
 
-		//某些特效
+		//Some effects
 		CheckSlotLoopEffect( slotIdx );
 	}
 
@@ -1650,20 +1650,20 @@ void  UMMOUISkillBar::SwapBarSlotData( INT slotIdx1, INT slotIdx2 )
 	INT slot2IDtoSet = slot2Data.ID;
 
 	if( ( slot1Type == ESBarSlotTp_Item && slot1IDtoSet == -1 ) || ( slot2Type == ESBarSlotTp_Item && slot2IDtoSet== -1 ) ){
-		//有物品用完后，做快捷键交换的情况
+		//Case of hotkey swap after an item is used up
 		if( slot1Type == ESBarSlotTp_Skill ){
-			//后面会直接交换数据，这里得手动清理技能
+			//Data will be swapped directly later, skills must be cleaned manually here
 			TryToEquipOnSkill( slotIdx1, 0 );
 		}
 		if( slot2Type == ESBarSlotTp_Skill ){
 			TryToEquipOnSkill( slotIdx2, 0 );
 		}
-		//物品如果此时没在背包内，无法完成交换快捷键，这里需要特殊处理下，强制数据交换，让SetBarSlot去完成数据刷新
+		//If the item is not in the bag at this time, the hotkey swap cannot complete; special handling is needed here, force the data swap and let SetBarSlot finish refreshing the data
 		SwapBarSlotDataRaw( slotIdx1, slotIdx2 );
 	}
 	else{
 		if( slot2Type == ESBarSlotTp_Skill ){
-			//slot1会在SetBarSlot（slotIdx1....）自动判定卸除slot1的技能
+			//slot1 will automatically determine to unload slot1's skill in SetBarSlot(slotIdx1....)
 			TryToEquipOnSkill( slotIdx2, 0 );
 		}
 	}
@@ -1672,7 +1672,7 @@ void  UMMOUISkillBar::SwapBarSlotData( INT slotIdx1, INT slotIdx2 )
 
 	SetBarSlot( slotIdx2, (SkillBarSlotType)slot1Type, slot1IDtoSet );
 
-	////技能需处理技能装配
+	////Skills need to handle skill assignment
 	//FSlotContainer &newSlot1Data = SkillBarSlotData( slotIdx1 );
 	//FSlotContainer &newSlot2Data = SkillBarSlotData( slotIdx2 );
 	//if( newSlot1Data.Type == ESBarSlotTp_Skill && newSlot2Data.Type == ESBarSlotTp_Skill ){
@@ -1755,7 +1755,7 @@ void UMMOUISkillBar::CheckSlotEnableState( INT slotIdx, UBOOL isForceCheck /*= F
 		break;
 	case ESBarSlotTp_Mount:
 		{
-			//总是可操作的
+			//Always operable
 			SetSkillBarSlotDisableState( slotIdx, 0 );
 		}
 		break;
@@ -1767,14 +1767,14 @@ void UMMOUISkillBar::CheckSlotEnableState( INT slotIdx, UBOOL isForceCheck /*= F
 	case ESBarSlotTp_Invalid:
 	default:
 		{
-			//总是可操作的
+			//Always operable
 			SetSkillBarSlotDisableState( slotIdx, 0 );
 		}
 		break;
 	}
 }
 //==============================================================================================================
-//更新bar上所有放置了skill的slot可操作状态
+//Update the operable state of all slots on the bar that have a skill placed
 void UMMOUISkillBar::UpdateAbilityEnableState()
 {
 	for ( INT i = 0 ; i < UCONST_SkillBarSlotMax; i++ )
@@ -1809,7 +1809,7 @@ void UMMOUISkillBar::CheckAbilityEnableState( INT slotIdx, UBOOL isForceCheck /*
 	UMMOAbility* tAbility = GetSkillBarSlotSkill( slotIdx );
 	if( tAbility )
 	{
-		//能量检测
+		//Energy check
 		if( IsSlotUpdateType( ESBarSlotUpdTp_Mana ) || isForceCheck ) 
 		{
 			UBOOL unfit = false;
@@ -1820,7 +1820,7 @@ void UMMOUISkillBar::CheckAbilityEnableState( INT slotIdx, UBOOL isForceCheck /*
 			//UnsetSlotUpdateType( ESBarSlotUpdTp_Mana );
 		}
 
-		//检测右手武器
+		//Check right-hand weapon
 		if( IsSlotUpdateType( ESBarSlotUpdTp_WeaponType ) || isForceCheck ) 
 		{
 			UBOOL isWeaponUnFit = FALSE;
@@ -1841,7 +1841,7 @@ void UMMOUISkillBar::CheckAbilityEnableState( INT slotIdx, UBOOL isForceCheck /*
 			//UnsetSlotUpdateType( ESBarSlotUpdTp_WeaponType );
 		}
 
-		//技能状态检测
+		//Skill state check
 		if( IsSlotUpdateType( ESBarSlotUpdTp_Buff ) || isForceCheck ) 
 		{
 			UBOOL isBuffDisabled = !MMOFacade::getSingleton().IsAbilityCanUse( tAbility );
@@ -1857,7 +1857,7 @@ void UMMOUISkillBar::CheckAbilityEnableState( INT slotIdx, UBOOL isForceCheck /*
 	}
 }
 //------------------------------------------------------------------
-//获得制定slot上的技能，如果有的话(现在只是放了技能的slot)
+//Get the skill on the specified slot, if any (currently only slots with a skill placed)
 UMMOAbility *UMMOUISkillBar::GetSkillBarSlotSkill( INT slotIdx )
 {
 	if( slotIdx < 0 || UCONST_SkillBarSlotMax <= slotIdx ){
@@ -1882,7 +1882,7 @@ UMMOAbility *UMMOUISkillBar::GetSkillBarSlotSkill( INT slotIdx )
 	return NULL;
 }
 //==============================================================================================================
-//更新bar上所有放置了item的slot可操作状态
+//Update the operable state of all slots on the bar that have an item placed
 void UMMOUISkillBar::UpdateItemEnableState()
 {
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
@@ -1963,7 +1963,7 @@ void UMMOUISkillBar::ClearUI()
 	ClearSkillListPanel();
 }
 //------------------------------------------------------------------
-//清空所有slot数据并上传服务器
+//Clear all slot data and upload to server
 void UMMOUISkillBar::ClearAllSkillSlotData()
 {
 	//for(INT i = 0; i < UCONST_SkillBarSlotMax; ++i)
@@ -1977,10 +1977,10 @@ void UMMOUISkillBar::ClearSkillListPanel()
 	CurShowedSkillListSlotIdx = -1;
 }
 //==============================================================================================================
-//技能栏放入默认物品
+//Put default items on the skill bar
 void UMMOUISkillBar::InitItemBarItemForNewComing()
 {
-	//新人物第一次进游戏
+	//New character's first time entering the game
 	const INT defaultSlot1 = 6;
 	const INT defaultSlot2 = 11;
 	if( !( SkillBarSlot[defaultSlot1].Type == ESBarSlotTp_Invalid && SkillBarSlot[defaultSlot2].Type == ESBarSlotTp_Invalid ) ) {
@@ -1995,7 +1995,7 @@ void UMMOUISkillBar::InitItemBarItemForNewComing()
 
 	INT itemID = 0;
 	INT inBagItemSlotIdx = -1;
-	//药水
+	//Potion
 	GConfig->GetInt( TEXT("SkillBar"), TEXT("PuttedOnBarItem1"), itemID, GDefaultGameIni );
 
 	FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindFirstItemPosInContainer( itemID, SKILL_BAR_ONLY_ITEM_CONTAINER, inBagItemSlotIdx );
@@ -2004,17 +2004,17 @@ void UMMOUISkillBar::InitItemBarItemForNewComing()
 		SetBarSlot( defaultSlot1, ESBarSlotTp_Item, itemPosID );
 	}
 
-	////回城卷
+	////Town portal scroll
 	//GConfig->GetInt( TEXT("SkillBar"), TEXT("PuttedOnBarItem2"), itemID, GDefaultGameIni );
 	//SetBarSlot( defaultSlot2, ESBarSlotTp_Item, itemID );
 
-	//这里必须所有保证原先的数据本地已经有了，不然会被刷掉
+	//Must ensure here that the original data already exists locally, otherwise it will be wiped
 	if( IsSlotDirty( -1 ) ){
 		Send_BarSlotData();
 	}
 }
 //------------------------------------------------------------------
-//UI初始化
+//UI initialization
 void UMMOUISkillBar::Init()
 {
 	Super::Init();
@@ -2114,7 +2114,7 @@ void UMMOUISkillBar::InitSkillBarSlotHotKey()
 
 		keyBind->SetText( keyname );
 
-		//if(pKKey && i<2)//只有前两个键有图标
+		//if(pKKey && i<2)//only the first two keys have icons
 		//{
 		//	UGFxObject *keyBindImg = skillSlotMc->GetObject( TEXT("keyBindImg") );
 
@@ -2145,7 +2145,7 @@ void UMMOUISkillBar::UnInit()
 }
 
 //==============================================================================================================
-//技能栏slot待更新状态标记
+//Skill bar slot pending update state flag
 UBOOL UMMOUISkillBar::IsSlotUpdateType( INT type )
 {
 	return ( SkillSlotUpdState & ( 1 << type ) );
@@ -2169,7 +2169,7 @@ void UMMOUISkillBar::SetAllSlotUpdateType()
 	SkillSlotUpdState = 0xffffffff;
 }
 //==============================================================================================================
-//记录slot的当前激活状态
+//Record the slot's current active state
 void UMMOUISkillBar::SetSlotDisableState( INT &slotState, INT type, UBOOL isToSet )
 {
 	if( isToSet ){
@@ -2180,7 +2180,7 @@ void UMMOUISkillBar::SetSlotDisableState( INT &slotState, INT type, UBOOL isToSe
 	}
 }
 //==============================================================================================================
-//技能栏上个slot数据
+//Previous slot data on the skill bar
 FSlotContainer &UMMOUISkillBar::SkillBarSlotData( INT idx )
 {
 	if( idx < 0 || UCONST_SkillBarSlotMax <= idx ){
@@ -2210,7 +2210,7 @@ void UMMOUISkillBar::SetSkillBarSlotDisableState( INT idx, INT toSetState )
 
 	slotData.State = toSetState;
 	eventCallAsToGrayMc( slotData.SlotObject, slotData.State != 0 );
-	//eventCallAsToGraySlotIcon( slotData.SlotObject, slotData.State != 0 );//这种方式悬浮时有问题
+	//eventCallAsToGraySlotIcon( slotData.SlotObject, slotData.State != 0 );//this approach has problems on hover
 }
 //------------------------------------------------------------------
 UGFxObject *UMMOUISkillBar::SkillBarSlotMc( INT idx )
@@ -2222,7 +2222,7 @@ UGFxObject *UMMOUISkillBar::SkillBarSlotMc( INT idx )
 	return SkillBarSlotData(idx).SlotObject;
 }
 //==============================================================================================================
-//技能栏与技能slot编号的对应转换
+//Conversion between skill bar and skill slot numbers
 INT UMMOUISkillBar::GetSkillBarSlotIdx( INT eCommandKey )
 {
 	switch( eCommandKey )
@@ -2239,7 +2239,7 @@ INT UMMOUISkillBar::GetSkillBarSlotIdx( INT eCommandKey )
 	case ECK_Slot10: return 9;
 	case ECK_Slot11: return 10;
 	case ECK_Slot12: return 11;
-	case ECK_NormalAtk: return -1;//普攻技能，不在Skillbar上
+	case ECK_NormalAtk: return -1;//basic attack skill, not on the Skillbar
 	}
 
 	//warnf( NAME_Error, TEXT("GetSkillBarSlotIdx enum[%d] is not mapped on skill bar"), eCommandKey );
@@ -2268,10 +2268,10 @@ ECommandKey UMMOUISkillBar::GetSkillBarSlotCmdKey( INT slotIdx )
 	return ECK_Slot1;
 }
 //===============================================================================================================
-//使用技能后的刷新(不支持栏上放置了多个相同技能)
+//Refresh after using a skill (does not support multiple identical skills placed on the bar)
 void UMMOUISkillBar::SetAbilityCDInSlot( INT slotCmdKey, INT abilityTemplateID, INT leftMiniSec, INT maxMiniSec )
 {
-	return;//不要了
+	return;//no longer needed
 	//INT slotIdx = GetSkillBarSlotIdx( slotCmdKey );
 	//if( slotIdx < 0 || UCONST_SkillBarSlotMax <= slotIdx ){
 	//	if( slotCmdKey != ECK_NormalAtk ){
@@ -2302,7 +2302,7 @@ void UMMOUISkillBar::SetAbilityCDInSlot( INT slotCmdKey, INT abilityTemplateID, 
 	//SetItemSlotCD( slotData.SlotObject, leftMiniSec, maxMiniSec );
 }
 //--------------------------------------------------------------------------
-//刷新技能栏上此技能的CD时间
+//Refresh the CD time of this skill on the skill bar
 void UMMOUISkillBar::UpdateAbilityCDInSlot( UMMOAbility* inAbility, INT forceUpdateSlotCmdKey )
 {
 	if( inAbility == NULL ){
@@ -2314,7 +2314,7 @@ void UMMOUISkillBar::UpdateAbilityCDInSlot( UMMOAbility* inAbility, INT forceUpd
 	if( GetSkillBarSlotIdx( updateSlotCmdKey ) < 0 ){
 		updateSlotCmdKey = inAbility->SlotHotKeyID;
 		if( updateSlotCmdKey < 0 ){
-			//此技能没有装备
+			//This skill is not equipped
 			warnf( NAME_Warning, TEXT("[UMMOUISkillBar::UpdateAbilityCDInSlot skill[%d] is not on skill bar]"), inAbility->eventGetAbilityId() );
 			return;
 		}
@@ -2332,7 +2332,7 @@ void UMMOUISkillBar::UpdateAbilityCDInSlot( UMMOAbility* inAbility, INT forceUpd
 
 }
 //===============================================================================================================
-//使用物品后的刷新
+//Refresh after using an item
 void UMMOUISkillBar::SetItemCDInSlot( INT slotIdx )
 {
 	if( slotIdx < 0 || UCONST_SkillBarSlotMax <= slotIdx ){
@@ -2349,17 +2349,17 @@ void UMMOUISkillBar::SetItemCDInSlot( INT slotIdx )
 	UGFxObject *pSlot = slotData.SlotObject;
 	UItem* pItem = MMOFacade::getSingleton().FindItemTemplate( slotData.AidID );
 	if( pItem == NULL ){
-		//空格子
+		//empty slot
 		StopItemSlotCD( pSlot );
 		return;
 	}
 
 	UMMOAbility* pItemSkill = pItem->GetToUseAbility();
 	if( pItem->ItemType == TEXT("ITEMTYPE_USABLE") && pItemSkill != NULL ){
-		//可放技能的物品
+		//Items that can hold a skill
 	}
 	else{
-		//只判断了组
+		//Only the group was checked
 		FString groupCoolDown = pItem->GroupCoolDown;
 		if( !groupCoolDown.IsEmpty() ){
 			INT pos = groupCoolDown.InStr( TEXT("-") );
@@ -2396,7 +2396,7 @@ void UMMOUISkillBar::UpdateAllItemSlotCDByItemUse( INT type, INT cdID )
 		
 		FString groupCoolDown = pItem->GroupCoolDown;
 		if( type == COOLDOWN_GROUP && !groupCoolDown.IsEmpty() ){
-			//组CD
+			//Group CD
 			INT pos = groupCoolDown.InStr( TEXT("-") );
 			INT groupId = appAtoi( *groupCoolDown.Left(pos) );
 
@@ -2410,7 +2410,7 @@ void UMMOUISkillBar::UpdateAllItemSlotCDByItemUse( INT type, INT cdID )
 
 		if( type == COOLDOWN_ITEM ){
 			UMMOAbility* skill = pItem->GetToUseAbility();
-			//单个的道具CD，目前没，先不处理
+			//Individual item CD, none currently, not handled for now
 		}
 	}
 }
@@ -2427,7 +2427,7 @@ UBOOL UMMOUISkillBar::SkipCaptureInputKey( const FString& key, BYTE eIE, const F
     return Super::SkipCaptureInputKey( key, eIE, strHoverControllerName, ClickPosInMovieSpace );
 }
 //===============================================================================================================
-//技能条显示模式按职业而不同
+//Skill bar display mode differs by class
 void UMMOUISkillBar::UpdateCurBarShowType()
 {
 	if( Player == NULL ){
@@ -2497,7 +2497,7 @@ void UMMOUISkillBar::HintForDraggingSkill( UMMOAbility *dragSkill )
 	//INT cmdKeyValue = MMOSkillManager::getSingleton().GetSkillBindHotkey( dragSkill->SpellCommonAttribute.BindSlot );
 	//INT curSlotIdx = MMOSkillManager::getSingleton().GetSkillbarSlotIdxByKeyCmd( cmdKeyValue );
 	//if( curSlotIdx <= 0 ){
-	//	//此键位不能被拖拽
+	//	//This key cannot be dragged
 	//	return;
 	//}
 
@@ -2641,7 +2641,7 @@ void UMMOUISkillBar::StopAllLoopEffect( INT slotIdx )
 	eventCallSkillActivate( slotIdx, 0, FALSE );
 }
 //===============================================================================================================
-//血球，魔球渲染
+//HP orb, MP orb rendering
 UBOOL UMMOUISkillBar::DrawMyHUD(class AMMOHud* H)
 {
 	if(!GetVisible() || !GDrawGFx)
@@ -2917,7 +2917,7 @@ void UMMOUISkillBar::ASChangePetState(INT stateID)
 }
 
 //===================================================================
-//技能设置
+//Ability settings
 void UMMOUISkillBar::ASShowTips_SkillSettingActive( UGFxObject *mc )
 {
 	if( mc == NULL ){

@@ -24,7 +24,7 @@ struct MMOTeamMember
 	INT Sex;
 	UBOOL Online;
 	INT UIPos;
-	INT HP; // 判断是否死了要用
+	INT HP; // needed to determine whether dead
 	FVector WorldPos;
 	INT MapID;
 	INT MapLineID;
@@ -42,7 +42,7 @@ struct MMONearbyPlayer
 
 enum ETeamAuctionItemState
 {
-	ETAIS_NoPermit, //无权利
+	ETAIS_NoPermit, //no permission
 	ETAIS_CanBid,
 	ETAIS_GiveUp,
 	ETAIS_Over,
@@ -57,7 +57,7 @@ struct MMOTeamAuctionItem
 	INT Index;
 };
 
-//邀请玩家记录,存放在本地
+//Invited player records, stored locally
 struct MMOInvitedPlayer
 {
 	INT ActorServerId;
@@ -180,7 +180,7 @@ public:
 	virtual ~TeamManager();
 
 	UBOOL hasTeam;
-	INT TeamLeaderServeId; //赋值这个用函数set，有处理
+	INT TeamLeaderServeId; //use the set function to assign this, it has processing
 	UBOOL ImTeamLeader;
 	UINT32 TeamID;
 	INT AssignType;
@@ -266,7 +266,7 @@ public:
 	void SetTeamTargetId(INT nId) { _teamTargetId = nId; }
 	INT	 GetTeamTargetId() { return _teamTargetId; }
 
-	//组队拍卖
+	//team auction
 	void ClearTeamAuctionItemList();
 	void AddTeamAuctionItem( ItemInfo item , ETeamAuctionItemState bidState , INT index ,INT rewardMemberCount =0 );
 	TArray<MMOTeamAuctionItem>& GetTeamAuctionItemList() { return TeamAuctionItemList; }
@@ -279,9 +279,9 @@ public:
 	void SetAuctionItemColorLimit( INT color ){ _AuctionItemColorLimit = color; }
 	INT GetAuctionItemColorLimit(){ return _AuctionItemColorLimit; }
 	INT GetCurBidMoney(){ return _CurBidMoney; }
-	//加价的量
+	//Bid increment amount
 	INT GetAddBidMoney(){ return _CurBidMoney*_AddBidRate/100+1 ; }
-	//最小出价值
+	//Minimum bid value
 	INT GetMinBidMoney();
 	void RequestGiveUp( INT itemTempId , INT itemIndex );
 	void RequestGiveUp( INT itemIndex );

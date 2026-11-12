@@ -123,7 +123,7 @@ void CMessageHandler::SendRequestCancelAbility(INT SpellId)
 	_Send(&msg, sizeof(msg));
 }
 
-//add by JimZhang@snda.com 发送复活消息------------------------------------------------------------
+//add by JimZhang@snda.com send revive message------------------------------------------------------------
 void CMessageHandler::SendRequestReviveAbility( UINT16 AbilityId ,UINT32 dwTargetID,FVector& Point)
 {
 	AMMOPlayerController *pCtrl = MMOFacade::getSingleton().GetMainController();
@@ -165,7 +165,7 @@ void CMessageHandler::Send_EquipSpell( INT SlotId,INT SpellId )
 	*/
 	C2G_EQUIP_SPELL msg;
 	msg.wMsg = c2g_equip_spell;
-	//qssSlotCount 预留给QTE使用
+	//qssSlotCount reserved for QTE
 	msg.bySlot = SlotId ;
 	msg.wSpellID = SpellId;
 	_Send(&msg, sizeof(msg));
@@ -232,7 +232,7 @@ void CMessageHandler::Parse_g2c_combat_pose_switch( const char* buf, UINT32 size
 	if(player && player->ActorAttributes)
 	{
 		player->ActorAttributes->byCombatPoseOn = msg->byCombatPoseOn;	
-		//强行立刻切换
+		//Force immediate switch
 		if(msg->byClientFlag==0 || player->GetWeaponType()>= EWT_Riding_1)
 		{
 			player->RefreshCombatPose();
@@ -403,7 +403,7 @@ void CMessageHandler::Parse_g2c_aura_effect(const char* buf, UINT32 size)
 		if(dmg.MainRole || MainRoleCaster){
 			hud->AddHitStats( dmg , actor->Location );
 		}
-		//更新伤害显示
+		//Update damage display
 		MMOHurtManager::getSingleton().UpdateAllHurt(msg->dwCasterID,msg->nEffectValue);
 	}
 
@@ -412,7 +412,7 @@ void CMessageHandler::Parse_g2c_aura_effect(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_equip_spell(const char* buf, UINT32 size)
 {
-	//确认技能Slot切换成功 
+	//Confirm ability Slot switch succeeded
 	G2C_EQUIP_SPELL* msg = (G2C_EQUIP_SPELL*)buf;
 	//if( msg->nErrCode != errSuccess )
 	//{
@@ -441,7 +441,7 @@ void CMessageHandler::Parse_g2c_equip_spell(const char* buf, UINT32 size)
 		INT skillRunSlotID = msg->byRuneSlot;
 		INT skillLevel = msg->bySpellLevel;
 //		if( skillRunSlotID > 0 && msg->byRuneLevel > 0 ){
-			//这里是铭文技能
+			//This is the inscription ability
 //			skillLevel = ( msg->byRuneLevel < msg->bySpellLevel ? msg->byRuneLevel : msg->bySpellLevel );
 //		}
 
@@ -459,12 +459,12 @@ void CMessageHandler::Parse_g2c_equip_spell(const char* buf, UINT32 size)
 	MMOGameEvent_OneInt evt2( GameEvent_ChangeSkillSlot, msg->bySlot );
 	MMOUI::PostGameEvent(&evt2);
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_EquipSkill);
 	MMOUI::PostGameEvent(&evtGuide);
 }
 
-//技能经验
+//Ability experience
 void CMessageHandler::Parse_g2c_sync_spell_pts(const char* buf, UINT32 size)
 {
 	G2C_SYNC_SPELL_PTS* msg = (G2C_SYNC_SPELL_PTS*)buf;
@@ -478,14 +478,14 @@ void CMessageHandler::Parse_g2c_sync_spell_pts(const char* buf, UINT32 size)
 	MMOUI::PostGameEvent(&evt);
 }
 
-//技能槽解锁 升级后响应
+//Ability slot unlock, responds after level up
 void CMessageHandler::Parse_g2c_unlock_spell_slot(const char* buf, UINT32 size)
 {
 	G2C_UNLOCK_SPELL_SLOT* msg = (G2C_UNLOCK_SPELL_SLOT*)buf;
-    //通知播放槽位解锁通知
+    //Notify to play slot unlock notification
     int slotId = msg->bySlot;
    
-	//通知技能面板准备
+	//Notify ability panel to prepare
 	MMOGameEvent_OneInt evt( GameEvent_UnlockSkillSlot, slotId );
 	MMOUI::PostGameEvent(&evt);
 
@@ -504,7 +504,7 @@ void CMessageHandler::Parse_g2c_unlock_spell_slot(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_sync_spell_slot(const char* buf, UINT32 size)
 {
-	//同步当前玩家技能Slot 
+	//Sync current player ability Slots
 	G2C_SYNC_SPELL_SLOT* msg = (G2C_SYNC_SPELL_SLOT*)buf;
 	debugf( TEXT("[CMessageHandler::Parse_g2c_sync_spell_slot] ") );
 
@@ -531,7 +531,7 @@ void CMessageHandler::Parse_g2c_sync_spell_slot(const char* buf, UINT32 size)
 		usableRuneAblities.FindOrAdd( skillID ) = pWeaponSkill;
 	}
 
-	//功能键初始化 重登陆的情况 每个角色SyncSlot时给予初始化一遍
+	//Function key initialization, relogin case: initialize once for each character at SyncSlot
     AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	if( ctrl ){
 		ctrl->eventIniSlotBind( );
@@ -542,7 +542,7 @@ void CMessageHandler::Parse_g2c_sync_spell_slot(const char* buf, UINT32 size)
 			INT runeSkillLevel = 0;
 			INT skillMainID = msg->astSlot[i].wSpellID;
 			if( i >= qssActiveBegin && i <= qssActiveEnd ){
-				//主动技能
+				//Active ability
 				UMMOAbility **ppRuneSkill = usableRuneAblities.Find( skillMainID );
 				if( ppRuneSkill != NULL && *ppRuneSkill != NULL ){
 					skillRunSlotID = (*ppRuneSkill)->GetRuneSlot();
@@ -562,7 +562,7 @@ void CMessageHandler::Parse_g2c_sync_spell_slot(const char* buf, UINT32 size)
 			if( learnedSkill != NULL ){
 				skillLevel = learnedSkill->SpellCommonAttribute.Level;
 				//if( skillRunSlotID != 0 ){
-				//	//有铭文
+				//	//Has inscription
 				//	if( skillLevel > runeSkillLevel ){
 				//		skillLevel = runeSkillLevel;
 				//	}
@@ -574,7 +574,7 @@ void CMessageHandler::Parse_g2c_sync_spell_slot(const char* buf, UINT32 size)
 		}
 	}
 
-	//通知各个面板
+	//Notify all panels
 	MMOGameEvent_Any evt(GameEvent_Sync_SkillEquippedSkills);
 	MMOUI::PostGameEvent(&evt);
 }
@@ -595,7 +595,7 @@ void CMessageHandler::Parse_g2c_add_cooldown(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_sync_spell_book(const char* buf, UINT32 size)
 {
-	//这里只是同步玩家所有学会的技能 不必与UI牵扯
+	//This only syncs all abilities the player has learned, no need to involve UI
 	G2C_SYNC_SPELL_BOOK* msg = (G2C_SYNC_SPELL_BOOK*)buf;
 	INT byCount = (size - sizeof(G2C_SYNC_SPELL_BOOK)) / sizeof(msg->astSpellData[0]);
 
@@ -640,7 +640,7 @@ void CMessageHandler::Parse_g2c_sync_spell_book(const char* buf, UINT32 size)
 	MMOGameEvent_Achievement evtAch2(adActiveSpellCount, activeAbilityCount, 0, 0);
 	MMOUI::PostGameEvent(&evtAch2);
 
-	//更新战斗力
+	//Update combat power
 	MMOPowerManager::getSingleton().UpdatePartPower(PowerPart_SkillPow);
 }
 
@@ -719,7 +719,7 @@ void CMessageHandler::Parse_g2c_focus_info(const char* buf, UINT32 size)
 		}
 	}
 
-	//增加和刷新buff
+	//Add and refresh buff
 	for(INT i=0;i<msg->byAuraCount;i++)
 	{
 		AURA_DATA* pData = &msg->astAuraData[i];
@@ -948,7 +948,7 @@ void CMessageHandler::Parse_g2c_char_die(const char* buf, UINT32 size)
 		if(player&&player->ServerID==actor->ServerID)
 		{
 			player->ActorAttributes->SetHP(0);
-			debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_char_die]  你死啦死啦的!!!") );
+			debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_char_die]  You died!!!") );
 			MMOFacade::getSingleton().NotifyMyHPChange();
 //			MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Death,TRUE, "");
 			//MMOUI::GetUIManager()->delegateShowDeath();
@@ -962,7 +962,7 @@ void CMessageHandler::Parse_g2c_char_die(const char* buf, UINT32 size)
 			//		hud->HudMovie->eventShowDeath();
 			//	}
 			//}
-			//MMOFacade::getSingleton().GetMainController()->eventAddCommonMsgBox(	TEXT("确定要复活吗 ") , 1,  0);
+			//MMOFacade::getSingleton().GetMainController()->eventAddCommonMsgBox(	TEXT("Are you sure you want to revive? ") , 1,  0);
 		}
 		else
 		{
@@ -1004,7 +1004,7 @@ void CMessageHandler::Parse_g2c_char_die(const char* buf, UINT32 size)
 //void CMessageHandler::Parse_g2c_revive_response(const char* buf, UINT32 size)
 //{
 //	G2C_REVIVE_RESPONSE * msg = (G2C_REVIVE_RESPONSE*)buf;
-//	debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_revive_response] 复活回应") );
+//	debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_revive_response] revive response") );
 //	if(msg && msg->nDelayTime>0 ){
 //		MMOUI::GetUIManager()->delegateCallShowWaitingRevive(msg->nDelayTime/1000);
 //	}
@@ -1013,7 +1013,7 @@ void CMessageHandler::Parse_g2c_char_die(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_revive_info(const char* buf, UINT32 size)
 {
 	G2C_REVIVE_INFO * msg = (G2C_REVIVE_INFO*)buf;
-	debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_revive_info] 复活需要的信息") );
+	debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_revive_info] Revive info") );
 	
 	MMODeathManager::getSingleton().SetReviveInfo(msg);
 	//MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Death,TRUE, "");
@@ -1025,7 +1025,7 @@ void CMessageHandler::Parse_g2c_revive_info(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_char_revive(const char* buf, UINT32 size)
 {
 	G2C_CHAR_REVIVE * msg = (G2C_CHAR_REVIVE*)buf;
-	debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_char_revive] 复活啦!!!") );
+	debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_char_revive] Revived!!!") );
 	AMMOActor* actor = MMOFacade::getSingleton().GetCharacter(msg->dwCharID);
 	if (actor)
 	{
@@ -1036,7 +1036,7 @@ void CMessageHandler::Parse_g2c_char_revive(const char* buf, UINT32 size)
 		{
 			p->PlayReviveEffect(p->GetFootLocation(), p->Rotation);
 
-			//如果是自己
+			//If it is self
 			if(p == MMOFacade::getSingleton().GetMainPlayer())
 			{
 				p->eventEndDeathEffect();
@@ -1052,7 +1052,7 @@ void CMessageHandler::Parse_g2c_char_revive(const char* buf, UINT32 size)
 			}
 		}
 
-	actor->ReCalGridBlockRadius();	// zhaojun@snda, 复活后重新计算阻挡
+	actor->ReCalGridBlockRadius();	// zhaojun@snda, recalculate blocking after revive
 	}
 
 
@@ -1075,7 +1075,7 @@ void CMessageHandler::Parse_g2c_char_revive(const char* buf, UINT32 size)
 	//	player->eventEndDeathEffect();
 
 	//	MMOUI::GetUIManager()->delegateHideDeath();
-	//	////取消死亡面板
+	//	////Cancel death panel
 	//	//AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	//	//AMMOHud* hud = Cast<AMMOHud>(ctrl->myHUD);
 	//	//if( ctrl != NULL )
@@ -1176,7 +1176,7 @@ void CMessageHandler::Parse_g2c_leave_combat(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_sync_combo_kill(const char* buf, UINT32 size)
 {
-	//策划 ck 要求不再显示这类信息
+	//Designer ck requested not to display this kind of info anymore
 	/*G2C_SYNC_COMBO_KILL* msg = (G2C_SYNC_COMBO_KILL*)buf;
 	AMMOActor* actor =Cast<AMMOActor>( MMOFacade::getSingleton().GetActor(msg->dwRoleID));
 	FString strId;
@@ -1193,7 +1193,7 @@ void CMessageHandler::Parse_g2c_sync_combo_kill(const char* buf, UINT32 size)
 	MMOUI::GetUIManager()->delegateAddScreenMessage( hint, MsgInfoType_Table , strId, msg->byFaction == EBTLTMS_Team1 ? 0 : 1 );*/
 }
 
-////装配符文
+////Equip rune
 //void CMessageHandler::Send_EquipRune( INT inSlot, INT inRuneSlot)
 //{
 //	C2G_EQUIP_RUNE msg;
@@ -1203,7 +1203,7 @@ void CMessageHandler::Parse_g2c_sync_combo_kill(const char* buf, UINT32 size)
 //	_Send(&msg, sizeof(msg));
 //}
 
-////激活符文
+////Activate rune
 //void CMessageHandler::Send_ActivateRune( INT inSpellId, INT inRuneSlot)
 //{
 //	C2G_ACTIVATE_RUNE msg;
@@ -1213,7 +1213,7 @@ void CMessageHandler::Parse_g2c_sync_combo_kill(const char* buf, UINT32 size)
 //	_Send(&msg, sizeof(msg));
 //}
 
-//符文激活通知
+//Rune activation notification
 //void CMessageHandler::Parse_g2c_rune_acvitate(const char* buf, UINT32 size)
 //{
 //	G2C_RUNE_ACVITATE* msg = (G2C_RUNE_ACVITATE*)buf;
@@ -1242,7 +1242,7 @@ void CMessageHandler::Parse_g2c_sync_combo_kill(const char* buf, UINT32 size)
 //	tRune.nDurability = msg->nDurability;
 //
 //	MMOSkillManager::getSingleton().UpdateRuneDur( &tRune);
-//	/*//刷新面板z
+//	/*//Refresh panel z
 //	AMMOHud* hud =  MMOFacade::getSingleton().GetMyHud();
 //	if( hud && hud->HudMovie )
 //	{
@@ -1254,12 +1254,12 @@ void CMessageHandler::Parse_g2c_sync_combo_kill(const char* buf, UINT32 size)
 //				hud->HudMovie->_Skill->RefreshAll();
 //		}
 //	}*/
-//	//通知各个面板
+//	//Notify all panels
 //	MMOFacade::getSingleton().NotifySkillSlotChange();
 //
 //}
 
-//装备符文装备符文回应
+//Equip rune, equip rune response
 void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 {
 	G2C_EQUIP_RUNE* msg = (G2C_EQUIP_RUNE*)buf;
@@ -1289,17 +1289,17 @@ void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 		UMMOAbility* curEquipedSkill = MMOSkillManager::getSingleton().GetEquippedSkillBySkillID( mainAbilityID );
 		if( curEquipedSkill != NULL ){
 			INT curEuippedSlot = curEquipedSkill->SlotHotKeyID;
-			//不许先有已经装配的该符文技能的主技能才能装配此符文技能
+			//Only if the main ability of this rune ability is already equipped can this rune ability be equipped
 			INT curEquipSkillLv = 1;
 //			if( msg->byRuneLevel > 0 ){
-//				//没有0级技能
-//				curEquipSkillLv = msg->bySpellLevel;//( msg->byRuneLevel < msg->bySpellLevel ? msg->byRuneLevel : msg->bySpellLevel );//取主技能和铭文技能等级下线
+//				//No level 0 ability
+//				curEquipSkillLv = msg->bySpellLevel;//( msg->byRuneLevel < msg->bySpellLevel ? msg->byRuneLevel : msg->bySpellLevel );//take the lower of main ability and inscription ability levels
 //			}
 //			else{
-				//说明没有符文技能
+				//Means there is no rune ability
 				curEquipSkillLv = msg->bySpellLevel;
 				//if( msg->byRuneSlot != 0 ){
-				//	//这个一定等于0，不是就是消息数据出错了
+				//	//This must equal 0, otherwise the message data is wrong
 				//	warnf(NAME_Error, TEXT("======!!!!======= [Parse_g2c_equip_rune Slot:%d SkillID:%d RuneLevel is 0 but byRuneSlot is NOT 0]") , curEuippedSlot, msg->wSpellID );
 				//}
 //			}
@@ -1316,7 +1316,7 @@ void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 	}
 }
 
-//符文耐久度改变通知
+//Rune durability change notification
 //void CMessageHandler::Parse_g2c_rune_durability_change(const char* buf, UINT32 size)
 //{
 //	G2C_RUNE_DURABILITY_CHANGE* msg = (G2C_RUNE_DURABILITY_CHANGE*)buf;
@@ -1328,7 +1328,7 @@ void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 //		return;
 //	}
 //	MMOSkillManager::getSingleton().UpdateRuneDur( &msg->RuneData );
-//	/*//刷新面板
+//	/*//Refresh panel
 //	AMMOHud* hud =  MMOFacade::getSingleton().GetMyHud();
 //	if( hud && hud->HudMovie )
 //	{
@@ -1340,11 +1340,11 @@ void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 //				hud->HudMovie->_Skill->RefreshAll();
 //		}
 //	}*/
-//	//通知各个面板
+//	//Notify all panels
 //	MMOFacade::getSingleton().NotifySkillSlotChange();
 //}
 //
-////同步所有符文耐久度
+////Sync all rune durability
 //void CMessageHandler::Parse_g2c_sync_rune_list(const char* buf, UINT32 size)
 //{
 //	/*enum RUNE_DURABILITY_TYPE
@@ -1364,14 +1364,14 @@ void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 //		return;
 //	}
 //	INT byCount = (size - sizeof(G2C_SYNC_RUNE_LIST)) / sizeof( RUNE_DATA );
-//	// 之前的玩家数据会有残留 
+//	// Previous player data may remain
 // 	MMOSkillManager::getSingleton().IniRuneData();
 //
 //	for ( int i=0; i< byCount ; ++i )
 //	{
 //		MMOSkillManager::getSingleton().UpdateRuneDur( &msg->astRuneData[i] );
 //	}	
-//	/*//刷新面板
+//	/*//Refresh panel
 //	AMMOHud* hud =  MMOFacade::getSingleton().GetMyHud();
 //	if( hud && hud->HudMovie )
 //	{
@@ -1382,7 +1382,7 @@ void CMessageHandler::Parse_g2c_equip_rune(const char* buf, UINT32 size)
 //				hud->HudMovie->_Skill->RefreshAll();
 //		}
 //	}*/
-//	//通知各个面板
+//	//Notify all panels
 //	MMOFacade::getSingleton().NotifySkillSlotChange();
 //}
 
@@ -1396,7 +1396,7 @@ void CMessageHandler::Parse_g2c_leech_soul(const char* buf, UINT32 size)
 	}
 }
 
-//开始心练
+//Start heart training
 void CMessageHandler::Send_StartNormalPractice( INT byType, INT wSpellID )
 {
 //	C2G_START_NORMAL_PRACTICE msg;
@@ -1406,7 +1406,7 @@ void CMessageHandler::Send_StartNormalPractice( INT byType, INT wSpellID )
 //	_Send(&msg, sizeof(msg));
 }
 
-//开始魂练
+//Start soul training
 void CMessageHandler::Send_StartFastPractice( INT byType, INT wSpellID )
 {
 //	C2G_START_FAST_PRACTICE msg;
@@ -1416,7 +1416,7 @@ void CMessageHandler::Send_StartFastPractice( INT byType, INT wSpellID )
 //	_Send(&msg, sizeof(msg));
 }
 
-//魂练用药
+//Soul training use medicine
 void CMessageHandler::Send_SpeedUpFastPractice( INT byType, INT wSpellID )
 {
 //	C2G_SPEEDUP_FAST_PRACTICE msg;
@@ -1426,7 +1426,7 @@ void CMessageHandler::Send_SpeedUpFastPractice( INT byType, INT wSpellID )
 //	_Send(&msg, sizeof(msg));
 }
 
-//中断技能练习
+//Interrupt ability practice
 void CMessageHandler::Send_StopPractice( INT wSpellID )
 {
 //	C2G_STOP_PRACTICE msg;
@@ -1435,7 +1435,7 @@ void CMessageHandler::Send_StopPractice( INT wSpellID )
 //	_Send(&msg, sizeof(msg));
 }
  
-//技能练习通知
+//Ability practice notification
 //void CMessageHandler::Parse_g2c_start_practice(const char* buf, UINT32 size)
 //{
 //	G2C_START_PRACTICE* msg = (G2C_START_PRACTICE*)buf;
@@ -1443,12 +1443,12 @@ void CMessageHandler::Send_StopPractice( INT wSpellID )
 //	UMMOUISkillPanel* skillPanel = NULL;
 //	if( GetSkillPanel( &skillPanel ) )
 //	{
-//		//回包没记CostType
+//		//Reply did not record CostType
 //		skillPanel->NetStartSkillPractice( msg->wSpellID,msg->byPracticeType,msg->nInterval,msg->nEndTime);
 //	}
 //}
 //
-////中断技能练习通知
+////Interrupt ability practice notification
 //void CMessageHandler::Parse_g2c_stop_practice(const char* buf, UINT32 size)
 //{
 //	G2C_STOP_PRACTICE* msg = (G2C_STOP_PRACTICE*)buf;
@@ -1462,7 +1462,7 @@ void CMessageHandler::Send_StopPractice( INT wSpellID )
 //	}
 //}
 
-//熟练度提升
+//Proficiency increase
 //void CMessageHandler::Parse_g2c_spell_progress_change(const char* buf, UINT32 size)
 //{
 //	G2C_SPELL_PROGRESS_CHANGE* msg = (G2C_SPELL_PROGRESS_CHANGE*)buf;
@@ -1483,7 +1483,7 @@ void CMessageHandler::Send_SpellLevelUp( UINT16 skillID )
 	//_Send(&msg, sizeof(msg));
 }
 
-//技能升级提示
+//Ability upgrade hint
 void CMessageHandler::Parse_g2c_spell_level_up(const char* buf, UINT32 size)
 {
 	G2C_SPELL_LEVEL_UP* msg = (G2C_SPELL_LEVEL_UP*)buf;
@@ -1507,12 +1507,12 @@ void CMessageHandler::Parse_g2c_spell_level_up(const char* buf, UINT32 size)
 		}
 	}
 
-	// 成就
+	// Achievement
 	MMOGameEvent_Achievement evtAch(adSpellLevel, msg->byLevel, lvCount, 0);
 	MMOUI::PostGameEvent(&evtAch);
 }
 
-//技能点增加
+//Ability points increase
 //void CMessageHandler::Parse_g2c_sync_ability_pts(const char* buf, UINT32 size)
 //{
 //	G2C_SYNC_ABILITY_PTS* msg = (G2C_SYNC_ABILITY_PTS*)buf;

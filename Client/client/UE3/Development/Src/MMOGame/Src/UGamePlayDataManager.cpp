@@ -15,7 +15,7 @@ void UGamePlayDataManager::InitGamePlayData()
 	INT key = 0;
 	for (INT i = 0; i < FootstepEffectList.Num(); ++i)
 	{
-		key = 1;	// 脚步声资源类型为1
+		key = 1;	// footstep resource type is 1
 		key = (key<<8) + INT(FootstepEffectList(i).ShapeType);
 		key = (key<<8) + INT(FootstepEffectList(i).LandMatType);
 		MMOFacade::getSingleton().AddSoundParticle(key, &(FootstepEffectList(i).EffectNode));
@@ -28,7 +28,7 @@ void UGamePlayDataManager::InitGamePlayData()
 
 	for (INT i = 0; i < HitEffectList.Num(); ++i)
 	{
-		key = 2;	// 打击音效资源类型为2
+		key = 2;	// hit sound effect resource type is 2
 		key = (key<<8) + INT(HitEffectList(i).HitType);
 		key = (key<<8) + INT(HitEffectList(i).TargetArmorMatType);
 
@@ -36,7 +36,7 @@ void UGamePlayDataManager::InitGamePlayData()
 	}
 	for (INT i = 0; i < AnimMixList.Num(); ++i)
 	{
-		key = 3;	// 打击音效资源类型为2
+		key = 3;	// hit sound effect resource type is 2
 		key = (key<<8) + INT(AnimMixList(i).SourceAnim);
 		key = (key<<8) + INT(AnimMixList(i).TargetAnim);
 
@@ -148,7 +148,7 @@ UBOOL UGamePlayDataManager::FindFootstepEffect(BYTE ShapeType,BYTE LandMatType,c
 			UEnum* ShapeEnum = FindObject<UEnum>( UTypeDefine::StaticClass(), TEXT("EBodyType"), TRUE );
 			UEnum* LandEnumObj = FindObject<UEnum>(UPhysicalMaterialProperty::StaticClass(), TEXT("EPhyMatType"), TRUE);
 			SET_WARN_COLOR(COLOR_CYAN);
-			warnf(NAME_Warning, TEXT("脚步音效配置为空，体形:%s 材质：%s"), *ShapeEnum->GetEnum(ShapeType).ToString(),
+			warnf(NAME_Warning, TEXT("Footstep sound config is empty, body type: %s material: %s"), *ShapeEnum->GetEnum(ShapeType).ToString(),
 				*LandEnumObj->GetEnum(LandMatType).ToString());
 			CLEAR_WARN_COLOR();
 		}
@@ -162,7 +162,7 @@ UBOOL UGamePlayDataManager::FindFootstepEffect(BYTE ShapeType,BYTE LandMatType,c
 		UEnum* ShapeEnum = FindObject<UEnum>( UTypeDefine::StaticClass(), TEXT("EBodyType"), TRUE );
 		UEnum* LandEnumObj = FindObject<UEnum>(UPhysicalMaterialProperty::StaticClass(), TEXT("EPhyMatType"), TRUE);
 		SET_WARN_COLOR(COLOR_CYAN);
-		warnf(NAME_Warning, TEXT("没找到脚步音效，体形:%s 材质：%s"), *ShapeEnum->GetEnum(ShapeType).ToString(),
+		warnf(NAME_Warning, TEXT("Footstep sound not found, body type: %s material: %s"), *ShapeEnum->GetEnum(ShapeType).ToString(),
 			*LandEnumObj->GetEnum(LandMatType).ToString());
 		CLEAR_WARN_COLOR();
 #endif
@@ -172,7 +172,7 @@ UBOOL UGamePlayDataManager::FindFootstepEffect(BYTE ShapeType,BYTE LandMatType,c
 	}
 }
 //hemu@snda 120416
-//@todo 后续可以考虑用Enum与string 做匹配 解决 二位数组
+//@todo later consider matching with Enum and string to solve the 2D array
 //int i=GetRow(FName inComingName);
 FName UGamePlayDataManager::FindAnimMix(FName SourceAnim,FName TargetAnim )
 {
@@ -236,12 +236,12 @@ UGamePlayDataManager* UGamePlayDataManager::GetSingleton()
 			}
 			else
 			{
-				appErrorf(TEXT("检测到数据包有错误，请运行全文件修复(FixClient)后进入游戏。\nGamePlayDataManager load failed!"));
+				appErrorf(TEXT("Data package error detected. Please run the full file repair (FixClient) and then start the game.\nGamePlayDataManager load failed!"));
 			}
 		}
 		else
 		{
-			appErrorf(TEXT("检测到数据包有错误，请运行全文件修复(FixClient)后进入游戏。\nGamePlayDataManager not load! Check in MMOGame/Config/DefaultGame.ini"));
+			appErrorf(TEXT("Data package error detected. Please run the full file repair (FixClient) and then start the game.\nGamePlayDataManager not load! Check in MMOGame/Config/DefaultGame.ini"));
 		}
 #else
 		UPackage* Package = GetGameplayDataMgrPackage();

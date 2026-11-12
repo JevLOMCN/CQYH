@@ -1,7 +1,7 @@
 /**
  * jimZhang@sdna.com 2013.1.22 
  *
- * 面向抽象逻辑对象的状态触发机制
+ * state trigger mechanism oriented to abstract logic objects
  * 
  *
  *
@@ -31,69 +31,69 @@ MMOTargetManager::MMOTargetManager(void)
 
 void MMOTargetManager::Clear()
 {
-	stateMainPlayer =	NULL;		//主角
-	stateController	=	NULL;		//主控制
-	stateStallState	=	FALSE;		//摆摊状态
+	stateMainPlayer =	NULL;		//main character
+	stateController	=	NULL;		//main controller
+	stateStallState	=	FALSE;		//stall state
 
-	stateLeftBtnAbility =NULL;		//左键装技能
+	stateLeftBtnAbility =NULL;		//ability equipped to left button
 
-	stateDesireAbility =NULL;		//欲释放技能
-	stateAbility	=	NULL;		//施放的技能
-	stateKeyPressed	=	FALSE;		//按下键	
-	stateShiftDown	=	FALSE;		//shift是否按下
-	stateLeftBtnDown=	FALSE;		//鼠标左键是否按下
-	stateLeftBtn	=	FALSE;		//鼠标左键事件	
-	stateAbilityEnable= FALSE;		//是否可用技能
-	stateMoveEnable	=	FALSE;		//可以行走
-	stateMoveKeyDown=	FALSE;		//移动按键有按
-	statePathOptimize = FALSE;		//寻路点是否为不为直线或者优化过
+	stateDesireAbility =NULL;		//ability desired to cast
+	stateAbility	=	NULL;		//ability being cast
+	stateKeyPressed	=	FALSE;		//key pressed
+	stateShiftDown	=	FALSE;		//whether shift is pressed
+	stateLeftBtnDown=	FALSE;		//whether the left mouse button is pressed
+	stateLeftBtn	=	FALSE;		//left mouse button event
+	stateAbilityEnable= FALSE;		//whether abilities are usable
+	stateMoveEnable	=	FALSE;		//can walk
+	stateMoveKeyDown=	FALSE;		//a move key is pressed
+	statePathOptimize = FALSE;		//whether the pathfinding points are non-straight or optimized
 	statePickTarget=	FALSE;		//
 
 
-	stateTargetActor=	NULL;		//目标actor
-	stateTargetMMOActor=	NULL;	//目标mmoactor
-	stateTargetMMOPlayer=	NULL;	//目标mmoplayer
+	stateTargetActor=	NULL;		//target actor
+	stateTargetMMOActor=	NULL;	//target mmoactor
+	stateTargetMMOPlayer=	NULL;	//target mmoplayer
 	stateTargetMMOActorID		=0;		//
 	stateLastTargetMMOActorID	=0;		//
-	stateTargetNPC	=	NULL;		//目标npc
-	//stateTargetItem	=	NULL;		//目标捡取物
-	stateAttackble	=	FALSE;		//目标是否可攻击
-	stateTeleportOrig	=	NULL;	//目标传送点
-	stateTeleportNetNode=	NULL;	//目标传送网点
-	stateIsDead			=	NULL;	//目标是否死亡
+	stateTargetNPC	=	NULL;		//target npc
+	//stateTargetItem	=	NULL;		//target pickup item
+	stateAttackble	=	FALSE;		//whether the target is attackable
+	stateTeleportOrig	=	NULL;	//target teleport point
+	stateTeleportNetNode=	NULL;	//target teleport net node
+	stateIsDead			=	NULL;	//whether the target is dead
 	stateIsShowTips		=	FALSE;
 
 	stateAttackMMOActor = NULL;
 	stateSelectMMOActor	= NULL;
 
-	//stateTargetPos=		NULL;		//目标点
+	//stateTargetPos=		NULL;		//target point
 	stateLastTargetActor	= NULL;
 	stateLastTargetMMOActor = NULL;
 
-	stateDesireActor=	NULL;		//初始目标actor
-	stateDesireMMOActor=NULL;		//初始目标mmoactor
+	stateDesireActor=	NULL;		//initial target actor
+	stateDesireMMOActor=NULL;		//initial target mmoactor
 	stateLastDesireMMOActor=NULL;	//
-	//stateDesireMMOPlayer=	NULL;	//初始目标mmoplayer
-	stateDesireNPC=		NULL;		//初始目标npc
+	//stateDesireMMOPlayer=	NULL;	//initial target mmoplayer
+	stateDesireNPC=		NULL;		//initial target npc
 	stateDesireNPCTempleteID = 0;	
-// 	stateDesireItem=	NULL;		//初始目标捡取物
-	stateDesireAttackble=NULL;		//初始目标是否可攻击
-	//stateDesirePos=		NULL;		//初始目标点
+// 	stateDesireItem=	NULL;		//initial target pickup item
+	stateDesireAttackble=NULL;		//whether the initial target is attackable
+	//stateDesirePos=		NULL;		//initial target point
 	stateDoodadActor	= NULL;
 
-	stateFocusActor		= NULL;		//焦点actor
-	stateFocusMMOActor	= NULL;		//焦点mmoactor
-	stateFocusMMOPlayer	= NULL;		//焦点mmoplayer
+	stateFocusActor		= NULL;		//focus actor
+	stateFocusMMOActor	= NULL;		//focus mmoactor
+	stateFocusMMOPlayer	= NULL;		//focus mmoplayer
 
 
-	stateCtrlState	=	CS_IDLE;	//角色控制状态，根据研究暗黑3得到两个状态，加上一个待机态
-	stateDesireState=   DS_NORMAL;	//触发状态
+	stateCtrlState	=	CS_IDLE;	//character control state; two states derived from studying Diablo 3, plus an idle state
+	stateDesireState=   DS_NORMAL;	//trigger state
 
-	statePressedTime=	0.0f;		//按键累计时间;
-	stateFastTime	=	0.0f;		//快循环计时;
-	stateSlowTime	=	0.0f;		//慢循环计时;
-	stateAiCdTime	=	0.0f;		//ai控制型cd;
-	stateAbilityRespondTime=0.0f;	//等待技能消息回应时间;
+	statePressedTime=	0.0f;		//accumulated key press time;
+	stateFastTime	=	0.0f;		//fast loop timer;
+	stateSlowTime	=	0.0f;		//slow loop timer;
+	stateAiCdTime	=	0.0f;		//AI-controlled cd;
+	stateAbilityRespondTime=0.0f;	//time waiting for ability message response;
 
 
 	stateInterrupt	=	NULL;
@@ -119,51 +119,51 @@ void MMOTargetManager::AITick(FLOAT DeltaTime)
 		return;
 	}
 
-	//更新各种状态
+	//update all states
 	UpdateState(DeltaTime);
 
-	//根据状态判断各分支---------------------------------------------------
-		//按shift键施法
+	//branch on state---------------------------------------------------
+		//cast while holding shift
 		stateShiftAbility();
-		//原地释放技能
+		//cast ability in place
 		stateStayAndUseAbility();
-		//追击并释放技能
+		//chase and cast ability
 		stateMoveToAndUseAbility();
-		//搜索敌人并释放技能
+		//search for enemy and cast ability
 		stateSearchAndUseAbility();
-		//走近并交互
+		//walk close and interact
 		stateMoveToAndInteract();
-		//走近并摆摊
+		//walk close and set up stall
 		//stateMoveToAndStall();
-		//走近捡东西
+		//walk close and pick up item
 // 		stateMoveToPickItem();
-		//走到目标点
+		//walk to target point
 		stateMoveToPoint();
-		//走到指定坐标点
+		//walk to specified coordinate
 		stateMoveToDesirePoint();
-		//键盘控制移动
+		//keyboard movement control
 		stateMoveByKey();
-		//显示目标信息及头像
+		//show target info and portrait
 		stateShowInfo();
-		//选中物体tips显示
+		//selected object tips display
 		stateShowTips();
-		//选中物体脚底光标显示
+		//selected object under-foot cursor display
 		stateShowSelectMark();
-		//自动寻怪
+		//auto find monster
 		stateSearchEnemy();
-		//自动切换键状态
+		//auto switch key state
 		stateAIContral();
-		//自动检测在安全区内收刀
+		//auto detect sheathing weapon in safe zone
 		stateAIInSafeZone();
-		//自动是否要释放解qte技能
+		//auto decide whether to cast QTE-breaking ability
 		stateAIBossQTE();
-		//摆摊时候点击处理
+		//click handling while setting up stall
 		stateClickStallState();
-		//特殊的定时提示，比如主武器的耐久度不等间隔警示
+		//special timed prompts, e.g. irregular-interval durability warnings for the main weapon
 		stateStackWarningState();
-		//智能清除分解，鉴定，修理等状态，
+		//smartly clear states such as decompose, identify, repair,
 		stateReleaseOperation();
-		//gm 组合测试，自动成为战神
+		//gm combo test, automatically become God of War
 		stateUpdateAres();
 
 	//----------------------------------------------------
@@ -187,7 +187,7 @@ void MMOTargetManager::AITick(FLOAT DeltaTime)
 UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 {
 
-	//时间更新
+	//time update
 	
 	stateFastTime	+=	DeltaTime;
 	stateSlowTime	+=	DeltaTime;
@@ -205,10 +205,10 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 	if(	AresFlag>0) 	
 		AresDeltaTime -= DeltaTime;
 
-	//警告更新
+	//warning update
 	stateWarningTime+=  DeltaTime;
 
-	//控制更新
+	//control update
 	stateMainPlayer =	MMOFacade::getSingleton().GetMainPlayer();
 	stateController	=	MMOFacade::getSingleton().GetMainController();
 	if(stateMainPlayer==NULL)return FALSE;
@@ -216,7 +216,7 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 
 	stateStallState = stateMainPlayer->eventIsStallState();
 
-	//消息冰冻时间更新
+	//Message freeze time update
 	if(stateController && stateController->WaitingForTheAbilityRespond>0)
 	{
 		stateAbilityRespondTime += DeltaTime;
@@ -237,7 +237,7 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 	}
 
 
-	//延时申请焦点详细信息
+	//delayed request for focus details
 	if(stateSetFocusDelayTime>1.0f)
 	{
 		stateSetFocusDelayTime = -1.0f;
@@ -245,10 +245,10 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 			stateController->SendRequestSetFocus(stateTargetMMOActor->ServerID);
 	}
 
-	//判定能否穿透UI
+	//determine whether it can pass through the UI
 	MMOFacade::UpdateCaptureInput();
 
-	//捡取鼠标点击信息
+	//pick up mouse click info
 	LastMouseHitNavMeshLocation = stateController->MouseHitNavMeshLocation;
 	// zhaojun@snda
 	UBOOL bNavMeshPicked = stateController->NativeGetPickPointNavMesh();
@@ -268,7 +268,7 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 	{
 		SetTargetActor(NULL);
 	}
-	//激发的技能进行更新
+	//Update triggered abilities
 	stateAbility=OptimizeAbility(stateDesireAbility); 
 	if(stateAbility&&stateAbility->ClientCommonAttribute.PickTarget)
 	{
@@ -278,9 +278,9 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 	{
 		statePickTarget = FALSE;
 	}
-	//技能是否使用
+	//Whether the ability is used
 	stateAbilityEnable	= stateController->CanUseAnyAbility(stateAbility);
-	//蓝不够	
+	//Not enough mana
 	if(stateAbility && stateMainPlayer && stateAbility->CanUseManaCheck(stateMainPlayer)==FALSE)
 	{
 		stateAbilityEnable = FALSE;
@@ -291,13 +291,13 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 	//	stateAbilityEnable = FALSE;
 	//}
 
-	//是否可以移动
+	//whether can move
 	stateMoveEnable		= stateMainPlayer->CanMove();
-	//有移动按键按下
+	//a movement key is pressed
 	stateMoveKeyDown	= (MMOUI::GetUIManager()->WSADKey[0]!=EMCK_Empty);
 		
-	if(	(stateDesireMMOActor && MMOFacade::getSingleton().GetCharacter(stateDesireMMOActor->ServerID)==NULL ) ||	//如果被释放掉 
-		(stateDesireMMOActor && stateDesireMMOActor->eventIsDead())		)										//如果已经死了
+	if(	(stateDesireMMOActor && MMOFacade::getSingleton().GetCharacter(stateDesireMMOActor->ServerID)==NULL ) ||	//if it has been released
+		(stateDesireMMOActor && stateDesireMMOActor->eventIsDead())		)										//if already dead
 	{
 		stateDesireActor	=	NULL;		
 		stateDesireMMOActor	=	NULL;
@@ -308,10 +308,10 @@ UBOOL MMOTargetManager::UpdateState(FLOAT DeltaTime)
 		stateDesireAttackble=	FALSE;
 	}
 
-	//寻路点是否为不为直线或者优化过
+	//whether the pathfinding points are non-straight or optimized
 	statePathOptimize	= stateController->bLinearMovement; /*&& stateController->bOptimizeTargetPos==FALSE*///zhaojun@snda ;
 
-	//shift,鼠标左键按下等状态更新
+	//update states such as shift, left mouse button down
 	stateShiftDown	=stateController->eventIsLeftShiftDown();
 	stateLeftBtnDown=stateController->bLeftMousePressed;
 
@@ -377,7 +377,7 @@ void MMOTargetManager::SetDesireTarget(UMMOAbility* Ability,AActor* Target,UBOOL
 	stateAttackMMOActor	= stateDesireMMOActor;
 
 	SetFocusActor(Target);
-	//隐藏鼠标点击光标
+	//hide mouse click cursor
 	if(stateController->TargetLocationMarker)
 	{
 		stateController->TargetLocationMarker->Hide();
@@ -390,9 +390,9 @@ void MMOTargetManager::SetDesireTarget(UMMOAbility* Ability,AActor* Target,UBOOL
 	UpdateState(0.0f);
 
 	stateLeftBtnDown=	bLeftMouseBtn;
-	statePressedTime=	0.0f;						//按键累计时间;
-	stateFastTime	=	TIME_SYNC_FAST+EPSILON;		//快循环计时;
-	stateSlowTime	=	TIME_SYNC_SLOW+EPSILON;		//慢循环计时;
+	statePressedTime=	0.0f;						//accumulated key press time;
+	stateFastTime	=	TIME_SYNC_FAST+EPSILON;		//fast loop timer;
+	stateSlowTime	=	TIME_SYNC_SLOW+EPSILON;		//slow loop timer;
 
 
 	if(stateDesireMMOActor==NULL && stateLeftBtnDown && stateShiftDown==FALSE && stateLeftBtnDown)
@@ -403,9 +403,9 @@ void MMOTargetManager::SetDesireTarget(UMMOAbility* Ability,AActor* Target,UBOOL
 		stateCtrlState	=	CS_BATTLEMOVE;
 	}
 
-	if(stateLeftBtnDown)//如果是左键激发
+	if(stateLeftBtnDown)//if triggered by left button
 	{
-		stateLeftBtnAbility =Ability;		//左键装技能
+		stateLeftBtnAbility =Ability;		//ability equipped on left button
 	}
 
 	stateDesireState=	DS_TRIGGER;
@@ -415,7 +415,7 @@ void MMOTargetManager::SetDesireTarget(UMMOAbility* Ability,AActor* Target,UBOOL
 
 void MMOTargetManager::ClearDesireTarget(UMMOAbility* Ability)
 {
-	//结束需要结束的技能
+	//End the abilities that need to end
 	if( Ability && stateController)
 	{
 		if(Ability->ClientCommonAttribute.bRequestCancelOnRelease)
@@ -564,7 +564,7 @@ void	MMOTargetManager::ClearActor(AActor* Actor)
 
 FVector MMOTargetManager::OptimizeTargetPos(FVector TargetPos)
 {
-	//防止点击点距离角色太近，产生平移可能
+	//prevent click point being too close to character, which could cause sliding
 	FVector location = stateMainPlayer->Location - FVector(0.0,0.0,stateMainPlayer->CylinderComponent->CollisionHeight);
 	FLOAT dis = (TargetPos-location).Size2D();
 	FLOAT minDis = stateMainPlayer->CylinderComponent->CollisionRadius*3.0;
@@ -577,22 +577,22 @@ FVector MMOTargetManager::OptimizeTargetPos(FVector TargetPos)
 
 UMMOAbility*	MMOTargetManager::GetDefaultAbility()
 {
-	//默认技能
+	//default ability
 	switch( MMOFacade::getSingleton().GetMainActor()->GetClassId() )
 	{
-	case EPCT_PlayerClassA://战士
+	case EPCT_PlayerClassA://Warrior
 		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(1000, 0);
 		break;
-	case EPCT_PlayerClassB://法师
+	case EPCT_PlayerClassB://Mage
 		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(2500, 0);
 		break;
-	case EPCT_PlayerClassC://刺客
+	case EPCT_PlayerClassC://Assassin
 		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(1500, 0);
 		break;
-	case EPCT_PlayerClassD://弓手
+	case EPCT_PlayerClassD://Archer
 		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(2000, 0);
 		break;
-	case EPCT_PlayerClassE://道士
+	case EPCT_PlayerClassE://Taoist
 		return MMOFacade::getSingleton().GetMainActor()->GetAbilityById(3000, 0);
 		break;
 	case EPCT_PlayerClassG://Lancer (1.05)
@@ -612,7 +612,7 @@ UMMOAbility* MMOTargetManager::OptimizeAbility(UMMOAbility* Ability)
 	if(Ability&&Ability->ClientCommonAttribute.UseDefaultAbility)
 	//if(Ability)
 	{
-		//蓝不够	//copy from server by JimZhang
+		//not enough mana	//copy from server by JimZhang
 		if(stateMainPlayer &&
 			Ability->CanUseManaCheck(stateMainPlayer)==FALSE)
 		//if(MMOFacade::getSingleton().GetMyCurrentMP() < Ability->SpellCommonAttribute.InitialCostValue + Ability->SpellCommonAttribute.InitialCostValuePct*MMOFacade::getSingleton().GetMyMaxMP()/10000 )
@@ -657,7 +657,7 @@ INT	 MMOTargetManager::OptimizeTargetID(FRotator Rotator,FVector Location,FLOAT 
 	//	CurDistance = ObjVector.Size2D();
 	//	if(CurDistance<MaxDistance && CurDistance>MinDistance )
 	//	{
-	//		//计算方向系数-------------------------------------------
+	//		//compute direction coefficient-------------------------------------------
 	//		ObjVector.Z = 0.0f;
 	//		FRotator ObjRotator = ObjVector.Rotation();
 	//		INT    Weight		= abs(ObjRotator.Yaw - Rotator.Yaw);
@@ -725,7 +725,7 @@ FVector MMOTargetManager::OptimizeMoveOffset(BYTE* pMode )
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------
-//如果是按住shift键，则原地放技能
+//if shift is held, cast ability in place
 UBOOL MMOTargetManager::stateShiftAbility()
 {
 	if(	stateInterrupt==FALSE &&
@@ -735,7 +735,7 @@ UBOOL MMOTargetManager::stateShiftAbility()
 		stateAbility!=NULL  && 
 		stateAbilityEnable	)
 	{
-		//直接施放技能
+		//Cast ability directly
 		stateController->eventClearAllCmd();
 		if(stateTargetMMOActor){
 			stateController->eventAddCmdUseAbility(stateAbility,stateTargetMMOActor, stateTargetMMOActor->Location);
@@ -751,7 +751,7 @@ UBOOL MMOTargetManager::stateShiftAbility()
 	return FALSE;
 }
 
-//原地释放技能-------------------------------------------------------------------------------------------------------------------------------
+//cast ability in place-------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateStayAndUseAbility()
 {
 	if(	stateInterrupt==FALSE &&
@@ -777,7 +777,7 @@ UBOOL MMOTargetManager::stateStayAndUseAbility()
 			stateInterrupt = TRUE;
 		}
 		else{
-			//直接施放技能
+			//Cast ability directly
 			stateController->eventClearAllCmd();
 			//stateController->eventAddCmdUseAbility(stateAbility,stateDesireMMOActor,stateTargetPos);
 			stateAbilityRespondTime = 0;
@@ -788,7 +788,7 @@ UBOOL MMOTargetManager::stateStayAndUseAbility()
 	return FALSE;
 }
 
-//追击并释放技能-------------------------------------------------------------------------------------------------------------------------------
+//chase and cast ability-------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateMoveToAndUseAbility()
 {	
 	if(	stateInterrupt==FALSE &&
@@ -815,12 +815,12 @@ UBOOL MMOTargetManager::stateMoveToAndUseAbility()
 		if((stateMainPlayer->Location-stateDesireMMOActor->Location).Size() >= dis)
 		{
 			if(stateMoveEnable==FALSE)return FALSE;
-			//追踪过去，距离一个施法距离时候，结束
+			//Chase over, end when within one casting range
 			stateController->eventAddCmdMoveToActor(stateDesireMMOActor,stateDesireMMOActor->Location,dis*0.9);
 		}
 		if(stateAbilityEnable)
 		{
-			//施放技能
+			//Cast ability
 			stateController->eventAddCmdUseAbility(stateAbility,stateDesireMMOActor,stateDesireMMOActor->Location,FALSE);
 			stateAbilityRespondTime = 0;
 		}
@@ -832,7 +832,7 @@ UBOOL MMOTargetManager::stateMoveToAndUseAbility()
 	return FALSE;
 }
 
-//搜索敌人并释放技能-------------------------------------------------------------------------------------------------------------------------------
+//search for enemy and cast ability-------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateSearchAndUseAbility()
 {
 	if(	stateInterrupt==FALSE &&
@@ -843,7 +843,7 @@ UBOOL MMOTargetManager::stateSearchAndUseAbility()
 		stateAbility!=NULL &&
 		stateController &&
 		stateMainPlayer	&&
-		stateDesireMMOActor==NULL && //初始目标没有  
+		stateDesireMMOActor==NULL && //no initial target
 		stateAbilityEnable &&
 		statePickTarget &&
 		stateShiftDown==FALSE  )
@@ -857,12 +857,12 @@ UBOOL MMOTargetManager::stateSearchAndUseAbility()
 			if((stateMainPlayer->Location-stateAttackMMOActor->Location).Size() >= stateAbility->SpellCommonAttribute.MaxDistance)
 			{
 				if(stateMoveEnable==FALSE)return FALSE;
-				//追踪过去，距离一个施法距离时候，结束
+				//Chase over, end when within one casting range
 				stateController->eventAddCmdMoveToActor(stateAttackMMOActor,stateAttackMMOActor->Location,stateAbility->SpellCommonAttribute.MaxDistance*0.9);
 			}
 			if(stateAbilityEnable)
 			{
-				//施放技能
+				//Cast ability
 				stateController->eventAddCmdUseAbility(stateAbility,stateAttackMMOActor,stateAttackMMOActor->Location,FALSE);
 				stateAbilityRespondTime = 0;
 			}
@@ -873,7 +873,7 @@ UBOOL MMOTargetManager::stateSearchAndUseAbility()
 	return FALSE;
 }
 
-//走近并交互----------------------------------------------------------------------------------------------------------------------------------
+//walk close and interact----------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateMoveToAndInteract()
 {
 	if(	stateInterrupt==FALSE &&
@@ -884,7 +884,7 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 		stateController &&
 		stateMainPlayer	&&
 		stateShiftDown==FALSE && 
-		stateDesireActor !=NULL &&	//要有指定目标
+		stateDesireActor !=NULL &&	//must have a specified target
 		stateDesireAttackble == FALSE
 		) 
 	{
@@ -902,18 +902,18 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 
 				if((stateMainPlayer->Location - interactableActor->GetInteractActorLocation()).Size() >= interactDist)
 				{
-					//追踪过去，
+					//Chase over,
 					stateController->eventAddCmdMoveToActor(stateDesireNPC, interactableActor->GetInteractActorLocation(), interactDist * 0.8, stateDesireNPCTempleteID);
 				}
 			}
 			else if(stateDesireNPCTempleteID > 0)
 			{
 				interactDist = stateController->InteractDistance;
-				//追踪过去，
+				//Chase over,
 				stateController->eventAddCmdMoveToActor(NULL, FVector(0, 0, 0),  interactDist * 0.8, stateDesireNPCTempleteID);
 			}
 
-			//进行交互
+			//Perform interaction
 			//stateController->SetSelectTarget(stateDesireActor);
 			stateController->eventAddCmdInteract(interactableActor, 0, stateDesireNPCTempleteID);
 			stateCtrlState = CS_IDLE;
@@ -936,7 +936,7 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 }
 
 
-//走近并摆摊----------------------------------------------------------------------------------------------------------------------------------
+//walk close and set up stall----------------------------------------------------------------------------------------------------------------------------------
 // UBOOL MMOTargetManager::stateMoveToAndStall()
 // {
 // 	if(	stateInterrupt==FALSE &&
@@ -948,19 +948,19 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 // 		stateMainPlayer	&&
 // 		stateShiftDown==FALSE && 
 // 		stateDesireMMOPlayer  &&
-// 		stateDesireMMOPlayer->MoveType==EMT_InStall)   //摆摊交互
+// 		stateDesireMMOPlayer->MoveType==EMT_InStall)   //stall interaction
 // 	{
 // 		stateController->eventClearAllCmd();
 // 
 // 		if(stateDesireMMOActor){
 // 			if((stateMainPlayer->Location-stateDesireMMOActor->Location).Size() >= stateController->InteractDistance)
 // 			{
-// 				//追踪过去，
+// 				//chase over,
 // 				stateController->eventAddCmdMoveToActor(stateDesireMMOActor,stateDesirePos, stateController->InteractDistance*0.9,stateDesireNPCTempleteID);
 // 			}
 // 		}
 // 
-// 		//进行交互
+// 		//perform interaction
 // 		//stateController->SetSelectTarget(stateDesireActor);
 // 		stateController->eventAddCmdInteract(stateDesireMMOActor,0,stateDesireNPCTempleteID);
 // 		stateCtrlState=CS_IDLE;
@@ -970,7 +970,7 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 // }
 
 
-//走近捡东西
+//walk close and pick up item
 // UBOOL MMOTargetManager::stateMoveToPickItem()
 // {
 // 	if(	stateInterrupt==FALSE &&
@@ -987,12 +987,12 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 // 		if((stateMainPlayer->Location-stateDesireItem->Location).Size()
 // 			>= stateController->MaxPickDistance)
 // 		{
-// 			//追踪过去，
+// 			//chase over,
 // 			stateController->eventAddCmdMoveToActor(
 // 				stateDesireItem, stateDesireItem->Location,
 // 				stateController->MaxPickDistance * 0.7f);
 // 		}
-// 		//进行拾取
+// 		//perform pickup
 // 		stateController->eventAddCmdPickUpItem(stateDesireItem);
 // 		stateCtrlState=CS_IDLE;
 // 		return TRUE;
@@ -1001,7 +1001,7 @@ UBOOL MMOTargetManager::stateMoveToAndInteract()
 // }
 
 
-//走到目标点stateTargetPos, 这个是根据暗黑3模式实时寻出的一个鼠标转换点，增加鼠标操作的灵活性，概括为鼠标操作下的移动
+//walk to target point stateTargetPos; this is a mouse-converted point found in real time in Diablo 3 style, adding flexibility to mouse control; in short, movement under mouse control
 UBOOL MMOTargetManager::stateMoveToPoint()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1014,11 +1014,11 @@ UBOOL MMOTargetManager::stateMoveToPoint()
 		stateController &&
 		stateMainPlayer	&&
 		stateShiftDown==FALSE && 
-		stateAttackMMOActor == NULL &&	//无可攻击
-		//stateController->GetCmdNum(CMD_ABILITY)==0 && //没有技能命令
+		stateAttackMMOActor == NULL &&	//nothing attackable
+		//stateController->GetCmdNum(CMD_ABILITY)==0 && //no ability command
 		stateCtrlState>=CS_MOVE	)
 	{
-		if(statePathOptimize)//根据目标点的寻路数据是否直线，进行快速刷新
+		if(statePathOptimize)//quick refresh depending on whether the target's pathfinding data is a straight line
 		{
 			if(stateFastTime > TIME_SYNC_FAST )
 			{
@@ -1026,10 +1026,10 @@ UBOOL MMOTargetManager::stateMoveToPoint()
 				stateController->SetTargetLocationMarker(stateTargetPos,stateDesireMMOActor);
 				stateController->eventAddCmdMoveToPoint( stateTargetPos,TRUE );
 			}
-			else //只进行转向
+			else //turn only
 			{
-				if(stateMoveEnable){//在可移动的情况下才进行实时转向
-					//实时更新朝向
+				if(stateMoveEnable){//only turn in real time when movement is allowed
+					//update facing in real time
 					FVector Value;
 					FVector Des =  stateTargetPos;
 					if(stateMainPlayer->eventGetValidPoint(Des, Value))
@@ -1059,7 +1059,7 @@ UBOOL MMOTargetManager::stateMoveToPoint()
 
 		//if(stateCtrlState==CS_BATTLEMOVE && stateLeftBtnDown==TRUE)
 		//{
-		//	//暗黑三的特殊方法，左键点击无目标，自动切到位移状态
+		//	//Diablo 3 special method: left click with no target automatically switches to displacement state
 		//	stateCtrlState=CS_MOVE;
 		//}
 
@@ -1068,7 +1068,7 @@ UBOOL MMOTargetManager::stateMoveToPoint()
 	return FALSE;
 }
 
-//走到指定坐标点stateDesirePos，这是初始设定的一个目标点，与鼠标无关，概括为预设定目标点下的移动
+//walk to specified coordinate stateDesirePos; this is an initially set target point, unrelated to the mouse; in short, movement toward a preset target point
 UBOOL MMOTargetManager::stateMoveToDesirePoint()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1089,7 +1089,7 @@ UBOOL MMOTargetManager::stateMoveToDesirePoint()
 	return FALSE;
 }
 
-//键盘控制移动
+//keyboard movement control
 UBOOL MMOTargetManager::stateMoveByKey()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1103,24 +1103,24 @@ UBOOL MMOTargetManager::stateMoveByKey()
 		stateShiftDown==FALSE  )
 	{
 		stateController->eventClearAllCmd();
-		//走过去
+		//walk over
 		FVector Pos = stateMainPlayer->Location +OptimizeMoveOffset(MMOUI::GetUIManager()->WSADKey);
 		stateController->eventAddCmdMoveToPoint(Pos,TRUE);
 	}
 	return FALSE;
 }
 
-//选中显示第三方头像
+//show third-party portrait on selection
 UBOOL MMOTargetManager::stateShowInfo()
 {
-	//当前目标
+	//Current target
 	if(	stateLastTargetMMOActor!=stateTargetMMOActor )
 	{
 		MMOGameEvent_TargetChange evt(MMOGameEvent_TargetChange::ETCT_CurrentTarget, stateTargetMMOActor, stateSelectMMOActor);
 		MMOUI::PostGameEvent(&evt);
 	}
 
-	//选择目标
+	//select target
 	if( stateDesireMMOActor!=stateLastDesireMMOActor )
 	{
 		//if(stateDesireAttackble){
@@ -1136,7 +1136,7 @@ UBOOL MMOTargetManager::stateShowInfo()
 	return FALSE;
 }
 
-//选中物体tips显示
+//selected object tips display
 UBOOL MMOTargetManager::stateShowTips()
 {
 	if (MMO::GetCurrentGameState() != EGameState_InGame)
@@ -1146,14 +1146,14 @@ UBOOL MMOTargetManager::stateShowTips()
 		return FALSE;
 	}
 
-	//当前目标
+	//Current target
 	if(	stateLastTargetActor != stateTargetActor ){
 
 		if(stateTeleportOrig)
 		{
 			//MMOUI::GetUIManager()->delegateShowFreeStyleTips(  MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.TeleportOrig.Name") ), stateTeleportOrig->ToSceneName );
 			MMOUI::GetUIManager()->delegateShowFreeStyleTips( TEXT(""), stateTeleportOrig->ToSceneName, CM_TIPS_Style2, 1 );
-			//显示特效
+			//Show effect
 			stateTeleportOrig->ActiveFoucsEffect( TRUE );
 			stateIsShowTips = TRUE;
 		}
@@ -1170,7 +1170,7 @@ UBOOL MMOTargetManager::stateShowTips()
 				FString doodadTips;
 				//=  MMOUI::TrimNumber(doodadTemp->DoodadName.ToString());
 								
-				// 提示道具需求
+				// prompt item requirement
 				if(doodadTemp->RequireItemID > 0)
 				{
 					//doodadTips += TEXT("<br>");
@@ -1199,7 +1199,7 @@ UBOOL MMOTargetManager::stateShowTips()
 					}
 				}
 
-				// 有开启限制，不管能否开启，也就是VarValue不管是否正确时，都要显示到TIPS
+				// has an unlock restriction; whether or not it can be unlocked, i.e. whether VarValue is correct or not, always show in TIPS
 				if(stateDoodadActor->IsVarRequired() && !doodadTemp->TipsText.IsEmpty())
 				{
 					doodadTips += MMOUI::ParseLocalizedPropertyPath(TEXT("Doodad.RequireVar"));
@@ -1217,7 +1217,7 @@ UBOOL MMOTargetManager::stateShowTips()
         {
             MMOUI::GetUIManager()->delegateHideTips();
 
-			//处理调转点特效关闭
+			//handle closing the teleport point effect
 			ATeleportOrig *lastTeleportOrig	= Cast<ATeleportOrig>(stateLastTargetActor);
 			if( lastTeleportOrig != NULL ){
 				lastTeleportOrig->ActiveFoucsEffect( FALSE );
@@ -1230,7 +1230,7 @@ UBOOL MMOTargetManager::stateShowTips()
 	return FALSE;
 }
 
-//选中物体脚底光标显示
+//selected object under-foot cursor display
 UBOOL	MMOTargetManager::stateShowSelectMark()
 {
 	if(	stateController &&
@@ -1264,16 +1264,16 @@ UBOOL	MMOTargetManager::stateShowSelectMark()
 }
 
 
-//自动寻怪.(战斗位移下，杀死一个怪，然后自动寻找附近攻击权重最大的怪)
+//auto find monster. (in combat displacement, after killing a monster, automatically find the nearby monster with the highest attack weight)
 UBOOL	MMOTargetManager::stateSearchEnemy()
 {
-	//死亡取消敌目标
+	//cancel enemy target on death
 	if( stateAttackMMOActor && (stateAttackMMOActor->eventIsDead() || stateAttackMMOActor->IsPendingKill()))
 	{
 		stateAttackMMOActor = NULL;
 	}
 
-	//超出范围取消敌目标
+	//cancel enemy target when out of range
 	if( stateAttackMMOActor &&
 		stateAttackMMOActor!=stateDesireMMOActor &&
 		stateMainPlayer &&
@@ -1283,7 +1283,7 @@ UBOOL	MMOTargetManager::stateSearchEnemy()
 		stateAttackMMOActor = NULL;
 	}
 
-	//战斗位移下才会自动寻怪
+	//only auto find monsters in combat displacement
 	if(	stateAttackMMOActor==NULL &&
 		stateDesireMMOActor==NULL &&
 		stateMainPlayer &&
@@ -1291,7 +1291,7 @@ UBOOL	MMOTargetManager::stateSearchEnemy()
 		stateCtrlState==CS_BATTLEMOVE)
 	{
 
-		//搜索
+		//search
 		INT AttackMMOActorIndex = OptimizeTargetID(stateMainPlayer->Rotation,stateMainPlayer->Location,stateAbility->SpellCommonAttribute.SearchDistance,ST_CLOSED_DAMAGEABLE);
 		warnf(NAME_Warning, TEXT("=============================[MMOTargetManager::stateSearchEnemy]"));
 
@@ -1304,7 +1304,7 @@ UBOOL	MMOTargetManager::stateSearchEnemy()
 	return FALSE;
 }
 
-//自动切换键状态
+//auto switch key state
 UBOOL	MMOTargetManager::stateAIContral()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1324,7 +1324,7 @@ UBOOL	MMOTargetManager::stateAIContral()
 }
 
 
-//自动检测在安全区内收刀
+//auto detect sheathing weapon in safe zone
 UBOOL	MMOTargetManager::stateAIInSafeZone()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1353,7 +1353,7 @@ UBOOL	MMOTargetManager::stateAIInSafeZone()
 		//	}
 		//	else if(stateMainPlayer->IsInSafeZone==FALSE && stateMainPlayer->ActorAttributes->byCombatPoseOn)
 		//	{
-		//		//不在移动中，则10秒检测一次
+		//		//when not moving, check once every 10 seconds
 		//		if(stateAiInSafeZoneTime<=0.0f){
 		//			warnf( NAME_Error,  TEXT("stateAIInSafeZone 2!") );
 		//			ResetSafeZoneDelayTime();
@@ -1374,7 +1374,7 @@ UBOOL	MMOTargetManager::stateAIInSafeZone()
 
 
 
-//自动是否要释放解qte技能
+//auto decide whether to cast QTE-breaking ability
 UBOOL	MMOTargetManager::stateAIBossQTE()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1401,7 +1401,7 @@ UBOOL	MMOTargetManager::stateAIBossQTE()
 }
 
 
-//摆摊的点击模型弹出UI显示--------------------------------------------------------------------------------------------------------------------------------
+//stall click model pop-up UI display--------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateClickStallState()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1410,7 +1410,7 @@ UBOOL MMOTargetManager::stateClickStallState()
 		stateMainPlayer	&&
 		stateDesireMMOActor &&
 		stateLeftBtnDown==TRUE && 
-		stateDesireMMOActor->IsMainPlayer()	//本身是目标
+		stateDesireMMOActor->IsMainPlayer()	//self is the target
 		) 
 	{
 			if(stateMainPlayer->MoveType == EMT_InStall)
@@ -1433,7 +1433,7 @@ UBOOL MMOTargetManager::stateClickStallState()
 	return FALSE;
 }
 
-//特殊的定时提示，比如主武器的耐久度不等间隔警示--------------------------------------------------------------------------------------------------------------------------------
+//special timed prompts, e.g. irregular-interval durability warnings for the main weapon--------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateStackWarningState()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1445,7 +1445,7 @@ UBOOL MMOTargetManager::stateStackWarningState()
 		) 
 	{
 
-		//游戏中进行检测
+		//check while in game
 		if(MMO::GetCurrentGameState() == EGameState_InGame)
 		{
 			//for(int i=EET_Normal_MainHand;i<EET_Total_Count;i++)
@@ -1455,7 +1455,7 @@ UBOOL MMOTargetManager::stateStackWarningState()
 			//	{
 			//		UItem* pEquip = MMOFacade::getSingleton().FindItemTemplate(item->m_nTemplateID);
 			//		if(pEquip){
-			//			//小于5%
+			//			//less than 5%
 			//			if(item->m_nCurDur*20<=item->m_nMaxDur)
 			//			{
 			//				stateWarningTime = 0.0f;
@@ -1482,7 +1482,7 @@ UBOOL MMOTargetManager::stateStackWarningState()
 }
 
 
-//智能清除分解，鉴定，修理等状态，--------------------------------------------------------------------------------------------------------------------------------
+//smartly clear states such as decompose, identify, repair,--------------------------------------------------------------------------------------------------------------------------------
 UBOOL MMOTargetManager::stateReleaseOperation()
 {
 	if(	stateInterrupt==FALSE &&
@@ -1498,7 +1498,7 @@ UBOOL MMOTargetManager::stateReleaseOperation()
 	return FALSE;
 }
 
-//gm 组合测试，自动成为战神------------------------------------------------------------------------------------------------------------------------------------
+//gm combo test, automatically become God of War------------------------------------------------------------------------------------------------------------------------------------
 UBOOL	MMOTargetManager::stateUpdateAres()
 {
 	if(	AresFlag>0 && 	
@@ -1506,13 +1506,13 @@ UBOOL	MMOTargetManager::stateUpdateAres()
 		stateController &&
 		AresDeltaTime <= 0.0 )
 	{
-		//基础的提升
+		//basic boost
 		if(AresFlag==1)
 		{
 			AresIndex = 0;
 
 		}
-		//修炼一把武器
+		//train a weapon
 		else if(AresFlag==2)
 		{
 			stateController->NativeDeleteBagItem(0,64);
@@ -1520,44 +1520,44 @@ UBOOL	MMOTargetManager::stateUpdateAres()
 		else if(AresFlag==3)
 		{
 			if(AresIndex==0){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11210251,1) end") );//长剑
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11210251,1) end") );//long sword
 			}
 			else if(AresIndex==1){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211151,1) end") );//头盔
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211151,1) end") );//helmet
 			}
 			else if(AresIndex==2){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211251,1) end") );//肩胛
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211251,1) end") );//shoulder guard
 			}
 			else if(AresIndex==3){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211351,1) end") );//铠甲
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211351,1) end") );//armor
 			}
 			else if(AresIndex==4){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211451,1) end") );//战腿
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211451,1) end") );//leg armor
 			}
 			else if(AresIndex==5){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211551,1) end") );//护腰
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211551,1) end") );//waist guard
 			}
 			else if(AresIndex==6){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211651,1) end") );//护腕
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211651,1) end") );//wrist guard
 			}
 			else if(AresIndex==7){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211751,1) end") );//战靴
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211751,1) end") );//boots
 			}
 			else if(AresIndex==8){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211851,1) end") );//披风
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11211851,1) end") );//cloak
 			}
 			else if(AresIndex==9){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11252154,1) end") );//手镯
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11252154,1) end") );//bracelet
 			}
 			else if(AresIndex==10){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11252354,1) end") );//指环
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11252354,1) end") );//ring
 			}
 			else if(AresIndex==11){
-				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11252254,1) end") );//项链
+				CMessageHandler::GetInstance().Send_GMCommand( TEXT("for i=0,64,1 do AddItem(11252254,1) end") );//necklace
 			}
 			else
 			{
-				//结束
+				//end
 				AresFlag = 0;
 				return FALSE;
 			}
@@ -1618,7 +1618,7 @@ UBOOL	MMOTargetManager::stateUpdateAres()
 		{
 			//CMessageHandler::GetInstance().Send_SortBag(E_CONSLOT_BANK);
 			AresIndex++;
-			//跳到第二步，重复操作
+			//jump to step two, repeat
 			AresFlag = 2;
 			return FALSE;
 		}

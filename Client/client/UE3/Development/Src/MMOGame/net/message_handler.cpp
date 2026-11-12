@@ -179,7 +179,7 @@ INT64 _CAS(INT64* pDestination, INT64 Exchange, INT64 Comparand)
 size_t strxcpy(char *dst, const TCHAR *src, size_t maxSize)
 {
 	FTCHARToUTF8 conv(src);
-	size_t newSz = conv.Length()+1;//最后一位 '/0'
+	size_t newSz = conv.Length()+1;//last char '/0'
 	return strxcpy(dst, conv.operator ANSICHAR *(), newSz > maxSize ? maxSize : newSz);
 }
 
@@ -226,7 +226,7 @@ size_t strxcat(char *dst, const char *src, size_t size)
 
 	return dst - d - 1;
 }
-//保持标识符的完整的 utf8
+//keep the identifier's complete utf8
 size_t CopyUTF8(char* dst,const TCHAR* src, size_t maxSize)
 {
 	if (dst == NULL || src == NULL || maxSize == 0)
@@ -237,7 +237,7 @@ size_t CopyUTF8(char* dst,const TCHAR* src, size_t maxSize)
 	if(nPos >= 0)
 	{
 		FTCHARToUTF8 conv(*strDes);
-		size_t newSz = conv.Length()+1;//最后一位 '/0'
+		size_t newSz = conv.Length()+1;//last char '/0'
 		newSz = (newSz > maxSize ? maxSize : newSz);
 		strxcpy(dst, conv.operator ANSICHAR *(), newSz);
 		return newSz;
@@ -425,7 +425,7 @@ void CMessageHandler::OnRecv(ISocketSession* pSocketSession, PACKET_BUFFER* pPac
 
 	if(!m_MessageFuncList[pHeader->wMsg])
 	{
-		warnf(NAME_Error, TEXT("协议处理函数未找到:%d"), pHeader->wMsg);
+		warnf(NAME_Error, TEXT("Protocol handler not found: %d"), pHeader->wMsg);
 	}
 
 	LOG_PROCESS_ERROR(m_MessageFuncList[pHeader->wMsg]);
@@ -479,7 +479,7 @@ void CMessageHandler::AddToMsgBuf(PACKET_BUFFER* buf, UINT32 msgSize)
 	_msgCache.push_back(nmb);
 }
 
-// 至少保证35FPS
+// guarantee at least 35FPS
 FLOAT g_maxProcTime = 1.0f / 35.0f;
 
 void CMessageHandler::TickMsgBuff(FLOAT deltaTime)
@@ -630,7 +630,7 @@ void CMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemot
 // #else
 // 			MMOUI::GetUIManager()->delegateAddScreenMessage(locStr,MsgInfoType_Table,TEXT("MMOErrorInfo.Login.FailedGetServerIP"));
 // #endif
-// 			//断线重登处理
+// 			//reconnect/relogin handling
 // 			if(g_isSDOLogin)
 // 			{
 // 				MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Login_User,	  TRUE, "");
@@ -670,17 +670,17 @@ void CMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemot
 		}
 //     else
 
-	// 只处理Gate断开
+	// only handle Gate disconnect
 	if(m_pSocketSessionGate == pSocketSession)
     {
         m_pSocketSessionGate = NULL;
         warnf(TEXT("=========================== [Network::OnDisconnected] bRemoteShutdown:%d"), bRemoteShutdown);
          
-        //清除Flag
+        //clear Flag
         CleanMsgSendRestrictList();
 		//MMO::ActiveGameState(EGameState_Login);
 
-        //断线重登处理
+        //reconnect/relogin handling
 		AMMOPlayerController *pc = MMOFacade::getSingleton().GetMainController();
 		if(!g_disconnectByUser)
 		{
@@ -712,7 +712,7 @@ void CMessageHandler::OnDisconnected(ISocketSession* pSocketSession, BOOL bRemot
 				if(g_bOnReturnLoginConfirm==false || nModalNum==0)
 				{
 					UGFxObject* MsgboxWindow = MMOMsgBoxManager::getSingleton().AddModalMessageBox(
-						TEXT("服务器连接断开，请重新登录。"), 0, funYes, funYes, FALSE);
+						TEXT("Disconnected from the server. Please log in again."), 0, funYes, funYes, FALSE);
 				}
 				g_bOnReturnLoginConfirm = false;
 				g_disconnectByUser = false;
@@ -944,11 +944,11 @@ BOOL CMessageHandler::Init(void)
 //    MREG_PARSE_FUN(g2c_self_hifreq_sync);
 //    MREG_PARSE_FUN(g2c_region_hifreq_sync);
 
-	//新的血量同步机制
+	//new health sync mechanism
 	MREG_PARSE_FUN(g2c_sync_hp);
 	MREG_PARSE_FUN(g2c_sync_mp);
 
-    //金钱同步
+    //money sync
     MREG_PARSE_FUN(g2c_sync_money);
     MREG_PARSE_FUN(g2c_money_change);
 
@@ -1104,7 +1104,7 @@ void CMessageHandler::Parse_g2c_return_select_role(const char* buf, UINT32 size)
 {
 	G2C_RETURN_SELECT_ROLE* msg = (G2C_RETURN_SELECT_ROLE*)buf;
 
-	//确定会进入 EGameState_Selecting，这里利用ESET_CreateListRoleCheck确保各种情况下的重登录都能将RT刷出来
+	//will definitely enter EGameState_Selecting; ESET_CreateListRoleCheck is used here to ensure RT is refreshed on relogin in all cases
 	MMOGameEvent_Splash loginEvt;
 	loginEvt.EvtType = MMOGameEvent_Splash::ESET_CreateListRoleCheck;
 	MMOUI::PostGameEvent(&loginEvt);
@@ -1203,7 +1203,7 @@ void CMessageHandler::Parse_g2c_char_walk(const char* buf, UINT32 size)
 	FVector dis = pos-actor->Location;
 	FLOAT L = dis.Size2D();
 	FLOAT P = abs(dis.X)+abs(dis.Y);
-	UBOOL bAxial = (P/L>1.2);	//轴向
+	UBOOL bAxial = (P/L>1.2);	//axial
 
 	FLOAT MoveTimes = msg->wSpeed>0 ? ConvertToClientTime(msg->wSpeed) : 0.5f;
 	FLOAT Speed		= bAxial ? (128.0f/MoveTimes) : (128.0f*1.414213562373095f/MoveTimes);
@@ -1212,11 +1212,11 @@ void CMessageHandler::Parse_g2c_char_walk(const char* buf, UINT32 size)
 	
 	if(actor->IsA(ANPC::StaticClass()))
 	{
-		//得到动画原始时间长度
+		//get the original animation duration
 		FLOAT MoveTimesDefault = actor->GetAnimSeqLength(actor->PawnAnimInfo.WalkAnim);
 		MoveTimesDefault = (MoveTimesDefault>0.01f&&MoveTimesDefault<100.0f)?MoveTimesDefault:0.5f;
-		inMoveRateScale=  MoveTimesDefault/MoveTimes;		//求动画播放速率,default=1.0f
-		if(inMoveRateScale<1.0f)//不会减慢速度，而是默认速度加停顿的方式
+		inMoveRateScale=  MoveTimesDefault/MoveTimes;		//compute animation play rate, default=1.0f
+		if(inMoveRateScale<1.0f)//does not slow down speed, instead uses default speed plus pauses
 		{
 			MoveTimes = MoveTimesDefault;
 			Speed		= bAxial ? (128.0f/MoveTimes) : (128.0f*1.414213562373095f/MoveTimes);
@@ -1234,14 +1234,14 @@ void CMessageHandler::Parse_g2c_char_walk(const char* buf, UINT32 size)
 		actor->SetMoveType(bAxial?EMT_Walk:EMT_Walk_Oblique);
 	}
 
-	//动画相位的智能复位，站立一段时候后，再次启动的时候，相位从初始值开始
+	//smart reset of animation phase: after standing for a while, when restarting the phase starts from the initial value
 	if(actor->isMoving==FALSE && actor->ResetMovePhaseTime<0.0f)
 	{
 		actor->SetMoveAnimPosition(bAxial?g_Walk_Phase[actor->GetClassId()]:g_Walk_Oblique_Phase[actor->GetClassId()]);	
 	}
 	actor->ResetMovePhaseTime = MoveTimes+0.5f;
 
-	//决定是快速补偿到目标点，还是正常走过去
+	//decide whether to quickly compensate to the target point or walk there normally
 	Speed = (L>128.0f*1.9f)? SpeedEx : Speed;
 	actor->eventScriptMoveTo(pos, Speed,inMoveRateScale);
 	actor->SetServerLocation(pos);	// zhaojun@snda
@@ -1296,7 +1296,7 @@ void CMessageHandler::Parse_g2c_char_run(const char* buf, UINT32 size)
 	FVector dis = pos-actor->Location;
 	FLOAT L = dis.Size2D();
 	FLOAT P = abs(dis.X)+abs(dis.Y);
-	UBOOL bAxial = (P/L>1.2);	//轴向
+	UBOOL bAxial = (P/L>1.2);	//axial
 
 	FLOAT MoveTimes = msg->wSpeed>0 ? ConvertToClientTime(msg->wSpeed) : 0.75f;
 	FLOAT Speed		= bAxial ? (256.0f/MoveTimes) : (256.0f*1.414213562373095f/MoveTimes);
@@ -1305,12 +1305,12 @@ void CMessageHandler::Parse_g2c_char_run(const char* buf, UINT32 size)
 
 	if(actor->IsA(ANPC::StaticClass()))
 	{
-		//得到动画原始时间长度
+		//get the original animation duration
 		FLOAT MoveTimesDefault = actor->GetAnimSeqLength(actor->PawnAnimInfo.RunAnim);
 		MoveTimesDefault = (MoveTimesDefault>0.01f&&MoveTimesDefault<100.0f)?MoveTimesDefault:0.75f;
-		inMoveRateScale=  MoveTimesDefault/MoveTimes;		//求动画播放速率,default=1.0f
+		inMoveRateScale=  MoveTimesDefault/MoveTimes;		//compute animation play rate, default=1.0f
 
-		if(inMoveRateScale<1.0f)//不会减慢速度，而是默认速度加停顿的方式
+		if(inMoveRateScale<1.0f)//does not slow down speed, instead uses default speed plus pauses
 		{
 			MoveTimes = MoveTimesDefault;
 			Speed		= bAxial ? (128.0f/MoveTimes) : (128.0f*1.414213562373095f/MoveTimes);
@@ -1325,13 +1325,13 @@ void CMessageHandler::Parse_g2c_char_run(const char* buf, UINT32 size)
 		actor->SetMoveType(bAxial?EMT_Run:EMT_Run_Oblique);
 	}
 
-	//动画相位的智能复位，站立一段时候后，再次启动的时候，相位从初始值开始
+	//smart reset of animation phase: after standing for a while, when restarting the phase starts from the initial value
 	if(actor->isMoving==FALSE && actor->ResetMovePhaseTime<0.0f)
 	{
 		actor->SetMoveAnimPosition(bAxial?g_Run_Phase[actor->GetClassId()]:g_Run_Oblique_Phase[actor->GetClassId()]);	
 	}
 	actor->ResetMovePhaseTime = MoveTimes+0.5f;
-	//决定是快速补偿到目标点，还是正常走过去
+	//decide whether to quickly compensate to the target point or walk there normally
 	Speed = (L>375.0f)? SpeedEx : Speed;
 	actor->eventScriptMoveTo(pos, Speed,inMoveRateScale);
 	actor->SetServerLocation(pos);	// zhaojun@snda
@@ -1391,7 +1391,7 @@ void CMessageHandler::Parse_g2c_char_mine(const char* buf, UINT32 size)
 	//	MineLevel = pBufGrid->uMineLevel;
 	//}
 
-	//某些服特殊锄头挖金矿
+	//on some servers a special hoe is used to mine gold ore
 	UEquip* WeaponEquip = actor->GetWeaponEquip();
 	if (WeaponEquip)
 	{
@@ -1417,7 +1417,7 @@ void CMessageHandler::Parse_g2c_char_mine(const char* buf, UINT32 size)
 	{
 		if(actor->IsMainPlayer())
 		{
-			//warnf( NAME_Log, TEXT("----------------------------自己演挖矿技能！"));
+			//warnf( NAME_Log, TEXT("----------------------------self performs mining ability!"));
 			FLOAT DelayTime = FLOAT(msg->wMineInterval)/1000.0f;
 			FSMIO::getSingleton().CDTime.ResetCD_MoveDelay(DelayTime);
 			pMineAbility->SpellCommonAttribute.HardTime = DelayTime;
@@ -1426,7 +1426,7 @@ void CMessageHandler::Parse_g2c_char_mine(const char* buf, UINT32 size)
 		}
 		else
 		{
-			//warnf( NAME_Log, TEXT("----------------------------%s演挖矿技能！"), *(actor->ActorName));
+			//warnf( NAME_Log, TEXT("----------------------------%s performs mining ability!"), *(actor->ActorName));
 			FLOAT DelayTime = FLOAT(msg->wMineInterval)/1000.0f;
 			pMineAbility->SpellCommonAttribute.HardTime = DelayTime;
 			MMOFacade::getSingleton().GetAbilityProcessor()->PlayClientAbility(msg->dwCharID, pMineAbility);
@@ -1488,29 +1488,29 @@ void CMessageHandler::Parse_g2c_char_mine(const char* buf, UINT32 size)
 //
 //	if(actor->IsA(ANPC::StaticClass()))
 //	{
-//		//得到动画原始时间长度
+//		//get the original animation duration
 //		FLOAT time = actor->GetAnimSeqLength(actor->PawnAnimInfo.WalkAnim);
 //		if(time<0.1f||time>10000.0f){
-//			time=0.1f;//保护
+//			time=0.1f;//protection
 //		}
-//		//根据特殊公式得到时间长度，如果没有特殊公式，则返回原始动画时间长度
+//		//get the duration by a special formula; if there is no special formula, return the original animation duration
 //		FLOAT optimizeTime = Mir2Attack::getSingleton().GetNpcMoveSpeedTime(actor,FALSE,time);
 //		
 //
-//		if(P/L>1.2)//轴向
+//		if(P/L>1.2)//axial
 //		{
-//			speed = 128.0f/optimizeTime;				//求速度
+//			speed = 128.0f/optimizeTime;				//compute speed
 //			speedOptimize = L/optimizeTime;
-//			inMoveRateScale=  time/optimizeTime;		//求动画播放速率,default=1.0f
+//			inMoveRateScale=  time/optimizeTime;		//compute animation play rate, default=1.0f
 //			actor->SetMoveType(EMT_Walk);
 //
-//			if(actor->isMoving==FALSE && actor->ResetMovePhaseTime<0.0f)	//动画复位的判定
+//			if(actor->isMoving==FALSE && actor->ResetMovePhaseTime<0.0f)	//animation reset check
 //			{
 //				actor->ResetMovePhaseTime = time+0.3f;
 //				actor->SetMoveAnimPosition(0.0f);	
 //			}
 //		}
-//		else	//斜向
+//		else	//diagonal
 //		{
 //			speed = 128.0f/optimizeTime*1.414213562373095f;	
 //			speedOptimize = L/optimizeTime;
@@ -1631,16 +1631,16 @@ void CMessageHandler::Parse_g2c_char_mine(const char* buf, UINT32 size)
 //	{
 //		FLOAT time = actor->GetAnimSeqLength(actor->PawnAnimInfo.RunAnim);
 //		if(time<0.1f || time>10000.0f){
-//			time=0.1f;//保护
+//			time=0.1f;//protection
 //		}
-//		//根据特殊公式得到时间长度，如果没有特殊公式，则返回原始动画时间长度
+//		//get the duration by a special formula; if there is no special formula, return the original animation duration
 //		FLOAT optimizeTime = Mir2Attack::getSingleton().GetNpcMoveSpeedTime(actor,TRUE,time);
 //
 //
 //		if(P/L>1.2){
 //			speed = 256.0f/optimizeTime;	//speedConfig;
 //			speedOptimize = L/optimizeTime;
-//			inMoveRateScale=  time/optimizeTime;		//求动画播放速率,default=1.0f
+//			inMoveRateScale=  time/optimizeTime;		//compute animation play rate, default=1.0f
 //			actor->SetMoveType(EMT_Run);
 //			if(actor->isMoving==FALSE && actor->ResetMovePhaseTime<0.0f){
 //				actor->ResetMovePhaseTime = time+0.3f;// 0.75+0.5f;
@@ -1651,7 +1651,7 @@ void CMessageHandler::Parse_g2c_char_mine(const char* buf, UINT32 size)
 //		{
 //			speed = 256.0f/optimizeTime*1.414213562373095f;
 //			speedOptimize = L/optimizeTime;
-//			inMoveRateScale=  time/optimizeTime*1.414213562373095f;		//求动画播放速率,default=1.0f
+//			inMoveRateScale=  time/optimizeTime*1.414213562373095f;		//compute animation play rate, default=1.0f
 //			actor->SetMoveType(EMT_Run);
 //			if(actor->isMoving==FALSE && actor->ResetMovePhaseTime<0.0f){
 //				actor->ResetMovePhaseTime = time+0.3f;// 0.75+0.5f;
@@ -1769,7 +1769,7 @@ void CMessageHandler::Parse_g2c_char_passive_move(const char* buf, UINT32 size)
 	}
 
 	FLOAT speed = 0.f;
-	FLOAT Duration = (msg->wDuration+1) * 1.0f / GAME_FPS;//加一是为了，服务器连续被动位移中间无间隔
+	FLOAT Duration = (msg->wDuration+1) * 1.0f / GAME_FPS;//add one so that there is no gap between consecutive server passive displacements
 	//debugf(L"%%%%%%%%%%%%%%%%%%%%%%% msg->wDuration=%d", msg->wDuration);
 	//Duration -= FLOAT(FrameCount - msg->nStartFrame) / FLOAT(GAME_FPS);
 
@@ -1888,7 +1888,7 @@ void CMessageHandler::Parse_g2c_char_stop(const char* buf, UINT32 size)
 	FVector pos(msg->wCurrentX,msg->wCurrentY,msg->wCurrentZ);
 	ConvertCoordN2C(pos);
 
-	// 如果在过场电影就不处理
+	// do not process if in a cutscene
 	if( IsMainPlayer && player->IsInMatinee )
 	{
 		actor->SetServerLocation(pos);	//zhaojun@snda
@@ -1907,7 +1907,7 @@ void CMessageHandler::Parse_g2c_char_stop(const char* buf, UINT32 size)
 		{
 #ifdef DEBUG_SYNC_INFO
 			if( dis.Size2D() > DelDis)
-				warnf( TEXT("强制停止,差距大于%f----客户端:X%f Y%f Z%f  服务端:X%f Y%f Z%f ------------------------------------"),DelDis,actor->Location.X,actor->Location.Y,actor->Location.Z,pos.X,pos.Y,pos.Z );
+				warnf( TEXT("Forced stop, difference greater than %f----client: X%f Y%f Z%f  server: X%f Y%f Z%f ------------------------------------"),DelDis,actor->Location.X,actor->Location.Y,actor->Location.Z,pos.X,pos.Y,pos.Z );
 #endif
 			//MMOTargetManager::getSingleton().Clear();
 			//FSMIO::getSingleton().State.ClearAllState();
@@ -1917,7 +1917,7 @@ void CMessageHandler::Parse_g2c_char_stop(const char* buf, UINT32 size)
 		{
 #ifdef DEBUG_SYNC_INFO
 			if( dis.Size2D() > DelDis)
-				warnf( TEXT("自然停止,差距大于%f----客户端:X%f Y%f Z%f  服务端:X%f Y%f Z%f ------------------------------------"),DelDis,actor->Location.X,actor->Location.Y,actor->Location.Z,pos.X,pos.Y,pos.Z );
+				warnf( TEXT("Natural stop, difference greater than %f----client: X%f Y%f Z%f  server: X%f Y%f Z%f ------------------------------------"),DelDis,actor->Location.X,actor->Location.Y,actor->Location.Z,pos.X,pos.Y,pos.Z );
 #endif
 			MMOFacade::getSingleton().GetMainController()->ResetMoving();
 		}
@@ -1933,7 +1933,7 @@ void CMessageHandler::Parse_g2c_char_stop(const char* buf, UINT32 size)
 		FVector Point(msg->wCurrentX, msg->wCurrentY, msg->wCurrentZ);
 		ConvertCoordN2C(Point);
 
-		//停在同一地点，不做处理
+		//stopped at the same spot, no processing
 		if((actor->ServerLocation-Point).Size2D()<64.0 && (actor->Location-Point).Size2D()<64.0)
 		{
 			return;
@@ -1944,10 +1944,10 @@ void CMessageHandler::Parse_g2c_char_stop(const char* buf, UINT32 size)
 #if SHOW_MOVEMENT_LOG
 		debugf(TEXT("%d StopMove %f, %f, %f"), msg->dwCharID, Point.X, Point.Y, Point.Z);
 #endif
-		//if ((Point - actor->Location).SizeSquared2D() >= FLOAT(g_moveModGridSize * g_moveModGridSize * g_netLagToleranceDisatnce * g_netLagToleranceDisatnce)) // 超过2个128格子才拉
-//		if ((Point - actor->Location).SizeSquared2D() >= FLOAT(128.0f * 128.0f * g_netLagToleranceDisatnce * g_netLagToleranceDisatnce)) // 超过2个128格子才拉
+		//if ((Point - actor->Location).SizeSquared2D() >= FLOAT(g_moveModGridSize * g_moveModGridSize * g_netLagToleranceDisatnce * g_netLagToleranceDisatnce)) // pull only if over 2 grids of 128
+//		if ((Point - actor->Location).SizeSquared2D() >= FLOAT(128.0f * 128.0f * g_netLagToleranceDisatnce * g_netLagToleranceDisatnce)) // pull back only when beyond 2 128-unit grid cells
 
-		//if ((Point - actor->Location).SizeSquared2D() >= FLOAT(64.0f * 64.0f )) // 超过半个格子就拉
+		//if ((Point - actor->Location).SizeSquared2D() >= FLOAT(64.0f * 64.0f )) // pull back when beyond half a grid cell
 		//FLOAT disSquare = (Point - actor->Location).SizeSquared2D();
 		//if(disSquare<=8.0f*8.0f || disSquare>=256.0f*256.0f)
 		//{
@@ -1973,7 +1973,7 @@ void CMessageHandler::Parse_g2c_char_stop(const char* buf, UINT32 size)
 		//}
 
 
-		//if ((Point - actor->Location).SizeSquared2D() >= FLOAT(64.0f * 64.0f )) // 超过半个格子就拉
+		//if ((Point - actor->Location).SizeSquared2D() >= FLOAT(64.0f * 64.0f )) // pull back when beyond half a grid cell
 		//{
 		//	Point.Z = actor->GetValidZValue(Point);
 		//	Point.Z += actor->GetCollisionHeight();
@@ -2051,7 +2051,7 @@ void CMessageHandler::Parse_g2c_object_rotate(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_sync_role_pos(const char* buf, UINT32 size)
 {
-	// 如果在电影过程就不同步位置了
+	// Do not sync position during a cutscene
 	if(MMOFacade::getSingleton().GetMainPlayer()->IsInMatinee)
 	{
 		return;
@@ -2170,7 +2170,7 @@ void CMessageHandler::Parse_g2c_sync_vip_state(const char* buf, UINT32 size)
 		MMOUI::PostGameEvent( &vipStateEvt );
 	}
 
-	// 刷新下任务状态
+	// Refresh quest status
 	MMOQuestManager::getSingleton().UpdateQuestStatus();
 }
 //---------------------------------------------------------------------------------
@@ -2405,10 +2405,10 @@ void CMessageHandler::ProcessCharData( G2C_CHAR_APPEAR* msg, CHAR_APPEAR_DATA* d
 	/*
 	else if( data->byMoveState == CMS_STALL )
 	{
-		//出现的Actor的状态可能是EMT_PrepareStall或EMT_InStall
-		//向服务器申请
+		//The appearing Actor's state may be EMT_PrepareStall or EMT_InStall
+		//Request from server
 
-		//@debug 对接这一块
+		//@debug hook up this part
 		actor->MoveType = EMT_InStall;
 		
 		INT2SyncRoleDataMap::iterator pos = m_RoleDataCache.find(data->dwCharID);
@@ -2573,7 +2573,7 @@ void CMessageHandler::Parse_g2c_sync_attr_list(const char* buf, UINT32 size)
 	{			
 		return;
 	}
-	//玩家属性初始化
+	//Player attribute initialization
 		actor->ActorAttributes->MountID = 0;
 		actor->ActorAttributes->MountList.Empty();
 		MMOFacade::getSingleton().RefreshMountData();
@@ -2616,7 +2616,7 @@ void CMessageHandler::Parse_g2c_sync_role_avatar( const char* buf, UINT32 size )
 	AMMOActor* actor = MMOFacade::getSingleton().GetCharacter( msg->dwRoleID );
 	if( actor )
 	{
-		if( actor->IsMainPlayer() ) ///玩家不处理这个，有item_swap等处理
+		if( actor->IsMainPlayer() ) ///Player does not handle this; item_swap etc. handle it
 			return;
 		if( msg->nTemplateID == 0 )
 		{	// take off
@@ -2680,7 +2680,7 @@ void CMessageHandler::Parse_g2c_sync_hero_avatar( const char* buf, UINT32 size )
 	AMMOActor* actor = MMOFacade::getSingleton().GetCharacter( msg->dwHeroID );
 	if( actor )
 	{
-		if( actor->IsMainPlayer() ) ///玩家不处理这个，有item_swap等处理
+		if( actor->IsMainPlayer() ) ///Player does not handle this; item_swap etc. handle it
 			return;
 		if( msg->nTemplateID == 0 )
 		{	// take off
@@ -2799,7 +2799,7 @@ void CMessageHandler::OnMissileAppear(MISSILE_APPEAR_DATA& InData)
 //
 //	//if (actor && actor->ActorAttributes)
 //	//{
-//	//	//  暂时这样显示
+//	//	//  Display like this for now
 //	//	//actor->ActorAttributes->MaxHP = msg->byHpPercent;
 //	//	actor->ActorAttributes->HP = msg->byHpPercent * actor->ActorAttributes->GetMaxHp()/100;			
 //	//}
@@ -2821,7 +2821,7 @@ void CMessageHandler::Parse_g2c_sync_pk_result(const char* buf, UINT32 size)
 	{
 		AMMOActor* VictimRole = MMOFacade::getSingleton().GetCharacter(msg->dwVictimRoleID);	
 
-		FString VictimName = VictimRole!=NULL?VictimRole->ActorName:FString::Printf(TEXT("无此人"));
+		FString VictimName = VictimRole!=NULL?VictimRole->ActorName:FString::Printf(TEXT("No such player"));
 		FString str;
 		switch(msg->byPKResult)
 		{
@@ -2922,7 +2922,7 @@ void CMessageHandler::Parse_g2c_modify_reputation(const char* buf, UINT32 size)
 	UBOOL bFlashMenu =  MMOFacade::getSingleton().GetPlayerAwardDisplay(MMOFacade::getSingleton().GetMainPlayer(),msg->byForceID);
 	if(bFlashMenu)
 	{
-		// CQ版本临时屏蔽
+		// Temporarily disabled for CQ version
 		//MMOUI::GetUIManager()->delegateUpdateMenuEffect(2,EMenuType_Child_Repute,TRUE,TRUE);
 
 		ShowPanelAdvancedData T;
@@ -2933,7 +2933,7 @@ void CMessageHandler::Parse_g2c_modify_reputation(const char* buf, UINT32 size)
 
 	MMOQuestManager::getSingleton().UpdateQuestReputation();
 
-	// 成就
+	// Achievement
 	INT reputation = MMOFacade::getSingleton().GetPlayerReputation(MMOFacade::getSingleton().GetMainPlayer(), msg->byForceID);	
 	MMOGameEvent_Achievement evtAch1(adForceReputation, msg->byForceID, reputation, 0);
 	MMOUI::PostGameEvent(&evtAch1);
@@ -2941,7 +2941,7 @@ void CMessageHandler::Parse_g2c_modify_reputation(const char* buf, UINT32 size)
 	MMOGameEvent_Achievement evtAch2(adVariousForceCount, 0, 0, 0);
 	MMOUI::PostGameEvent(&evtAch2);
 
-	// 强者之路
+	// Path of the Strong
 	MMOGameEvent_Journey evtJourney(MMOGameEvent_Journey::EJET_ReputationChange, msg->byForceID, msg->nReputation, reputationLast);
 	MMOUI::PostGameEvent(&evtJourney);
 }
@@ -2976,7 +2976,7 @@ void CMessageHandler::Parse_g2c_sync_equip_title(const char* buf, UINT32 size)
 			AMMOPlayer* player =Cast<AMMOPlayer>(actor);
 			player->ActorAttributes->TitleID = msg->byTitleID;
 
-			//装备title提示
+			//Equipment title tooltip
 			TitleData* pTitle = MMOFacade::getSingleton().GetTitleData(msg->byTitleID);
 			if(pTitle){
 				FString TitleName = pTitle->TitleName;// MMOUI::ParseLocalizedPropertyPath( FString(TEXT("MMOGame.Title.TitleName"))  + appItoa(TitleId) );
@@ -2986,7 +2986,7 @@ void CMessageHandler::Parse_g2c_sync_equip_title(const char* buf, UINT32 size)
 			MMOFacade::getSingleton().NotifyPlayerTitleChange();
 			MMOFacade::getSingleton().NotifyPlayerPkValueChange();
 
-			// 新手引导
+			// Tutorial
 			MMOGameEvent_Guide evtGuide(EGUET_EquipTitle);
 			MMOUI::PostGameEvent(&evtGuide);
 		}
@@ -3022,7 +3022,7 @@ void CMessageHandler::Parse_g2c_add_title(const char* buf, UINT32 size)
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Title.AddTitleMsg")) +  TitleName ,MsgInfoType_Table,TEXT("MMOGame.Title.AddTitleMsg"));
 		MMOChatManager::getSingleton().AddSystemMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Title.AddTitleMsg")) +  TitleName ); 
 
-		// 成就
+		// Achievement
 		MMOGameEvent_Achievement evtAch1(adTitle, msg->nTitleID, 0, 0);
 		MMOUI::PostGameEvent(&evtAch1);
 
@@ -3040,7 +3040,7 @@ void CMessageHandler::Parse_g2c_add_title(const char* buf, UINT32 size)
 		MMOGameEvent_Achievement evtAch2(adTitleCount, titleCount, 0, 0);
 		MMOUI::PostGameEvent(&evtAch2);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_GetTitle);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -3224,12 +3224,12 @@ void CMessageHandler::Parse_g2c_sync_game_data_begin(const char* buf, UINT32 siz
 
 	warnf(TEXT("[-------------------------CMessageHandler::Parse_g2c_sync_game_data_begin]"));
 	MMOFacade::getSingleton().IsReceivedGameData = TRUE;
-	//对时,必须放在最前头，不然算上本地操作上的延时时间差距就大发了
+	//Time sync, must be placed first, otherwise the local operation delay makes the difference huge
 	MMOFacade::getSingleton().SetEnterSceneServerTime( msg->dwServerTime );
 	MMOWeatherManager::getSingleton().InitStartTime(msg->dwServerTime);
 
-	//游戏时间开始计时
-	//游戏时间应该下发过了，主动刷新游戏剩余时间（因为角色选择界面不扣除游戏时间）
+	//Start game time counting
+	//Game time should already have been sent down; actively refresh remaining game time (character select screen does not deduct game time)
 	MMOVipManager::getSingleton().UpdateMyLeftGameTimeUpdateTime();
 
 	//MMO::ActiveGameState(EGameState_Loading);
@@ -3244,7 +3244,7 @@ void CMessageHandler::Parse_g2c_sync_game_data_begin(const char* buf, UINT32 siz
 	EffectProcessor::GetSingleton().DeleteAllComponent();
 
 
-#if 0 // 延期加载
+#if 0 // deferred loading
 	// then clear ability template
 	MMOSkillManager::getSingleton().ClearAbilityTemplates();
 	MMOSkillManager::getSingleton().LoadAbilityTemplates((EPlayerClass)msg->byClass);
@@ -3258,7 +3258,7 @@ void CMessageHandler::Parse_g2c_sync_game_data_begin(const char* buf, UINT32 siz
     ctrl->PawnServerId = msg->dwRoleID;
     
     {
-		//原来在这里初始化，现在不在这里了
+		//Originally initialized here, no longer here
         //player->TeamManager->TeamID = msg->dwTeamID;
         //if( msg->dwTeamID != 0 )
         //    player->TeamManager->CreateMyTeam( msg->dwTeamID );
@@ -3375,11 +3375,11 @@ void CMessageHandler::Parse_g2c_sync_game_data_begin(const char* buf, UINT32 siz
 	MMOGameEvent_OneInt evt( GameEvent_ExpExtraInit, msg->dwExtraExp );
 	MMOUI::PostGameEvent(&evt);
 
-	// 活动
+	// Activity
 	ActivityManager::getSingleton().NotifyActivityVariableErvtActivity(msg->nActivityLevel);
 	ActivityManager::getSingleton().NotifyActivityVariableErvtActivityReward(msg->nActicityReward);
 
-	//双倍经验
+	//Double experience
 	MMOAttributeAccountManager::getSingleton().setExpEtra(msg->dwExtraExp);
 
 	player->ReCalGridBlockRadius();
@@ -3461,7 +3461,7 @@ void CMessageHandler::Parse_g2c_exp_change(const char* buf, UINT32 size)
 
 	MMOFacade::getSingleton().SetPlayerExp( msg->nExp,msg->nMaxExp ,msg->nTodayExp,msg->nTodayMaxExp,msg->nExpChange );
 
-	//更新额外经验
+	//Update bonus experience
 	MMOGameEvent_OneInt expExtrEvt( GameEvent_ExpExtraChanged, -msg->nExtraExp );
 	MMOUI::PostGameEvent(&expExtrEvt);
 }
@@ -3592,7 +3592,7 @@ void CMessageHandler::checkLog(FVector& checkPos, FVector& startPos, FVector& en
     FLOAT fValueX = endPos.X - startPos.X;
     FLOAT fValueY = endPos.Y - startPos.Y;
        
-    //浮点数计算数据。
+    //Floating point calculation data.
     if (fabs(fValueX) > fabs(fValueY))
     {        
         FLOAT fCheckY = fValueY * (checkPos.X - startPos.X)/fValueX + startPos.Y;
@@ -3620,7 +3620,7 @@ void CMessageHandler::checkLog(FVector& checkPos, FVector& startPos, FVector& en
         }
     }
 
-    //取整数后的计算结果日志
+    //Calculation result log after truncating to integer
     INT32 dwValueX = (INT32)endPos.X - (INT32)startPos.X;
     INT32 dwValueY = (INT32)endPos.Y - (INT32)startPos.Y;
     if(abs(dwValueX) > abs(dwValueY))
@@ -3758,7 +3758,7 @@ void CMessageHandler::Send_LoadFinish()
 void CMessageHandler::Send_ReturnLogin()
 {
 	/*
-    //登出或则切换账号 角色 都给保存一次
+    //Save once on logout or switching account/character
     AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
     if( ctrl )
         ctrl->eventSaveSlotBind();
@@ -3808,7 +3808,7 @@ void CMessageHandler::Send_ReturnSelRole()
     msg.dwRoleID = player->ServerID;
     _Send(&msg, sizeof(msg));
 
-	SetDisableSend(true); // 这条协议发之后不能再发任何协议上去，否则会断开
+	SetDisableSend(true); // After this message is sent, no more messages may be sent, otherwise the connection drops
 }
 
 //==============================================================================
@@ -3933,7 +3933,7 @@ void CMessageHandler::Send_EnterDungeon(int SelDifficulty)
     msg.bySelectedDifficulty = SelDifficulty;
     _Send(&msg, sizeof(msg));
 }
-//重玩副本
+//Replay dungeon
 void CMessageHandler::Send_PlayFBAgain()
 {
 	//C2G_DUNGEON_REPLAY msg;
@@ -3941,14 +3941,14 @@ void CMessageHandler::Send_PlayFBAgain()
 
 	//_Send( &msg, sizeof(msg) );
 }
-//离开副本
+//Leave dungeon
 void CMessageHandler::Send_LeaveScene()
 {
 	C2G_LEAVE_SCENE msg;
 	msg.wMsg = c2g_leave_scene;
 	_Send( &msg, sizeof(msg) );
 }
-//抽奖
+//Lottery
 void CMessageHandler::Send_GetAward(BYTE byIdx)
 {
 	//C2G_DUNGEON_SELECT_REWARD msg;
@@ -4090,7 +4090,7 @@ void  CMessageHandler::Send_Dice_bet(UINT16 type, UINT16 count)
 	msg.wMsg =  c2g_dice_bet;
 	msg.bytype = type;
 	msg.bycount = count;
-	warnf(TEXT("协议大小%d"), sizeof(msg));
+	warnf(TEXT("Protocol size %d"), sizeof(msg));
 	_Send(&msg, sizeof(msg));
 }
 
@@ -4118,7 +4118,7 @@ void CMessageHandler::Send_Lovers_Teleport()
 //////////////////////////////////////////////////////////////////////////
 
 //--------------------------------------------------------------------------
-//装备称号
+//Equip title
 void CMessageHandler::Send_EquipTitle(BYTE byIdx)
 {
 	if(byIdx>0){
@@ -4135,7 +4135,7 @@ void CMessageHandler::Send_EquipTitle(BYTE byIdx)
 	}
 }
 
-//卸载称号
+//Unequip title
 void CMessageHandler::Send_UnEquipTitle()
 {
 	C2G_TITLE_UNEQUIP msg;
@@ -4216,7 +4216,7 @@ void CMessageHandler::Parse_m2c_error_notify(const char* buf, UINT32 size)
 {
 	M2C_ERROR_NOTIFY* msg = (M2C_ERROR_NOTIFY*)buf;
 
-	// 如果被服务器处理的返回到登录界面就不往下走了
+	// If the server handled it and returned to the login screen, do not continue
 	if(_ProcessReturnLoginError(msg->nErrorCode, msg->nParam1, msg->nParam2))
 	{
 		return;
@@ -4252,7 +4252,7 @@ void CMessageHandler::Parse_m2c_error_notify(const char* buf, UINT32 size)
 
 	if (msg->nErrorCode >= errAchievementLevel && msg->nErrorCode <= errAchievementSpiritLevel)
 	{
-		// 成就的错误不用提示
+		// Achievement errors need no prompt
 		return;
 	}
 
@@ -4279,7 +4279,7 @@ void CMessageHandler::Parse_m2c_error_notify(const char* buf, UINT32 size)
 
 	if( msg->nErrorCode == errItemNotEnoughMoneytype01 )
 	{
-		//绑金不足
+		//Insufficient bound gold
 		UBOOL sel = MMOFacade::getSingleton().GetChainPay();
 		if(!sel)
 		{
@@ -4290,7 +4290,7 @@ void CMessageHandler::Parse_m2c_error_notify(const char* buf, UINT32 size)
 
 	if (msg->nErrorCode == errAuctionItemNotFound || msg->nErrorCode == errAuctionBuyingPriceLow || msg->nErrorCode ==errAuctionSellingPriceLow)
 	{
-		//刷新界面
+		//Refresh UI
 		MMOAuctionManager::getSingleton().NotifyUpdateCurrentPageInfo();
 	}
 
@@ -4361,7 +4361,7 @@ void CMessageHandler::Parse_g2c_error_notify(const char* buf, UINT32 size)
 {
     G2C_ERROR_NOTIFY* msg = (G2C_ERROR_NOTIFY*)buf;
 
-	// 如果被服务器处理的返回到登录界面就不往下走了
+	// If the server handled it and returned to the login screen, do not continue
 	if(_ProcessReturnLoginError(msg->nErrCode, msg->nParam1, msg->nParam2))
 	{
 		return;
@@ -4409,20 +4409,20 @@ void CMessageHandler::Parse_g2c_error_notify(const char* buf, UINT32 size)
 	{
 		return;
 	}
-	 //特殊错误 不予显示 
+	 //Special error, do not display
 
-	//自动拾取 1，回包有时间差 扫描速度减慢的话又可能漏捡 2，分配问题 Client没有掉落物品归属
+	//Auto pickup 1, reply has a time gap; if scan speed slows items may be missed 2, allocation problem: Client has no drop item ownership
 	if( ( msg->nErrCode == errDropNotFound ||  msg->nErrCode == errDropProtected || msg->nErrCode == errDropFaraway || msg->nErrCode == errDropOtherStand ) 
 		&& msg->nParam1 >0 )
 	{
-		//别人的以后不再去捡
+		//Do not pick up other people's items from now on
 		MMODropManager::getSingleton().SetDropActorCannotPick(msg->nParam1,2.0f);
 		//return;
 	}
 	//if( ( msg->nErrCode == errDropNotFound ||  msg->nErrCode == errDropProtected || msg->nErrCode == errDropFaraway || msg->nErrCode == errDropOtherStand ) 
 	//	&& msg->nParam2 == TRUE )
 	//{
-	//	//别人的以后不再去捡
+	//	//Do not pick up other people's items from now on
 	//	if(msg->nErrCode == errDropProtected)
 	//		MMODropManager::getSingleton().SetDropActorCannotPick(msg->nParam1);
 	//	return;
@@ -4437,14 +4437,14 @@ void CMessageHandler::Parse_g2c_error_notify(const char* buf, UINT32 size)
 
 	if( msg->nErrCode == errTeamApplicationRefused || msg->nErrCode == errTeamInvitationRefused || msg->nErrCode == errTeamRefusedInvitation || msg->nErrCode == errTeamRefusedApplication )
 	{
-		//拒绝了您的组队请求
+		//Declined your team request
 		TeamManager::getSingleton().RefuseTeamAdd( msg->nParam1 , msg->nParam2 );
 		return;
 	}
 
 	if( msg->nErrCode == errItemNotEnoughMoneytype01 )
 	{
-		//绑金不足
+		//Insufficient bound gold
 		UBOOL sel = MMOFacade::getSingleton().GetChainPay();
 		if(!sel)
 		{
@@ -4460,12 +4460,12 @@ void CMessageHandler::Parse_g2c_error_notify(const char* buf, UINT32 size)
 
 	if (msg->nErrCode >= errAchievementLevel && msg->nErrCode <= errAchievementSpiritLevel)
 	{
-		// 成就的错误不用提示
+		// Achievement errors need no prompt
 		return;
 	}
 	if (msg->nErrCode == errAuctionItemNotFound || msg->nErrCode == errAuctionBuyingPriceLow || msg->nErrCode ==errAuctionSellingPriceLow)
 	{
-		//刷新界面
+		//Refresh UI
 		MMOAuctionManager::getSingleton().NotifyUpdateCurrentPageInfo();
 	}
 
@@ -4650,7 +4650,7 @@ void CMessageHandler::Parse_g2c_error_notify(const char* buf, UINT32 size)
 	//MMOUI::GetUIManager()->delegateAddScreenMessage(error_ids);
 	
 	if( msg->nErrCode == errItemLevelUpNotFinished ){
-		//武器升级，取回错误提示,需要格式化错误提示
+		//Weapon upgrade, retrieve error message, error message needs formatting
 		UINT leftSec = msg->nParam1 + 59;
 		UINT leftHour = leftSec / ( 60*60 );
 		FString leftTime = TEXT("");
@@ -4683,7 +4683,7 @@ void CMessageHandler::Parse_g2c_error_notify(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_door_state(const char* buf, UINT32 size)
 {
 	G2C_SYNC_DOOR_STATE* msg = (G2C_SYNC_DOOR_STATE*)buf;
-	//目前定义 最大64
+	//Currently defined max 64
 	std::bitset<64> doorstate(msg->qwDoorState);
 	MMOFacade::getSingleton().SetDoorStates( doorstate );
 
@@ -4718,18 +4718,18 @@ void UpdateTransducer( int Progress )
 				if( npc->NPCID == TransducerTemplateId )
 				{
 					FString tAnimSetName(L"Transducer_gameplay_ani.Transducer_gameplay_Charging");
-					//找到充能器
+					//Found the charger
 					npc->eventChangeAnimSet( tAnimSetName );
 				}
 				else if( npc->NPCID == DoorOfFateTemplateId )
 				{
 					FString tType(L"MaterialInstanceTimeVarying");
 					FString tMaterialName( L"Fx_LevelActor.M_PorTal_002_INST" );
-					//充满后的材质 
+					//Material after fully charged
 					npc->eventSetToNewMaterialByName( tType, tMaterialName );
 				}
 			}
-			//hud->HudMovie->eventShowMsgSceneHint( "命运之门充能完毕,通过它击杀强大的魔王!!" );
+			//hud->HudMovie->eventShowMsgSceneHint( "Gate of Fate fully charged, use it to kill the powerful demon lord!!" );
 		}
 	}
 	else
@@ -4746,7 +4746,7 @@ void UpdateTransducer( int Progress )
 			if( npc->NPCID == TransducerTemplateId )
 			{
 				FString tAnimSetName(L"Transducer_gameplay_ani.Transducer_gameplay_Charging");
-				//找到充能器
+				//Found the charger
 				npc->eventChangeAnimSet( tAnimSetName );
 			}
 			else if( npc->NPCID == DoorOfFateTemplateId )
@@ -4755,7 +4755,7 @@ void UpdateTransducer( int Progress )
 				FString tMaterialName( L"Fx_LevelActor.M_Portal_001_INST" );
 				/*FString tType(L"MaterialInstanceTimeVarying");
 				FString tMaterialName( L"Fx_LevelActor.M_PorTal_002_INST" );*/
-				//找到命运之门 第一次可见时 转换材质
+				//Found the Gate of Fate, switch material when first visible
 				npc->eventSetToNewMaterialByName(  tType, tMaterialName );
 			}
 		}	
@@ -4932,7 +4932,7 @@ void CMessageHandler::Parse_g2c_sync_hero_attr_list(const char* buf, UINT32 size
 	{			
 		return;
 	}
-	//玩家属性初始化
+	//Player attribute initialization
 	actor->HeroAttributes->AttributeList.Empty();
 	actor->HeroAttributes->AttributeList.Add( catTotal );
 
@@ -4957,7 +4957,7 @@ void CMessageHandler::Parse_g2c_hire_hero(const char* buf, UINT32 size)
 		actor->HeroAttributes->GenderType				= msg->byHeroSex;
 		actor->HeroAttributes->Growth					= msg->nGrowth;
 		actor->HeroName									= TEXT("");
-		//申请详细属性
+		//Request detailed attributes
 		Send_Query_Hero_Attr_List();
 
 		if(EGameState_InGame == MMO::GetCurrentGameState()){
@@ -5043,7 +5043,7 @@ void CMessageHandler::Send_ChainGameMoney( UBOOL openChain )
 {
 	//C2G_USE_MONEYTYPE01_ONLY msg;
 	//msg.wMsg =  c2g_use_moneytype01_only;
-	////1表示只用绑金，0表示可以用金币代替绑金 by wubin
+	////1 means use bound gold only, 0 means gold can substitute bound gold by wubin
 	//msg.byUseMoneytype01Only = !openChain;
 	//_Send( &msg, sizeof(msg) );
 }
@@ -5054,7 +5054,7 @@ void CMessageHandler::Parse_g2c_sync_money(const char* buf, UINT32 size)
 	G2C_SYNC_MONEY* msg =  (G2C_SYNC_MONEY*)buf;
 	if(  msg->byUseMoneytype01Only ^ !MMOFacade::getSingleton().GetChainPay()  )
 	{
-		//服务器如果和目前连带支付状态不符合，就改变下
+		//If the server differs from the current joint payment state, change it
 		MMOFacade::getSingleton().SetChainPay( !msg->byUseMoneytype01Only );
 		MMOGameEvent_OneInt ChainPayChange( GameEvent_ChainPayChange , !msg->byUseMoneytype01Only );
 		MMOUI::PostGameEvent( &ChainPayChange );
@@ -5096,29 +5096,29 @@ void CMessageHandler::Parse_g2c_ping_ack(const char* buf, UINT32 size)
 INT CMessageHandler::GetClientEquipTypeByServer( INT ServerSlot )
 {
 	/*
-	NES_MAIN_HAND,  //主手          武器            Weapon
-    NES_OFF_HAND,   //副手          武器/盾牌       Weapon/Shield
-    NES_HEAD,       //头部          帽子            Hat
-    NES_SHOULDER,   //肩部          护肩            Shoulder Armor
-    NES_BODY,       //身体          衣服或铠甲      Chest Armor
-    NES_LEG,        //腿部          裤子或裙子      Pants
-    NES_ARM,        //腕部          护腕            Wrist Armor
-    NES_WAIST,      //腰部          腰带            Belt
-    NES_FOOT,       //脚部          鞋子            Shoes
-    NES_BACK,       //背部          披风            Cloak
-    NES_AVATAR,     //时装          时装            Avatar
-    NES_NECK,       //颈部          项链            Necklace
-    NES_FINGER_L,   //左手指        戒指            Ring
-    NES_FINGER_R,   //右手指        戒指            Ring
-    NES_WRIST_L,    //左手腕        手镯            Bracelet
-    NES_WRIST_R,    //右手腕        手镯            Bracelet
+	NES_MAIN_HAND,  //Main hand     Weapon          Weapon
+    NES_OFF_HAND,   //Off hand      Weapon/Shield   Weapon/Shield
+    NES_HEAD,       //Head          Hat             Hat
+    NES_SHOULDER,   //Shoulder      Shoulder guard  Shoulder Armor
+    NES_BODY,       //Body          Clothes or armor      Chest Armor
+    NES_LEG,        //Leg           Pants or skirt  Pants
+    NES_ARM,        //Wrist         Wristguard      Wrist Armor
+    NES_WAIST,      //Waist         Belt            Belt
+    NES_FOOT,       //Foot          Shoes           Shoes
+    NES_BACK,       //Back          Cloak           Cloak
+    NES_AVATAR,     //Fashion       Fashion         Avatar
+    NES_NECK,       //Neck          Necklace        Necklace
+    NES_FINGER_L,   //Left finger   Ring            Ring
+    NES_FINGER_R,   //Right finger  Ring            Ring
+    NES_WRIST_L,    //Left wrist    Bracelet        Bracelet
+    NES_WRIST_R,    //Right wrist   Bracelet        Bracelet
 	*/
 	return ServerSlot;	// must ensure ids match
  	/*if( bNormalEquip )
  	{
  		switch(ServerSlot)
  		{
- 		case NES_MAIN_HAND://主手
+ 		case NES_MAIN_HAND://Main hand
  			return E_NES_MAIN_HAND;
  		//case NES_OFF_HAND:
  		//	return E_NES_OFF_HAND;//
@@ -5223,7 +5223,7 @@ BOOL CMessageHandler::_Send(void* data, UINT32 size)
 		extern char* g_szS2CMessageName[];
 		MESSAGE_HEADER* msgHdr = (MESSAGE_HEADER*)data;
 		UINT16 msgID = msgHdr->wMsg;
-		verifyf(g_nC2SMessageSize[msgID] != 0, TEXT("[CMessageHandler::_Send] 返回角色选择后不能再发这条协议 Msg:%d %s"), msgID, ANSI_TO_TCHAR(g_szS2CMessageName[msgID]));
+		verifyf(g_nC2SMessageSize[msgID] != 0, TEXT("[CMessageHandler::_Send] This message cannot be sent after returning to role select Msg:%d %s"), msgID, ANSI_TO_TCHAR(g_szS2CMessageName[msgID]));
 
 #endif
 		return FALSE;
@@ -5342,7 +5342,7 @@ void CMessageHandler::SyncRoleData(G2C_SYNC_ROLE_DATA* NewData)
 	//actor->fActorDataResetDelay = 0.3f;
 
 	//actor->GuildName = FString(UTF8_TO_TCHAR(NewData->szGuildName));
-	// 把更新名字的公会信息添加到查询列表里
+	// Add the guild info of the updated name to the query list
 	if (NewData->dwGuildID > 0)
 	{
 		MMOGuildManager::getSingleton().NotifyUpdateActorGuildTitle(NewData->dwRoleID, TEXT(""), NewData->dwGuildID);
@@ -5415,11 +5415,11 @@ void CMessageHandler::SyncRoleData(G2C_SYNC_ROLE_DATA* NewData)
 
 	}			
 
-	// 这个数据一定要在RequestTakeOn前得到, RequestTakeOn需要
+	// This data must be obtained before RequestTakeOn, RequestTakeOn needs it
 	AMMOPlayer *player = Cast<AMMOPlayer>(actor);
 	if (player)
 	{
-		// 武器升级点数
+		// Weapon upgrade points
 		player->WeaponUpgradePoint = NewData->byRefineFx;
 	}
 
@@ -5451,7 +5451,7 @@ void CMessageHandler::SyncRoleData(G2C_SYNC_ROLE_DATA* NewData)
 	actor->RefreshVisible();
 
 	// weapon effect
-	// 原来的体格强化特效索引，现在用来记录武器升级点数
+	// Originally the body-strengthening effect index, now used to record weapon upgrade points
 	//INT EffectIndex = (NewData->byRefineFx<<6)>>6;
 	INT EffectIndex = 0;
 	if (EffectIndex != 0)
@@ -5465,7 +5465,7 @@ void CMessageHandler::SyncRoleData(G2C_SYNC_ROLE_DATA* NewData)
 
 	if (player)
 	{
-		// 摆摊中的数据处理 
+		// Data handling while in stall
 		player->StallName = FString(UTF8_TO_TCHAR(NewData->szStallName));
 		player->StallLevel = NewData->byStallLevel;
 		UStallManager::getSingleton().ChangeActorStallState(player, NewData->byStallState);
@@ -5509,7 +5509,7 @@ void CMessageHandler::ClearCacheData()
 
 bool CMessageHandler::_ProcessReturnLoginError( INT errorCode, INT Param1, INT Param2 )
 {
-    //Login 相关解锁，Error可能 T2C M2C 触发
+    //Login related unlock, Error may be triggered by T2C M2C
 
     EMsgSendRestrictList lockSlot = MsgRL_Num;
     //if(  errorCode  >= errLoginBegin &&  errorCode  <= errLoginEnd  )
@@ -5688,7 +5688,7 @@ void CMessageHandler::Parse_g2c_extra_exp_change(const char* buf, UINT32 size)
 
 	if(msg->nExtraExp > 0)
 	{
-		//添加滚屏提示
+		//Add scrolling message hint
 		FString strScreen= MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.ExtraExp.Change"));
 		MMOUI::GetUIManager()->delegateAddScreenMessage(strScreen,MsgInfoType_Table,TEXT("MMOGame.ExtraExp.Change"));
 		INT deltaExp = msg->nExtraExp - MMOAttributeAccountManager::getSingleton().getExpEtra();

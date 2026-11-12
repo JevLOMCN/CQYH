@@ -26,7 +26,7 @@ void AMMOApexDestructibleActor::TakeDamage(INT Damage,
 {
 	if (CurHealth > 0)
 	{
-		// 啥都不干，比如可以摇晃一下
+		// Do nothing, e.g. could shake a bit
 
 	}
 	else
@@ -43,7 +43,7 @@ void AMMOApexDestructibleActor::TakeRadiusDamage(class AController* InstigatedBy
 {
 	if (CurHealth > 0)
 	{
-		// 啥都不干，比如可以摇晃一下
+		// Do nothing, e.g. could shake a bit
 
 	}
 	else

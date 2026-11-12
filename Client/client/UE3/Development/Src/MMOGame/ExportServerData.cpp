@@ -338,7 +338,7 @@ bool SkipCookMMOObject(UPackage* Package, UObject* Object, UBOOL bIsSavedInSeekF
 #endif
 
 //------------------------------------------------------------------------
-// GameExec 编辑器命令行解析
+// GameExec editor command line parsing
 //------------------------------------------------------------------------
 
 extern bool g_moveImm;
@@ -556,14 +556,14 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 			if(val)
 			{
 				g_TickCtrlMap.Set(Parameter, !*val);
-				FString dbgMsg = FString::Printf(TEXT("开启 %s Tick %s"), *Parameter, (*val) ? TEXT("开启") : TEXT("关闭"));
+				FString dbgMsg = FString::Printf(TEXT("Set %s Tick: %s"), *Parameter, (*val) ? TEXT("On") : TEXT("Off"));
 				debugf(TEXT("%s"), *dbgMsg);
 				MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 			}
 		}
 		else
 		{
-			FString dbgMsg = FString::Printf(TEXT("没有找到Tick开关 %s"), *Parameter);
+			FString dbgMsg = FString::Printf(TEXT("Tick switch not found: %s"), *Parameter);
 			debugf(TEXT("%s"), *dbgMsg);
 			MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		}
@@ -598,7 +598,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 	if( ParseCommand(&Cmd, TEXT("grid"))  )
 	{
 		g_enableGridLoad = !g_enableGridLoad;
-		FString dbgMsg = FString::Printf(TEXT("开启分格加载：%s"), g_enableGridLoad ? TEXT("开启") : TEXT("关闭"));
+		FString dbgMsg = FString::Printf(TEXT("Grid loading: %s"), g_enableGridLoad ? TEXT("On") : TEXT("Off"));
 		debugf(TEXT("%s"), *dbgMsg);
 		MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		return TRUE;
@@ -789,7 +789,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 	if(ParseCommand(&Cmd, TEXT("gm")))
 	{
 		bUseGMCmd = !bUseGMCmd;
-		FString dbgMsg = FString::Printf(TEXT("GM命令输入模式：%s"), bUseGMCmd ? TEXT("开启") : TEXT("关闭"));
+		FString dbgMsg = FString::Printf(TEXT("GM command input mode: %s"), bUseGMCmd ? TEXT("On") : TEXT("Off"));
 		debugf(TEXT("%s"), *dbgMsg);
 		MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		return TRUE;
@@ -816,7 +816,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 			procFPS = 1;
 		}
 		g_maxProcTime = 1.0f / procFPS;
-		FString dbgMsg = FString::Printf(TEXT("设置网络消息处理速度：%f FPS"), procFPS);
+		FString dbgMsg = FString::Printf(TEXT("Set network message processing rate: %f FPS"), procFPS);
 		debugf(TEXT("%s"), *dbgMsg);
 		MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		return TRUE;
@@ -830,7 +830,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 		{
 			cam->DefaultSmoothMove = !cam->DefaultSmoothMove;
 			cam->EnableSmoothCameraPos = cam->DefaultSmoothMove;
-			FString dbgMsg = FString::Printf(TEXT("设置相机平滑跟随：%s"), cam->EnableSmoothCameraPos ? TEXT("开启") : TEXT("关闭"));
+			FString dbgMsg = FString::Printf(TEXT("Camera smooth follow: %s"), cam->EnableSmoothCameraPos ? TEXT("On") : TEXT("Off"));
 			debugf(TEXT("%s"), *dbgMsg);
 			MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		}
@@ -843,7 +843,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 		if(cam)
 		{
 			cam->DefaultMoveSpeed = appAtof(Cmd);
-			FString dbgMsg = FString::Printf(TEXT("设置相机平滑跟随速度为：%f"), cam->DefaultMoveSpeed);
+			FString dbgMsg = FString::Printf(TEXT("Camera smooth follow speed set to: %f"), cam->DefaultMoveSpeed);
 			debugf(TEXT("%s"), *dbgMsg);
 			MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		}
@@ -854,7 +854,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 	if(ParseCommand(&Cmd, TEXT("fullnet")))
 	{
 		CMessageHandler::GetInstance()._fullSpeedProcNetMsg = !CMessageHandler::GetInstance()._fullSpeedProcNetMsg;
-		FString dbgMsg = FString::Printf(TEXT("全速处理网络消息:%s"), CMessageHandler::GetInstance()._fullSpeedProcNetMsg ? TEXT("开启") : TEXT("关闭"));
+		FString dbgMsg = FString::Printf(TEXT("Process network messages at full speed: %s"), CMessageHandler::GetInstance()._fullSpeedProcNetMsg ? TEXT("On") : TEXT("Off"));
 		debugf(TEXT("%s"), *dbgMsg);
 		MMOChatManager::getSingleton().AddChatMessage(ECC_System, dbgMsg, TEXT("Debug"));
 		return TRUE;
@@ -1027,7 +1027,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 		INT curStep = 1;
 		const INT steps = 3;
 		//------------------------------------------------------------------------
-		// 二进制场景文件
+		// Binary scene file
 		//------------------------------------------------------------------------
 		GWarn->StatusUpdatef(curStep++, steps, TEXT("Exporting Server Scene..."));
 		ExportBinaryServerScene();
@@ -1171,7 +1171,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 	}
 	else if( ParseCommand(&Cmd, TEXT("FixNPCTemplateRef"))  )
 	{
-		//FixNPCTemplateRef(); // 不用了
+		//FixNPCTemplateRef(); // No longer used
 		return true;
 	}
 	else if( ParseCommand(&Cmd, TEXT("ExEquipApp"))  )
@@ -1252,7 +1252,7 @@ UBOOL GameExec(const TCHAR* Cmd, FOutputDevice& Ar)
 	else if(ParseCommand(&Cmd, TEXT("AddSoul")))
 	{
 		//add by zhengli
-		//用来调试融灵系统
+		//Used for debugging the spirit fusion system
 				// spawn npctype npccnt
 		/*
 		if( ParseCommand(&Cmd, TEXT("?")) )
@@ -1346,7 +1346,7 @@ void GenerateNavMeshCallBack(unsigned char* data, const int dataSize)
 	//ExportDir += GWorld->GetWorldInfo()->GetMapName() + FString(TEXT("\\"));
 	::_wmkdir(*ExportDir);
 	
-    //暂时确认一张地图只有一张dtNavMesh;
+    //For now assume a map has only one dtNavMesh;
     FString fileName = ExportDir + GWorld->GetWorldInfo()->GetMapName() + TEXT("\\") + GWorld->GetWorldInfo()->GetMapName() + TEXT(".nav");
 
 	//FString fileName = ExportDir + GWorld->GetWorldInfo()->GetMapName() + TEXT("_")

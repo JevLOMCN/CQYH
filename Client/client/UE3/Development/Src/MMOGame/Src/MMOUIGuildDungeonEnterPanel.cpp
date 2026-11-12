@@ -69,7 +69,7 @@ void UMMOUIGuildDungeonEnterPanel::UpdateGuildDungeonData(UINT32 dungeonId)
 			MMOGuildData::getSingleton().GetGuildBuildingData(data.BuildingReq, data.BuildingLvReq, preBuildingData);
 			UINT32 preBuildingLv = MMOGuildData::getSingleton().GetGuildBuildingMaxLevel(data.BuildingReq);
 
-			FString buildingReq = FString::Printf(preBuildingLv >= data.BuildingLvReq ? TEXT("<font color='#FFFFFF'>%s:%d¼¶</font>") : TEXT("<font color='#FF0000'>%s:%d¼¶</font>"), *(preBuildingData.Name), data.BuildingLvReq);
+			FString buildingReq = FString::Printf(preBuildingLv >= data.BuildingLvReq ? TEXT("<font color='#FFFFFF'>%s: Lv %d</font>") : TEXT("<font color='#FF0000'>%s: Lv %d</font>"), *(preBuildingData.Name), data.BuildingLvReq);
 			object->SetString(TEXT("guild_dun_building_lv_req"), buildingReq);
 
 			AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();

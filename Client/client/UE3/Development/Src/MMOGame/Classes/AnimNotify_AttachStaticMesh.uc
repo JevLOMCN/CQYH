@@ -1,5 +1,5 @@
 //
-// 通知在特定的时候绑定一个模型
+// notify to attach a model at a specific time
 //
 class AnimNotify_AttachStaticMesh extends AnimNotify_Scripted
 	dependson(MMOActor);

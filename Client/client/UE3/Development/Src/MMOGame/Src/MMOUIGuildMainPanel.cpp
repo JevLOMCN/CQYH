@@ -27,14 +27,14 @@ void UMMOUIGuildMainPanel::PostOnShow(UBOOL v)
 
 	if (v)
 	{
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowGuildPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 
 		GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 		if (baseInfo.Id == 0)
 		{
-			// 如果没有公会
+			// If there is no guild
 			eventCallUpdateGuildIntroduce(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.NoGuild")));
 			eventCallSetWindowTitle(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.Guide")));
 			eventCallInitGuild(FALSE);
@@ -46,7 +46,7 @@ void UMMOUIGuildMainPanel::PostOnShow(UBOOL v)
 		
 		UpdateGuildNotice(baseInfo.Notice);
 
-		// 上线的时候可能只是发了查询, 这里再取一下名字
+		// When coming online only a query may have been sent, fetch the name again here
 		MMOGuildManager::getSingleton().UpdateGuildEvents();
 		MMOGuildManager::getSingleton().UpdateGuildMoneyEvents();
 
@@ -94,7 +94,7 @@ void UMMOUIGuildMainPanel::PostOnShow(UBOOL v)
 			uiManager->delegateUpdateMenuEffect(4, EMenuType_Child_Guild, FALSE, FALSE);
 		}
 
-		// 公会活动
+		// guild activity
 		UpdateGuildActivityList();
 
 		eventCallShowGuildMainPage(_ShowPage, _ShowSubPage);
@@ -333,7 +333,7 @@ void UMMOUIGuildMainPanel::SetForeignApplyDayType(INT foreignType, INT dayType)
 		break;
 	}
 
-	eventCallUpdateForeignApplyConsume(FString::Printf(TEXT("公会资金: %d"), money));
+	eventCallUpdateForeignApplyConsume(FString::Printf(TEXT("Guild funds: %d"), money));
 }
 
 void UMMOUIGuildMainPanel::RequestGuildPendingMemberList()
@@ -460,9 +460,9 @@ void UMMOUIGuildMainPanel::UpdateGuildBaseInfo()
 	object->SetInt(TEXT("guild_contribute"), mainPlayer->GetMoney(MONEYTYPE_GUILD));
 
 	UINT32 selfSalary = MMOGuildData::getSingleton().GetGuildFullMemberSalary(mainActor->ServerID);
-	object->SetInt(TEXT("guild_achievement"), selfSalary);	// 功勋
+	object->SetInt(TEXT("guild_achievement"), selfSalary);	// merit
 
-	// 自己的权限
+	// Own permissions
 	UINT16 rights = MMOGuildData::getSingleton().GetGuildRights(post);
 	object->SetBool(TEXT("guild_rights_leader"), MMOGuildData::getSingleton().GetGuildFullMemberPost(mainActor->ServerID) == GUILD_POSITION_LEADER);
 	object->SetBool(TEXT("guild_rights_invite"), (rights & G_POS_RIGHT_INVITE) > 0 ? true : false);
@@ -491,7 +491,7 @@ void UMMOUIGuildMainPanel::ChangeGuildNotice(const FString& notice)
 	}
 
 	FTCHARToUTF8 szNotice(*notice);
-	// 最多60个汉字(Length = 3 * 60个char)
+	// Up to 60 Chinese characters (Length = 3 * 60 chars)
 	if (szNotice.Length() > 180)
 	{
 		FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.LongNotice"));
@@ -532,7 +532,7 @@ void UMMOUIGuildMainPanel::InviteMember(const FString& roleName)
 	}
 
 	FTCHARToUTF8 szRoleName(*roleName);
-	// 最多8个汉字(Length = 3 * 8个char)
+	// Up to 8 Chinese characters (Length = 3 * 8 chars)
 	if (szRoleName.Length() > 24)
 	{
 		FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.LongRoleName"));
@@ -570,7 +570,7 @@ void UMMOUIGuildMainPanel::ExpelConfirm(INT roleId)
 		return;
 	}
 
-	// 公会战期间不能踢人
+	// Cannot kick members during guild war
 	if (MMOGuildManager::getSingleton().IsGuildWarStart())
 	{
 		FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildWarCanNotBanish"));
@@ -617,7 +617,7 @@ void UMMOUIGuildMainPanel::ReplyRefuseExpel(UGFxObject *mc)
 
 void UMMOUIGuildMainPanel::QuitConfirm()
 {
-	// 会长不能离开
+	// Guild leader cannot leave
 	AMMOActor* mainActor = MMOFacade::getSingleton().GetMainActor();
 	if (mainActor)
 	{
@@ -630,7 +630,7 @@ void UMMOUIGuildMainPanel::QuitConfirm()
 		}
 	}
 
-	// 公会战期间不能离开
+	// Cannot leave during guild war
 	if (MMOGuildManager::getSingleton().IsGuildWarStart())
 	{
 		FString text = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildWarCanNotLeave"));
@@ -711,7 +711,7 @@ void UMMOUIGuildMainPanel::DisbandGuild(const FString& text)
 	}
 	else
 	{
-		FString text = TEXT("输入不正确");
+		FString text = TEXT("Invalid input");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, TEXT("MMOGame.Guild.DisbandSuccess"));
 	}
 }
@@ -800,12 +800,12 @@ void UMMOUIGuildMainPanel::UpdateGuildStorageState()
 	UGFxObject* object = GFXPlayer->CreateObject("Object");
 
 	INT level = MMOGuildData::getSingleton().GetGuildBaseInfo().level;
-	object->SetString(TEXT("guild_storage_active_1"), level >= 1 ? TEXT("<font color='#00FF00'>已激活</font>") : TEXT("<font color='#FF0000'>未激活</font>"));
-	object->SetString(TEXT("guild_storage_active_2"), level >= 2 ? TEXT("<font color='#00FF00'>已激活</font>") : TEXT("<font color='#FF0000'>未激活</font>"));
-	object->SetString(TEXT("guild_storage_active_3"), level >= 3 ? TEXT("<font color='#00FF00'>已激活</font>") : TEXT("<font color='#FF0000'>未激活</font>"));
-	object->SetString(TEXT("guild_storage_active_4"), level >= 4 ? TEXT("<font color='#00FF00'>已激活</font>") : TEXT("<font color='#FF0000'>未激活</font>"));
-	object->SetString(TEXT("guild_storage_active_5"), level >= 5 ? TEXT("<font color='#00FF00'>已激活</font>") : TEXT("<font color='#FF0000'>未激活</font>"));
-	object->SetString(TEXT("guild_storage_active_6"), level >= 6 ? TEXT("<font color='#00FF00'>已激活</font>") : TEXT("<font color='#FF0000'>未激活</font>"));
+	object->SetString(TEXT("guild_storage_active_1"), level >= 1 ? TEXT("<font color='#00FF00'>Activated</font>") : TEXT("<font color='#FF0000'>Inactive</font>"));
+	object->SetString(TEXT("guild_storage_active_2"), level >= 2 ? TEXT("<font color='#00FF00'>Activated</font>") : TEXT("<font color='#FF0000'>Inactive</font>"));
+	object->SetString(TEXT("guild_storage_active_3"), level >= 3 ? TEXT("<font color='#00FF00'>Activated</font>") : TEXT("<font color='#FF0000'>Inactive</font>"));
+	object->SetString(TEXT("guild_storage_active_4"), level >= 4 ? TEXT("<font color='#00FF00'>Activated</font>") : TEXT("<font color='#FF0000'>Inactive</font>"));
+	object->SetString(TEXT("guild_storage_active_5"), level >= 5 ? TEXT("<font color='#00FF00'>Activated</font>") : TEXT("<font color='#FF0000'>Inactive</font>"));
+	object->SetString(TEXT("guild_storage_active_6"), level >= 6 ? TEXT("<font color='#00FF00'>Activated</font>") : TEXT("<font color='#FF0000'>Inactive</font>"));
 
 	eventCallUpdateGuildStorageState(object);
 }
@@ -1058,7 +1058,7 @@ void UMMOUIGuildMainPanel::ApplyAlly(const FString& guildName, int timeType)
 {
 	if (guildName == TEXT(""))
 	{
-		FString text = TEXT("请输入公会名");
+		FString text = TEXT("Please enter a guild name");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOErrorInfo.ERROR_CODE_DEF.errGuildNoItem"));
 		return;
 	}
@@ -1070,7 +1070,7 @@ void UMMOUIGuildMainPanel::ApplyEnemy(const FString& guildName, int timeType)
 {
 	if (guildName == TEXT(""))
 	{
-		FString text = TEXT("请输入公会名");
+		FString text = TEXT("Please enter a guild name");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOErrorInfo.ERROR_CODE_DEF.errGuildNoItem"));
 		return;
 	}
@@ -1122,7 +1122,7 @@ void UMMOUIGuildMainPanel::UpdateGuildWarSearchInfo(INT matchConsume, INT matchC
 
 	if (object)
 	{
-		object->SetString(TEXT("guild_war_search_consume"), FString::Printf(TEXT("公会资金: %d"), matchConsume));
+		object->SetString(TEXT("guild_war_search_consume"), FString::Printf(TEXT("Guild funds: %d"), matchConsume));
 		object->SetString(TEXT("guild_war_search_count"), FString::Printf(TEXT("%d/%d"), (INT)GUILD_MAX_MATCH_WAR_COUNT - matchCount, (INT)GUILD_MAX_MATCH_WAR_COUNT));
 	}
 
@@ -1140,7 +1140,7 @@ void UMMOUIGuildMainPanel::ChallengeConfirm(const FString& guildName)
 	funNo.FunctionName = TEXT("RefuseChallengeNow");	
 
 	_WarTargetName = guildName;
-	FString text = FString::Printf(TEXT("是否确认向[%s]公会宣战?"), *guildName);
+	FString text = FString::Printf(TEXT("Declare war on guild [%s]?"), *guildName);
 	ChallengeConfirmBox = MMOMsgBoxManager::getSingleton().AddMessageBox(text, 0, funYes, funNo);
 }
 
@@ -1263,7 +1263,7 @@ void UMMOUIGuildMainPanel::UpdateGuildActivityList()
 		FString timeString = TEXT("");
 		if (iter->second.State == GAS_NONE)
 		{
-			timeString = TEXT("待定");
+			timeString = TEXT("TBD");
 		} 
 		else
 		{
@@ -1323,7 +1323,7 @@ void UMMOUIGuildMainPanel::UpdateGuildActivityList()
 
 //////////////////////////////////////////////////////////////////////////
 
-// 公会查看
+// guild view
 void UMMOUIGuildMainPanel::ASViewGuild()
 {
 	UMMOUIGuildViewPanel* panel = (UMMOUIGuildViewPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_Guild_View);
@@ -1335,34 +1335,34 @@ void UMMOUIGuildMainPanel::ASViewGuild()
 	Show(FALSE);
 }
 
-// 更新申请列表
+// Update application list
 void UMMOUIGuildMainPanel::ASUpdateGuildPendingMemberList()
 {
 	UpdateGuildPendingMemberList();
 }
 
-// 同意加入公会
+// Agree to join guild
 void UMMOUIGuildMainPanel::ASAgreeToJoin(INT id)
 {
 	AgreeToJoin(id);
 }
 
-// 拒绝加入公会
+// Refuse to join guild
 void UMMOUIGuildMainPanel::ASRefuseToJoin(INT id)
 {
 	RefuseToJoin(id);
 }
 
-// 资金捐献
+// fund donation
 void UMMOUIGuildMainPanel::ASContribute(INT type, INT count)
 {
 	if (count == 0)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("捐献数量不能为0"),MsgInfoType_Table,TEXT("捐献数量不能为0"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Donation amount cannot be 0"),MsgInfoType_Table,TEXT("Donation amount cannot be 0"));
 		return;
 	}
 
-	// 判定资金是否已达上限
+	// determine whether funds have reached the limit
 	UINT32 resMax = MMOGuildData::getSingleton().GetGuildTerritoryResMax(GUILD_ATTR_MONEY);
 	UINT32 resCur = MMOGuildData::getSingleton().GetCurGuildTerritoryRes(GUILD_ATTR_MONEY);
 //	if (resCur >= resMax)
@@ -1419,25 +1419,25 @@ void UMMOUIGuildMainPanel::RefuseContribute(UGFxObject *mc)
 	_ContributeConfirmBox = NULL;
 }
 
-// 更改通告
+// Change announcement
 void UMMOUIGuildMainPanel::ASChangeNotice(const FString& notice)
 {
 	ChangeGuildNotice(notice);
 }
 
-// 更改宣言
+// Change declaration
 void UMMOUIGuildMainPanel::ASChangeAnnounce(const FString& announce)
 {
 	CMessageHandler::GetInstance().Send_GuildAnnounceChange(announce);
 }
 
-// 查看更多公会事件
+// View more guild events
 void UMMOUIGuildMainPanel::ASViewMoreEvents()
 {
 	CMessageHandler::GetInstance().Send_ViewMoreEvents();
 }
 
-// 招募成员
+// Recruit members
 void UMMOUIGuildMainPanel::ASInviteMember(const FString& roleName)
 {
 	InviteMember(roleName);
@@ -1448,55 +1448,55 @@ void UMMOUIGuildMainPanel::ASSortMember(INT type, UBOOL isUp)
 	SortMember(type, isUp);
 }
 
-// 驱逐成员
+// Expel member
 void UMMOUIGuildMainPanel::ASExpelMember(INT id)
 {
 	ExpelMember(id);
 }
 
-// 更改职位
+// Change position
 void UMMOUIGuildMainPanel::ASChangePost(INT roleId, INT post)
 {
 	ChangePost(roleId, post);
 }
 
-// 是否显示在线成员
+// Whether to show online members
 void UMMOUIGuildMainPanel::ASShowOnlineMember(UBOOL isShow)
 {
 	ShowOnlineMember(isShow);
 }
 
-// 是否显示在线成员
+// Whether to show online members
 void UMMOUIGuildMainPanel::ASOnlineMemberNotify(UBOOL notify)
 {
 	MMOGuildManager::getSingleton().SetOnlineMemberNotify(notify);
 }
 
-// 族长禅位
+// Guild leader abdication
 void UMMOUIGuildMainPanel::ASLeaderDemise(const FString& roleName)
 {
 	LeaderDemise(roleName);
 }
 
-// 公会解散
+// Guild disband
 void UMMOUIGuildMainPanel::ASDisbandGuild(const FString& text)
 {
 	DisbandGuild(text);
 }
 
-// 退出公会
+// Leave guild
 void UMMOUIGuildMainPanel::ASQuitGuild()
 {
 	QuitConfirm();
 }
 
-// 更新公会权限显示
+// Update guild permission display
 void UMMOUIGuildMainPanel::ASUpdateGuildRights(INT post)
 {
 	UpdateGuildRights(post + 1);
 }
 
-// 更新仓库权限显示
+// Update warehouse permission display
 void UMMOUIGuildMainPanel::ASModifyGuildStorageRights(INT post, UGFxObject* rights)
 {
 	ModifyGuildStorageRights(post + 1, rights);
@@ -1507,7 +1507,7 @@ void UMMOUIGuildMainPanel::ASUpdateGuildStorageRights(INT post)
 	UpdateGuildStorageRights(post + 1);
 }
 
-// 俸禄分配
+// Salary distribution
 void UMMOUIGuildMainPanel::ASDistributeSalary(UGFxObject* percent)
 {
 	DistributeSalary(percent);
@@ -1565,7 +1565,7 @@ void UMMOUIGuildMainPanel::ASChallenge(const FString& guildName)
 	ChallengeConfirm(guildName);
 }
 
-// 公会匹配战
+// Guild matchmaking war
 void UMMOUIGuildMainPanel::ASSearchGuild()
 {
 	CMessageHandler::GetInstance().Send_Search();
@@ -1576,7 +1576,7 @@ void UMMOUIGuildMainPanel::ASSetShowPage(int page, int subPage)
 	SetShowPage(page, subPage);
 }
 
-// 公会活动
+// guild activity
 void UMMOUIGuildMainPanel::ASGuildActivityClickOpen(INT activityId)
 {
 	if (activityId <= 0)
@@ -1619,9 +1619,9 @@ void UMMOUIGuildMainPanel::ASGuildActivityClickOpen(INT activityId)
 	text2 = FString::Printf(TEXT("<font color='#FF0000'>%d</font>"), data.SilverReq);
 	object->SetString(TEXT("silver"), baseInfo.Silver >= data.SilverReq ? text1 : text2);
 
-	// 前置建筑
+	// prerequisite building
 	UINT32 preBuildingLv = MMOGuildData::getSingleton().GetGuildBuildingMaxLevel(data.BuildingReq);
-	FString preBuildingName = TEXT("无");
+	FString preBuildingName = TEXT("None");
 	GuildBuildingData buildingData;
 	if (MMOGuildData::getSingleton().GetGuildBuildingData(data.BuildingReq, 0, buildingData))
 	{

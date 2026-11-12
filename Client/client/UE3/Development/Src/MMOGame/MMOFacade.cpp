@@ -226,7 +226,7 @@ void ClearMMOPlayerCtrl()
 //public:
 //	aaa()
 //	{ 
-//		MMO::Facade::CheckName(TEXT("e²tÍûcõÜõî—‰ØÌ£º£©¹pÈË1g"));
+//		MMO::Facade::CheckName(TEXT("e lookout c hesitating :) person 1g"));
 //	}
 //};
 //
@@ -452,7 +452,7 @@ void MMOFacade::UpdateScreenPixelFromWorld()
 
 UBOOL MMOFacade::GetScreenPixelFromWorld(FVector WorldPos,FVector2D& OutPos)
 {
-	//×îÐÂ·½Ê½£¬¿ìËÙ
+	//Newest method, fast
 	//if(ProjectView)
 	{
 		FPlane Result = MatViewProjOfLocalPlayer.TransformFVector4(FVector4(WorldPos,1));
@@ -470,7 +470,7 @@ UBOOL MMOFacade::GetScreenPixelFromWorld(FVector WorldPos,FVector2D& OutPos)
 	//return FALSE;
 
 
-	////´ÎÐÂ·½Ê½£¬ÍêÕû
+	////Second newest method, complete
 	//if(MainController){
 	//	ULocalPlayer* lp = Cast<ULocalPlayer>(MainController->Player);
 	//	if(lp)
@@ -482,7 +482,7 @@ UBOOL MMOFacade::GetScreenPixelFromWorld(FVector WorldPos,FVector2D& OutPos)
 	//return FALSE;
 
 
-	//ÀÏ·½Ê½
+	//Old method
 	//if(!Canvas)
 	//	return FALSE;
 
@@ -714,7 +714,7 @@ void RegisterMMOFontFile()
 
 			//// move it to config
 			//m_listFontEntry[0].Set(TEXT("AgeOfDawn (TrueType)"), TEXT("AgeOfDawn.ttf"));
-			//m_listFontEntry[1].Set(TEXT("·½Õý´ÖÔ²_GBK (TrueType)"), TEXT("·½Õý´ÖÔ²_GBK.ttf"));
+			//m_listFontEntry[1].Set(TEXT("FZCuYuan_GBK (TrueType)"), TEXT("FZCuYuan_GBK.ttf"));
 			//m_listFontEntry[2].Set(TEXT("AgeOfDawn (TrueType)"), TEXT("AgeOfDawn_1.ttf"));
 			//m_listFontEntry[3].Set(TEXT("AgeOfDawn (TrueType)"), TEXT("AgeOfDawn_1.ttf"));
 			//m_listFontEntry[4].Set(TEXT("AgeOfDawn (TrueType)"), TEXT("AgeOfDawn_1.ttf"));
@@ -955,7 +955,7 @@ extern UBOOL g_focusInTextInput;
 
 void OnMMOInit()
 {
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("³õÊ¼»¯ÓÎÏ·Êý¾Ý..."));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Initializing game data..."));
 
 	if (!GIsEditor)
 		UMMOKeyManager::getSingleton()->InitKeyManager();
@@ -1097,7 +1097,7 @@ void TickGameLogic_AfterViewportTick(FLOAT DeltaTime)
 
 //------------------------------------------------------------------------
 // if return true, the engine will not handle the message.
-UBOOL MMOPreHandleOSDeferMessage(UINT Message, WPARAM w, LPARAM l)	// ÒýÇædefer´¦ÀíÏà¹ØwindowsÏûÏ¢Ç°µ÷ÓÃ£¬zhaojun@snda
+UBOOL MMOPreHandleOSDeferMessage(UINT Message, WPARAM w, LPARAM l)	// Called before the engine defers handling of windows messages, zhaojun@snda
 {
 	SCOPE_CYCLE_COUNTER(STAT_MMOPreHandleOSDeferMessage);
 
@@ -1165,9 +1165,9 @@ UBOOL MMOPreHandleOSDeferMessage(UINT Message, WPARAM w, LPARAM l)	// ÒýÇædefer´
 }
 
 //------------------------------------------------------------------------
-void MMOPostHandleOSDeferMessage(UINT Message, WPARAM w, LPARAM l)	// ÒýÇædefer´¦ÀíÏà¹ØwindowsÏûÏ¢ºóµ÷ÓÃ£¬zhaojun@snda
+void MMOPostHandleOSDeferMessage(UINT Message, WPARAM w, LPARAM l)	// Called after the engine defers handling of windows messages, zhaojun@snda
 {
-	// ÔÝÊ±Ã»ÓÐÊ¹ÓÃ
+	// Not used for now
 }
 //------------------------------------------------------------------------
 //static UBOOL bSortPickedActors = FALSE;
@@ -1543,29 +1543,29 @@ void MMOFacade::Init()
 // 	BOOL nRetCode = g_InitReadDataScript(TCHAR_TO_UTF8(*cfgDir), READ_DATA_SCRIPT_NAME);
 // 	if(!nRetCode)
 // 	{
-// 		warnf(NAME_Error, TEXT("¼ÓÔØ¶ÁÈ¡ÅäÖÃÎÄ¼þLUAÊ§°Ü£¡"));		
+// 		warnf(NAME_Error, TEXT("Failed to load config file LUA!"));
 // 	}
 
 	warnf(NAME_Log, TEXT("Init UIManager"));
 	if(MMOUI::GetUIManager())
 	{
-		appSetSplashText(SplashTextType::StartupProgress, TEXT("³õÊ¼»¯UI¹ÜÀíÆ÷..."));
+		appSetSplashText(SplashTextType::StartupProgress, TEXT("Initializing UI manager..."));
 		MMOUI::GetUIManager()->InitUIManager();
 	}
 	
 	warnf(NAME_Log, TEXT("Init LoadStringMap"));
 
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("¼ÓÔØ±¾µØ»¯×Ö·û´®±í..."));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Loading localized string table..."));
 	//put it early
 	LoadStringMap();
 
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("³õÊ¼»¯ºÃÓÑÁÄÌì¹ÜÀí..."));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Initializing friend chat manager..."));
 	warnf(NAME_Log, TEXT("Init FriendChatManager"));
 	FriendChatManager::getSingleton().Init();
 
 	//new Network();
 	//Network::getSingleton().Init();
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("³õÊ¼»¯ÍøÂçÐ­ÒéÄ£¿é..."));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Initializing network protocol module..."));
 	warnf(NAME_Log, TEXT("Init MessageHandler"));
 	CMessageHandler::GetInstance().Init();
 
@@ -1577,7 +1577,7 @@ void MMOFacade::Init()
 	//Network::getSingleton().ConnectServer(
 	//	*(MainController->LoginServerIP), MainController->LoginServerPort);
 
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("³õÊ¼»¯ÓÎÏ·ÅäÖÃÊý¾Ý..."));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Initializing game config data..."));
 	//
 	// Load data templates
 	//
@@ -1598,14 +1598,14 @@ void MMOFacade::Init()
 	warnf(NAME_Log, TEXT("MMOSkillManager::getSingleton().Init()"));
 	MMOSkillManager::getSingleton().Init();
 	warnf(NAME_Log, TEXT("ReadWeaponRuneSkillData()"));
-	//¶ÁÈëÃúÎÄÅäÖÃ(ÐèÒªÏÈÏÈÓÚ_LoadItemTemplates)
+	//Read inscription config (must come before _LoadItemTemplates)
 	MMOEquipManager::getSingleton().ReadWeaponRuneSkillData();
 	// -----------------------------------
-	// oscar@snda ---- ±£ÁôÕâ¶ÎµÄË³Ðò²»±ä[
+	// oscar@snda ---- keep the order of this section unchanged [
 	warnf(NAME_Log, TEXT("_LoadItemTemplates"));
 	_LoadItemTemplates();
 
-	// ÕâÈý¸ö¶ÁÈ¡Ë³ÐòÓÐÒÀÀµ£¬²»ÄÜÐÞ¸Ä
+	// These three reads have order dependencies, do not modify
 	warnf(NAME_Log, TEXT("DoodadManager::getSingleton().Init()"));
  	DoodadManager::getSingleton().Init();	
 
@@ -1624,7 +1624,7 @@ void MMOFacade::Init()
 	warnf(NAME_Log, TEXT("MMOQuestManager::getSingleton().Init()"));
 	MMOQuestManager::getSingleton().Init();
 
-	// oscar@snda ---- ±£ÁôÕâ¶ÎµÄË³Ðò²»±ä]
+	// oscar@snda ---- keep the order of this section unchanged ]
 	// -----------------------------------
 
 	warnf(NAME_Log, TEXT("TeamManager::getSingleton().Init()"));
@@ -1642,7 +1642,7 @@ void MMOFacade::Init()
 	ScreenMessageQueue::getSingleton().Init();
 
 	warnf(NAME_Log, TEXT("MMOEquipManager::getSingleton().Init()"));
-	//»ñÈ¡ÎïÆ·Ç¿»¯ÐÅÏ¢(ÐèÒªÏÈÓÐÎïÆ·ÐÅÏ¢_LoadItemTemplates)
+	//Get item enhancement info (item info, _LoadItemTemplates, must exist first)
 	MMOEquipManager::getSingleton().Initialize();
 
 	warnf(NAME_Log, TEXT("MMOMapDataManager::getSingleton().Init()"));
@@ -1673,7 +1673,7 @@ void MMOFacade::Init()
 	//	for ( INT i = 0; i < teleportNodeCnt; ++i ){
 	//		pNode = nodesListInRegion(i);
 	//		if( lastSceneID != pNode->InSceneID ){
-	//			//µÚÒ»¼¶±íÏî£ºµØÍ¼Ãû
+	//			//First-level table entry: map name
 	//			lastSceneID = pNode->InSceneID;
 
 	//			FString mapName;
@@ -1732,7 +1732,7 @@ void MMOFacade::Init()
 	warnf(NAME_Log, TEXT("FriendChatManager::getSingleton().Init()"));
 	FriendChatManager::getSingleton().Init();
 		
-	//ÊôÐÔ±í¶ÁÈ¡ºó³õÊ¼»¯
+	//Initialize after attribute table is read
 	MMOAttributeAccountManager::getSingleton().Init();
 
 	warnf(NAME_Log, TEXT("InitClientActionInformationNotify"));
@@ -1798,7 +1798,7 @@ void MMOFacade::Init()
 	InGameStateFps = 0.0f;
 	InGameCalTimes = 0;
 
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("³õÊ¼»¯ÓÎÏ·Íê³É£¡"));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Game initialization complete!"));
 
 	warnf(NAME_Log, TEXT("MMOFacade::Init End!"));
 	MALLOC_PROFILER_GAME(GEngine->ExecMemFunctions(TEXT("MEM")););
@@ -1820,7 +1820,7 @@ void MMOFacade::SetCurVolumeAndSaveAudioConfig()
 
 	UAudioDevice* adioDv = GEngine->GetAudioDevice();
 	if( adioDv == NULL ){
-		// oscar@snda TODO£º²éÎªÊ²Ã´Ã»ÓÐ´´½¨³öÀ´
+		// oscar@snda TODO: find out why it was not created
 		return;
 	}
 	adioDv->VolumeTotal_op		= uimgr->bSoundAll;
@@ -1897,7 +1897,7 @@ void MMOFacade::SetDoorStates( std::bitset<64> tState )
 
 void MMOFacade::UpdateDoors()
 {
-	//±éÀú³¡¾°ÄÚµÄDoor
+	//Iterate over Doors in the scene
     TActorInstanceIterator< AMMOServerToggleDoorActor > it;
     while ( *it )
     {
@@ -1951,7 +1951,7 @@ void _LoadMMOAppName()
 	FString GameVer = FString::Printf(TEXT("%s - %d %s"), MMO_GAME_VER_DISPLAY, BUILD_NUMBER, (M_MMO_HD ? TEXT("HD") : TEXT("Lite")) ); // oscar@snda
 
 	//const FString Facade::MMOAppName = FString::Printf( TEXT( "%s [%s] (%s-bit, %s)" ), *GameName, *ChangeListID, *PlatformBitsString, *RHIName ); 
-	//Or ¿ÉÒÔÕâÑù
+	//Or it can be done this way
 	/*
 	TCHAR nowAppName[256];
 	::GetWindowText(GGameWindow,nowAppName,256);
@@ -2120,7 +2120,7 @@ void MMOFacade::Shutdown()
 	MMOEquipDataManager::getSingleton().Clear();
 	MMOItemDataManager::getSingleton().Clear();
 
-	// Óë³õÊ¼»¯·´Ïò
+	// Reverse of initialization
 	MMODoodadDropDataManager::getSingleton().Clear();
 	MMODropGroupDataManager::getSingleton().Clear();
 	DoodadManager::getSingleton().Clear();
@@ -2371,7 +2371,7 @@ void MMOFacade::TickLogic( FLOAT deltaTime )
 	ScreenMessageQueue::getSingleton().Update(deltaTime);
 }
 
-// ÉÏÃæÁ½¸ö´´½¨º¯Êý½«»á±»Õâ¸öº¯ÊýÌæ»»µô,Í³Ò»Íæ¼ÒÓënpcµÄ´´½¨Á÷³Ì
+// The two creation functions above will be replaced by this function, unifying the player and npc creation flow
 AMMOActor* MMOFacade::CreateCharacter(INT id, INT CharacterType, const FVector& initLoc, const FRotator& initRot)
 {
 	if (CharacterType == otRole || CharacterType == otHero)
@@ -2467,7 +2467,7 @@ UBOOL MMOFacade::IsMonsterOwnedByMe( AMMOActor *pActor ) const
 	return ( pActor->MasterName == pMainActor->ActorName );
 }
 
-// ´´½¨NPC,Èç¹ûÒÑ´æÔÚ,»á·µ»ØÒÑ´æÔÚµÄ¶ÔÏó
+// Create NPC, if it already exists, returns the existing object
 ANPC* MMOFacade::CreateNPC(INT Id, const FVector& initLoc, const FRotator& initRot)
 {
 	ANPC* NewActor = Cast<ANPC>(GetCharacter(Id));
@@ -2491,7 +2491,7 @@ ANPC* MMOFacade::CreateNPC(INT Id, const FVector& initLoc, const FRotator& initR
 		npc->SetServerLocation(initLoc);//zhaojun@snda //npc->ServerLocation = initLoc;
 		npc->setPhysics(PHYS_Walking);
 		npc->ServerID = Id;
-		//npc->ActorType = npc->Template->ActorType;//»¹Ã»ÓÐTemplate
+		//npc->ActorType = npc->Template->ActorType;//no Template yet
 		npc->SetMainController(MainController);
 		CharacterMap.insert(make_pair(Id, npc->GetIndex()));
 		////
@@ -2529,7 +2529,7 @@ AMMOEmitter* MMOFacade::CreateEmitter(INT Id, INT EmitterTemplateId)
 	if (missile == NULL)
 	{
 		M_AddDataError(TEXT("spell.txt"), FString::Printf(
-			TEXT("ÎÞ·¨ÕÒµ½×Óµ¯Ä£°å ID(%d)"), EmitterTemplateId));
+			TEXT("Cannot find bullet template ID(%d)"), EmitterTemplateId));
 		return NULL;
 	}
 
@@ -2806,7 +2806,7 @@ void MMOFacade::UpdatePlayerShowCount(FLOAT delta)
 			continue;
 		}
 
-		//ºËÊµroledata----------------
+		//Verify roledata----------------
 		AMMOPlayer* mmoPlayer = Cast<AMMOPlayer>(mmoActor);
 		if(mmoPlayer)
 		{
@@ -2816,7 +2816,7 @@ void MMOFacade::UpdatePlayerShowCount(FLOAT delta)
 				mmoPlayer->bSendRequestToServerToGetFullInfo = TRUE;
 			}
 		}
-		//ºËÊµroledata----------------
+		//Verify roledata----------------
 
 		EActorClassType actorType = (EActorClassType)mmoActor->GetActorType();
 		if(actorType!=EACT_OtherPlayer && actorType!=EACT_Pet)
@@ -2941,7 +2941,7 @@ void MMOFacade::UpdatePlayerShowCount(FLOAT delta)
 //	return ADoodad;
 //}
 
-// »ñÈ¡¶ÔÏó. NULL±íÊ¾²»´æÔÚ
+// Get object. NULL means it does not exist
 AMMOActor* MMOFacade::GetCharacter(INT Id)
 {
 	return Cast<AMMOActor>(GetActor(Id));
@@ -3023,7 +3023,7 @@ void MMOFacade::DestroyObject(INT Id, UBOOL bRemoveFromWorld, INT disappearType)
 	}
 
 	INT32 objType = GetTypeFromID( Id );
-	//Id4Î»ÓÃÀ´±ê¼ÇObjÀàÐÍ
+	//Id 4 bits are used to mark the Obj type
 
 	switch(objType)
 	{
@@ -3060,7 +3060,7 @@ void MMOFacade::DestroyObject(INT Id, UBOOL bRemoveFromWorld, INT disappearType)
 		}
 		break;
 
-	default://@todo ÆäËüÀàÐÍ	
+	default://@todo other types
 		{
 			AActor* actor = GetActor(Id);
 			if (actor && actor != MainController->Pawn)
@@ -3138,7 +3138,7 @@ void MMOFacade::DestroyObject(INT Id, UBOOL bRemoveFromWorld, INT disappearType)
 					}
 				}
 
-				//É¾³ýbuffÐÅÏ¢
+				//Delete buff info
 				MMOFacade::getSingleton().GetMMOBuffManager()->DeleteBuffByCharacterID(Id);
 				CharacterMap.erase(Id);
 				PlayerMap.erase(Id);
@@ -3171,7 +3171,7 @@ void MMOFacade::AddToCharacterMap(AMMOActor* actor, INT id)
 }
 
 
-//------------------------×¢Òâ´ËÇëÇóÈËÎï·Ç·þÎñÆ÷±Ø»ØµÄÇëÇó£¬²»ÒªÒÔ½ÓÊÜÕâ¸öÇëÇó»Ø°ü×÷Îª½â³ýÂß¼­×èÈûµÄÌõ¼þ------------------------------------------
+//------------------------Note this character request is not one the server must reply to; do not use receiving its reply as the condition to release logic blocking------------------------------------------
 PlayerBaseInfo* MMOFacade::RequestPlayerBaseInfo( INT roleID , BOOL forceRequest )
 {
 	INT CharType = GetTypeFromID(roleID);
@@ -3183,7 +3183,7 @@ PlayerBaseInfo* MMOFacade::RequestPlayerBaseInfo( INT roleID , BOOL forceRequest
 
 	if (roleID <= 0)
 	{
-		// 0µÄ»°·þÎñÆ÷»á»ã±¨
+		// If 0 the server will report
 		warnf(NAME_Error, TEXT("Invalide role id RequestPlayerBaseInfo:%d"), roleID);
 		return NULL;
 	}
@@ -3191,7 +3191,7 @@ PlayerBaseInfo* MMOFacade::RequestPlayerBaseInfo( INT roleID , BOOL forceRequest
 	PlayerBaseInfo* info = GetPlayerBaseInfo( roleID );
 	if( info )
 	{
-		//forceRequest£º²»¹ÜÊÇ·ñÓÐ±¾µØÐÅÏ¢£¬¶¼ÇëÇó£¬ÎªÁË»ñµÃ×îÐÂµÄÊý¾Ý£¨PlayerBaseInfoÓÐÐ©Êý¾ÝÅ¼¶û»á±ä£¬ÓÐÐ©Êý¾Ý²»»á±ä£©
+		//forceRequest: request regardless of local info, to get the latest data (some PlayerBaseInfo data occasionally changes, some does not)
 		if( forceRequest )
 		{
 			_PlayerBaseInfoRequestBuffMap.Set( roleID , info->_Crc );
@@ -3274,7 +3274,7 @@ void MMOFacade::TickPlayerInfoRequestTime( FLOAT deltaTime )
 			PlayerInfoRequestTime = 0.0f;
 			PlayerBaseInfoRequestInfoMap::TIterator itor(_PlayerBaseInfoRequestBuffMap);
 
-			//Õâ¸ö256ÊÇµÈ·þÎñÆ÷µÄºê
+			//This 256 is a macro waiting on the server
 			INT countLimit = (MAX_QUERY_ROLE_INFO_PER_SEC / 4) * 3;//256/2;
 			for( ; itor ; ++itor )
 			{
@@ -3511,7 +3511,7 @@ void MMOFacade::Teleport( INT sceneID, const FVector& initPos, INT yaw )
 
 	_initTeleportPos = initPos;
 
-	//¼ÇÂ¼µ±Ç°µØÍ¼
+	//Record current map
 	MMOMapDataManager::getSingleton().SetCurMap( sceneID );
 
 	//if (GetMainController()->Pawn && GetMainController()->Pawn->CylinderComponent)
@@ -3545,7 +3545,7 @@ void MMOFacade::Teleport( INT sceneID, const FVector& initPos, INT yaw )
 	CLEAR_WARN_COLOR();
 }
 //------------------------------------------------------------------------
-//µØÍ¼µã»÷ÒÆ¶¯
+//Map click movement
 UBOOL MMOFacade::PlayerMoveToScenePos( FExportMap &toMoveSceneInfo, FVector world3DPos )
 {
 	MMOMapDataManager *pMapDataMgr = &MMOMapDataManager::getSingleton();
@@ -3563,7 +3563,7 @@ UBOOL MMOFacade::PlayerMoveToScenePos( FExportMap &toMoveSceneInfo, FVector worl
 	//	return;
 	//}
 
-	////¸±±¾Óë¸±±¾¼ä²»ÄÜÑ°Â·
+	////Cannot pathfind between instances
 	//UBOOL isTargetMapDynamicScene = ( curWorldMapInfo.ServerMapType != E_est_Static && curWorldMapInfo.ServerMapType != E_est_Line );
 	//UBOOL isCurrentMapDynamicScene = ( curMapInfo.ServerMapType != E_est_Static && curMapInfo.ServerMapType != E_est_Line );
 	//UBOOL isSameScene = ( curMapInfo.ServerID == curWorldMapInfo.ServerID );
@@ -3580,7 +3580,7 @@ UBOOL MMOFacade::PlayerMoveToScenePos( FExportMap &toMoveSceneInfo, FVector worl
 		////UBOOL isHit = GWorld->SingleLineCheck( hitWorld, ctrl->Pawn, world3DPos, startPos, TRACE_AllBlocking );
 		//hitWorld = MMO::PickPoint(startPos, world3DPos, ctrl->Pawn);
 		//if( hitWorld ){
-		//	world3DPos.Z = hitWorld->Location.Z + 64;//ÒòÎª¸ñ×ÓÈ¡Õû
+		//	world3DPos.Z = hitWorld->Location.Z + 64;//because grid cells are rounded
 		//}
 
 		INT64 llSrcX = 0;
@@ -3672,7 +3672,7 @@ UBOOL MMOFacade::CheckPlayerBlock(FVector &lastPos,FVector &nowPos, AMMOActor* p
 	INT		BlockType	= MMOFacade::getSingleton().BlockType;
 	FLOAT	BlockRadius = MMOFacade::getSingleton().BlockRadius;
 
-	//ËùÓÐµÄ×èµ²Îï½øÐÐ±éÀúÉ¸Ñ¡
+	//Iterate and filter all blocking objects
 	FVector StartPos = lastPos+FVector(0.0,0.0,64.0);
 	FVector BuffPos  = nowPos-lastPos;
 	BuffPos.Normalize();
@@ -3697,7 +3697,7 @@ UBOOL MMOFacade::CheckPlayerBlock(FVector &lastPos,FVector &nowPos, AMMOActor* p
 		Hit = Hit->GetNext();
 	}
 
-	//°²È«ÇøÄÚÎÞ×èµ²
+	//No blocking inside the safe zone
 	if(MMOFacade::getSingleton().GetMainPlayer()->IsInSafeZone==TRUE)
 	{
 		return FALSE;
@@ -3714,10 +3714,10 @@ UBOOL MMOFacade::CheckPlayerBlock(FVector &lastPos,FVector &nowPos, AMMOActor* p
 
 
 
-	//ÔÝÊ±ÆÁ±ÎÈËÎïµÄ×èµ²
+	//Temporarily disable character blocking
 	//if(BlockType==0)
 	//{
-	//	//player±éÀú
+	//	//iterate players
 	//	STLInt2IntMap* PlayerMap = MMOFacade::getSingleton().GetPlayerMap();
 	//	STLInt2IntMap::iterator PlayerMapItor ;
 	//	for ( PlayerMapItor= PlayerMap->begin();  PlayerMapItor !=PlayerMap->end(); PlayerMapItor++ )
@@ -3749,7 +3749,7 @@ UBOOL MMOFacade::CheckPlayerBlock(FVector &lastPos,FVector &nowPos, AMMOActor* p
 	//	}
 	//}
 	//else if(BlockType==1){
-	//	//npc±éÀú
+	//	//iterate npcs
 	//	STLInt2IntMap* NpcMap = MMOFacade::getSingleton().GetCharacterMap();
 	//	STLInt2IntMap::iterator NpcMapItor ;
 	//	for ( NpcMapItor= NpcMap->begin();  NpcMapItor !=NpcMap->end(); NpcMapItor++ )
@@ -4183,7 +4183,7 @@ void MMOFacade::SetSceneDifficulty( INT sceneDifficulty )
 //	{
 //		TArray<FString>& ArrayString = ArrayString2D(i);
 //
-//		if ( 0 == i )//¼ì²é±êÌâÐÐ
+//		if ( 0 == i )//check header row
 //		{
 //			continue;
 //		}
@@ -4294,7 +4294,7 @@ void MMOFacade::AddItemTemplate( INT k ,UItem* node)
 	ItemTemplateMap::const_iterator i = _itemTemplateMap.find(k);
 	if(i != _itemTemplateMap.end())
 	{
-		M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("µÀ¾ßÖØ¸´:%d[%s]->[%s]"),
+		M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("Duplicate item: %d[%s]->[%s]"),
 			k, *node->GetDisplayName(), *i->second->GetDisplayName()));
 	}
 	else
@@ -4305,7 +4305,7 @@ void MMOFacade::AddItemTemplate( INT k ,UItem* node)
 
 		if(node->ItemType == TEXT("ITEMTYPE_INVALID"))
 		{
-			M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("item.txt"), TEXT("ÎÞÐ§µÄµÀ¾ßÀàÐÍ:ID[%d] Name[%s]"), k, *node->GetDisplayName()));
+			M_AddDataError(TEXT("item.txt"), FString::Printf(TEXT("item.txt"), TEXT("Invalid item type: ID[%d] Name[%s]"), k, *node->GetDisplayName()));
 		}
 	} 
 	MMOAuctionManager::getSingleton().AddAuctionItem(node);
@@ -4355,11 +4355,11 @@ FString MMOFacade::GetItemIconNamePersonalized( UItem *pItem, const ItemInfo *pI
 	AMMOActor* mainPlayer = GetMainActor();
 	UEquip *pEquip = Cast<UEquip>(pItem);
 	if(pEquip == NULL){
-		//²»ÊÇ×°±¸
+		//Not equipment
 		iconName = pItem->GetIconName( pItemInfo != NULL ? pItemInfo->m_nCurDur : 0 );
 	}
 	else{
-		//ÊÇ×°±¸
+		//Is equipment
 		INT actorSex = ( mainPlayer != NULL ? mainPlayer->GetClassId() : 0 );
 		actorSex = iconState != 0 ? iconState : actorSex;
 		iconName = pItem->GetIconName( actorSex );
@@ -4395,14 +4395,14 @@ inline
 //------------------------------------------------------------------------
 void MMOFacade::UpdateItemInfo(ItemInfo* src, FClientItemInfo* dest)
 {
-	appMemset(dest, 0, sizeof(ItemInfo)); // ²»Òª°Ñ¿Í»§¶ËµÄÊôÐÔÇå³ýÁË!
+	appMemset(dest, 0, sizeof(ItemInfo)); // Do not clear the client's attributes!
 
 	dest->m_nTemplateID = src->m_nTemplateID;
 	dest->m_byConSlot = src->m_byConSlot;
 	dest->m_byItemSlot = src->m_byItemSlot;
     if( dest->IsOnSale )
     {
-        //Èç¹ûÉÏ¼ÜÁË
+        //If listed
         dest->OriDur = src->m_nCurDur;
 	}
 	dest->m_nCurDur = src->m_nCurDur;
@@ -4421,9 +4421,9 @@ void MMOFacade::UpdateItemInfo(ItemInfo* src, FClientItemInfo* dest)
 		dest->m_dwSocketCombination = src->m_dwSocketCombination;
 		CopyMemory(&dest->m_nSoulID,src->m_nSoulID,sizeof(INT32) * MAX_SOCKET_COUNT);
         CopyMemory(&dest->m_wRandomAttrID,src->m_wRandomAttrID,sizeof(UINT16) * MAX_RANDOM_ATTR_COUNT);
-		//Öý»ê
+		//Soul casting
 		CopyMemory(&dest->m_wRune,src->m_wRune,sizeof(UINT16) * MAX_RUNE_COUNT);
-		//ÎäÆ÷Éý¼¶
+		//Weapon upgrade
 		//dest->m_byLevel = src->m_byLevel;
 		//dest->m_byLevelupPoint = src->m_byLevelupPoint;
 		dest->m_byLevelupPhyPoint = src->m_byLevelupPhyPoint;
@@ -4463,7 +4463,7 @@ void MMOFacade::UpdateItemInfo(ItemInfo* src, FClientItemInfo* dest)
 		*/
 	//}
 
-	// ³É¾ÍÏµÍ³
+	// Achievement system
 	MMOGameEvent_Achievement evtAch(adItemLuck, MMOEquipManager::getSingleton().CountEquipLuckTotal(), 0, 0);
 	MMOUI::PostGameEvent(&evtAch);
 }
@@ -4488,7 +4488,7 @@ void MMOFacade::UpdateItemDurability( INT conIdx, INT slotIdx, INT curDur )
 
 	case E_CONSLOT_DEPOSIT:
 		{
-			//Ö»ÓÃ¾­ÑéÆ¿ÓÃ£¬ÕâÀï¾Í²»ÅÐÎïÆ·ÀàÐÍÁË
+			//Only used by experience bottles, so item type is not checked here
 			INT changedValue = equippedItem->m_nCurDur - lastDur;
 			FString strHint = FString::Printf( *MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.ExpContainer.FullfillHint") ), changedValue );
 			MMOChatManager::getSingleton().AddSystemMessage( strHint );
@@ -4497,7 +4497,7 @@ void MMOFacade::UpdateItemDurability( INT conIdx, INT slotIdx, INT curDur )
 				FString errStrKey = TEXT("MMOGame.ExpContainer.IsFullHint");
 				MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( errStrKey ), MsgInfoType_Table, errStrKey );
 
-				//´¢ÖµÂúÁË×Ô¶¯Ð¶ÔØ
+				//Auto-unload when stored value is full
 				UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_Bag );
 				if( pBagPanel != NULL ){
 					pBagPanel->AutoUnloadCurExpContainer();
@@ -4524,7 +4524,7 @@ FClientItemInfo* MMOFacade::AddItem( ItemInfo* iteminfo , UBOOL showNew ,UBOOL n
 		if(i == container.end())
 		{
 			FClientItemInfo* newInfo = new FClientItemInfo;
-			//ÐÂ»ñµÃÎïÆ·±ê¼Ç 
+			//New item obtained marker
 			if( showNew && MMOUI::GetUIManager()->GetCurrentGameState() == EGameState_InGame &&  iteminfo->m_byConSlot < E_CONSLOT_COUNT )
 			{
 				//newInfo->IsNew = TRUE;
@@ -4543,7 +4543,7 @@ FClientItemInfo* MMOFacade::AddItem( ItemInfo* iteminfo , UBOOL showNew ,UBOOL n
 			UItem* item = FindItemTemplate(iteminfo->m_nTemplateID);
 			if (item)
 			{
-				//add by JimZhang 2015.4.10 Ä¿Ç°Ö»ÓÐ--------------------------------------
+				//add by JimZhang 2015.4.10 currently only --------------------------------------
 				Mir2Attack::getSingleton().UpdateItemSubType(newInfo, item);
 			}
 			return newInfo;
@@ -4635,7 +4635,7 @@ void MMOFacade::SwapItem(G2C_ITEM_SWAP& SwapInfo)
 		
 		if(iFrom != containerFrom.end() && iTo != containerTo.end())
 		{
-			// ½»»»
+			// Swap
 			std::swap(iFrom->second, iTo->second);
 			
 			iFrom->second->m_byConSlot = SwapInfo.bySrcConSlot;
@@ -4649,7 +4649,7 @@ void MMOFacade::SwapItem(G2C_ITEM_SWAP& SwapInfo)
 		}
 		else if(iFrom != containerFrom.end() && iTo == containerTo.end())
 		{
-			// ÒÆ¶¯£¨ÍÑÏÂ£©
+			// Move (unequip)
 			iTo = containerTo.insert(std::make_pair(SwapInfo.byDstItemSlot, iFrom->second)).first;
 			
 			iTo->second->m_byConSlot = SwapInfo.byDstConSlot;
@@ -4657,12 +4657,12 @@ void MMOFacade::SwapItem(G2C_ITEM_SWAP& SwapInfo)
 
 			containerFrom.erase(iFrom);
 
-			// Ô­À´µÄµØ·½¾ÍÉ¾³ýÁË
+			// The original place is deleted
 			NotifyItemDelete(SwapInfo.bySrcConSlot, SwapInfo.bySrcItemSlot);
 
 			NotifyItemChange(SwapInfo.byDstConSlot, SwapInfo.byDstItemSlot);
 		}
-		else // ²»ÄÜ´Ó¡°¿Õ¡±»»µ½¡°ÓÐ¡± »ò ¡°¿Õ¡±»»¡°¿Õ¡±
+		else // Cannot swap from "empty" to "occupied" or "empty" to "empty"
 		{
 			warnf(NAME_Error, TEXT("[Facade::SwapItem] Source item not found:[%d]-[%d] -> [%d]-[%d]"),
 				SwapInfo.bySrcConSlot, SwapInfo.bySrcItemSlot, SwapInfo.byDstConSlot, SwapInfo.byDstItemSlot);
@@ -5023,7 +5023,7 @@ void MMOFacade::AddSoldItem(ItemInfo* info)
 
 	debugf(TEXT("[Facade::UpdateOrAddSoldItem] [%d]"), _SoldItemList.Num() - 1);
 
-	// Ä¿Ç°ÊÇÒ»´ÎÐÔÈ«Í¨Öª¹ýÀ´
+	// Currently all notified at once
 	//NotifySoldItemChange(_SoldItemList.Num() - 1);
 }
 
@@ -5151,7 +5151,7 @@ INT MMOFacade::GetEmptyItemSlot(ECONTAINER_SLOT ContainerID) const
 		}
 	}
 
-	// ÕÒµ½µÚÒ»¸öÃ»Õ¼ÓÃµÄ
+	// Find the first unoccupied one
 	for (UINT16 i = 0; i < sz; ++i)
 	{
 		if(TestUsed(i) == FALSE)
@@ -5318,7 +5318,7 @@ void    MMOFacade::RunBlockCheck(AMMOActor* pBlockActor)
 	{
 		if (pBlockActor->CurBlockType>0 || pBlockActor->GetActorType() == EACT_Boss)
 		{
-			FLOAT Scope = (pBlockActor->CurBlockType>1)?40000.0:4096.0;//¿¼ÂÇµ½3*3µÄ×èµ²Îï
+			FLOAT Scope = (pBlockActor->CurBlockType>1)?40000.0:4096.0;//considering 3*3 blocking objects
 			FVector def = pBlockActor->ServerLocation - m_BlockPosition;
 			FLOAT Distance2 = def.SizeSquared2D();
 			if( Distance2 > Scope )return; // 64*64
@@ -5332,7 +5332,7 @@ void    MMOFacade::DoBlockCheck()
 {
 	if(m_BlockCheck)
 	{
-		if(m_BlockCheckRes==0)//·¢ÏÖÊÇÃ»ÓÐ×èµ²µÄnpcºÍplayer,Ôò½øÒ»²½¼ÓÒÔÅÐ¶¨
+		if(m_BlockCheckRes==0)//found an npc or player without blocking, then judge further
 		{
 			gServerGridWorld.RemoveAllActor(m_pBufGrid);
 			
@@ -5526,7 +5526,7 @@ void MMOFacade::AddMountList(INT MountID)
 	{
 		GetMainPlayer()->ActorAttributes->MountList.Push(MountID);
 
-		// ³É¾Í
+		// Achievement
 		MMOGameEvent_Achievement evtAch1(adSet, MountID, 0, 0);
 		MMOUI::PostGameEvent(&evtAch1);
 
@@ -5639,7 +5639,7 @@ void MMOFacade::SetMyCurrentMP( INT CurrentMP )
 	{
 		return;
 	}
-	//±»Ä¬ÈÏ³õÊ¼»¯Îª0
+	//Default initialized to 0
 	//if( GetMainPlayer()->ActorAttributes->MP != CurrentMP )
 	//{
 	GetMainPlayer()->ActorAttributes->MP = CurrentMP;
@@ -5674,16 +5674,16 @@ void MMOFacade::SetMyLevel(INT level)
 
 	MasterStudentManager::getSingleton().NotifyLevelChange(level);
 	
-	// Òýµ¼
+	// Guide
 	MMOGameEvent_Guide evtGuide(EGUET_LevelChange, level);
 	MMOUI::PostGameEvent(&evtGuide);
 
 	MMOSystemActivateManager::getSingleton().NotifyPlayerLevelChange(level);
 
-	//¾³½çpower
+	//Realm power
 	MMOPowerManager::getSingleton().UpdatePartPower(PowerPart_HeavenPow);
 
-	// ³É¾Í
+	// Achievement
 	MMOAchievementManager::getSingleton().NotifyPlayerLevelChange(lastLevel, level);
 	MMOJourneyManager::getSingleton().NotifyPlayerLevelChange(lastLevel, level);
 
@@ -5823,7 +5823,7 @@ void MMOFacade::NotifyPlayerPkModeChange()
 //------------------------------------------------------------------------
 void MMOFacade::NotifyOtherPlayerPkModeChange(AMMOPlayer* player, INT PkMode)
 {
-	//ÀÏ±ÀÔÚÕâÀï£¬²¢Ã»²Ù×÷
+	//Always crashes here, no operation
 	//UIHudProcess( OtherPlayerPkModeChange( player,PkMode ));
 }
 //------------------------------------------------------------------------
@@ -5832,7 +5832,7 @@ void MMOFacade::NotifyPlayerPkValueChange()
 	//MMOUI::GetUIManager()->delegateUpdateHintText(GetMainPlayer());
 	UIHudProcess( PlayerPkValueChange(GetMainPlayer()->ActorAttributes->PkValue));
 
-	// ³É¾Í
+	// Achievement
 	MMOGameEvent_Achievement evtAch(adPkValue, GetMainPlayer()->ActorAttributes->PkValue, 0, 0);
 	MMOUI::PostGameEvent(&evtAch);
 }
@@ -6008,7 +6008,7 @@ UBOOL MMOFacade::CheckEnoughMoney( EMONEY_TYPE moneyType , INT needMoney )
 			}
 			else
 			{
-				//°ó½ð²»×ã¿ÉÒÔ³¢ÊÔÈÃ·þÎñÆ÷ÅÐ¶ÏÁ¬´ø½»Ò×
+				//If bound gold is insufficient, can try letting the server judge the linked trade
 				return TRUE;
 			}		
 		}
@@ -6128,7 +6128,7 @@ void _LoadItemTemplates()
 	MMOEquipDataManager::getSingleton().InitFromFile(TEXT("item_armor.txt"), true);
 }
 
-//UI±íÏÖÉÏ¶Ô¼¼ÄÜµÄ¹éÀà
+//Ability categorization in the UI presentation
 INT MMOFacade::GetESUITypeByAbility( UMMOAbility *pAbility )
 {
 	return MMOSkillManager::getSingleton().GetESUITypeByAbility( pAbility );
@@ -6420,10 +6420,10 @@ void  MMOFacade::SetPlayerExp( INT CurrentExp,INT MaxExp ,INT todayExp , INT tod
 		return;
 	}
 
-	// ÒÆµ½ÍâÃæ
+	// Moved outside
 // 	INT expChange = CurrentExp - GetMainPlayer()->ActorAttributes->LevelAttributes.CurrentExp;
 // 
-// 	if(expChange > 0) // ÒÔºóÒªÊÇÓÐ¿Û¾­ÑéÖµµÄÔÙ¼ÓÐÂÌáÊ¾
+// 	if(expChange > 0) // Add a new prompt later if experience deduction is added
 // 	{
 // 		FString str = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Chat.SysExpChange"));
 // 		MMOChatManager::getSingleton().AddSystemMessage(FString::Printf(*str, expChange));
@@ -6464,7 +6464,7 @@ void  MMOFacade::NotifyPlayerExpChange(  INT CurrentExp,INT MaxExp,INT ChangeExp
 {
 	UIHudProcess( PlayerExpChange( CurrentExp, MaxExp, ChangeExp ) );
 
-	// ³É¾Í
+	// Achievement
 	MMOGameEvent_Achievement evtAch(adExperience, CurrentExp, 0, 0);
 	MMOUI::PostGameEvent(&evtAch);
 
@@ -6490,7 +6490,7 @@ void MMOFacade::SetPlayerMoney( G2C_SYNC_MONEY PlayerMoney )
 	{
 		SetPlayerMoney((EMONEY_TYPE)i, PlayerMoney.allMoneys[i]);
 
-		////ÐÂÔö´ú±ÒµÄÖÜÄ©»ñÈ¡Á¿ºÍÖÜÄ©×î´ó»ñÈ¡Á¿
+		////Add weekend gain and weekend max gain for tokens
 		//_PlayerMoney.anWeeklyMoney[i]		= PlayerMoney.anWeeklyMoney[i];
 		//_PlayerMoney.anWeeklyMoneyLimit[i]	= PlayerMoney.anWeeklyMoneyLimit[i];
 
@@ -6715,13 +6715,13 @@ void   MMOFacade::NotifyPlayerMoneyChange( EMONEY_TYPE MoneyType, INT64 Money , 
 	MMOGameEvent_UpdateMoney evtUpdateMoney((MONEY_TYPE)MoneyType, GetInt32(OldMoney), GetInt32(Money));
 	MMOUI::PostGameEvent(&evtUpdateMoney);
 
-	// ³É¾Í
+	// Achievement
 	MMOGameEvent_Achievement evtAch(adTotalMoneyType, MoneyType, Money, 0);
 	MMOUI::PostGameEvent(&evtAch);
 
 	MMOGuildManager::getSingleton().NotifyPlayerMoneyChange(MoneyType, Money-OldMoney);
 
-	//½ð±Ò½»Ò×ÐÐ
+	//Gold coin trading house
 	MMOGoldStoreManager::getSingleton().NotifyUpdatePlayerMoney();
 }
 //-------------------------------------------------------------------------------------
@@ -6914,7 +6914,7 @@ void MMOFacade::NotifyOtherPlayerMpChange( AMMOPlayer* player , INT mp )
 		return;
 	UIHudProcess( OtherPlayerMpChange( player,mp ) );
 }
-//¶ÓÎé³ÉÔ±Ãæ°å¸üÐÂ------------------------------------------------------------------------------
+//Team member panel update------------------------------------------------------------------------------
 //void MMO::Facade::NotifyUpdateMyTeam()
 //{
 //	UIHudProcess( UpdateMyTeam(  ) );
@@ -7031,7 +7031,7 @@ void MMOFacade::SetTeamMemberOnline( INT MemberServeId , BOOL Online , INT hasPo
 	}
 }
 
-//Í¨Öª¸üÐÂ¶ÓÓÑ-------------------------------------------------------------------------------------
+//Notify update of teammates-------------------------------------------------------------------------------------
 void MMOFacade::NotifyUpdateTeamMate( INT UIPos , INT Pos )
 {
 	UIHudProcess( UpdateTeamMate(  UIPos , Pos ) );
@@ -7050,14 +7050,14 @@ UBOOL MMOFacade::IsPlayerAttackable(const AMMOPlayer * Player1, const AMMOPlayer
 	//if(Player2->ActorAttributes->LevelAttributes.Level<=10)return FALSE;
 
 
-	//µÐ¶ÔÊÆÁ¦£¬Ö±½Ó¿É¹¥»÷
+	//Hostile faction, directly attackable
 	INT nForceRelative = ForceRelative[Player1->ActorAttributes->Faction][Player2->ActorAttributes->Faction];
 	if(nForceRelative<0)
 	{
 		return TRUE;
 	}
 
-	//È»ºóÔÙÅÐ¶¨²»Í¬³¡ºÏ
+	//Then judge different situations
 	switch(Player1->ActorAttributes->PkMode)
 	{
 	case rpmPeace: 
@@ -7135,11 +7135,11 @@ UBOOL MMOFacade::IsAttackable(const AMMOActor * Actor1, const AMMOActor* Actor2)
 		}
 	}
 
-	if(p1&&p2)//Íæ¼ÒÖ®¼ä
+	if(p1&&p2)//between players
 	{
 		return IsPlayerAttackable(p1,p2);
 	}
-	else if(p1&&n2)//Íæ¼ÒÓënpc
+	else if(p1&&n2)//player and npc
 	{
 		if(n2->dwHostID>0&&n2->GetActorType()==EACT_Pet)
 		{
@@ -7169,7 +7169,7 @@ UBOOL MMOFacade::IsAttackable(const AMMOActor * Actor1, const AMMOActor* Actor2)
 
 		return ( MMOFacade::getSingleton().GetPlayerReputation(p1, n2->ForceID)<0 );
 	}
-	else if(p2&&n1)//Íæ¼ÒÓënpc
+	else if(p2&&n1)//player and npc
 	{
 		if(n1->dwHostID>0)
 		{
@@ -7220,7 +7220,7 @@ UMMOAbility* MMOFacade::FindMyUsableSkill( INT mainSkillID )
 		return NULL;
 	}
 
-	////ÃúÎÄ¼¼ÄÜ
+	////Inscription ability
 	INT uniqueSkillID = 0;
 	INT runeSkillIdx = 0;
 	UBOOL isSkillActive = FALSE;
@@ -7286,7 +7286,7 @@ UBOOL MMOFacade::IsAbilityCanUse( UMMOAbility *toUseAbility )
 	//else{
 	//	const FSpell_LimitBitsType &actSta = toUseAbility->SpellCommonAttribute.CasterLimitBits;
 	//	if( actSta.bLimitBitsType2 || actSta.bLimitBitsType3 ){
-	//		//3·´»÷×´Ì¬ºÍ4ÒþÉí×´Ì¬
+	//		//3 counterattack state and 4 stealth state
 	//		isAbilityActive = FALSE;
 	//	}
 	//	else{
@@ -7297,7 +7297,7 @@ UBOOL MMOFacade::IsAbilityCanUse( UMMOAbility *toUseAbility )
 	return isAbilityActive;
 }
 
-//»ñÈ¡Ä³¸öForceIDµÄÉùÍûÖµ
+//Get the reputation value of a ForceID
 INT   MMOFacade::GetPlayerReputation(const AMMOPlayer* player, INT ForceID)
 {
 	if(player && player->ActorAttributes)
@@ -7307,7 +7307,7 @@ INT   MMOFacade::GetPlayerReputation(const AMMOPlayer* player, INT ForceID)
 	return 0;
 }
 
-//»ñÈ¡Ä³¸öForceIDµÄÊÇ·ñ¼¤»îÖµ
+//Get the activated value of a ForceID
 UBOOL   MMOFacade::GetPlayerActiveState(const AMMOPlayer* player, INT ForceID)
 {
 	if(player && player->ActorAttributes)
@@ -7326,7 +7326,7 @@ void MMOFacade::SetPlayerReputation(AMMOPlayer* player, INT Index,INT ForceID, I
 		UIHudProcess( UpdatePlayerReputation(player,ForceID,newReputation,lastReputation) );
 	}
 }
-//ÉèÖÃÄ³¸öForceIDµÄÊÇ·ñÁìÈ¡
+//Set whether a ForceID is claimed
 void MMOFacade::SetPlayerActiveState(AMMOPlayer* player, INT Index,INT ForceID, BOOL ActiveState)
 {
 	if(player && player->ActorAttributes)
@@ -7341,7 +7341,7 @@ void MMOFacade::SetPlayerAwardState(AMMOPlayer* player, INT Index,INT ForceID, B
 	{
 		player->ActorAttributes->SetAwardState(Index,ForceID, AwardState);
 
-		// Ç¿ÕßÖ®Â·
+		// Path of the Strong
 		MMOGameEvent_Journey evtJourney(MMOGameEvent_Journey::EJET_GetAwards, ForceID);
 		MMOUI::PostGameEvent(&evtJourney);
 	}
@@ -7395,7 +7395,7 @@ UBOOL MMOFacade::LoadStringMap()
 	int idx = tabFile->GetKeyColIdx(*lang);
 	if(idx == -1)
 	{
-		warnf(NAME_Error, TEXT("¶ÁÈ¡StringMap.txtÅäÖÃÎÄ¼þÊ±Î´ÕÒµ½¶ÔÓ¦µÄÓïÑÔÁÐ£º%s"), *lang);
+		warnf(NAME_Error, TEXT("Language column not found when reading StringMap.txt: %s"), *lang);
 		return FALSE;
 	}
 	int iSoundIndex = tabFile->GetKeyColIdx(TEXT("soundName"));
@@ -7534,7 +7534,7 @@ UBOOL MMOFacade::ReadAttributeConfig()
 		return FALSE;
 	}
 
-	//¼ÇÂ¼±êÌâµÄÓ³Éä
+	//Record the title mapping
 	BaseAttributeValueMap.Empty();
 	//TArray<FString>& ArrayStringTitle = ArrayString2D(0);
 	for ( INT k=2; k<tabFile->GetColCount(); k++ )
@@ -7549,7 +7549,7 @@ UBOOL MMOFacade::ReadAttributeConfig()
 	
 		
 	//vecAttribute2.Add(ArrayString2D.Num()-1);
-	//±êÌâÒÑ¾­´¦Àí
+	//Title already processed
 	for(INT i=0+1;i<tabFile->GetRowCount();i++)
 	{
 		INT len = tabFile->GetColCount();
@@ -7564,7 +7564,7 @@ UBOOL MMOFacade::ReadAttributeConfig()
 
 			Value.push_back(AttributeValue);
 		}
-		//²éÕÒ²Ù×÷½Ï¶à£¬ËùÒÔÎÒ°ÑÁ½¸ökeyÖµºÏ²¢ÆðÀ´£¬»á¿ìÐ©
+		//There are many lookups, so I merged the two key values, which is faster
 		INT key = CombineClassLevel(level,classID);
 		INT keyMax = INT(BaseAttributeValue.size());
 		//if(key<keyMax)
@@ -7716,7 +7716,7 @@ FString MMOFacade::ClientEnum2ServerEnum(const FString& ClientEnum, INT EscapeNu
 
 FString MMOFacade::FindClientEnumString( const FString& ServerEnum, const TCHAR* SerEnumType, INT EscapeNum ) 
 {
-	//Ò»ÕÅ¾²Ì¬×Ö·û¶ÔÓ¦±í£¬½ö´Ëº¯ÊýÊ¹ÓÃ
+	//A static character mapping table, used only by this function
 	static 	TMap<FString,FString> CSEnumMap;
 	const FString* pClientEnum = CSEnumMap.Find(ServerEnum);
 
@@ -7740,7 +7740,7 @@ FString MMOFacade::FindClientEnumString( const FString& ServerEnum, const TCHAR*
 	}
 	else
 	{
-		warnf(NAME_Log, TEXT("$$$$$$$$$$$$$$ Ã»ÓÐÕÒµ½Ã¶¾Ù:%s "), *ServerEnum );
+		warnf(NAME_Log, TEXT("$$$$$$$$$$$$$$ Enum not found: %s "), *ServerEnum );
 		return FString(TEXT(""));
 	}
 }
@@ -7761,7 +7761,7 @@ INT MMOFacade::FindClientEnumValue( const FString& ServerEnum, const TCHAR* SerE
 			}
 			else
 			{
-				warnf(NAME_Log, TEXT("############# Ã»ÓÐÕÒµ½Ã¶¾Ù:%s buf = %s"), *ServerEnum,*buf );
+				warnf(NAME_Log, TEXT("############# Enum not found: %s buf = %s"), *ServerEnum,*buf );
 			}
 		}
 		return Res;
@@ -7828,7 +7828,7 @@ UBOOL MMOFacade::ReadAttribute2Config()
 		return FALSE;
 	}
 
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	//static UEnum* Enum = FindObject<UEnum>(UServerEnum::StaticClass(), TEXT("ECHAR_ATTR_TYPE"), TRUE);
 	vecAttribute2.Add(tabFile->GetRowCount()-1);
 	for(INT i=0+2;i<tabFile->GetRowCount();i++)
@@ -7910,7 +7910,7 @@ UBOOL MMOFacade::ReadForceRelative()
 		return FALSE;
 	}
 
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	
 	vecAttribute2.Add(tabFile->GetRowCount()-1);
 	for(INT i=0+2;i<tabFile->GetRowCount();i++)
@@ -7919,7 +7919,7 @@ UBOOL MMOFacade::ReadForceRelative()
 		if(i-2 >= MAX_NPC_FORCE_ID)
 		{
 			M_AddDataError(TEXT("role_relation.txt"), FString::Printf(
-				TEXT("ÉùÍû±íÐÐÊý³¬³öMAX_NPC_FORCE_ID") ));
+				TEXT("Reputation table row count exceeds MAX_NPC_FORCE_ID") ));
 			break;
 		}
 
@@ -7927,7 +7927,7 @@ UBOOL MMOFacade::ReadForceRelative()
 			if(j-1 >= MAX_NPC_FORCE_ID)
 			{
 				M_AddDataError(TEXT("role_relation.txt"), FString::Printf(
-					TEXT("ÉùÍû±íÁÐÊý³¬³öMAX_NPC_FORCE_ID")));
+					TEXT("Reputation table column count exceeds MAX_NPC_FORCE_ID")));
 				break;
 			}
 			ForceRelative[i-2][j-1] = appAtoi(tabFile->GetData(j,i));
@@ -8010,7 +8010,7 @@ TArray<FString> MMO::SplitString( const std::wstring& str, const std::wstring& d
 	return ret;
 }
 
-//add by JimZhang ¶ÁÈ¡¶þÎ¬ÅäÖÃ±í,·µ»Ø¶þÎ¬FString
+//add by JimZhang read 2D config table, return 2D FString
 UBOOL MMOFacade::ReadConfigString( class CTabFile*& outTabFile, const TCHAR* ConfigName, bool needEmpty/* = false */, bool delQuotate/* = false */ )
 {
 	M_BeginLoadData(ConfigName);
@@ -8024,7 +8024,7 @@ UBOOL MMOFacade::ReadConfigString( class CTabFile*& outTabFile, const TCHAR* Con
 	FString baseDir = appBaseDir();
 	filePath = baseDir + TEXT("..\\..\\..\\..\\NewServer\\bin\\commonconfig\\setting\\") + ConfigName;
 
-	// Èç¹û·þÎñÆ÷ÅäÖÃÄ¿Â¼Ã»ÓÐ¾Í´Ó¿Í»§¶ËÅäÖÃÄ¿Â¼¶Á
+	// If the server config directory does not have it, read from the client config directory
 	if(GFileManager->FileSize(*filePath) <= 0)
 	{
 		filePath = appGameConfigDir() + ConfigName;
@@ -8047,15 +8047,15 @@ UBOOL MMOFacade::ReadConfigString( class CTabFile*& outTabFile, const TCHAR* Con
 	CTabFile* tabfile = new CTabFile();
 	if(!tabfile->Init(*filePath))
 	{
-		warnf(NAME_Error, TEXT("¶ÁÈ¡ÎÄ¼þ´íÎó£¬Çë¼ì²éÎÄ¼þÊÇ·ñÕýÈ·:%s"), *filePath);
-		appMsgf(AMT_OK, TEXT("¶ÁÈ¡ÎÄ¼þ´íÎó£¬Çë¼ì²éÎÄ¼þÊÇ·ñÕýÈ·:%s"), *filePath);
+		warnf(NAME_Error, TEXT("File read error, please check the file is correct: %s"), *filePath);
+		appMsgf(AMT_OK, TEXT("File read error, please check the file is correct: %s"), *filePath);
 		delete tabfile;
 		return FALSE;
 	}
 
 	if(tabfile->GetColCount() == 0 || tabfile->GetRowCount() == 0)
 	{
-		appMsgf(AMT_OK, TEXT("%s ²»ÄÜÕýÈ·¶ÁÈ¡µ½Êý¾Ý£¬Çë¼ì²éÎÄ¼þ¸ñÊ½±ØÐëÒÔUNICODEÎÄ±¾´æ´¢£¡"), *filePath);
+		appMsgf(AMT_OK, TEXT("%s: data could not be read correctly. Please check that the file is stored as UNICODE text!"), *filePath);
 		delete tabfile;
 		return FALSE;
 	}
@@ -8089,20 +8089,20 @@ class CTabFile* MMOFacade::ReadTabFile( const TCHAR* ConfigName )
 
 	if(!tabfileObj->Init(*fileName))
 	{
-		warnf(NAME_Error, TEXT("¶ÁÈ¡ÎÄ¼þ´íÎó£¬Çë¼ì²éÎÄ¼þÊÇ·ñÕýÈ·:%s"), ConfigName);
-		appMsgf(AMT_OK, TEXT("¶ÁÈ¡ÎÄ¼þ´íÎó£¬Çë¼ì²éÎÄ¼þÊÇ·ñÕýÈ·:%s"), ConfigName);
+		warnf(NAME_Error, TEXT("File read error, please check the file is correct: %s"), ConfigName);
+		appMsgf(AMT_OK, TEXT("File read error, please check the file is correct: %s"), ConfigName);
 		delete tabfileObj;
 		return NULL;
 	}
 
 	if(tabfileObj->GetColCount() == 0 || tabfileObj->GetRowCount() == 0)
 	{
-		appMsgf(AMT_OK, TEXT("%s ²»ÄÜÕýÈ·¶ÁÈ¡µ½Êý¾Ý£¬Çë¼ì²éÎÄ¼þ¸ñÊ½±ØÐëÒÔUNICODEÎÄ±¾´æ´¢£¡"), *fileName);
+		appMsgf(AMT_OK, TEXT("%s: data could not be read correctly. Please check that the file is stored as UNICODE text!"), *fileName);
 		delete tabfileObj;
 		return NULL;
 	}
 
-#if !SHIPPING_PC_GAME // oscar@snda ²âÊÔÎÈ¶¨ÁË¹ØµôÒÔÏÂ´úÂë
+#if !SHIPPING_PC_GAME // oscar@snda turn off the following code once testing is stable
 	FString testFile = fileName + TEXT(".txt");
 	FILE* testFP = _tfopen(*testFile, TEXT("wb+"));
 	UNICHAR BOM = UNICODE_BOM;
@@ -8128,7 +8128,7 @@ class CTabFile* MMOFacade::ReadTabFile( const TCHAR* ConfigName )
 	return tabfileObj;
 }
 
-//¶ÁÈ¡index
+//Read index
 INT MMOFacade::GetColumnIndex(TArray<FString>& ArrayString, FString KeyName)
 {
 	for(INT i=0;i<ArrayString.Num();i++)
@@ -8166,7 +8166,7 @@ HintConfig*  MMOFacade::GetHintInfo(EActorClassType ActorType,ENPC_QUALITY quali
 	else	return &NpcHintInfo[ActorType];
 }
 
-//¶ÁÈ¡Í·¶¥ÎÄ×ÖÅäÖÃÁÐ±í
+//Read overhead text config list
 UBOOL MMOFacade::ReadHint()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadHint"), 0);
@@ -8186,7 +8186,7 @@ UBOOL MMOFacade::ReadHint()
 	ZeroMemory(NpcQualityHintInfo,sizeof(NpcQualityHintInfo));
 	ZeroMemory(NpcHintInfo,sizeof(NpcHintInfo));
 
-	if(num>=13){//13´ú±íÒÔÏÂÐè¶ÁÈ¡13ÐÐReadHintNode
+	if(num>=13){//13 means the following 13 rows of ReadHintNode need to be read
 		INT i=1;
 		ReadHintNode(NpcQualityHintInfo[E_nq_Normal1], tabFile->GetData(0,i), appAtoi(tabFile->GetData(1,i)), appAtoi(tabFile->GetData(2,i)), appAtoi(tabFile->GetData(3,i)), appAtoi(tabFile->GetData(4,i)) );
 		i++;
@@ -8219,7 +8219,7 @@ UBOOL MMOFacade::ReadHint()
 }
 
 
-//¶ÁÈ¡µôÂä¹ì¼£±í
+//Read drop trajectory table
 extern FLOAT g_Trajectory[5][192][2];
 UBOOL MMOFacade::ReadTestDropTrace()
 {
@@ -8244,7 +8244,7 @@ UBOOL MMOFacade::ReadTestDropTrace()
 	return TRUE;
 }
 
-//¶ÁÈ¡TweenÁÐ±í
+//Read Tween list
 UBOOL MMOFacade::ReadTweenData()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadTweenData"), 0);
@@ -8260,7 +8260,7 @@ UBOOL MMOFacade::ReadTweenData()
 	}
 
 	_TweenDataMap.clear();
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	for (int i = 1; i < tabFile->GetRowCount(); ++i)
 	{
 
@@ -8317,7 +8317,7 @@ UBOOL MMOFacade::ReadTweenData()
 }
 
 
-//¶ÁÈ¡ÉùÍû±í
+//Read reputation table
 UBOOL MMOFacade::ReadReputation()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadReputation"), 0);
@@ -8381,7 +8381,7 @@ UBOOL MMOFacade::ReadReputation()
 		_TaoistAwardItemCount[i] = tabFile->GetKeyColIdx(*headName);
 	}
 
-	//ÈÎÎñ #14866
+	//Quest #14866
 	INT _InitValue				= tabFile->GetKeyColIdx( TEXT("InitValue"));
 	INT _MaxValue				= tabFile->GetKeyColIdx( TEXT("MaxValue"));
 
@@ -8413,7 +8413,7 @@ UBOOL MMOFacade::ReadReputation()
 				buf[ForceID]._TaoistAwardItemCount[j]	= 	appAtoi(tabFile->GetData(_TaoistAwardItemCount[j],i));
 			}
 
-			//ÈÎÎñ #14866
+			//Quest #14866
 			buf[ForceID].InitValue					=   appAtoi(tabFile->GetData( _InitValue,i));
 			buf[ForceID].MaxValue					=   appAtoi(tabFile->GetData( _MaxValue,i));
 		}
@@ -8445,7 +8445,7 @@ UBOOL MMOFacade::ReadReputation()
 				_ReputationTempArray(i)._TaoistAwardItemCount[j]	=	buf[ForceID]._TaoistAwardItemCount[j];
 			}
 
-			//ÈÎÎñ #14866
+			//Quest #14866
 			_ReputationTempArray(i).InitValue					=	buf[ForceID].InitValue;
 			_ReputationTempArray(i).MaxValue					=	buf[ForceID].MaxValue;
 		}
@@ -8456,7 +8456,7 @@ UBOOL MMOFacade::ReadReputation()
 }
 
 
-//¶ÁÈ¡ÉùÍû±í
+//Read reputation table
 UBOOL MMOFacade::ReadReputationTemp()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadReputationTemp"), 0);
@@ -8490,7 +8490,7 @@ UBOOL MMOFacade::ReadReputationTemp()
 
 	ZeroMemory(_CanAttackWithFreePkModeArray,sizeof(_CanAttackWithFreePkModeArray));
 	_ReputationTempArray.Empty();
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	for (int i = 1; i < tabFile->GetRowCount(); ++i)
 	{
 		ReputationTemp T;
@@ -8501,7 +8501,7 @@ UBOOL MMOFacade::ReadReputationTemp()
 		T.ForceName				=tabFile->GetData( _ForceName,i);
 		T.ForceVisible			=appAtoi(tabFile->GetData( _ForceVisible,i));
 		
-		//ÈÎÎñ #14866
+		//Quest #14866
 		//T.InitValue				=appAtoi(tabFile->GetData( _InitValue,i));
 		//T.MaxValue				=appAtoi(tabFile->GetData( _MaxValue,i));
 		
@@ -8518,7 +8518,7 @@ UBOOL MMOFacade::ReadReputationTemp()
 	delete tabFile;
 	return TRUE;
 }
-//¶ÁÈ¡mountÁÐ±í
+//Read mount list
 UBOOL MMOFacade::ReadMountData()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadMountData"), 0);
@@ -8549,7 +8549,7 @@ UBOOL MMOFacade::ReadMountData()
 	INT _Script					= tabFile->GetKeyColIdx( TEXT("Script"));
 
 	_MountDataMap.clear();
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	for (int i = 2; i < tabFile->GetRowCount(); ++i)
 	{
 		MountData T;
@@ -8582,7 +8582,7 @@ UBOOL MMOFacade::ReadMountData()
 	//{
 	//	return FALSE;
 	//}
-	////ÌÞ³ý±êÌâÐÐ
+	////Remove the header row
 	//for(INT i=0+1;i<ArrayString2D_Client.Num();i++)
 	//{
 	//	TArray<FString>& ArrayString = ArrayString2D_Client(i);
@@ -8651,13 +8651,13 @@ UBOOL MMOFacade::RefreshMountData()
 		UActorAttribute* p = GetMainPlayer()->ActorAttributes;
 		if(p)
 		{
-			//ÏÈÇå³ýËùÓÐµÄµÃµ½±êÖ¾
+			//First clear all obtained flags
 			for(MountDataMap::iterator iter=_MountDataMap.begin();iter!=_MountDataMap.end();iter++ )
 			{
 				iter->second.Have = FALSE;
 			}	
 
-			//ÖÃÉÏÒÑµÃ±êÖ¾
+			//Set the obtained flag
 			for(int i=0; i < p->MountList.Num(); ++i )
 			{
 				MountData* pMountData =  MMOFacade::getSingleton().GetMountData(p->MountList(i));
@@ -8672,7 +8672,7 @@ UBOOL MMOFacade::RefreshMountData()
 	return TRUE;
 }
 
-//¶ÁÈ¡³ÆºÅÁÐ±í
+//Read title list
 UBOOL MMOFacade::ReadTitle()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadTitle"), 0);
@@ -8713,7 +8713,7 @@ UBOOL MMOFacade::ReadTitle()
 	INT _HoverShow			= tabFile->GetKeyColIdx( TEXT("HoverShow"));
 
 	_TitleDataMap.clear();
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	for (int i = 2; i < tabFile->GetRowCount(); ++i)
 	{
 		TitleData T;
@@ -8742,7 +8742,7 @@ UBOOL MMOFacade::ReadTitle()
 		T.HoverShow				=appAtoi(tabFile->GetData( _HoverShow,i));
 
 		T.ValidTime = 0;
-		// 		T.Star = i%5+1;//ÐÇÊý²ß»®ÍüÅä£¬ÏÈÐ´À´²âÊÔ
+		// 		T.Star = i%5+1;//designer forgot to configure star count, write this for testing
 		_TitleDataMap.insert(std::make_pair(T.ID, T));
 
 	}
@@ -8750,7 +8750,7 @@ UBOOL MMOFacade::ReadTitle()
 	return TRUE;
 }
 
-//¶ÁÈ¡pkÖµ·Ö¼¶±ðÁÐ±í
+//Read pk value tier list
 UBOOL MMOFacade::ReadPkLevel()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("Facade::ReadPkLevel"), 0);
@@ -8766,7 +8766,7 @@ UBOOL MMOFacade::ReadPkLevel()
 	}
 
 	vecPkLevel.Init( tabFile->GetRowCount()-1 );
-	//ÌÞ³ý±êÌâÐÐ
+	//Remove the header row
 	for(INT i=0+1;i<tabFile->GetRowCount();i++)
 	{
 		//TArray<FString>& ArrayString = ArrayString2D(i);
@@ -8821,19 +8821,19 @@ UBOOL MMOFacade::UpdateTitleArray()
 	return TRUE;
 }
 
-//»ñÈ¡Ò»¸ö¼¼ÄÜµÄÏÂÒ»¼¶
+//Get the next level of an ability
 UMMOAbility *MMOFacade::GetAbilityByNextLevel( UMMOAbility *ability )
 {
 	return MMOSkillManager::getSingleton().GetAbilityByNextLevel( ability );
 }
 
-//»ñÈ¡Ò»¸ö¼¼ÄÜµÄÏÂÒ»¼¶(´ø·ûÎÄ)
+//Get the next level of an ability (with rune)
 UMMOAbility *MMOFacade::GetAbilityWithRuneByNextLevel( UMMOAbility *ability )
 {
 	return MMOSkillManager::getSingleton().GetAbilityWithRuneByNextLevel( ability );
 }
 
-//È¡µÃÖ¸¶¨idµÄËæ»úÊôÐÔ
+//Get the random attribute of the specified id
 const ItemRandomAttr* MMOFacade::GetRandomAttributById( int id )
 {
 	Int2ItemAttrMap::iterator iter =RandomAttributesMap.find(id);
@@ -8911,14 +8911,14 @@ INT MMOFacade::IsSameClassRandomAttributeBetter( const ItemRandomAttr* pAttr, co
 	return isBetter;
 }
 
-//¶ÁÈ¡Ëæ»úÊôÐÔ
+//Read random attributes
 UBOOL MMOFacade::ReadRandomAttribute()
 {
     //TArray<TArray<FString>> ArrayString2D;
 //#if 0 // TABFILE
 	CTabFile* tabFile = NULL;
 	if(!MMOFacade::getSingleton().ReadConfigString( tabFile, TEXT("attribute.txt"), TRUE ) )
-    //ÌÞ³ý±êÌâÐÐ
+    //Remove the header row
     //if(!ReadConfigString( ArrayString2D, TEXT("attribute.txt"), true, true))
     {
         return FALSE;
@@ -8938,7 +8938,7 @@ UBOOL MMOFacade::ReadRandomAttribute()
         //TArray<FString>& ArrayString = ArrayString2D(i);
 		UINT len = tabFile->GetColCount(); // ArrayString.Num();
 			
-		//Õâ¸öÅäÖÃ±íÏîÌîµÄÌØÊâ ÏÈ´¦ÀíÏÂ
+		//This config table entry is filled in specially, handle it first
 		//attr.formatType = (ECHAR_MODIFIER_INDEX)FindClientEnumValue(ClientEnum2ServerEnum(strEnum+ArrayString(1)), TEXT("ECHAR_MODIFIER_INDEX"));
 		attr.formatType = (ECHAR_MODIFIER_INDEX)FindClientEnumValue(ClientEnum2ServerEnum(strEnum+tabFile->GetData(TEXT("Key"),i)), TEXT("ECHAR_MODIFIER_INDEX"));
 		if(attr.formatType == E_cmi_AllNpcSpecies )
@@ -9020,7 +9020,7 @@ INT MMOFacade::GetEquipNpcPrice( UItem *pItem, const ItemInfo *pItemInfo )
 		break;
 	case DURTYPE_EQUIP:
 		{
-			//Ëæ»úÊôÐÔ
+			//Random attribute
 			for( INT i = 0; i < MAX_RANDOM_ATTR_COUNT; ++i ){
 				if( pItemInfo->m_wRandomAttrID[i] != 0 ){
 					const ItemRandomAttr* propAttr = GetRandomAttributById( pItemInfo->m_wRandomAttrID[i] );
@@ -9032,7 +9032,7 @@ INT MMOFacade::GetEquipNpcPrice( UItem *pItem, const ItemInfo *pItemInfo )
 				}
 			}
 
-			//ÈÚÁéÊôÐÔ
+			//Spirit fusion attribute
 			for( INT i = 0; i < MAX_SOCKET_COUNT; ++i ){
 				if( pItemInfo->m_nSoulID[i] != 0 ){
 					const SoulInfo *pSoulInfo = mmoEquipMgr.FindSoulInfoByItemTemplateID( pItemInfo->m_nSoulID[i] );
@@ -9052,22 +9052,22 @@ INT MMOFacade::GetEquipNpcPrice( UItem *pItem, const ItemInfo *pItemInfo )
 				}
 			}
 
-			//Öý»êÊôÐÔ
+			//Soul casting attribute
 			for( INT i = 0; i < MAX_RUNE_COUNT; ++i ){
 				if( pItemInfo->m_wRune[i] != 0 ){
 					npcSellPrice += RUNE_SELL_PRICE;
 				}
 			}
 
-			//ÐÒÔË¡¢×çÖä
+			//Luck, curse
 			npcSellPrice += pItemInfo->m_byLuck;
 
-			//Éý¼¶ÊôÐÔ
+			//Upgrade attribute
 			npcSellPrice += pItemInfo->m_byLevelupPhyPoint * 100;
 			npcSellPrice += pItemInfo->m_byLevelupMagPoint * 100;
 			npcSellPrice += pItemInfo->m_byLevelupTaoPoint * 100;
 
-			//ÄÍ¾Ã¶È
+			//Durability
 			//npcSellPrice = npcSellPrice * 9 *  pItemInfo->m_nCurDur / 10 / defualtItemDur + npcSellPrice / 10;
 			
 			FLOAT dur = (FLOAT)pItemInfo->m_nCurDur / (FLOAT)defualtItemDur;
@@ -9144,7 +9144,7 @@ UBOOL MMO::IsForAllPlayerClass(FSpell_ClassType classType)
 		&& classType.bClassType2 == 1
 		&& classType.bClassType3 == 1
 		&& classType.bClassType4 == 1
-		&& classType.bClassType6 == 1; // µÀÊ¿
+		&& classType.bClassType6 == 1; // Taoist
 }
 
 
@@ -9290,11 +9290,11 @@ FBMemberAwardData* MMOFacade::SetFBAward( const G2C_DUNGEON_REWARD &data )
 
 	//
 	UINT uIdx = pFbAward->m_uiFBAwardCount;
-	if( data.byRewardType <= 100 ){//ÕâÊÇÇ®
+	if( data.byRewardType <= 100 ){//this is money
 		pFbAward->m_Award[uIdx].uiItemCnt = data.dwRewardCount;
 		
 	}
-	else{//ÕâÊÇ×°±¸
+	else{//this is equipment
 		pFbAward->m_Award[uIdx].uiItemCnt = data.dwRewardCount;
 	}
 	pFbAward->m_Award[uIdx].isValid = TRUE;
@@ -9322,12 +9322,12 @@ void MMOFacade::ResetFBAward()
 			_FBMemberAward[i].m_Award[j].isValid = FALSE;
 		}
 	}
-	//ÏÈ°ÑµÚÒ»ÏîÕ¼ÁË
+	//First occupy the first entry
 	AMMOPlayer* pl = GetMainPlayer();
 	_FBMemberAward[0].m_uiMemberID = pl->ServerID;
 }
 
-//µÚÒ»ÏîÎª×Ô¼º£¬¼´iIdxÎª0Ê±
+//The first entry is self, i.e. when iIdx is 0
 FBMemberAwardData* MMOFacade::GetFBAward( INT iIdx )
 {
 	INT iSize = sizeof(_FBMemberAward)/sizeof(FBMemberAwardData);
@@ -9360,7 +9360,7 @@ FBMemberAwardData* MMOFacade::GetFBAwardByRoleID( UINT uiIdx )
 
 void MMOFacade::SetContainerSize(UINT8 inContainerSize[CONSLOT_COUNT])
 {
-    //½«±¾µØµÄContainerÒ²½øÐÐÒ»´Î³õÊ¼»¯ Ä¬ÈÏÎª0 
+    //Also initialize the local Container, default 0
     appMemset( ContainerSize, 0, sizeof(UINT8) * E_CONSLOT_MAX );
     appMemcpy( ContainerSize, inContainerSize, sizeof(UINT8) * CONSLOT_COUNT );
 }
@@ -9437,7 +9437,7 @@ INT MMOFacade::GetBagEmptySlotCount()
 }
 
 //=======================================================================
-//Ê±¼ä
+//Time
 void MMOFacade::SetEnterSceneServerTime( UINT32 serverTime )
 { 
 	EnterSceneServerUtcTime = serverTime;
@@ -9493,12 +9493,12 @@ UINT32 MMOFacade::ConvertSystemTimeToTmTSecond( _SYSTEMTIME systemTime )
 //
 UINT32 MMOFacade::GetRealClientUTCTime()
 {
-	//µ±Ç°±¾µØÊ±¼ä
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	UINT32 curTimeSec = ConvertSystemTimeToTmTSecond( curTime );
 
-	//±¾µØÓë·þÎñÆ÷µÄÊ±¼ä²î
+	//Time difference between local and server
 	INT32 secDiff = GetClientToSceneSecondDiff();
 	UINT32 newTime = ( ( secDiff > 0 ) ? ( curTimeSec + (UINT32)secDiff ) : ( (UINT32)( curTimeSec - (UINT32)( -secDiff) ) ) );
 
@@ -9513,7 +9513,7 @@ SYSTEMTIME MMOFacade::GetRealClientTime()
 	return realCurTime;
 }
 /*
-Õý³£ÓÎÏ·Ì¬µÄÖ¡ÂÊ 
+Frame rate in normal game state
 */
 void MMOFacade::AddNewGameStateFPSData(INT nFps)
 {
@@ -9523,7 +9523,7 @@ void MMOFacade::AddNewGameStateFPSData(INT nFps)
 }
 void MMOFacade::ResetGameSateFps()
 {
-	//Ö»ÖØÖÃÒ»°ë´ÎÊý ±ÜÃâ´ÎÊý¹ý´ó
+	//Only reset half the count to avoid the count getting too large
 	InGameCalTimes &= 0x000000FF;
 	InGameCalTimes = (InGameCalTimes>>1);
 }
@@ -9575,7 +9575,7 @@ class UMMOUIBase* MMOUI::FindUIPanelEx( FName panelName )
  
  		if(!g_rootGFXPlayer->LoadViewByName(panelName))
  		{
- 			warnf(NAME_Warning, TEXT("MMOUI::FindUIPanelEx Ã»ÓÐ´ÓÐÂµÄ¼ÓÔØ·½Ê½ÖÐÕÒµ½UI:%s"), *panelName.ToString());
+ 			warnf(NAME_Warning, TEXT("MMOUI::FindUIPanelEx did not find the UI in the new loading method: %s"), *panelName.ToString());
 		//UMMOGFXPlayer* Player = MMOUI::FindMoviePlayer( PlayerName );
 
 		AMMOHud* HUD = MMOFacade::getSingleton().GetMyHud();
@@ -9633,7 +9633,7 @@ void MMOUI::SetPanelToMoviePlayer(FName PanelName, FName MoverPlayerName)
 {
 	if(PanelToMoviePlayers.HasKey(PanelName))
 	{
-		warnf(NAME_Error, TEXT("MMOUI::SetPanelToMoviePlayer ÓÐ¼üÖµ³åÍ»£¬Ó¦¸ÃÊÇ»»ÐÂUI¼ÓÔØºóµÄÎÊÌâ£¬ÇëÐÞÕý´úÂë: %s -> %s"),
+		warnf(NAME_Error, TEXT("MMOUI::SetPanelToMoviePlayer key conflict, probably an issue after switching to the new UI loading. Please fix the code: %s -> %s"),
 			*MMOUI::FindMoviePlayerName(PanelName).ToString(), *MoverPlayerName.ToString());
 	}
 
@@ -9682,7 +9682,7 @@ void MMOUI::LoadMoviePlayers(class AMMOHud* HUD,FName PlayerClassName)
 				{
 					MoviePlayer->Init();
 					MoviePlayer->PostInit();
-					warnf(NAME_Warning, TEXT("MMOUI::LoadMoviePlayers ¼æÈÝ¼ÓÔØ¾ÉµÄC++ MoviePlayer£¬µ«²ÉÓÃÐÂµÄFLASH UPK×ÊÔ´£º%s"), *MovePlayerClass->GetName());
+					warnf(NAME_Warning, TEXT("MMOUI::LoadMoviePlayers loaded the old C++ MoviePlayer for compatibility, but using the new FLASH UPK resource: %s"), *MovePlayerClass->GetName());
 				}
 			}
 
@@ -9726,7 +9726,7 @@ void MMOUI::CloseMoviePlayers(class UMMOGFXPlayer* Player)
 	{
 		UMMOGFXPlayer* pMMOGfxPlayer = Player;
 		if(pMMOGfxPlayer){
-			//pMMOGfxPlayer->UnInit(); // Í³Ò»×ßOnCloseµ÷ÓÃ 
+			//pMMOGfxPlayer->UnInit(); // handled uniformly via OnClose
 			pMMOGfxPlayer->Close();
 			DeleteMoviePlayer(HUD, pMMOGfxPlayer);
 			//HUD->eventDeleteMoviePlayer(pMMOGfxPlayer);
@@ -9784,7 +9784,7 @@ void MMOUI::LoadAllMoviePlayers(class AMMOHud* HUD, class ULocalPlayer* LocPlay)
 				UMMOGFXPlayer_RootBase* rootGFXPlayer = Cast<UMMOGFXPlayer_RootBase>(MoviePlayer);
 				if(rootGFXPlayer)
 				{
-					// ÐÂµÄMoviePlayer²»×ßRegisterEnd»Øµ÷½øÐÐ³õÊ¼»¯
+					// The new MoviePlayer does not initialize through the RegisterEnd callback
 					g_rootGFXPlayerList.AddItem(rootGFXPlayer);
 					MoviePlayer->Init();
 					MoviePlayer->PostInit();
@@ -9795,10 +9795,10 @@ void MMOUI::LoadAllMoviePlayers(class AMMOHud* HUD, class ULocalPlayer* LocPlay)
 				{
 					MoviePlayer->Init();
 					MoviePlayer->PostInit();
-					warnf(NAME_Warning, TEXT("¼æÈÝ¼ÓÔØ¾ÉµÄC++ MoviePlayer£¬µ«²ÉÓÃÐÂµÄFLASH UPK×ÊÔ´£º%s"), *MovePlayerClass->GetName());
+					warnf(NAME_Warning, TEXT("Loaded the old C++ MoviePlayer for compatibility, but using the new FLASH UPK resource: %s"), *MovePlayerClass->GetName());
 				}
 
-				//DebugÊ±£¬Ö±½ÓÏÔÊ¾ ·ÇDebug×´Ì¬ÏÂ¹Ø±Õ
+				//Show directly when Debug, close when not Debug
 				MoviePlayer->ShowAllUI(/*FALSE*/debugUI );
 				//MoviePlayer->Init();
 
@@ -10035,7 +10035,7 @@ void MMOUI::GetEquippedSlotByEquipType(INT EquipType, INT& tConSlot, INT& tItemS
 
 	//if( EquipType <= EET_Normal_Count )
 	
-	// ÕâÀïÎªÊ²Ã´ÒªÕâÑùÈ¥È¡Slot£¿
+	// Why get the Slot this way here?
 		//if( MMOUI::GetTopmostSlotContainer())
 		//{
 			//tConSlot = MMOUI::GetTopmostSlotContainer()->GetSlotType();
@@ -10147,16 +10147,16 @@ void MMOUI::ShowInGameUI(bool show)
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("MenuBar"), TRUE, "");
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("TeamMate"), TRUE, "");
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("DamageLevel"), TRUE, "");
-//		//MMOUI::GetUIManager()->ShowPanel(TEXT("BattleState"), TRUE, "");	//ÔÝÊ±×¢ÊÍµô£¬³Â¿­ÒªÇóµÄ
+//		//MMOUI::GetUIManager()->ShowPanel(TEXT("BattleState"), TRUE, "");	//commented out for now, requested by Chen Kai
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("HintButtonBar"), TRUE, "");	
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("MsgButtonBar"), TRUE, "");	
 //		MMOUI::GetUIManager()->ShowPanelEx( MMOUI::GetUIManager()->Panel_Friend_FriendChatHint , TRUE, "");
 //		MMOUI::GetUIManager()->delegateShowHintSceneWidget();
 //
-//		//ÏÔÊ¾ÉËº¦ÅÐ¶Ïui
+//		//Show damage judgment ui
 //		MMOUI::GetUIManager()->ShowHurtPanel(MMOUI::GetUIManager()->DrawHurt);
 //
-//		//skillbar×îºóshow£¬ÒòÎª×îºóshowµÄ»áÉèÖÃfocusplayer£¬ÏìÓ¦¼üÅÌ
+//		//Show skillbar last, because the last shown sets focusplayer and responds to the keyboard
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("Skillbar"), TRUE, "");
 //		MMOUI::GetUIManager()->ShowPanelEx(TEXT("DropItemTips"), TRUE, "");
 //		MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_QuestTrace, TRUE, "");
@@ -10289,7 +10289,7 @@ INT MMOUI::FindMsgTypeByLocalString(const FString& PathName)
 	}
 	return value->msgInfoType;
 }
-//½¹µãÏµÁÐ´¦Àí add by JimZhang@snda.com-------------------------------------------------------------------------------------------------------
+//Focus series handling add by JimZhang@snda.com-------------------------------------------------------------------------------------------------------
 void MMOUI::OnFocusGained(class UMMOUIBase* Panel)
 {
 	//PanelQueue::iterator i = std::find(g_PanelQueue.begin(), g_PanelQueue.end(), Panel);
@@ -10301,7 +10301,7 @@ void MMOUI::OnFocusGained(class UMMOUIBase* Panel)
 
 	//if(Panel && Panel->GFXPlayer && Panel->GFXPlayer->bAllowFocus && Panel->CanMoveTop )
 	//{
-	//	// Ö»ÉèÖÃÄÜ½ÓÊÕ½¹µãµÄMOVIE
+	//	// Only set MOVIEs that can receive focus
 	//	g_PanelQueue.push_back(Panel);
 	//	g_PanelQueueMap.Set(Panel->FriendlyName, Panel);
 	//}
@@ -10309,7 +10309,7 @@ void MMOUI::OnFocusGained(class UMMOUIBase* Panel)
 
 void MMOUI::OnFocusLost(class UMMOUIBase* Panel)
 {
-	//²»ÓÃ×öÊ²Ã´£¬Ë³Ðò·ûºÏ×ÔÈ»Ë³Ðò
+	//Nothing to do, the order follows natural order
 }
 
 //void MMOUI::OnFocusClose(class UMMOUIBase* Panel)
@@ -10333,7 +10333,7 @@ void MMOUI::SetOptimizationFocus(class UMMOUIBase* Panel)
 {
 	//if(!g_PanelQueue.empty())
 	//{
-	//	// Ö»ÉèÖÃÄÜ½ÓÊÕ½¹µãµÄMOVIE
+	//	// Only set MOVIEs that can receive focus
 	//	INT num = g_PanelQueue.size();
 	//	for(INT j=num-1;j>=0;j--)
 	//	{
@@ -10350,7 +10350,7 @@ void MMOUI::SetOptimizationFocus(class UMMOUIBase* Panel)
 // 	if(!g_PanelList.empty())
 // 	{
 // 		PanelList panelList = g_PanelList;
-// 		// Ö»ÉèÖÃÄÜ½ÓÊÕ½¹µãµÄMOVIE
+// 		// Only set MOVIEs that can receive focus
 // 		INT num = g_PanelList.size();
 // 		PanelList::reverse_iterator iter = panelList.rbegin(); // .find(num-1);
 // 		for(;iter!=panelList.rend(); ++iter)
@@ -10383,8 +10383,8 @@ void MMOUI::MoveToTop(class UMMOUIBase* Panel)
 
 	if(Panel->GFXPlayer && Panel->GFXPlayer->bAllowFocus && Panel->CanMoveTop && Panel->PanelAllowFocus)
 	{
-		// TODOUI: ¼ì²éµÚ2¸ö²ÎÊýÊÇ·ñÒª´«
-		// Ö»ÉèÖÃÄÜ½ÓÊÕ½¹µãµÄMOVIE
+		// TODOUI: Check whether the second parameter needs to be passed
+		// Only set MOVIEs that can receive focus
 		//FGFxEngine::GetEngine()->SetFocusMovie(Panel->GFXPlayer->pMovie/*, Panel->FriendlyName*/);
 	}
 
@@ -10400,7 +10400,7 @@ void MMOUI::MoveToTop(class UMMOUIBase* Panel)
 	}
 	if(Panel && Panel->GFXPlayer && Panel->GFXPlayer->bAllowFocus && Panel->CanMoveTop && Panel->PanelAllowFocus)
 	{
-		// Ö»ÉèÖÃÄÜ½ÓÊÕ½¹µãµÄMOVIE
+		// Only set MOVIEs that can receive focus
 		if(Panel->FriendlyName == NAME_None)
 		{
 
@@ -10457,7 +10457,7 @@ void MMOUI::RemoveTop(class UMMOUIBase* Panel)
 
 	//if(!g_PanelQueue.empty())
 	//{
-	//	// Ö»ÉèÖÃÄÜ½ÓÊÕ½¹µãµÄMOVIE
+	//	// Only set MOVIEs that can receive focus
 	//	//FGFxEngine::GetEngine()->SetFocusMovie(
 	//	//	g_PanelQueue.back()->GFXPlayer->bAllowFocus ? g_PanelQueue.back()->GFXPlayer->pMovie : NULL);
 
@@ -10529,7 +10529,7 @@ class UMMOUIBaseSlotContainer* MMOUI::GetTopmostSlotContainer()
 	return NULL;
 }
 
-//½¹µãÏµÁÐ´¦Àí add by JimZhang@snda.com-------------------------------------------------------------------------------------------------------
+//Focus series handling add by JimZhang@snda.com-------------------------------------------------------------------------------------------------------
 
 class UMMOUIBase* MMOUI::GetFocusPanel()
 {
@@ -10633,7 +10633,7 @@ EGameState MMO::GetCurrentGameState()
 void MMO::AddGameState(class UMMOGameState* st)
 {
 	g_gameStatesMap[(EGameState)st->GetID()] = st;
-	st->AddToRoot(); // ²»ÒªÈÃGCÏú»ÙÕâÀà¶ÔÏó
+	st->AddToRoot(); // Do not let GC destroy this kind of object
 }
 
 class UMMOGameState* MMO::FindGameStateObject(EGameState gs)
@@ -10820,7 +10820,7 @@ FString MMOUI::ConvertServerEnumToClientEnum( const FString& serverEnum, UEnum* 
 	return clientEnum;
 }
 
-//Ö±½Óµ¼³öµØÖ·ÉÏÁ¬ÐøµÄÕË»§½ÇÉ«ÐÅÏ¢µ½Ò»¸öÖ¸¶¨DataTypeNameÀàÐÍµÄ¶þ½øÖÆÎÄ¼þ
+//Directly export consecutive account character info at the address to a binary file of the specified DataTypeName type
 void MMOFacade::ExportSimpleAccountData( void *pData , size_t lDataLength , FString DataTypeName , UBOOL bingUsename )
 {	
 	if(  !pData || lDataLength <= 0 )
@@ -10839,7 +10839,7 @@ FString MMOFacade::GetUserAccountStoreDir()
 	return appGameLogDir();//TEXT("..\\..\\MMOGame\\Account\\");
 }
 
-//¿ªÊ¼µ¼³öÕË»§½ÇÉ«ÐÅÏ¢µ½Ò»¸öÖ¸¶¨DataTypeNameÀàÐÍµÄ¶þ½øÖÆÎÄ¼þ
+//Begin exporting account character info to a binary file of the specified DataTypeName type
 UBOOL MMOFacade::BeginExportAccountData( FArchive** pArchive , FString DataTypeName , UBOOL bingUsename )
 {
 	AMMOPlayerController* ctrl = GetMainController();
@@ -10847,7 +10847,7 @@ UBOOL MMOFacade::BeginExportAccountData( FArchive** pArchive , FString DataTypeN
 	if( NULL == ctrl || NULL == player )
 		return FALSE;
 
-	// GEditorIniÔÚ·Ç±à¼­Æ÷»·¾³ÓÐ¿ÉÄÜ²»»á±»³õÊ¼»¯, Òò´ËÕâÀïÔÝÊ±½«PathÐ´ËÀ
+	// GEditorIni may not be initialized in a non-editor environment, so Path is hard-coded here for now
 	FString pathName = GetUserAccountStoreDir();
 	FString fileName;
 	if(bingUsename)
@@ -10855,7 +10855,7 @@ UBOOL MMOFacade::BeginExportAccountData( FArchive** pArchive , FString DataTypeN
 	else
 		fileName = pathName + player->UserId + TEXT("\\") + DataTypeName + TEXT(".cfg");
 
-	// ×ª»»³É¾ø¶ÔÂ·¾¶£¬add by zhangrui05  
+	// Convert to absolute path, add by zhangrui05
 	FString filePath = GFileManager->ConvertAbsolutePathToUserPath(*GFileManager->ConvertToAbsolutePath(*fileName));
 
 	//FCheckoutResult sccResult = FSourceControl::TryCheckOut(fileName);
@@ -10871,7 +10871,7 @@ UBOOL MMOFacade::BeginExportAccountData( FArchive** pArchive , FString DataTypeN
 	}
 }
 
-//ÐèÒªÓëBeginExpo rtAccountData³É¶ÔÊ¹ÓÃ
+//Must be used in pairs with BeginExpo rtAccountData
 void MMOFacade::EndExportAccountData( FArchive* pArchive )
 {
 	if( pArchive && !pArchive->IsError() )
@@ -10887,7 +10887,7 @@ void MMOFacade::EndExportAccountData( FArchive* pArchive )
 	delete pArchive;
 }
 
-//¶ÁÈ¡ÕË»§½ÇÉ«ÐÅÏ¢ÖÐDataTypeNameµÄ¶þ½øÖÆÊý¾Ý
+//Read the binary data of DataTypeName in the account character info
 UBOOL MMOFacade::BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeName , UBOOL bingUsename )
 {
 	AMMOPlayerController* ctrl = GetMainController();
@@ -10896,10 +10896,10 @@ UBOOL MMOFacade::BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeNam
 		return FALSE;
 
 	FArchive* tArchive = NULL;
-	//¿ª±ÙÄÚ´æÇø¿é
+	//Allocate memory block
 	//FBufferArchive    memAr;
 
-	// GEditorIniÔÚ·Ç±à¼­Æ÷»·¾³ÓÐ¿ÉÄÜ²»»á±»³õÊ¼»¯, Òò´ËÕâÀïÔÝÊ±½«PathÐ´ËÀ
+	// GEditorIni may not be initialized in a non-editor environment, so Path is hard-coded here for now
 	FString pathName = GetUserAccountStoreDir();//TEXT("..\\..\\MMOGame\\Account\\");
 	FString fileName;
 	if(bingUsename)
@@ -10907,14 +10907,14 @@ UBOOL MMOFacade::BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeNam
 	else
 		fileName = pathName + player->UserId + TEXT("\\") + DataTypeName + TEXT(".cfg");
 
-	// ×ª»»³É¾ø¶ÔÂ·¾¶£¬add by zhangrui05  
+	// Convert to absolute path, add by zhangrui05
 	FString filePath = GFileManager->ConvertAbsolutePathToUserPath(*GFileManager->ConvertToAbsolutePath(*fileName));
 
-	// ¶ÁÈ¡
+	// Read
 	tArchive = GFileManager->CreateFileReader(*filePath);
 	if( tArchive )
 	{
-		//ÏÈÉêÇë×ã¹»µÄ¿Õ¼ä£¬·ÀÖ¹ºóÃæReAllocateµØÖ·»á·¢Éú¸Ä±ä
+		//First request enough space, to prevent the address from changing on later ReAllocate
 		if( tArchive->IsError() )
 		{
 			return FALSE;
@@ -10933,7 +10933,7 @@ UBOOL MMOFacade::BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeNam
 	}
 }
 
-//ÐèÒªÓëBeginLoadAccountBinary³É¶ÔÊ¹ÓÃ
+//Must be used in pairs with BeginLoadAccountBinary
 void MMOFacade::EndLoadAccountBinary( FArchive* pArchive )
 {
 	if( pArchive && !pArchive->IsError() )
@@ -11105,7 +11105,7 @@ void MMO::SetServerSceneVars( const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA* var
 		CheckClientSceneVariableAction( mapID, vars[i] );
 	}
 
-	////·þÎñÆ÷Ä¬ÈÏÊý¾ÝÎª0µÄ²»ÏÂ·¢//ËãÁË£¬ÔÝÊ±±£³ÖÏÖ×´£¬ÓÐÎÊÌâÔÙËµ
+	////Server does not send defaults of 0 // forget it, keep the status quo for now, deal with problems later
 	//for (INT i = 0; i < MAX_SCENE_VARIABLE_COUNT; ++i)
 	//{
 	//	G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA *pServerData = g_serverVars.Find( i );
@@ -11376,7 +11376,7 @@ UBOOL MMOFacade::ForceSyncObject(INT InId, UBOOL bClearSyncList)
 		G2C_SYNC_NPC_EX_DATA* npcData = CMessageHandler::GetInstance().GetNPCSyncData(ToLoadResObject->ServerID);
 		if (npcData == NULL)
 		{
-			// ÕâÀï²é²»µ½NPCÐÅÏ¢£¬ËµÃ÷m_NPCDataCacheµÄÊý¾ÝÒÑ¾­±»ÐÂÊý¾ÝÑ­»·Ð´µô£¬ÐèÒªÔÙ²éÒ»ÏÂ
+			// NPC info not found here means the m_NPCDataCache data has been overwritten by new data in the ring buffer, need to look up again
 			CMessageHandler::GetInstance().SendQueryCharData(ToLoadResObject->ServerID, 0);
 			return FALSE;
 		}
@@ -11388,7 +11388,7 @@ UBOOL MMOFacade::ForceSyncObject(INT InId, UBOOL bClearSyncList)
 		G2C_SYNC_ROLE_DATA* playerData = CMessageHandler::GetInstance().GetRoleSyncData(ToLoadResObject->ServerID);
 		if (playerData == NULL)
 		{
-			// ÕâÀï²é²»µ½½ÇÉ«ÐÅÏ¢£¬ËµÃ÷m_RoleDataCacheµÄÊý¾ÝÒÑ¾­±»ÐÂÊý¾ÝÑ­»·Ð´µô£¬ÐèÒªÔÙ²éÒ»ÏÂ
+			// Character info not found here means the m_RoleDataCache data has been overwritten by new data in the ring buffer, need to look up again
 			CMessageHandler::GetInstance().SendQueryCharData(ToLoadResObject->ServerID, 0);
 			return FALSE;
 		}
@@ -11643,7 +11643,7 @@ FString FClientItemInfo::ToReadableString()
 
 	if(item && item->ItemType == TEXT("ITEMTYPE_EQUIP"))
 	{
-		//ÒÔÏÂÊôÐÔ½öÏÞ×°±¸
+		//The following attributes are for equipment only
 		ADDELESTRING(m_byIdentified);
 		for(i = 0; i < MAX_RANDOM_ATTR_COUNT; ++i)
 		{
@@ -11652,7 +11652,7 @@ FString FClientItemInfo::ToReadableString()
 		//ADDELESTRING(m_wRefineLevel);
 		ADDELESTRING(m_dwRoleID);
 
-		//ÒÔÏÂÊôÐÔ½öÏÞÎäÆ÷
+		//The following attributes are for weapons only
 		if (item->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 		{
 			ADDELESTRING(m_byLuck);
@@ -11667,7 +11667,7 @@ FString FClientItemInfo::ToReadableString()
 		}
 		else
 		{
-			//ÒÔÏÂÊôÐÔ½öÏÞ·À¾ß
+			//The following attributes are for armor only
 			ADDELESTRING(m_dwSocketCombination);
 			for(i = 0; i < MAX_SOCKET_COUNT; ++i)
 			{
@@ -11679,7 +11679,7 @@ FString FClientItemInfo::ToReadableString()
 
 
 #undef ADDELESTRING
-	//È¥µô×îºóÒ»¸ö¶ººÅ
+	//Remove the last comma
 	ret = ret.Mid(0,ret.Len() - 1);
 	return ret;
 }
@@ -11707,7 +11707,7 @@ void FClientItemInfo::FromGFXStringArray(UGFxObject* params, INT startIndex)
 		}
 		m_dwRoleID = (UINT32)PARSEELESTRING();
 
-		//ÒÔÏÂÊôÐÔ½öÏÞÎäÆ÷
+		//The following attributes are for weapons only
 		if (item->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 		{
 			m_byLuck = (INT8)PARSEELESTRING();
@@ -11742,7 +11742,7 @@ FString GetErrorCodeEnumString(INT idx)
 {
 	if(idx < 0 || idx >= (INT)errMiscEnd)
 	{
-		appMsgf(AMT_OK, TEXT("·¢ÏÖÎÞ·¨Ê¶±ðµÄ´íÎóºÅ£º%d"), idx);
+		appMsgf(AMT_OK, TEXT("Unrecognized error code: %d"), idx);
 		return TEXT("");
 	}
 

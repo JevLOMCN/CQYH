@@ -6,15 +6,15 @@ class AbilitySoundCueComponent extends AbilityComponent
 
 enum ESoundPlayType
 {
-	// 播放武器挥舞音效(由武器决定)
+	// play weapon swing sound (determined by weapon)
 	ESPT_WeaponUseSound,
-	// 播放武器打击音效(由武器材质与被击BODY材质决定)
+	// play weapon hit sound (determined by weapon material and hit BODY material)
 	ESPT_WeaponHitSound,
-	// 播放自定义音效, Sounds数组里定义的
+	// play custom sound, defined in the Sounds array
 	ESPT_CustomSound,
 	//...
 	ESPT_ClothNoise,
-	// 播放挖矿音效
+	// play mining sound
 	ESPT_MineHitSound,
 
 };
@@ -22,7 +22,7 @@ enum ESoundPlayType
 var(SoundCueComponent) ESoundPlayType   SoundPlayType;
 //
 var(WeaponUseSound) int SoundIdx;
-// 如果使用武器音效,这个属性不需要配置
+// if using weapon sound, this property does not need to be configured
 var(CustomSound)  Array<SoundCue> Sounds;
 var(CustomSound) array<SoundCueByElementaryType> SoundsByElementaryType;
 
@@ -30,7 +30,7 @@ var(CustomSound) SoundCue EndSound;
 
 var(ClothNoise) ENoiseActionType ActionType;
 
-// 如果音效类型是实时类型的,那么这个音效会在技能编辑器里效果,游戏里会使用实时音效
+// if the sound type is realtime, this sound takes effect in the ability editor, and the realtime sound is used in game
 var(PreviewSound)   SoundCue    PreviewSound;
 
 cpptext

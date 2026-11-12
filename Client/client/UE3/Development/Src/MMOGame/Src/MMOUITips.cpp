@@ -117,10 +117,10 @@ Exit0:
 	return;
 }
 
-//得到指定类型对应的Tip子面板 
+//Get the Tip sub-panel for the specified type
 UGFxObject* UMMOUITips::GetSubTipPanelByType( BYTE TipsType )
 {
-	////0:包裹 1:技能快捷栏 2:人物装备 3:技能面板。4：NPC商店 5,仓库  6, Stall 所处的面板大类 7，符文Tip 非常规
+	////0:bag 1:ability hotbar 2:character equipment 3:ability panel. 4:NPC shop 5,warehouse  6, Stall; category of the panel it belongs to 7, rune Tip is unconventional
 	UGFxObject* subPanel = 0;
 	switch ( TipsType )
 	{
@@ -214,16 +214,16 @@ void UMMOUITips::RefreshTip( )
 }
 
 
-//显示Tips
+//Show Tips
 void UMMOUITips::ShowTipsHTML(BYTE TipsType,class UGFxObject* FromObject, UBOOL IsRefreshing /*= FALSE*/, INT displayPriority )
 {
 	//if(TFT_HeavenGasSlot == TipsType)
 	//	return;
-	//记录，方便后面刷新Tip
+	//Record, convenient for refreshing Tip later
 	CurrentTipsType = TipsType;
 	CurrentFromObject = FromObject;
 
-	//跳帧切换Tips控件
+	//Switch Tips control after skipping a frame
 	subTipPanel = GetSubTipPanelByType( TipsType );
 
 	if ( subTipPanel && FromObject )
@@ -248,7 +248,7 @@ void UMMOUITips::ShowLinkTips( class UGFxObject* fromObject )
 	CurrentTipsType = TFT_Link;
 	CurrentFromObject = fromObject;
 
-	//跳帧切换Tips控件
+	//Switch Tips control after skipping a frame
 	subTipPanel = GetSubTipPanelByType( TFT_Link );
 
 	if ( subTipPanel && fromObject )
@@ -274,7 +274,7 @@ void UMMOUITips::ShowLinkTips( class UGFxObject* fromObject )
 //}
 
 //=====================================================================================
-//调整位置适应
+//Adjust position to fit
 void UMMOUITips::AutoPosition()
 {
 	GetCurrentTipsSize();
@@ -294,7 +294,7 @@ void UMMOUITips::GetCurrentTipsSize()
 		return;
 	}
 
-	//内部自行计算出变换后Tip的实际长宽
+	//Internally calculate the actual width and height of the transformed Tip
 	TipCurrentSize.X = subTipPanel->GetInt( TEXT("TipWidth") );
 	TipCurrentSize.Y = subTipPanel->GetInt( TEXT("TipHeight") );
 	if( TipCurrentSize.Y <= 0 || TipCurrentSize.X <= 0 )
@@ -346,7 +346,7 @@ void UMMOUITips::FitTipsForScreen( UGFxObject &itemTips, FIntPoint &tipPos, INT 
 			tipPos.Y = screenSizeY - actualHeight;
 		}
 
-		//ItemTips可能比较短
+		//ItemTips may be shorter
 		if( NULL != pMainItemPanel )
 		{
 			if( ( ShowNextSkillTip ) || ( ShowCompareTip ) )
@@ -380,17 +380,17 @@ void UMMOUITips::FitTipsForScreen( UGFxObject &itemTips, FIntPoint &tipPos, INT 
 		}
 	}
 
-	//处理超出右边界
+	//Handle exceeding the right boundary
 	UBOOL isNeedFlip = FALSE;
 	if( isRightOut )
 	{
 		if( tipPos.X >= actualWidth ){
-			//直接镜像翻转
+			//Directly mirror flip
 			tipPos.X -= actualWidth;
 			isNeedFlip = TRUE;
 		}
 		else{
-			//左移到足够放下
+			//Move left until it fits
 			tipPos.X = screenSizeX - actualWidth;
 		}
 	}
@@ -475,7 +475,7 @@ void UMMOUITips::FitTipsForScreen( UGFxObject &itemTips, FIntPoint &tipPos, INT 
 //	}
 //}
 
-//更新Tips数据 Native传值相对繁琐，这里留着Debug用
+//Update Tips data; passing values via Native is cumbersome, kept here for Debug
 void UMMOUITips::CallUpdateItemTipDataNative( UGFxObject* dataProvider )
 {
 	FASValue AsVal(EC_EventParm);	

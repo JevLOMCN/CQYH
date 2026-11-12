@@ -39,7 +39,7 @@ void UMMOUIMallBuyPanel::NativeInitLoad()
 
 void UMMOUIMallBuyPanel::OnShowMallBuyPanel(INT nGoodsID)
 {
-	//首页礼包 特定 后改
+	//Home page gift pack, specific, change later
 	const REAL_MONEY_ITEM_INFO* pkItem = MallManager::getSingleton().GetGoodsByID(nGoodsID);
 	if(pkItem != NULL)	
 	{

@@ -2,7 +2,7 @@
 interface IPickableActor
 	native;
 
-// 物品捡选优先级
+// Item pickup priority
 enum EPickPriority
 {
 	//EPP_Trigger	    <DisplayName="Trigger">,
@@ -24,15 +24,15 @@ enum EPickPriority
 	//EPP_UnTouchBody  <DisplayName="EPP_UnTouchBody">,
 	//EPP_PickMax      <DisplayName="PickMax">,
 
-	EPP_High,		// 场景触发物,交互类NPC，所有doodad
-	EPP_Normal,		// 非交互类ＮＰＣ，非自己玩家，宠物，掉落物
-	EPP_Low,		 // 玩家自己
-	EPP_Floor,      // 场景
+	EPP_High,		// Scene triggers, interactive NPCs, all doodads
+	EPP_Normal,		// Non-interactive NPCs, other players, pets, dropped items
+	EPP_Low,		 // The player itself
+	EPP_Floor,      // Scene
 	EPP_PickMax,
 };
 
-// 鼠标状态定义,根据UE3的EMouseCursor做扩展
-// 通过DefaultGame.ini中的Cursor段映射光标文件
+// Mouse state definitions, extended from UE3's EMouseCursor
+// Map cursor files through the Cursor section in DefaultGame.ini
 enum EMMOCursorType
 {
 	EMC_None,

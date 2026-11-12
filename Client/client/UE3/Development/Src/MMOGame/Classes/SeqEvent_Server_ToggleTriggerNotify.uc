@@ -1,5 +1,5 @@
-//ToggleTrigger 服务器通知Event
-//关联MMOServerToggleActor 设置State
+//ToggleTrigger server notifies Event
+//associate MMOServerToggleActor set State
 class SeqEvent_Server_ToggleTriggerNotify extends SequenceEvent;
 
 function bool IsDesiredInstigator(Actor obj)

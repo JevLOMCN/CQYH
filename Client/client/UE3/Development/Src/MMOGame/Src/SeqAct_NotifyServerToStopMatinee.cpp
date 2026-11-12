@@ -9,7 +9,7 @@ void USeqAct_NotifyServerToStopMatinee::Activated()
 	CMessageHandler::GetInstance().Send_CancelMatinee();
 	ActivateOutputLink(0);
 
-	// 过场结束时把镜头更新回去
+	// Restore the camera when the cutscene ends
 	AMMOPlayerCamera* cam = Cast<AMMOPlayerCamera>(MMOFacade::getSingleton().GetMainController()->PlayerCamera);
 	if(cam)
 	{

@@ -67,7 +67,7 @@ void MMOPowerPart_Title::RecountPower()
 	{
 		return;
 	}
-	//目前没配
+	//not configured currently
 	_partPower = 0;
 	TitleData* title = MMOFacade::getSingleton().GetTitleData( player->ActorAttributes->TitleID );
 	if(title)
@@ -104,12 +104,12 @@ void MMOPowerPart_Suit::RecountPower()
 
 	for( INT i = 0 ; i < E_NES_TOTAL ; i++)
 	{
-		//遍历身上装备
+		//iterate over worn equipment
 
 		FClientItemInfo* equip = facade.FindItem( E_CONSLOT_EQUIPPED , i );//Player->ItemManager->GetEquipBySlot( i , true );
 		if(equip)
 		{
-			//此装备是否是套装
+			//whether this equipment is part of a set
 			const EquipSuit* suit =  equipMgr.FindEquipSuitByPartOfSuit( equip->m_nTemplateID );
 			if(suit)
 			{
@@ -118,7 +118,7 @@ void MMOPowerPart_Suit::RecountPower()
 					continue;
 				}
 
-				//计算已有几件成套
+				//count how many pieces of the set are owned
 				UINT partsCnt = suit->_PartsCnt;
 				UINT totalSuitPartHave = 0;
 				for( UINT i = 0; i < partsCnt; ++i )
@@ -131,7 +131,7 @@ void MMOPowerPart_Suit::RecountPower()
 					}
 
 				}
-				//符合套装的条目	
+				//entries matching the set
 				for( UINT i = 0; i < suit->_PropsCnt ; ++i )
 				{
 					bool isConditionOK = ( suit->_Props[i]._Condition <= totalSuitPartHave );
@@ -158,7 +158,7 @@ void MMOPowerPart_EquippedAll::RecountPower()
 	_partPower = 0;
 	for( INT i = 0 ; i < E_NES_TOTAL ; i++)
 	{
-		//遍历身上装备
+		//iterate over worn equipment
 		FClientItemInfo* equip = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED , i );
 		if(equip)
 		{
@@ -227,7 +227,7 @@ void MMOPowerPart_Skill::RecountPower()
 		UMMOAbility *mainAbility = it.Value();
 		if(mainAbility)
 		{
-			//主技能匹配武器符文技能的话就不算了，因为武器里会算过
+			//if the main ability matches the weapon rune ability, don't count it, since the weapon already counted it
 			UBOOL matchRune = FALSE;
 			FClientItemInfo* equipWeapon = MMOFacade::getSingleton().FindItem( CONSLOT_EQUIPPED , EET_Normal_MainHand );
 			if( equipWeapon )
@@ -256,8 +256,8 @@ void MMOPowerPart_Skill::RecountPower()
 
 
 
-	//得到身上的非符文技能power总和
-	//符文技能在武器战斗力上体现
+	//get the total power of non-rune abilities worn
+	//rune abilities are reflected in the weapon combat power
 
 	MMOPowerPart::RecountPower();
 }

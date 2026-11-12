@@ -95,7 +95,7 @@ void UMMOGFXPlayer_HudInfo::ASSetPkMode(int PkMode)
 void UMMOGFXPlayer_HudInfo::ASPkModeChange()
 {
 	int NewPkMode = PlayerInfo->CurrentPkMode+1;
-	if(NewPkMode>4)NewPkMode=0;//最多五种模式
+	if(NewPkMode>4)NewPkMode=0;//at most five modes
 
 	ASSetPkMode(NewPkMode);
 }
@@ -151,11 +151,11 @@ void UMMOGFXPlayer_HudInfo::ASShowTeammateHint( UGFxObject *mc, INT index )
 
 	//
 	FString hintString;
-	//职业
+	//class
 	hintString = MMOUI::ParseLocalizedPropertyPath( FString("MMOGame.School.SchoolName") + FString::Printf( TEXT("%d"), teammate->ClassId ) );
 	hintString += TEXT("<br>");
 
-	//所在地
+	//location
 	if( teammate->Online ){
 		FExportMap teammateMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo( teammate->MapID );
 		hintString += teammateMapInfo.MapDisplayName;
@@ -184,7 +184,7 @@ void UMMOGFXPlayer_HudInfo::ASHideTeammateHint()
 
 void UMMOGFXPlayer_HudInfo::ASTeamHintLeave()
 {
-	//MMOMsgBoxManager::getSingleton().AddModalMessageBoxEvent( TEXT("离开队伍？") , 0 , GameEvent_TeamLeaveAsk );
+	//MMOMsgBoxManager::getSingleton().AddModalMessageBoxEvent( TEXT("Leave party?") , 0 , GameEvent_TeamLeaveAsk );
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	if(player)
 	{

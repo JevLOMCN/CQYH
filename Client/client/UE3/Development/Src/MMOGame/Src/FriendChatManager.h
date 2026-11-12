@@ -61,14 +61,14 @@ public:
 	void SaveChatLogToFile();
 	void LoadChatLogFromFile();
 
-	//聊天列表维护
+	//chat list maintenance
 	void AddNewRoleIDChatList(int nRoleID);
 	void RemoveRoleIDChatList(int nRoleID);
 	BOOL IsInRoleChatList(int nRoleID);
 	INT GetRoleIndexByChatList(INT nRoleId);
 	TArray<int>& GetChatList() {return curChatRoleIDList;};
 
-	//聊天记录维护
+	//chat record maintenance
 
 	void RemoveUnReadChatContent(INT nRoleID);
 	void AddNewChatReadLog(INT nRoleID,FString& strName, FString strContent,BOOL bfromSelf = FALSE);
@@ -91,11 +91,11 @@ public:
 private:
 	FString _GetShowText( const FString& playerName , const FString& content , UBOOL myWord );
 private:
-	//全部消息的列表
+	//list of all messages
 	TArray<ContactLogStruct> ContactLogList;
-	//已读的消息列表
+	//list of read messages
 	TArray<ContactLogStruct> ReadContactLogList;
-	//未读的消息列表
+	//list of unread messages
 	TArray<ContactLogStruct> UnReadContactLogList;
 
 private:

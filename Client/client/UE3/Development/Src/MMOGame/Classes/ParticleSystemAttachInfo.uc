@@ -1,17 +1,17 @@
 //
-// 粒子系统绑定的信息
+// particle system binding info
 //
 class ParticleSystemAttachInfo extends Object
 	editinlinenew
 	hidecategories(Object);
 
-// 用于标识的名字
+// name used for identification
 var() Name AttachName <DisplayName="AttachName">;
 
-// 用于创建粒子特效并绑定上去
+// used to create the particle effect and attach it
 var() Name AttachSocket <DisplayName="AttachSocket"|DynamicList="SocketList">;
 
-// 粒子特效模板
+// particle effect template
 var() ParticleSystem EmitterTemplate <DisplayName="EmitterTemplate">;
 
 var() bool BindToWeapon;
@@ -19,7 +19,7 @@ var() EWeaponType WeaponType<EditCondition=BindToWeapon>;
 var() float EffectScale;
 var() name VertSurfaceActorParameterName;
 
-// 临时存储对象的变量
+// variable for temporarily storing objects
 var ParticleSystemComponent EmitterInstance;
 
 DefaultProperties

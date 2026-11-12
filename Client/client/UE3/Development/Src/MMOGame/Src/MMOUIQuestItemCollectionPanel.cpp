@@ -107,7 +107,7 @@ UBOOL UMMOUIQuestItemCollectionPanel::SetCollectionItem(INT containerId, INT slo
 		return FALSE;
 	}
 
-	// 清空
+	// Clear
 	if (containerId < 0 || slotId < 0)
 	{
 		if (_ItemBagPos._ConID >= 0 && _ItemBagPos._SlotID >= 0)
@@ -122,7 +122,7 @@ UBOOL UMMOUIQuestItemCollectionPanel::SetCollectionItem(INT containerId, INT slo
 		return TRUE;
 	}
 
-	// 检查道具
+	// Check items
 	FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindItem(containerId, slotId);
 	if (!itemInfo)
 	{
@@ -132,7 +132,7 @@ UBOOL UMMOUIQuestItemCollectionPanel::SetCollectionItem(INT containerId, INT slo
 		return FALSE;
 	}
 
-	// 是否是装备
+	// Whether it is equipment
 	UItem* pItem = MMOFacade::getSingleton().FindItemTemplate(itemInfo->m_nTemplateID);
 	UEquip* pEquip = Cast<UEquip>(pItem);
 	if (pEquip == NULL)
@@ -141,7 +141,7 @@ UBOOL UMMOUIQuestItemCollectionPanel::SetCollectionItem(INT containerId, INT slo
 		return FALSE;
 	}
 
-	//检查是否在界面中(本界面或是其他操作界面)
+	//check whether in a UI (this UI or another operation UI)
 	ClientActionCondition_ItemCollection checker;
 	FClientActionConditionContex contex;
 	contex.Item = itemInfo;
@@ -150,17 +150,17 @@ UBOOL UMMOUIQuestItemCollectionPanel::SetCollectionItem(INT containerId, INT slo
 		return FALSE;
 	}
 
-	// 解锁背包内原先放置的装备
+	// Unlock the equipment originally placed in the bag
 	if (_ItemBagPos._ConID >= 0 && _ItemBagPos._SlotID >= 0)
 	{
 		MMOFacade::getSingleton().LockItem(_ItemBagPos._ConID, _ItemBagPos._SlotID, -1);
 	}
 
-	// 新的装备
+	// New equipment
 	_ItemBagPos._ConID = containerId;
 	_ItemBagPos._SlotID = slotId;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData(_ItemSlot, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pItem, itemInfo ), pItem->ItemId, ESPType_ItemCollection, TEXT(""), pItem->ItemColor + 1, _ItemBagPos._ConID, _ItemBagPos._SlotID);
 	MMOFacade::getSingleton().LockItem(_ItemBagPos._ConID, _ItemBagPos._SlotID, ESPType_ItemCollection);
 	_ItemTempId = itemInfo->m_nTemplateID;
@@ -263,7 +263,7 @@ void UMMOUIQuestItemCollectionPanel::ASSubmitItem(INT questId, INT itemId, INT i
 		return;
 	}
 
-	// 获得需求属性
+	// get required attribute
 	INT itemColorReq = 0;
 	INT itemLevelReq = 0;
 	FString itemSubTypeReq = TEXT("");
@@ -293,9 +293,9 @@ void UMMOUIQuestItemCollectionPanel::ASSubmitItem(INT questId, INT itemId, INT i
 	UItem* item = MMOFacade::getSingleton().FindItemTemplate(itemId);
 	if (!item)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具不存在"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item does not exist"), 
 			MsgInfoType_Table, 
-			TEXT("道具不存在"));
+			TEXT("Item does not exist"));
 		return;
 	}
 
@@ -309,33 +309,33 @@ void UMMOUIQuestItemCollectionPanel::ASSubmitItem(INT questId, INT itemId, INT i
 
 	if (itemInfo->m_nTemplateID != itemId)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具不存在"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item does not exist"), 
 			MsgInfoType_Table, 
-			TEXT("道具不存在"));
+			TEXT("Item does not exist"));
 		return;
 	}
 
 	if (item->ItemColor != itemColorReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具品质不符合要求"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item quality does not meet the requirement"), 
 			MsgInfoType_Table, 
-			TEXT("道具品质不符合要求"));
+			TEXT("Item quality does not meet the requirement"));
 		return;
 	}
 
 	if (item->ItemLevel != itemLevelReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具等级不符合要求"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item level does not meet the requirement"), 
 			MsgInfoType_Table, 
-			TEXT("道具等级不符合要求"));
+			TEXT("Item level does not meet the requirement"));
 		return;
 	}
 
 	if (item->ItemSubType != itemSubTypeReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("道具类型不符合要求"), 
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Item type does not meet the requirement"), 
 			MsgInfoType_Table, 
-			TEXT("道具类型不符合要求"));
+			TEXT("Item type does not meet the requirement"));
 		return;
 	}
 

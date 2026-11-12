@@ -35,7 +35,7 @@ namespace ExternalMessage
 		EACTMUI_PathPoint,
 		EACTMUI_GlobalTeammate,
 		EACTMUI_BattleFlag,
-		EACTMUI_ExtaInfo,//并非标记，配合标记显示的文字描述
+		EACTMUI_ExtaInfo,//not a marker, text description shown along with a marker
 		EACTMUI_MyPet,
 		EACTMUI_OtherPet,
 		EACTMUI_Max
@@ -216,7 +216,7 @@ namespace ExternalMessage
 		void OnNativeGameEvent( struct MMOGameEvent* evt );
 
 		FVector MMOMapDataManager::CvtSceneVecToGridIdx( const FVector &pos3D );
-		//传送点
+		//teleport point
 	public:
 		//FTeleportNodeObj *GetTeleportNetNodes( EWorldRegion regionID, INT nodeID );
 		//INT GetTeleportNetNodesIn( EWorldRegion regionID, INT mapID, UBOOL isAllMap, TArray<FTeleportNodeObj*> *rtnList );
@@ -236,9 +236,9 @@ namespace ExternalMessage
 		void ActiveCurSceneTeleports();
 		void FirstOpeneTeleportsNetNodes( INT nodeID );
 
-		//地图
+		//map
 	public:
-		////当前人物所在地图中的区域
+		////area in the map where the current character is
 		//INT GetCurReginIdxInMap(){ return _InCurMapRegionIdx; };
 		//AMMOVolume_MapSize *GetReginInMap( INT inRegionIdx ){ 
 		//	if( inRegionIdx < 0 || inRegionIdx >= _CurMapRegionInfo.Num() ){
@@ -247,7 +247,7 @@ namespace ExternalMessage
 		//	return _CurMapRegionInfo(inRegionIdx);
 		//}
 
-		////检查当前人物所在地图内区域
+		////check the area in the map where the current character is
 		//INT CheckRegion();
 		FInMapRegion *GetCurReginInCurMap(){ return _InCurMapRegion; }
 		//
@@ -274,20 +274,20 @@ namespace ExternalMessage
 			return _AllMapRegionsInfo;
 		}
 
-		//检查当前人物所在地图内区域
+		//check the area in the map where the current character is
 		INT GetCurPlayerRegionIn( const FVector &playerPos );
 		UBOOL IsInCurRegion( const FVector &checkPos );
 		//
 		INT CheckRegionIn( INT mapID, const FVector &checkPos );
-		//当前人物所在地图中的区域
+		//area in the map where the current character is
 		INT GetCurReginIdxInMap(){ return _InCurMapRegionIdx; }
 		//INT SetCurReginIdxInMap( UINT regionInMapIdx ){ _InRegionIdx = regionInMapIdx; }
 
-		//当前人物所在地图信息
+		//info of the map where the current character is
 		void SetCurMap( INT sceneID );
 		void SetCurMap( const FString &mapName );
 		FExportMap &GetCurMap(){ return _CurSceneInfo; }
-		//当前地图的线信息
+		//line info of the current map
 		INT GetCurSceneLineIn(){ return _CurSceneLineIn; }
 		void SetCurSceneLineIn( INT lineID );
 
@@ -295,10 +295,10 @@ namespace ExternalMessage
 		void AddNewCurMapLine( INT lineID, INT percentState );
 		void RemoveOldCurMapLine( INT lineID );
 		void ClearCurMapLines(){ _CurSceneLines.Empty(); }
-		//当前地图进度信息
+		//progress info of the current map
 		TArray<CurSceneTarget> &GetCurSceneProgress(){ return _CurSceneProgress; }
 		void InitCurSceneProgress();
-		//副本评价点
+		//dungeon rating points
 		void InitFBConstAchievements();
 		TArray<FDungeonTarget> &GetFBConstAchievements(){ return _FBConstAchievements; }
 
@@ -308,14 +308,14 @@ namespace ExternalMessage
 
 		TArray<FBAchievementsState> &GetFBAchievementsScoreData(){ return _FBAchievementsData; }
 		FBAchievementsState *FindFBAchievementCurrentDungeon( INT fbAchieveID );
-		//当前大地图信息
+		//current world map info
 		void SetCurWorldMap( INT sceneID, INT inRegionIdx );
 		FExportMap &GetCurWorldMap(){ return _CurWorldMapInfo; }
 		FInMapRegion *GetCurWorldMapRegion(){ return _InWorldmapRegion; }
 	public:
-		//修改过地图标记的地图
+		//maps whose map markers have been modified
 		TMap< INT, INT > &GetNeedUpdateMap(){ return _UserMarksEditedMapContainer; }
-		//地图标记
+		//map markers
 		void InitialMapUserMarks( INT sceneID );
 		UBOOL LoadMapUserMarks( INT sceneID );
 		UBOOL ExportMapUserMarks( INT sceneID );
@@ -323,14 +323,14 @@ namespace ExternalMessage
 		FMapMark *GetMapMarkData( INT sceneID, INT markID );
 		FMapMark *AddMapMarkData( INT sceneID, const FString &regionVolumeName, const FString &markName, INT markType, const FVector &pos );
 		FUserMarkInMapUI *AddMapMarkToUI( FMapMark *pNewMapMarkData );
-		//地图标记显示
+		//map marker display
 		FUserMarkInMapUI *AddMapMark( INT sceneID, const FString &regionVolumeName );
 		void RemoveMapMark( INT sceneID, INT markID );
 		TArray<FUserMarkInMapUI> &GetCurWorldMapMarks(){
 			return _ListWorldMapUserMarks;
 		}
 
-		//动态的物体
+		//dynamic objects
 		//void ClearAllTeammateInDymcActorGlobal();
 		FActorInMapUI *AddOrUpdateMapDymcActorNear( AMMOActor &addCharactor );
 		FActorInMapUI *AddOrUpdateMapDymcActorGlobal( INT actorID, EActorInMapUIType type, INT inMapID, const FString &displayName );
@@ -367,23 +367,23 @@ namespace ExternalMessage
 			return GetMapDymcActorByUiID( _MapGlobalActors, uiID );
 		}
 
-		//场景静态NPC信息
+		//scene static NPC info
 		const TArray<FNPCInstanceInfo*> *GetNpcInstanceInMap( INT sceneID );
 
 		//-------------------------------------------
 		//
 		void InitMinimapStaticActorsContainer();
-		//当前地图场景所显示的NPC表，GetNpcInstanceInMap中的索引为为Key,在标示点列表(_ListCurMapUIStaticActors)中的编号为value
+		//table of NPCs shown in the current map scene, key is the index in GetNpcInstanceInMap, value is the number in the marker list (_ListCurMapUIStaticActors)
 		const TMap< UINT, UINT > &GetCurScenePuttedUsefulNpcs(){ return _CurScenePuttedUsefulNpcContainer; }
 
-		//当前小地图UI所显示的NPC表，NPC的ID为Key, 在标示点列表(_ListCurMapUIStaticActors)中的编号为value
+		//table of NPCs shown in the current minimap UI, key is the NPC ID, value is the number in the marker list (_ListCurMapUIStaticActors)
 		TArray<FActorInMapUI*> &GetStaticActorsInCurRegion(){ return _MinimapStaticActorsContainer; }
 
 		//-------------------------------------------
 		//
 		void InitWorldMapStaticActorsContainer( INT inRegionIdx );
 		TArray<FActorInMapUI*> &GetStaticActorsInWorldmap(){ return _WorldMapStaticActorsContainer; }
-		//当前大地图场景所显示的NPC表，GetNpcInstanceInMap中的索引为为Key,在标示点列表(_ListWorldMapUIStaticActors)中的编号为value
+		//table of NPCs shown in the current world map scene, key is the index in GetNpcInstanceInMap, value is the number in the marker list (_ListWorldMapUIStaticActors)
 		const TMap< UINT, UINT > &GetScenePuttedUsefulNpcs(){ return _ScenePuttedUsefulNpcContainer; }
 
 		//
@@ -391,44 +391,44 @@ namespace ExternalMessage
 
 		//
 		void InitWorldMapPuttedUsefulNpcs();
-		//当前大地图UI所显示的NPC表，NPC的ID为Key, 在标示点列表(_ListWorldMapUIStaticActors)中的编号为value
+		//table of NPCs shown in the current world map UI, key is the NPC ID, value is the number in the marker list (_ListWorldMapUIStaticActors)
 		const TMap< UINT, UINT > &GetWorldMapPuttedUsefulNpcs(){ return _WorldMapPuttedUsefulNpcContainer; }
 
-		//场景中的怪点
+		//monster points in the scene
 		void InitWorldMapPuttedNpcGroups();
 		const TMap< INT, UINT > &GetWorldMapPuttedNpcGroups(){ return _WorldMapPuttedNpcGroupsContainer; }
 		//
 		const TArray<FNPCGroupInfo> *GetNpcGroupsInMap( INT sceneID );
 
-		//场景中的特殊区域
+		//special areas in the scene
 		const TArray<FQuestVolumeInfo> *GetSpeciZoneInMap( INT sceneID );
-		//场景中的寻路点
+		//pathfinding points in the scene
 		const TArray<FNaviPointInfo> *GetNavPointsInMap( INT sceneID );
 
-		//场景中的副本
+		//dungeons in the scene
 		void InitWorldMapPuttedFBs();
-		//当前大地图UI所显示的FB表，FB跳转点的ID为Key, 在标示点列表(_ListWorldMapUIStaticActors)中的编号为value
+		//table of FBs shown in the current world map UI, key is the FB jump point ID, value is the number in the marker list (_ListWorldMapUIStaticActors)
 		const TMap< UINT, UINT > &GetWorldMapPuttedFBs(){ return _WorldMapPuttedFBContainer; }
 
-		//场景中的副本
+		//dungeons in the scene
 		void InitWorldMapNavPoints();
-		//当前大地图UI所显示的寻路点表, GetNavPointsInMap中的编号为Key，地图中的标记编号为value
+		//table of pathfinding points shown in the current world map UI, key is the number in GetNavPointsInMap, value is the marker number in the map
 		const TMap< UINT, UINT > &GetWorldMapNavPoints(){ return _WorldMapNavPointsContainer; }
 		
-		//更新固定点状态
+		//update fixed point state
 		//void UpdateCurMapStaticMarksOfType( EActorInMapUIType actorType ){
 		//	UpdateMapStaticMarksOfType( actorType, _CurSceneInfo.ServerID );
 		//}
 		//void UpdateWorldMapStaticMarksOfType( EActorInMapUIType actorType ){
 		//	UpdateMapStaticMarksOfType( actorType, _CurWorldMapInfo.ServerID );
 		//}
-		//静态物体：地图NPC
-		//需先SetCurMap
+		//static objects: map NPCs
+		//SetCurMap must be called first
 		void PrepareCurMapStaticActorInMapUI(){
 			PrepareMapStaticActorInMapUI( _CurSceneInfo.ServerID, _ListCurMapUIStaticActors, true );
 			InitMinimapStaticActorsContainer();
 		}
-		//需先SetCurWorldMap
+		//SetCurWorldMap must be called first
 		void PrepareWorldMapStaticActorInMapUI(){
 			PrepareMapStaticActorInMapUI( _CurWorldMapInfo.ServerID, _ListWorldMapUIStaticActors, false );
 			InitWorldMapStaticActorsContainer( _InWorldmapRegionIdx );
@@ -454,14 +454,14 @@ namespace ExternalMessage
 			}
 		}
 
-		//地图标志信息
+		//map flag info
 		TArray< FActorInMapUI > &GetCurWorldMapMarksHintInfo(){
 			return _ListWorldMapUIMarksHintInfo;
 		}
 		void AddWorldMapMarkInfo( FVector real3DPos, const FString &info );
 		void InvalidAllWorldMapMarkInfo();
 
-		//寻路路径
+		//pathfinding path
 		TArray<FVector> GetCurMainPlayerPath( UINT interval, UBOOL is2D );
 		void SetLastInputMoveToPos( FVector pos ){ _LastInputPos = pos; }
 		FVector GetLastInputMoveToPos(){ return _LastInputPos; }
@@ -473,16 +473,16 @@ namespace ExternalMessage
 		TArray< FPathPointInMapUI > &GetCurMapPath();
 		TArray< FPathPointInMapUI > &GetAllMapPathResource(){ return _MapCurPath; }
 
-		//当前大地图上可接，可完成，已完成任务列表,任务ID为Key，所属NPC的ID为Value
+		//list of acceptable, completable and completed quests on the current world map, key is the quest ID, value is the owning NPC's ID
 		TMap< UINT, UINT > &GetCompleteTaskInWorldMap(){ return _CompleteTaskContainer; }
 		TMap< UINT, UINT > &GetUncompleteTaskInWorldMap(){ return _UncompleteTaskContainer; }
 		TMap< UINT, UINT > &GetAcceptableTaskInWorldMap(){ return _AcceptableTaskContainer; }
 	public:
-		//副本难度
+		//dungeon difficulty
 		INT GetCurFBDiff(){ return _CurFBDiff; }
 		void SetCurFBDiff( INT difficulty ){ _CurFBDiff = difficulty; }
 
-		//副本难度
+		//dungeon difficulty
 		INT GetMaxDiffOfType( INT mapID, INT type, INT allTypeMaxDiff );
 		INT GetCurFBMaxDiff(){ return _CurFBMaxDiff; }
 		void SetCurFBMaxDiff( INT difficulty ){ _CurFBMaxDiff = difficulty; }
@@ -496,13 +496,13 @@ namespace ExternalMessage
 		const FDungeonInfo *GetDungeonInfo( UINT mapID, UINT diffculty );
 		INT GetDungeonInfoDifftyMask( UINT mapID );
 
-		//副本时间
+		//dungeon time
 		INT GetTimeSinceDungeonBegin();
 		UINT32 GetDungeonStartTime(){ return _DungeonStartUtcTime; }
 		void SetDungeonStartTime( UINT32 startTime, INT modifySec = 0 ){ _DungeonStartUtcTime = startTime + modifySec; }
 
 	private:
-		//地图上动态更新物体
+		//dynamically updated objects on the map
 		FActorInMapUI *AddOrUpdateMapDymcActor( MapDynamicActorContainer &container, INT actorID, const FString &displayName );
 		void ChangeMapMarkDisplayIcon( FActorInMapUI *pActorInMapUI, AMMOActor &charactor );
 		void ChangeMapNearPlayerMarkDisplayIcon( FActorInMapUI *pActorInMapUI,  AMMOActor &charactor );
@@ -511,7 +511,7 @@ namespace ExternalMessage
 		FActorInMapUI *GetMapDymcActor( MapDynamicActorContainer &container, INT actorID );
 		FActorInMapUI *GetMapDymcActorByUiID( MapDynamicActorContainer &container, INT uiID );
 
-		//地图标记
+		//map markers
 		FMapMark *AddMapMarkData( INT sceneID, const FString &regionVolumeName );
 		FMapMark *RemoveMapMarkData( INT sceneID, INT markID );
 		TMap< INT, FMapMark > *GetMapMarkDatas( INT sceneID );
@@ -525,112 +525,112 @@ namespace ExternalMessage
 
 		void UpdateMapStaticMarksOfType( EActorInMapUIType actorType, INT sceneID );
 
-		//复活点
+		//respawn point
 	public:
 		void ActiveRevivePoint( FVector &activePnt );
 		//void OnActiveRevivePointActiveEffectFinished( UParticleSystemComponent *psc );
 
-		//传送点
+		//teleport point
 	private:
 		UBOOL _IsTeleportInited;
 		UBOOL _IsTeleportUpdatedByServer;
-		//一个经过显示优先级排序的且按地图存储的跳转点表，包含在各自的区域中（固定数组中）
+		//a jump point table sorted by display priority and stored per map, contained in their respective areas (fixed array)
 		//TArray<FTeleportNodeObj*> _RegionTeleportNetList[EWR_MAX];
 		TArray<FTeleportNetNodeData> _RegionTeleportNetList[EWR_MAX];
 		//
 		INT _LastOpenedTeleportNodeID;
 
-		//寻路
+		//Pathfinding
 	private:
 		FVector _LastInputPos;
 
-		//地图
+		//map
 	private:
-		//所有场景地图区块信息
+		//block info of all scene maps
 		MapRegionsContainer _AllMapRegionsInfo;
-		//当前地图信息
+		//current map info
 		FExportMap _CurSceneInfo;
-		//当前地图线信息
+		//current map line info
 		TArray< MapLineInfo > _CurSceneLines;
-		//现在所在线
+		//line currently on
 		INT _CurSceneLineIn;
-		//当前副本难度
+		//current dungeon difficulty
 		INT _CurFBDiff;
 		INT _CurFBMaxDiff;
-		//当前副本进入
+		//current dungeon entry
 		INT _CurFBFrequence;
-		//副本进度
+		//dungeon progress
 		TArray<CurSceneTarget> _CurSceneProgress;
-		////副本信息
+		////dungeon info
 		//DungeonInfoContainer _AllDungeonBaseInfo;
-		//当前地图区块信息
+		//current map block info
 		TArray< AMMOVolume_MapSize* > _CurMapRegionInfo;
-		//当前地图区域
+		//current map area
 		INT _InCurMapRegionIdx;
 		FInMapRegion *_InCurMapRegion;
-		//当前大地图区域
+		//current world map area
 		INT _InWorldmapRegionIdx;
 		FInMapRegion *_InWorldmapRegion;
-		//当前大地图显示地图信息
+		//map info shown by the current world map
 		FExportMap _CurWorldMapInfo;
 
-		//各地图NPC点
+		//NPC points of each map
 		MapNPCsContainer _AllMapNpcContainer;
-		//各地图怪点
+		//monster points of each map
 		//MapNpcGroupsContainer _AllMapNpcGroupsContainer;
 
-		//各地图标记点
+		//marker points of each map
 		MapUserMarksContainer _AllMapUserMarkContainer;
 		TMap< INT, INT > _UserMarksEditedMapContainer;
 
-		//需显示的地图玩周围九屏动态标记（现为玩家和怪物）,actorID为Key
+		//dynamic markers (currently players and monsters) in the nine screens around the player that need to be shown, key is actorID
 		MapDynamicActorContainer _MapNearActors;
 
-		//需显示在整个地图上动态标记（如队友，某些特殊物体）,actorID为Key
+		//dynamic markers that need to be shown on the whole map (such as teammates, some special objects), key is actorID
 		MapDynamicActorContainer _MapGlobalActors;
 
-		//地图上的静态标记点，即为场景中事先放置的NPC(_ActorID为_AllMapNpcContainer该地图NPC表中的索引)，跳转点。
-		//当前地图需显示的地图静态标记（现为地图摆放的需要显示在地图UI上的NPC，其中_UiObjInWorldMap无效）
+		//static marker points on the map, i.e. NPCs pre-placed in the scene (_ActorID is the index in the map's NPC table _AllMapNpcContainer) and jump points.
+		//static map markers the current map needs to show (currently NPCs placed on the map that need to be shown on the map UI, where _UiObjInWorldMap is invalid)
 		MapStaticActorContainer _ListCurMapUIStaticActors;
-		//大地图需显示的地图静态标记（现为地图摆放的需要显示在地图UI上的NPC，其中_UiObjInMinimapap无效）
+		//static map markers the world map needs to show (currently NPCs placed on the map that need to be shown on the map UI, where _UiObjInMinimapap is invalid)
 		MapStaticActorContainer _ListWorldMapUIStaticActors;
 		MapStaticActorContainer _ListWorldMapUIMarksHintInfo;
 
-		//大地图的玩家自定义标记
+		//player-defined markers on the world map
 		MapUserMarkContainer _ListWorldMapUserMarks;
 
-		//需显示在地图上的当前路径
+		//current path that needs to be shown on the map
 		TArray<FPathPointInMapUI> _MapCurPath;
 
-		//_CurScenePuttedUsefulNpcContainer与_ScenePuttedUsefulNpcContainer的存在
-		//是为了在显示附近NPC时把已经显示了的NPC剔除
-		//当前地图的NPC表，GetNpcInstanceInMap中的索引为为Key
+		//existence of _CurScenePuttedUsefulNpcContainer and _ScenePuttedUsefulNpcContainer
+		//is to remove already shown NPCs when showing nearby NPCs
+		//NPC table of the current map, key is the index in GetNpcInstanceInMap
 		NPCsMarkedInMapContainer _CurScenePuttedUsefulNpcContainer;
-		//当前小地图所显示的NPC表，GetNpcInstanceInMap中的索引为Key
+		//NPC table shown by the current minimap, key is the index in GetNpcInstanceInMap
 		TArray< FActorInMapUI* > _MinimapStaticActorsContainer;
 
-		//当前大地图所在场景上的NPC表，GetNpcInstanceInMap中的索引为Key
+		//NPC table in the scene of the current world map, key is the index in GetNpcInstanceInMap
 		NPCsMarkedInMapContainer _ScenePuttedUsefulNpcContainer;
-		//当前大地图所显示的NPC表，GetNpcInstanceInMap中的索引为Key
+		//NPC table shown by the current world map, key is the index in GetNpcInstanceInMap
 		NPCsMarkedInMapContainer _WorldMapPuttedUsefulNpcContainer;
 		//
 		TArray< FActorInMapUI* > _WorldMapStaticActorsContainer;
-		//大地图上的怪点
+		//monster points on the world map
 		NpcGroupsMarkedInMapContainer _WorldMapPuttedNpcGroupsContainer;
-		//当前大地图副本表,跳转点ID为Key，在地图中显示的uiObject所标记编号为value
+		//current world map dungeon table, key is the jump point ID, value is the marker number of the uiObject shown on the map
 		FBsMarkedInMapContainer _WorldMapPuttedFBContainer;
 		//
 		MapNavPointsInMapContainer _WorldMapNavPointsContainer;
 
-		//当前大地图上可接，可完成，已完成任务列表
+		//list of acceptable, completable and completed quests on the current world map
 		TMap< UINT, UINT > _CompleteTaskContainer;
 		TMap< UINT, UINT > _UncompleteTaskContainer;
 		TMap< UINT, UINT > _AcceptableTaskContainer;
 
-		//副本评价点
+		//dungeon rating points
 		TArray<FDungeonTarget> _FBConstAchievements;
 		TArray<FBAchievementsState> _FBAchievementsData;
-		//副本时间
+		//dungeon time
 		UINT32 _DungeonStartUtcTime;
 	};
 	

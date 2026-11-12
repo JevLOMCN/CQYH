@@ -61,7 +61,7 @@ event int GetCurPanelType()
 	return ActionScriptInt( "UCGetCurrentPanelType" );
 }
 
-//ÖÆÔì
+//Craft
 event CallAsSetMakeUpConsumptionInfo( string iconName, int itemID, int colorIdx, int curConsumptionCnt, int needConsumptionCnt )
 {
 	ActionScriptVoid( "UCSetMakeUpConsumptionInfo" );
@@ -74,7 +74,7 @@ event CallAsSetMakeUpMoney( string moneyStr )
 {
 	ActionScriptVoid( "UCSetMakeUpMoney" );
 }
-//Éý¼¶
+//Upgrade
 event CallAsSetUpgradeConsumptionItem( string iconName, int itemID, int colorIdx, int curConsumptionCnt, int needConsumptionCnt )
 {
 	ActionScriptVoid( "UCUpgradeConsumptionItem" );

@@ -167,7 +167,7 @@ void UMMOUIVip::InitBuyVipInfo()
 			itemObj->SetString( TEXT("ItemCost"), UITextParser::HTMLMoneyIconString( MONEYTYPE_04, pkItem->m_nCurrentPrice ) );
 		}
 		else{
-			itemObj->SetString( TEXT("ItemCost"), TEXT("ºÜ¹ó") );
+			itemObj->SetString( TEXT("ItemCost"), TEXT("Expensive") );
 		}
 
 		dataProvider->SetElementObject( itemIdx++, itemObj );

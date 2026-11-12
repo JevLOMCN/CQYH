@@ -38,7 +38,7 @@ simulated function GetCameraView(float DeltaTime, out TPOV OutPOV)
 	//GetActorEyesViewPoint(OutPOV.Location, OutPOV.Rotation);
 	OutPOV.Location = Location*(1-percent) + OutPOV.Location*percent;
 
-	OutPOV.Rotation = Rotation*(1-percent) + OutPOV.Rotation*percent;//这个插值法似乎有问题
+	OutPOV.Rotation = Rotation*(1-percent) + OutPOV.Rotation*percent;//This interpolation seems to have a problem
 	OutPOV.FOV = FOVAngle;
 
 }

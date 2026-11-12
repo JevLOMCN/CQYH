@@ -38,7 +38,7 @@ void UMMOUITeamAuctionPanel::OnNativeGameEvent(struct MMOGameEvent* evt)
 	{		
 	case GameEvent_TeamAuctionNewAuction:
 		{
-			//新的拍卖
+			//New auction
 			MMOGameEvent_OneInt* msg = (MMOGameEvent_OneInt*)(evt);
 
 			if( !GFXPlayer || !msg )
@@ -131,7 +131,7 @@ void UMMOUITeamAuctionPanel::OnNativeGameEvent(struct MMOGameEvent* evt)
 		break;
 	case GameEvent_TeamAuctionNewItem:
 		{
-			//改变按钮上的数字
+			//Change the number on the button
 			eventCallUpdateItemNum( appItoa( TeamManager::getSingleton().GetCanBidAuctionItemNum() ) );
 		}
 		break;

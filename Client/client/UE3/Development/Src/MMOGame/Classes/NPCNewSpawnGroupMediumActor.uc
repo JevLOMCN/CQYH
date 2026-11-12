@@ -35,7 +35,7 @@ cpptext
 {
 	virtual void DrawEditorDynamicElements(FPrimitiveDrawInterface* PDI,const FSceneView* View,UINT DPGIndex,DWORD Flags = 0);
 	virtual void PostDuplicate() { Super::PostDuplicate(); SetUniqueID(-1); InitUniqueID(); }
-	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda 永远不在游戏中加载
+	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda never loaded in game
 
 #if WITH_EDITOR
 	virtual void CheckForErrors();

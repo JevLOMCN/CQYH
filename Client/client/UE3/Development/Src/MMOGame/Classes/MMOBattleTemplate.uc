@@ -1,11 +1,11 @@
 /*
- *	 战场配置
+ *	 Battlefield config
  * */
 class MMOBattleTemplate extends Object
 	hidecategories(Object)
 	native;
 
-//战场类型
+//Battlefield type
 enum EBattle_Mode
 {
 	EBATL_INVALID		<DisplayName="EBATL_TYPE_INVALID">,
@@ -29,9 +29,9 @@ enum EBattle_Style
 
 struct native BattleItemReward
 {
-	//物品奖励
+	//Item reward
 	var() int                       ID                <DisplayName="Item ID">;
-	//物品奖励数量
+	//Item reward count
 	var() int                       Num               <DisplayName="Item Number">;
 
 	structdefaultproperties
@@ -43,17 +43,17 @@ struct native BattleItemReward
 
 struct native BattleReward
 {
-	//物品奖励
+	//Item reward
 	var() array<BattleItemReward>   Items                <DisplayName="Items Reward(battle score)">;
-	////经验奖励
+	////Experience reward
 	//var() int                       Exp                  <DisplayName="Exp Reward">;
-	////胜利战场点数奖励
+	////Victory battlefield points reward
 	//var() int                       WinPoints            <DisplayName="Points Reward for Win">;
-	////失败战场点数奖励
+	////Defeat battlefield points reward
 	//var() int                       FaildPoints          <DisplayName="Points Reward for Faild">;
-	////声望奖励
+	////Reputation reward
 	//var() int                       FameID               <DisplayName="Fame of which(it's ID)">;
-	////声望奖励点数
+	////Reputation reward points
 	//var() int                       FamePoints           <DisplayName="Fame Rewards">;
 
 	structdefaultproperties
@@ -103,46 +103,46 @@ struct native BattleScore
 		//Heal3rd=0
 	}
 };
-//战场信息
+//Battlefield info
 struct native BattleTemplate
 {
-	//战场地图名
+	//Battlefield map name
 	var() int              ID                     <DisplayName="Map ServerID">;
-	//战场名字（显示用）
+	//Battlefield name (for display)
 	var() string           DisplayName            <DisplayName="Battle Name for display">;
-	//战场背景介绍
+	//Battlefield background description
 	var() string           Desc	                  <DisplayName="Battle discription">;
-	//资源图编号
+	//Resource image ID
 	var() int              IconIdx                <DisplayName="Icon Index in Flash">;
-	//战场复活时间
+	//Battlefield respawn time
 	var() int              ReviveTime             <DisplayName="Revive Time">;
-	////开启人数
+	////Number of players to open
 	//var() int              PlayerMin              <DisplayName="Minimal player">;
-	////等级限制
+	////Level restriction
 	//var() int              LevelLimit             <DisplayName="Level Limit">;
-	//战场时间
+	//Battlefield time
 	var() int              ContinueTime           <DisplayName="Continue Time">;
-	////复活方式
+	////Respawn mode
 	//var() int              RebownType             <DisplayName="Rebown Type">;
-	////战场对战模式
+	////Battlefield battle mode
 	//var EBattle_Mode     Mode                   <DisplayName="Battle Mode">;
 
-	//战场奖励
+	//Battlefield reward
 	var() BattleReward     Reward                 <DisplayName="Battle Reward">;
 
-	////战场地图名
+	////Battlefield map name
 	//var() int              MapServerID            <DisplayName="Map ServerID">;
 
-	//是否在随机战场中被勾选
+	//Whether checked in random battlefield
 	var bool                       IsSelected;
 	
-	//战场胜利条件描述
+	//Battlefield victory condition description
 	var() string           WinDesc  	                <DisplayName="Battle Win Desc">;
-	//战场得分形式描述
+	//Battlefield scoring description
 	var() string           ScoreDesc                    <DisplayName="Battle Score Desc">;
-	////战场给分表
+	////Battlefield scoring table
 	var() BattleScore      Score                        <DisplayName="Battle Score">;
-	//主要任务
+	//Main quest
 	var() EBattle_Style    BattleStyle                  <DisplayName="Battle Style">;
 
 	structdefaultproperties

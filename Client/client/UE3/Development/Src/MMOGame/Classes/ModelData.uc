@@ -1,5 +1,5 @@
 /*
- * 模型定义
+ * model definition
  * 
  */
 

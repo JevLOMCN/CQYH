@@ -838,7 +838,7 @@ UBOOL ALevelGridVolume::ShouldLevelBeLoaded( const FLevelGridCellCoordinate& InC
 // 	// Compute distance between the viewer and the cell
 // 	// ming@snda
 // 	//const FLOAT SquaredDistanceToGridCell = ComputeSquaredDistanceToCell( InCellCoord, InViewLocation );
-// 	// oscar@snda 这里要判定格子的中间点到InViewLocation的距离
+// 	// oscar@snda here we need to determine the distance from the center of the grid cell to InViewLocation
 // 	//SquaredDistanceToGridCell = ComputeSquaredDistanceToCell( InCellCoord, InViewLocation );
 // 	const FVector& CellCenterPoint = GetGridCellCenterPoint( InCellCoord );
 // 	SquaredDistanceToGridCell = (InViewLocation - CellCenterPoint).SizeSquared();

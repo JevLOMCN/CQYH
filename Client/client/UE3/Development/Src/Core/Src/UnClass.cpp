@@ -1846,7 +1846,7 @@ void UClass::Bind()
 	checkf(GIsEditor || GetSuperClass() || this==UObject::StaticClass(), TEXT("Unable to bind %s at this time"), *GetPathName());
 	if( !ClassConstructor && HasAnyFlags(RF_Native) && !GIsEditor )
 	{
-		appErrorf( TEXT("检测到数据包有错误，请运行全文件修复(FixClient)后进入游戏。\nCan't bind to native class %s"), *GetPathName() );
+		appErrorf( TEXT("Data package error detected. Please run the full file repair (FixClient) and then start the game.\nCan't bind to native class %s"), *GetPathName() );
 	}
 	if( !ClassConstructor && GetSuperClass() )
 	{

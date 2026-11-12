@@ -55,7 +55,7 @@ void UMMOUIHelperPlayerPanel::ShowPlayerPanel(const FString& headIcon, USoundCue
 	{
 		_CurHeadIcon = headIcon;
 
-		// 如过还有旁白正在播放，停止
+		// If a narration is still playing, stop it
 		StopCurSound();
 
 		_CurSound = sound;

@@ -71,17 +71,17 @@ void MMOEquipManager::Initialize()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("MMOEquipManager::Initialize"), 0);
 
-	//套装
+	//Set
 	ReadEquipSuit();
 
-	//融灵
+	//Spirit fusion
 	ReadSoulInfoTemplates();
-	//铭文（需要在物品表之前读入,所以在MMOFacade里载入）
+	//Inscription (must be read before the item table, so it is loaded in MMOFacade)
 	//ReadWeaponRuneSkillData();
 
-	//武器升级
+	//Weapon upgrade
 	//EquipLevelUpDataManager::getSingleton().InitFromFile( TEXT("equip_levelup.txt") );
-	//ReadEquipLevelUpData();//不要了
+	//ReadEquipLevelUpData();//no longer needed
 
 	//
 	//GConfig->GetBool(TEXT("Skill"), TEXT("AutoChangeSkill"), _IsAutoChangeSkills, GGameIni);
@@ -171,14 +171,14 @@ void MMOEquipManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 		{
 			MMOGameEvent_Item *itemDelEvt = (MMOGameEvent_Item*)evt;
 
-			//已装备的物品发生变化
+			//Equipped item changed
 			UMMOUIDurabilityShowing *durabilityShowingPanel = (UMMOUIDurabilityShowing*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_DurabilityShowing );
 			if( durabilityShowingPanel != NULL ){
 				durabilityShowingPanel->UpdateEquipDurState( (ENORMAL_EQUIP_SLOT)itemDelEvt->SlotIdx );
 				durabilityShowingPanel->DescideShow();
 			}
 
-			////耐久掉底，处理装备上的技能装卸
+			////Durability reached zero, handle equipping/unequipping ability on equipment
 			//FClientItemInfo* toCheckEquippedItem = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED, itemDelEvt->SlotIdx );
 			//if( toCheckEquippedItem != NULL ){
 			//	if( toCheckEquippedItem ->m_nCurDur <= 0 ){
@@ -200,7 +200,7 @@ void MMOEquipManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			//}
 
 			//if( itemEquipEvt->SlotIdx == E_NES_MAIN_HAND && _ConfirmEquipWeaponSkill == NULL ){
-			//	//是否自动更换技能
+			//	//Whether to automatically switch ability
 			//	//UBOOL isAutoChangeSkill = FALSE;
 			//	if( _IsAutoChangeSkills ){
 			//		EquipSkillsToFitCurWeapon( TRUE );
@@ -213,9 +213,9 @@ void MMOEquipManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			//		
 			//		//
 			//		UBOOL needChangeSkills = CheckEquipWeaponSkillNeedHint();
-			//		//需要更换技能
+			//		//Need to switch ability
 			//		if( needChangeSkills == TRUE ){
-			//			//提示更换技能
+			//			//Prompt to switch ability
 			//			FString msgText = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillSetting.IsConfirmAutoChangeSkillMsgHint") );
 			//			_ConfirmEquipWeaponSkill = MMOMsgBoxManager::getSingleton().AddMessageBoxEvent( msgText, 0, GameEvent_MsgBoxChangeSkillStyle );
 			//		}
@@ -225,7 +225,7 @@ void MMOEquipManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			//	}
 			//}
 
-			//耐久度更新
+			//Durability update
 
 		}
 		break;
@@ -291,11 +291,11 @@ void MMOEquipManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( hintStringName ), MsgInfoType_Table, hintStringName );
 			//MMOChatManager::getSingleton().AddSystemMessage( MMOUI::ParseLocalizedPropertyPath( hintStringName ) );
 			MMOChatManager::getSingleton().AddSystemMessage( MMOUI::ParseLocalizedPropertyPath( hintStringName ) );
-			// 引导任务
+			// Guide quest
 			MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_UpgradeEquip);
 		}
 		break;
-	//铭文技能
+	//Inscription ability
 	case GameEvent_SkillLevelUp:
 		{
 			MMOGameEvent_SkillLevelUp *lvUpSkillEvt = (MMOGameEvent_SkillLevelUp*)evt;
@@ -314,7 +314,7 @@ void MMOEquipManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 
 			UMMOAbility *pEquipedSkill = MMOSkillManager::getSingleton().GetEquippedSkillBySkillID( levelUpSkillID );
 			if( pEquipedSkill == NULL ){
-				//不关心没装备在身的技能
+				//Do not care about abilities not equipped on the body
 				break;
 			}
 
@@ -356,21 +356,21 @@ UBOOL MMOEquipManager::CheckEquipWeaponSkillNeedHint()
 	MMOSkillManager &mmoSkillMgr = MMOSkillManager::getSingleton();
 	for( int i = 0; i < SKILL_EQUIP_MAX; ++i ){
 		INT slotHotKey = mmoSkillMgr.GetSkillSlotDefaultBindEnum( i );
-		//当前技能
+		//Current ability
 		UMMOAbility* curEquippedSkill = mmoSkillMgr.GetEquippedSkill( slotHotKey );
 		INT curEquippedSkillID = ( curEquippedSkill != NULL ? curEquippedSkill->eventGetAbilityId() : 0 );
 
-		//当前武器技能
+		//Current weapon ability
 		UBOOL isSkillActive = FALSE;
 		UMMOAbility* weaponSkill = GetWeaponRuneSkillByCmdKey( slotHotKey, E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND, isSkillActive );
 
-		//如果此武器附带此键位已激活的技能
+		//If this weapon carries an ability activated for this key slot
 		if( weaponSkill != NULL ){
 			INT weaponSkillID = ( weaponSkill->MainSkill ? weaponSkill->MainSkill->eventGetAbilityId() : weaponSkill->eventGetAbilityId() );
 
-			//现配置的技能与武器上的不同，或是虽然一样武器上的技能没解锁
+			//The currently configured ability differs from the one on the weapon, or is the same but the weapon's ability is not unlocked
 			if( curEquippedSkillID != weaponSkillID && isSkillActive ){
-				//有技能不符合套路，需要替换
+				//An ability does not fit the pattern and needs replacing
 				isNeedHint = TRUE;
 				break;
 			}
@@ -386,26 +386,26 @@ UBOOL MMOEquipManager::EquipSkillsToFitCurWeapon( UBOOL canEquipWeaponSkill )
 	MMOSkillManager &mmoSkillMgr = MMOSkillManager::getSingleton();
 	for( int i = 0; i < SKILL_EQUIP_MAX; ++i ){
 		INT slotHotKey = mmoSkillMgr.GetSkillSlotDefaultBindEnum( i );
-		//当前技能
+		//Current ability
 		UMMOAbility* curEquippedSkill = mmoSkillMgr.GetEquippedSkill( slotHotKey );
 		INT curEquippedSkillID = ( curEquippedSkill != NULL ? curEquippedSkill->eventGetAbilityId() : 0 );
 
-		//当前武器技能
+		//Current weapon ability
 		UBOOL isSkillActive = FALSE;
 		UMMOAbility* weaponSkill = GetWeaponRuneSkillByCmdKey( slotHotKey, E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND, isSkillActive );
-		//如果此武器附带此键位已激活的技能
+		//If this weapon carries an ability activated for this key slot
 		if( canEquipWeaponSkill && ( weaponSkill != NULL && isSkillActive ) ){
 			INT weaponSkillID = ( weaponSkill->MainSkill ? weaponSkill->MainSkill->eventGetAbilityId() : weaponSkill->eventGetAbilityId() );
-			//设置技能
+			//Set ability
 			if( curEquippedSkill == NULL || curEquippedSkillID != weaponSkillID ){
-				//设置主技能
+				//Set main ability
 				CMessageHandler::GetInstance().Send_EquipSpell( slotHotKey, weaponSkillID );
 				//
 				isSkillChanged = TRUE;
 			}
 		}
 		else if( curEquippedSkill != NULL ){
-			//禁用某些技能
+			//Disable some abilities
 			INT curRuneSkillSlotId = curEquippedSkill->GetRuneSlot();
 			if( curRuneSkillSlotId > 0 ){
 				if( weaponSkill != NULL ){
@@ -413,7 +413,7 @@ UBOOL MMOEquipManager::EquipSkillsToFitCurWeapon( UBOOL canEquipWeaponSkill )
 					INT weaponRuneSkillSlotId = weaponSkill->GetRuneSlot();
 
 					if( curEquippedSkillID == weaponSkillID && weaponRuneSkillSlotId == curRuneSkillSlotId ){
-						//技能一样，不需要操作
+						//Same ability, no operation needed
 						continue;
 					}
 				}
@@ -433,10 +433,10 @@ UBOOL MMOEquipManager::EquipSkillsToFitCurWeapon( UBOOL canEquipWeaponSkill )
 		//if( canEquipWeaponSkill && weaponSkill != NULL && isSkillActive == TRUE ){
 		//	INT weaponSkillID = ( weaponSkill->MainSkill ? weaponSkill->MainSkill->eventGetAbilityId() : weaponSkill->eventGetAbilityId() );
 		//	if( curSkillID != weaponSkill->MainSkill->eventGetAbilityId() ){
-		//		//设置主技能
+		//		//Set main ability
 		//		CMessageHandler::GetInstance().Send_EquipSpell( slotHotKey, weaponSkillID );
 		//	}
-		//	//设置子技能
+		//	//Set sub ability
 		//	INT runeSlotId = weaponSkill->GetRuneSlot();
 		//	UMMOAbility* curEquipedSkill = mainPlayer->GetMainAbilityById( curSkillID );
 		//	if( curEquipedSkill != NULL && curEquipedSkill->GetRuneSlot() != runeSlotId ){
@@ -447,13 +447,13 @@ UBOOL MMOEquipManager::EquipSkillsToFitCurWeapon( UBOOL canEquipWeaponSkill )
 		//	isEquipedWeaponSkill = TRUE;
 		//}
 		//else if( canEquipWeaponSkill == FALSE ){
-		//	//如果不允许自动替换技能，那屏蔽不符合铸魂系统的技能
+		//	//If automatic ability replacement is not allowed, block abilities that do not fit the soul-casting system
 		//	if( weaponSkill == NULL || ( curSkillID != weaponSkill->MainSkill->eventGetAbilityId() ) ){
-		//		//武器上没有先前装备的技能
+		//		//The weapon does not have the previously equipped ability
 		//		CMessageHandler::GetInstance().Send_EquipRune( slotHotKey, 0 );
 		//	}
 		//	else{
-		//		//武器上有先前装配的技能但是不是子技能不同
+		//		//The weapon has the previously equipped ability but the sub ability differs
 		//		INT runeSlotId = weaponSkill->GetRuneSlot();
 		//		UMMOAbility* curEquipedSkill = mainPlayer->GetMainAbilityById( curSkillID );
 		//		if( curEquipedSkill != NULL && curEquipedSkill->GetRuneSlot() != runeSlotId ){
@@ -506,14 +506,14 @@ void MMOEquipManager::ModifyEquippedSkillsAccordingSyncEquippedWeapon()
 	////
 	//for( int i = 0; i < SKILL_EQUIP_MAX; ++i ){
 	//	INT slotHotKey = mmoSkillMgr.GetSkillSlotDefaultBindEnum( i );
-	//	//当前技能
+	//	//Current ability
 	//	UMMOAbility* curEquippedSkill = mmoSkillMgr.GetEquippedSkill( slotHotKey );
 	//	if( curEquippedSkill == NULL ){
 	//		continue;
 	//	}
 	//	INT curSkillMainID = curEquippedSkill->eventGetAbilityId();
 
-	//	//当前武器技能
+	//	//Current weapon ability
 	//	UBOOL isSkillActive = FALSE;
 	//	UMMOAbility* weaponSkill = GetWeaponRuneSkillByCmdKey( slotHotKey, E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND, isSkillActive );
 	//	if( isSkillActive == FALSE || weaponSkill == NULL ){
@@ -524,7 +524,7 @@ void MMOEquipManager::ModifyEquippedSkillsAccordingSyncEquippedWeapon()
 	//	INT activeSkillLevel = curEquippedSkill->SpellCommonAttribute.Level;
 	//	INT weaponSkillRunSlotID = weaponSkill->GetRuneSlot();
 
-	//	//如果装备的技能与武器技能不一样，则不进行操作
+	//	//If the equipped ability differs from the weapon ability, do nothing
 	//	if( weaponSkillMainID != curSkillMainID ){
 	//		continue;
 	//	}
@@ -546,15 +546,15 @@ void MMOEquipManager::UpdateSkillLevelByCurWeapon()
 	for( int i = 0; i < SKILL_EQUIP_MAX; ++i ){
 		INT slotHotKey = mmoSkillMgr.GetSkillSlotDefaultBindEnum( i );
 
-		//当前武器技能
+		//Current weapon ability
 		UBOOL isSkillActive = FALSE;
 		UMMOAbility* weaponSkill = GetWeaponRuneSkillByCmdKey( slotHotKey, E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND, isSkillActive );
-		//如果此武器附带此键位已激活的技能
+		//If this weapon carries an ability activated for this key slot
 		if( weaponSkill != NULL && isSkillActive ){
 			INT weaponSkillID = ( weaponSkill->MainSkill ? weaponSkill->MainSkill->eventGetAbilityId() : weaponSkill->eventGetAbilityId() );
 			INT weaponRuneSkillSlotId = weaponSkill->GetRuneSlot();
 
-			//当前技能
+			//Current ability
 			UMMOAbility* curEquipedSkill = mmoSkillMgr.GetEquippedSkill( slotHotKey );
 			INT curSkillID = -1;
 			INT curRuneSkillSlotId = -1;
@@ -563,10 +563,10 @@ void MMOEquipManager::UpdateSkillLevelByCurWeapon()
 				curRuneSkillSlotId = curEquipedSkill->GetRuneSlot();
 			}
 
-			//设置技能
+			//Set ability
 			if( curSkillID == weaponSkillID && weaponRuneSkillSlotId == curRuneSkillSlotId ){
 				if( curEquipedSkill->MainSkill != NULL ){
-					//武器上只有符文技能
+					//The weapon only has rune abilities
 					UMMOAbility* curEquipedSkillMainSkill = curEquipedSkill->MainSkill;
 					curEquipedSkillMainSkill->SubRuneList( curRuneSkillSlotId ) = weaponSkill;
 				}
@@ -575,7 +575,7 @@ void MMOEquipManager::UpdateSkillLevelByCurWeapon()
 	}//end of loop weapon skills
 }
 //=================================================================================================================================
-//强化
+//Enhancement
 const EnhanceData* MMOEquipManager::GetEnhanceConsumption( UINT curEnhanceLv )
 {
 	if( !_EnhanceConsumptionContainer.IsValidIndex( curEnhanceLv ) ){
@@ -649,7 +649,7 @@ const EnhanceResult* MMOEquipManager::GetEnhanceResultInEquipBag( UINT bagIdx )
 }
 
 //=============================================================================================================================
-//读取物品强化信息
+//Read item enhancement info
 #if 0
 UBOOL MMOEquipManager::ReadItemEnhanceConsumption()
 {
@@ -670,7 +670,7 @@ UBOOL MMOEquipManager::ReadItemEnhanceConsumption()
 
 	//
 	EnhanceData data;
-	//剔除标题行
+	//Remove the header row
 	UINT skipRow = M_SKIP_ROWS;
 	for( UINT i = skipRow; i < rowCnt; ++i )
 	{
@@ -678,7 +678,7 @@ UBOOL MMOEquipManager::ReadItemEnhanceConsumption()
 		UINT len = tabFile->GetColCount(); // ArrayString.Num();
 		if( len < 10 )
 		{
-			M_AddDataError(TEXT("item_refine.txt"), FString::Printf(TEXT("强化数据不正确，第 %d 行"),i));
+			M_AddDataError(TEXT("item_refine.txt"), FString::Printf(TEXT("Invalid enhancement data, row %d"),i));
 			_EnhanceConsumptionContainer.Push( data );
 			continue;
 		}
@@ -720,7 +720,7 @@ UBOOL MMOEquipManager::ReadItemEnhanceConsumption()
 	//TCHAR*	pDataNew=	new TCHAR[size+1];
 	//UBOOL	returnLine = FALSE;
 
-	////查找有多少行
+	////Find how many rows there are
 	//INT m_nLine = 0;
 	//for(int i=2;i<=size;i++)
 	//{
@@ -729,7 +729,7 @@ UBOOL MMOEquipManager::ReadItemEnhanceConsumption()
 
 	//int nStart = 0;
 	//TCHAR Out[512];
-	////读取标头栏
+	////Read the header
 	////level
 	//res=ReadStrNode(pData,nStart,Out,&returnLine);
 	////0~11
@@ -751,19 +751,19 @@ UBOOL MMOEquipManager::ReadItemEnhanceConsumption()
 	//res=ReadStrNode(pData,nStart,Out,&returnLine);
 	//res=ReadStrNode(pData,nStart,Out,&returnLine);
 	////
-	////初始化
+	////Initialize
 	//MMO::Facade::InitEnhanceData( m_nLine-1,12 );
 	//for(int i=1;i<m_nLine;i++)
 	//{
-	//	//读取每一行
-	//	//物品所需最低等级
+	//	//Read each row
+	//	//Minimum level required for the item
 	//	res=ReadStrNode(pData,nStart,Out,&returnLine);
 	//	UINT uItemMinLv = appAtoi(Out);
 	//	//
 	//	TArray<FString> cntArray;
 	//	for( int j=0; j<12; ++j )
 	//	{
-	//		//强化j级所需材料数量"x,x,x,x,x"
+	//		//Number of materials required for enhancement level j "x,x,x,x,x"
 	//		res=ReadStrNode(pData,nStart,Out,&returnLine);
 	//		//
 	//		FString cntData = Out;
@@ -813,7 +813,7 @@ UBOOL MMOEquipManager::ReadItemEnhanceResult()
 
 	_EnhanceEquipProp.Empty();
 	//_enhanceWeaponProp.Empty();
-	//剔除标题行和一行无效行
+	//Remove the header row and one invalid row
 	UINT rowCnt = tabFile->GetRowCount();  //ArrayString2D.Num();
 	UINT lastLv = 0;
 	UINT skipRow = M_SKIP_ROWS;
@@ -856,7 +856,7 @@ UBOOL MMOEquipManager::ReadItemEnhanceResult()
 }
 #endif
 //=============================================================================================================================
-//读取物品强化信息
+//Read item enhancement info
 UBOOL MMOEquipManager::ReadEquipSuit()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("MMOEquipManager::ReadEquipSuit"), 0);
@@ -984,7 +984,7 @@ EquipSuit* MMOEquipManager::FindOrLoadFullEquipSuitBySuitID( INT suitID )
 	return pEquipSuit;
 }
 
-////强化数据
+////Enhancement data
 //void Facade::InitEnhanceData( UINT itemLvCnt, UINT enhanceLvCnt)
 //{
 //	TArray<EnhanceData> rowData;
@@ -1026,7 +1026,7 @@ EquipSuit* MMOEquipManager::FindOrLoadFullEquipSuitBySuitID( INT suitID )
 //}
 
 //=============================================================================================================================
-//读取融灵信息
+//Read spirit fusion info
 UBOOL MMOEquipManager::ReadSoulInfoTemplates()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("MMOEquipManager::ReadSoulInfoTemplates"), 0);
@@ -1039,11 +1039,11 @@ UBOOL MMOEquipManager::ReadSoulInfoTemplates()
 	}
 
 	_SoulInfoTemplateMap.Empty();
-	//剔除标题行
-	//跳过第0号
+	//Remove the header row
+	//Skip number 0
 	UINT rowCnt = tabFile->GetRowCount();
 	UINT idx = 0;
-	//实际数据从第四行开始，标题行，N/A行，0行
+	//Actual data starts from row 4; header row, N/A row, row 0
 	UINT skipRow = M_SKIP_ROWS;
 	for( UINT i = skipRow ; i < rowCnt; ++i, ++idx )
 	{
@@ -1069,7 +1069,7 @@ const SoulInfo* MMOEquipManager::FindSoulInfoByItemTemplateID( INT itemID )
 	return _SoulInfoTemplateMap.Find( itemID );
 }
 //=============================================================================================================================
-//武器技能（符文技能）
+//Weapon ability (rune ability)
 UBOOL MMOEquipManager::ReadWeaponRuneSkillData()
 {
 	SCOPE_LOG_TIME(___INIT__, TEXT("MMOEquipManager::ReadWeaponRuneSkillData"), 0);
@@ -1082,9 +1082,9 @@ UBOOL MMOEquipManager::ReadWeaponRuneSkillData()
 	_EquipRuneSkills.Empty();
 
 	UINT rowCnt = tabFile->GetRowCount();
-	//跳过一行标题和一行无用数据
+	//Skip one header row and one useless data row
 	UINT skipRow = M_SKIP_ROWS;
-	for( UINT i = skipRow; i < rowCnt; ++i ) // 第3行是默认值，不需要读进来
+	for( UINT i = skipRow; i < rowCnt; ++i ) // Row 3 is the default value, no need to read it in
 	{
 
 		INT weaponSkillID		= appAtoi( tabFile->GetData( TEXT("RuneID"), i ) );
@@ -1117,16 +1117,16 @@ UBOOL MMOEquipManager::ReadWeaponRuneSkillData()
 //
 //	//
 //	TMap< FString, INT > classLookUpMap;
-//	classLookUpMap.FindOrAdd( TEXT("clsWarrior") ) = EPCT_PlayerClassA;//战士
-//	classLookUpMap.FindOrAdd( TEXT("clsMage") ) = EPCT_PlayerClassB;//法师
-//	classLookUpMap.FindOrAdd( TEXT("clsRogue") ) = EPCT_PlayerClassC;//刺客
-//	classLookUpMap.FindOrAdd( TEXT("clsArcher") ) = EPCT_PlayerClassD;//弓手
+//	classLookUpMap.FindOrAdd( TEXT("clsWarrior") ) = EPCT_PlayerClassA;//warrior
+//	classLookUpMap.FindOrAdd( TEXT("clsMage") ) = EPCT_PlayerClassB;//mage
+//	classLookUpMap.FindOrAdd( TEXT("clsRogue") ) = EPCT_PlayerClassC;//assassin
+//	classLookUpMap.FindOrAdd( TEXT("clsArcher") ) = EPCT_PlayerClassD;//archer
 //
 //	_EquipRuneSkills.Empty();
 //
 //	UINT rowCnt = ArrayString2D.Num();
-//	//跳过一行标题和一行无用数据
-//	for( UINT i=0+3; i < rowCnt; ++i ) // 第3行是默认值，不需要读进来
+//	//Skip one header row and one useless data row
+//	for( UINT i=0+3; i < rowCnt; ++i ) // Row 3 is the default value, no need to read it in
 //	{
 //		TArray<FString>& ArrayString = ArrayString2D(i);
 //
@@ -1134,7 +1134,7 @@ UBOOL MMOEquipManager::ReadWeaponRuneSkillData()
 //		UINT len = ArrayString.Num();
 //		if( len < 5 )
 //		{
-//			M_AddDataError(TEXT("weapon_rune_id.txt"), FString::Printf(TEXT("数据不正确，第 %d 行."), i + 1));
+//			M_AddDataError(TEXT("weapon_rune_id.txt"), FString::Printf(TEXT("Incorrect data, row %d."), i + 1));
 //			continue;
 //		}
 //
@@ -1142,7 +1142,7 @@ UBOOL MMOEquipManager::ReadWeaponRuneSkillData()
 //		INT *pClassEnum = classLookUpMap.Find( ArrayString(0) );
 //		if( pClassEnum == NULL )
 //		{
-//			M_AddDataError(TEXT("weapon_rune_id.txt"), FString::Printf(TEXT("玩家职业不正确，第 %d 行."), i + 1 ));
+//			M_AddDataError(TEXT("weapon_rune_id.txt"), FString::Printf(TEXT("Incorrect player class, row %d."), i + 1 ));
 //			continue;
 //		}
 //
@@ -1301,7 +1301,7 @@ void MMOEquipManager::SetWeaponRplcCachedRune( INT weaponSkillSlotIdx, INT weapo
 //---------------------------------------------------------------------------------------------------------------------------
 void MMOEquipManager::NotifyWeaponRplcCachedRuneChg( UINT16 (&weaponSkillIDs)[MAX_RUNE_COUNT], UBOOL isSuccess )
 {
-	INT cnt = EQUIP_RUNE_SKILL_MAX < MAX_RUNE_COUNT ? EQUIP_RUNE_SKILL_MAX : MAX_RUNE_COUNT;//现在只有2个，服务器的定义还是6个，这里只去2个
+	INT cnt = EQUIP_RUNE_SKILL_MAX < MAX_RUNE_COUNT ? EQUIP_RUNE_SKILL_MAX : MAX_RUNE_COUNT;//currently there are only 2, the server definition is still 6, only take 2 here
 	for( INT i = 0; i < cnt; ++i )
 	{
 		_WeaponRplcCachedRune[i] = (UINT)weaponSkillIDs[i];
@@ -1347,7 +1347,7 @@ INT MMOEquipManager::GetWeaponCurSkillSlotCnt( const ItemInfo *pItemInfo )
 //=============================================================================================================================
 //UMMOAbility* MMOEquipManager::GetWeaponRuneSkillBase( UINT itemTemplateID, INT skillBindSlot, INT weaponSkillTypeInSlot, INT weaponSkillLv )
 //{
-//	//取到武器上的符文技能类型
+//	//Get the rune ability type on the weapon
 //	if( skillBindSlot < 0 || skillBindSlot >= MAX_RUNE_COUNT ){
 //		return NULL;
 //	}
@@ -1356,36 +1356,36 @@ INT MMOEquipManager::GetWeaponCurSkillSlotCnt( const ItemInfo *pItemInfo )
 //		return NULL;
 //	}
 //
-//	//取到物品使用职业
+//	//Get the classes that can use the item
 //	UItem *pItem = MMOFacade::getSingleton().FindItemTemplate( itemTemplateID );
 //	//UEquip *pWeapon = Cast<UEquip>( pItem );
 //	if( pItem == NULL ){
 //		return NULL;
 //	}
 //	INT playerClass = -1;
-//	//战士
+//	//Warrior
 //	if( pItem->RequireClass.bClassType1 ){
 //		playerClass = EPCT_PlayerClassA;
 //	}
-//	//法师
+//	//Mage
 //	if( pItem->RequireClass.bClassType2 ){
 //		playerClass = EPCT_PlayerClassB;
 //	}
-//	//刺客
+//	//Assassin
 //	if( pItem->RequireClass.bClassType3 ){
 //		playerClass = EPCT_PlayerClassC;
 //	}
-//	//弓手
+//	//Archer
 //	if( pItem->RequireClass.bClassType4 ){
 //		playerClass = EPCT_PlayerClassD;
 //	}
 //	//
 //	if( playerClass < 0 ){
 //		M_AddDataError(TEXT("weapon_rune_id.txt"), FString::Printf(
-//			TEXT("武器 ID[%d]没有配置RequireClass"), itemTemplateID ));
+//			TEXT("Weapon ID[%d] has no RequireClass configured"), itemTemplateID ));
 //		return NULL;
 //	}
-//	//找到对应的技能ID
+//	//Find the corresponding ability ID
 //	INT uniqueSkillID;
 //	UBOOL isFound = GetSkillUniqueIDOnWeapon( uniqueSkillID, weaponSkillID );
 //	if( isFound != TRUE ){
@@ -1398,7 +1398,7 @@ INT MMOEquipManager::GetWeaponCurSkillSlotCnt( const ItemInfo *pItemInfo )
 //	UINT skillRuneID = 0;
 //	MMOSkillManager::DecomposeAbilityID( uniqueSkillID, skillID, skillLv, skillRuneID );
 //
-//	//是否已经激活
+//	//Whether already activated
 //	UBOOL outIsSkillActive = FALSE;
 //	if( weaponSkillLv > 0 ){
 //		skillLv = weaponSkillLv;
@@ -1408,7 +1408,7 @@ INT MMOEquipManager::GetWeaponCurSkillSlotCnt( const ItemInfo *pItemInfo )
 //		skillLv = 1;
 //	}
 //
-//	//再组合回去找技能
+//	//Recombine and look up the ability again
 //	uniqueSkillID = MMOSkillManager::CombinateAbilityID( skillID, skillLv, skillRuneID );
 //	UMMOAbility* runeSkill = MMOSkillManager::getSingleton().FindAbilityTemplate( uniqueSkillID );
 //
@@ -1573,7 +1573,7 @@ UBOOL MMOEquipManager::CheckItemUseableForMe( const UItem *pItem ) const
 		return ITEM_Use_Err_RequireClass;
 	}
 
-	//下面是可以发生变化的属性检查
+	//Below are checks for attributes that can change
 	INT playerLv = mainPlayer->GetActorLevel();
 	if( playerLv < pItem->RequireLevel ){
 		return ITEM_Use_Err_LowLevel;
@@ -1740,7 +1740,7 @@ UBOOL MMOEquipManager::ShortcutToPutIntoUIPanel( INT fromSlotType, INT container
 		return FALSE;
 	}
 
-	//是否是铭文武器
+	//Whether it is an inscription weapon
 	UBOOL isEquip = ( pItemInBag->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON") );
 	if( isEquip ){
 		UMMOUIWeaponSkill *pWeaponSkillPanel = (UMMOUIWeaponSkill*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_WeaponSkill );
@@ -1761,15 +1761,15 @@ UBOOL MMOEquipManager::ShortcutToPutIntoUIPanel( INT fromSlotType, INT container
 				pWeaponSkillPanel->ChangeToNoOpMode( TRUE );
 				pWeaponSkillPanel->ChangeToSealMode( FALSE );
 				pWeaponSkillPanel->Show( TRUE );
-				//只看，不能操作
+				//View only, cannot operate
 				pWeaponSkillPanel->SetCurWeapon( containerID, slotID );
 			//}
 		}
 		return TRUE;
 	}
 
-	//只有Vip可以
-	////是否是有孔装备可镶嵌宝石
+	//Only Vip can
+	////Whether it is socketed equipment that can be inlaid with gems
 	//const UEquip *pEmbedEquip = ConstCast<UEquip>( pItemInBag );
 	//if( fromSlotType == ESPType_Bag && pEmbedEquip != NULL ){
 	//	ClientActionCondition_SoulEmbedOrUnEmbed checker;
@@ -1779,7 +1779,7 @@ UBOOL MMOEquipManager::ShortcutToPutIntoUIPanel( INT fromSlotType, INT container
 
 	//	if( checker.CheckClientActionCondition(contex) ){
 	//		for(INT i = 0; i < MAX_SOCKET_COUNT; ++i){
-	//			//检查嵌有灵石的孔洞
+	//			//Check sockets inlaid with spirit stones
 	//			if( pItemInfo->GetSocketType(i) != E_SOCKET_NONE ){
 	//				UMMOUISoulEmbed *soulEmbedPanel = (UMMOUISoulEmbed*)MMOUI::GetUIManager()->ShowPanelEx( MMOUI::GetUIManager()->Panel_SoulEmbed, TRUE, "");
 	//				if( soulEmbedPanel != NULL ){
@@ -1864,7 +1864,7 @@ void MMOEquipManager::BeforeServerEquipSwapHandleWeaponMainSkill( INT srcConIdx,
 		TArray< UMMOAbility* > thisEquipSkillArray;
 		mmoSkillMgr.GetEquipmentEquipSkillBy( toCheckEquipSkillEquipSlot, thisEquipSkillArray );
 
-		//此装备有哪些技能
+		//Which abilities this equipment has
 		INT loopCnt = thisEquipSkillArray.Num();
 		for( INT i = 0; i < loopCnt; ++i ){
 			UMMOAbility *equipAblility = thisEquipSkillArray( i );
@@ -1880,14 +1880,14 @@ void MMOEquipManager::BeforeServerEquipSwapHandleWeaponMainSkill( INT srcConIdx,
 			if( sameSkillEquipmentArray.Num() <= 1 && pSkillBarPanel != NULL ){
 				UMMOAbility *skillBookLearnedSkill = mmoSkillMgr.FindMyLearnedMainSkillByBook( skillID );
 				if( skillBookLearnedSkill == NULL ){
-					//只有一个装备提供此技能
+					//Only one piece of equipment provides this ability
 					pSkillBarPanel->UnequipAllSkills( skillID );
 				}
 			}
 		}
 	}
 
-	//如果有带技能的装备交换位置，记录的技能对应装备槽位信息也要调整
+	//If equipment with abilities swaps positions, the recorded ability-to-equipment-slot info must also be adjusted
 	if( srcConIdx == E_CONSLOT_EQUIPPED && dstConIdx == E_CONSLOT_EQUIPPED ){
 		mmoSkillMgr.SwapMyLearnedMainSkillEquipID( srcConIdx, dstConIdx );
 	}
@@ -1905,7 +1905,7 @@ void MMOEquipManager::CheckEquipmentHandleWeaponMainSkill( INT toCheckEquipSkill
 	TArray< UMMOAbility* > thisEquipSkillArray;
 	mmoSkillMgr.GetEquipmentEquipSkillBy( toCheckEquipSkillEquipSlot, thisEquipSkillArray );
 
-	//此装备有哪些技能
+	//Which abilities this equipment has
 	INT loopCnt = thisEquipSkillArray.Num();
 	for( INT i = 0; i < loopCnt; ++i ){
 		UMMOAbility *equipAblility = thisEquipSkillArray( i );
@@ -1937,7 +1937,7 @@ void MMOEquipManager::CheckEquipmentHandleWeaponMainSkill( INT toCheckEquipSkill
 		if( !isEffected ){
 			UMMOAbility *skillBookLearnedSkill = mmoSkillMgr.FindMyLearnedMainSkillByBook( skillID );
 			if( skillBookLearnedSkill == NULL ){
-				//只有一个装备提供此技能
+				//Only one piece of equipment provides this ability
 				UMMOUISkillBar *pSkillBarPanel = (UMMOUISkillBar*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Skillbar );
 				if( pSkillBarPanel != NULL ){
 					pSkillBarPanel->UnequipAllSkills( skillID );
@@ -1962,7 +1962,7 @@ UBOOL MMOEquipManager::ReadEquipLevelUpData()
 
 	UINT rowCnt = tabFile->GetRowCount();
 	UINT skipRow = M_SKIP_ROWS;
-	//实际数据从第3行开始，标题行，N/A行
+	//Actual data starts from row 3; header row, N/A row
 	_EquipLevelUpCfg.Add( rowCnt > skipRow ? (rowCnt - skipRow) : 0 );
 	for( UINT i = skipRow ; i < rowCnt; ++i )
 	{

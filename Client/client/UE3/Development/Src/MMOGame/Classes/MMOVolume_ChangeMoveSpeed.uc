@@ -3,25 +3,25 @@ class MMOVolume_ChangeMoveSpeed extends TriggerVolume
 	placeable
 	native;
 
-// 区域ID，和服务器配置一致
+// Area ID, consistent with the server config
 var(MMOServer) int ServerID;
 
-// 玩家移动速度改变为多少倍速
+// Multiplier the player move speed changes to
 var(MMOServer) float SpeedChange;
 
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 native function RegisterToFacade();
-// 取得物体大小
+// Get object size
 native function Box GetObjectServerBounds();
 
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
 simulated function PreBeginPlay()
 {	
 	Super.PreBeginPlay();
 
-	// 编辑器中打开碰撞，平时关掉碰撞，由服务器通知
+	// Collision is enabled in the editor and normally disabled, notified by the server
 	//if(!WorldInfo.IsPlayInEditor())
 	//{
 	//	SetCollision(false, false, true);

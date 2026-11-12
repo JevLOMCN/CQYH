@@ -127,7 +127,7 @@ void UMMOUIMoneyExchange::RefreshLog()
 		appSecondsToLocalTime( (time_t)logArray(i).dwShopTime , year , month , dayOfWeek , day , hour , min , sec );
 
 
-		FString::Printf( TEXT("%s ”√%s ∂“ªª¡À%s <br>") , 
+		FString::Printf( TEXT("%s exchanged %s for %s <br>") , 
 			*FString::Printf( TEXT("%d-%d-%d %d:%02d:%02d ") , year , month , day , hour , min , sec ) , 
 			*UITextParser::HTMLMoneyIconString( MONEYTYPE_04 , logArray(i).nCost )  , 
 			*UITextParser::HTMLMoneyIconString( MONEYTYPE_02 , logArray(i).nItemCount ) );

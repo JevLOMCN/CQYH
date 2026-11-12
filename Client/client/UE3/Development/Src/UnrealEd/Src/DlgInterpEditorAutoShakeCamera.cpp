@@ -3,7 +3,7 @@
 	Filename: 	DlgInterpEditorAutoShakeCamera
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	Matinee自动添加震屏动画
+	Purpose:	Matinee auto-add screen shake animation
 *********************************************************************/
 
 #include "UnrealEd.h"

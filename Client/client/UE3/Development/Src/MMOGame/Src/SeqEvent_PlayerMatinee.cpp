@@ -22,8 +22,8 @@ void USeqEvent_PlayerMatineeStop::Activated()
         if (!seqAct->bIsSkippable)
             continue;
 
-        const FLOAT RightBeforeEndTime = 0.1f;  // 剩余时间
-        const FLOAT InitialNoSkipTime = 0;      // 至少要播放
+        const FLOAT RightBeforeEndTime = 0.1f;  // remaining time
+        const FLOAT InitialNoSkipTime = 0;      // must play at least
         if ((seqAct->Position < seqAct->InterpData->InterpLength - RightBeforeEndTime) && 
             (seqAct->Position >= InitialNoSkipTime))
         {

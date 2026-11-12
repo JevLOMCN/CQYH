@@ -31,7 +31,7 @@ var const int TO_HELP_ITEM_MAX;//5
 var OperationItemBagPos _ToHelpItem[5];
 var GFxObject _ToHelpItemSlot[5];
 
-//条件是否满足，可以开始强化（取消强化）
+//Whether conditions are met and enhance (cancel enhance) can start
 var bool IsMnyOK;
 
 //
@@ -39,7 +39,7 @@ var GFxObject _ConfirmBox;
 
 native function NativeInitLoad();
 
-//监控事件，以实时更新条件
+//Monitor events to update conditions in real time
 native function BagSlotChange( INT bagId,INT slotId );
 native function PlayerMoneyChange(EMONEY_TYPE MoneyType, int DeltaMoney);
 //
@@ -69,12 +69,12 @@ event CallAsShowPopUpBox( bool isToShow )
 {
 	ActionScriptVoid( "UCShowLevelUpResult" );
 }
-//更新
+//Update
 native function UpdatePanel();
-//清空界面内容
+//Clear UI content
 native function ResetPanel();
 
-//更新金钱耗费
+//Update money cost
 native function UpdateFee();
 
 //

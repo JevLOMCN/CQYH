@@ -618,7 +618,7 @@ DWORD FShaderCompilingThreadManager::LaunchWorker(const FString& WorkingDirector
 	if( !WorkerHandle )
 	{
 		// If this doesn't error, the app will hang waiting for jobs that can never be completed
-		appErrorf( TEXT( "检测到数据包有错误，请运行全文件修复(FixClient)后进入游戏。\nCouldn't launch %s! Make sure the exe is in your binaries folder." ), *ShaderCompileWorkerName );
+		appErrorf( TEXT( "Data package error detected. Please run the full file repair (FixClient) and then start the game.\nCouldn't launch %s! Make sure the exe is in your binaries folder." ), *ShaderCompileWorkerName );
 	}
 	DWORD WorkerId = 0;
 #if _WINDOWS

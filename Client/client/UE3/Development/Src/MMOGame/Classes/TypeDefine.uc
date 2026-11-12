@@ -1,12 +1,12 @@
 //
-// 通用类型定义,避免脚本循环依赖
+// common type definitions, to avoid script circular dependencies
 //
 class TypeDefine extends Object
 	dependson(ServerEnum)
 	native;
 
 /*
- * 体形类型,仅用于音效
+ * body type, used only for sound effects
  */
  //`define ServeNum 13
 enum EMenuType
@@ -73,7 +73,7 @@ enum EBodyType
 	EBDT_SuperHeavy     <DisplayName="SuperHeavy">,
 };
 
-// 全部装备
+// all equipment
 enum EEquipType
 {
 	EET_Normal_MainHand         <DisplayName="MainHand">,
@@ -93,7 +93,7 @@ enum EEquipType
 ////};
 //	EET_Normal_Count,
 //
-////// 时装装备
+////// fashion equipment
 ////enum EAvatarShowType
 ////{
 //	EET_Avatar_Head			<DisplayName="AvatarHead">,
@@ -143,28 +143,28 @@ enum EEquipType
 //};
 
 /*
-EWT_Weapon_0=空手
-EWT_Weapon_1=单持挥砍类(单手剑)
-EWT_Weapon_2=单持敲打类(单手锤)
-EWT_Weapon_3=并持短柄重型类(双手剑)
-EWT_Weapon_4=并持长柄重型类(长柄斧)
-EWT_Weapon_5=双持重型类(双斧)
-EWT_Weapon_6=并持东方长柄类(长矛)
-EWT_Weapon_7=双持手套类(拳刺)
-EWT_Weapon_8=双持短兵类(双匕)
-EWT_Weapon_9=双持链刃类(链刃)
-EWT_Weapon_10=双持手弩类(双弩)
-EWT_Weapon_11=弩
-EWT_Weapon_12=弓
-EWT_Weapon_13=单持短柄类(刀)
-EWT_Weapon_14=法杖
-EWT_Weapon_14=法杖
-EWT_Weapon_15=大型盾
-EWT_Weapon_16=小型盾
-EWT_Weapon_17=法器
-EWT_Weapon_18=剑
-EWT_Weapon_19=扇子
-EWT_Weapon_20=棍
+EWT_Weapon_0=bare hands
+EWT_Weapon_1=single-wield slashing (one-handed sword)
+EWT_Weapon_2=single-wield blunt (one-handed hammer)
+EWT_Weapon_3=two-handed short-hilt heavy (two-handed sword)
+EWT_Weapon_4=two-handed long-hilt heavy (long-hilt axe)
+EWT_Weapon_5=dual-wield heavy (dual axes)
+EWT_Weapon_6=two-handed Eastern long-hilt (spear)
+EWT_Weapon_7=dual-wield gloves (fist spikes)
+EWT_Weapon_8=dual-wield short blades (dual daggers)
+EWT_Weapon_9=dual-wield chain blades (chain blades)
+EWT_Weapon_10=dual-wield hand crossbows (dual crossbows)
+EWT_Weapon_11=crossbow
+EWT_Weapon_12=bow
+EWT_Weapon_13=single-wield short-hilt (saber)
+EWT_Weapon_14=staff
+EWT_Weapon_14=staff
+EWT_Weapon_15=large shield
+EWT_Weapon_16=small shield
+EWT_Weapon_17=magic implement
+EWT_Weapon_18=sword
+EWT_Weapon_19=fan
+EWT_Weapon_20=staff (club)
 */
 
 
@@ -216,8 +216,8 @@ enum EWeaponAppearenceType
 };
 
 /**
-* 身体部分模型的类型
-* 用于在合并时区分不同模型部位
+* type of body part model
+* used to distinguish different model parts when merging
 */
 enum EBodyMeshType
 {
@@ -246,7 +246,7 @@ enum EBodyMeshType
 };
 
 /*
- * 物品材质类型,仅用于音效,定义所有物品材质类型,包含武器,服装
+ * item material type, used only for sound effects, defines all item material types, including weapons and clothing
  * 
  */
 enum EItemMaterialType
@@ -263,7 +263,7 @@ enum EItemMaterialType
 	EIMAT_Mat9    <DisplayName="EIMAT_Mat9">,
 };
 
-// UI鼠标状态
+// UI mouse state
 enum Mouse_State
 {
 	EMS_Normal,
@@ -289,8 +289,8 @@ enum EHint_Type
 	EHT_Texture,
 };
 
-// 玩家攻击动画 hemu@snda 用于AnimMixMatrix
-//以后添加需要回招动画的技能动画在这里添加 DisplayName为Anim的名字
+// player attack animation hemu@snda used for AnimMixMatrix
+//add ability animations that need a recovery animation here in the future; DisplayName is the Anim name
 enum EAnimMixSource
 {
 	EAMS_Combo11    <DisplayName="attack31">,
@@ -302,15 +302,15 @@ enum EAnimMixSource
 	EAMS_Combo23    <DisplayName="attack43">,
 	EAMS_Combo24    <DisplayName="attack44">,
 };
-// 玩家状态 hemu@snda 用于AnimMixMatrix
-//玩家的状态在这里添加 DisplayName为Anim的名字
+// player state hemu@snda used for AnimMixMatrix
+//add player states here; DisplayName is the Anim name
 enum EAnimMixTarget
 {
 	EAMT_Idle	    <DisplayName="attack_idle">,
 	EAMT_Run	    <DisplayName="Run">,
 };
 
-//song@snda.com 测试服务器专属属性
+//song@snda.com test server exclusive property
 //enum EModifier
 //{
 //	EMF_FireDamage,
@@ -338,7 +338,7 @@ enum EActorMoveType
 	EMT_Run_Oblique,
 	EMT_Fly,
 	EMT_Fly_Oblique,
- 	EMT_PrepareStall, // TODO:以后重构为面的StallState，并且把这些状态的状态机划分出来
+ 	EMT_PrepareStall, // TODO: later refactor into a separate StallState, and split out the state machines of these states
  	EMT_InStall, 
 //	EMT_Ride,
 };
@@ -413,12 +413,12 @@ enum EItemColor
 
 // enum EItemBindType
 // {
-//     EIBT_NONE <DisplayName="None">,      //不绑定
-//     EIBT_BOU <DisplayName="BindOnUse">,       //使用绑定, bind on use
-//     EIBT_BOE <DisplayName="BindOnEquip">,       //装备绑定, bind on equip
-//     EIBT_BOP <DisplayName="BindOnPickup">,       //拾取绑定, bind on pick up
-//     EIBT_BOT <DisplayName="BindOnTrade">,       //交易绑定, bind on trade
-//     EIBT_BINDED <DisplayName="AlreadyBound">     //已绑定
+//     EIBT_NONE <DisplayName="None">,      //no binding
+//     EIBT_BOU <DisplayName="BindOnUse">,       //bind on use, bind on use
+//     EIBT_BOE <DisplayName="BindOnEquip">,       //bind on equip, bind on equip
+//     EIBT_BOP <DisplayName="BindOnPickup">,       //bind on pickup, bind on pick up
+//     EIBT_BOT <DisplayName="BindOnTrade">,       //bind on trade, bind on trade
+//     EIBT_BINDED <DisplayName="AlreadyBound">     //already bound
 // };
 
 enum EGenderType
@@ -431,17 +431,17 @@ enum EGenderType
 
 enum EEmitterType
 {
-	// 常规粒子效果(播放一下就自动消失)
+	// regular particle effect (disappears automatically after playing once)
 	EMIT_Normal,
-	// 拖尾
+	// trail
 	EMIT_Trail,
-		// 表现为直线或曲线飞向一个目标
+		// appears as flying to a target in a straight line or curve
 	EMIT_FlyTo,
-		// 闪电链或吸精大法效果
+		// chain lightning or life-drain effect
 	EMIT_ConnectTo,
-		// 环绕自己身旋转
+		// rotate around self
 	EMIT_Rotate,
-		// 环绕MESH
+		// orbit the MESH
 	EMIT_Surround,
 };
 
@@ -461,22 +461,22 @@ enum ETrackTimeType
 
 enum EAbilityComponentStopType
 {
-	// 使用Duration或自身Duration(PariticleSystem)
+	// use Duration or its own Duration (PariticleSystem)
 	ACBT_StopWhenConstDurationPass,
 	ACBT_StopWhenAbilityStateEnd,
 	ACBT_StopWhenAbilityEnd,
 };
 
-// 材质效果类型
+// material effect type
 enum EMaterialEffectType
 {
-	// 无效果
+	// no effect
 	EMET_None,
-	// 修改材质参数
+	// modify material parameter
 	EMET_ChangeMaterialProperty,
-	// 透明度
+	// transparency
 	EMET_LoadOpacityMaterial,
-	// 替换材质
+	// replace material
 	EMET_ChangeMaterial,
 };
 
@@ -493,14 +493,14 @@ enum EMaterailCreateType
 };
 
 
-// 为了应对门派概念的反复修改,枚举名用A,B,C..等表示,displayname用当前版本来表示
+// to cope with repeated changes to the sect concept, enum names use A,B,C.. etc., and displayname uses the current version
 enum EPlayerClass
 {
 	EPCT_PlayerClassA <DisplayName="E_PlayerClassA">,
 	EPCT_PlayerClassB <DisplayName="E_PlayerClassB">,
 	EPCT_PlayerClassC <DisplayName="E_PlayerClassC">,
 	EPCT_PlayerClassD <DisplayName="E_PlayerClassD">,
-	EPCT_PlayerClassE <DisplayName="E_PlayerClassE">, // 道士
+	EPCT_PlayerClassE <DisplayName="E_PlayerClassE">, // Taoist
 	// 1.05 backport: values match the server (clsSpear=5, clsSorcerer=6, clsNpc=7, none/any=8); names match the 1.05 client
 	EPCT_PlayerClassG <DisplayName="E_PlayerClassG">, // Lancer (Spear)
 	EPCT_PlayerClassH <DisplayName="E_PlayerClassH">, // Sorcerer
@@ -508,7 +508,7 @@ enum EPlayerClass
 	EPCT_None <DisplayName="E_None">,
 };
 
-//UI表现上对技能的归类
+//Ability categorization in the UI presentation
 enum ESPELL_UI_TYPE
 {
 	ESUIType_Active                    <DisplayName="ESUIType_None">,
@@ -519,24 +519,24 @@ enum ESPELL_UI_TYPE
 	ESUIType_Total                     <DisplayName="ESUIType_Total">,
 };
 
-// 游戏内的货币类型
+// in-game currency type
 enum ECurrencyType
 {
 	ECUT_GameGold <DisplayName="GameGold">,
 	ECUT_RMB <DisplayName="RMB">
 };
 
-// 伤害结果类型
+// damage result type
 /*
-Result0=无效
-Result1=未命中
-Result2=免疫
-Result3=格档
-Result4=招架
-Result5=闪避
-Result6=普通攻击
-Result7=爆击
-Result8=空效果
+Result0=invalid
+Result1=miss
+Result2=immune
+Result3=block
+Result4=parry
+Result5=dodge
+Result6=normal attack
+Result7=critical hit
+Result8=empty effect
 */
 
 enum EDamageResultType
@@ -561,13 +561,13 @@ enum EDamagePropertyType
 
 
 /*
-HitType0=无类型
-HitType1=挥砍
-HitType2=戳刺
-HitType3=射击
-HitType4=敲打
-HitType5=肉搏
-HitType6=元素
+HitType0=no type
+HitType1=slash
+HitType2=stab
+HitType3=shoot
+HitType4=bash
+HitType5=brawl
+HitType6=element
 */
 enum EWeaponHitType
 {
@@ -670,8 +670,8 @@ struct native MMOAnimGroup
 	var() name FaintAnim;
 
 	var() name MissAnim;
-	var() name ParryAnim; //格档
-	var() name BlockAnim; // 招架
+	var() name ParryAnim; //block
+	var() name BlockAnim; // parry
 
 	// for human
 	var() name SpineBoneName;
@@ -700,7 +700,7 @@ struct native MMOAnimGroup
 		IdleAnim=Idle
 		FightIdleAnim=Standby
 		AnimSpawn=Spawn
-		DieAnim=Death  //策划山寨的命名
+		DieAnim=Death  //designer's knockoff naming
 		DeadAnim=Dead  //
 		AnimSeeEnemy=SeeEnemy
 		AnimLvUp=LvUp
@@ -744,17 +744,17 @@ struct native WeaponTypeAnimSetPair
 
 enum EProjectileTargetType
 {
-	// 连接一角色
+	// connect to a character
 	EPTT_Actor,
-	// 连接固定坐标点
+	// connect to a fixed coordinate point
 	EPTT_TargetPoint,
-	// 依据施法者的朝向,距离为技能里的MaxDistance值
+	// based on the caster's facing, distance is the MaxDistance value in the ability
 	EPTT_UseCasterDirection,
-	// 依据施法者的朝向,最大距离为技能里的MaxDistance值,并带有实时检测,碰到哪里就停在哪里
+	// based on the caster's facing, max distance is the MaxDistance value in the ability, with real-time detection, stops wherever it hits
 	EPTT_UseCasterDirectionAndCollision,
 };
 
-// 道具动作音效类型列表
+// item action sound effect type list
 enum EItemActionSoundType
 {
 	EIAST_Bag <DisplayName="Bag">,
@@ -805,7 +805,7 @@ enum EQueueAction
 	EQA_Unlock,
 };
 
-// 玩家只有login和inrange, npc只有inrange spawn和revive
+// players only have login and inrange, npc only have inrange spawn and revive
 enum ESceneObjectAppearType
 {
     ESOAT_Invalid    <DisplayName="ESOAT_Invalid">,
@@ -817,7 +817,7 @@ enum ESceneObjectAppearType
     ESOAT_Total <DisplayName="ESOAT_Total">
 };
 
-// 时间数据，供配置服务器的时间间隔用，导出到服务器时转换成毫秒
+// time data, used to configure server time intervals, converted to milliseconds when exported to the server
 struct native IntervalTimeData
 {
 	var() int Hours		<DisplayName="Hours"|ClampMin=0>;
@@ -825,12 +825,12 @@ struct native IntervalTimeData
 	var() int Seconds	<DisplayName="Seconds"|ClampMin=0>;
 };
 
-// 带SLOT的面板类型
+// panel types with SLOT
 /*
-面板标识目前const不是Enum,且面板不一定带有ItemSlot;
-各处UI全部都是SlotType 故而没有再用PanelType;
-as中SlotType 对应 ESlotPanelType,
-统一面板中出现不同Slot则应增加 ESPType_ 或者用itemtype标识;
+panel identifiers are currently const, not Enum, and a panel does not necessarily have an ItemSlot;
+all UI uses SlotType so PanelType is not used again;
+SlotType in as corresponds to ESlotPanelType,
+if different Slots appear in a unified panel, add an ESPType_ or identify by itemtype;
 hemu@snda
 */
 enum ESlotPanelType
@@ -845,58 +845,58 @@ enum ESlotPanelType
 	ESPType_Shop,
 	ESPType_ShopSell,
 	ESPType_Warehouse,
-	ESPType_StallSetting,    //摆摊 卖出
-	ESPType_StallBuy,        //摊位买入
-	ESPType_Enhance,         //强化界面(不要了，强化被ESPType_EquipEnhance替代)
-	ESPType_EquipLevelUp,     //武器升级
-	ESPType_WeaponExp,       //武器熟练度
-	ESPType_TradeP2P,        //P2P交易
-	ESPType_FBAwards,        //副本奖励界
-	ESPType_PVPBattle,      //战场界面
-	ESPType_PVPArena,       //竞技场
-	ESPType_AvartaSell,      //未来商店出售Avarta技能 则需要重设ItemSlot
-	ESPType_GuildWarehouse,     //家族仓库
+	ESPType_StallSetting,    //stall sell
+	ESPType_StallBuy,        //stall buy
+	ESPType_Enhance,         //enhance UI (no longer needed, enhance was replaced by ESPType_EquipEnhance)
+	ESPType_EquipLevelUp,     //weapon level up
+	ESPType_WeaponExp,       //weapon proficiency
+	ESPType_TradeP2P,        //P2P trade
+	ESPType_FBAwards,        //dungeon rewards UI
+	ESPType_PVPBattle,      //battlefield UI
+	ESPType_PVPArena,       //arena
+	ESPType_AvartaSell,      //future shop sells Avarta abilities, ItemSlot must be reset
+	ESPType_GuildWarehouse,     //clan warehouse
 	ESPType_Quest,
-	ESPType_Hero,            //英雄
-	ESPType_Mount,            //坐骑收集
-	ESPType_EquipSlotEnhance,   //强化
-	ESPType_SoulEmbed,		//安装灵魂界面
-	ESPType_SoulLevelUp,		//升级灵魂界面
-	ESPType_SoulUnEmbed,		//移除灵魂界面
-	ESPType_WeaponSkill,		//铸魂界面
-	ESPType_WeaponSkillSetting,	//铸魂升级界面
-	ESPType_SkillTree,           //技能树界面（交互技能面板）
+	ESPType_Hero,            //hero
+	ESPType_Mount,            //mount collection
+	ESPType_EquipSlotEnhance,   //enhance
+	ESPType_SoulEmbed,		//soul embed UI
+	ESPType_SoulLevelUp,		//soul level up UI
+	ESPType_SoulUnEmbed,		//soul remove UI
+	ESPType_WeaponSkill,		//soul forging UI
+	ESPType_WeaponSkillSetting,	//soul forging upgrade UI
+	ESPType_SkillTree,           //skill tree UI (interactive ability panel)
 	ESPType_EquipGainHintBox,
 	ESPType_ChatInput,
 	ESPType_NPCDialog,
-	ESPType_EquipEnhance,       //装备栏强化
-	ESPType_EquipCompose,       //装备合成
-	ESPType_ReadMail,						//读邮件
+	ESPType_EquipEnhance,       //equipment slot enhance
+	ESPType_EquipCompose,       //equipment compose
+	ESPType_ReadMail,						//read mail
 	ESPType_HeavenGasEquip,
 	ESPType_HeavenGasBag,
 	ESPType_HeavenGasBank,
 	ESPType_ViewProfile,
-	ESPType_Achievement,     // 成就奖励
+	ESPType_Achievement,     // achievement rewards
 	ESPType_MallStore,
 	ESPType_Buff,
 	ESPType_AuctionSell,
 	ESPType_TeamAuctionPanel,
 	ESPType_TeamAuctionList,
 	ESPType_HeavenSoul,
-	ESPType_ItemCollection,  //道具回收
-	ESPType_AuctionItem,     //拍卖行
-	ESPType_ChatMsgDisplay,//聊天界面
-	ESPType_QuestTraceDisplay,//任务追踪
+	ESPType_ItemCollection,  //item recycling
+	ESPType_AuctionItem,     //auction house
+	ESPType_ChatMsgDisplay,//chat UI
+	ESPType_QuestTraceDisplay,//quest tracking
 	ESPType_SkillSetting,
-	ESPType_Recover, //魔血石
+	ESPType_Recover, //magic blood stone
 	ESPType_DailySignIn,
 	ESPType_ExpContainer,
 	ESPType_BackDecoratedMakeUp,
 	ESPType_BackDecoratedUpgrade,
 	ESPType_BlackMarket,
 	ESPType_BagResource,
-	ESPType_WeaponSkillRplc,		//武器技能替换
-	ESPType_Invalid          //保持这个在最后作为无效值用
+	ESPType_WeaponSkillRplc,		//weapon ability replace
+	ESPType_Invalid          //keep this last, used as the invalid value
 	
 };
 
@@ -909,10 +909,10 @@ enum EChat_Channel
 	ECC_Guild,
 	ECC_Team,
 	ECC_Private,
-	ECC_System, //系统特殊，非可发送频道
-	ECC_Hint,//提示频道，和系统频道差不多
-	ECC_Trumpet,//小喇叭
-	ECC_Trumpet_World, //世界频道的小喇叭
+	ECC_System, //system special, not a sendable channel
+	ECC_Hint,//hint channel, similar to the system channel
+	ECC_Trumpet,//small trumpet
+	ECC_Trumpet_World, //world channel small trumpet
 	ECC_Num,
 };
 
@@ -937,52 +937,52 @@ enum ENoiseActionType
 enum EClientActionConditionCheckType
 {
 	ECACCT_None,
-	ECACCT_EquipItem_CheckClass,     // 装备时职业条件
-	ECACCT_EquipItem_CheckLv,        // 装备时等级条件
+	ECACCT_EquipItem_CheckClass,     // class condition when equipping
+	ECACCT_EquipItem_CheckLv,        // level condition when equipping
 
-	ECACCT_ALL_ActorLevel,          // 等级需求
+	ECACCT_ALL_ActorLevel,          // level requirement
 
-	ECACCT_UseItem_CheckClass,      // 使用时职业条件
+	ECACCT_UseItem_CheckClass,      // class condition when using
 	ECACCT_UseItem_CheckLv,
-	ECACCT_UseItem_CheckPhyAtk,     // 物品攻击力条件
-	ECACCT_UseItem_CheckMagAtk,     // 魔法攻击力条件
-	ECACCT_UseItem_CheckTaoAtk,     // 道术攻击力条件
-	ECACCT_UseItem_CheckStallState, // 摆摊状态检查
-	ECACCT_UseItem_CheckBind,       // 绑定状态检查
+	ECACCT_UseItem_CheckPhyAtk,     // item attack power condition
+	ECACCT_UseItem_CheckMagAtk,     // magic attack power condition
+	ECACCT_UseItem_CheckTaoAtk,     // taoist attack power condition
+	ECACCT_UseItem_CheckStallState, // stall state check
+	ECACCT_UseItem_CheckBind,       // bind state check
 
 	ECACCT_MailSend_CheckReceiver,
 	ECACCT_MailSend_CheckReceiverSelf,
 	ECACCT_MailSend_CheckSubject,
 	ECACCT_MailSend_CheckContent,
 	ECACCT_MailSend_CheckContentMaxLen,
-	ECACCT_Item_CheckAllInContainerIfInPanelUsing,//容器中的物品是否有正在界面操作中的
-	ECACCT_Item_CheckInEnhance,     // 强化中状态检查
-	ECACCT_Item_CheckInWeaponExp,     // 抽熟练度
-	ECACCT_Item_CheckInTrade,       // P2P交易中状态检查
-	ECACCT_Item_CheckInPanelUsing,//是否在UI界面操作中
-	ECACCT_Item_CheckInSoulEmbed,//是否灵镶嵌中
-	ECACCT_Item_CheckInSoulUnEmbed,//是否灵拆除中
-	ECACCT_Item_CheckInSoulLevelUp,//是否灵升级中
-	ECACCT_TradeItem_CheckDurablility,//耐久度检测
-	ECACCT_TradeItem_CheckTaskItem,      // 任务物品检查
-	ECACCT_TradeItem_CheckItemSign,		// 检查是否已签名
-	ECACCT_Item_CheckInEnhanceOpened,       //强化界面打开
-	ECACCT_Item_CheckInTradeOpend,       //交易界面打开
-	ECACCT_Item_CheckCanStall,          //判断物品是否能摆摊出售
-	ECACCT_Item_CheckCanTrade,          //判断物品是否能交易
-	ECACCT_Item_CheckMySex,            // 物品使用性别
+	ECACCT_Item_CheckAllInContainerIfInPanelUsing,//whether any item in the container is being operated in a panel
+	ECACCT_Item_CheckInEnhance,     // in-enhancing state check
+	ECACCT_Item_CheckInWeaponExp,     // extracting proficiency
+	ECACCT_Item_CheckInTrade,       // in-P2P-trade state check
+	ECACCT_Item_CheckInPanelUsing,//whether being operated in the UI
+	ECACCT_Item_CheckInSoulEmbed,//whether in soul embedding
+	ECACCT_Item_CheckInSoulUnEmbed,//whether in soul removal
+	ECACCT_Item_CheckInSoulLevelUp,//whether in soul level up
+	ECACCT_TradeItem_CheckDurablility,//durability check
+	ECACCT_TradeItem_CheckTaskItem,      // quest item check
+	ECACCT_TradeItem_CheckItemSign,		// check whether already signed
+	ECACCT_Item_CheckInEnhanceOpened,       //enhance UI opened
+	ECACCT_Item_CheckInTradeOpend,       //trade UI opened
+	ECACCT_Item_CheckCanStall,          //check whether the item can be sold at a stall
+	ECACCT_Item_CheckCanTrade,          //check whether the item can be traded
+	ECACCT_Item_CheckMySex,            // item usage gender
 
-	ECACCT_Hero_EquipItem_CheckClass,     // 英雄装备时职业条件
-	ECACCT_Hero_EquipItem_CheckLv,        // 英雄装备时等级条件
-	ECACCT_CurrentScene_Has_Lines,        // 当前场景是否支持换线
-	ECACCT_MainPlayer_Is_Combating,       // 主角是否在战斗中
-	ECACCT_MainPlayer_Is_Trading,        // 主角是否在交易中
-	ECACCT_Quest_Item_Collection,       // 主角是否在道具回收中
+	ECACCT_Hero_EquipItem_CheckClass,     // hero class condition when equipping
+	ECACCT_Hero_EquipItem_CheckLv,        // hero level condition when equipping
+	ECACCT_CurrentScene_Has_Lines,        // whether the current scene supports line switching
+	ECACCT_MainPlayer_Is_Combating,       // whether the main character is in combat
+	ECACCT_MainPlayer_Is_Trading,        // whether the main character is trading
+	ECACCT_Quest_Item_Collection,       // whether the main character is in item recycling
 
-	ECACCT_EquipLevelUp_CheckDurability,       // 武器升级耐久度检查
-	ECACCT_Material_CheckEquipTool,             // 洗练的时候检查是否装备洗练刀
-	ECACCT_Material_WeaponDuration,             // 洗练刀的是否还有耐久
-	ECACCT_Material_BagFull,                    // 洗练的时候，背包是否已满
+	ECACCT_EquipLevelUp_CheckDurability,       // weapon level up durability check
+	ECACCT_Material_CheckEquipTool,             // when refining, check whether the refining knife is equipped
+	ECACCT_Material_WeaponDuration,             // whether the refining knife still has durability
+	ECACCT_Material_BagFull,                    // when refining, whether the bag is full
 };
 
 enum EBTEditType
@@ -991,7 +991,7 @@ enum EBTEditType
 	EBET_AI,
 };
 
-// html链接类型
+// html link type
 enum ELinkType 
 {
 	ELinkType_NPCNav,
@@ -1085,153 +1085,153 @@ enum EScreenMsgType{
 
 enum EAuctionTypeMain
 {
-    EATM_ALL,               // 全部
-	EATM_WEAPON_WARRIOR,    // 战士武器
-    EATM_WEAPON_ASSASSIN,   // 刺客武器
-    EATM_WEAPON_WIZARD,     // 法师武器
-    EATM_WEAPON_ARCHER,     // 弓手武器
-    EATM_ARMOR,             // 防具
-    EATM_JEWELRY,           // 首饰
-    EATM_SEPCIAL_EQUIP,     // 特殊装备
-    EATM_SPIRIT_STALL,      // 灵石
-    EATM_EQUIP_FORMULA,     // 装备配方
-    EATM_MATERIAL,          // 材料
-    EATM_RIDE,              // 坐骑
-    EATM_DRUG,              // 药剂
-    EATM_RESTORE_DRUG,      // 恢复药品
-    EATM_OTHER,             // 其它
+    EATM_ALL,               // all
+	EATM_WEAPON_WARRIOR,    // warrior weapon
+    EATM_WEAPON_ASSASSIN,   // assassin weapon
+    EATM_WEAPON_WIZARD,     // mage weapon
+    EATM_WEAPON_ARCHER,     // archer weapon
+    EATM_ARMOR,             // armor
+    EATM_JEWELRY,           // jewelry
+    EATM_SEPCIAL_EQUIP,     // special equipment
+    EATM_SPIRIT_STALL,      // spirit stone
+    EATM_EQUIP_FORMULA,     // equipment formula
+    EATM_MATERIAL,          // material
+    EATM_RIDE,              // mount
+    EATM_DRUG,              // elixir
+    EATM_RESTORE_DRUG,      // restorative medicine
+    EATM_OTHER,             // other
 };
 
 enum EAuctionTypeSub_Weapon_Warrior
 {
-    EATS_WW_ALL,            // 全部
-	EATS_WW_DOUBLE_SWORD,   // 双手剑
-    EATS_WW_DOUBLE_AXE,     // 双斧
-    EATS_WW_SWORD_SHIELD,   // 剑盾
+    EATS_WW_ALL,            // all
+	EATS_WW_DOUBLE_SWORD,   // two-handed sword
+    EATS_WW_DOUBLE_AXE,     // dual axes
+    EATS_WW_SWORD_SHIELD,   // sword and shield
 };
 
 enum EAuctionTypeSub_Weapon_Assassin
 {
-    EATS_WA_ALL,            // 全部
-    EATS_WA_DAGGER,         // 匕首
-    EATS_WA_LONG_SHANK,     // 长柄
-    EATS_WA_CHAIN_BLADE,    // 链刃
+    EATS_WA_ALL,            // all
+    EATS_WA_DAGGER,         // dagger
+    EATS_WA_LONG_SHANK,     // long hilt
+    EATS_WA_CHAIN_BLADE,    // chain blade
 };
 
 enum EAuctionTypeSub_Weapon_Wizard
 {
-    EATS_WI_ALL,            // 全部
-    EATS_WI_STAVES,         // 法杖
-    EATS_WI_BEAT,           // 法搥
-    EATS_WI_BLADE,          // 法刃
+    EATS_WI_ALL,            // all
+    EATS_WI_STAVES,         // staff
+    EATS_WI_BEAT,           // magic hammer
+    EATS_WI_BLADE,          // magic blade
 };
 
 enum EAuctionTypeSub_Weapon_Archer
 {
-    EATS_WR_ALL,            // 全部
-    EATS_WR_HEAVY_CROSSBOW, // 重弩
-    EATS_WR_LIGHT_CROSSBOW, // 累弩
-    EATS_WR_BOW,            // 弓
+    EATS_WR_ALL,            // all
+    EATS_WR_HEAVY_CROSSBOW, // heavy crossbow
+    EATS_WR_LIGHT_CROSSBOW, // light crossbow
+    EATS_WR_BOW,            // bow
 };
 
 enum EAuctionTypeSub_Armor
 {
-    EATS_A_ALL,             // 全部
-    EATS_A_CAP,             // 帽子
-    EATS_A_SHOULDER,        // 肩膀
-    EATS_A_CLOTHES,         // 上衣
-    EATS_A_TROUSERS,        // 下衣
-    EATS_A_WRISTER,         // 护腕
-    EATS_A_WAISTBAND,       // 腰带
-    EATS_A_SHOES,           // 鞋子
+    EATS_A_ALL,             // all
+    EATS_A_CAP,             // hat
+    EATS_A_SHOULDER,        // shoulder
+    EATS_A_CLOTHES,         // upper garment
+    EATS_A_TROUSERS,        // lower garment
+    EATS_A_WRISTER,         // wristguard
+    EATS_A_WAISTBAND,       // belt
+    EATS_A_SHOES,           // shoes
 };
 
 enum EAuctionTypeSub_Jewelry
 {
-    EATS_J_ALL,             // 全部
-    EATS_J_NECKLACE,        // 项链
-    EATS_J_BRACELET,        // 手镯
-    EATS_J_RING,            // 戒指
+    EATS_J_ALL,             // all
+    EATS_J_NECKLACE,        // necklace
+    EATS_J_BRACELET,        // bracelet
+    EATS_J_RING,            // ring
 };
 
 enum EAuctionTypeSub_Sepcial_Equip
 {
-    EATS_SE_ALL,            // 全部
-    EATS_SE_CLOAK,          // 披风
-    EATS_SE_FASHION,        // 时装
+    EATS_SE_ALL,            // all
+    EATS_SE_CLOAK,          // cloak
+    EATS_SE_FASHION,        // fashion
 };
 
 enum EAuctionTypeSub_Spirit_Stall
 {
-    EATS_SS_ALL,            // 全部
-    EATS_SS_RED,            // 红灵石
-    EATS_SS_YELLOW,         // 黄灵石
-    EATS_SS_BLUE,           // 蓝灵石
-    EATS_SS_GREEN,          // 绿灵石
-    EATS_SS_PURPLE,         // 紫灵石
-    EATS_SS_COLOUR,         // 彩色灵石
+    EATS_SS_ALL,            // all
+    EATS_SS_RED,            // red spirit stone
+    EATS_SS_YELLOW,         // yellow spirit stone
+    EATS_SS_BLUE,           // blue spirit stone
+    EATS_SS_GREEN,          // green spirit stone
+    EATS_SS_PURPLE,         // purple spirit stone
+    EATS_SS_COLOUR,         // colored spirit stone
 };
 
 enum EAuctionTypeSub_Equip_Formula
 {
-    EATS_EF_ALL,            // 全部
-    EATS_EF_WEAPON,         // 武器
-    EATS_EF_ARMOR,          // 防具
-    EATS_EF_JEWELRY,        // 首饰
+    EATS_EF_ALL,            // all
+    EATS_EF_WEAPON,         // weapon
+    EATS_EF_ARMOR,          // armor
+    EATS_EF_JEWELRY,        // jewelry
 };
 
 enum EAuctionTypeSub_Material
 {
-    EATS_M_ALL,             // 全部
-    EATS_M_INTENSIFY,       // 体格强化
-    EATS_M_ENGRAVE,         // 铭文
-    EATS_M_EQUIP_BENISON,   // 装备祝福
+    EATS_M_ALL,             // all
+    EATS_M_INTENSIFY,       // physique enhancement
+    EATS_M_ENGRAVE,         // inscription
+    EATS_M_EQUIP_BENISON,   // equipment blessing
 };
 
 enum EAuctionTypeSub_Ride
 {
-    EATS_R_ALL,             // 全部
+    EATS_R_ALL,             // all
 };
 
 enum EAuctionTypeSub_Drug
 {
-    EATS_D_ALL,             // 全部
-    EATS_D_STRENGTH,        // 力量药剂
-    EATS_D_SPEED,           // 迅捷药剂
-    EATS_D_INTELLECT,       // 智慧药剂
-    EATS_D_SOMA,            // 体质药剂
-    EATS_D_STAMINA,         // 耐力药剂
+    EATS_D_ALL,             // all
+    EATS_D_STRENGTH,        // strength elixir
+    EATS_D_SPEED,           // speed elixir
+    EATS_D_INTELLECT,       // wisdom elixir
+    EATS_D_SOMA,            // constitution elixir
+    EATS_D_STAMINA,         // stamina elixir
 };
 
 enum EAuctionTypeSub_Restore_Drug
 {
-    EATS_RD_ALL,            // 全部
-    EATS_RD_POTION,         // 药水
-    EATS_RD_LIQUOR,         // 酒
+    EATS_RD_ALL,            // all
+    EATS_RD_POTION,         // potion
+    EATS_RD_LIQUOR,         // liquor
 };
 
 enum EAuctionTypeSub_Other
 {
-    EATS_O_ALL,             // 全部
+    EATS_O_ALL,             // all
 };
 
 enum EATTACK_FLAG
 {
-    EAT_FLAG_ZHURI,           // 逐日
-    EAT_FLAG_LIEHUO,          // 烈火
-    EAT_FLAG_BANYUE,          // 半月
-    EAT_FLAG_CISHA,           // 刺杀
-	EAT_FLAG_MOFADUN,         // 魔法盾
-	EAT_FLAG_YINSHEN,         // 隐身
+    EAT_FLAG_ZHURI,           // Sun Chasing
+    EAT_FLAG_LIEHUO,          // Raging Fire
+    EAT_FLAG_BANYUE,          // Half Moon
+    EAT_FLAG_CISHA,           // Assassinate
+	EAT_FLAG_MOFADUN,         // Magic Shield
+	EAT_FLAG_YINSHEN,         // Invisibility
 	EAT_FLAG_MAX,
 };
 
 enum ESceneHintUpdate
 {
-    ESHU_NONE,            // 无
-    ESHU_HP,              // 血条
-	ESHU_NAME,            // 名字
-    ESHU_ALL,             // 全部
+    ESHU_NONE,            // none
+    ESHU_HP,              // health bar
+	ESHU_NAME,            // name
+    ESHU_ALL,             // all
 };
 
 // enum EDoodadSoundType
@@ -1247,7 +1247,7 @@ struct native ShopItemTemplate
 	var() transient int ItemCount			<DisplayName="ItemCount">;
 	var() transient EMONEY_TYPE CostType	<DisplayName="CostType">;
 	var() transient int CostValue			<DisplayName="CostValue">;
-	var   transient int ShopSlot; // 这个记录商店中的下标，联调时需要
+	var   transient int ShopSlot; // records the index in the shop, needed for joint debugging
 };
 
 struct native ShopData

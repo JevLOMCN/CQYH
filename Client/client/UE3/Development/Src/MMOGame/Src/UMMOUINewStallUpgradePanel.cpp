@@ -74,13 +74,13 @@ void UMMOUINewStallUpgradePanel::UpdateTimeList()
 			switch (i)
 			{
 			case ESUT_DAY3:
-				day = TEXT("3Ìì");
+				day = TEXT("3 Days");
 				break;
 			case ESUT_DAY7:
-				day = TEXT("7Ìì");
+				day = TEXT("7 Days");
 				break;
 			case ESUT_DAY15:
-				day = TEXT("15Ìì");
+				day = TEXT("15 Days");
 				break;
 			}
 			

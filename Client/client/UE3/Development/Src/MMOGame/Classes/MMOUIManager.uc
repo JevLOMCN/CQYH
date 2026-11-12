@@ -1,5 +1,5 @@
 //
-// UI管理器
+// UI manager
 //
 class MMOUIManager extends Object	
 	config(MMOUIManager)
@@ -250,7 +250,7 @@ var config string           GMIconPath;
 
 var config array<int>       MonsterQuality ;
 
-// 增加游戏相关HUD显示控制功能
+// Add game-related HUD display control functionality
 // add by showlong
 var bool                    HintHideNameSelf;
 var bool                    HintHideNameSelfTitle;
@@ -313,7 +313,7 @@ var int   TraceRelationForceID;
 
 //var MMOMsgBoxManager MsgBoxMgr;
 
-//做一些字符表对应等初始化工作
+//Do some initialization such as string table mapping
 native static final function InitUIManager();
 
 native static final function RegisterMMOActorHUD( IMMOActorHUD hud );

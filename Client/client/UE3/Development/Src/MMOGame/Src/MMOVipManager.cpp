@@ -59,7 +59,7 @@ void MMOVipManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 			MMOGameEvent_OneInt *gameTimeEvt = (MMOGameEvent_OneInt*)evt;
 			SetMyLeftGameTime( (UINT32)gameTimeEvt->IntData );
 
-			//刷新游戏时间
+			//Refresh game time
 			CheckGameTime();
 		}
 		break;
@@ -83,10 +83,10 @@ void MMOVipManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 	case GameEVent_SceneLoadFinish:
 		{
 			if( _LastSelectedRole ){
-				//游戏状态提示
+				//Game state prompt
 				HintForGameLimitedMode();
 
-				//游戏剩余时间提示
+				//Game remaining time prompt
 				UINT32 leftSec = GetMyLeftGameTimeInSec();
 
 				FString hintMsg = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Recharge.HintLeftTime") );
@@ -109,12 +109,12 @@ UINT32 MMOVipManager::GetMyVipLeftSecond( INT vipType )
 
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	UINT32 curTimeSec = mmoFacade.ConvertSystemTimeToTmTSecond( curTime );
 
-	//本地与服务器的时间差
+	//Time difference between local and server
 	INT32 secDiff = mmoFacade.GetClientToSceneSecondDiff();
 	//
 	UINT32 serverExpireTime = (UINT32)_MyVipTime[vipType]._ExpireTime;
@@ -136,7 +136,7 @@ void MMOVipManager::SetMyVipLeftSecondByServerTime( INT vipType, __time32_t serv
 
 	if (serverTime > 0)
 	{
-		// 成就获取
+		// Achievement acquisition
 		MMOGameEvent_Achievement evtAch(adVip, 1, 0, 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
@@ -153,12 +153,12 @@ void MMOVipManager::SetMyVipLeftSecondByServerTime( INT vipType, __time32_t serv
 //
 //	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 //
-//	//当前本地时间
+//	//current local time
 //	SYSTEMTIME curTime;
 //	::GetLocalTime(&curTime);
 //	UINT32 curTimeSec = mmoFacade.ConvertSystemTimeToTmTSecond( curTime );
 //
-//	//本地与服务器的时间差
+//	//Time difference between local and server
 //	INT secDiff = mmoFacade.GetClientToSceneSecondDiff();
 //	//
 //	UINT32 curSecondLeft = _MyVipTime[vipType]._ScenodLeft;
@@ -179,11 +179,11 @@ void MMOVipManager::SetMyVipLeftSecondByServerTime( INT vipType, __time32_t serv
 //{
 //	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 //
-//	//本地的开始时间
+//	//Local start time
 //	__time32_t localTime = serverTime;
 //	_localtime32(&localTime);
 //
-//	//本地与服务器的时间差
+//	//Time difference between local and server
 //	INT32 secDiff = mmoFacade.GetClientToSceneSecondDiff();
 //	localTime += secDiff;
 //
@@ -195,7 +195,7 @@ void MMOVipManager::SetMyVipLeftSecondByServerTime( INT vipType, __time32_t serv
 //{
 //	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 //
-//	//当前本地时间
+//	//current local time
 //	SYSTEMTIME curTime;
 //	::GetLocalTime(&curTime);
 //	UINT32 curTimeSec = mmoFacade.ConvertSystemTimeToTmTSecond( curTime );
@@ -245,7 +245,7 @@ void MMOVipManager::ReadVipPrivilege()
 	//
 	INT curCnt = _VipPrivilege[eVIPTyp_None].Num();
 	if( curCnt == privilegeCnt ){
-		//已经载入过了
+		//Already loaded
 		return;
 	}
 
@@ -358,7 +358,7 @@ void MMOVipManager::ShowVipShopByType(eVipShopType type)
 //=============================================================================
 void MMOVipManager::SetMyLeftGameTime( UINT32 sec )
 {
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	_MyLeftGameTimeUpdateTime = MMOFacade::getSingleton().ConvertSystemTimeToTmTSecond( curTime );
@@ -371,7 +371,7 @@ UINT32 MMOVipManager::GetMyLeftGameTimeInSec()
 {
 	EGameState curGameState =  MMO::GetCurrentGameState();
 	if( curGameState == EGameState_Selecting ){
-		//人物选择界面不计时(每次进入人物选择界面会刷新此时间)
+		//No timing on the character select UI (this time is refreshed each time entering it)
 		return _MyLeftGameTime;
 	}
 
@@ -379,15 +379,15 @@ UINT32 MMOVipManager::GetMyLeftGameTimeInSec()
 	if( mainPlayer != NULL ){
 		INT mainPlayerLv = mainPlayer->GetActorLevel();
 		if( mainPlayerLv < Player_Free_LV ){
-			//免费级别以下不计时
+			//No timing below the free level
 			return _MyLeftGameTime;
 		}
 	}
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	UINT32 curTimeSec = MMOFacade::getSingleton().ConvertSystemTimeToTmTSecond( curTime );
-	UINT32 pastedTimeSec = (UINT32)( curTimeSec - _MyLeftGameTimeUpdateTime );//如果时间不倒流，玩家不在游戏时调本地时间，一定是正数
+	UINT32 pastedTimeSec = (UINT32)( curTimeSec - _MyLeftGameTimeUpdateTime );//if time does not run backwards, when the player is out of game the local time is used, it is always positive
 
 	if( _MyLeftGameTime <= pastedTimeSec ){
 		return 0;
@@ -403,7 +403,7 @@ void MMOVipManager::SetCurGameMode( INT modeType )
 
 void MMOVipManager::NotifyPlayerLevelChange(INT curLevel)
 {
-	// 任务 #23813
+	// Task #23813
 	EGameState curGameState = MMO::GetCurrentGameState();
 	if (curGameState == EGameState_InGame){
 		AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
@@ -449,13 +449,13 @@ void MMOVipManager::CheckGameTime()
 				//UMMOUINoticeInfo *pNoticeInfo = (UMMOUINoticeInfo*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_NoticeInfo );
 				UMMOUIChat *pChatPanel = (UMMOUIChat*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Chat );
 				if( leftSec <= 60 * 45 && pChatPanel != NULL ){
-					//开始倒计时
+					//Start countdown
 					INT32 intervalSec = leftSec % 60;
 					pChatPanel->eventCallASSetTimeEvent( eGameTimeHintType_init, leftSec, intervalSec );
-				}//按剩余时间提示
-			}//满足判断等级
+				}//prompt by remaining time
+			}//level check satisfied
 
-			// 任务 #23813
+			// Task #23813
 			if (mainPlayerLv == Player_Free_LV){
 				UINT32 leftSec = GetMyLeftGameTimeInSec();
 				if (leftSec <= 0){
@@ -495,7 +495,7 @@ void MMOVipManager::HintForGameLimitedMode()
 //=============================================================================
 void MMOVipManager::NotifyEnterSelectRoleTime()
 {
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	_LastSelectedRoleTime = MMOFacade::getSingleton().ConvertSystemTimeToTmTSecond( curTime );

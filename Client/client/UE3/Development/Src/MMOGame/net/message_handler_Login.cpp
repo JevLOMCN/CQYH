@@ -21,7 +21,7 @@ INT g_sdoLoginPort = 0;
 TCHAR g_sdoLoginIP2[MAX_PATH] = TEXT("");
 INT g_sdoLoginPort2 = 0;
 
-// 从Launcher调用
+// Called from Launcher
 void EndSDOLogin()
 {
 	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
@@ -59,7 +59,7 @@ void  CMessageHandler::UnLockSendRestrict( int msg, FString errMag )
 //------------------------------------------------------------------------
 VOID CMessageHandler::Login(const TCHAR* strIP, const INT nPort, const TCHAR* UserName, const TCHAR* Password, UBOOL bConnectBS)
 {		
-	//消息返回之前 不得重复发送 
+	//Must not send repeatedly before the message returns
 	if( m_vecMsgSendRestrictList(MsgRL_Login) )
 		return;
     LockSendRestrict(MsgRL_Login);
@@ -73,7 +73,7 @@ VOID CMessageHandler::Login(const TCHAR* strIP, const INT nPort, const TCHAR* Us
 
     if( m_pNet && NULL == m_pSocketSession )
     {
-		m_dwServerIP = INADDR_NONE; // 双线选择前要清掉，以便后面判定使用第一个返回的IP
+		m_dwServerIP = INADDR_NONE; // Clear before dual-line selection, so the first returned IP is used afterward
         m_pSocketSession = m_pNet->Connect(TCHAR_TO_UTF8(strIP), nPort);
 		m_bsIP1 = FString(TEXT("BS1 - ")) + strIP;
 		if(m_pSocketSession)
@@ -115,7 +115,7 @@ void CMessageHandler::Parse_b2c_query_gate_ack(const char* buf, UINT32 size)
 	// Any other reply is a normal balance-server answer: use the gate address and port it sends.
 	const UBOOL bLegacyMagic = (msg->dwAddr == 20200930);
 
-	// 不为空说明之前有连上过
+	// Not empty means it has connected before
 	if(m_dwServerIP != INADDR_NONE)
 	{
 		SET_WARN_COLOR(COLOR_CYAN);
@@ -219,7 +219,7 @@ void CMessageHandler::Parse_b2c_query_gate_ack(const char* buf, UINT32 size)
 #else
 			MMOUI::GetUIManager()->delegateAddScreenMessage(locStr,MsgInfoType_Table,TEXT("MMOErrorInfo.Login.FailedGetServerIP"));
 #endif
-			//断线重登处理
+			//reconnect/relogin handling
 			if(g_isSDOLogin)
 			{
 				MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Login_User,	  TRUE, "");
@@ -279,7 +279,7 @@ void CMessageHandler::Send_CharactorSelect(int roleid)
 		warnf(NAME_Error, TEXT("====== [CMessageHandler::SendCharactorSelect] RoleID[%d] UserID[%s]"),roleid,_UserName);
 		return;
 	}
-	//消息返回之前 不得重复发送 
+	//Must not send repeatedly before the message returns
 	if( m_vecMsgSendRestrictList(MsgRL_Select) )
 		return;
 
@@ -304,7 +304,7 @@ void CMessageHandler::Send_DeleteRole( INT RoleListId)
 
 	if( !pl || pl->RoleList.Num() <= 0 )
 		return;
-	//消息返回之前 不得重复发送 
+	//Must not send repeatedly before the message returns
 	if( m_vecMsgSendRestrictList(MsgRL_Delete) )
 		return;
 	if( RoleListId < 0 || RoleListId >= pl->RoleList.Num() )
@@ -315,7 +315,7 @@ void CMessageHandler::Send_DeleteRole( INT RoleListId)
 	msg.wMsg = c2t_delete_role;
 	msg.dwRoleID = pl->RoleList(RoleListId).dwRoleID;
 
-	//@Temp 调试使用
+	//@Temp used for debugging
 	warnf(NAME_Log, TEXT("[CMessageHandler::Send_DeleteRole] [RoleListId]: %d"), RoleListId );
 	_Send(&msg, sizeof(msg));
 }
@@ -330,7 +330,7 @@ void CMessageHandler::Send_UnDeleteRole(INT roleid)
 	msg.wMsg = c2t_undelete_role;
 	msg.dwRoleID = roleid;
 
-	//@Temp 调试使用
+	//@Temp used for debugging
 	warnf(NAME_Log, TEXT("[CMessageHandler::Send_UnDeleteRole] [roleid]: %d"), roleid );
 	_Send(&msg, sizeof(msg));
 }
@@ -338,7 +338,7 @@ void CMessageHandler::Send_UnDeleteRole(INT roleid)
 //------------------------------------------------------------------------------------------------------------------------------
 void CMessageHandler::Send_CreateRole(const TCHAR* Name,INT classid,INT sex, INT hairType, INT hairColor, INT faceType, INT skinColor)
 {
-	//消息返回之前 不得重复发送 
+	//Must not send repeatedly before the message returns
 	if( m_vecMsgSendRestrictList(MsgRL_Create) )
 		return;
 	LockSendRestrict(MsgRL_Create);
@@ -353,7 +353,7 @@ void CMessageHandler::Send_CreateRole(const TCHAR* Name,INT classid,INT sex, INT
 	msg.bySkinColor = skinColor;
 	msg.bySex = sex;
 
-	//@Temp 调试使用
+	//@Temp used for debugging
 	warnf(NAME_Log, TEXT("[CMessageHandler::Send_CreateRole] [Name]: %s [Class]:%d [Sex]:%d"), Name,classid,sex );
 	_Send(&msg, sizeof(msg));
 }
@@ -363,7 +363,7 @@ void CMessageHandler::Send_DeleteRoleForEver(INT nRoleID)
 	msg.wMsg = c2t_forever_delete_role;
 	msg.dwRoleID = nRoleID;
 
-	//@Temp 调试使用
+	//@Temp used for debugging
 	warnf(NAME_Log, TEXT("[CMessageHandler::Send_DeleteRoleForEver] [roleid]: %d"), nRoleID );
 	_Send(&msg, sizeof(msg));
 }
@@ -388,7 +388,7 @@ void  CMessageHandler::Parse_t2c_error_notify(const char* buf, UINT32 size)
 	warnf(NAME_Error, TEXT("[CMessageHandler::Parse_t2c_error_notify] Error ID:[%d] %s %s"),
 		 errCode , *enumVal, *localVal);
 
-	// 如果被服务器处理的返回到登录界面就不往下走了
+	// If the server handled it and returned to the login screen, do not continue
 	if(_ProcessReturnLoginError( errCode, msg->nParam1, msg->nParam2))
 	{
 		return;
@@ -441,10 +441,10 @@ void CMessageHandler::Parse_t2c_login_ack(const char* buf, UINT32 size)
 	loginEvt.EvtType = MMOGameEvent_Splash::ESET_LoginGameSuccess;
 	MMOUI::PostGameEvent(&loginEvt);
 
-    //不解锁 直到OnDisconnected
+    //Do not unlock until OnDisconnected
     //UnLockSendRestrict(MsgRL_Login);
 	
-	//方便多开时调试
+	//Convenient for debugging with multiple clients
 	if ( appGetPlatformType() == UE3::PLATFORM_Windows && GGameWindow != NULL )
 	{
 		/*AMMOPlayer* player = Cast<AMMOPlayer>(ctrl->Pawn);
@@ -457,7 +457,7 @@ void CMessageHandler::Parse_t2c_login_ack(const char* buf, UINT32 size)
 		sName += MMOFacade::getSingleton().GetMMOAppName();
 		::SetWindowText(GGameWindow, *sName );	
 	}	
-	//szUserName是转化后的数字帐号  在这里不做显示用
+	//szUserName is the converted numeric account, not used for display here
 	_tcscpy( _UserName, UTF8_TO_TCHAR(msg->szUserName) );
     UMMOLocalAI::Instance()->OnLoginResult(TRUE);
 }
@@ -486,7 +486,7 @@ void CMessageHandler::Parse_t2c_select_role_ack(const char* buf, UINT32 size)
 				player->ActorName = ctrl->RoleList(i).RoleName;
 				player->ActorAttributes->ClassType = data.Class = ctrl->RoleList(i).byCareer;
 				player->ActorAttributes->GenderType = data.Sex = ctrl->RoleList(i).bySex;
-				player->ServerID = msg->dwRoleID;//added by york 后来加的
+				player->ServerID = msg->dwRoleID;//added by york added later
 
 				player->ActorAttributes->HairColor = data.HairColor = ctrl->RoleList(i).nHairColor;
 				player->ActorAttributes->HairType = data.HairModel = ctrl->RoleList(i).nHairType;
@@ -508,7 +508,7 @@ void CMessageHandler::Parse_t2c_select_role_ack(const char* buf, UINT32 size)
 // 					p->eventSetUIPlayerVisible(FALSE);
 // 				}
 
-				//确认登录后再播放动画
+				//Play animation after login is confirmed
 				MMOGameEvent_Splash loginEvt;
 				loginEvt.EvtType = MMOGameEvent_Splash::ESET_EnterGameSuccess;
 				MMOUI::PostGameEvent(&loginEvt);
@@ -546,7 +546,7 @@ void CMessageHandler::Parse_t2c_return_select_role(const char* buf, UINT32 size)
 	ctrl->bNeedCommitPosition = FALSE;
 	ctrl->ReturnSelect();
 	
-	////不一定直接进入Select状态
+	////Does not necessarily enter Select state directly
 	//MMOGameEvent_Splash loginEvt;
 	//loginEvt.EvtType = MMOGameEvent_Splash::ESET_CreateListRoleCheck;
 	//MMOUI::PostGameEvent(&loginEvt);
@@ -586,10 +586,10 @@ void CMessageHandler::Parse_t2c_sync_role_list(const char* buf, UINT32 size)
 		roleinfo.byCareer = pBaseData->byClass;
 		roleinfo.byLevel = pBaseData->byLevel;
 		//roleinfo.WeaponEffectIndex = ((pBaseData->byRefineFx<<6)>>6);
-		// 原来的体格强化特效索引，现在用来记录武器升级点数
+		// Originally the body-strengthening effect index, now used to record weapon upgrade points
 		roleinfo.WeaponEffectIndex = 0;
 		roleinfo.WeaponUpgradePoint = pBaseData->byRefineFx;
-		//nOverTime == 0是可用的角色 否则是在删除列表中
+		//nOverTime == 0 is a usable character, otherwise it is in the deletion list
 		roleinfo.nOverTime = pBaseData->dwDeleteTime;
 		roleinfo.nBeginTime = (INT)GetTickCount();
 		//roleinfo.dwPosX = pBaseData->nX;
@@ -638,7 +638,7 @@ void CMessageHandler::Parse_t2c_sync_role_list(const char* buf, UINT32 size)
 	}
 	else
 	{
-		//不一定直接进入Select状态
+		//Does not necessarily enter Select state directly
 		MMOGameEvent_Splash loginEvt;
 		loginEvt.EvtType = MMOGameEvent_Splash::ESET_CreateListRoleCheck;
 		MMOUI::PostGameEvent(&loginEvt);
@@ -746,7 +746,7 @@ void CMessageHandler::Parse_t2c_create_role_ack(const char* buf, UINT32 size)
 	roleinfo.nSkinColor = (INT)pBaseData->bySkinColor;
 	ctrl->RoleList.AddItem( roleinfo );		
 
-	//Avatar信息
+	//Avatar info
 	FAvatarInfo tAvatarInfo(EC_EventParm);
 	tAvatarInfo.RoleId = roleinfo.dwRoleID;
 	//tAvatarInfo.MainHand=pBaseData->nMainHandID;
@@ -771,12 +771,12 @@ void CMessageHandler::Parse_t2c_create_role_ack(const char* buf, UINT32 size)
 	//MMOUI::GetUIManager()->delegateAddMessageBox(msgStr, 0, nullDelegate, nullDelegate);
 	MMOUI::GetUIManager()->delegateAddScreenMessage(msgStr,MsgInfoType_Table,TEXT("MMOGame.MsgBox.CreateRoleSucceeded"));
 
-	// 创建成功音效
+	// Creation success sound effect
 	MMOFacade::getSingleton().PlayUISound(TEXT("menu_CreateCharacter"));
 }
 
 void CMessageHandler::Parse_g2c_logout_timer(const char* buf, UINT32 size)
 {
-	// 暂时没什么用
+	// Not useful for now
 }
 

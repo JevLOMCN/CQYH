@@ -66,7 +66,7 @@ void UMMOUIFBEnter::PostOnShow(UBOOL v)
 {
 	Super::PostOnShow(v);
 	if( v ){
-		//去掉副本难度
+		//Remove dungeon difficulty
 		//CurDiff = ENUM_SCENE_DIFFICULTY::esdNormal1;
 		//MMOMapDataManager::getSingleton().SetCurFBDiff( CurDiff );
 		//CurMaxDiff = MMOMapDataManager::getSingleton().GetCurFBMaxDiff();
@@ -112,7 +112,7 @@ void UMMOUIFBEnter::OnNativeGameEvent( struct MMOGameEvent* evt )
 {
 	switch( evt->GetEventType() )
 	{
-		//去掉副本难度
+		//Remove dungeon difficulty
 		//case GameEvent_ChangeFB_Difficulty:
 		//	{
 		//		MMOGameEvent_OneInt *fbDifficultyChangeEvt = (MMOGameEvent_OneInt*)evt;
@@ -180,7 +180,7 @@ void UMMOUIFBEnter::UpdateCurFBInfo( const FString& mapName, INT telepLinkID )
 	}
 	
 
-	////去掉副本难度
+	////Remove dungeon difficulty
 	////UpdateFBAllDiff( FBToMapInfo.ServerID );
 	//INT iMaxDiffMask = MMOMapDataManager::getSingleton().GetDungeonInfoDifftyMask( FBToMapInfo.ServerID );
 	//for( int i = ENUM_SCENE_DIFFICULTY::esdNormal1; i < ENUM_SCENE_DIFFICULTY::esdTotal; ++i ){
@@ -230,7 +230,7 @@ void UMMOUIFBEnter::UpdateCurFBDiff( INT newDiff, INT newMaxDiff )
 	}
 
 	/*
-	//去掉副本难度
+	//Remove dungeon difficulty
 	INT iMaxDiffMask = MMOMapDataManager::getSingleton().GetDungeonInfoDifftyMask( FBToMapInfo.ServerID );
 	//1 person FB
 	INT fbOpened1PersonDiffMax = MMOMapDataManager::getSingleton().GetMaxDiffOfType( FBToMapInfo.ServerID, EFBDTyp_OnePerson, CurMaxDiff );
@@ -276,7 +276,7 @@ void UMMOUIFBEnter::UpdateCurFBDiff( INT newDiff, INT newMaxDiff )
 	
 	const FDungeonInfo *fbInfo = MMOMapDataManager::getSingleton().GetDungeonInfo( FBToMapInfo.ServerID, CurDiff );
 	if( fbInfo != NULL ){
-		//人数限制
+		//Player count limit
 		INT limitPeople = fbInfo->RoleLimit;
 		FString peopleString;
 		if( limitPeople == 1 ){
@@ -286,11 +286,11 @@ void UMMOUIFBEnter::UpdateCurFBDiff( INT newDiff, INT newMaxDiff )
 			peopleString = FString::Printf( *MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBEnter.PeopleStringFormat2") ), limitPeople );
 		}
 		PeopleRequiredTf->SetText( peopleString );
-		//活力值
+		//Vitality
 		FString HuoLiStringFormat = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBEnter.HuoLiStringFormat") );
 		UINT curHuoLi = Player->GetMoney( E_MONEYTYPE_FATIGUE );
 		HuoLiRequiredTf->SetText( FString::Printf( *HuoLiStringFormat, fbInfo->Fatigue, curHuoLi ) );
-		//等级限制
+		//Level limit
 		FString levelStringFormat = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBEnter.LevelStringFormat") );
 		LevelRequiredTf->SetText( FString::Printf( *levelStringFormat, fbInfo->MinLevel, fbInfo->MaxLevel ) );
 		//
@@ -303,9 +303,9 @@ void UMMOUIFBEnter::UpdateCurFBDiff( INT newDiff, INT newMaxDiff )
 	}
 	else{
 		PeopleRequiredTf->SetText( TEXT("No Data") );
-		//活力值
+		//Vitality
 		HuoLiRequiredTf->SetText( TEXT("No Data") );
-		//等级限制
+		//Level limit
 		LevelRequiredTf->SetText( TEXT("No Data") );
 		//
 		FrequencyRequiredTf->SetText( TEXT("No Data") );
@@ -461,7 +461,7 @@ void UMMOUIFBEnter::InitMc()
 		//if( FBDiffMc[i] != NULL ){
 		//	FBDiffMc[i]->SetVisible( FALSE );
 		//}
-		//当FBDiffBtn被禁用置灰后FBDiffHintBtn提供hover提示功能
+		//When FBDiffBtn is disabled and grayed out, FBDiffHintBtn provides the hover hint function
 		objName = TEXT("FBDiffHintBtn");
 		objName += appItoa(i);
 		FBDiffHintBtn[i] = GetObject( objName );

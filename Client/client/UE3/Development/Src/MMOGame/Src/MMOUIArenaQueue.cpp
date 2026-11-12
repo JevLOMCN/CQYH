@@ -48,7 +48,7 @@ void UMMOUIArenaQueue::Minimize()
 
 void UMMOUIArenaQueue::OpenArenaQueue(INT mode,INT size)
 {
-	//判断组队人数是否合法（且为同一战队）
+	//determine whether the party size is valid (and all from the same team)
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	TeamManager& teamManager = TeamManager::getSingleton();
 	UBOOL valid = TRUE;
@@ -87,14 +87,14 @@ void UMMOUIArenaQueue::OpenArenaQueue(INT mode,INT size)
 		return;
 	}
 
-	//显示队伍信息
+	//show team info
 	//MMOArenaManager::getSingleton().SetArenaStep(ArenaStep_Queuing);
 	
 	//Show(TRUE);
 	ArenaModeValue = mode;
 	ArenaSizeValue = size;
 
-	//增加提示按钮
+	//add hint button
 	//MMOHintButtonManager::getSingleton().AddNewButton( EHintButtonType_ArenaQueueHint , 0 , TRUE );
 
 }
@@ -103,7 +103,7 @@ void UMMOUIArenaQueue::ClickIcon()
 {
 	//if( MMOArenaManager::getSingleton().GetArenaStep() == ArenaStep_WaitEnter )
 	//{
-	//	//再造一个
+	//	//create another one
 	//	if( MsgboxWindow == NULL )
 	//	{
 	//		CreateEnterAskWindow();
@@ -124,7 +124,7 @@ FString UMMOUIArenaQueue::GetQueueTimeString( INT newTime )
 	{
 		INT min = newTime / 60;
 		INT sec = newTime % 60;
-		//过界
+		//cross boundary
 		if( min > 100 )
 		{
 			min = 99;
@@ -262,7 +262,7 @@ void UMMOUIArenaQueue::UnInit()
 
 void UMMOUIArenaQueue::UpdateTime( float dt )
 {
-	//倒计时进竞技场
+	//countdown to enter arena
 	//if( MMOArenaManager::getSingleton().GetArenaStep() == ArenaStep_WaitEnter )
 	//{
 	//	INT arenaTime = MMOArenaManager::getSingleton().GetWaitEnter();
@@ -323,20 +323,20 @@ void UMMOUIArenaQueue::UpdateTime( float dt )
 
 	//	if( arenaTime <= 0  )
 	//	{
-	//		//倒计时到了
+	//		//countdown finished
 	//		if(MsgboxWindow)
 	//		{
-	//			//有窗口就点确认
+	//			//if there is a window, click confirm
 	//			MMOMsgBoxManager::getSingleton().DispatchMsgBoxButtonOk(MsgboxWindow);
 	//		}
 	//		else
 	//		{
-	//			//没有窗口就直接进去
+	//			//if there is no window, enter directly
 	//			EnterArenaConfirm(NULL);
 	//		}
 	//	}
 	//}
-	////排队时
+	////while queuing
 	//if( MMOArenaManager::getSingleton().GetArenaStep() == ArenaStep_Queuing )
 	//{
 	//	INT lastQueueTime = MMOArenaManager::getSingleton().GetLastQueueTime();  //(INT)(QueueTime);

@@ -1,10 +1,10 @@
 /*
- * 装备类,功能包含服装,装甲,武器等可视物件
- * 支持换静态网络模型,骨骼蒙皮,粒子,贴图四种可视对象
+ * equipment class, functions include clothing, armor, weapons and other visible objects
+ * supports four kinds of visible objects: swapped static mesh, skeletal skinning, particle, texture
  * 
- * 对于非贴图的物品,模型以Component的方式组合在一起, 有两种,一种是添加到Actor的Components数组里去,另一种是绑定到BAse骨架的一个socket上去
+ * for non-texture items, models are combined as Components in two ways: one is added to the Actor's Components array, the other is attached to a socket of the Base skeleton
  *
- * 对于SkeletalMesh,动画有两种,一种是使用base的动画,另一种是使用独立的动画,后者需要配置动画树,动画集,播放节点信息.
+ * for SkeletalMesh there are two kinds of animation: one uses the base animation, the other uses independent animation, which requires configuring the animation tree, animation set, and playback node info.
  * 
  * 
  * 
@@ -15,9 +15,9 @@ class EquipAppearence extends Object
 
 var() string ConfigDisplayName <DisplayName="ConfigDisplayName">;
 
-// 如果身体分块,那么EET_Default这个标记就不要用了;如果不分块,只用EET_Default标记,其它部分不要使用
+// if the body is split into parts, do not use the EET_Default flag; if not split, only use the EET_Default flag and do not use the other parts
 var()	EEquipType			EquipType					<DisplayName="EquipType">;
-// 武器类型,作为装备子类型,如果非武器,这个字段无意义
+// weapon type, as an equipment subtype; meaningless if not a weapon
 var transient editconst bool ShowWeaponType;
 var()   EWeaponType         WeaponType					<EditCondition=ShowWeaponType|DisplayName="WeaponType">;
 
@@ -29,7 +29,7 @@ var(Common) editinline array<EquipMesh>	RandomMeshListTemplate_M;
 var(Common) editinline array<EquipMesh>	MeshListTemplate_F	<DisplayName="MeshListTemplate_F">;
 var(Common) editinline array<EquipMesh>	RandomMeshListTemplate_F;
 
-// 新换装机制不需要EquipMesh数组 一个部位只会有一个EquipMesh
+// the new outfit swap mechanism does not need the EquipMesh array, one slot has only one EquipMesh
 var(WA) editinline /*array<EquipMesh>*/EquipMesh		MeshList_WA_M	<DisplayName="MeshList_WA_M">;
 var(WA) editinline /*array<EquipMesh>*/EquipMesh		MeshList_WA_F	<DisplayName="MeshList_WA_F">;
 
@@ -47,7 +47,7 @@ var(SP) editinline /*array<EquipMesh>*/EquipMesh		MeshList_SP_F	<DisplayName="Me
 var(YS) editinline /*array<EquipMesh>*/EquipMesh		MeshList_YS_M	<DisplayName="MeshList_YS_M">;
 var(YS) editinline /*array<EquipMesh>*/EquipMesh		MeshList_YS_F	<DisplayName="MeshList_YS_F">;
 
-// 为了给战士加两面蛋疼的旗子
+// to add two annoying flags to the warrior
 var(WA) editinline array<EquipMesh>		AdditionalMeshList_WA_M	<DisplayName="AdditionalMeshes_WA_M">;
 var(WA) editinline array<EquipMesh>		AdditionalMeshList_WA_F	<DisplayName="AdditionalMeshes_WA_F">;
 var(MA) editinline array<EquipMesh>		AdditionalMeshList_MA_M	<DisplayName="AdditionalMeshes_MA_M">;

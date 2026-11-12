@@ -1,5 +1,5 @@
 //
-// ±¨’®µÙFracturedStaticMeshActor
+// blow up the FracturedStaticMeshActor
 //
 class SeqAct_ExplodeFracturedStaticMesh extends SequenceAction
 	dependson(FracturedStaticMeshActor);

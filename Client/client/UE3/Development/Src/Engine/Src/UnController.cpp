@@ -2510,7 +2510,7 @@ AActor* AController::HandleSpecial(AActor *bestPath)
 
 }
 
-//hemu@snda.com ø’ µœ÷
+//hemu@snda.com empty implementation
 void AController::OnLeftMouseKey(AActor* srcActor,UBOOL bRelease,FVector StartTrace,FVector EndTrace)
 {
 

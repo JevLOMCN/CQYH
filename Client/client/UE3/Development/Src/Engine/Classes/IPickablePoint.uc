@@ -3,7 +3,7 @@ interface IPickablePoint
 	native;
 	//dependson(TypeDefine);
 
-// 物品捡选优先级
+// Item pickup priority
 enum EPickPointPriority
 {
 	//EPPP_Trigger	    <DisplayName="Trigger">,

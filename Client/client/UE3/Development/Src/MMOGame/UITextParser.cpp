@@ -233,7 +233,7 @@ void UITextParser::Parse( ParseContext& ctx, DialogContext& OutText, const FStri
     bool foundTokenStart = false;
     TCHAR* c = (TCHAR*)*srcStr;
 
-    // OutText.Clear(); // oscar@snda 这个在递归解析时会清除之前的结果，不需要
+    // OutText.Clear(); // oscar@snda this would clear previous results during recursive parsing, not needed
 
     //TArray<FString> tokens;
     //TTranslator::EscapeAndTokenize(&tokens, srcStr);
@@ -255,7 +255,7 @@ void UITextParser::Parse( ParseContext& ctx, DialogContext& OutText, const FStri
             FString token = srcStr.Mid(tokenStart, i - tokenStart);
             token = token.ToUpper();
             ITextParser* parser = GetParser(token);
-            if(parser /*&& (matchString == TEXT("") ||  matchString == token || token == TEXT("DFT") )*/) //加了matchString，只截取此间文字
+            if(parser /*&& (matchString == TEXT("") ||  matchString == token || token == TEXT("DFT") )*/) //with matchString added, only the text in between is extracted
             {
                 //if( )
                 parser->Parse(ctx,  OutText, c, i, srcStr.Len());
@@ -268,7 +268,7 @@ void UITextParser::Parse( ParseContext& ctx, DialogContext& OutText, const FStri
             }
             else
             {
-                // 没有解析器的情况要继续走
+                // continue even when there is no parser
                 ITextParser::ParseCloseTag(ctx, c, i, srcStr.Len(), token);
             }
 
@@ -311,8 +311,8 @@ void UITextParser::Parse( ParseContext& ctx, DialogContext& OutText, const FStri
 
 		// modified by zhangrui05
 		// fix bug #24000
-		// LocalizeSecure解析的时候，如果原文没有参数，强行追加一个参数，返回原文; 强行追加2个(或2个以上)，返回TEXT("")
-		// 所以原来服务器默认带一个参数，不会出问题，带两个，就有问题了，这里缓存一下原文
+		// when LocalizeSecure parses, if the original text has no parameter and one is forcibly appended, it returns the original; if 2 (or more) are forcibly appended, it returns TEXT("")
+		// so the server originally carries one parameter by default with no problem, but with two there is a problem; cache the original text here
 		if (OutText.TempText == TEXT("") && oldTempText != TEXT(""))
 		{
 			OutText.TempText = oldTempText;
@@ -328,7 +328,7 @@ void UITextParser::Parse( ParseContext& ctx, DialogContext& OutText, const FStri
 	}
 #endif
 
-	// 插入NPC对话选项的补充:
+	// supplement for inserting NPC dialogue options:
 	if(!ctx.SkipAppendNPCDialogOption && ctx.NPC && ctx.NPC->Template)
 	{
 		FString token = TEXT("UI");
@@ -414,7 +414,7 @@ void UITextParser::ParseContent(ParseContext& ctx, DialogContext& OutText, const
 			}
 			else
 			{
-				// 没有解析器的情况要继续走
+				// continue even when there is no parser
 				ITextParser::ParseCloseTag(ctx, c, i, srcStr.Len(), token);
 			}
 
@@ -591,7 +591,7 @@ FString UITextParser::HTMLMoneyIconString( INT moneyType , INT64 inMoney, FStrin
 	FString res = TEXT("");
 	FString imgPath;
 
-	BOOL  bNeedShow_LS = FALSE;//true需要分单位
+	BOOL  bNeedShow_LS = FALSE;//true means units need to be separated
 	switch( moneyType )
 	{
 	case MONEYTYPE_01:
@@ -641,7 +641,7 @@ FString UITextParser::HTMLMoneyIconString( INT moneyType , INT64 inMoney, FStrin
 		imgPath = TEXT("<IMG  SRC='img://MMO_UIIcon.MoneyIcon.Achievement'/>");
 		break;
 
-	// 下面三个都没有资源, 临时用家族贡献的格式吧
+	// the following three have no resources, temporarily use the family contribution format
 	case MONEYTYPE_MASTER_EXP:
 		imgPath = TEXT("<IMG  SRC='img://MMO_UIIcon.MoneyIcon.GuildHonor'/>");
 		break;
@@ -787,7 +787,7 @@ FString UITextParser::CvtNumToChnNum( UINT64 uiNum )
 	else{
 		INT curScore = (INT)uiNum;
 		INT curFactor = 10;
-		for( INT i = 1; i < 3; ++i ){//只支持到千
+		for( INT i = 1; i < 3; ++i ){//only supports up to thousands
 			INT curNum = curScore / curFactor;
 			if( curNum > 0 ){
 				chnNumStr += ( ( curFactor != 10 ) ? MMOUI::ParseLocalizedPropertyPath( toChnNumStrLookUp + appItoa( curNum ) ) : TEXT("") );
@@ -923,7 +923,7 @@ FString UITextParser::HTMLFormatItemType( UItem* item )
 		}
 		else
 		{
-			//装备
+			//equipment
 			if (item->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON"))
 			{
 				tips += MMOUI::ParseLocalizedPropertyPath( FString( TEXT("MMOGame.ItemSubSubTypes.") ) + item->ItemSubSubType );
@@ -965,10 +965,10 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 	INT iValue2;
 	FLOAT fValue1;
 	FLOAT fValue2;
-	if( equip ) // 如果是模板属性
+	if( equip ) // if template attributes
 	{
 		tips += HTMLBeginFont( GetTipsColor(TEXT("MainAttrColor")) );
-		//物理攻击
+		//physical attack
 		QueryItemInfoAttribute( catPhyAtk, equip, equipInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxPhyAtk, equip, equipInfo, iValue2, fValue2 );
 		if(iValue1 || iValue2)
@@ -977,7 +977,7 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 				*MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.WeaponPhyAtk")), iValue1 , iValue2 );
 
 		}
-		//魔法攻击
+		//magic attack
 		QueryItemInfoAttribute( catMagAtk, equip, equipInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxMagAtk, equip, equipInfo, iValue2, fValue2 );
 		if(iValue1 || iValue2)
@@ -985,7 +985,7 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 			tips += FString::Printf( TEXT("<p>%s %d - %d</p>"),
 				*MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.WeaponMagAtk")), iValue1 , iValue2 );
 		}
-		//道术攻击
+		//taoist attack
 		QueryItemInfoAttribute( catTaoAtk, equip, equipInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxTaoAtk, equip, equipInfo, iValue2, fValue2 );
 		if(iValue1 || iValue2)
@@ -994,7 +994,7 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 				*MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.WeaponTaoAtk")), iValue1 , iValue2 );
 
 		}
-		//物理防御
+		//physical defense
 		QueryItemInfoAttribute( catPhyDef, equip, equipInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxPhyDef, equip, equipInfo, iValue2, fValue2 );
 		if(iValue1 || iValue2)
@@ -1002,7 +1002,7 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 			tips += FString::Printf( TEXT("<p>%s %d - %d</p>"),
 				*MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.PhyDef")), iValue1 , iValue2 );
 		}
-		//魔法防御
+		//magic defense
 		QueryItemInfoAttribute( catMagDef, equip, equipInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxMagDef, equip, equipInfo, iValue2, fValue2 );
 		if(iValue1 || iValue2)
@@ -1010,38 +1010,38 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 			tips += FString::Printf( TEXT("<p>%s %d - %d</p>"),
 				*MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.MagDef")), iValue1 , iValue2 );
 		}
-		//生命值
+		//health
 		QueryItemInfoAttribute( catMaxHp, equip, equipInfo, iValue1, fValue1 );
 		if(iValue1)
 		{
 			tips += FString::Printf( TEXT("<p>%s %d</p>"), *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.MaxHp")), iValue1 );
 		}
-		//魔法值
+		//mana
 		QueryItemInfoAttribute( catMaxMp, equip, equipInfo, iValue1, fValue1 );
 		if(iValue1)
 		{
 			tips += FString::Printf( TEXT("<p>%s %d</p>"), *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.MaxMp")), iValue1 );
 		}
-		//准确度
+		//accuracy
 		QueryItemInfoAttribute( catAccurate, equip, equipInfo, iValue1, fValue1 );
 		if(iValue1)
 		{
 			tips += FString::Printf( TEXT("<p>%s %d</p>"), *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.Accurate")), iValue1 );
 		}
-		//敏捷度
+		//agility
 		QueryItemInfoAttribute( catAgility, equip, equipInfo, iValue1, fValue1 );
 		if(iValue1)
 		{
 			tips += FString::Printf( TEXT("<p>%s %d</p>"), *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.Agility")), iValue1 );
 		}
-		//攻击速度
+		//attack speed
 		QueryItemInfoAttribute( catAtkSpeed, equip, equipInfo, iValue1, fValue1 );
 		if(iValue1)
 		{
 			QueryItemInfoAttribute( catAtkSpeed, equip, equipInfo, iValue1, fValue1 );
 			tips += FString::Printf( TEXT("<p>%s %d</p>"), *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.AtkSpeed")), iValue1 );
 		}
-		//魔法躲避
+		//magic dodge
 		QueryItemInfoAttribute( catMagDodge, equip, equipInfo, iValue1, fValue1 );
 		if(iValue1)
 		{
@@ -1050,7 +1050,7 @@ FString UITextParser::HTMLFormatItemAttributes( UEquip* equip, ItemInfo* equipIn
 		tips += HTMLEndFont();
 	}
 
-    if( equip &&equip->HasAdditiveAttributes() )// 如果是模板道具并且有附加属性，显示为“随机附魔”
+    if( equip &&equip->HasAdditiveAttributes() )// if template item with additional attributes, display as "random enchant"
     {
         tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ); // TODO: move to config
         FString randomAttrClr;
@@ -1159,10 +1159,10 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 	FLOAT fValue2;
 	FString valueStr;
 
-    if( equip ) // 如果是模板属性
+    if( equip ) // if template attributes
     {
         mixParaText += HTMLBeginFont( GetTipsColor(TEXT("MainAttrColor")) );
-		//物理攻击
+		//physical attack
 		QueryItemInfoAttribute( catPhyAtk, equip, itemInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxPhyAtk, equip, itemInfo, iValue2, fValue2 );
 
@@ -1182,7 +1182,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = FString::Printf( *digitFomat2Num, iValue1, iValue2 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.WeaponPhyAtk")), *valueStr );
         }
-		//魔法攻击
+		//magic attack
 		QueryItemInfoAttribute( catMagAtk, equip, itemInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxMagAtk, equip, itemInfo, iValue2, fValue2 );
 
@@ -1202,7 +1202,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = FString::Printf( *digitFomat2Num, iValue1, iValue2 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.WeaponMagAtk")), *valueStr );
         }
-		//道术攻击
+		//taoist attack
 		QueryItemInfoAttribute( catTaoAtk, equip, itemInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxTaoAtk, equip, itemInfo, iValue2, fValue2 );
 
@@ -1222,7 +1222,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = FString::Printf( *digitFomat2Num, iValue1, iValue2 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.WeaponTaoAtk")), *valueStr );
 		}
-		//物理防御
+		//physical defense
 		QueryItemInfoAttribute( catPhyDef, equip, itemInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxPhyDef, equip, itemInfo, iValue2, fValue2 );
 
@@ -1242,7 +1242,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = FString::Printf( *digitFomat2Num, iValue1, iValue2 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.PhyDef")), *valueStr );
         }
-		//魔法防御
+		//magic defense
 		QueryItemInfoAttribute( catMagDef, equip, itemInfo, iValue1, fValue1 );
 		QueryItemInfoAttribute( catMaxMagDef, equip, itemInfo, iValue2, fValue2 );
 
@@ -1262,7 +1262,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = FString::Printf( *digitFomat2Num, iValue1, iValue2 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.MagDef")), *valueStr );
         }
-		//生命值
+		//health
 		QueryItemInfoAttribute( catMaxHp, equip, itemInfo, iValue1, fValue1 );
 
 		isPropBetter = digitNormal;
@@ -1276,7 +1276,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = appItoa( iValue1 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.MaxHp")), *valueStr );
         }
-		//魔法值
+		//mana
 		QueryItemInfoAttribute( catMaxMp, equip, itemInfo, iValue1, fValue1 );
 
 		isPropBetter = digitNormal;
@@ -1290,7 +1290,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = appItoa( iValue1 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.MaxMp")), *valueStr );
 		}
-		//准确度
+		//accuracy
 		QueryItemInfoAttribute( catAccurate, equip, itemInfo, iValue1, fValue1 );
 
 		isPropBetter = digitNormal;
@@ -1304,7 +1304,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = appItoa( iValue1 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.Accurate")), *valueStr );
 		}
-		//敏捷度
+		//agility
 		QueryItemInfoAttribute( catAgility, equip, itemInfo, iValue1, fValue1 );
 
 		isPropBetter = digitNormal;
@@ -1318,7 +1318,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = appItoa( iValue1 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.Agility")), *valueStr );
 		}
-		//攻击速度
+		//attack speed
 		QueryItemInfoAttribute( catAtkSpeed, equip, itemInfo, iValue1, fValue1 );
 
 		isPropBetter = digitNormal;
@@ -1332,7 +1332,7 @@ void UITextParser::HTMLFormatItemBaseAndRandomAttributes( UEquip* equip, ItemInf
 			valueStr = appItoa( iValue1 );
 			mixParaText += FString::Printf( *propFomat, *digitColr[isPropBetter], *MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.Equip:FixAttr.AtkSpeed")), *valueStr );
 		}
-		//魔法躲避
+		//magic dodge
 		QueryItemInfoAttribute( catMagDodge, equip, itemInfo, iValue1, fValue1 );
 
 		isPropBetter = digitNormal;
@@ -1675,7 +1675,7 @@ FString UITextParser::HTMLFormatEquipSuitAttribute( UEquip* item )
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	LOG_PROCESS_ERROR(equipMgr && item);
 
-	//套装属性
+	//set attributes
 	EquipSuit* pSuit =  equipMgr->FindEquipSuitByPartOfSuit( item->ItemId );
 	LOG_PROCESS_ERROR(pSuit);
 
@@ -2135,7 +2135,7 @@ FString UITextParser::HTMLFormatItemRequireLevel( UItem* item )
 FString UITextParser::HTMLFormatItemRequireAll( UItem* item )
 {
 	FString tips = TEXT("");
-	//等级需求
+	//level requirement
 	if(item->RequireLevel > 0)
 	{
 		tips+= MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Tips.RequireLvTitle"));
@@ -2152,7 +2152,7 @@ FString UITextParser::HTMLFormatItemRequireAll( UItem* item )
 	}
 	UEquip *pEquip = Cast<UEquip>( item );
 	if( pEquip != NULL ){
-		//物理攻击需求
+		//physical attack requirement
 		if(pEquip->RequireMaxPhyAtk > 0)
 		{
 			tips += ( tips.Len() > 0 ? HTMLNewLine() : TEXT("") );
@@ -2169,7 +2169,7 @@ FString UITextParser::HTMLFormatItemRequireAll( UItem* item )
 				tips += appItoa(pEquip->RequireMaxPhyAtk);
 			}
 		}
-		//魔法力需求
+		//magic power requirement
 		if(pEquip->RequireMaxMagAtk > 0)
 		{
 			tips += ( tips.Len() > 0 ? HTMLNewLine() : TEXT("") );
@@ -2186,7 +2186,7 @@ FString UITextParser::HTMLFormatItemRequireAll( UItem* item )
 				tips += appItoa(pEquip->RequireMaxMagAtk);
 			}
 		}
-		//道术需求
+		//taoist requirement
 		if(pEquip->RequireMaxTaoAtk > 0)
 		{
 			tips += ( tips.Len() > 0 ? HTMLNewLine() : TEXT("") );
@@ -2265,7 +2265,7 @@ FString UITextParser::HTMLFormatItemDuration( UItem* item, ItemInfo* itemInfo )
 				}
 				tips += HTMLEndParagraph();
 			}
-			else// 如果是模板道具
+			else// if template item
 			{
 				tips += FString::Printf(TEXT("<p >%d/%d</p>"), item->DefaultDuration, item->DefaultDuration) ;
 			}
@@ -2370,22 +2370,22 @@ INT UITextParser::HTMLFormatCostText( BYTE costType, INT costValue, FString& out
     switch(costType)
     {
     case ES_COST_Type1:
-        costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type1"));//TEXT("怒气");
+        costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type1"));//TEXT("Rage");
         break;
 
     case ES_COST_Type2:
-        costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type2"));//TEXT("灵能");
+        costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type2"));//TEXT("Spirit Energy");
         break;
 
     case ES_COST_Type3:
-        costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type3"));//TEXT("魔力");
+        costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type3"));//TEXT("Mana");
         break;
 
     case ES_COST_Type4:
         //if(costValue >= 0)
-            costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type4"));//TEXT("阳力");
+            costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type4"));//TEXT("Yang Power");
         //else
-        //    costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type5"));//TEXT("阴力");
+        //    costName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.ESpell_CostType.SPELL_COST_Type5"));//TEXT("Yin Power");
         break;
     };
     outCostNameText = costName;
@@ -2426,7 +2426,7 @@ FString UITextParser::HTMLFormatWeaponTypesText(const FSpell_WeaponTypeL* typesL
     if( player )
         wType = EWeaponType( player->GetWeaponType() );
 
-    //规则改变，只要勾选大于2种武器，就默认显示通用 
+    //rule changed: if more than 2 weapon types are checked, show generic by default
     if( count > 1 )
     {
         ret = HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) )+MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.General")) + HTMLEndFont();
@@ -2437,7 +2437,7 @@ FString UITextParser::HTMLFormatWeaponTypesText(const FSpell_WeaponTypeL* typesL
     }
     else
     {
-        //不适合
+        //not suitable
         ret = HTMLBeginFont( GetTipsColor(TEXT("AlertColor")) )+ ret + HTMLEndFont();
     }
 
@@ -2485,28 +2485,28 @@ FString UITextParser::FormatSpellPlayerClassLimitText(const FSpell_ClassType &sp
 {
 	FString ret;
 
-	//战士
+	//warrior
 	if( spellClassLimit.bClassType1 )
 	{
 		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType1"));
 		return ret;
 	}
 
-	//法师
+	//mage
 	if( spellClassLimit.bClassType2 )
 	{
 		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType2"));
 		return ret;
 	}
 
-	//刺客
+	//assassin
 	if( spellClassLimit.bClassType3 )
 	{
 		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType3"));
 		return ret;
 	}
 
-	//弓箭手
+	//archer
 	if( spellClassLimit.bClassType4 )
 	{
 		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType4"));
@@ -2520,7 +2520,7 @@ FString UITextParser::FormatSpellPlayerClassLimitText(const FSpell_ClassType &sp
 		return ret;
 	}
 
-	//道士
+	//taoist
 	if( spellClassLimit.bClassType6 )
 	{
 		ret = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.MMOAbility:Spell_ClassType.ClassType6"));
@@ -2551,22 +2551,22 @@ FString UITextParser::HTMLFormatRuneItemTips(INT ActiveID, INT RuneSlot )
         return "";
     UMMOAbility* tMainActive = MainPlayer->GetMainAbilityById( ActiveID );
     UMMOAbility* tRune=NULL;
-    //显示当前技能所有的符文 
+    //show all runes of the current ability
     if( RuneSlot >= 0 && tMainActive && RuneSlot < tMainActive->SubRuneList.Num() )
         tRune = tMainActive->SubRuneList( RuneSlot );
     if( !tRune )
         return "";
 
     tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) );
-    tips += TEXT("《");
+    tips += TEXT("\"");
     tips += tRune->eventGetAbilityName();
-    tips += TEXT("》");
+    tips += TEXT("\"");
     tips += MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.RuneDebrisNeed"));
     tips += HTMLNewLine();
 
     int ItemId;
     int ItemCount;
-    //显示符文碎片需求
+    //show rune fragment requirements
     for ( int i=0; i < tRune->vecRuneDebris.Num();++i )
     {
         ItemId = tRune->vecRuneDebris(i).ItemId;
@@ -2639,7 +2639,7 @@ FString UITextParser::HTMLFormatSkillTipCost( UMMOAbility* skill )
     if( skill->SpellCommonAttribute.InitialCostValue != 0 )
     {
         k = HTMLFormatCostText(skill->SpellCommonAttribute.CostType, skill->SpellCommonAttribute.InitialCostValue, costAction, costName);
-        tips += FString::Printf( TEXT( "%s%s："), *costAction, *costName);
+        tips += FString::Printf( TEXT( "%s%s: "), *costAction, *costName);
         //tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + FString::Printf(TEXT("%d"), skill->SpellCommonAttribute.InitialCostValue * k) + HTMLEndFont();
 		tips += appItoa( skill->SpellCommonAttribute.InitialCostValue * k );
     }
@@ -2647,7 +2647,7 @@ FString UITextParser::HTMLFormatSkillTipCost( UMMOAbility* skill )
     if( skill->SpellCommonAttribute.InitialCostValuePct != 0 )
     {
         k = HTMLFormatCostText(skill->SpellCommonAttribute.CostType, skill->SpellCommonAttribute.InitialCostValuePct, costAction, costName);
-        tips += FString::Printf( TEXT("%s%s："), *costAction, *costName);
+        tips += FString::Printf( TEXT("%s%s: "), *costAction, *costName);
         //tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + FString::Printf(TEXT( "%d"), skill->SpellCommonAttribute.InitialCostValuePct * k ) + HTMLEndFont();
 		tips += appItoa( skill->SpellCommonAttribute.InitialCostValuePct * k );
     }
@@ -2655,14 +2655,14 @@ FString UITextParser::HTMLFormatSkillTipCost( UMMOAbility* skill )
     if( skill->SpellCommonAttribute.ModifierCostValue != 0 )
     {
         k = HTMLFormatCostText(skill->SpellCommonAttribute.CostType, skill->SpellCommonAttribute.ModifierCostValue, costAction, costName);
-        tips += FString::Printf( TEXT("%s%s："), *costAction, *costName);
+        tips += FString::Printf( TEXT("%s%s: "), *costAction, *costName);
         //tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + FString::Printf(TEXT( "%d"), skill->SpellCommonAttribute.ModifierCostValue * k ) + HTMLEndFont();
 		tips += appItoa( skill->SpellCommonAttribute.ModifierCostValue * k );
     }
     if( skill->SpellCommonAttribute.ModifierCostValuePct != 0 )
     {
         k = HTMLFormatCostText(skill->SpellCommonAttribute.CostType, skill->SpellCommonAttribute.ModifierCostValuePct, costAction, costName);
-        tips += FString::Printf( TEXT("%s%s："), *costAction, *costName);
+        tips += FString::Printf( TEXT("%s%s: "), *costAction, *costName);
         //tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + FString::Printf(TEXT( "%d%%"), skill->SpellCommonAttribute.ModifierCostValuePct * k ) + HTMLEndFont();
 		tips += FString::Printf(TEXT( "%d%%"), skill->SpellCommonAttribute.ModifierCostValuePct * k );
     }
@@ -2670,7 +2670,7 @@ FString UITextParser::HTMLFormatSkillTipCost( UMMOAbility* skill )
     if( skill->SpellCommonAttribute.DurativeCostValue != 0 )
     {
         k = HTMLFormatCostText(skill->SpellCommonAttribute.CostType, skill->SpellCommonAttribute.DurativeCostValue, costAction, costName);
-        tips += FString::Printf( TEXT("%s%s%s："), *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.Durative")), *costAction, *costName);
+        tips += FString::Printf( TEXT("%s%s%s: "), *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.Durative")), *costAction, *costName);
         int costPerSecond = int( float( skill->SpellCommonAttribute.DurativeCostValue ) / skill->SpellCommonAttribute.Interval );
         //tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + FString::Printf( TEXT("%d"), costPerSecond ) + HTMLEndFont();
 		tips += appItoa( costPerSecond );
@@ -2678,7 +2678,7 @@ FString UITextParser::HTMLFormatSkillTipCost( UMMOAbility* skill )
     if( skill->SpellCommonAttribute.DurativeCostValuePct != 0 )
     {
         k = HTMLFormatCostText(skill->SpellCommonAttribute.CostType, skill->SpellCommonAttribute.DurativeCostValuePct, costAction, costName);
-        tips += FString::Printf( TEXT( "%s%s%s："), *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.Durative")), *costAction, *costName );
+        tips += FString::Printf( TEXT( "%s%s%s: "), *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.Durative")), *costAction, *costName );
         //tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + FString::Printf( TEXT( "%d"), skill->SpellCommonAttribute.DurativeCostValuePct * k) + HTMLEndFont();
 		tips += appItoa( skill->SpellCommonAttribute.DurativeCostValuePct * k );
     }
@@ -2693,7 +2693,7 @@ FString UITextParser::HTMLFormatSkillTipsLimit( UMMOAbility* skill )
 {
     FString tips = TEXT(""); 			
     tips += HTMLBeginParagraph( );
-    if(skill->SpellCommonAttribute.WeaponTypeR.bWeaponTypeR0) // 勾选空手
+    if(skill->SpellCommonAttribute.WeaponTypeR.bWeaponTypeR0) // bare hands checked
     {
         tips += HTMLBeginFont( GetTipsColor(TEXT("NormalContentColor")) ) + MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Skill.General"));
     }
@@ -2701,7 +2701,7 @@ FString UITextParser::HTMLFormatSkillTipsLimit( UMMOAbility* skill )
     {
         if(skill->SpellCommonAttribute.WeaponTypeR.bWeaponTypeR1 || skill->SpellCommonAttribute.WeaponTypeR.bWeaponTypeR2)
         {
-            if(skill->SpellCommonAttribute.WeaponTypeL.bWeaponTypeL0) //左手为空手
+            if(skill->SpellCommonAttribute.WeaponTypeL.bWeaponTypeL0) //left hand is bare
             {
                 tips += HTMLFormatWeaponTypesText(&skill->SpellCommonAttribute.WeaponTypeL, &skill->SpellCommonAttribute.WeaponTypeR);
             }
@@ -2731,13 +2731,13 @@ FString UITextParser::HTMLFormatSkillTipsUnlock( UMMOAbility* skill )
 		return TEXT("");
 	}
 
-    //解锁后 就不再显示
+    //no longer shown after unlocking
     int requireLv = skill->SpellCommonAttribute.RequireLevel < 1 ? 1 : skill->SpellCommonAttribute.RequireLevel ;
     if( player->ActorAttributes->LevelAttributes.Level >= requireLv ){
 		return TEXT("");
 	} 
 
-	//检查技能职业需求
+	//check ability class requirement
 	const FSpell_ClassType &skillReqTyp = skill->SpellCommonAttribute.Class;
 	UBOOL isFitForMyClass = MMO::CanSpellBeUsedByPlayerClass( EPlayerClass(player->GetClassId()), skillReqTyp );
 	if( isFitForMyClass != TRUE ){
@@ -2833,7 +2833,7 @@ FString UITextParser::HTMLFormatSkillTipsCombineLv( UMMOAbility* skill, UMMOAbil
 	//{
 	//	if( isRuneSkill )
 	//	{
-	//		//符文技能
+	//		//rune ability
 	//		if( mainSkill != NULL )
 	//		{
 	//			INT curLv = Min<INT>( skill->SpellCommonAttribute.Level , mainSkill->SpellCommonAttribute.Level );
@@ -2849,7 +2849,7 @@ FString UITextParser::HTMLFormatSkillTipsCombineLv( UMMOAbility* skill, UMMOAbil
 	//	}
 	//	else
 	//	{
-	//		//不是符文技能
+	//		//not a rune ability
 	//		same = ( skill->SpellCommonAttribute.Level == originSkill->SpellCommonAttribute.Level );
 	//		lv = skill->SpellCommonAttribute.Level;
 	//	}
@@ -2956,12 +2956,12 @@ FString UITextParser::HTMLFormatSkillTipsDamage( UMMOAbility* skill )
     
     if( 0 == skill->SpellCommonAttribute.EffectPct )
     {
-        //Buff类技能不会产生伤害 不作伤害显示 
+        //Buff abilities do not deal damage, so no damage is displayed
          return tips;
     }
 
-    //skill <P>第一段攻击</P> <P>(125%武器伤害值 + 50) 物理伤害 </P>";
-    //如果是多段攻击 
+    //skill <P>first hit</P> <P>(125% weapon damage + 50) physical damage </P>";
+    //if it is a multi-hit attack
     if( skill->SpellCommonAttribute.NextSpell > 0  )
     {
         int step = 1;
@@ -2985,7 +2985,7 @@ FString UITextParser::HTMLFormatSkillTipsDamage( UMMOAbility* skill )
                 tips += HTMLEndFont();
             }
             UINT Key = MMOSkillManager::CombinateAbilityID( cur->SpellCommonAttribute.NextSpell, cur->SpellCommonAttribute.Level , cur->GetRuneSlot());
-			//这里我小改下，如果nextspell配成自己，会死循环，我加个判断 by york
+			//a small change here: if nextspell is configured as itself it would loop forever, I added a check by york
 			UMMOAbility* next = MMOSkillManager::getSingleton().FindAbilityTemplate( Key );
 			if( next == cur )
 			{
@@ -3052,7 +3052,7 @@ FString UITextParser::HTMLFormatSkillTipsNextNeedLevel( UMMOAbility* skill )
 	return tips;
 }
 
-//----------------------------------消息中的技能着色------------------------------------
+//----------------------------------ability coloring in messages------------------------------------
 FString UITextParser::HTMLFormatMessageSkillColor( UMMOAbility* skill )
 {
 	if(!skill)
@@ -3065,7 +3065,7 @@ FString UITextParser::HTMLFormatMessageSkillColor( UMMOAbility* skill )
 	return res;
 }
 
-//----------------------------------消息中的称号着色------------------------------------
+//----------------------------------title coloring in messages------------------------------------
 FString UITextParser::HTMLFormatMessageTitleColor( struct TitleData* title )
 {
 	if( !title )
@@ -3201,14 +3201,14 @@ FString UITextParser::HTMLFormatQuestName( const UQuest* quest, bool withColor, 
         questCaption = HTMLBeginFont(clr) + questCaption + HTMLEndFont();
     }
 
-	// 如果是环任务
+	// if it is a circle quest
 	if (quest->CircleID > 0)
 	{
 		CircleQuestInfo info;
 		if (MMOQuestData::getSingleton().GetCircleQuestInfo(quest->CircleID, info))
 		{
-			// 环序号从1开始
-			questCaption += FString(TEXT("(第")) + appItoa(info.CircleIndex + 1) + FString(TEXT("环)"));
+			// ring index starts from 1
+			questCaption += FString(TEXT("(Ring ")) + appItoa(info.CircleIndex + 1) + FString(TEXT(")"));
 		}
 	}
 
@@ -3236,7 +3236,7 @@ INT UITextParser::SplitStringTagWithUTF8MaxLength(const FString& strSrc,FString&
 		return nPosMax;
 	}
 
-	//超过长度的做截断位置矫正
+	//correct the truncation position for text exceeding the length
 	INT nModifyPos = UTF8LengthMaxPosModify(strSrc,nPosMax);
 	if(nModifyPos >= 0 && nModifyPos < strSrc.GetCharArray().Num())
 		strSplit = strSrc.Left(nModifyPos + 1);
@@ -3244,8 +3244,8 @@ INT UITextParser::SplitStringTagWithUTF8MaxLength(const FString& strSrc,FString&
 }
 
 /*
-nMaxLen != 0时  返回的是达到限制长度时的字符位置
-nMaxLen == 0时  返回的是字符串转为UTF8后的长度
+when nMaxLen != 0, returns the character position when the length limit is reached
+when nMaxLen == 0, returns the length of the string after conversion to UTF8
 */
 INT UITextParser::UTF8Length(const FString& strSrc,INT nMaxLen)
 {
@@ -3331,7 +3331,7 @@ INT UITextParser::UTF8LengthMaxPosModify(const FString& strSrc,INT nMaxPos)
 			if(nPos <= nMaxPos && nLastTagPos >= nMaxPos)
 			{	
 				if(nLastTagPos == nMaxPos)
-					nAdjustPos = nMaxPos - 1; //在非tag内的截断
+					nAdjustPos = nMaxPos - 1; //truncation outside a tag
 				else
 					nAdjustPos = nMaxPos;
 				break;
@@ -3339,7 +3339,7 @@ INT UITextParser::UTF8LengthMaxPosModify(const FString& strSrc,INT nMaxPos)
 		}
 		else
 		{
-			nAdjustPos = nMaxPos; //没有tag直接最大截断
+			nAdjustPos = nMaxPos; //no tag, truncate at max directly
 			break;
 		}
 		FString tNode = TEXT("");
@@ -3363,7 +3363,7 @@ INT UITextParser::UTF8LengthMaxPosModify(const FString& strSrc,INT nMaxPos)
 				nPos += 1;
 			else
 			{	
-				break;//tag不匹配 截断
+				break;//tag mismatch, truncate
 			}
 		}		
 
@@ -3371,11 +3371,11 @@ INT UITextParser::UTF8LengthMaxPosModify(const FString& strSrc,INT nMaxPos)
 		{	
 			if( nMaxPos == nPos - 1)
 				nAdjustPos = nPos -1;
-			//tag内结束
+			//end inside tag
 			break;
 		}
 		else
-			nAdjustPos = nPos -1;//没结束 继续
+			nAdjustPos = nPos -1;//not ended, continue
 		nLastTagPos = nPos;
 	}
 	return nAdjustPos;
@@ -3709,7 +3709,7 @@ void ITextParser::ParseCloseTag( const ParseContext& ctx, TCHAR*& srcTxt, INT& s
 
 	if(content.Len() > 0)
 	{
-		if(content[0] == TEXT('>')) // 开始的TAG没有结束
+		if(content[0] == TEXT('>')) // opening TAG has no end
 		{
 			++srcTxt;
 			++srcIdx;
@@ -3722,7 +3722,7 @@ void ITextParser::ParseCloseTag( const ParseContext& ctx, TCHAR*& srcTxt, INT& s
 	INT keyLen = keywd.Len();
 	INT lenth = content.InStr(keywd);
 
-	if(lenth == INDEX_NONE) // 没有找到说明是单个标签
+	if(lenth == INDEX_NONE) // not found, so it is a single tag
 	{
 		lenth = content.InStr(TEXT(">"));
 		keyLen = 1;
@@ -3982,7 +3982,7 @@ void UITextParser_DialogOption::Parse( ParseContext& ctx, DialogContext& diagCtx
     INT id = ParseID(ctx, srcTxt, srcIdx, totalLen);
     //ParseCloseTag(ctx, srcTxt, srcIdx, totalLen); //
 
-    //我改了改
+    //I changed it a bit
 // 	FString Content = srcTxt;
 // 	FString Keyword = TEXT("<#");
 // 	Keyword = Keyword +GetKeyword() ;
@@ -4001,7 +4001,7 @@ void UITextParser_DialogOption::Parse( ParseContext& ctx, DialogContext& diagCtx
 //------------------------------------------------------------------------
 void UITextParser_DialogText::Parse( ParseContext& ctx, DialogContext& diagCtx, TCHAR*& srcTxt, INT& srcIdx, INT totalLen )
 {
-    ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //去掉>
+    ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //remove >
 
     //FString Content = srcTxt;
     //FString Keyword = TEXT("</");
@@ -4258,7 +4258,7 @@ void UITextParser_DialogOptionServer::Parse( ParseContext& ctx, DialogContext& d
 	INT id = ParseID(ctx, srcTxt, srcIdx, totalLen);
 	//ParseCloseTag(ctx, srcTxt, srcIdx, totalLen); //
 
-	//我改了改
+	//I changed it a bit
 // 	FString Content = srcTxt;
 // 	FString Keyword = TEXT("<#");
 // 	Keyword = Keyword +GetKeyword() ;
@@ -4283,13 +4283,13 @@ void UITextParser_Paramater0::Parse( ParseContext& ctx, DialogContext& diagCtx, 
 	FString value;
 	FString id = ParseStringID( ctx, srcTxt, srcIdx, totalLen , &value );
 	
-	// 递归的格式：<#P0:<#I:%d>><#T:MMOGame.Mail.Buy.Success>
+	// recursive format: <#P0:<#I:%d>><#T:MMOGame.Mail.Buy.Success>
 
 	if(id.Len() > 0)
 	{
 		if( id.Left(1) == TEXT("<") )
 		{
-			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //去掉>
+			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //remove >
 
 			id.AppendChar(TEXT(':'));
 			id += value;
@@ -4314,7 +4314,7 @@ void UITextParser_Paramater1::Parse( ParseContext& ctx, DialogContext& diagCtx, 
 	{
 		if( id.Left(1) == TEXT("<") )
 		{
-			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //去掉>
+			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //remove >
 
 			id.AppendChar(TEXT(':'));
 			id += value;
@@ -4338,7 +4338,7 @@ void UITextParser_Paramater2::Parse( ParseContext& ctx, DialogContext& diagCtx, 
 	{
 		if( id.Left(1) == TEXT("<") )
 		{
-			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //去掉>
+			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //remove >
 
 			id.AppendChar(TEXT(':'));
 			id += value;
@@ -4362,7 +4362,7 @@ void UITextParser_Paramater3::Parse(ParseContext& ctx, DialogContext& diagCtx, T
 	{
 		if (id.Left(1) == TEXT("<"))
 		{
-			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //去掉>
+			ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //remove >
 
 			id.AppendChar(TEXT(':'));
 			id += value;
@@ -4497,7 +4497,7 @@ void UITextParser_QURL::Parse(ParseContext& ctx, DialogContext& diagCtx, TCHAR*&
 
 void UITextParser_QShowPage::Parse( ParseContext& ctx, DialogContext& diagCtx, TCHAR*& srcTxt, INT& srcIdx, INT totalLen )
 {
-	ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //去掉>
+	ParseCloseTag(ctx, srcTxt, srcIdx, totalLen, GetKeyword()); //remove >
 	FString Content = ParseContent(ctx, srcTxt,	 srcIdx, totalLen);
 	diagCtx.DialogText.AddItem(Content);
 	diagCtx.TempText += Content;

@@ -83,7 +83,7 @@ native function DoTrade( int roleID, int roleLv );
 //
 native function bool NotifyAddTradeItem( int putInSlotID, int fromContainID, int fromSlotID );
 native function bool RealAddTradeItem( int containID, int slotID, int itemID );
-//native function PendingDelTradeItem( int containID, INT int );//只用于替换交易物品时使用
+//native function PendingDelTradeItem( int containID, INT int );//only used when replacing trade items
 native function bool RealDelTradeItem( bool isMy, int putOutSlotID );
 //native function bool DelTradeItem( int containID, int slotID );
 //native function ClearAllTradeItems();
@@ -160,7 +160,7 @@ function ASCancelP2PTrade()
 	NativeShow( false );
 }
 //
-//名字、职业、性别，等级、友好度显示
+//Name, class, gender, level, friendship display
 event CallAsSetTradeInfo( string targetName, string targetClass, int targetSex, int targetLv, int targetFriendship )
 {
 	ActionScriptVoid( "UCSetTradeInfo" );

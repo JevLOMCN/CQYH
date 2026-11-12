@@ -146,7 +146,7 @@ event Tick(float DeltaTime)
 	}
 }
 
-// Éú³É±¬Õ¨ÌùÍ¼
+// Generate explosion texture
 function SpawnImpactDecal(MaterialInterface impactMat,
 	Vector HitLocation, Vector HitNormal, bool userVelocityDir)
 {

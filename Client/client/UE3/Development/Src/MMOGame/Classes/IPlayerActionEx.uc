@@ -1,5 +1,5 @@
 //
-// IPlayerActionEx接口，玩家操作
+// IPlayerActionEx interface, player actions
 //
 interface IPlayerActionEx
 	native;

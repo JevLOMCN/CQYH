@@ -11257,7 +11257,7 @@ FVector FNavMeshEdgeBase::GetEdgeDestination( const FNavMeshPathParams& PathPara
 
 		if (DisSquareV01 <= EntityRadiusSquare * 4.0f)
 		{
-			// 边不是很长直接返回中点
+			// If the edge is not very long, directly return the midpoint
 			ClosestEdgePoint = (V0 + V1) * 0.5f;
 			//warnf(TEXT("nav-mesh portal is narrow, one (%f,%f,%f), another one(%f,%f,%f)"), 
 			//	V0.X, V0.Y, V0.Z, V1.X, V1.Y,V1.Z);
@@ -11265,7 +11265,7 @@ FVector FNavMeshEdgeBase::GetEdgeDestination( const FNavMeshPathParams& PathPara
 		else
 		{
 #ifdef _DEBUG
-			check(!IsIslandEdge());	// 不会经过孤岛边得
+			check(!IsIslandEdge());	// Will not pass through island edges
 #endif
 
 			// 1. find closest point on edge to influence point
@@ -11275,17 +11275,17 @@ FVector FNavMeshEdgeBase::GetEdgeDestination( const FNavMeshPathParams& PathPara
 			float DisSquareV1C = ClosestEdgePoint.DistanceSquared(V1);
 
 			FVector V01 = V1 - V0;
-			V01.Normalize();	// v0, v1肯定有一定长度，这里表担心
+			V01.Normalize();	// v0 and v1 definitely have some length; this is just a precaution
 
 			if (DisSquareV0C < EntityRadiusSquare)
 			{
-				// 距离v0过近
+				// Too close to v0
 				ClosestEdgePoint = V0 + EntityRadius * V01;
 
 			}
 			else if (DisSquareV1C < EntityRadiusSquare)
 			{
-				// 距离v1过近
+				// Too close to v1
 				ClosestEdgePoint = V1 - EntityRadius * V01;
 			}
 
@@ -11295,7 +11295,7 @@ FVector FNavMeshEdgeBase::GetEdgeDestination( const FNavMeshPathParams& PathPara
 			//{
 			//	int NumEdges = PolyEntIsIn->GetNumEdges();
 
-			//	// 在v0,v1点有极为狭长的夹角，且另外一条边外部没有navmesh了，OneWayEdge
+			//	// At v0, v1 there is an extremely narrow angle, and there is no navmesh outside the other edge, OneWayEdge
 			//	bool bV0SamllAngel = false;
 			//	bool bV1SamllAngel = false;
 
@@ -11308,7 +11308,7 @@ FVector FNavMeshEdgeBase::GetEdgeDestination( const FNavMeshPathParams& PathPara
 			//			bool bV0Adjoining = ((Vert0 == pEdge->Vert0) || (Vert0 == pEdge->Vert1));
 			//			bool bV1Adjoining = ((Vert1 == pEdge->Vert0) || (Vert1 == pEdge->Vert1));
 
-			//			//check(!(bV0Adjoining && bV1Adjoining));	// 不可能两头都和同一条边邻接
+			//			//check(!(bV0Adjoining && bV1Adjoining));	// Impossible for both ends to be adjacent to the same edge
 
 			//			if (bV0Adjoining || bV1Adjoining)
 			//			{

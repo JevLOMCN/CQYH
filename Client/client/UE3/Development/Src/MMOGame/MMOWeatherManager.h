@@ -4,12 +4,12 @@
 #include "MMOSingleton.h"
 #include "MMOFacade.h"
 
-// 天气等级
+// weather level
 enum WeatherLevel
 {
-	WL_Light = 0,										// 小雨，小雪，间歇性闪电，少量扬沙，小雾
-	WL_Showers,											// 中雨+闪电，中雪，中型沙暴，中雾
-	WL_Heavy,											// 雨+雪，大雪，持续闪电，扬沙+龙卷风，大雾
+	WL_Light = 0,										// light rain, light snow, intermittent lightning, little blowing sand, light fog
+	WL_Showers,											// moderate rain + lightning, moderate snow, moderate sandstorm, moderate fog
+	WL_Heavy,											// rain + snow, heavy snow, continuous lightning, blowing sand + tornado, heavy fog
 	WL_Total
 };
 
@@ -28,18 +28,18 @@ public:
 
 	virtual void OnNativeGameEvent(struct MMOGameEvent* evt);
 
-	void InitStartTime(UINT32 startTime);				// 初始化游戏开始时间
-	void EnterScene(UINT8 weaterType);					// 进入地图
+	void InitStartTime(UINT32 startTime);				// initialize game start time
+	void EnterScene(UINT8 weaterType);					// enter map
 		
-	void StartWeather(UINT8 weaterType);				// 开始天气
-	void StopWeather(UINT8 weaterType);					// 结束天气
-	void StopAllWeather();								// 结束所有天气
+	void StartWeather(UINT8 weaterType);				// start weather
+	void StopWeather(UINT8 weaterType);					// stop weather
+	void StopAllWeather();								// stop all weather
 
-	FLOAT GetCurTime() const;							// 获得当前时间,24小时制,单位:小时
+	FLOAT GetCurTime() const;							// get current time, 24-hour format, unit: hours
 	void SetCurTime(FLOAT t) { _CurrentTime = t; }
-	UINT8 GetCurWeatherType();							// 获取当前天气类型
+	UINT8 GetCurWeatherType();							// get current weather type
 
-	void Enable( UBOOL bEnable );						// 开启/关闭天气系统
+	void Enable( UBOOL bEnable );						// enable/disable weather system
 
 	bool IsNight() const;
 	void TestDay();
@@ -52,10 +52,10 @@ public:
 	}
 		
 protected:
-	void _ActivateWeatherEvent();						// 触发Kismet天气事件
-	void _ActivateDayTimePlanEvent();					// 触发Kismet时间表事件
-	void _ActivateDayTimeSunlightEvent();				// 触发Kismet昼夜变化事件
-	void _UpdateDayTimeSunlightEvent();					// 触发Kismet昼夜变化事件
+	void _ActivateWeatherEvent();						// trigger Kismet weather event
+	void _ActivateDayTimePlanEvent();					// trigger Kismet schedule event
+	void _ActivateDayTimeSunlightEvent();				// trigger Kismet day/night change event
+	void _UpdateDayTimeSunlightEvent();					// trigger Kismet day/night change event
 
 	void _SetWeatherChangeHint(const FString& content);
 	void _UpdateWeatherTips();
@@ -63,16 +63,16 @@ protected:
 	AMMOWeatherHelper* _WeatherHelper;
 	AMMODayTimeHelper* _DayTimeHelper;
 
-	FLOAT _StartTime;									// 游戏开始时间,24小时制,单位:小时
+	FLOAT _StartTime;									// game start time, 24-hour format, unit: hours
 	FLOAT _HourPerDay;
 	FLOAT _StartTotalTime;
 	FLOAT _CurrentTime;
 
-	FLOAT _AnimTime;									// 动画更新时间
-	FLOAT _OldEventTime;								// 事件触发时间
+	FLOAT _AnimTime;									// animation update time
+	FLOAT _OldEventTime;								// event trigger time
 
-	UINT8 _CurWeatherType;								// 当前天气类型	
-	UINT8 _CurWeatherLv;								// 当前天气级别	
+	UINT8 _CurWeatherType;								// current weather type
+	UINT8 _CurWeatherLv;								// current weather level
 };
 
 #endif

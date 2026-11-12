@@ -29,7 +29,7 @@ function RegisterFriendChatHint( MMOUIFriendChatHint mc )
 	RegisterUI( mc , class'MMOUIManager'.default.Panel_Friend_FriendChatHint);
 }
 
-//这几个new出来的，注册的时间非常晚，所以早期不存在，处理起来有点区别
+//These were created with new and registered very late, so they do not exist early; handling differs slightly
 function RegisterFriendNearContactContent( MMOUIFriendNearContactContent mc )
 {
 	NearContactContent = mc;
@@ -71,7 +71,7 @@ function RegisterEnemyListContent( MMOUIFriendEnemyListContent mc )
 }
 
 /*-------------------------------------------------
-重整好友聊天
+Reorganize friend chat
 */
 // native function ASSendFriendChat( int WindowId , string ChatMsg );
 // 
@@ -87,7 +87,7 @@ function ASContactWidgetMiniMize(string WindowName)//moved
 }
 // 	
 /*
-	重整好友聊天
+	Reorganize friend chat
 	*/
 // native function ASContactWindowTab( GFxObject Window , GFxObject Tab );
 //-------------------------------------
@@ -116,7 +116,7 @@ native function ASFriendItemRightClick( int Posx, int Posy, GFXObject Item , int
 //	}
 //}
 
-//friend部分的as
+//friend part as
 native function ASFriendChangeSearchText( String SearchText);//moved
 
 native function ASFriendSearchFocusChange( bool in , String searchText );//moved
@@ -144,7 +144,7 @@ function ASFriendFolderRightClick( int Posx, int Posy, GFXObject Item , int Item
 
 
 /*
-	重新整理好友聊天
+	Reorganize friend chat
 */
 native function ASSelectRoleChatWnd(int nRoleID);//moved
 native function ASCloseRoleChatWnd(int nRoleID);//moved

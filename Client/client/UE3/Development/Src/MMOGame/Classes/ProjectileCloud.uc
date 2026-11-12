@@ -17,7 +17,7 @@ class ProjectileCloud extends MMOEmitter;
 //var(ProjectileCloud) float HitTime;
 //var(ProjectileCloud) float RelativeHeight;
 //var(ProjectileCloud) float HitRadius;
-////var(ProjectileCloud)   ETargetRelationType TargetRelationType  <DisplayName="目标阵营类型">;
+////var(ProjectileCloud)   ETargetRelationType TargetRelationType  <DisplayName="target faction type">;
 
 
 //var transient array<AbilityComponent>  OnHitFunctionalities;

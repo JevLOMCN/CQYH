@@ -220,7 +220,7 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 		return;
 	}
 
-	// 图鉴列表
+	// Codex list
 	switch (handbookClass)
 	{
 	case HC_Monster:
@@ -228,12 +228,12 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			int index = 0;
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htNpc_Normal) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("普通"));
+				objectArray->SetElementString(index, TEXT("Normal"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htNpc_Elite) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("精英"));
+				objectArray->SetElementString(index, TEXT("Elite"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htNPc_Boss) > 0)
@@ -249,12 +249,12 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			int index = 0;
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htNpc_Function) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("功能"));
+				objectArray->SetElementString(index, TEXT("Function"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htNpc_Story) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("故事"));
+				objectArray->SetElementString(index, TEXT("Story"));
 				index ++;
 			}
 			eventCallUCUpdateHandbookType(objectArray);
@@ -265,17 +265,17 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			int index = 0;
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htMap_Wild) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("野外"));
+				objectArray->SetElementString(index, TEXT("Field"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htMap_Dungeon) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("副本"));
+				objectArray->SetElementString(index, TEXT("Dungeon"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htMap_Activity) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("活动"));
+				objectArray->SetElementString(index, TEXT("Activities"));
 				index ++;
 			}
 			eventCallUCUpdateHandbookType(objectArray);
@@ -287,18 +287,18 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			/*
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htItem_Compose) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("合成"));
+				objectArray->SetElementString(index, TEXT("Synthesis"));
 				index ++;
 			}
 			*/
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htItem_Stone) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("灵石"));
+				objectArray->SetElementString(index, TEXT("Spirit Stone"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htItem_Story) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("故事"));
+				objectArray->SetElementString(index, TEXT("Story"));
 				index ++;
 			}
 			eventCallUCUpdateHandbookType(objectArray);
@@ -310,23 +310,23 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			/*
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htEquip_Set) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("套装"));
+				objectArray->SetElementString(index, TEXT("Set"));
 				index ++;
 			}
 			*/
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htEquip_Weapon) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("武器"));
+				objectArray->SetElementString(index, TEXT("Weapon"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htEquip_Jewelry) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("首饰"));
+				objectArray->SetElementString(index, TEXT("Jewelry"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htEquip_Armor) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("防具"));
+				objectArray->SetElementString(index, TEXT("Armor"));
 				index ++;
 			}
 			eventCallUCUpdateHandbookType(objectArray);
@@ -337,27 +337,27 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			int index = 0;
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htRune_Warrior) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("战士铭文"));
+				objectArray->SetElementString(index, TEXT("Warrior Inscription"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htRune_Mage) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("法师铭文"));
+				objectArray->SetElementString(index, TEXT("Mage Inscription"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htRune_Rogue) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("刺客铭文"));
+				objectArray->SetElementString(index, TEXT("Rogue Inscription"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htRune_Archer) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("弓手铭文"));
+				objectArray->SetElementString(index, TEXT("Archer Inscription"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htRune_Taoist) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("道士铭文"));
+				objectArray->SetElementString(index, TEXT("Taoist Inscription"));
 				index ++;
 			}
 			eventCallUCUpdateHandbookType(objectArray);
@@ -368,17 +368,17 @@ void UMMOUIHandbookPanel::UpdateHandbookClass(UINT32 handbookClass)
 			int index = 0;
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htAir_Green) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("绿色"));
+				objectArray->SetElementString(index, TEXT("Green"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htAir_Blue) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("蓝色"));
+				objectArray->SetElementString(index, TEXT("Blue"));
 				index ++;
 			}
 			if (MMOHandbookData::getSingleton().GetMaxHandbookCount(htAir_Purple) > 0)
 			{
-				objectArray->SetElementString(index, TEXT("紫色"));
+				objectArray->SetElementString(index, TEXT("Purple"));
 				index ++;
 			}
 			eventCallUCUpdateHandbookType(objectArray);
@@ -408,7 +408,7 @@ void UMMOUIHandbookPanel::UpdateHandbookList(UINT32 type, UINT32 defaultIndex, c
 		MMOHandbookData::getSingleton().GetHandbookDataListByKey(type, keyWord, handbookDataList);
 		if (handbookDataList.empty())
 		{
-			FString text = TEXT("未搜索到相关内容");
+			FString text = TEXT("No results found");
 			MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, TEXT("MMOGame.Quest.LevelLimit"));
 		}
 	} 
@@ -1153,7 +1153,7 @@ void UMMOUIHandbookPanel::_UpdateMonsterInfo(UINT32 type, UINT32 index)
 		}
 	}
 
-	// 技能
+	// Skill
 	if (data.Data0.Num() > 0)
 	{
 		UGFxObject* array0 = GFXPlayer->CreateArray();
@@ -1187,7 +1187,7 @@ void UMMOUIHandbookPanel::_UpdateMonsterInfo(UINT32 type, UINT32 index)
 		}
 	}
 
-	// 掉落
+	// Drop
 	if (data.Data1.Num() > 0)
 	{
 		UGFxObject* array1 = GFXPlayer->CreateArray();
@@ -1316,7 +1316,7 @@ void UMMOUIHandbookPanel::_UpdateMapInfo(UINT32 type, UINT32 index)
 		object->SetInt(TEXT("handbook_temp"), data.TemplateId(0));
 	}
 
-	// 特产
+	// Specialty
 	if (data.Data0.Num() > 0)
 	{
 		UGFxObject* array0 = GFXPlayer->CreateArray();
@@ -1448,14 +1448,14 @@ void UMMOUIHandbookPanel::_UpdateComposeInfo(UINT32 type, UINT32 index)
 	object->SetString(TEXT("handbook_name"), data.Name);
 	object->SetString(TEXT("handbook_sound"), data.Sound);
 
-	// 合成: 0: 合成的武器，1~n: 合成材料
+	// Synthesis: 0: synthesized weapon, 1~n: synthesis materials
 	UGFxObject* array0 = GFXPlayer->CreateArray();
 	if (array0)
 	{
 		EquipComposeTemplate& compose = EquipDecomposeManager::getSingleton().GetComposeTemplateById(data.TemplateId(0));
 
 		int index = 0;
-		// 装备
+		// Equipment
 		UItem* item = MMOFacade::getSingleton().FindItemTemplate(compose.equipId);
 		if (item)
 		{
@@ -1471,7 +1471,7 @@ void UMMOUIHandbookPanel::_UpdateComposeInfo(UINT32 type, UINT32 index)
 			}
 		}
 
-		// 材料
+		// Material
 		for (int i = 0; i < COMPOSE_CONSUME_COUNT; ++ i)
 		{
 			if (compose.matId[i] == 0)
@@ -1539,7 +1539,7 @@ void UMMOUIHandbookPanel::_UpdateStoneInfo(UINT32 type, UINT32 index)
 	object->SetString(TEXT("handbook_text2"), data.Text2);
 	object->SetString(TEXT("handbook_sound"), data.Sound);
 
-	// 灵石
+	// Spirit stone
 	if (data.TemplateId.Num() > 0)
 	{
 		UGFxObject* array0 = GFXPlayer->CreateArray();
@@ -1580,7 +1580,7 @@ void UMMOUIHandbookPanel::_UpdateStoneInfo(UINT32 type, UINT32 index)
 		}
 	}
 
-	// 等级列表
+	// Level list
 	UGFxObject* array1 = GFXPlayer->CreateArray();
 	if (array1)
 	{
@@ -1663,7 +1663,7 @@ void UMMOUIHandbookPanel::_UpdateSuitInfo(UINT32 type, UINT32 index)
 
 				if (_ShowPlayer)
 				{
-					// 通过第一件装备判断职业和性别
+					// Determine class and gender from the first piece of equipment
 					if (i == 0)
 					{
 						if (MMO::CanBeUsedByPlayerClass(EPCT_PlayerClassA, item->RequireClass))
@@ -1772,7 +1772,7 @@ void UMMOUIHandbookPanel::_UpdateEquipInfo(UINT32 type, UINT32 index)
 	UGFxObject* array0 = GFXPlayer->CreateArray();
 	if (array0)
 	{
-		// 基本属性
+		// Basic attributes
 		UGFxObject* element = GFXPlayer->CreateObject(TEXT("Object"));
 		if (element)
 		{
@@ -1812,7 +1812,7 @@ void UMMOUIHandbookPanel::_UpdateEquipInfo(UINT32 type, UINT32 index)
 			element->SetString(TEXT("equip_rune"), *appItoa(curSlotCnt));
 
 			element->SetString(TEXT("equip_prop"), UITextParser::HTMLFormatItemAttributes(equip, NULL));
-			// 套装属性
+			// Set attributes
 			EquipSuit* suit =  MMOEquipManager::getSingleton().FindEquipSuitByPartOfSuit(equip->ItemId);
 			FString suitProp = (suit != NULL) ? UITextParser::HTMLFormatEquipSuitAttribute(equip) : TEXT("");
 			suitProp.ReplaceInline(TEXT("#9d9d9d"), TEXT("#FFFFFF"));
@@ -1925,7 +1925,7 @@ void UMMOUIHandbookPanel::_UpdateSpiritInfo(UINT32 type, UINT32 index)
 	object->SetString(TEXT("handbook_text1"), data.Text1);
 	object->SetString(TEXT("handbook_sound"), data.Sound);
 
-	// 龙卫心法
+	// Dragon Guard mental technique
 	if (data.TemplateId.Num() > 0)
 	{
 		UGFxObject* array0 = GFXPlayer->CreateArray();
@@ -1963,7 +1963,7 @@ void UMMOUIHandbookPanel::_UpdateSpiritInfo(UINT32 type, UINT32 index)
 		}
 	}
 
-	// 等级列表
+	// Level list
 	UGFxObject* array1 = GFXPlayer->CreateArray();
 	if (array1)
 	{
@@ -2367,7 +2367,7 @@ void UMMOUIHandbookPanel::ASGotoMonsterPage(const FString& monsterName)
 	}
 	else
 	{
-		FString error = TEXT("未找到该图鉴BOOS信息");
+		FString error = TEXT("Handbook BOSS info not found");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 	}
 }
@@ -2391,7 +2391,7 @@ void UMMOUIHandbookPanel::ASGotoMapPage(const FString& mapName)
 	}
 	else
 	{
-		FString error = TEXT("未找到该图鉴地图信息");
+		FString error = TEXT("Handbook map info not found");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 	}
 }
@@ -2450,14 +2450,14 @@ void UMMOUIHandbookPanel::ASGotoPosition(INT mapId)
 	INT curMapId = MMOMapDataManager::getSingleton().GetCurMap().ServerID;
 	if (curMapId == mapId)
 	{
-		FString error = TEXT("已经到达当前地图");
+		FString error = TEXT("Already on the current map");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		return;
 	}
 
 	if (!MMONavigationManager::getSingleton().FindAndMoveToTeleport(curMapId, mapId, 0, FALSE))
 	{
-		FString error = TEXT("地图不可到达");
+		FString error = TEXT("Map cannot be reached");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 		return;
 	}
@@ -2483,7 +2483,7 @@ void UMMOUIHandbookPanel::ASGotoEquipPage(int itemId)
 	}
 	else
 	{
-		FString error = TEXT("未找到对应的装备信息");
+		FString error = TEXT("Equipment info not found");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(error, MsgInfoType_Table, TEXT("MMOErrorInfo.Quest.QuestErrNavPointNotFound"));
 	}
 }

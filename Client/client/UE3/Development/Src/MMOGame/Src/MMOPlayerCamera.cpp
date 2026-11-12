@@ -7,10 +7,10 @@ native functions of the MMOPlayerCamera class
 //#include "MMOGameClasses.h"
 #include "DebugMMO.h"
 
-//生成相关的Class信息
+//generate related Class info
 IMPLEMENT_CLASS(AMMOPlayerCamera)
 
-//Pow函数，a为基数，b为指数
+//Pow function, a is the base, b is the exponent
 FLOAT  AMMOPlayerCamera::Pow(FLOAT A,FLOAT B)
 {
 	return appPow(A,B);
@@ -205,8 +205,8 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 	FVector dir = (ve - vs);
 	dir.Normalize();
 
-	ve -= dir * TraceExtend.Size2D() * 0.75; // 往相机前多一点点
-	//ve.Z -= TraceExtend.Z * 0.5; // 往下下多一点点
+	ve -= dir * TraceExtend.Size2D() * 0.75; // a bit more in front of the camera
+	//ve.Z -= TraceExtend.Z * 0.5; // a bit more downward
 
 	//GWorld->bShowExtentLineChecks = TRUE;
 	FCheckResult* Hit = GWorld->MultiLineCheck( GMainThreadMemStack, ve, vs, TraceExtend, TraceFlags, this );
@@ -265,10 +265,10 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 
 		if(traced && traced->bCanHidden)
 		{
-			// 如果还没有在隐藏中
+			// if not yet being hidden
 			if(!HasHidden(traced))
 			{
-				//warnf(NAME_Error, TEXT("[MMOPlayerCamera] 如果还没有在隐藏中:%s"), *traced->GetName());
+				//warnf(NAME_Error, TEXT("[MMOPlayerCamera] if not yet being hidden:%s"), *traced->GetName());
 
 				bool newToHide = true;
 
@@ -276,13 +276,13 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 				INT idx = INDEX_NONE;
 				if(IsUnHiding(traced, idx))
 				{
-					// 如果在反隐藏列表
+					// if in the un-hide list
 					UnHiddenActorList(idx).MaterialCtrl->PlayOpacityFadeOut(BlockObjectFadeInOutSpeed);
 					//UnHiddenActorList(idx).HideActor->SetCollisionType(COLLIDE_BlockAllButWeapons);
 					//UnHiddenActorList(idx).HideActor->SetCollision(FALSE, FALSE, TRUE);
 					newHide.AddItem(UnHiddenActorList(idx));
 					UnHiddenActorList.Remove(idx, 1);
-					//warnf(NAME_Error, TEXT("[MMOPlayerCamera]\t如果在反隐藏列表 CheckStaticMeshToHide() from UnHidden:%s"), *traced->GetName());
+					//warnf(NAME_Error, TEXT("[MMOPlayerCamera]\tif in the un-hide list CheckStaticMeshToHide() from UnHidden:%s"), *traced->GetName());
 					newToHide = false;
 				}
 
@@ -304,7 +304,7 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 				if(newToHide)
 				{
 					CreateMaterial( traced->StaticMeshComponent );
-					// 如果是新加入的隐藏对象
+					// if it is a newly added hidden object
 					//traced->SetCollisionType(COLLIDE_BlockAllButWeapons);
 					//traced->SetCollision(FALSE, FALSE, TRUE);
 					FAutoHideBlockActor hidenActor;
@@ -318,18 +318,18 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 
 					newHide.AddItem(hidenActor);
 					HiddenActorList.AddItem((hidenActor));
-					//warnf(NAME_Error, TEXT("[MMOPlayerCamera]\t如果是新加入的隐藏对象 CheckStaticMeshToHide() New add:%s"), *traced->GetName());
+					//warnf(NAME_Error, TEXT("[MMOPlayerCamera]\tif it is a newly added hidden object CheckStaticMeshToHide() New add:%s"), *traced->GetName());
 				}
 			}
 			else
 			{
-				//warnf(NAME_Error, TEXT("[MMOPlayerCamera] 如果不在隐藏列表中:%s"), *traced->GetName());
+				//warnf(NAME_Error, TEXT("[MMOPlayerCamera] if not in the hide list:%s"), *traced->GetName());
 				for(INT i = 0; i < HiddenActorList.Num(); ++i)
 				{
-					// 如果在隐藏列表中
+					// if in the hide list
 					if(HiddenActorList(i).HideActor == traced)
 					{
-						//warnf(NAME_Error, TEXT("[MMOPlayerCamera]\t如果在隐藏列表中 CheckStaticMeshToHide() New add:%s"), *traced->GetName());
+						//warnf(NAME_Error, TEXT("[MMOPlayerCamera]\tif in the hide list CheckStaticMeshToHide() New add:%s"), *traced->GetName());
 						newHide.AddItem(HiddenActorList(i));
 						break;
 					}
@@ -338,7 +338,7 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 		}
 		else if(traced && traced->bCanHidden)
 		{
-			//warnf(NAME_Error, TEXT("[MMOPlayerCamera] 找到不可隐藏的对象 CheckStaticMeshToHide() HasHidden:%s"), *traced->GetName());
+			//warnf(NAME_Error, TEXT("[MMOPlayerCamera] found an object that cannot be hidden CheckStaticMeshToHide() HasHidden:%s"), *traced->GetName());
 		}
 	}
 
@@ -352,7 +352,7 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 			if(newHide(i).HideActor == HiddenActorList(j).HideActor)
 			{
 				idx = j;
-				//warnf(NAME_Error, TEXT("[MMOPlayerCamera] 新检测到的已经在隐藏列表中:%s"), *newHide(i).HideActor->GetName());
+				//warnf(NAME_Error, TEXT("[MMOPlayerCamera] newly detected one is already in the hide list:%s"), *newHide(i).HideActor->GetName());
 				break;
 			}
 		}
@@ -360,7 +360,7 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 		// the actor is not traced now
 		if(INDEX_NONE == idx)
 		{
- 			//warnf(NAME_Error, TEXT("[MMOPlayerCamera]  取消隐藏没阻挡相机的 CheckStaticMeshToHide() add to unhidden:%s"),
+ 			//warnf(NAME_Error, TEXT("[MMOPlayerCamera]  un-hide those not blocking the camera CheckStaticMeshToHide() add to unhidden:%s"),
 // 				*HiddenActorList(j).HideActor->GetName());
 
 			UnHiddenActorList.AddItem(HiddenActorList(j));
@@ -378,7 +378,7 @@ void AMMOPlayerCamera::CheckStaticMeshToHide(FLOAT deltaTime)
 	{
 		if(!UnHiddenActorList(i).MaterialCtrl->IsFading)
 		{
- 			//warnf(NAME_Error, TEXT("[MMOPlayerCamera] 移除淡出完成的 CheckStaticMeshToHide() unhidden completed:%s"), 
+ 			//warnf(NAME_Error, TEXT("[MMOPlayerCamera] remove those whose fade-out completed CheckStaticMeshToHide() unhidden completed:%s"),
  			//	*UnHiddenActorList(i).HideActor->GetName());
 
 			//UnHiddenActorList(i).HideActor->SetCollisionType(COLLIDE_TouchAllButWeapons);

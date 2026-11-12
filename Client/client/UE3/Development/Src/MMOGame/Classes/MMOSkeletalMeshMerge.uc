@@ -12,7 +12,7 @@ struct native BodyPart
 	var init array<Texture2D>	Textures;	// should be ordered by priority
 	var init array<Texture2D>	Textures_N;	// normal
 	var init array<Texture2D>	Textures_S;	// specular + alpha + emmisive
-	var init array<Texture2D>	Textures_Base;	// 因为可更换颜色贴图的缘故，改成从这里取得S/N贴图的名字
+	var init array<Texture2D>	Textures_Base;	// because the color map can be changed, the S/N texture names are now taken from here
 
 	// texture uv, mip0
 	var int		OrigX;
@@ -74,7 +74,7 @@ native final function SetSkinColor( linearcolor NewColor );
 
 native final function SetSkinSpecular( linearcolor NewSpecular );
 
-// 美术大大们喜欢的模型的高光描边效果。。。
+// Specular outline effect of models that the artists love...
 native final function SetFakeSilhouetteColor( linearcolor NewFakeSilhouette );
 
 defaultproperties

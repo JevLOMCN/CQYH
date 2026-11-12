@@ -62,7 +62,7 @@ final native function ASHideActiveDetailSkillsListPanel();
 
 final native function ASSetSkill( INT skillSetIdx, INT uniqueSkillID );
 
-//境界相关
+//Realm related
 final native function ASClickConverter();
 final native function ASClickBtnPractiseGas(int nBtnIndex);
 final native function ASClickOneKeyPractise();

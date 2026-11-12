@@ -38,7 +38,7 @@ void MMOMsgButtonManager::ClickButton( INT type )
 
 	if( size == 0 )
 	{
-		//按理不会走这里的
+		//shouldn't normally reach here
 		return;
 	}
 
@@ -46,7 +46,7 @@ void MMOMsgButtonManager::ClickButton( INT type )
 	{
 		if( size == 1 )
 		{
-			//只有一个的话就直接弹出菜单，消掉此按钮
+			//if there is only one, pop up the menu directly and remove this button
 			UGFxObject* mc = MMOMsgBoxManager::getSingleton().AddMessageBoxEvent( list[0].msgText , list[0].infoId , list[0].EventId ,list[0].type);
 			if (mc)
 			{
@@ -55,11 +55,11 @@ void MMOMsgButtonManager::ClickButton( INT type )
 			}
 			list.erase( list.begin() );
 			UpdateButton(type);
-			//刷新按钮
+			//refresh button
 		}
 		else
 		{
-			//多个的话，显示列表
+			//if there are multiple, show a list
 			ToggleMsgLine(type);
 			UpdateMsgLine(type);
 			//
@@ -69,7 +69,7 @@ void MMOMsgButtonManager::ClickButton( INT type )
 	{
 		_EmitDelegate( type );
 		list.clear();
-		//刷新按钮
+		//refresh button
 		UpdateButton(type);
 	}
 	
@@ -90,9 +90,9 @@ void MMOMsgButtonManager::ClickMsgLine( INT pos , INT type )
 		}
 		list.erase( list.begin() + pos );
 	}
-	//刷新按钮
+	//refresh button
 	UpdateButton(type);
-	//刷新列表
+	//refresh list
 	UpdateMsgLine(type);
 	
 
@@ -185,7 +185,7 @@ INT MMOMsgButtonManager::AddNewButton( const FString& Text , INT InfoId , FStrin
 	INT buttonNum = msgButtonList.size();
 	for ( INT i = 0 ; i < buttonNum ; i++ )
 	{
-		//已有相同的消息就去掉
+		//remove if the same message already exists
 		if( msgButtonList[i].infoId == InfoId && msgButtonList[i].EventId == eventId )
 		{
 			msgButtonList.erase( msgButtonList.begin()+i );
@@ -197,10 +197,10 @@ INT MMOMsgButtonManager::AddNewButton( const FString& Text , INT InfoId , FStrin
 	
 	INT cnt = msgButtonList.size();	
 	
-	//更新按钮
+	//update button
 	MMOGameEvent_AddMsgBall evt( GameEvent_AddMsgBall , type , cnt );
 	MMOUI::PostGameEvent(&evt);
-	//更新信息条
+	//update info bar
 	UpdateMsgLine(type);
 
 	return cnt - 1;
@@ -222,7 +222,7 @@ INT MMOMsgButtonManager::AddNewButton( FScriptDelegate OnEventHandle, MMOMsgButt
 	msgButtonInfo.type = type;
 
 	INT cnt = msgButtonList.size();
-	//更新按钮
+	//update button
 	MMOGameEvent_AddMsgBall evt( GameEvent_AddMsgBall , type , cnt );
 	MMOUI::PostGameEvent(&evt);
 

@@ -12,7 +12,7 @@ enum EQuestResetType
 };
 
 //
-// 基础字段
+// basic fields
 //
 struct native QuestResetTime
 {
@@ -146,7 +146,7 @@ struct native QuestPageSound
 	var transient init string PageSoundPath;
 };
 
-// 任务获取提示
+// quest acquisition hint
 enum EEmergencyTipsType
 {
 	EEMTT_NewEvent                                                                          <DisplayName="EEMTT_NewEvent">,
@@ -154,7 +154,7 @@ enum EEmergencyTipsType
 	EEMTT_Danger                                                                            <DisplayName="EEMTT_Danger">,
 };
 
-// 任务接取方式
+// quest accept method
 enum EAcceptQuestType
 {
 	EAQT_Npc                                                                                <DisplayName="EAQT_Npc">,
@@ -163,7 +163,7 @@ enum EAcceptQuestType
 	EAQT_Level                                                                              <DisplayName="EAQT_Level">,
 };
 
-// 任务提交方式
+// quest submit method
 enum ESubmitQuestType
 {
 	ESQT_Npc                                                                                <DisplayName="ESQT_Npc">,
@@ -174,7 +174,7 @@ enum ESubmitQuestType
 };
 
 //
-// 常规任务设置
+// general quest settings
 //
 var() int QuestTempID				                                                        <DisplayName="QuestTempID" | ExportExcel="Both">;
 var() init string QuestName				                                                    <DisplayName="QuestName" | ExportExcel="Client">;
@@ -195,7 +195,7 @@ var() int DurationLimit				                                                     
 var() editconst editfixedsize array<QuestDestination> Destinations                          <DisplayName="Destinations" | ExportExcel="Server">;
 
 //
-// 任务描述
+// quest description
 //
 var(QuestDescription) init string AcceptQuestDesc                                           <DisplayName="AcceptQuestDesc" | ExportExcel="Client">;
 var(QuestDescription) init string QuestDescript			                                    <DisplayName="QuestDescript" | ExportExcel="Client" | Edit="TextEdit_Nouse">;
@@ -205,7 +205,7 @@ var(QuestDescription) init string PreSubmitQuestDialog	                         
 var(QuestDescription) init string CompleteQuestDialog	                                    <DisplayName="CompleteQuestDialog" | ExportExcel="Client" | Edit="TextEdit_Nouse">;
 
 //
-// 任务音效
+// quest sound effects
 //
 var(QuestSound) SoundCue QuestSoundAccept                                                   <DisplayName="QuestSoundAccept" | ExportExcel="Client">;
 var transient init string QuestSoundAcceptPath;
@@ -227,14 +227,14 @@ var(QuestSound) SoundCue QuestSoundComplete                                     
 var transient init string QuestSoundCompletePath;
 
 //
-// 紧急任务
+// emergency quest
 //
 var(Emergency) int EmergencyRate                                                            <DisplayName="EmergencyRate" | ExportExcel="Both" | ClampMin=0 | ClampMax=100>;
 var(Emergency) int EmergencyCD                                                              <DisplayName="EmergencyCD" | ExportExcel="Both">;
 var(Emergency) EEmergencyTipsType EmergencyTipsType		                                    <DisplayName="EmergencyTipsType" | ExportExcel="Client">;
 
 //
-// 接受任务设置
+// accept quest settings
 //
 var(AcceptSetting) EAcceptQuestType StartType                                               <DisplayName="StartType" | ExportExcel="Client">;
 var(AcceptSetting) NPCTemplate StartNPCNew		                                            <DisplayName="StartNPC" | ExportExcel="Both">;
@@ -250,7 +250,7 @@ var(AcceptSetting) NPCTemplate AutoStartDialogHeadIcon		                        
 var int AutoStartDialogHeadIconId;
 
 //
-// 提交任务设置
+// submit quest settings
 //
 var(SubmitSetting) ESubmitQuestType FinishType                                              <DisplayName="FinishType" | ExportExcel="Client">;
 var(SubmitSetting) NPCTemplate FinishNpcNew		                                            <DisplayName="FinishNpc" | ExportExcel="Both">;
@@ -264,7 +264,7 @@ var int AutoFinishDialogHeadIconId;
 var(SubmitSetting) int AutoStartNextID                                                      <DisplayName="AutoStartNextID" | ExportExcel="Client">;
 
 //
-// 接交任务检测条件
+// accept/turn-in quest check conditions
 //
 var(AcceptCondition) int MaxCompleteCount				                                    <DisplayName="MaxCompleteCount" | ExportExcel="Both">;
 var(AcceptCondition) EPlayerClass ClassLimit			                                    <DisplayName="ClassLimit" | ExportExcel="Both">;
@@ -307,7 +307,7 @@ var(AcceptCondition) editfixedsize array<QuestCheckVar> VarLimit	               
 var(AcceptCondition) init string BeforeAcceptScriptName		                                <DisplayName="BeforeAcceptScriptName" | ExportExcel="Server">;
 
 //
-// 接任务奖励
+// accept quest rewards
 //
 var(AcceptReward) EMONEY_TYPE EOfferCurrencyType						                    <DisplayName="OfferCurrencyType">;
 var int OfferCurrencyType                                                                   <ExportExcel="Both">;
@@ -318,7 +318,7 @@ var(AcceptReward) editfixedsize array<QuestItem> OfferItem	                     
 var(AcceptReward) init string AfterAcceptScriptName		                                    <DisplayName="AfterAcceptScriptName" | ExportExcel="Server">;
 
 //
-// 完成任务条件
+// quest completion conditions
 //
 var(CompleteCondition) int CheckBuff										                <DisplayName="CheckBuff" | ExportExcel="Both">;
 var(CompleteCondition) int CheckBuffLevel									                <DisplayName="CheckBuffLevel" | ExportExcel="Both">;
@@ -341,7 +341,7 @@ var(CompleteCondition) editfixedsize array<QuestCheckKillPlayer> CheckKillPlayer
 var(CompleteCondition) editfixedsize array<QuestCheckClassVar> CheckClassVar                <DisplayName="CheckClassVar" | ExportExcel="Client">;
 
 //
-// 完成任务奖励
+// quest completion rewards
 //
 var(CompleteReward) EMONEY_TYPE EAwardCurrencyType										    <DisplayName="AwardCurrencyType">;
 var int AwardCurrencyType                                                                   <ExportExcel="Both">;
@@ -361,7 +361,7 @@ var(CompleteReward) editfixedsize array<QuestSelectableAwardItem> SelectableAwar
 var(CompleteReward) init string AfterCompleteScriptName		                                <DisplayName="AfterCompleteScriptName" | ExportExcel="Server">;
 
 //
-//放弃任务执行动作
+//actions executed on quest abandon
 //
 var(Abandon) init string AbandonScriptName		                                            <DisplayName="AbandonScriptName" | ExportExcel="Server">;
 

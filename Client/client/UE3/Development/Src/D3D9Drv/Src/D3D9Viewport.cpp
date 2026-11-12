@@ -89,7 +89,7 @@ void FD3D9DynamicRHI::BeginDrawingViewport(FViewportRHIParamRef ViewportRHI)
 	SCOPE_CYCLE_COUNTER(STAT_D3D9PresentTime);
 
 	// [ming@snda
-	// 增加的try-catch机制可能导致begin-end不配对，进而不能保证此处的viewport被设为NULL
+	// The added try-catch mechanism may cause begin-end to be unpaired, so the viewport here cannot be guaranteed to be set to NULL
 	//check(!DrawingViewport);
 	// ming@snda]
 	DrawingViewport = Viewport;

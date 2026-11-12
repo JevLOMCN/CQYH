@@ -11,13 +11,13 @@ class MMOGame extends GameInfo
 // };
 
 
-// 游戏通用数据
+// General game data
 
 var string GamePlayDataManagerTemplateName;   // for editor
 
 var bool bUseClassicHUD;
 
-//var  EGameState PlayerState ;//先放这里add by york，谁设config？
+//var  EGameState PlayerState ;//put here first add by york, who sets config?
 
 //var transient ESceneType SceneType;
 
@@ -50,18 +50,18 @@ var int SelectPlayer;
 
 var const private{private} MMOPlayerController MainController;
 
-// 是否绘制技能调试线
+// Whether to draw ability debug lines
 var config public bool DrawAbilityDebugLine;
 
-// 是否显示角色中心BOX
+// Whether to show character center BOX
 var bool DrawSelfCenterBox;
 
-// 是否显示调试角色状态
+// Whether to show debug character state
 var config public bool DrawDebugActorState;
 
 var transient SceneCapture2DComponent CaptureComponent;
 
-//编辑器里角色相关配置参数
+//Character related config parameters in the editor
 var config string EditorPreviewPawnRes;
 var config string StaticMeshWeaponName;
 var config string WeaponAttachSocketName;
@@ -103,7 +103,7 @@ native final function FinishLoading2Login();
 native final function FinishLoading2Select();
 
 //------------------------------------------------------------
-// 网络协议相关
+// Network protocol related
 //------------------------------------------------------------
 native final function SendRequest_FinishLoading();
 native final function vector GetCurrentTeleportPosition();
@@ -182,7 +182,7 @@ function GenericPlayerInitialization(Controller C)
 {
 	if ( !bUseClassicHUD )
 	{
-	//	HUDType = class'UTGFxHudWrapper';//这里默认值已经设了，暂时不在这里加
+	//	HUDType = class'UTGFxHudWrapper';//The default value is already set here, so not adding it here for now
 	}
 	super.GenericPlayerInitialization(C);
 }
@@ -214,7 +214,7 @@ function Pawn SpawnDefaultPawnFor(Controller NewPlayer, NavigationPoint StartSpo
 	{
 		`log("Spawn Editor Preview Pawn:"$EditorPreviewPawnRes);
 		PawnArchetypeToUse = Pawn(DynamicLoadObject(EditorPreviewPawnRes,class'MMOPlayer'));
-		// PIE的武器受光不对，为了避免美术的误会，先去掉了
+		// PIEPIE weapon lighting is wrong, removed for now to avoid artist misunderstanding
 		//WeaponMesh = StaticMesh(DynamicLoadObject(StaticMeshWeaponName,class'StaticMesh'));		
 		ResultPawn = Spawn(PawnArchetypeToUse.Class,,,StartSpot.Location,StartRotation,PawnArchetypeToUse,true);
 	}
@@ -338,7 +338,7 @@ event PostSeamlessTravel()
 		StartLongJump( PlayerStartPosition, true, false );
 		//SetTimer(1.5f, false, nameof(NotifyServerFinishedLoading), self);
 	}
-	//这里可能回到Select或者Login
+	//This may go back to Select or Login
 	else if( NextGameState == EGameState_Login )
 	{
 		SetTimer(1.5f, false, nameof(FinishLoading2Login), self);
@@ -833,7 +833,7 @@ DefaultProperties
 
 	KeyMapManager=none
 
-	//设置界面类
+	//Settings UI class
     HUDType=class'MMOGame.MMOHud'
 
 	//sSoundManager=MMOSoundManager'MMOSoundManager.SoundManagerConfig'

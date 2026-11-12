@@ -35,11 +35,11 @@ void UMMOUIScreenPopUpBoxMsg::PreOnShow(UBOOL v)
 //================================================================================================================
 void UMMOUIScreenPopUpBoxMsg::PostOnShow(UBOOL v)
 {
-	//为了不取得焦点
+	//To avoid taking focus
 }
 
 //================================================================================================================
-//播放获得技能提示
+//Play gained ability hint
 void UMMOUIScreenPopUpBoxMsg::PlayScreenPopUpBoxMsg( int msgId , BYTE type )
 {
     TArray<struct FASValue> asArguments;
@@ -93,7 +93,7 @@ void UMMOUIScreenPopUpBoxMsg::PlayScreenPopUpBoxMsg( int msgId , BYTE type )
     }
 
 
-    //决定是否要添加播放这条消息
+    //Decide whether to add and play this message
     if( isOK )
     {
 		asArguments.AddItem(asShowType);
@@ -315,7 +315,7 @@ void UMMOUIScreenPopUpBoxMsg::PlayScreenPopUpBoxMsgByString( BYTE type, const FS
 	Show( TRUE );
 }
 
-//获得技能提示播放完毕通知 
+//Gained ability hint playback finished notification
 void UMMOUIScreenPopUpBoxMsg::MsgPlayEnd()
 {
 	Show( FALSE );

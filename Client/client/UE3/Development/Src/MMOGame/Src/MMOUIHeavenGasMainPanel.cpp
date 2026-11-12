@@ -215,7 +215,7 @@ UBOOL UMMOUIHeavenGasMainPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGF
 	}
 	if(SrcSlotType == ESPType_HeavenGasEquip && (DestSlotType == ESPType_HeavenGasBag))
 	{
-		//气装备 卸载 目标格子排外
+		//Qi equipment unequip, target grid excluded
 		if(DestSlotID != UCONST_GasBagSlotMaxNum)
 			CMessageHandler::GetInstance().Send_UnequipGasItem(SrcSlotID,DestSlotID,DestContainerID);
 		else
@@ -223,7 +223,7 @@ UBOOL UMMOUIHeavenGasMainPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGF
 	}
 	else if(DestSlotType == ESPType_HeavenGasEquip && (SrcSlotType == ESPType_HeavenGasBag))
 	{
-		//气装备 装备 目标格子排外
+		//Qi equipment equip, target grid excluded
 		if(SrcSlotID != UCONST_GasBagSlotMaxNum)
 			CMessageHandler::GetInstance().Send_EquipGasItem(DestSlotID,SrcSlotID,SrcContainerID);
 	}
@@ -249,7 +249,7 @@ UBOOL UMMOUIHeavenGasMainPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGF
 			CMessageHandler::GetInstance().Send_MoveGasItem(DestSlotID,DestContainerID,SrcSlotID,SrcContainerID);
 	}
 
-	//背包内部
+	//Inside bag
 	if(DestSlotType == ESPType_HeavenGasBag && SrcSlotType == ESPType_HeavenGasBag)
 	{
 		//huan

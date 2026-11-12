@@ -1,5 +1,5 @@
 //
-// 通过骨架动画来表现
+// Represented through skeletal animation
 //
 class MMOStatusProc_ExplodeSkelAnim extends Object implements(IMMOStatusProc)
 	native
@@ -12,13 +12,13 @@ var() name AnimToPlay;
 
 var() Vector2d PositionOffsetRange;
 
-// 如果不随机朝向则与角色朝向一致
+// If orientation is not random, it matches the character's orientation
 var() bool EnableRandomRotation;
 
-// 模型生存时间(秒)
+// Model lifetime (seconds)
 var() float SpawnMeshLifeSpan;
 
-// 是否在动画完成后就销毁（如果是，则不用SpawnMeshLifeSpan参数）
+// Whether to destroy after the animation finishes (if so, the SpawnMeshLifeSpan parameter is not used)
 var() bool DestroyWhenAnimEnd;
 
 var() PhysicsAsset PhysicsAsset;

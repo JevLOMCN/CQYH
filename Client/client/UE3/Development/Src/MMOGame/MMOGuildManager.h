@@ -9,7 +9,7 @@
 #include "MMOFacade.h"
 #include "MMOGuildData.h"
 
-// 公会消息球参数类型
+// guild message orb parameter type
 enum GuildMsgButtonType
 {
 	GMBT_ATTACK = 1,
@@ -17,7 +17,7 @@ enum GuildMsgButtonType
 	GMBT_APPLY_ALLY,
 };
 
-// 公会事件
+// guild event
 struct MMOGameEvent_Guild : public MMOGameEvent
 {
 public:
@@ -214,10 +214,10 @@ public:
 
 	void NotifyUpdateSceneVariable(INT32 mapId, UINT16 varIndex, INT32 varValue);
 
-	// 比奇争霸战
+	// Bichon supremacy war
 	void NotifyUpdateSabacEnrollList(G2C_SYNC_SABAC_ENROLL_LIST::ENROLL_DATA* list, UINT16 size);
 	void NotifySabacEnrollGuildId(UINT32 guildId);
-	// 更新占领公会ID
+	// update occupying guild ID
 	void NotifyUpdateSabacOccupyGuild(UINT32 guildId, UBOOL showMarquee = TRUE);
 	void NotifySabacEnd(UINT32 oldGuildId, UINT32 newGuildId);
 	void NotifySabacState(UINT32 sabacEndTime);
@@ -233,19 +233,19 @@ public:
 
 	void UpdateGuildBuilding(ANPC* building);
 
-	// 公会信息查询
-	// 任务 #23580
+	// guild info query
+	// Quest #23580
 	void QueryGuildInfo(UINT32 guildId);
 	void NotifyGuildQueryInvalidId(UINT32 guildId);
 
-	// 公会据点战
+	// guild stronghold war
 	void ClearGuildOccupy();
 	void UpdateOccupyState(UINT32 mapId, UINT8 state);
 	UINT8 GetOccupyState(UINT32 mapId);
 	void UpdateOccupyGuild(UINT32 mapId, UINT32 guildId);
 	void GetOccupyGuildName(UINT32 mapId, FString& name);
 
-	// 6.28公会战
+	// 6.28 guild war
 	void NotifyUpdateGuildWarRecords(GUILD_WAR_RECORD_INFO* records, UINT16 size);
 	void NotifyNoMoreGuildWarRecords();
 	void NotifyGuildJoinWar(UINT8 warCharacter, UINT32 targetGuildID);
@@ -271,11 +271,11 @@ protected:
 	void _UpdateAllGuildTitle();
 	void _UpdateAllGuildInfo();
 
-	// 沙巴克雕像
+	// Sabak statue
 	void _CreateStatue(const SabacStatue& statue, ANPC* statueBase);
 	void _DestroyStatue();
 
-	// 公会箭塔底座
+	// guild arrow tower base
 	void _CreateBuildingBase(ANPC* building, USkeletalMeshComponent* baseMesh);
 	void _DestroyBuildingBase(ANPC* building);
 
@@ -306,7 +306,7 @@ protected:
 	typedef std::map<UINT32, UINT32, M_UE3_STL_ALLOC_MAP(UINT32, UINT32)> NeedUpdateGuildNameRoleMap;
 	NeedUpdateGuildNameRoleMap _NeedUpdateGuildNameRoleMap;
 
-	// 公会战查询
+	// guild war query
 	GuildViewInfo _CurGuildWarViewInfo;
 	FLOAT _GuildWarViewProgress;
 	INT _GuildWarViewDelayTime;
@@ -319,7 +319,7 @@ protected:
 	FString _CurAttackGuildName;
 	FString _CurDefendGuildName;
 
-	// 比奇争霸战
+	// Bichon supremacy war
 	UINT8 _SabacState;
 	FLOAT _SabacProgress;
 	AMMOPlayer* _StatueActor;
@@ -329,12 +329,12 @@ protected:
 
 	UINT32 _GuildLeaveEndTime;
 
-	// 公会炮塔基座
+	// guild turret base
 	typedef std::map<INT, INT, M_UE3_STL_ALLOC_MAP(INT, INT)> GuildBuildingBaseActorMap;
 	GuildBuildingBaseActorMap _GuildBuildingBaseActorMap;
 	FLOAT _GuildBuildingBaseProgress;
 
-	// 任务 #23580
+	// Quest #23580
 	typedef std::map<UINT32, INT, M_UE3_STL_ALLOC_MAP(UINT32, INT)> GuildQueryInvalidIdTimeMap;
 	GuildQueryInvalidIdTimeMap _GuildQueryInvalidIdTimeMap;
 	FLOAT _GuildQueryInvalidIdTimeProgress;
@@ -343,14 +343,14 @@ protected:
 	FLOAT _GuildViewEventsProgress;
 	UBOOL _GuildViewEventsDelay;
 
-	// 公会据点战
+	// guild stronghold war
 	typedef std::map<UINT32, UINT8, M_UE3_STL_ALLOC_MAP(UINT32, UINT8)> GuildOccupyStateMap;
 	GuildOccupyStateMap _GuildOccupyStateMap;
 
 	typedef std::map<UINT32, UINT32, M_UE3_STL_ALLOC_MAP(UINT32, UINT32)> GuildOccupyIdMap;
 	GuildOccupyIdMap _GuildOccupyIdMap;
 
-	// 6.28版本公会战
+	// 6.28 version guild war
 	UBOOL _IsGuildWarStart;
 	FLOAT _GuildWarRecordsProgress;
 	UBOOL _GuildWarRecordsDelay;

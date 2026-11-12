@@ -25,7 +25,7 @@ void UMMOUIDurabilityShowing::OnNativeGameEvent(struct MMOGameEvent* evt)
 void UMMOUIDurabilityShowing::DescideShow()
 {
 	
-	// 过场动画时不要检测提示
+	// Do not check hints during cutscenes
 	AMMOPlayerController* pCtrl = MMOFacade::getSingleton().GetMainController();
 	if(pCtrl && pCtrl->IsPlayingMatinee()==FALSE)
 	{
@@ -96,11 +96,11 @@ void UMMOUIDurabilityShowing::UpdateAllEquipDurState()
 {
 	for( INT i = E_NES_MAIN_HAND; i < E_NES_TOTAL; ++i ){
 		//if( i == E_NES_AVATAR ){
-		//	//暂时没有
+		//	//none for now
 		//	continue;
 		//}
 
-		//戒指
+		//Ring
 		if( i == E_NES_FINGER_L || i == E_NES_FINGER_R ){
 			if( i == E_NES_FINGER_R ){
 				continue;
@@ -110,7 +110,7 @@ void UMMOUIDurabilityShowing::UpdateAllEquipDurState()
 			continue;
 		}
 
-		//手镯
+		//Bracelet
 		if( i == E_NES_WRIST_L || i == E_NES_WRIST_R ){
 			if( i == E_NES_WRIST_R ){
 				continue;
@@ -120,7 +120,7 @@ void UMMOUIDurabilityShowing::UpdateAllEquipDurState()
 			continue;
 		}
 
-		//其他
+		//other
 		FClientItemInfo* pItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED , i );
 		if( pItemInfo != NULL ){
 			UItem *pItem = MMOFacade::getSingleton().FindItemTemplate( pItemInfo->m_nTemplateID );
@@ -190,7 +190,7 @@ void UMMOUIDurabilityShowing::SetEquipDurabilityStateFromTwo( EEquipDurComp durC
 		return;
 	}
 
-	//左右选低的
+	//Choose the lower of left and right
 	FClientItemInfo* pLeftItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED, realLeftEquippedSlotID );
 	FClientItemInfo* pRightItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED, realRightEquippedSlotID );
 	if( pLeftItemInfo != NULL && pRightItemInfo != NULL ){

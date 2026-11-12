@@ -20,7 +20,7 @@ event InitOnce()
 
 	super.InitOnce();
 	GpDataManager = class'GamePlayDataManager'.static.Singleton();
-	MenuInfoList = GpDataManager.MenuInfoList; //得到配置的菜单信息
+	MenuInfoList = GpDataManager.MenuInfoList; //get the configured menu info
 	RightMenuInfoList = GpDataManager.RightMenuInfoList;
 
 	MenuList = GetObject("MenuList");

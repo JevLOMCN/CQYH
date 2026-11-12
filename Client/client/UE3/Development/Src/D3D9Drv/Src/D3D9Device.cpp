@@ -188,7 +188,7 @@ FD3D9DynamicRHI::FD3D9DynamicRHI():
 		if ( (DeviceCaps.PixelShaderVersion & 0xff00) < 0x0300 )
 		{
 			appMsgf(AMT_OK,
-				TEXT("显卡驱动未正确安装，或者显卡不支持Shader 3.0. PixelShaderVersion=%08x"), DeviceCaps.PixelShaderVersion
+				TEXT("Graphics driver not installed correctly, or the graphics card does not support Shader 3.0. PixelShaderVersion=%08x"), DeviceCaps.PixelShaderVersion
 				);
 			exit(-1);
 		}
@@ -536,7 +536,7 @@ void FD3D9DynamicRHI::UpdateD3DDeviceFromViewports( UBOOL bForceUpdate )
 				if((DeviceCaps.PixelShaderVersion & 0xff00) < 0x0200)
 				{
 					appMsgf(AMT_OK,
-						TEXT("显卡驱动未正确安装，或者显卡不支持Shader 3.0. PixelShaderVersion=%08x"), DeviceCaps.PixelShaderVersion
+						TEXT("Graphics driver not installed correctly, or the graphics card does not support Shader 3.0. PixelShaderVersion=%08x"), DeviceCaps.PixelShaderVersion
 						);
 					exit(-1);
 				}
@@ -650,7 +650,7 @@ void FD3D9DynamicRHI::UpdateD3DDeviceFromViewports( UBOOL bForceUpdate )
 							)))
 				{
 					appMsgf(AMT_OK,
-						TEXT("显卡驱动未正确安装，或者显卡配置太低.  Device does not support 1x32 FP render target format.")
+						TEXT("Graphics driver not installed correctly, or the graphics card is too weak.  Device does not support 1x32 FP render target format.")
 						);
 					exit(-1);
 				}

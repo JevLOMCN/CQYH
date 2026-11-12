@@ -34,7 +34,7 @@ bool AMMOPlayer::ValidateMoveDest(const FVector& dest) const
 			if(pDestGrid->bOutOfPoly)
 			{
 				SET_WARN_COLOR(COLOR_GREEN);
-				warnf(NAME_Log, TEXT("尝试移动到阻挡格子中:%s 放弃本次移动操作!"), *dest.ToString());
+				warnf(NAME_Log, TEXT("Tried to move into a blocked cell: %s, move cancelled!"), *dest.ToString());
 				CLEAR_WARN_COLOR();
 				return false;
 			}
@@ -280,7 +280,7 @@ UBOOL AMMOPlayer::DrawMyHUD(class AMMOHud* H)
 			}
 		}
 
-		objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//实际位置
+		objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//actual position
 		objectIconWorldPos.Z += 120;
 		screenPos = H->Canvas->Project(objectIconWorldPos);
 
@@ -352,7 +352,7 @@ void AMMOPlayer::DrawHUDPostGFx( AHUD* H )
 	FVector objectIconWorldPos;
 
 
-	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//实际位置
+	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//actual position
 	objectIconWorldPos.Z += 120;
 	screenPos = H->Canvas->Project(objectIconWorldPos);
 
@@ -409,7 +409,7 @@ void AMMOPlayer::PlaySabacStatueEffect(FVector inLoc,FRotator inRot)
 	}
 }
 
-//技能获得特效------------------------------------------------------------------------
+//ability obtained effect------------------------------------------------------------------------
 void AMMOPlayer::PlaySkillLearnedEffect(FVector inLoc,FRotator inRot)
 {
 	if(!PlayerSkillLearnedEffect.IsEmpty())
@@ -427,7 +427,7 @@ void AMMOPlayer::PlaySkillLearnedEffect(FVector inLoc,FRotator inRot)
 		warnf(NAME_Error, TEXT("PlayerSkillLearnedEffect config particlesystem is NULL!"));
 	}
 }
-//技能升级特效------------------------------------------------------------------------
+//ability upgrade effect------------------------------------------------------------------------
 void AMMOPlayer::PlaySkillLevelUpEffect(FVector inLoc,FRotator inRot)
 {
 	if(!PlayerSkillLevelUpEffect.IsEmpty())
@@ -526,10 +526,10 @@ INT AMMOPlayer::GetMoney(BYTE MoneyType)
 	return MMOFacade::getSingleton().GetPlayerMoney((EMONEY_TYPE)MoneyType);
 }
 
-//重新登录后，重置数据
+//After re-login, reset data
 void AMMOPlayer::ResetData()
 {
-	//重登游戏不躺尸
+	//don't lie dead after re-logging in
 	bDead = FALSE;
 	CloseStall();
 }
@@ -555,7 +555,7 @@ void AMMOPlayer::OpenStall()
 
 void AMMOPlayer::CloseStall()
 {
-	// 回到普通状态
+	// return to normal state
 	MoveType = EMT_Run;
 	StallName = FString("");
 

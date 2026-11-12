@@ -12683,7 +12683,7 @@ void USequence::ExportServerData(FArchive& inStream)
 
 	for (INT i = 0; i < this->SequenceObjects.Num(); ++i)
 	{
-		// 变量单独导
+		// Export variables separately
 		if(SequenceObjects(i)->IsServerKismetObject()
 			&& !SequenceObjects(i)->IsA(USequenceVariable::StaticClass()))
 		{
@@ -12709,7 +12709,7 @@ int USequenceOp::GetKismetObjectServerType() const
 
 void USequenceOp::ExportDataMemberToServerData(FArchive& inStream)
 {
-	// 默认没有data member可以写
+	// By default there is no data member to write
 	INT val = (INT)kotDataMember;
 	inStream << val;
 
@@ -12719,7 +12719,7 @@ void USequenceOp::ExportDataMemberToServerData(FArchive& inStream)
 
 void USequenceOp::ExportDataMemberVarLinkToServerData(FArchive& inStream)
 {
-	// 导出链接关系
+	// Export link relationships
 	INT val = (INT)kotDataMemberVarLink;
 	inStream << val;
 

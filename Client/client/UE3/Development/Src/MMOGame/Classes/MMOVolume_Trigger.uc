@@ -6,24 +6,24 @@ class MMOVolume_Trigger extends TriggerVolume implements(IUniqueID)//implements(
 
 enum EVolumeTriggerType
 {
-	EVTT_Trigger <DisplayName="EVTT_Trigger">,				//Trigger区
-	EVVT_PKType <DisplayName="EVVT_PKType">,				//Pk区类型
-	EVVT_StallZone <DisplayName="EVVT_StallZone">,			//摆摊区
-	EVVT_Surface <DisplayName="EVVT_Surface">,				//地表类型
-	EVVT_QuestZone <DisplayName="EVVT_QuestZone">,			//区域触发任务
+	EVTT_Trigger <DisplayName="EVTT_Trigger">,				//Trigger zone
+	EVVT_PKType <DisplayName="EVVT_PKType">,				//PK zone type
+	EVVT_StallZone <DisplayName="EVVT_StallZone">,			//stall zone
+	EVVT_Surface <DisplayName="EVVT_Surface">,				//surface type
+	EVVT_QuestZone <DisplayName="EVVT_QuestZone">,			//area triggers quest
 	EVVT_Door <DisplayName="EVVT_Door">,					//Door
-	EVVT_Guide <DisplayName="EVVT_Guide">,					//区域触发引导
-	EVVT_Mine <DisplayName="EVVT_Mine">,					//可以挖矿
-	EVVT_CannotTeleport <DisplayName="EVVT_CannotTeleport">,//禁止传送
-	EVVT_CannotLoseItem <DisplayName="EVVT_RoleCannotLoseItem">,//玩家爆装备
-	EVVT_CannotDropItem <DisplayName="EVVT_RoleCannotDropItem">,//玩家扔装备
-	EVVT_NpcCannotDropItem <DisplayName="EVVT_CannotDropItem">,//Npc扔装备
-	EVVT_SlayerArea <DisplayName="EVVT_SlayerArea">,		//屠杀区域
+	EVVT_Guide <DisplayName="EVVT_Guide">,					//area triggers guide
+	EVVT_Mine <DisplayName="EVVT_Mine">,					//mining allowed
+	EVVT_CannotTeleport <DisplayName="EVVT_CannotTeleport">,//teleport forbidden
+	EVVT_CannotLoseItem <DisplayName="EVVT_RoleCannotLoseItem">,//player drops equipment on death
+	EVVT_CannotDropItem <DisplayName="EVVT_RoleCannotDropItem">,//player throws equipment
+	EVVT_NpcCannotDropItem <DisplayName="EVVT_CannotDropItem">,//Npc throws equipment
+	EVVT_SlayerArea <DisplayName="EVVT_SlayerArea">,		//slaughter area
 };
 
 var(MMOServer) const EVolumeTriggerType	 VolumeType;
-// 区域ID，和服务器配置一致
-//var(MMOTrigger) editconst int AreaID;//TODO: 当前使用 ServerUniqueID 代替之
+// Area ID, consistent with the server config
+//var(MMOTrigger) editconst int AreaID;//TODO: currently replaced by ServerUniqueID
 
 var bool EditTriggerProperty;
 var(MMOTrigger) int Priority <editcondition=EditTriggerProperty>;
@@ -42,7 +42,7 @@ var bool EditPKType;
 var(MMOPK) EPKType PKType <editcondition=EditPKType>;
 
 var bool EditStall;
-// 摊位税率等级
+// stall tax rate level
 var(MMOStall) int StallLevel <editcondition=EditStall>;
 
 // add by zhangrui05@snda.com >
@@ -102,14 +102,14 @@ cpptext
 	#endif
 }
 
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 //native function RegisterToFacade();
 
 simulated function PreBeginPlay()
 {	
 	Super.PreBeginPlay();
 
-	// 编辑器中打开碰撞，平时关掉碰撞，由服务器通知
+	// Collision is enabled in the editor and normally disabled, notified by the server
 // 	if(!WorldInfo.IsPlayInEditor())
 // 	{
 // 		SetCollision(false, false, true);
@@ -122,10 +122,10 @@ simulated function PreBeginPlay()
 
 //native function SetAutoID(int id);
 
-// 取得物体大小
+// Get object size
 //native function Box GetObjectServerBounds();
 
-// 取得物体位置
+// get object position
 //native function vector GetObjectServerPosition();
 
 //event OnServerNotify(bool on)
@@ -175,7 +175,7 @@ simulated function PreBeginPlay()
 
 //native function array<DynamicBlockingVolume> GetBlockingVolumes();
 //native function array<NPCSpawnPoint> GetNPCSpawnPoints();
-// 返回一个调试用的标识名
+// Return an identifier name for debugging
 //native function string GetClientName();
 
 // native function array<IServerTrigger> GetLinkedTrigger();

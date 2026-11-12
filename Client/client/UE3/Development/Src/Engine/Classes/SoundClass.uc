@@ -56,25 +56,25 @@ struct native SoundClassProperties
 	var() bool bApplyAmbientVolumes;
 
     /**
-     * 单例模式，在音频设备中只允许同时只播放一个此类型音效
+     * Singleton mode, only one sound of this type is allowed to play at a time in the audio device
      * add by showlong
      */
     var() bool bSingleInstance;
 
     /**
-     * 在播放此类型音效的时候，启动指定的SoundMode，结束的时候恢复默认SoundMode
+     * When a sound of this type plays, the specified SoundMode is started, and the default SoundMode is restored when it ends
      * add by showlong
      */
     var() string DockSoundMode;
 
 	/**
-	* soundclass的优先级 zhaojun@snda
+	* soundclass priority zhaojun@snda
 	*
 	*/
 	var() byte Priority;
 
 	/**
-	* 同优先级下的替换规则 zhaojun@snda
+	* Replacement rule at the same priority zhaojun@snda
 	*
 	*/
 	var() EWashoutStrategy WashoutStrategy;

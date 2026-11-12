@@ -8,26 +8,26 @@
 #include "role_db_def.h"
 #include "spirit_def.h"
 
-	//一个气物品
+	//a qi item
 	struct GasItem
 	{
-		INT					nUniqueID;		//客户端用的唯一ID
-		INT					nSlotIndex;		//位置索引	
-		INT					nContainerID;	//所在容器ID
-		INT					nTempID;		//关联的气模板
-		INT					nCurExp;		//当前的经验
+		INT					nUniqueID;		//unique ID used by the client
+		INT					nSlotIndex;		//position index
+		INT					nContainerID;	//ID of the containing container
+		INT					nTempID;		//associated qi template
+		INT					nCurExp;		//current experience
 		GasItem()
 		{
 			appMemzero(this, sizeof(GasItem));
 		}
 	};
 
-	//气槽
+	//qi slot
 	struct GasSlot
 	{
-		INT					 nUniqueID;		//关联的气唯一ID
-		INT					 nLocked;		//锁定中
-		INT					 nDisable;		//未开启不可用
+		INT					 nUniqueID;		//associated qi unique ID
+		INT					 nLocked;		//locked
+		INT					 nDisable;		//not unlocked, unavailable
 		INT					 nTagID;
 		GasSlot()
 		{
@@ -38,7 +38,7 @@
 		}
 	};
 
-	//血槽
+	//blood slot
 	struct BloodSlot
 	{
 		INT						 nPage;
@@ -51,45 +51,45 @@
 			appMemzero(this, sizeof(BloodSlot));
 		}
 	};
-	//-----------------------------配置------------------
-	//境界等级属性配置
+	//-----------------------------config------------------
+	//realm level attribute config
 	struct HeavenLevelConfig
 	{
-		INT						 nLevel;			//当前境界等级
-		INT						 nAddExp;			//增加多少经验
-		INT						 nAddHeavenPts;		//增加多少修炼点
-		INT						 nSoulCost;			//消耗多少魂
-		INT						 nNeedTime;			//转化需要时间
-		INT						 VIPOfflineDiscount1;	//Vip离线转化折扣
-		INT						 VIPOfflineDiscount2;	//Vip离线转化折扣
-		INT						 VIPOfflineDiscount3;	//Vip离线转化折扣
+		INT						 nLevel;			//current realm level
+		INT						 nAddExp;			//how much experience to add
+		INT						 nAddHeavenPts;		//how many cultivation points to add
+		INT						 nSoulCost;			//how much soul is consumed
+		INT						 nNeedTime;			//time needed for conversion
+		INT						 VIPOfflineDiscount1;	//Vip offline conversion discount
+		INT						 VIPOfflineDiscount2;	//Vip offline conversion discount
+		INT						 VIPOfflineDiscount3;	//Vip offline conversion discount
 
-		INT						 VipOnlineChangeDiscount1;	//Vip在线转化折扣
-		INT						 VipOnlineChangeDiscount2;	//Vip在线转化折扣
-		INT						 VipOnlineChangeDiscount3;	//Vip在线转化折扣
-		INT						 nNeedMoney;		//买转化需要多少钱
-		INT						 nMaxExp;			//下级的经验
-		INT						 nExp2PtsRate;		//转化效率
-		INT						 nAtriNodeID1;		//属性
+		INT						 VipOnlineChangeDiscount1;	//Vip online conversion discount
+		INT						 VipOnlineChangeDiscount2;	//Vip online conversion discount
+		INT						 VipOnlineChangeDiscount3;	//Vip online conversion discount
+		INT						 nNeedMoney;		//money needed to buy a conversion
+		INT						 nMaxExp;			//experience for the next level
+		INT						 nExp2PtsRate;		//conversion efficiency
+		INT						 nAtriNodeID1;		//attribute
 		INT						 nAtriNodeID2;
-		INT						 nDailyExp2PtsMaxCount;//当天转化最大次数
+		INT						 nDailyExp2PtsMaxCount;//max conversions per day
 		HeavenLevelConfig()
 		{
 			appMemzero(this, sizeof(HeavenLevelConfig));
 		}
 	};
 
-	//气模板属性配置
+	//qi template attribute config
 	struct HeavenGasItemConfig
 	{
 		INT						nID;
-		INT						nLevel;				//气等级
-		INT						nQuality;			//品质
-		INT						nExp;				//经验
-		INT						nNextLevelID;		//下级ID
+		INT						nLevel;				//qi level
+		INT						nQuality;			//quality
+		INT						nExp;				//experience
+		INT						nNextLevelID;		//next level ID
 		INT						nAtriNodeID1;
 		INT						nAtriNodeID2;
-		INT						nExchangeCost;		//兑换气需要的万法之气数量
+		INT						nExchangeCost;		//amount of Wanfa qi needed to exchange for qi
 		INT						nGroupID;
 		INT						nNextLevelExp;
 		INT						nJob;
@@ -103,16 +103,16 @@
 		}
 	};
 
-	//血模板属性配置
+	//blood template attribute config
 	struct HeavenBloodConfig
 	{
-		INT						nPage;				//血脉类型
-		INT						nSlot;				//槽
-		INT						nLevel;				//等级 0-10
-		INT						nHeavenPtsCost;		//消耗修炼点
-		INT						nRate;				//成功几率
-		INT						nLevelLimit;		//等级限制	
-		INT						nPageLevelLimit;	//页的境界等级限制
+		INT						nPage;				//bloodline type
+		INT						nSlot;				//slot
+		INT						nLevel;				//level 0-10
+		INT						nHeavenPtsCost;		//cultivation points consumed
+		INT						nRate;				//success rate
+		INT						nLevelLimit;		//level limit
+		INT						nPageLevelLimit;	//realm level limit of the page
 		INT						nAttValue1;
 		INT						nAttValue2;
 		HeavenBloodConfig()
@@ -161,7 +161,7 @@
 		HeavenGasOperateType_Merge,
 		HeavenGasOperateType_Exchange,
 	};
-	//境界事件通知
+	//realm event notification
 	struct MMOGameEvent_Heaven : public MMOGameEvent
 	{
 	public:
@@ -366,7 +366,7 @@
 
 	typedef TDataManger< HeavenJustConvertData, HeavenJustConvertProcessor > MMOHeavenJustConvertManager;
 
-	//列表
+	//list
 	typedef std::list<HeavenBloodConfig,	M_UE3_STL_ALLOC(HeavenBloodConfig) >		HeavenBloodDataList;
 	typedef std::list<GasItem,				M_UE3_STL_ALLOC(GasItem) >					GasItemList;
 	typedef std::list<HeavenJustConvertData,M_UE3_STL_ALLOC(HeavenJustConvertData) >	HeavenConvertList;
@@ -374,7 +374,7 @@
 	typedef std::map<INT, HeavenGasItemConfig*, M_UE3_STL_ALLOC_MAP(INT, HeavenGasItemConfig*) >	HeavenGasTemplateMap;
 	typedef std::map<INT, HeavenLevelConfig*, M_UE3_STL_ALLOC_MAP(INT, HeavenLevelConfig*) >		HeavenLevelDataMap;
 
-	//境界管理类
+	//realm manager class
 	class MMOHeavenManager : public SingletonMeyers<MMOHeavenManager>, public INativeGameEventHandler
 	{
 	public:
@@ -441,7 +441,7 @@
 		void							NotifyGameStateChange();
 		void							NotifyBloodOpen(INT nPage);
 
-		//客户端发送消息预判
+		//client send message prediction
 		BOOL							CheckGasBagFull();
 		BOOL							CheckSoultoConvert();
 		BOOL							CheckMoneytoOpenSlot(INT nContainerID, INT nSlotID);
@@ -487,24 +487,24 @@
 		void							GerateLogInfo(INT nExp,INT nSpell);
 	private:
 		TArray<FString>					 converterLogLookUp;	
-		//血海槽
+		//blood sea slot
 		TArray<BloodSlot>				 arrSlotBlood;
-		//气包裹 装备栏 仓库槽
+		//qi bag, equipment slot, warehouse slot
 		TArray<GasSlot>					 arrSlotGasBag;
 		TArray<GasSlot>					 arrSlotGasBank;
 		TArray<GasSlot>					 arrSlotGasEquip;
 		TArray<SlotOpenTaxData>			 arrSlotTax;
-		//合成目标槽
+		//synthesis target slot
 		GasSlot*						 pkTargetGasSlot;
-		//玩家所有气物品
+		//all of the player's qi items
 		GasItemList						 myGasItemList;
-		//模板数据
+		//template data
 		HeavenGasTemplateMap			 gasItemTemplateMap;
 		HeavenLevelDataMap				 heavenLevelDataMap;
 		HeavenBloodDataList				 heavenBloodDataList;
-		UINT32							 dwLastOfflineTime;		// 上次下线时间
-		UINT32							 dwLastExp2PtsTime;		// 上次转化时间
-		INT32							 nDailyExp2PtsTime;		// 今天转化次数
+		UINT32							 dwLastOfflineTime;		// last offline time
+		UINT32							 dwLastExp2PtsTime;		// last conversion time
+		INT32							 nDailyExp2PtsTime;		// conversions today
 		INT								 nCostMoneyAll;
 		INT								 nCurHeavenExp;
 		time_t							 tNowTime;
@@ -512,7 +512,7 @@
 		INT								 gasPractiseState;
 		HeavenTitleTool					 heavenTitleTool;
 		INT								 nBloodState[MAX_BLOODSEA_PAGE];
-		//生成气唯一ID内部用
+		//generates qi unique ID, for internal use
 		INT								 curMaxID;
 		INT								 nHeavenLevel;
 		BOOL							 bSoulLimited;
@@ -521,7 +521,7 @@
 		INT								 nCurConvertType;
 		INT							     nGasOperateType;
 		INT							     nTempGasOperateType;
-		//属性列值
+		//attribute column values
 		HeavenAttList					 heavenAttList;
 		HeavenConvertList				 heavenConvertList;
 	public:

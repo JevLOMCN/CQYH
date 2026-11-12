@@ -24,7 +24,7 @@ WxGMCommandPage::WxGMCommandPage(FGMGame *InGame, wxNotebook *InNotebook)
 	const bool bSuccess = wxXmlResource::Get()->LoadPanel(this, InNotebook, TEXT("ID_GM_COMMAND_PAGE"));
 	check( bSuccess );
 
-	GMCommandTitle = new wxStaticText( this, wxID_STATIC, TEXT(" ‰»ÎGM÷∏¡Ó:"), wxPoint(10, 20), wxSize(80, wxDefaultSize.y), 0 );
+	GMCommandTitle = new wxStaticText( this, wxID_STATIC, TEXT("Enter GM command: "), wxPoint(10, 20), wxSize(80, wxDefaultSize.y), 0 );
 	GMCommandComboBox = new wxComboBox( this, ID_GM_COMMAND_COMBOBOX, TEXT(""), wxPoint(100, 20), wxSize(300, wxDefaultSize.y), 0, NULL, wxCB_DROPDOWN | wxCB_SORT | wxTE_PROCESS_ENTER );
 
 	// Size the window.

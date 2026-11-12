@@ -355,10 +355,10 @@ void AStaticMeshActor::CheckForErrors()
 		// check for collision size for scale error
 
 		/*
-		H<=64 可以移动、子弹可以穿透、可以跳跃穿过 
-		H=80 不可移动、子弹可以穿透、可以跳跃穿过 80<=H<256,取值80
-		256<=H<=768 不可移动、子弹不可穿透、可以跳跃穿过
-		H>768 不可移动、子弹不可穿透、不可跳跃穿过
+		H<=64 can move, bullets can pass through, can jump over
+		H=80 cannot move, bullets can pass through, can jump over; 80<=H<256, take 80
+		256<=H<=768 cannot move, bullets cannot pass through, can jump over
+		H>768 cannot move, bullets cannot pass through, cannot jump over
 		*/
 		
 		URB_BodySetup* bodySetup = StaticMeshComponent->GetRBBodySetup();
@@ -504,8 +504,8 @@ void AStaticMeshActor::CheckForErrors()
 				if(dirty)
 				{
 					StaticMeshComponent->StaticMesh->MarkPackageDirty();
-					GWarn->MapCheck_Add( MCTYPE_CRITICALERROR, this, *FString::Printf(TEXT("修正了错误的阻挡相机隐藏碰撞参数设置，请保存这个包：%s"), *StaticMeshComponent->StaticMesh->GetOutermost()->GetName()),
-						TEXT( "阻挡相机隐藏" ) );
+					GWarn->MapCheck_Add( MCTYPE_CRITICALERROR, this, *FString::Printf(TEXT("Fixed incorrect camera-blocking hide collision settings. Please save this package: %s"), *StaticMeshComponent->StaticMesh->GetOutermost()->GetName()),
+						TEXT( "Block camera hide" ) );
 				}
 			}
 		}

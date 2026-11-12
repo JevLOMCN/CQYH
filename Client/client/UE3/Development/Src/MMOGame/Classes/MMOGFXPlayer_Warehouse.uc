@@ -29,7 +29,7 @@ event ClearItemSlot(GFxObject ItemSlot)//moved
 {
 	local int slotId;
 	slotId = ItemSlot.GetInt("slotID");
-	//重载掉这个函数，bag里清格子属性是ESPType_Bag
+	//Override this function; clearing slot attributes in bag uses ESPType_Bag
 	SetItemSlotData( ItemSlot, none, ESPType_Warehouse , E_CONSLOT_BANK , slotId );
 }
 

@@ -29,29 +29,29 @@ native function ASWorldMapZoomTo( int level );
 
 native function ASMapDrag( float deltaX, float deltaY );
 
-//地图点击移动
+//Map click movement
 native function ASMoveToMapPos( int clickPosX, int clickPosY );
 //native function ASMoveToRealMapPos( int mapPosX, int mapPosY );
 native function ASInputCoodinateAndMoveTo( int inputX, int inputY );
-//加注标记点
+//Add marker point
 native function ASAddOrRemoveMarkMap( int clickPosX, int clickPosY );
-//选择标记点共享目标
+//Select marker point share target
 native function ASChangeShareUserMarkTarget( int listIdx, int targetType );
-//共享标记点
+//Share marker point
 native function ASShareUserMark( int targetType );
-//切换地图
+//Switch map
 native function ASChangeMap( int mapID, int regionInMapIdx );
-//切换显示大地图或是全局地图
+//Toggle between large map and global map
 native function ASShowWorldMapTabPanel( int type );
-//找寻地图上的固定点
+//Find fixed points on the map
 native function ASFindThisMapMark( int idx );
-//移动到地图标记点
+//Move to map marker point
 native function ASMoveToThisMapMark( int idxInStaticMap );
 //
 native function ASFindMapTask( int npcIdx );
-//切换显示功能NPC
+//Toggle showing function NPCs
 native function ASToggleFuncNpc( bool isShow );
-//切换显示任务NPC
+//Toggle showing quest NPCs
 native function ASToggleTaskNpc( bool isShow );
 //
 native function ASConfirmAddUserMark();
@@ -59,7 +59,7 @@ native function ASConfirmAddUserMark();
 native function ASConfirmDelUserMark();
 //
 native function ASCloseUserMarkPanel();
-//地图点提示显示
+//Map point tooltip display
 native function ASShowWorldMapMarkHint( int type, int idx );
 //
 native function ASHideWorldMapMarkHint();
@@ -72,7 +72,7 @@ native function ASHideTipsWorldMapMarkListItem( GFxObject mc );
 	
 //}
 
-//世界地图
+//World map
 native function ASClickToWorldMap( int tileIdx, int mapID, string regionName );
 native function ASClickToBack( GfxObject fromMc, GfxObject toBackMc );
 native function ASClickToNewWorld( GfxObject fromMc, GfxObject toNewMc );

@@ -24,13 +24,13 @@ void UMMOGFXPlayer_Auction::ASClickTabPage(INT idx)
 {
 	if ((EAuctionTabId)idx != MMOAuctionManager::getSingleton().GetCurrentTabPage())
 	{
-		//¹Ø±Õmessagebox
+		//close messagebox
 		_auctionPanel->HideAuction_Msg();
 	}
 	MMOAuctionManager::getSingleton().SetCurrentTabPage((EAuctionTabId)idx);
 }
 
-// ¹ºÂò
+// buy
 void UMMOGFXPlayer_Auction::ASBuyPage_AuctionClick(INT dwAuctionID, INT price, INT msgType)
 {
 	//MMOAuctionManager::getSingleton().BuyFromBuyingList(dwAuctionID, price);
@@ -66,7 +66,7 @@ void UMMOGFXPlayer_Auction::ASBuyPage_AuctionFailedFixedPriceClick(INT dwAuction
 	//_auctionPanel->Show_Auction_Msg(dwAuctionID,price,Auction_MsgType_BuyPage_Failed_FixedPrice_OK,0);
 }
 
-// ³öÊÛ
+// sell
 void UMMOGFXPlayer_Auction::ASSellPage_CancelSellClick(INT dwAuctionID)
 {
 	//_auctionPanel->Show_Auction_Msg(dwAuctionID,0,Auction_MsgType_CancelSell,0);
@@ -101,7 +101,7 @@ void UMMOGFXPlayer_Auction::ASSellPage_AuctionSellItemClick(UGFxObject* dat)
 	//CMessageHandler::GetInstance().Send_AuctionSell(containerID, slotId, actionTotalPrice, totalFixedPrice);
 }
 
-// ä¯ÀÀ
+// browse
 void UMMOGFXPlayer_Auction::ASSearch(class UGFxObject* dt)
 {
 	MMOAuctionManager::getSingleton().UpdateSearchPageNumb(0);
@@ -140,7 +140,7 @@ void UMMOGFXPlayer_Auction::ASViewPage_AuctionFixedPriceClick(INT dwAuctionID, i
 	//_auctionPanel->Show_Auction_Msg(dwAuctionID,price,Auction_MsgType_ViewPage_FixedPrice_OK,0);
 }
 
-// ·­Ò³
+// Turn page
 void UMMOGFXPlayer_Auction::ASViewPage_PrevPageClick(INT pgNum)
 {
 	MMOAuctionManager::getSingleton().LastActionIsNextPage(false);

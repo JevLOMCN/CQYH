@@ -8,7 +8,7 @@ IMPLEMENT_CLASS(UMMOUIArenaScore)
 
 void UMMOUIArenaScore::OpenArenaScoreSingle( )
 {
-	//var player2 = {IsMale:false,PlayerName:"dd",ClassId:1,ClassName:"Œ‰µ±",Alive:"alive",Lv:21,Kill:2,Score:"100",Damage:7777};
+	//var player2 = {IsMale:false,PlayerName:"dd",ClassId:1,ClassName:"Wudang",Alive:"alive",Lv:21,Kill:2,Score:"100",Damage:7777};
 	//SetScoreData( { Title:"t" , WinTeam:"w" , LoseTeam:"L" , WinList:[player,player2,player2] , LoseList:[player,player] } );
 
 	//if( !GFXPlayer )

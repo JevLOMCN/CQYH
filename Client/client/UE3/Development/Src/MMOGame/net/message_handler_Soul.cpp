@@ -9,12 +9,12 @@ using namespace ExternalMessage;
 /*
     struct G2C_UPGRADE_SOUL : MESSAGE_HEADER
     {
-        UINT8       byResult;//0失败，1成功
+        UINT8       byResult;//0 failure, 1 success
     };
 
     struct G2C_ADD_SOUL : MESSAGE_HEADER
     {
-        UINT8       byResult;//0失败，1成功
+        UINT8       byResult;//0 failure, 1 success
     };
 */
 

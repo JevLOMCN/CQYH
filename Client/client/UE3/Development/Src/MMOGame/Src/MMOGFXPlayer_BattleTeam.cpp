@@ -73,7 +73,7 @@ void UMMOGFXPlayer_BattleTeam::ASBattleTeamTurnOneToOne()
 
 void UMMOGFXPlayer_BattleTeam::ASBattleTeamTurnFiveToFive()
 {
-	//是否有战队的判断
+	//determine whether there is a team
 	if( false/*BattleTeamManager::getSingleton().HasTeam()*/ )
 	{
 		if( _BattleTeam )

@@ -11,7 +11,7 @@ void USeqAct_ShowAllGameUI::Activated()
 	{
 		MMOUI::ShowInGameUI(TRUE);
 
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_KismetEnd);
 		MMOUI::PostGameEvent(&evtGuide);
 	}

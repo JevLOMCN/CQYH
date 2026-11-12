@@ -1,5 +1,5 @@
 //
-// 这是一个全局信息存储类
+// This is a global info storage class
 //
 class MMOGameReplicationInfo extends GameReplicationInfo
 	config(MMOGameReplicationInfo)

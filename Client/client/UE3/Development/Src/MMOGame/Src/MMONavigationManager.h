@@ -9,15 +9,15 @@
 #include "MMOGameEvent.h"
 #include "MMOUtil.h"
 
-// 路标的显示隐藏规则仿照斗战神做法:
-// 角色到路标的向量与路标指向的夹角(点积: >=0: 夹角小于等于90度，<0:夹角大于90度)来判断角色当前位置是否在当前路标的前方还是后方，前方隐藏，后方显示；
-// 同时为了避免U型路线导致的后面的路标还没靠近就消失(因为这些路标在角色的后方)，所以限定角色能够影响路标的最大距离为1024(1024 * 1024 = 1048576)，经验值，差不多一屏
+// the show/hide rules of the signposts imitate Douzhanshen:
+// use the angle between the vector from the character to the signpost and the signpost's pointing direction (dot product: >=0: angle <= 90 degrees, <0: angle > 90 degrees) to decide whether the character is in front of or behind the signpost; hide when in front, show when behind;
+// also, to avoid signposts behind disappearing before the character gets near on U-shaped routes (since they are behind the character), the max distance at which the character can affect a signpost is limited to 1024 (1024 * 1024 = 1048576), an empirical value, about one screen
 #define PATH_POINT_PLAYER_DIST_SQUARED_MAX 1048576
-// 路点更新间隔
+// waypoint update interval
 #define PATH_POINT_UPDATE_TIME			   0.5f
-// 路点消失时间
+// waypoint disappear time
 #define PATH_EFFECT_DISAPPEAR_TIME         0.5f
-// 路点波动周期
+// waypoint pulse period
 #define PATH_EFFECT_WAVE_TIME              4.0f
 
 enum
@@ -26,7 +26,7 @@ enum
 	MAX_PATH_EFFECT_NUM = 20,
 };
 
-// 导航算法
+// navigation algorithm
 enum NaviMode
 {
 	NM_DIJKSTRA = 0,		// DIJKSTRA
@@ -34,7 +34,7 @@ enum NaviMode
 	NM_ASTARCOST			// ASTAR BY COST
 };
 
-// 导航节点
+// navigation node
 class NaviNode
 {  
 public:
@@ -57,7 +57,7 @@ protected:
 	INT _MapId;
 };   
 
-// 导航链接
+// navigation link
 class NaviLink
 {
 public:
@@ -91,26 +91,26 @@ typedef std::map<INT, class NaviNode, M_UE3_STL_ALLOC_MAP(INT, class NaviNode)> 
 typedef std::list<NaviNode, M_UE3_STL_ALLOC(NaviNode)> NaviNodeList;
 typedef std::list<NaviLink, M_UE3_STL_ALLOC(NaviLink)> NaviLinkList;
 
-// 导航类型
+// navigation type
 enum NaviType
 {
 	NT_NULL = 0,
-	NT_NAV_POINT,					// 导航点
-	NT_NPC,							// 导航NPC
-	NT_POINT,						// 任意坐标点
+	NT_NAV_POINT,					// navigation point
+	NT_NPC,							// navigate to NPC
+	NT_POINT,						// arbitrary coordinate point
 	NT_DOODAD,						// DOODAD
 };
 
-// 导航事件
+// navigation event
 struct MMOGameEvent_Navigation : public MMOGameEvent
 {
 public:
 	enum NaviEventType
 	{
 		NET_NULL = 0,
-		NET_BEGIN,				// 开始导航
-		NET_END,				// 结束导航
-		NET_ENTER_SCENE			// 跨地图
+		NET_BEGIN,				// begin navigation
+		NET_END,				// end navigation
+		NET_ENTER_SCENE			// cross map
 	};
 
 	MMOGameEvent_Navigation()
@@ -168,7 +168,7 @@ public:
 
 	void StopNavigate(UBOOL stopMove = TRUE);
 
-	// 找到并且向对应的teleport移动
+	// find and move toward the corresponding teleport
 	UBOOL FindAndMoveToTeleport(INT from, INT to, INT npcId = 0, UBOOL needMove = FALSE);
 
 	void EnterScene();
@@ -202,7 +202,7 @@ protected:
 	void _StopNavigate();
 	void _BeginNavigate();
 
-	// 路点特效
+	// waypoint effect
 	void _FiltPathPoint(FVector& pos);
 	void _GeneratePathPoint();
 	void _UpdatePathPoint(FLOAT deltaTime);
@@ -211,13 +211,13 @@ protected:
 
 	
 
-	// CQ版本，客户端寻路依然是导航网格，某些可行走格子，导航网格是不可达的，对于不可达的坐标点，这里做适当偏移
+	// CQ version: client pathfinding is still a navmesh, and some walkable cells are unreachable on the navmesh; for unreachable coordinate points, apply a suitable offset here
 	UBOOL _GeneratePath(const FVector& srcPoint, const FVector& dstPoint, UBOOL withOffset = FALSE);
 public:
-	UBOOL Navigate(INT mapId, INT npcId, UBOOL needMove);										// 用于NPC寻路
-	UBOOL Navigate(INT mapId, const FString& pointName, UBOOL needMove);						// 用于导航点寻
-	UBOOL NavigateDoodad(INT mapId, const FString& pointName, INT doodadId, UBOOL needMove);	// 用于doodad寻路
-	UBOOL Navigate(INT mapId, FVector point, UBOOL needMove);									// 用于任意坐标点寻路
+	UBOOL Navigate(INT mapId, INT npcId, UBOOL needMove);										// for NPC pathfinding
+	UBOOL Navigate(INT mapId, const FString& pointName, UBOOL needMove);						// for navigation point pathfinding
+	UBOOL NavigateDoodad(INT mapId, const FString& pointName, INT doodadId, UBOOL needMove);	// for doodad pathfinding
+	UBOOL Navigate(INT mapId, FVector point, UBOOL needMove);									// for arbitrary coordinate point pathfinding
 
 protected:
 	NaviMode _NaviMode;

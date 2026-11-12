@@ -99,11 +99,11 @@ void UMMOUITargetInfo::UpdateNPCInfo(class AMMOActor* Actor,UBOOL Direct,int hp)
 		static INT nLastActorID = 0;
 		if(hp == 0)
 		{
-			//记录上次死的target怪ID
+			//Record ID of the last dead target monster
 			nLastActorID = Actor->ServerID;
 		}
 
-		//由于服务器刚开始没有同步npc属性，所以会有初始值为0，
+		//Since the server did not sync npc attributes at the start, the initial value is 0,
 		if(curHP==0 && (nLastActorID !=  Actor->ServerID)&& Actor->eventIsDead()==FALSE)
 		{
 			curHP = maxHP;
@@ -113,12 +113,12 @@ void UMMOUITargetInfo::UpdateNPCInfo(class AMMOActor* Actor,UBOOL Direct,int hp)
 
 		//debugf( TEXT("UMMOUITargetInfo::UpdateNPCInfo-----%s  Hp=%d MaxHp=%d  percent=%d "), *(Actor->ActorName),curHP,maxHP,Actor->ActorAttributes->HpPercent );
 
-		if( LastHP == curHP && !Direct )  //不用一直更新
+		if( LastHP == curHP && !Direct )  //no need to update constantly
 		{
 			return;
 		}
 
-		if( LastHP >= curHP )  //变大就无动画
+		if( LastHP >= curHP )  //no animation when it increases
 		{
 			Direct = true;
 		}
@@ -247,7 +247,7 @@ void UMMOUITargetInfo::TargetActorChange(BYTE type,class AMMOActor* actor)
 
 	switch(type)
 	{
-		//选中其它玩家
+		//Select another player
 	case TargetActor_TYPE_OhterPlayer:
 		tPlayer = Cast<AMMOPlayer>( actor );
 		if( tPlayer && GFXPlayer )
@@ -424,7 +424,7 @@ void UMMOUITargetInfo::TargetActorChange(BYTE type,class AMMOActor* actor)
 	if (!IsVisible)
 		Show(true);
 
-	// add by zhangrui 这里查一下其他角色的信息，以备不时之需，（右键菜单的相关操作可能需要这些信息）
+	// add by zhangrui look up other characters' info here just in case (right-click menu operations may need this info)
 	if (actor->IsA(AMMOPlayer::StaticClass()))
 	{
 		MMOFacade::getSingleton().RequestPlayerBaseInfo(actor->ServerID);
@@ -529,7 +529,7 @@ void UMMOUITargetInfo::OnNativeGameEvent(struct MMOGameEvent* evt)
 		{
 		case MMOGameEvent_TargetEvent::ETCT_CurrentTarget:
 			{
-				//// 过场播放时, 不作处理，否则会显示红边和目标头像UI
+				//// Do nothing during cutscene playback, otherwise red border and target portrait UI will show
 				//AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 				//if (mainPlayer && !mainPlayer->IsInMatinee)
 				//{

@@ -39,7 +39,7 @@ void UMMOUIFightingScreenHint::PreOnShow(UBOOL v)
 //
 void UMMOUIFightingScreenHint::PostOnShow(UBOOL v)
 {
-	//为了不取得焦点
+	//To avoid taking focus
 }
 
 //========================================================================

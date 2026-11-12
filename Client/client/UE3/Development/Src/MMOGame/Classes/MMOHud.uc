@@ -1,21 +1,21 @@
 //
-// 主要的屏幕HUD类
+// Main screen HUD class
 //
 class MMOHud extends HUD
 	dependson(MMOPlayerController)
 	config(MMOPlayerController)
 	native(UI);
 
-// 版本号
+// Version number
 //var string ProductVersion;
-//是否显示伤血信息
+//Whether to show damage info
 var config bool ShowHitHUDText;
 var config int DamageRandomRange;
 
-// 一个字体渲染类，可以控制他修改字体
+// A font rendering class, can be controlled to change fonts
 var FontRenderInfo	TextRenderInfo;
 
-// 通过它控制是否显示鼠标跟踪调试线。
+// Controls whether to show mouse trace debug line.
 var bool	DrawDebugTraces;
 
 /** The most-recent mouse deprojection World direction, updated every frame in PostRender. */
@@ -131,7 +131,7 @@ function ShowHitStates()
 		{
 			switch(thisHit[i].dmg.Type)
 			{
-				case DRT_Result7: //爆击
+				case DRT_Result7: //Critical hit
 					if( thisHit[i].dmg.MainRole )				
 					{
 						class'MMOUIManager'.static.ShowCriticaledNumber(  screenPos.X, screenPos.y , Abs( thisHit[i].dmg.HPChange ),thisHit[i].HitLocation );
@@ -141,16 +141,16 @@ function ShowHitStates()
 						class'MMOUIManager'.static.ShowCriticalNumber(  screenPos.X, screenPos.y , Abs( thisHit[i].dmg.HPChange ) ,thisHit[i].HitLocation);
 					}
 					break;
-				case DRT_Result2: //免疫
+				case DRT_Result2: //Immune
 					class'MMOUIManager'.static.ShowImmunity( screenPos.X, screenPos.y ,thisHit[i].HitLocation);
 					break;
-				case DRT_Result1: //未命中
+				case DRT_Result1: //Miss
 					class'MMOUIManager'.static.ShowMiss( screenPos.X, screenPos.y ,thisHit[i].HitLocation);
 					break;
-				case DRT_Result3: //格档
+				case DRT_Result3: //Block
 					class'MMOUIManager'.static.ShowBlockNumber( screenPos.X, screenPos.y , Abs( thisHit[i].dmg.HPChange ) ,thisHit[i].HitLocation);
 					break;
-				case DRT_Result5: //闪避
+				case DRT_Result5: //Dodge
 					if( thisHit[i].dmg.MainRole )
 					{
 						class'MMOUIManager'.static.ShowDodge( screenPos.X, screenPos.y ,0,thisHit[i].HitLocation);
@@ -160,7 +160,7 @@ function ShowHitStates()
 						class'MMOUIManager'.static.ShowDodge( screenPos.X, screenPos.y ,1,thisHit[i].HitLocation);
 					}
 					break;
-				case DRT_Result4: //招架
+				case DRT_Result4: //Parry
 					class'MMOUIManager'.static.ShowParry( screenPos.X, screenPos.y ,thisHit[i].HitLocation);
 					break;
 				case DRT_Result6:
@@ -220,7 +220,7 @@ event MMOGFXPlayer CreateMoviePlayer(class<MMOGFXPlayer> ClassType)
 // 	}
 // }
 
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -322,7 +322,7 @@ function ShowLoadMovie( bool show)
 // 		LoadMovie.SetVisible(show);
 }
 
-// 返回鼠标在当前场景中屏幕坐标
+// Return the mouse screen coordinates in the current scene
 function vector2D GetMouseCoordinates()
 {
 	local Vector2D mousePos;
@@ -348,12 +348,12 @@ function vector2D GetMouseCoordinates()
 //      return mousePos;
 //}
 
-// 绘制HUD
+// Draw HUD
 
 native function DrawHUD();
 // {
 //    local int i;
-//    //定义一个字符串常量
+//    //Define a string constant
 // 
 //   // local MMOPlayerController pc;
 // 
@@ -367,20 +367,20 @@ native function DrawHUD();
 //    pc = MMOPlayerController(PlayerOwner);
 //    //cam = MMOPlayerCamera(pc.PlayerCamera);
 //    
-//    //显示我们控制类的当前鼠标位置指向的何种类对象
-//    //(TraceActor在PostRender方法中已赋值)
+//    //Show what kind of class object the control class's current mouse position points to
+//    //(TraceActor(TraceActor is already assigned in the PostRender method)
 // 	
 // 
 // 	//Canvas.SetPos( 150, 300 );
 // 	//Canvas.DrawText(PlayerOwner.GetStateName());   
 //    
-//    //把StringMessage的内容渲染进x=250,y=10的位置
+//    //Render the StringMessage content at x=250,y=10
 //    //Canvas.Font =  Font'EngineFonts.SmallFont';
 //    //Canvas.DrawColor = MakeColor(255,183,11,255);
 //    //Canvas.SetPos( 100, 10 );
 //    //Canvas.DrawText( StringMessage, false, , , TextRenderInfo );
 // 
-//    // 绘制版本号
+//    // Draw version number
 //    //Canvas.DrawColor = MakeColor(255, 255, 255, 255);
 //    //Canvas.Font = class'Engine'.Static.GetSmallFont();
 //    //Canvas.SetPos( 10, Canvas.SizeY - 20 );
@@ -409,7 +409,7 @@ native function ShowSilhouette(Actor actor, bool on, optional vector silhouettec
 native function NativePostRender();
 native function SetWidgetInCenter( GFxObject Obj);
 
-// 后期渲染处理，在此绘制实际的数据
+// Post-render processing, draw the actual data here
 event PostRender()
 {
 
@@ -448,11 +448,11 @@ event PostRender()
 		delegateOnPostRender = vecOnPostRender[i];
 		delegateOnPostRender( Canvas , fDeltaTime );
 	}
-	//开始渲染状态文字
+	//Begin rendering state text
 	//DrawHUD(); // TODO: native
 	if(DrawDebugTraces)
 	{
-		//父类可以显示寻路的线路
+		//Parent class can show the pathfinding route
 		if(PlayerOwner.ViewTarget != none)
 		{
 			super.DrawRoute(Pawn(PlayerOwner.ViewTarget));
@@ -475,8 +475,8 @@ event PostRender()
 	}
 */
 
-	//Start 除了游戏之中 下面的处理暂时都应该是不需要的而且会报一大堆Warning hemu@snda 
-	//@todo 切分成State来处理
+	//Start Start: outside the game the following handling should not be needed for now and would produce lots of Warnings hemu@snda
+	//@todo @todo split into State handling
 	if( !class'Engine'.static.IsEditor() &&
 		class'MMOUIManager'.static.GetCurrentGameState() != EGameState_InGame )
 	{
@@ -487,14 +487,14 @@ event PostRender()
 	NativePostRender();
 	//@debug
 	if(IServerTrigger(IsoPlayerController.GetTraceActor()) != none )
-			`Log("Touched，ServerTigger"@IsoPlayerController.GetTraceActor().Name);
+			`Log("Touched, ServerTigger"@IsoPlayerController.GetTraceActor().Name);
 	//destructActor = IAbilityDamageable(IsoPlayerController.TraceActor);
 	
 
 	
 	//}
 	ShowHitStates();
-	//End 除了游戏之中 下面的处理暂时都应该是不需要的而且会报一大堆Warning hemu@snda 
+	//End End: outside the game the following handling should not be needed for now and would produce lots of Warnings hemu@snda
 	ShowGainInfoUI();
 }
 
@@ -526,34 +526,34 @@ function ShowGainInfoUI()
 	}
 }
 
-// 切换显示鼠标跟踪调试线
+// Toggle Show mouse trace debug line
 exec function ToggleIsometricDebug()
 {
       DrawDebugTraces = !DrawDebugTraces;
       if(DrawDebugTraces)
       {
-            `Log("显示鼠标跟踪调试线");
+            `Log("Show mouse trace debug line");
       }
       else
       {
-            `Log("不显示鼠标跟踪调试线");
+            `Log("Hide mouse trace debug line");
       }
 }
 
-// 绘制调试鼠标射线
+// Draw debug mouse ray
 function DrawTraceDebugRays()
 {
       local MMOPlayerController IsoPlayerController;
       IsoPlayerController = MMOPlayerController(PlayerOwner);
 
-      //绘画选择范围。
-      //MakeColor的参数为R,G,B以及透明通道。
+      //Draw selection range.
+      //MakeColorMakeColor parameters are R, G, B and the alpha channel.
       Draw3DLine(IsoPlayerController.StartTrace, IsoPlayerController.EndTrace, MakeColor(255,128,128,255));
-      //绘画移动路线
+      //Draw move route
       Draw3DLine(IsoPlayerController.PawnEyeLocation, IsoPlayerController.MouseHitWorldLocation, MakeColor(0,200,255,255));
 }
 
-// 绘制鼠标
+// Draw mouse
 function DrawCursor()
 {
 	//local UIInteraction UIController;

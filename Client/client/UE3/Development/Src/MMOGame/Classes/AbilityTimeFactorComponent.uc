@@ -1,6 +1,6 @@
 /*
- * 支持带位置的动画序列
- * 只支持动画序列中一次位移
+ * supports animation sequences with position
+ * only supports a single displacement in an animation sequence
  * 
  * 
  * */

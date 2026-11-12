@@ -10,7 +10,7 @@ struct FClientActionConditionContex
 	FString ResultMessage;
     FString ResultName;
 
-	// 要用的临时上下文变量放下面
+	// Temporary context variables to be used go below
 	struct FClientItemInfo* Item;
 	class UItem* ItemTemplate;
 	class ANPC* NPC;
@@ -46,7 +46,7 @@ public:
 };
 
 
-// 使用道具的条件检测
+// Condition check for using an item
 class ClientActionCondition_UseItem : public ClientActionConditionSequence
 {
 public:
@@ -60,14 +60,14 @@ public:
 		AddConditionCheckType(ECACCT_UseItem_CheckPhyAtk);
 		AddConditionCheckType(ECACCT_UseItem_CheckMagAtk);
 		AddConditionCheckType(ECACCT_UseItem_CheckTaoAtk);
-		//AddConditionCheckType(ECACCT_UseItem_CheckBind); 不需要这个条件检测
+		//AddConditionCheckType(ECACCT_UseItem_CheckBind); this condition check is not needed
 		//AddConditionCheckType(ECACCT_Item_CheckInEnhance);
 		//AddConditionCheckType(ECACCT_Item_CheckInTrade);
 		AddConditionCheckType(ECACCT_Item_CheckInPanelUsing);
 	}
 };
 
-// 对道具进行的任意操作都不能在这些状态下发生
+// Any operation on an item cannot happen in these states
 class ClientActionCondition_ItemAction : public ClientActionConditionSequence
 {
 public:
@@ -80,7 +80,7 @@ public:
 	}
 };
 
-// 道具位置移动
+// Item position move
 class ClientActionCondition_ItemMove : public ClientActionConditionSequence
 {
 public:
@@ -197,7 +197,7 @@ public:
 	}
 };
 
-//灵魂操作和物品移动判定逻辑类似
+//Soul operations are similar to item move judgment logic
 class ClientActionCondition_SoulEmbedOrUnEmbed : public ClientActionConditionSequence
 {
 public:
@@ -226,7 +226,7 @@ public:
 	}
 };
 
-//铭文升级替换
+//Inscription upgrade replacement
 class ClientActionCondition_WeaponSkill : public ClientActionConditionSequence
 {
 public:
@@ -410,7 +410,7 @@ bool Check_ECACCT_Item_CheckInSoulUnEmbed(FClientActionConditionContex& contex);
 bool Check_ECACCT_Item_CheckInSoulLevelUp(FClientActionConditionContex& contex);
 bool Check_ECACCT_Item_CheckInPanelUsing(FClientActionConditionContex& contex);
 bool Check_ECACCT_MainPlayer_Is_Trading(FClientActionConditionContex& contex);
-//检查是否可在场景中换线
+//Check whether line switching is allowed in the scene
 class ClientActionCondition_ChangeSceneLine : public ClientActionConditionSequence
 {
 public:

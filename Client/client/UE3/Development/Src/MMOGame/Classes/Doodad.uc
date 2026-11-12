@@ -1,6 +1,6 @@
 //=============================
 // MMODoodad 
-//场景中简单交互物件 类似于DropItem
+//simple interactive objects in the scene, similar to DropItem
 //=============================
 
 class Doodad extends Object implements(IExcelable, IReferenceID, IMMOActor)
@@ -12,12 +12,12 @@ class Doodad extends Object implements(IExcelable, IReferenceID, IMMOActor)
 	native;
 
 //InstanceID 
-//暂留 实际用DropItemActor的Id 
+//reserved, actually uses the Id of DropItemActor
 var int DoodadID; 
 var SkeletalMeshComponent SkelComponent;
 //TemplateID
 //var(Item) int DoodadTemplateID; 
-var(DoodadCollision) bool EnableCollision <DisplayName="开启阻挡" | ExportExcel="Client">;
+var(DoodadCollision) bool EnableCollision <DisplayName="Enable Collision" | ExportExcel="Client">;
 var() Texture2D DisplayIcon				                        <DisplayName="DisplayIcon" | ExportExcel="Client">;
 var() name DoodadName				                            <DisplayName="DoodadName" | ExportExcel="Client">;
 var() name AnimIdle				                                <DisplayName="AnimIdle" | ExportExcel="Client">;
@@ -65,7 +65,7 @@ var(MMOServer) int Radius                                       <ExportExcel="Bo
 var(MMOServer) init string   BodyType                           <ExportExcel="Both">;
 
 
-// 此对象被打开时角色播放的动作组，引用动作组Doodad_RoleAnimGroup.upk，需先加载该UPK
+// animation group the character plays when this object is opened, references the animation group Doodad_RoleAnimGroup.upk, which must be loaded first
 //var() init string	RoleAnimGroup                               <DisplayName="Doodad RoleAnimGroup" | DynamicList="Doodad_RoleAnimGroup" | ExportExcel="Client">;
 
 var() name BeginAnimOpener;
@@ -74,18 +74,18 @@ var() name EndAnimOpener;
 
 var() bool bNeedPlayDoodadLoopSound;
 
-// 是否在鼠标移上去的时候显示名字
+// whether to show the name on mouse hover
 var() bool DoododNameDisplay                                    <ExportExcel="Client">;
 
-// 鼠标移上去后的指针类型及打开后释放特效
+// cursor type on mouse hover and the effect released after opening
 var() EMMOCursorType DoododCursorType                           <ExportExcel="Client">;
 
-// 此对象被采后播放的特效
+// effect played after this object is gathered
 var() ParticleSystem DoodadEndEffect                            <ExportExcel="Client">;
 
 var(UI) edittextbox init string TipsText                        <ExportExcel="Client">;
 var(UI) Vector TipsPosOffset;
-// 此对象被摧毁时的音效类型（需要设置gameplaydata中的DoodadSndList与此匹配）
+// sound type when this object is destroyed (DoodadSndList in gameplaydata must be set to match)
 //var(Sound) EItemMaterialType DoodadSoundType;
 
 native function EActorClassType GetActorType() const;

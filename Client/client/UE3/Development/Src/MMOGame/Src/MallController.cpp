@@ -76,7 +76,7 @@ void MallController::NotifyBuyResult(INT nGoodsID)
 	UItem* pkItem = MMOFacade::getSingleton().FindItemTemplate( nGoodsID );
 	if(pkItem == 0)
 		return;
-	//背包是否可以放得下
+	//Whether the bag can hold it
 	if(nOperateCode == eMallBuytoSelf)
 	{
 		FString strHint = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Mall.BuySuccessHint")),*(pkItem->GetDisplayName()));

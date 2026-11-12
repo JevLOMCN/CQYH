@@ -11,7 +11,7 @@ IMPLEMENT_CLASS(UMMOGFXPlayer_FBEndAll)
 void UMMOGFXPlayer_FBEndAll::SendPlayFBAgain()
 {
 	CMessageHandler::GetInstance().Send_PlayFBAgain();
-	//还要重发一遍。。。。
+	//need to resend again....
 	INT curFBDiff = MMOMapDataManager::getSingleton().GetCurFBDiff();
 	CMessageHandler::GetInstance().Send_SelMapDifficulty( curFBDiff );
 	CMessageHandler::GetInstance().Send_EnterDungeon( curFBDiff );
@@ -38,7 +38,7 @@ void UMMOGFXPlayer_FBEndAll::WaitFBtoSummary()
 	//INT iDiffStrIdx = ( curFBDiff - ENUM_SCENE_DIFFICULTY::esdNormal1 );//pFBEnter->CvtToUiDiffIdx( pFBEnter->CurDiff );
 	//FString strIdx = FString::Printf( TEXT("MMOGame.FBDiff.FBDiff%d"), iDiffStrIdx );
 	//strHint = strHint.Replace( TEXT( "FBDiff" ), *MMOUI::ParseLocalizedPropertyPath( strIdx ) );
-	////聊天框输出提示
+	////chat box output prompt
 	//MMOChatManager::getSingleton().AddSystemMessage( FString::Printf( *strHint, *pMe->RoleName ) );
 	//
 	ShowCountDownBar();
@@ -118,12 +118,12 @@ void UMMOGFXPlayer_FBEndAll::NextToPlayFBAward()
 	}
 	_FBSummary->TimeUpToClose();
 
-	//开始抽奖
+	//start lottery
 	if( _FBAward == NULL ){
 		warnf(NAME_Error, TEXT("======!!!!======= [UMMOGFXPlayer_FBEndAll::NextToPlayFBAward _FBAward is NULL]") );
 		return;
 	}
-	_FBAward->OpenToPlay( FBAwardMSec );//5秒
+	_FBAward->OpenToPlay( FBAwardMSec );//5 seconds
 
 	//show the hide button
 	if( _FBBattleConfirm == NULL ){
@@ -222,7 +222,7 @@ void UMMOGFXPlayer_FBEndAll::LeaveFB()
 }
 
 //========================================================================================================
-//关闭副本评分，副本抽奖，副本退出重置窗口
+//Close dungeon rating, dungeon lottery, dungeon exit reset windows
 void UMMOGFXPlayer_FBEndAll::CloseAllFBEndUI()
 {
 	

@@ -34,7 +34,7 @@ void UMMOGFXPlayer_JourneyView::ASGetCompleteAwards(int journeyId)
 	{
 		if (MMOFacade::getSingleton().GetBagEmptySlotCount() < MMOJourneyData::getSingleton().GetReputationAwardsCount(data.ForceId))
 		{
-			MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("背包空间不足，无法领取奖励"),
+			MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Not enough bag space to claim the reward"),
 				MsgInfoType_Table,
 				TEXT("MMOErrorInfo.ERROR_CODE_DEF.errAchievementRewardBagFull"));
 		}

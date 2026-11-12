@@ -91,7 +91,7 @@ void TipsFormatter::FormatTips(ItemSlotType TipsType, class UGFxObject* SrcObj, 
 }
 
 //=============================================================================
-//有很多地方使用共同的一个CommonTip控件，方便处理，将AutoResize在AS中实现
+//many places use the same CommonTip control for convenience; AutoResize is implemented in AS
 void FillConstWidthCommonTip( class UGFxObject * commonTip, const FString &strContent, INT styleType = CM_TIPS_Style1 )
 {
 	if( commonTip == NULL )
@@ -261,7 +261,7 @@ void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips*
 	LOG_PROCESS_ERROR(item && itemObj);
 	FormatItemTip( GFXPlayer, itemObj, item, itemInfo, ItemId, SlotType, FALSE );
 
-	//符文物品显示技能
+	//rune item shows ability
 	UBOOL isSkillItem = FALSE;//( item->ItemType == TEXT("ITEMTYPE_RUNE") );
 	isSkillItem |= ( item->ItemType == TEXT("ITEMTYPE_SPELLBOOK") );
 	if( isSkillItem )
@@ -272,7 +272,7 @@ void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips*
 			TipsPanel->ShowNextSkillTip = TRUE;
 		}
 	}
-	//合成物品图纸
+	//compose item blueprint
 	else if( item->ItemType == TEXT("ITEMTYPE_FORMULA") ){
 		EquipComposeTemplate& toComposeTemplate = EquipDecomposeManager::getSingleton().GetComposeTemplateById( tempID );
 		UItem* pComposeItem = MMOFacade::getSingleton().FindItemTemplate( toComposeTemplate.equipId );
@@ -286,7 +286,7 @@ void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips*
 		}
 	}
 
-	//如果有Slot提示，此时取消
+	//if there is a Slot tip, cancel it now
 	if( (ESPType_Bag == SlotType && E_CONSLOT_DEFAULT == ContainerID)  || (ESPType_BagResource == SlotType && E_CONSLOT_RESOURCE == ContainerID))
 	{
 		FClientItemInfo *pClientItem = (FClientItemInfo*)itemInfo;
@@ -305,7 +305,7 @@ void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips*
 		goto Exit1;
 	}
 
-	//装备对比
+	//equipment comparison
 	if( IsItemTipsNeedCompareToCurEquipped( SlotType ) )
 	{
 		INT destCon = E_CONSLOT_MAX, destSlot = 0;
@@ -423,49 +423,49 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 
 	itemObj->SetBool(TEXT("IsCompare"), isCompareTip);
 
-	// 装备名称
+	// equipment name
 	if( itemInfo != NULL && itemInfo->m_byIdentified == IDENTIFY_TYPE_LEVEL_UP ){
 		itemName = TEXT("*");
 	}
 	itemName += UITextParser::HTMLFormatItemName( item );
-	//装备升级的等级
+	//equipment upgrade level
 	//if( itemInfo != NULL && itemInfo->m_byLevel > 0 ){
 	//	itemName += TEXT("+");
 	//	itemName += appItoa( itemInfo->m_byLevel );
 	//}
 
 	itemObj->SetString( TEXT("ItemName"), itemName );
-	//是否已装备
+	//whether equipped
 
 	if(isCompareTip && itemInfo && E_CONSLOT_EQUIPPED == itemInfo->m_byConSlot)
 		itemObj->SetBool(TEXT("IsEquiped"), TRUE);
 	else
 		itemObj->SetBool(TEXT("IsEquiped"), FALSE);
 
-	//装备类型
+	//equipment type
 	itemObj->SetString( TEXT("PartName"), UITextParser::HTMLFormatItemType( item ) );
 
-	//物品颜色
+	//item color
 	itemColorName = FString( TEXT("lv") ) + appItoa( item->ItemColor );
 	itemObj->SetString( TEXT("ColorName"), itemColorName );
 
-	//使用职业
+	//usable class
 	itemObj->SetString( TEXT("Profession"), UITextParser::HTMLFormatItemRequireProfession( item ) );
-	//绑定信息
+	//binding info
 	itemObj->SetString( TEXT("Bind"), UITextParser::HTMLFormatItemBindType( item, itemInfo ) );
-	//道具等级
+	//item level
 	itemObj->SetString( TEXT("ItemLevel"), UITextParser::HTMLFormatItemLevel( item ));
-	////使用等级
+	////usage level
 	//itemObj->SetString( TEXT("RequireLevel"), UITextParser::HTMLFormatItemRequireLevel( item ));
-	//使用限制（包括等级）
+	//usage restrictions (including level)
 	itemObj->SetString( TEXT("RequireLevel"), UITextParser::HTMLFormatItemRequireAll( item ));
-	//重量属性
+	//weight attribute
 	itemObj->SetString( TEXT("WeightParameter"), UITextParser::HTMLFormatItemWeightAttribute( item ) ); 
-	//纯度（矿石特有）
+	//purity (ore only)
 	itemObj->SetString( TEXT("PurityParameter"), UITextParser::HTMLFormatItemPurityAttribute( item ) );
-	//性别
+	//gender
 	itemObj->SetString(TEXT("Gender"), UITextParser::HTMLFormatItemGender( item ));
-	//可否分解
+	//whether decomposable
 	itemObj->SetString(TEXT("ForbidDecompose"), UITextParser::HTMLFormatItemDecompose( item ));
 
 	UEquip* equip = Cast<UEquip>( item );
@@ -473,7 +473,7 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 	{
 		//AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 		//INT playerClassID = ( (mainPlayer != NULL) ? mainPlayer->GetClassId() : 0 );
-		// 装备Icon
+		// equipment Icon
 		if( SlotType == ESPType_ViewProfile ){
 			PlayerDetailInfo* detailInfo = MMOPlayerInfoManager::getSingleton().FindCurPlayerDetailInfo();
 			INT playerSex = ( detailInfo != NULL ? detailInfo->Sex : EGT_Male );
@@ -484,9 +484,9 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 			itemObj->SetString( TEXT("IconName"), MMOFacade::getSingleton().GetItemIconNamePersonalized( item, itemInfo ) );
 		}
 		
-		//是否是装备
+		//Whether it is equipment
 		itemObj->SetBool( TEXT("IsEquip"), TRUE );
-		//战斗力
+		//combat power
 		if( SlotType != ESPType_EquipCompose 
 			&& SlotType != ESPType_TeamAuctionPanel 
 			&&SlotType != ESPType_TeamAuctionList 
@@ -502,23 +502,23 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 			itemObj->SetString(TEXT("Power"), UITextParser::HTMLFormatItemPower(equip));
 		}
 
-		//属性
+		//attributes
 		if(itemInfo && itemInfo->m_byIdentified)
 		{
 			FString mixParaText;
 			FString randParaText;
 			UITextParser::HTMLFormatItemBaseAndRandomAttributes( equip, itemInfo, mixParaText, randParaText );
-			//主属性,和随机属性混合显示了
+			//main attributes, displayed mixed with random attributes
 			itemObj->SetString( TEXT("MainParameter"), mixParaText );
-			//随机属性
+			//Random attribute
 			itemObj->SetString( TEXT("RandomParameter"), randParaText );
 			itemObj->SetBool(TEXT("bUnIdentified"), FALSE);
 		}
 		else{
-			//主属性
+			//main attributes
 			itemObj->SetString( TEXT("MainParameter"), UITextParser::HTMLFormatItemAttributes(equip, itemInfo));
-			//随机属性
-			if(itemInfo) // 如果不是模板数据才显示
+			//Random attribute
+			if(itemInfo) // only show if not template data
 			{
 				itemObj->SetBool(TEXT("bUnIdentified"), TRUE);
 				itemObj->SetString(TEXT("unIdentifiedText"), MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.ItemTips.UnIdentify") ) );
@@ -534,11 +534,11 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 				}
 			}
 		}
-		//幸运值属性
+		//luck value attribute
 		itemObj->SetString( TEXT("LuckyParameter"), UITextParser::HTMLFormatItemLuckyAttribute( equip, itemInfo ) ); 
-		//强化属性
+		//enhancement attributes
 		itemObj->SetString( TEXT("EnhanceParameter"), UITextParser::HTMLFormatItemEnhanceAttribute( equip, itemInfo ) ); 
-		//铭文
+		//Inscription
 		UGFxObject* pSkillDesc = pGFXPlayer->CreateArray();
 		UGFxObject* pSkillName = pGFXPlayer->CreateArray();
 		UGFxObject* pSkillIconName = pGFXPlayer->CreateArray();
@@ -551,7 +551,7 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 			itemObj->SetObject(TEXT("SkillDesc"), pSkillDesc);
 		}
 
-		//融灵属性
+		//Spirit fusion attribute
 		UGFxObject* pSoulIconType = pGFXPlayer->CreateArray();
 		UGFxObject* pSoulIconName = pGFXPlayer->CreateArray();
 		UGFxObject* pSoulName = pGFXPlayer->CreateArray();
@@ -563,30 +563,30 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 			itemObj->SetObject(TEXT("SoulIconName"), pSoulIconName);
 			itemObj->SetObject(TEXT("SoulName"), pSoulName);
 		}
-		//套装属性
+		//set attributes
 		const EquipSuit* pSuit = MMOEquipManager::getSingleton().FindEquipSuitByPartOfSuit(item->ItemId);
 		itemObj->SetBool(TEXT("bShowSuit"), (NULL != pSuit));
 		if(NULL != pSuit)
 			itemObj->SetString(TEXT("SuitParameter"), UITextParser::HTMLFormatEquipSuitAttribute(equip));
-		//天气属性
+		//weather attributes
 		itemObj->SetString(TEXT("WeatherParameter"), UITextParser::HTMLFormatEquipWeatherAttribute(equip));
-		//签名
+		//Signature
 		itemObj->SetString(TEXT("SignParameter"), UITextParser::HTMLFormatEquipSignAttribute(itemInfo));
-		//修理状态
+		//repair state
 		itemObj->SetString(TEXT("RepairState"), UITextParser::HTMLFormatEquipRepairState(equip, itemInfo));
-		//升级点数
+		//upgrade points
 		if( equip->ItemSubType == TEXT("ITEMSUBTYPE_EQUIP_WEAPON") ){
 			itemObj->SetString(TEXT("LevelUpPoint"), UITextParser::HTMLFormatItemLevelUpPoints(itemInfo));
 		}
 		else{
 			itemObj->SetString(TEXT("LevelUpPoint"), TEXT("") );
 		}
-		//技能书是否学习
+		//whether skill book is learned
 		itemObj->SetString( TEXT("IsGotten"), TEXT("") );
 	}
 	else
 	{
-		//不是装备
+		//Not equipment
 		itemObj->SetString( TEXT("IconName"), MMOFacade::getSingleton().GetItemIconNamePersonalized( item, itemInfo ) );
 		itemObj->SetBool( TEXT("IsEquip"), FALSE );
 		itemObj->SetBool(TEXT("bUnIdentified"), FALSE);
@@ -594,18 +594,18 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 		itemObj->SetBool(TEXT("bShowSuit"), FALSE);
 		itemObj->SetString( TEXT("RepairState"), TEXT("") );
 		itemObj->SetString(TEXT("LevelUpPoint"), TEXT("") );
-		//技能书是否学习
+		//whether skill book is learned
 		itemObj->SetString( TEXT("IsGotten"), UITextParser::HTMLFormatItemGottenType( item ) );
 	}
 
-	//附加属性 如物品描述 相关信息
+	//additional attributes such as item description related info
 	itemObj->SetString( TEXT("AddParameter"), UITextParser::HTMLFormatItemDescription( item ) ); 
 
 	switch( SlotType )
 	{
 	case ESPType_StallBuy:
 		{
-			//重设价格
+			//reset price
 			StallItemInfo stallItemInfo;
 			if (UStallManager::getSingleton().GetStallBuyItem(ItemId, stallItemInfo))
 			{
@@ -631,13 +631,13 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 		break;
 	case ESPType_MallStore:
 		{
-			//商城道具不显示价格
+			//mall items do not show price
 			itemObj->SetString( TEXT("Money"), TEXT(""));
 		}
 		break;
 	case ESPType_Shop:
 		{
-			//商品获得商品信息
+			//get goods info from goods
 			ServerShopItemData* shopItem = ShopManager::getSingleton().GetCurShopItemByItemTempId( item->GetTemplateID() );
 			FString reputationText = UITextParser::HTMLFormatItemRequireReputation( shopItem );
 			FString guildText = UITextParser::HTMLFormatItemRequireGuild( shopItem );
@@ -652,7 +652,7 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 		break;
 	default:
 		{
-			//修理状态，显示修理价格
+			//repair state, show repair price
 			if( itemInfo && equip ){
 				UBOOL isCurRepairing = MMOFacade::getSingleton().GetIsRepairing();
 				UBOOL isCurSpecialRepairing = MMOFacade::getSingleton().GetIsSpecialRepairing();
@@ -675,26 +675,26 @@ void TipsFormatter_Item::FormatItemTip(UGFxMoviePlayer* pGFXPlayer, UGFxObject* 
 				}
 			}
 			else{
-				//金币类型,出售价格
+				//gold type, sell price
 				itemObj->SetString( TEXT("Money"), UITextParser::HTMLFormatItemPrice( item, itemInfo ) );
 			}
 		}
 		break;
 	}
 
-	// 修理状态下显示修理价格
+	// show repair price in repair state
 	if( itemInfo && MMOFacade::getSingleton().GetIsRepairing() )
 	{
 		itemObj->SetString(TEXT("ForbidSell"), TEXT(""));
 	}
-	else // 模板数据只能显示无法出售
+	else // template data can only be displayed, not sold
 	{
 		itemObj->SetString(TEXT("ForbidSell"), UITextParser::HTMLFormatItemForbidSell(item,itemInfo));
 	}
 
 	itemObj->SetString(TEXT("ForbidTrade"), TEXT(""));//UITextParser::HTMLFormatItemForbidTrade(item));
 
-	//当前耐久
+	//current durability
 	itemObj->SetString( TEXT("Duration"), UITextParser::HTMLFormatItemDuration( item, itemInfo ));
 
 Exit0:
@@ -725,7 +725,7 @@ void TipsFormatter_ItemBar::FormatTips(class UGFxObject* SrcObj,  class UMMOUITi
 			return;
 		}
 
-		//将数据传入Tip DataObj
+		//pass data into Tip DataObj
 		UGFxObject* itemObj = GFXPlayer->CreateObject(TEXT("ActionScript3.Tips.ItemTipData"));
 		FormatItemTip( GFXPlayer, itemObj, item, NULL );
 
@@ -830,7 +830,7 @@ void TipsFormatter_LinkTips::FormatTips( class UGFxObject* SrcObj,  class UMMOUI
 	TipsPanel->eventCallUpdateItemTipData( itemObj );
 
 	UEquip* equip = Cast<UEquip>( item );
-	//装备对比
+	//equipment comparison
 	if( equip != NULL )
 	{
 		INT destCon = E_CONSLOT_MAX, destSlot = 0;
@@ -883,7 +883,7 @@ void TipsFormatter_LinkTips::FormatTips( class UGFxObject* SrcObj,  class UMMOUI
 		}
 	}
 
-	//符文物品显示技能
+	//rune item shows ability
 	UBOOL isSkillItem = FALSE;//( item->ItemType == TEXT("ITEMTYPE_RUNE") );
 	isSkillItem |= ( item->ItemType == TEXT("ITEMTYPE_SPELLBOOK") );
 	if( isSkillItem )
@@ -894,7 +894,7 @@ void TipsFormatter_LinkTips::FormatTips( class UGFxObject* SrcObj,  class UMMOUI
 			TipsPanel->ShowNextSkillTip = TRUE;
 		}
 	}
-	//合成物品图纸
+	//compose item blueprint
 	else if( item->ItemType == TEXT("ITEMTYPE_FORMULA") ){
 		EquipComposeTemplate& toComposeTemplate = EquipDecomposeManager::getSingleton().GetComposeTemplateById( itemID );
 		UItem* pComposeItem = MMOFacade::getSingleton().FindItemTemplate( toComposeTemplate.equipId );
@@ -988,7 +988,7 @@ void TipsFormatter_SkillOfMyWithNext::FormatTips(class UGFxObject* SrcObj,  clas
 	//
 	TipsFormatter_SkillTemplate::FormatSkillTips( skill, TipsPanel, SubPanel);
 
-	//下一级技能
+	//next level ability
 	TipsFormatter_SkillTemplate::FormatAppendSkillTipsForSkillNextLv( skill, TipsPanel, SubPanel );
 }
 
@@ -1042,10 +1042,10 @@ void TipsFormatter_SkillTemplate::FormatSkillTips(class UMMOAbility* skill, clas
 		//
 		_FormatTipsText( dataObj, skill );
 
-		//是否下一级
+		//whether next level
 		dataObj->SetString(TEXT("NextLevel"), TEXT("") );		            
 
-		//是否显示下一级技能需求 
+		//whether to show next level ability requirements
 		dataObj->SetBool(TEXT("HasUpLevNeed"), FALSE);
 	}
 
@@ -1071,10 +1071,10 @@ void TipsFormatter_SkillTemplate::FormatSkillTipsWithNoMainSkillLevel(class UMMO
 		dataObj->SetString( TEXT("CombineLevel"), TEXT("") );
 		dataObj->SetString( TEXT("SkillLevel"), TEXT("") );
 
-		//是否下一级
+		//whether next level
 		dataObj->SetString(TEXT("NextLevel"), TEXT("") );		            
 
-		//是否显示下一级技能需求 
+		//whether to show next level ability requirements
 		dataObj->SetBool(TEXT("HasUpLevNeed"), FALSE);
 	}
 
@@ -1105,11 +1105,11 @@ void TipsFormatter_SkillTemplate::FormatAppendSkillTipsForSkillNextLv(UMMOAbilit
 		//
 		_FormatTipsText( dataObj, nextLvSkill, originSkill );
 
-		//是否下一级
-		dataObj->SetString(TEXT("NextLevel"), TEXT("<font color='#FF0000'>下一级</font>") );
+		//whether next level
+		dataObj->SetString(TEXT("NextLevel"), TEXT("<font color='#FF0000'>Next Level</font>") );
 		dataObj->SetString( TEXT("CombineLevel"), TEXT("") );
 
-		//是否显示下一级技能需求 
+		//whether to show next level ability requirements
 		INT skillRuneIdx = nextLvSkill->GetRuneSlot();
 		UBOOL isRuneSKill = ( skillRuneIdx > 0 );
 		dataObj->SetBool(TEXT("HasUpLevNeed"), !isRuneSKill );
@@ -1155,10 +1155,10 @@ void TipsFormatter_SkillTemplate::FormatAppendSkillTipsWithNoMainSkillLevel(clas
 		dataObj->SetString( TEXT("CombineLevel"), TEXT("") );
 		dataObj->SetString( TEXT("SkillLevel"), TEXT("") );
 
-		//技能解锁信息
+		//ability unlock info
 		dataObj->SetString( TEXT("SkillUnlock"), TEXT("") );
 
-		//是否显示下一级技能需求 
+		//whether to show next level ability requirements
 		dataObj->SetBool( TEXT("HasUpLevNeed"), FALSE );
 		dataObj->SetString( TEXT("UpLevNeedSoul"), TEXT("") );
 		dataObj->SetString( TEXT("UpLevNeedLev"), TEXT("") );
@@ -1184,27 +1184,27 @@ void TipsFormatter_SkillTemplate::FormatSkillTipsWithEquippedSkillInfo(class UMM
 		_FormatTipsText( dataObj, skill );
 
 		if( skill->GetRuneSlot() > 0 ){
-			//符文技能
+			//rune ability
 			INT tipsSkillID = skill->eventGetAbilityId();
 			for( int i = 0; i < SKILL_EQUIP_MAX; ++i ){
-				//当前武器技能
+				//Current weapon ability
 				UBOOL isSkillActive = FALSE;
 				UMMOAbility* weaponSkill = MMOEquipManager::getSingleton().GetWeaponRuneSkillBySlotIdx( i, E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND, isSkillActive );
-				//如果此武器附带此键位已激活的技能
+				//If this weapon carries an ability activated for this key slot
 				if( weaponSkill != NULL && isSkillActive ){
 					INT weaponSkillID = weaponSkill->eventGetAbilityId();
 					if( tipsSkillID == weaponSkillID ){
-						//修改符文等级
+						//modify rune level
 						dataObj->SetString( TEXT("RuneLev") , UITextParser::HTMLFormatSkillTipsRuneLv( weaponSkill ) );
 						break;
 					}
 				}
 			}
 		}
-		//是否下一级
+		//whether next level
 		dataObj->SetString(TEXT("NextLevel"), TEXT("") );		            
 
-		//是否显示下一级技能需求 
+		//whether to show next level ability requirements
 		dataObj->SetBool(TEXT("HasUpLevNeed"), FALSE);
 	}
 
@@ -1212,7 +1212,7 @@ void TipsFormatter_SkillTemplate::FormatSkillTipsWithEquippedSkillInfo(class UMM
 }
 
 //------------------------------------------------------------------------
-//mainskill 可能就是 skill
+//mainskill may be the skill
 void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbility* skill, UMMOAbility* originSkill )
 {
 	if( !dataObj || !skill )
@@ -1233,23 +1233,23 @@ void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbil
 		return;
 	}
 
-	//是否自己学会的技能
+	//whether self-learned ability
 	UMMOAbility* myLearnedSkill = MMOSkillManager::getSingleton().FindMyLearnedMainSkill( mainSkill->eventGetAbilityId() );
 
-	//技能名称
+	//ability name
 	dataObj->SetString( TEXT("SkillName") , mainSkill->eventGetAbilityName() );
-	//技能Icon
+	//ability Icon
 	dataObj->SetString( TEXT("IconName") , skill->GetAbilityIconName() );
-	//有效等级
+	//effective level
 	dataObj->SetString( TEXT("CombineLevel") , UITextParser::HTMLFormatSkillTipsCombineLv( skill, NULL, originSkill ) );
-	//技能解锁信息
+	//ability unlock info
 	dataObj->SetString( TEXT("SkillUnlock"), UITextParser::HTMLFormatSkillTipsUnlock( skill ) );
-	//是否是符文技能
+	//whether rune ability
 	dataObj->SetBool( TEXT("HasRune"), isRuneSkill );
-	////技能等级
+	////ability level
 	//if( isRuneSkill ){
 	//	if( myLearnedSkill == NULL ){
-	//		//没有学会
+	//		//not learned
 	//		dataObj->SetString( TEXT("SkillLevel"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Tips.SkillLevNoLevel")) );
 	//	}
 	//	else{
@@ -1263,11 +1263,11 @@ void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbil
 
 	//
 	if( isRuneSkill ){
-		//符文名字
+		//rune name
 		dataObj->SetString( TEXT("RuneName") , skill->eventGetAbilityName() );
-		//符文等级
+		//rune level
 		dataObj->SetString( TEXT("RuneLev") , UITextParser::HTMLFormatSkillTipsRuneLv( skill , originSkill ) );
-		//符文描述
+		//rune description
 		INT key = MMOSkillManager::CombinateAbilityID( skill->eventGetAbilityId(), skill->SpellCommonAttribute.Level, skill->GetRuneSlot() );
 		const SpellVarData* spellDat = SpellVarManager::getSingleton().FindData( key );
 		if(spellDat){
@@ -1275,7 +1275,7 @@ void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbil
 		}
 	}
 
-	//主特性，二特性，三特性
+	//primary trait, secondary trait, tertiary trait
 	if( originSkill != NULL ){
 		dataObj->SetString( TEXT("MainSpeciality") , UITextParser::HTMLFormatSkillTipsChangeSpecility( skill->GetMainSpeciality() , originSkill->GetMainSpeciality() ) );
 		dataObj->SetString( TEXT("SecondSpeciality") , UITextParser::HTMLFormatSkillTipsChangeSpecility( skill->GetSecondSpeciality() , originSkill->GetSecondSpeciality() ) );
@@ -1287,10 +1287,10 @@ void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbil
 		dataObj->SetString( TEXT("ThirdSpeciality") , skill->GetThirdSpeciality() );
 	}
 
-	//技能描述 
+	//ability description
 	dataObj->SetString( TEXT("SkillDescribe"), UITextParser::HTMLFormatSkillTipsDesc( skill , originSkill ) );
 
-	////这个攻击效果传图地址,42种
+	////image address for this attack effect, 42 kinds
 	//INT effectRangeEnum = Clamp<INT>( skill->EffectRangeEnum , 0 , 41 );
 	//FString iconPath;
 	//if( effectRangeEnum != 0 ){
@@ -1301,9 +1301,9 @@ void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbil
 	//}
 
 	//dataObj->SetString( TEXT("EffectRangeTexPath") , iconPath );
-	////简单描述
+	////brief description
 	//dataObj->SetString( TEXT("DescriptiveWords") , skill->DescriptiveWords );
-	////效果描述
+	////effect description
 	//FString effectRangeText = _ParseAttackRange(skill->EffectRange);
 	//FString attackRangeText = _ParseAttackRange(skill->AttackRange);
 
@@ -1311,10 +1311,10 @@ void TipsFormatter_SkillTemplate::_FormatTipsText( UGFxObject* dataObj, UMMOAbil
 	//dataObj->SetString( TEXT("AttackRange") , FString::Printf( *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Tips.SkillDis")), *attackRangeText ) );
 	//dataObj->SetString( TEXT("EffectRange") , FString::Printf( *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Tips.SkillRange")), *effectRangeText ) );
 
-	////技能消耗
+	////ability cost
 	//dataObj->SetString( TEXT("SkillCost"), UITextParser::HTMLFormatSkillTipCost( skill ));
 
-	////技能CD
+	////ability CD
 	//FString cd;
 	//if( skill->SpellCommonAttribute.SelfCoolDown > 0 ){
 	//	cd = FString::Printf( *MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Tips.CdTime")), skill->SpellCommonAttribute.SelfCoolDown );
@@ -1589,7 +1589,7 @@ void TipsFormatter_AwardIcon::FormatTips( class UGFxObject* SrcObj,  class UMMOU
 		return;
 	}
 
-	//将数据传入Tip DataObj
+	//pass data into Tip DataObj
 	UGFxObject* itemObj = GFXPlayer->CreateObject(TEXT("ActionScript3.Tips.ItemTipData"));
 	FormatItemTip( GFXPlayer, itemObj, item, NULL );
 
@@ -1629,7 +1629,7 @@ void TipsFormatter_BuffSlot::FormatTips( class UGFxObject* SrcObj,  class UMMOUI
 	UGFxObject* TipsText =  SubPanel->GetObject("tips_item_text");	
 
 
-	//检测是否在buffmanager
+	//check whether in buffmanager
 	BuffData* pBuff	= NULL;
 	AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player && Player->ServerID ==ownerId){
@@ -1645,7 +1645,7 @@ void TipsFormatter_BuffSlot::FormatTips( class UGFxObject* SrcObj,  class UMMOUI
 
 
 
-	//用坐骑同一个tips资源
+	//use the same tips resource as mount
 	UGFxMoviePlayer* GFXPlayer = TipsPanel->GFXPlayer; 
 	if(pBuff && pBuff->Buff && GFXPlayer ){
 		UGFxObject* mountObj = GFXPlayer->CreateObject(TEXT("ActionScript3.Tips.MountTipData"));
@@ -1674,7 +1674,7 @@ void TipsFormatter_BuffSlot::FormatTips( class UGFxObject* SrcObj,  class UMMOUI
 		}
 	}
 
-	////读取模板buff显示tips
+	////read template buff to show tips
 	//if( pBuff )
 	//   {
 	//       ShowText = UITextParser::HTMLFormatBuffTips(pBuff->Buff);
@@ -1728,7 +1728,7 @@ void TipsFormatter_RuneActive::FormatTips( class UGFxObject* SrcObj,  class UMMO
 	int RuneSlot = SrcObj->GetInt(TEXT("RuneSlot")); 
 	int ActiveId = SrcObj->GetInt(TEXT("ActiveId"));
 
-	//符文需求
+	//rune requirements
 	ShowText = UITextParser::HTMLFormatRuneItemTips(ActiveId, RuneSlot);
 	//ShowTextR= UITextParser::HTMLFormatRuneItemTips(ActiveId, RuneSlot);
 
@@ -1776,37 +1776,37 @@ void TipsFormatter_RuneButton::FormatTips( class UGFxObject* SrcObj,  class UMMO
 	UGFxObject* dataObj = GFXPlayer->CreateObject(TEXT("ActionScript3.Tips.SkillTipData"));
 	if( dataObj  )
 	{
-		//技能名称
+		//ability name
 		dataObj->SetString( TEXT("SkillName"), rune->MainSkill->eventGetAbilityName() );
-		//技能等级
+		//ability level
 		FString sLv = FString(" Lv")+ appItoa( rune->SpellCommonAttribute.Level );
 		dataObj->SetString( TEXT("SkillLevel"), sLv );
-		//技能Icon
+		//ability Icon
 		dataObj->SetString( TEXT("IconName"), rune->GetAbilityIconName() );
-		//技能消耗
+		//ability cost
 		dataObj->SetString( TEXT("SkillCost"), UITextParser::HTMLFormatSkillTipCost( rune ));
-		//技能CD
-		FString cd = FString::Printf( TEXT("%.2f秒"), rune->SpellCommonAttribute.SelfCoolDown );
+		//ability CD
+		FString cd = FString::Printf( TEXT("%.2f s"), rune->SpellCommonAttribute.SelfCoolDown );
 		dataObj->SetString( TEXT("CDTime"), cd );
-		//技能装备限定
+		//ability equipment restriction
 		dataObj->SetString( TEXT("SkillLimit"), UITextParser::HTMLFormatSkillTipsLimit( rune )  ); 
-		//技能解锁信息
+		//ability unlock info
 		dataObj->SetString( TEXT("SkillUnlock"), UITextParser::HTMLFormatSkillTipsUnlock( rune ) );
-		//技能描述 去取得主技能的描述
+		//ability description, fetch the main ability's description
 		dataObj->SetString( TEXT("SkillDescribe"), rune->MainSkill->eventGetAbilityDescribe() );
-		//技能伤害 连击
+		//ability damage combo
 		dataObj->SetString( TEXT("SkillDamage"), UITextParser::HTMLFormatSkillTipsDamage( rune ) ); 
-		//当前技能是否装配了符文
+		//whether current ability has a rune equipped
 		dataObj->SetBool( TEXT("HasRune"), TRUE );
 		//RuneId
 		dataObj->SetInt( TEXT("RuneId"), runeId+1 /*rune->GetSkillGuiRuneID()*/ );
-		//符文名字
+		//rune name
 		dataObj->SetString( TEXT("RuneName"),rune->eventGetAbilityName() );
-		//符文描述
+		//rune description
 		dataObj->SetString( TEXT("RuneDescribe"), rune->eventGetAbilityDescribe() );
-		//是否显示Aid或者下一等级
+		//whether to show Aid or next level
 		dataObj->SetBool( TEXT("HasNext"), FALSE );
-		//是否显示下一级技能 响应按键
+		//whether to show next level ability, respond to key press
 		dataObj->SetBool( TEXT("ShowNext"), FALSE );
 
 	}
@@ -1819,13 +1819,13 @@ void TipsFormatter_RuneButton::FormatTips( class UGFxObject* SrcObj,  class UMMO
 //------------------------------------------------------------------------
 void TipsFormatter_AvartaRuneButton::FormatTips( class UGFxObject* SrcObj,  class UMMOUITips* TipsPanel, class UGFxObject* SubPanel )
 {
-	//Avarta的Rune其实是穿着rune马甲的不会成长可以购买的非主流主技能 坑爹呐有木有
+	//Avarta's Rune is actually an unconventional, non-growing, purchasable main ability wearing a rune disguise, what a pain
 	AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if( !Player )
 		return;
 
 	INT AvartaId = SrcObj->GetInt(TEXT("AvartaId"));
-	//这里用于SubList索引 先减1
+	//used for SubList index here, subtract 1 first
 	INT AvartaRuneId = SrcObj->GetInt(TEXT("RuneSlot"))-1;
 
 	UINT Key = MMOSkillManager::CombinateAbilityID( AvartaId, 1 ,0 );
@@ -1846,31 +1846,31 @@ void TipsFormatter_AvartaRuneButton::FormatTips( class UGFxObject* SrcObj,  clas
 	UGFxObject* dataObj = GFXPlayer->CreateObject(TEXT("ActionScript3.Tips.SkillTipData"));
 	if( dataObj  )
 	{
-		//技能名称
+		//ability name
 		dataObj->SetString( TEXT("SkillName"), rune->eventGetAbilityName() );
-		//技能等级
+		//ability level
 		FString sLv = FString(" Lv")+ appItoa( rune->SpellCommonAttribute.Level );
 		dataObj->SetString( TEXT("SkillLevel"), sLv );
-		//技能Icon
+		//ability Icon
 		dataObj->SetString( TEXT("IconName"), rune->GetAbilityIconName() );
-		//技能消耗
+		//ability cost
 		dataObj->SetString( TEXT("SkillCost"), UITextParser::HTMLFormatSkillTipCost( rune ));
-		//技能CD
-		FString cd = FString::Printf( TEXT("%.2f秒"), rune->SpellCommonAttribute.SelfCoolDown );
+		//ability CD
+		FString cd = FString::Printf( TEXT("%.2f s"), rune->SpellCommonAttribute.SelfCoolDown );
 		dataObj->SetString( TEXT("CDTime"), cd );
-		//技能装备限定
+		//ability equipment restriction
 		dataObj->SetString( TEXT("SkillLimit"), UITextParser::HTMLFormatSkillTipsLimit( rune )  ); 
-		//技能解锁信息
+		//ability unlock info
 		dataObj->SetString( TEXT("SkillUnlock"), UITextParser::HTMLFormatSkillTipsUnlock( rune ) );
-		//技能描述 去取得主技能的描述
+		//ability description, fetch the main ability's description
 		dataObj->SetString( TEXT("SkillDescribe"), rune->eventGetAbilityDescribe() );
-		//技能伤害 连击
+		//ability damage combo
 		dataObj->SetString( TEXT("SkillDamage"), UITextParser::HTMLFormatSkillTipsDamage( rune ) ); 
-		//当前技能是否装配了符文
+		//whether current ability has a rune equipped
 		dataObj->SetBool( TEXT("HasRune"), FALSE );
-		//是否显示Aid或者下一等级
+		//whether to show Aid or next level
 		dataObj->SetBool( TEXT("HasNext"), FALSE );
-		//是否显示下一级技能 响应按键
+		//whether to show next level ability, respond to key press
 		dataObj->SetBool( TEXT("ShowNext"), FALSE );
 
 	}
@@ -1993,7 +1993,7 @@ void TipsFormatter_EquipSlotEnhance::FormatTips(class UGFxObject* SrcObj,  class
 		FString enhanceLvColor = TEXT("EnhanceLvColor");
 		enhanceLvColor += appItoa( ehcMajorLevel );
 
-		//强化阶段标题
+		//enhancement stage title
 		tipHtml += UITextParser::HTMLBeginParagraph();
 		tipHtml += UITextParser::HTMLBeginFont( UITextParser::GetTipsColor( *enhanceLvColor ), titleFontSize );
 
@@ -2005,13 +2005,13 @@ void TipsFormatter_EquipSlotEnhance::FormatTips(class UGFxObject* SrcObj,  class
 		tipHtml += UITextParser::HTMLEndFont();
 		tipHtml += UITextParser::HTMLEndParagraph();
 
-		//属性激活的强化等级要求
+		//enhancement level requirement for attribute activation
 		tipHtml += UITextParser::HTMLBeginParagraph();
-		//"条件："
+		//"Condition:"
 		tipHtml += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipSlotEnhance.HoleLvRequireTitle") );
 		//
 		//FString fontFormat = UITextParser::HTMLBeginFont( UITextParser::GetTipsColor(TEXT("NormalContentColor")) );
-		//"所有部位强化为"
+		//"All slots enhanced to"
 		//tipHtml += fontFormat;
 		tipHtml += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipSlotEnhance.HoleLvRequire") );
 		//tipHtml += UITextParser::HTMLEndFont();
@@ -2022,7 +2022,7 @@ void TipsFormatter_EquipSlotEnhance::FormatTips(class UGFxObject* SrcObj,  class
 		//
 		tipHtml += UITextParser::HTMLEndParagraph();
 
-		//各属性
+		//each attribute
 		tipHtml += FormatEnhanceProp( pCurHoleLvEhcProp, MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipSlotEnhance.HoleLvPropTitle") ), TEXT("")/*fontFormat*/ );
 	}
 
@@ -2043,7 +2043,7 @@ void TipsFormatter_EquipSlotEnhance::FormatTips(class UGFxObject* SrcObj,  class
 		FString enhanceLvColor = TEXT("EnhanceLvColor");
 		enhanceLvColor += appItoa( ehcMajorLevel );
 
-		//强化阶段标题
+		//enhancement stage title
 		tipHtml += UITextParser::HTMLBeginParagraph();
 		tipHtml += UITextParser::HTMLBeginFont( UITextParser::GetTipsColor( *enhanceLvColor ), titleFontSize );
 
@@ -2055,13 +2055,13 @@ void TipsFormatter_EquipSlotEnhance::FormatTips(class UGFxObject* SrcObj,  class
 		tipHtml += UITextParser::HTMLEndFont();
 		tipHtml += UITextParser::HTMLEndParagraph();
 
-		//属性激活的强化等级要求
+		//enhancement level requirement for attribute activation
 		tipHtml += UITextParser::HTMLBeginParagraph();
-		//"条件："
+		//"Condition:"
 		tipHtml += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipSlotEnhance.HoleLvRequireTitle") );
 		//
 		FString fontFormat = UITextParser::HTMLBeginFont( UITextParser::GetTipsColor(TEXT("DisableColor")) );
-		//"所有部位强化为"
+		//"All slots enhanced to"
 		tipHtml += fontFormat;
 		tipHtml += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipSlotEnhance.HoleLvRequire") );
 		tipHtml += UITextParser::HTMLEndFont();
@@ -2072,7 +2072,7 @@ void TipsFormatter_EquipSlotEnhance::FormatTips(class UGFxObject* SrcObj,  class
 		//
 		tipHtml += UITextParser::HTMLEndParagraph();
 
-		//各属性
+		//each attribute
 		tipHtml += FormatEnhanceProp( pNxtHoleLvEhcProp, MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipSlotEnhance.HoleLvPropTitle") ), fontFormat );
 	}
 
@@ -2116,10 +2116,10 @@ FString TipsFormatter_EquipSlotEnhance::FormatEnhanceProp( const struct EquipSlo
 			if( charCnt < propProfixLenMax ){
 				INT cnt = propProfixLenMax - charCnt;
 				for( INT j = cnt; j > 1; --j ){
-					strHtml += TEXT("    ");//4空格
+					strHtml += TEXT("    ");//4 spaces
 				}
 				if( cnt >= 1 ){
-					strHtml += TEXT("   ");//3空格
+					strHtml += TEXT("   ");//3 spaces
 				}
 			}
 		}
@@ -2170,11 +2170,11 @@ void TipsFormatter_EquipDurability::FormatTips(class UGFxObject* SrcObj,  class 
 	MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 	for( INT i = E_NES_MAIN_HAND; i < E_NES_TOTAL; ++i ){
 		//if( i == E_NES_AVATAR ){
-		//	//暂时没有
+		//	//none for now
 		//	continue;
 		//}
 
-		//其他
+		//other
 		FClientItemInfo* pItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED , i );
 		if( pItemInfo != NULL ){
 			FString equipName;
@@ -2242,7 +2242,7 @@ void TipsFormatter_EquipDurability::FormatTips(class UGFxObject* SrcObj,  class 
 		tipHtml += TEXT("<br>");
 	}
 
-	//当前修理费
+	//current repair fee
 	if( curDurLowCnt > 0  ){
 		tipHtml += UITextParser::HTMLNewLine();
 		tipHtml += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EquipDurability.RepairCostTitle") );

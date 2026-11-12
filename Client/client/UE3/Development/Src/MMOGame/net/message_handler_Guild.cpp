@@ -247,7 +247,7 @@ void CMessageHandler::Send_RefreshWarehouse( INT tabID )
 
 void CMessageHandler::Send_GuildPushItem(UINT8 srcConSlot, UINT8 srcSlot, UINT8 dstConSlot, UINT8 dstSlot)
 {
-	//放入仓库
+	//Put into warehouse
 	C2G_GUILD_PUSH_ITEM msg;
 	msg.wMsg = c2g_guild_push_item;
 	msg.wItemConSlot = srcConSlot;
@@ -566,7 +566,7 @@ void CMessageHandler::Parse_m2c_guild_storage_event(const char* buf, UINT32 size
 			MMOGuildData::getSingleton().AddAccessInfo(msg->info[i].dwRoleID, RoleName, iteminfo.m_nTemplateID, curCount, msg->info[i].dwTime, msg->info[i].byType);
 		}	
 	}
-	//如果名字齐全就立即更新了，不然就等名字信息齐全后更新
+	//If names are complete update immediately, otherwise update once name info is complete
 	if(fullPlayerName)
 	{
 		MMOUI::GetUIManager()->delegateUpdateAccessInfo();
@@ -589,7 +589,7 @@ void CMessageHandler::Parse_m2c_guild_info_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_INFO_NTF* msg = (M2C_GUILD_INFO_NTF*)buf;
 
-	// 公会基本信息
+	// Guild basic info
 	GuildBaseInfo baseInfo;
 	baseInfo.Id = msg->dwGuildID;
 	baseInfo.Name = UTF8_TO_TCHAR(msg->szGuildName);
@@ -607,19 +607,19 @@ void CMessageHandler::Parse_m2c_guild_info_ntf(const char* buf, UINT32 size)
 	baseInfo.Prosperity = msg->nProsperity;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildBaseInfo(baseInfo);
 
-	// 正是成员列表(部分公会信息是在成员列表里刷新的(人数,功勋))
+	// Actually the member list (some guild info is refreshed in the member list (member count, merit))
 	MMOGuildManager::getSingleton().NotifyUpdateGuildFullMemberList(msg->arrMemberData, msg->byMemberCount);
 
-	// 把自己的公会信息添加到查询列表里
+	// Add own guild info to the query list
 	MMOGuildManager::getSingleton().QueryGuildInfo(msg->dwGuildID);
 
-	// 公会公告
+	// Guild announcement
 	MMOGuildManager::getSingleton().NotifyUpdateGuildNotice(UTF8_TO_TCHAR(msg->szNotice));
 
-	//通知信息变更
+	//Notify info change
 	MMOFacade::getSingleton().NotifyPlayerBaseInfoChange();
 
-	// 公会事件
+	// guild event
 	MMOGuildManager::getSingleton().NotifyUpdateGuildEvents(msg->stEventInfo.stEventInfo, msg->stEventInfo.byEventCount);
 	MMOGuildManager::getSingleton().NotifyUpdateGuildMoneyEvents(msg->stChestInfo.stEvent, msg->stChestInfo.byCount);
 	UMMOUIGuildMainPanel* panel = (UMMOUIGuildMainPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_Guild_Main);
@@ -628,37 +628,37 @@ void CMessageHandler::Parse_m2c_guild_info_ntf(const char* buf, UINT32 size)
 		panel->eventCallUpdateViewMoreHistoryState(TRUE);
 	}
 
-	// 仓库权限
+	// Warehouse permission
 	for (INT i = 0; i < GUILD_POSITION_COUNT; ++ i)
 	{
 		MMOGuildManager::getSingleton().NotifyUpdateGuildStorageRights(i + 1, msg->wStorageRight[i]);
 	}
 
-	// 公会变量
+	// Guild variable
 	for (INT i = 0; i < MAX_GUILD_VARIABLE_COUNT; ++ i)
 	{
 		MMOGuildManager::getSingleton().NotifyUpdateGuildAttr(i, msg->arrVariables[i]);
 	}
 
-	// 公会俸禄
+	// Guild salary
 	//MMOGuildManager::getSingleton().NotifyUpdateGuildSalaryPercent(msg->bySalaryPercent);
 
-	// 公会外交
+	// guild diplomacy
 	MMOGuildManager::getSingleton().NotifyUpdateGuildAllyList(msg->stAlliance, msg->byAllianceCount);
 	MMOGuildManager::getSingleton().NotifyUpdateGuildEnemyList(msg->stEnemy, msg->byEnemyCount);
 
-	// 公会建筑
+	// guild building
 	MMOGuildManager::getSingleton().NotifyUpdateGuildBuildingList(msg->arrBData);
 //	MMOGuildManager::getSingleton().NotifyUpdateGuildBuildingUpgradeList(msg->arrBUData);
 
-	// 公会福利
+	// guild welfare
 	MMOGuildManager::getSingleton().NotifyUpdateGuildWelfareList(msg->arrWelfareAuraLvl, msg->arrWelfareUpgradeAuraID, msg->arrWelfareAuraUpgradeTime);
 
-	// 公会战
-//	MMOGuildManager::getSingleton().NotifyGuildWarRelation(msg->dwAttackGuildID, msg->dwDefendGuildID); // “我宣战的”和“向我宣战的”
+	// guild war
+//	MMOGuildManager::getSingleton().NotifyGuildWarRelation(msg->dwAttackGuildID, msg->dwDefendGuildID); // "I declared war on" and "declared war on me"
 //	MMOGuildManager::getSingleton().NotifyGuildWarCD(msg->nGuildWarAttackTime);
 
-	// 请求公会成就信息
+	// request guild achievement info
 	CMessageHandler::GetInstance().Send_GuildAchievement();
 }
 
@@ -716,7 +716,7 @@ void CMessageHandler::Parse_m2c_get_apply_guild_list_ack(const char* buf, UINT32
 void CMessageHandler::Parse_m2c_revert_guild_apply_ack(const char* buf, UINT32 size)
 {
 	M2C_REVERT_GUILD_APPLY_ACK* msg = (M2C_REVERT_GUILD_APPLY_ACK*)buf;
-	// 同意和拒绝都会收到回复
+	// Both accept and reject will receive a reply
 	CMessageHandler::GetInstance().Send_GetApplyGuildList();
 }
 
@@ -729,7 +729,7 @@ void CMessageHandler::Parse_m2c_guild_add_member_ntf(const char* buf, UINT32 siz
 void CMessageHandler::Parse_m2c_guild_del_member_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_DEL_MEMBER_NTF* msg = (M2C_GUILD_DEL_MEMBER_NTF*)buf;
-	// 服务器不用了
+	// Server no longer uses it
 }
 
 void CMessageHandler::Parse_m2c_be_invited_to_join_guild(const char* buf, UINT32 size)
@@ -923,12 +923,12 @@ void CMessageHandler::Parse_m2c_sync_social_attr_ntf(const char* buf, UINT32 siz
 	M2C_SYNC_SOCIAL_ATTR_NTF* msg = (M2C_SYNC_SOCIAL_ATTR_NTF*)buf;
 
     if (msg->byLevel == 0)  
-    {// 如果是0，表示下线消息。 不更新等级和地图，只更新离线时间
+    {// If 0, it is an offline message. Do not update level and map, only update offline time
 		UINT32 lastLoginTime = msg->dwValue;
 		MMOGuildManager::getSingleton().NotifyUpdateGuildFullMemberData(msg->dwRoleID, 0, 0, lastLoginTime);
     }
     else 
-    {// 如果非0， 表示等级or地图更新消息。 没有离线时间
+    {// If non-0, it is a level or map update message. No offline time
 		UINT32 mapId = msg->dwValue;
 		MMOGuildManager::getSingleton().NotifyUpdateGuildFullMemberData(msg->dwRoleID, msg->byLevel, mapId, 0);
     }
@@ -938,7 +938,7 @@ void CMessageHandler::Parse_g2c_sync_guild_name(const char* buf, UINT32 size)
 {
 	G2C_SYNC_GUILD_NAME* msg = (G2C_SYNC_GUILD_NAME*)buf;
 
-	// 把更新名字的公会信息添加到查询列表里
+	// Add the guild info of the updated name to the query list
 	if (msg->dwGuildID > 0)
 	{
 		MMOGuildManager::getSingleton().NotifyUpdateActorGuildTitle(msg->dwRoleID, TEXT(""), msg->dwGuildID);
@@ -1027,7 +1027,7 @@ void CMessageHandler::Parse_m2c_guild_sync_war_stage_ntf(const char* buf, UINT32
 {
     // todo_zhangrui war
 	//M2C_GUILD_SYNC_WAR_STAGE_NTF* msg = (M2C_GUILD_SYNC_WAR_STAGE_NTF*)buf;
-	//// 战斗双方的名字
+	//// Names of both combatants
 	//MMOGuildManager::getSingleton().NotifyGuildWarState(msg->byStage,
 	//	msg->dwIntruderID,
 	//	UTF8_TO_TCHAR(msg->szIntruderName),
@@ -1063,7 +1063,7 @@ void CMessageHandler::Parse_m2c_guild_sync_war_cd_ntf(const char* buf, UINT32 si
 void CMessageHandler::Parse_g2c_guild_contribute_ack(const char* buf, UINT32 size)
 { 
 	G2C_GUILD_CONTRIBUTE_ACK* msg = (G2C_GUILD_CONTRIBUTE_ACK*)buf;
-	// 这里废掉了，统一走M2C_GUILD_CONTRIBUTE_ACK
+	// Deprecated here, now goes through M2C_GUILD_CONTRIBUTE_ACK
 	//MMOGuildManager::getSingleton().NotifyGuildContributeSuccess(GUILD_ATTR_MONEY, msg->nMoney);
 }
 
@@ -1085,7 +1085,7 @@ void CMessageHandler::Parse_m2c_guild_matching_guild_ack(const char* buf, UINT32
 	//M2C_GUILD_MATCHING_GUILD_ACK* msg = (M2C_GUILD_MATCHING_GUILD_ACK*)buf;
 
 	//MMOGuildManager::getSingleton().QueryGuildInfo(msg->dwGuildID);
-	//// 查询成员名字
+	//// Query member name
 	//MMOFacade::getSingleton().RequestPlayerBaseInfo(msg->dwRoleID);
 
 	//GuildViewInfo info;
@@ -1117,7 +1117,7 @@ void CMessageHandler::Parse_m2c_more_guild_info_ack(const char* buf, UINT32 size
 	MMOGuildManager::getSingleton().NotifyUpdateMoreGuildInfo(msg->nMatchWarConsumption, msg->byMatchCount);
 }
 
-// 比奇争霸战
+// Bichon supremacy war
 void CMessageHandler::Parse_m2c_enroll_sabac(const char* buf, UINT32 size)
 { 
 	M2C_ENROLL_SABAC* msg = (M2C_ENROLL_SABAC*)buf;
@@ -1136,7 +1136,7 @@ void CMessageHandler::Parse_m2c_occupy_sabac(const char* buf, UINT32 size)
 
 	if (MMO::GetCurrentGameState() == EGameState_InGame)
 	{
-		// 服务器约定，当发送old == new的时候，表示沙巴克结束
+		// Server convention: when old == new is sent, it means Sabak ended
 		if (msg->dwOldGuildID == msg->dwNewGuildID)
 		{
 			MMOGuildManager::getSingleton().NotifySabacEnd(msg->dwOldGuildID, msg->dwNewGuildID);
@@ -1192,7 +1192,7 @@ void CMessageHandler::Parse_m2c_erect_statue(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_guild(const char* buf, UINT32 size)
 {
 	G2C_SYNC_GUILD* msg = (G2C_SYNC_GUILD*)buf;
-	// 服务器这里发的其实是CD的结束时间
+	// What the server sends here is actually the CD end time
 	MMOGuildManager::getSingleton().NotifyGuildLeaveCD(msg->dwCD);
 }
 

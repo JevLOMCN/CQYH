@@ -49,7 +49,7 @@ INT AttackClassX::GetBlockActorNumBetweenDesireMMOActor()
 		FVector Src = FSM::Char.MainPlayer->ServerLocation;
 		FVector Des = FSM::Target.DesireMMOActor->ServerLocation;
 		FLOAT Dis = (Des - Src).Size2D();
-		if (Dis > 210.0f)//目标与自己之间有格子
+		if (Dis > 210.0f)//there is a grid cell between target and self
 		{
 			ZONE_DATA* pSrcZone = NULL;
 			GRID_DATA* pSrcGrid = NULL;
@@ -85,7 +85,7 @@ INT AttackClassX::GetGridAttackbleActor(FVector Des)
 		{
 			AActor* pActor = *(ppActorList+i);
 			
-			//半月和刺杀的判定，不管可否攻击
+			//Half Moon and Assassinate checks, regardless of whether attack is possible
 			if(pActor && pActor->IsA(AMMOPlayer::StaticClass()))
 			{
 				AttackbleActorNum++;
@@ -156,7 +156,7 @@ void  AttackClassX::UpdateDynamicPos(FVector DesPos, UBOOL b3x3)
 			}
 			else
 			{
-				_in8Dir = TRUE;//如果是3*3的目标点，则认为基本都是在八方向的
+				_in8Dir = TRUE;//if the target is a 3*3 area, it is considered mostly in the eight directions
 			}
 		}
 	}
@@ -174,7 +174,7 @@ UBOOL AttackClassX::GetBanYueCondition(FVector Des,INT nRange)
 		Index[3] = (Index[0]+2)%8;
 		Index[4] = (Index[0]+6)%8;
 		INT NearbyAttackbleActor = 0;
-		//五个临近格子
+		//Five adjacent grid cells
 		for(INT k=0;k<5;k++){
 			FVector pos1 = gServerGridWorld.GetNearbyGridPos(_pMainPlayer->ServerLocation,Index[k]);
 			NearbyAttackbleActor += GetGridAttackbleActor(pos1);
@@ -185,7 +185,7 @@ UBOOL AttackClassX::GetBanYueCondition(FVector Des,INT nRange)
 		}
 
 		if(nRange==1)return FALSE;
-		//五个临近格子外延格子
+		//Outer cells of the five adjacent grid cells
 		FVector LinkPos[5];
 		for(INT k=0;k<5;k++){
 			FVector pos1 = LinkPos[k] = gServerGridWorld.GetNearbyGridPos(_pMainPlayer->ServerLocation,Index[k],2.0f);
@@ -195,7 +195,7 @@ UBOOL AttackClassX::GetBanYueCondition(FVector Des,INT nRange)
 				return TRUE;
 			}
 		}
-		//四个外延间隔格子
+		//Four outer gap cells
 		INT Link[4][2] = {0,1,	0,2,	1,3,	2,4  };
 		for(INT k=0;k<4;k++){
 			FVector pos1 = LinkPos[Link[k][0]];
@@ -234,7 +234,7 @@ UBOOL AttackClassX::GetCiShaCondition(FVector Des,UBOOL bEx)
 			return TRUE;
 		}
 		
-		if(bEx && FSM::Target.DesireMMOActor && FSM::Target.DesireMMOActor->isMoving && Index%2==0)	//轴向方向起效
+		if(bEx && FSM::Target.DesireMMOActor && FSM::Target.DesireMMOActor->isMoving && Index%2==0)	//takes effect along the axis direction
 		{
 			FVector pos2 = gServerGridWorld.GetNearbyGridPos(_pMainPlayer->ServerLocation,Index>=0?Index:Index+8,3.0f);
 			INT NearbyAttackbleActor2 = GetGridAttackbleActor(pos2);
@@ -353,10 +353,10 @@ UBOOL AttackClassA::DoAIAbility()
 	return FALSE;
 }
 
-UMMOAbility* AttackClassA::_CanUseZhuRi()//逐日剑法
+UMMOAbility* AttackClassA::_CanUseZhuRi()//Sun Chasing Swordplay
 {
 	UBOOL bZhuRi = AbilityFlag[EAT_FLAG_ZHURI];
-	if(bZhuRi)//逐日剑法
+	if(bZhuRi)//Sun Chasing Swordplay
 	{
 		UMMOAbility *pZhuRiSwitch = MMOFacade::getSingleton().FindMyUsableSkill(1038);
 		if(pZhuRiSwitch)
@@ -397,10 +397,10 @@ UMMOAbility* AttackClassA::_CanUseZhuRi()//逐日剑法
 	return NULL;
 }
 
-UMMOAbility* AttackClassA::_CanUseLieHuo()//烈火剑法
+UMMOAbility* AttackClassA::_CanUseLieHuo()//Flaming Swordplay
 {
 	UBOOL bLieHuo = AbilityFlag[EAT_FLAG_LIEHUO];
-	if(bLieHuo)//烈火剑法
+	if(bLieHuo)//Flaming Swordplay
 	{
 		if(FSM::Target.DesireMMOActor)
 		{
@@ -434,7 +434,7 @@ UMMOAbility* AttackClassA::_CanUseLieHuo()//烈火剑法
 	return NULL;
 }
 
-UMMOAbility* AttackClassA::_CanUseGongSha()//攻杀剑法
+UMMOAbility* AttackClassA::_CanUseGongSha()//Slaying Swordplay
 {
 	UBOOL bGongSha = FALSE;
 	if(FSM::Char.MainPlayer&&FSM::Target.DesireMMOActor)
@@ -448,7 +448,7 @@ UMMOAbility* AttackClassA::_CanUseGongSha()//攻杀剑法
 		}
 	}
 
-	if(bGongSha)//攻杀剑法
+	if(bGongSha)//Slaying Swordplay
 	{
 		UMMOAbility *pGongShaSwitch = MMOFacade::getSingleton().FindMyUsableSkill(1032);
 		if(pGongShaSwitch)
@@ -464,11 +464,11 @@ UMMOAbility* AttackClassA::_CanUseGongSha()//攻杀剑法
 	return NULL;
 }
 
-UMMOAbility* AttackClassA::_CanUseBanYue()//半月剑法
+UMMOAbility* AttackClassA::_CanUseBanYue()//Half Moon Swordplay
 {
 	UBOOL bBanYue = AbilityFlag[EAT_FLAG_BANYUE];
 	UBOOL bBanYueUAttack = FALSE;
-	if(bBanYue)//半月剑法
+	if(bBanYue)//Half Moon Swordplay
 	{
 		//UMMOAbility* pBanYue = MMOFacade::getSingleton().FindMyUsableSkill(1432);
 		UMMOAbility *pBanYueSwitch = MMOFacade::getSingleton().FindMyUsableSkill(1034);	//GetEquippedSkillBySkillID( 1034 );
@@ -507,11 +507,11 @@ UMMOAbility* AttackClassA::_CanUseBanYue()//半月剑法
 	return NULL;
 }
 
-UMMOAbility* AttackClassA::_CanUseCiSha(UBOOL bEx)//刺杀剑法
+UMMOAbility* AttackClassA::_CanUseCiSha(UBOOL bEx)//Assassinate Swordplay
 {
 	UBOOL bCiSha = AbilityFlag[EAT_FLAG_CISHA];
 	
-	if(bCiSha)//刺杀剑法
+	if(bCiSha)//Assassinate Swordplay
 	{
 
 		UMMOAbility *pCiShaSwitch = MMOFacade::getSingleton().FindMyUsableSkill(1033);//GetEquippedSkillBySkillID(1033);
@@ -537,7 +537,7 @@ UMMOAbility* AttackClassA::_CanUseCiSha(UBOOL bEx)//刺杀剑法
 	}
 
 	UBOOL bDaoDaoCiSha = FSM::Ctrl.ctrlFlag_DDCS ;
-	if(bDaoDaoCiSha)//刀刀刺杀
+	if(bDaoDaoCiSha)//Every-blade Assassinate
 	{
 		UMMOAbility *pCiShaSwitch = MMOFacade::getSingleton().FindMyUsableSkill(1033);//GetEquippedSkillBySkillID(1033);
 		if(pCiShaSwitch)
@@ -632,7 +632,7 @@ UMMOAbility* AttackClassA::GetPrimaryAbility()
 		return pResAbility;
 	}
 
-	//用last在判定一下
+	//Judge again using last
 	if(FSM::Target.DesireMMOActor && FSM::Target.DesireMMOActor->isMoving)
 	{
 		AttackPos = FSM::Target.DesireMMOActor->LastServerLocation;
@@ -659,7 +659,7 @@ UMMOAbility* AttackClassA::GetPrimaryAbility()
 		{
 			return pResAbility;
 		}
-		//任务 #22162,刺杀剑术不再检测LastServerLocation，其它不变
+		//Task #22162, Assassinate no longer checks LastServerLocation, everything else unchanged
 		//pResAbility = _CanUseCiSha(TRUE);
 		//if(pResAbility)
 		//{
@@ -667,7 +667,7 @@ UMMOAbility* AttackClassA::GetPrimaryAbility()
 		//}
 	}
 
-	//普攻
+	//Normal attack
 	pResAbility = MMOFacade::getSingleton().FindMyUsableSkill(1030);
 	if(pResAbility && pResAbility->CanUseManaCheck(_pMainPlayer))
 	{
@@ -1298,7 +1298,7 @@ void Mir2Attack::UpdateItemSubType(FClientItemInfo* newInfo,UItem* item)
 {
 	if(newInfo&&item)
 	{
-		//纯属加速行为，可以去除此段代码------------------------------------------
+		//Purely a speed-up behavior, this code section can be removed------------------------------------------
 		switch (newInfo->m_nTemplateID)
 		{
 		case 40011:	case 40012:	case 40013:	case 40014:
@@ -1310,19 +1310,19 @@ void Mir2Attack::UpdateItemSubType(FClientItemInfo* newInfo,UItem* item)
 			return;
 		};
 
-		//add by JimZhang 2015.4.10 目前只有---------------------------------------
+		//add by JimZhang 2015.4.10 currently only---------------------------------------
 		if (item->ItemType == TEXT("ITEMTYPE_USABLE"))
 		{
 			if (item->ItemSubType == TEXT("ITEMSUBTYPE_USABLE_YELLOW_POWDER"))
-			{ //黄色药粉
+			{ //yellow powder
 				newInfo->ItemSubTypeNum = ITEMSUBTYPE_USABLE_YELLOW_POWDER;
 			}
 			else if (item->ItemSubType == TEXT("ITEMSUBTYPE_USABLE_GREY_POWDER"))
-			{ //灰色药粉
+			{ //gray powder
 				newInfo->ItemSubTypeNum = ITEMSUBTYPE_USABLE_GREY_POWDER;
 			}
 			else if (item->ItemSubType == TEXT("ITEMSUBTYPE_USABLE_RUNE"))
-			{	//护身符
+			{	//amulet
 				newInfo->ItemSubTypeNum = ITEMSUBTYPE_USABLE_RUNE;
 			}
 			else if (item->ItemSubType == TEXT("ITEMSUBTYPE_USABLE_QUIVER"))
@@ -1481,12 +1481,12 @@ FLOAT Mir2Attack::GetNpcMoveSpeedTime(AMMOActor* actor,UBOOL bRun,FLOAT defaultT
 		{
 			INT nTemplateID = npc->GetTemplateID();
 			INT nPetLevel = npc->ActorAttributes->PetLevel;
-			if(nTemplateID==9291 || nTemplateID==9298)//神兽
+			if(nTemplateID==9291 || nTemplateID==9298)//divine beast
 			{
 				INT nMTime = 500 - (nPetLevel<=3 ? nPetLevel*50 : 150);
 				return FLOAT(nMTime)/1000.0f;
 			}
-			else if(nTemplateID==9290 || nTemplateID==9292)//骷髅
+			else if(nTemplateID==9290 || nTemplateID==9292)//skeleton
 			{
 				INT nMTime = 1200 - (nPetLevel<=3 ? nPetLevel*250 : 750);
 				return FLOAT(nMTime)/1000.0f;

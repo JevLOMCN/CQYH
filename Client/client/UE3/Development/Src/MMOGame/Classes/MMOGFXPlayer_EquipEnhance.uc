@@ -19,7 +19,7 @@ function RegisterEquipEnhance( MMOUIEquipEnhance mc )
 // 	MMOUI::RegisterMoviePlayer(class'MMOUIManager'.default.MoviePlayer_EquipEnhance);
 // }
 
-////装备强化
+////Equipment enhancement
 //function ToggleEquipEnhance()
 //{
 //	if( !_EquipEnhance.IsVisible ){

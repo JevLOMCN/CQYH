@@ -120,7 +120,7 @@ public:
 	const ServerShopItemData* GetCurShopItem( INT itemIdx );
 	ServerShopItemData* GetCurShopItemByItemTempId( INT itemTempId );
 
-	//现在从服务器来了
+	//Now it comes from the server
 	void AddShopItem( INT count , NPC_SHOP_DATA* data );
 	void SetCrc( UINT32 crc ){ _crc = crc; }
 	UINT32 GetCrc(){ return _crc; }
@@ -159,7 +159,7 @@ public:
 protected:
 
 	ShopDataMap _shopDataMap;
-	ShopDataMap _blackMarketDataMap;//黑市
+	ShopDataMap _blackMarketDataMap;//black market
 
 	UINT32 _crc;
 	UBOOL _hasCheckShopCrc;

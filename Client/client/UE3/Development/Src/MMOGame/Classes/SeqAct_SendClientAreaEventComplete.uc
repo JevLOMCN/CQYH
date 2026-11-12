@@ -1,5 +1,5 @@
 
-// 客户端看完电影后发这个协议，告诉服务器哪个区域ID
+// the client sends this message after finishing the movie, telling the server which area ID
 
 class SeqAct_SendClientAreaEventComplete extends SequenceAction
 	native;

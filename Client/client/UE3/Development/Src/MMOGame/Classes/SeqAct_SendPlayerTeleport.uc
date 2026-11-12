@@ -1,4 +1,4 @@
-// ·¢ËÍÍæ¼ÒÎ»ÒÆ
+// send player displacement
 
 class SeqAct_SendPlayerTeleport extends SequenceAction
 	native;

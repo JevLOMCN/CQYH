@@ -1,6 +1,6 @@
 /**
  *
- *传奇攻击判定Ai
+ *Legend attack decision Ai
  *
  */
 
@@ -58,12 +58,12 @@ public:
 	void Update(FLOAT fDeltaTime);
 
 private:
-	UMMOAbility* _CanUseZhuRi();//逐日剑法
-	UMMOAbility* _CanUseLieHuo();//烈火剑法
-	UMMOAbility* _CanUseGongSha();//攻杀剑法
-	UMMOAbility* _CanUseBanYue();//半月剑法
-	UMMOAbility* _CanUseCiSha(UBOOL bEx);//刺杀剑法
-	UMMOAbility* _CanUsePuGong();//普攻剑法
+	UMMOAbility* _CanUseZhuRi();//Sun Chasing Swordplay
+	UMMOAbility* _CanUseLieHuo();//Flaming Swordplay
+	UMMOAbility* _CanUseGongSha();//Slaying Swordplay
+	UMMOAbility* _CanUseBanYue();//Half Moon Swordplay
+	UMMOAbility* _CanUseCiSha(UBOOL bEx);//Assassinate Swordplay
+	UMMOAbility* _CanUsePuGong();//Normal attack swordplay
 
 };
 
@@ -133,10 +133,10 @@ public:
 	void PreRotate(FVector DesPos);
 	FLOAT GetNpcMoveSpeedTime(AMMOActor* actor,UBOOL bRun,FLOAT defaultTime); 
 
-	//进入游戏
+	//Enter game
 	void OnEnterGame(UBOOL bEnter);
 
-	// 内挂练功
+	// Auto-play training
 	void AutoPractice(UINT16 AbilityID, UINT8 deltaTime, UBOOL bOpen);
 	UINT16 GetAutoPracticeAbilityID() { return m_PracticeAbilityID; }
 	UINT8 GetAutoPracticeTime() { return m_PracticeDeltaTime; }
@@ -152,7 +152,7 @@ private:
 
 public:
 	UINT16		m_PracticeAbilityID;
-	UINT8		m_PracticeDeltaTime;		// 限制16位，方便存取ClientVariable
+	UINT8		m_PracticeDeltaTime;		// limited to 16 bits, convenient for storing in ClientVariable
 	FLOAT		m_PracticeTime;
 	UBOOL		m_bPracticeOpen;
 	UBOOL		m_TryToMine;

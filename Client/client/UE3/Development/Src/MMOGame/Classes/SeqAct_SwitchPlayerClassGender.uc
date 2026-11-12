@@ -1,7 +1,7 @@
 class SeqAct_SwitchPlayerClassGender extends SequenceAction
 	native;
 
-// 这个值用于在编辑器中测试用哪个输出
+// this value is used in the editor to test which output to use
 var() ECHAR_CLASS_TYPE PIETestClassType;
 var() EGenderType PIETestGender;
 

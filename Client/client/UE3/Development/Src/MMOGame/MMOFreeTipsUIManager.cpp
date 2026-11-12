@@ -165,7 +165,7 @@ void MMOFreeTipsUIManager::CallUCSetFreeTips(UMMOUIBase* pPanel, FString Elem1,F
 	if(pPanel){
 		TArray<struct FASValue> Arguments;
 
-		Arguments.AddZeroed( 6 ); //参数数量
+		Arguments.AddZeroed( 6 ); //number of arguments
 		Arguments(0).S = Elem1;
 		Arguments(0).Type = AS_String;
 

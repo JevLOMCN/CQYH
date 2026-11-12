@@ -1,5 +1,5 @@
 
-// 服务器区域事件通知
+// server area event notification
 
 class SeqEvent_Server_AreaChange extends SequenceEvent;
 

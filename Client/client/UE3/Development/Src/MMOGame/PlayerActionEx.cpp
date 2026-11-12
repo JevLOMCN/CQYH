@@ -36,7 +36,7 @@ FString UPlayerActionEx_Base::Dump()
 
 void UPlayerActionEx_Base::Update(FLOAT DeltaTime)
 {
-	// 生命周期交给行为自己控制, 统一控制有风险
+	// lifecycle is controlled by the behavior itself, unified control is risky
 //	if (!bStart)
 //	{
 //		PassedTime += DeltaTime;
@@ -120,7 +120,7 @@ void UPlayerActionEx_MoveTo::Update(FLOAT DeltaTime)
 		return;
 	}
 
-	if(bStart==FALSE && bEnd==FALSE)//二次触发，等待触发
+	if(bStart==FALSE && bEnd==FALSE)//second trigger, wait for trigger
 	{
 		if(MainPlayer->CanMove())
 		{
@@ -309,7 +309,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 
 	if (bOn)
 	{
-//		warnf(NAME_Warning, TEXT("====================================进入释放技能技能流程"));
+//		warnf(NAME_Warning, TEXT("====================================enter cast ability flow"));
 
 		bStart = TRUE;
 		bEnd = TRUE;
@@ -319,7 +319,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 			bEnd = TRUE;
 			//debugf(L"1 AbilityOnAction Set bEnd = true");
 #ifdef DEBUG_SYNC_INFO
-			warnf(TEXT("取消技能-----------ID:%d"),AbilityToUse->SpellCommonAttribute.Id);
+			warnf(TEXT("Cancel ability-----------ID:%d"),AbilityToUse->SpellCommonAttribute.Id);
 #endif
 			CMessageHandler::GetInstance().SendRequestCancelAbility(AbilityToUse->SpellCommonAttribute.Id);// >SlotHotKeyID);
 			ActionOwner->WaitingForTheAbilityBuf = -1.0f;
@@ -332,7 +332,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 		{
 			bStart = TRUE;
 			bEnd = TRUE;
-			//动态检测主键技能的替换
+			//dynamically detect replacement of main-key ability
 			if(bPrimAttackDynamicAbility)
 			{
 				UMMOAbility* pAbility = Mir2Attack::getSingleton().GetPrimaryAbility();
@@ -346,7 +346,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 			if(bAbilityEnable==FALSE)
 			{
 #ifdef DEBUG_SYNC_INFO
-				warnf(NAME_Warning, TEXT("============================ 到了释放技能的时候，不能释放技能"));
+				warnf(NAME_Warning, TEXT("============================ Time to cast the ability, but it cannot be cast"));
 #endif
 				return;
 			}
@@ -367,16 +367,16 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 			}
 
 			Target = NULL;
-			if(targetActorID==0 && TemplateID>0)//无锁定目标，但是有锁定的模板ID，则自动寻找最近的目标
+			if(targetActorID==0 && TemplateID>0)//no locked target but a locked template ID, so automatically find the nearest target
 			{
 				Target = MMOFacade::getSingleton().GetMainController()->GetClosedMMOActorByTempleteID(TemplateID);
 				if(Target==NULL)
 				{
-					//找不到目标，取消施放技能
+					//target not found, cancel casting ability
 					return;
 				}
 			}
-			else if(targetActorID>0)//有锁定目标的时候
+			else if(targetActorID>0)//when there is a locked target
 			{
 				if(targetActorType==1)
 				{
@@ -387,7 +387,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 					Target = MMOFacade::getSingleton().GetCharacter(targetActorID);
 					if(Target==NULL)
 					{
-						//目标已经消失，取消施放技能
+						//target has disappeared, cancel casting ability
 						return;
 					}
 				}
@@ -395,7 +395,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 
 
 #ifdef DEBUG_SYNC_INFO
-			warnf(TEXT("施放技能-----------ID:%d, TargetID:%d, CurrentAbilityState:%d, CurAbilityId:%d"),AbilityToUse->SpellCommonAttribute.Id, Target!=NULL ? Target->ServerID : 0,  ActionOwner->GetPlayer()->CurrentAbilityState,  FSM::Ability.CurrentAbility?FSM::Ability.CurrentAbility->SpellCommonAttribute.Id:0 );
+			warnf(TEXT("Cast ability-----------ID:%d, TargetID:%d, CurrentAbilityState:%d, CurAbilityId:%d"),AbilityToUse->SpellCommonAttribute.Id, Target!=NULL ? Target->ServerID : 0,  ActionOwner->GetPlayer()->CurrentAbilityState,  FSM::Ability.CurrentAbility?FSM::Ability.CurrentAbility->SpellCommonAttribute.Id:0 );
 #endif
 
 			if(AbilityToUse->SpellCommonAttribute.CanMoveInPrepare==FALSE)
@@ -404,7 +404,7 @@ void UPlayerActionEx_UseAbility::OnAction(UBOOL bOn)
 			}
 
 
-//			warnf(NAME_Warning, TEXT("====================================释放技能"));
+//			warnf(NAME_Warning, TEXT("====================================cast ability"));
 			
 
 			INT SerialID = ActionOwner->RequestUseAbilityEx(
@@ -871,7 +871,7 @@ UBOOL UPlayerActionEx_Compositor::IsMoveAction()
 {
 	//for (INT i = 0; i < PlayerActionList.Num(); ++i)
 	//{
-	//	// 没有完成，并且当前正在移动，就可以被中断
+	//	// not finished and currently moving, can be interrupted
 	//	if(!PlayerActionList(i)->IsCompleted() 
 	//		&& PlayerActionList(i)->IsMoveAction())
 	//	{
@@ -983,7 +983,7 @@ void UPlayerActionEx_MoveNearTo::Update(FLOAT DeltaTime)
 				if(Mir2Attack::getSingleton().InPrimaryAbilityRange(pTargetActor->ServerLocation,pTargetActor->BodySize>=E_body_3x3))
 				{
 					bEnd = TRUE;
-					warnf(NAME_Warning, TEXT("====================================追击进入主技能射程"));
+					warnf(NAME_Warning, TEXT("==================================== chase entered main ability range"));
 					return; 
 				}
 
@@ -995,7 +995,7 @@ void UPlayerActionEx_MoveNearTo::Update(FLOAT DeltaTime)
 						if(Mir2Attack::getSingleton().InPrimaryAbilityRange(pTargetActor->LastServerLocation,pTargetActor->BodySize>=E_body_3x3))
 						{
 							bEnd = TRUE;
-							warnf(NAME_Warning, TEXT("====================================准备空挥刀！！！！"));
+							warnf(NAME_Warning, TEXT("==================================== preparing an empty swing!!!!"));
 							return; 
 						}
 					}
@@ -1003,7 +1003,7 @@ void UPlayerActionEx_MoveNearTo::Update(FLOAT DeltaTime)
 			}
 			else
 			{
-				warnf(NAME_Warning, TEXT("====================================追击攻击，交界锁定时间"));
+				warnf(NAME_Warning, TEXT("==================================== chase attack, border lock time"));
 			}
 			//FVector VirtualDes = pTargetActor->ServerLocation-actor->ServerLocation;
 			//VirtualDes.Z = 0.0f;
@@ -1029,7 +1029,7 @@ void UPlayerActionEx_MoveNearTo::Update(FLOAT DeltaTime)
 				if(FollowFlag==FALSE)
 				{
 					bEnd = TRUE;
-					warnf(NAME_Warning, TEXT("====================================追击进入射程"));
+					warnf(NAME_Warning, TEXT("==================================== chase entered range"));
 					return; 
 				}
 				else
@@ -1582,7 +1582,7 @@ void UPlayerActionEx_MoveNearToPoint::Update(FLOAT DeltaTime)
 		CheckTime-=DeltaTime;
 		if(FSMIO::getSingleton().Trigger.GetWaitingSendMove())
 		{
-			//重新发送
+			//resend
 			if(CheckTime<0.0 && MMOFacade::getSingleton().GetMainActor()->CanMove()){
 				ActionOwner->NativeMoveToPoint(Destination,TRUE);
 				CheckTime = 0.125f;
@@ -1675,7 +1675,7 @@ void UPlayerActionEx_WaitingForClearCache::Update(FLOAT DeltaTime)
 			g_PreMovetoPoint = FALSE;
 			bEnd = TRUE;
 #ifdef DEBUG_SYNC_INFO
-			warnf(TEXT("清除技能缓存回应-------------------------") );
+			warnf(TEXT("Clear ability cache response-------------------------") );
 #endif
 
 			return;

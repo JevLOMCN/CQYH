@@ -1,5 +1,5 @@
 //
-// 设置物体的缩放
+// set the object's scale
 //
 class SeqAct_SetScale extends SequenceAction;
 

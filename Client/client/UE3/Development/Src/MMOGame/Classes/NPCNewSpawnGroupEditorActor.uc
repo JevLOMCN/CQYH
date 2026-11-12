@@ -20,13 +20,13 @@ enum EENUM_NPC_GROUP_TYPE
 
 var editoronly globalconfig array<color> DrawLineColors;
 
-//显示组件
+//display component
 var editoronly CylinderComponent CollisionCylinder;
 var editoronly DrawCylinderComponent EditorCollisionCylinder;
 var editoronly StaticMeshComponent EditorStaticMeshComponent;
 var editoronly SpriteComponent EditorSprite;
 
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
 cpptext

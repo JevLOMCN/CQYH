@@ -50,29 +50,29 @@ void UMMOUIFBSummary::UpdateSummaryPoints()
 	SumData->m_uiFirstTimeExp = 301;
 	SumData->m_uiCouplesExp = 0;
 	*/
-	//通关时间
+	//Clear time
 	//ClearanceTimePt_mc
 	eventCallASSetRank( E_FB_TIME, SumData->m_uiClearanceTimePt );
 	h = SumData->m_uiClearanceTime / 3600;
 	m = SumData->m_uiClearanceTime % 3600 / 60;
 	s = SumData->m_uiClearanceTime % 60;
 	ValidSetChildInfoText( ClearanceTime_mc, "tF_current" , FString::Printf( TEXT("%d:%02d:%02d"), h, m, s ) );
-	//击杀技巧
+	//Kill technique
 	//KillSkillPt_mc
 	eventCallASSetRank( E_FB_SKILL, SumData->m_uiKillSkillPt + 1 );
 	ValidSetChildInfoText( Killed_mc, "tF_current" , FString::Printf( TEXT("%d"), SumData->m_uiKilled ) );
 	ValidSetChildInfoText( Destroyed_mc, "tF_current" , FString::Printf( TEXT("%d"), SumData->m_uiDestroyed ) );
 	//ValidSetChildInfoText( Strategy_mc, "tF_current" , FString::Printf( TEXT("%d"), SumData->m_uiStrategy ) );
-	//成就
-	//var GFxOBject AccomplishPt_mc;//评分
+	//Achievement
+	//var GFxOBject AccomplishPt_mc;//score
 	eventCallASSetRank( E_FB_ACHIVEMENT, SumData->m_uiAccomplishPt );
 	UpdateFBAchievement();
 	
 	//var array<int> Success;
-	//综合评分
+	//Overall rating
 	eventCallASSetRank( E_FB_SUM, SumData->m_uiGradedPt );
 	ValidSetChildInfoText( GradedExp_mc, "tF_current" , FString::Printf( TEXT("%dEXP"), SumData->m_uiGradedExp ) );
-	//额外加成
+	//Extra bonus
 	ValidSetChildInfoText( VIPExp_mc, "tF_current" , FString::Printf( TEXT("%dEXP"), SumData->m_uiVIPExp ) );
 	ValidSetChildInfoText( GuildExp_mc, "tF_current" , FString::Printf( TEXT("%dEXP"), SumData->m_uiGuildExp ) );
 	ValidSetChildInfoText( ActivityExp_mc, "tF_current" , FString::Printf( TEXT("%dEXP"), SumData->m_uiActivityExp ) );
@@ -204,13 +204,13 @@ void UMMOUIFBSummary::Init()
 //
 void UMMOUIFBSummary::InitFBSummaryMc()
 {
-	//数值统计,从上到下从左到右，然后最下面
+	//Statistics, from top to bottom, left to right, then the bottom
 	ClearanceTimePt_mc = GetObject( TEXT("titleTime_mc") );
 	//SetSummaryRowTitle( ClearanceTimePt_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow1") );
 
 	ClearanceTime_mc = GetObject( TEXT("detailScore0_mc") );
 	//SetSummaryRowTitle( ClearanceTime_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow2") );
-	//击杀技巧
+	//Kill technique
 	KillSkillPt_mc = GetObject( TEXT("titleKill_mc") );
 	//SetSummaryRowTitle( KillSkillPt_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow3") );
 	Killed_mc = GetObject( TEXT("detailScore1_mc") );
@@ -219,13 +219,13 @@ void UMMOUIFBSummary::InitFBSummaryMc()
 	//SetSummaryRowTitle( Destroyed_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow5") );
 	//Strategy_mc = GetObject( TEXT("detailScore3_mc") );
 	//SetSummaryRowTitle( Strategy_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow6") );
-	//成就
+	//Achievement
 	AccomplishPt_mc = GetObject( TEXT("titleAchivement_mc") );
 	//SetSummaryRowTitle( AccomplishPt_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow7") );
-	//总评分
+	//Total score
 	GradedExp_mc = GetObject( TEXT("GradedExp_mc") );
 	//SetSummaryRowTitle( GradedExp_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow8") );
-	//额外加成
+	//Extra bonus
 	VIPExp_mc = GetObject( TEXT("extraScore0_mc") );
 	//SetSummaryRowTitle( VIPExp_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow9") );
 	GuildExp_mc = GetObject( TEXT("extraScore1_mc") );
@@ -239,13 +239,13 @@ void UMMOUIFBSummary::InitFBSummaryMc()
 	//
 	SumUpExp_mc = GetObject( TEXT("expGet_mc") );
 	//SetSummaryRowTitle( SumUpExp_mc, TEXT("MMOGame.FBGeneral.FBSummaryRow14") );
-	//经验条
+	//Experience bar
 	ExpBarTitle_mc = GetObject( TEXT("ExpBarTitle_mc") );
 	ExpBar_mc = GetObject( TEXT("ExpBar_mc") );
-	//升级提示
+	//Level up hint
 	//LevelUp_mc = GetObject( "LevelUp_mc" );
 	//iLastLevel = Player.ActorAttributes.LevelAttributes.Level;
-	//跳过按钮
+	//Skip button
 	//Skip_btn = GetObject( "Skip_btn" );
 	//Skip_btn.SetBool( "visible", false );
 }
@@ -268,10 +268,10 @@ void UMMOUIFBSummary::NextToPlayFBAward()
 {
 	TimeUpToClose();
 
-	//开始抽奖
+	//start lottery
 	UMMOUIFBAward *pFBAwardPanel = (UMMOUIFBAward*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_FBEndAll_FBAward );
 	if( pFBAwardPanel != NULL ){
-		pFBAwardPanel->OpenToPlay( UCONST_FBAwardMSec );//5秒
+		pFBAwardPanel->OpenToPlay( UCONST_FBAwardMSec );//5 seconds
 	}
 
 	//show the hide button

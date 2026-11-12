@@ -76,7 +76,7 @@ struct native ServerMapInfos
 	var() EENUM_SCENE_VA ServerMapType;
 };
 
-//挖矿掉落数据
+//mining drop data
 struct native MineDropInfos
 {
 	var() int Chance	    <DisplayName="MineDropChance">;
@@ -88,22 +88,22 @@ const MaxSceneMajorTarget = 8;
 struct native ExportMap
 {
 	var() int ServerID						<DisplayName="ServerID">;
-	// 场景等级
+	// scene level
 	var() int Level							<DisplayName="Level">;
 	
-	// 作为显示的地图配置名 说要用汉字名，所以把以前的配置名变这里
+	// map config name used for display, Chinese names are required, so the former config name was moved here
 	var() init	string	    MapDisplayName;//	<DisplayName="MapName">;
 
-	// 作为客户端的地图配置名
+	// map config name used by the client
 	var() init string MapName;//				<DisplayName="ClientMapName">;
-	//本地图是否显示玩家名字
+	//whether this map shows player names
 	var() bool HideRoleName           <DisplayName="HideRoleName" | ExportExcel="Client">;
 
-	// 地图指定的pk模式
+	// pk mode specified by the map
 	var() bool OpenMapPkMode		<DisplayName="OpenMapPkMode" | ExportExcel="Client" >;
 	var() EERolePkMode MapPkMode		<DisplayName="MapPkMode" | ExportExcel="Client" >;
 
-	// 用于快速查找时的名字
+	// name used for fast lookup
 	var() init string ShortName		<DisplayName="ShortName">;
 
 	var() EENUM_SCENE_VA ServerMapType		<DisplayName="ServerMapType">;
@@ -157,13 +157,13 @@ struct native ExportMap
 	//var() bool bReducedDurability			<DisplayName="ReducedDurability">;
 	//var() bool DropItemDurability			<DisplayName="DropItemDurability">;
 
-	//是否可以使用回城卷
+	//whether the town portal scroll can be used
 	var() bool UseScroolDisabled				<DisplayName="CannotUseScroll">;
-	//是否可以使用指定坐标传送
+	//whether teleport to specified coordinates can be used
 	var() bool UseTeleportRingDisabled			<DisplayName="CannotUseTeleportRing">;
-	//是否可以（拉/被拉）玩家
+	//whether players can be (pulled/pulled by) others
 	var() bool BeRecalledDisabled				<DisplayName="CannotBeRecalled">;
-	//聊天限制
+	//chat restrictions
 	var() bool ChatGroupDisabled				<DisplayName="CannotGroupChat">;
 	var() bool ChatSceneDisabled				<DisplayName="CannotSceneChat">;
 	var() bool ChatScreenDisabled				<DisplayName="CannotScreenChat">;
@@ -171,18 +171,18 @@ struct native ExportMap
 	var() bool ChatTeamDisabled					<DisplayName="CannotTeamChat">;
 	var() bool ChatGuildDisabled			    <DisplayName="CannotGuildChat">;
 	var() bool ChatFriendDisabled				<DisplayName="CannotFriendChat">;
-	//是否可以交易
+	//whether trading is allowed
 	var() bool TradeDisabled					<DisplayName="CannotTrade">;
-	//是否可以丢出物品
+	//whether dropping items is allowed
 	//var() bool ItemDropDisabled					<DisplayName="CannotDrop">;
-	//是否启用反外挂
+	//whether anti-cheat is enabled
 	var() bool EnableAntiCheat					<DisplayName="EnableAntiCheat">;
-	//发现外挂是否抓监狱
+	//whether cheaters are sent to jail when found
 	var() bool GpkPunish				        <DisplayName="GpkPunish">;
-	//发现异常是否踢下线
+	//whether to kick offline when an anomaly is found
 	var() bool GpkKick					        <DisplayName="GpkKick">;
 
-	//是否开启友好度
+	//whether friendliness is enabled
 	var() bool EnableIntimacy					<DisplayName="EnableIntimacy">;
 	//
 	var() int LoginJumpSceneTempID				<DisplayName="LoginJumpSceneTempID">;
@@ -193,7 +193,7 @@ struct native ExportMap
 	var() int MaxRoleCount					    <DisplayName="MaxRoleCount">;
 	var() bool BlockRole                        <DisplayName="BlockRole">;
 
-	//挖矿
+	//mining
 	var() int MineItemID1					<DisplayName="MineItemID1">;
 	var() int MineItemID2					<DisplayName="MineItemID2">;
 	var() int MineItemID3					<DisplayName="MineItemID3">;
@@ -206,13 +206,13 @@ struct native ExportMap
 
 	var() init editfixedsize array<MineDropInfos> SceneMineDrop		<DisplayName="SceneMineDrop">;
 
-	//禁止收发邮件
+	//mail sending/receiving forbidden
 	var() bool CannotSendMail       <DisplayName="CannotSendMail">;
-	//禁止使用金币交易行
+	//gold trading house forbidden
 	var() bool CannotUseExchange    <DisplayName="CannotUseExchange">;
-	//禁止使用至尊拍卖行
+	//supreme auction house forbidden
 	var() bool CannotUseAuction     <DisplayName="CannotUseAuction">;
-	//禁止组队
+	//teaming forbidden
 	var() bool CannotJoinTeam       <DisplayName="CannotJoinTeam">;
 
 	var(Weather) editfixedsize init array<WeatherConfig> WeatherTypes <DisplayName="WeatherTypes">;
@@ -220,7 +220,7 @@ struct native ExportMap
 	var(Weather) float MaxWeatherRefreshInterval <DisplayName="MaxWeatherRefreshInterval">;
 
 
-	// 这个仅用于从EXCEL中导入时方便用
+	// this is only for convenience when importing from EXCEL
 	var ServerMapInfos ImportServerMapInfos;
 
 	structdefaultproperties
@@ -350,7 +350,7 @@ struct native TeleportObject
 	var() editconst Vector Location;
 	var() editconst float Radius;
 	var() editconst int Yaw;
-	var() editconst int NpcId;          // add by zhangrui05, 用于室内的npc寻路
+	var() editconst int NpcId;          // add by zhangrui05, used for indoor npc pathfinding
 
 	var editoronly bool IsHighlighted;
 	var editoronly bool IsSelected;
@@ -515,7 +515,7 @@ struct native InMapRegion
 var() array<InMapRegion> MapZoneList;
 
 // add by zhangrui05@snda
-// 任务用全局导航点信息
+// global navigation point info for quests
 struct native NaviPointInfo 
 {
 	//var() int MapId;
@@ -534,7 +534,7 @@ struct native MapNaviPointInfo
 
 var() editconst array<MapNaviPointInfo> NaviPointInfoList;
 
-// 全局TriggerVolume信息
+// global TriggerVolume info
 
 struct native QuestVolumeInfo
 {

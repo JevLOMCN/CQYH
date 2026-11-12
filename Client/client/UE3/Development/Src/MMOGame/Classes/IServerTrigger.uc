@@ -1,20 +1,20 @@
 //
-// IServerTrigger接口，发协议时，根据对象转换出接口，取得协议需要的数据，再发送给服务器。
+// IServerTrigger interface, when sending a protocol, convert the object to this interface, get the data the protocol needs, then send it to the server.
 //
 interface IServerTrigger
 	native;
 
 enum ETrapEventType
 {
-    // 触发NPC产生事件。
+    // Trigger NPC spawn event.
     eTET_TRAPEVENT_NPC_SPAWN <DisplayName="NPC Spawn">,
-    // 阻挡区域控制。
+    // Blocking area control.
     eTET_TRAPEVENT_BLOCK <DisplayName="Change Block">,
-    // 技能释放器事件。
+    // Ability releaser event.
     eTET_TRAPEVENT_SKILL <DisplayName="Use Skill">,
-    // 传送事件。
+    // Teleport event.
     eTET_TRAPEVENT_TELEPORT <DisplayName="Teleport">,
-	// 传送门开启/关闭事件。
+	// Portal open/close event.
 	eTET_TRAPEVENT_TRANSMI <DisplayName="Teleport Gate">
 };
 
@@ -22,21 +22,21 @@ enum ETrapEventType
 enum ETriggerType
 {
 	eTT_TRAPTYPE_INVALID <DisplayName="Invalid">,
-	// 进入区域触发。
+	// Enter area trigger.
 	eTT_TRAPTYPE_ENTER_AREA <DisplayName="EnterArea">,
-	// NPC 死亡触发。
+	// NPC NPC death trigger.
 	eTT_TRAPTYPE_NPC_DEAD <DisplayName="NPC Dead">,
-	// 手动触发。
+	// Manual trigger.
 	eTT_TRAPTYPE_MANUAL <DisplayName="Manual">,
-	// 进度类型的机关。
+	// Progress-type mechanism.
 	eTT_TRAPTYPE_LOADING <DisplayName="Loading">,
-    // 技能发动触发。
+    // Ability cast trigger.
     eTT_TRAPTYPE_SKILL <DisplayName="Skill">,
-    // 道具触发。
+    // Item trigger.
     eTT_TRAPTYPE_PROP <DisplayName="Item">,
-    // 多人(被动)机关。
+    // Multiplayer (passive) mechanism.
     eTT_TRAPTYPE_MULTI <DisplayName="Multi">,
-    // 多人进度触发。
+    // Multiplayer progress trigger.
     eTT_TRAPTYPE_MULTI_LOADING <DisplayName="Multi-Loading">,
 };
 
@@ -52,14 +52,14 @@ enum ETriggerInitState
 struct native AbilityEvent
 {
 	var() array<MMOAbility> Ability;
-	// TODO: 添加需要的参数
+	// TODO: TODO: add needed parameters
 };
 
 struct native TeleportEvent
 {
 	var() string TargetScene;
 	var() Vector TargetPosition;
-	// TODO: 添加需要的参数
+	// TODO: TODO: add needed parameters
 };
 
 struct native NPCDeadEvent
@@ -68,53 +68,53 @@ struct native NPCDeadEvent
 	var() array<IServerArea> TargetEventArea;
 };
 
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 native function RegisterToFacade();
 
 native function ETriggerType GetTriggerType();
 native function int GetTriggerID();
 native function SetAutoID(int id);
 
-// 取得物体大小
+// Get object size
 native function Box GetObjectServerBounds();
 
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
-// 取得关联的阻挡框
+// Get the associated blocking box
 native function array<DynamicBlockingVolume> GetBlockingVolumes();
 
-// 开始状态是否是，开启、关闭、不可用
+// Whether the initial state is open, closed, or unavailable
 native function ETriggerInitState GetServerInitState();
 
-// 返回一个调试用的标识名
+// Return an identifier name for debugging
 native function string GetClientName();
 
-// 取得关联的NPC出生点
+// get the associated NPC spawn point
 native function array<NPCSpawnPoint> GetNPCSpawnPoints();
 
-// 取得关联的机关，以便在当前事件区域完成后，激活这些机关
+// Get associated mechanisms, to activate them after the current event area completes
 native function array<IServerTrigger> GetLinkedTrigger();
 
-// 机关延迟启动时间
+// Mechanism delayed start time
 native function int GetDelayTime();
 
-// 触发技能列表
+// Trigger ability list
 native function array<AbilityEvent> GetAbilityList();
 
-// 触发技能列表
+// Trigger ability list
 native function TeleportEvent GetTeleportEvent();
 
-// 取得陷阱类型
+// Get trap type
 native function ETrapEventType GetTrapEventType();
 
 native function array<IServerArea> GetLinkedEventArea();
 
-// 触发时间
+// Trigger time
 native function int GetLoadingTime(); 
 
-// NPC死亡时触发的事件数据
+// NPCEvent data triggered on NPC death
 native function NPCDeadEvent GetNPCDeadEvent();
 
-// 打开传送门的列表
+// List of portals to open
 native function array<TeleportOrig> GetLinkedTeleportList();

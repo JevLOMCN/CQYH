@@ -1,5 +1,5 @@
 //
-// ≤ƒ÷ “Ù–ß Ù–‘
+// Material sound effect properties
 //
 class MMOPhysicalMaterialProperty extends PhysicalMaterialPropertyBase;
 

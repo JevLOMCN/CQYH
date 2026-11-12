@@ -28,13 +28,13 @@ public:
 	void LoadData(UINT32 skillData, const UINT32 (&protectData)[PROTECT_DATA_COUNT]);
 	void SaveData();
 
-	// µôÂä
+	// Drop
 	UBOOL IsDropValuable(UINT32 id);
 	UBOOL IsDropAutoPick(UINT32 id);
 	UBOOL IsDropVisible(UINT32 id);
 	void UpdateDropDisplay(UINT32 id);
 
-	// ÓÎÏ·Ä£Ê½
+	// Game mode
 	UBOOL IsQuestMode();
 
 	void NotifyEnterGame();

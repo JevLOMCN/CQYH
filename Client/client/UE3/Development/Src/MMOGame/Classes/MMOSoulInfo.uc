@@ -45,17 +45,17 @@ var(MMOServer) int	 UpgradeSoulID <DisplayName="UpgradeSoulID"|ExportExcel="6">;
 var(MMOServer) int	 DetouchPrice <DisplayName="DetouchPrice"|ExportExcel="7">;
 
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues)
 {	
-	// 继承自ACTOR的类只能用native函数导出
+	// Classes inheriting from ACTOR can only export via native functions
 }
 
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row)
 {
-	// 继承自ACTOR的类只能用native函数导出
+	// Classes inheriting from ACTOR can only export via native functions
 }
 
 native function ExportExcelHeaders(out array<string> Header, out array<string> DefaultValues);
@@ -63,7 +63,7 @@ native function DataToExcel(out array<string> Row);
 native function ImportFromExcel(array<string> values);
 event ScriptImportFromExcel(array<string> Values)
 {	
-	// 继承自ACTOR的类只能用native函数导出
+	// Classes inheriting from ACTOR can only export via native functions
 }
 
 native function InitDataToExcel();

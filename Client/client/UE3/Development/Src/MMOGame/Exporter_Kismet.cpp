@@ -16,7 +16,7 @@ Exporter_Kismet::~Exporter_Kismet(void)
 void Exporter_Kismet::PrePorcess(INT& GlobalAutoID)
 {
 	//TArray<USequenceObject*> ActionNodes;
-	//// 对变量统一重新编号
+	//// Renumber variables uniformly
 
 	//for(INT i = 0; i < GWorld->Levels.Num(); ++i)
 	//{
@@ -26,7 +26,7 @@ void Exporter_Kismet::PrePorcess(INT& GlobalAutoID)
 	//		continue;
 	//	}
 
-	//	// 每个sequence的节点ID唯一
+	//	// Node ID of each sequence is unique
 	//	INT id = 1;
 	//	for(INT j = 0; j < seq->SequenceObjects.Num(); ++j)
 	//	{
@@ -39,7 +39,7 @@ void Exporter_Kismet::PrePorcess(INT& GlobalAutoID)
 	//				USeqVar_Object* objVar = Cast<USeqVar_Object>(seqObj);
 	//				if(objVar)
 	//				{
-	//					// 只导出服务器要的变量
+	//					// Only export variables the server needs
 	//					if(objVar->ObjValue && objVar->ObjValue->GetObjectServerType() != -1)
 	//					{
 	//						SeqVars.AddItem(Cast<USequenceVariable>(seqObj));
@@ -77,7 +77,7 @@ void Exporter_Kismet::PrePorcess(INT& GlobalAutoID)
 //------------------------------------------------------------------------
 void Exporter_Kismet::WriteHeader( FBufferArchive& ar)
 {
-	//// 再写到文件
+	//// Then write to file
 	//SCENE_FILE_BLOCK_HEADER blkHdr = {0};
 	//blkHdr.eBlockType = sbtKismet;
 	//blkHdr.nBlockSize = 0;
@@ -85,7 +85,7 @@ void Exporter_Kismet::WriteHeader( FBufferArchive& ar)
 	//
 	//ar.ByteOrderSerialize(&blkHdr, sizeof(SCENE_FILE_BLOCK_HEADER));
 
-	//// 先存储位置，后面再修改参数
+	//// Store the position first, modify parameters later
 	//KismetHeader = (SCENE_FILE_BLOCK_HEADER*)(ar.GetData() + ar.Tell() - sizeof(SCENE_FILE_BLOCK_HEADER));
 }
 //------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void Exporter_Kismet::WriteData( FBufferArchive& ar )
 {
 	//FBufferArchive memAr;
 
-	//// 先导出变量到一个整表
+	//// First export variables into one whole table
 	//INT val = (INT)kotSequenceVariableTable;	
 	//memAr << val;
 
@@ -109,7 +109,7 @@ void Exporter_Kismet::WriteData( FBufferArchive& ar )
 	//	seq->ExportServerData(memAr);
 	//}
 
-	//// 再导其它对象
+	//// Then export other objects
 	//for(INT i = 0; i < GWorld->Levels.Num(); ++i)
 	//{
 	//	USequence* seq = GWorld->GetGameSequence(GWorld->Levels(i));
@@ -117,7 +117,7 @@ void Exporter_Kismet::WriteData( FBufferArchive& ar )
 	//		seq->ExportServerData(memAr);
 	//}
 
-	//// 修改文件头
+	//// Modify file header
 	//KismetHeader->nBlockSize = memAr.TotalSize();
 	//KismetHeader->nBlockOffset = ar.Tell();
 

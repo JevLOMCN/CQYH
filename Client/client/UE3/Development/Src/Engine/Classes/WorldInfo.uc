@@ -18,7 +18,7 @@ class WorldInfo extends ZoneInfo
 /** Maximum number of bookmarks																		*/
 const MAX_BOOKMARK_NUMBER = 10;
 
-// 默认的分块大小 1024*6=3072
+// Default chunk size 1024*6=3072
 var(MMO) int LevelGridSize;
 
 //Bruce@snda 

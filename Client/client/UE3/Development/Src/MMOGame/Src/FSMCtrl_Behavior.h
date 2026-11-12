@@ -1,9 +1,9 @@
 /**
  *
- * 游戏虚拟机(FSM)————角色基础行为状态机
+ * Game state machine (FSM) - character basic behavior state machine
  * Add by jimZhang@sdna.com 2014.5.7 
  * 
- * 用来驱动一些较原子级别的行为，如连移动到一个，移动到一个avtor，攻击一个目标等等
+ * Used to drive some more atomic-level behaviors, such as moving to a point, moving to an actor, attacking a target, etc.
  *
  */
 
@@ -11,14 +11,14 @@
 #define __FSMCTRL_BEHAVIOR_H__
 #include "FSMCtrl.h"
 
-//自动施法----------------------------------------------------
+//Auto cast----------------------------------------------------
 class FSMCtrl_AiAbility: public IFSMCtrl
 {
 public:	
 	UBOOL	Update(FLOAT DelTime);
 	void	Action();
 };
-//shift键原地使用技能-----------------------------------------------------------------------------------------------------
+//Shift key use ability in place-----------------------------------------------------------------------------------------------------
 class FSMCtrl_ShiftAbility: public IFSMCtrl
 {
 public:	
@@ -26,7 +26,7 @@ public:
 	void	Action();
 };
 
-//原地释放技能------------------------------------------------------------------------------------------------------------
+//Cast ability in place------------------------------------------------------------------------------------------------------------
 class FSMCtrl_StayAndUseAbility: public IFSMCtrl
 {
 public:	
@@ -34,7 +34,7 @@ public:
 	void	Action();
 };
 
-//走向目标并释放技能------------------------------------------------------------------------------------------------------
+//Walk to target and cast ability------------------------------------------------------------------------------------------------------
 class FSMCtrl_MoveToAndUseAbility: public IFSMCtrl
 {
 public:	
@@ -42,7 +42,7 @@ public:
 	void	Action();
 };
 
-//走近并交互--------------------------------------------------------------------------------------------------------------
+//Walk close and interact--------------------------------------------------------------------------------------------------------------
 class FSMCtrl_MoveToAndInteract: public IFSMCtrl
 {
 public:	
@@ -50,7 +50,7 @@ public:
 	void	Action();
 };
 
-//走到目标点，鼠标按住的情况下，高速操控走向的目标点----------------------------------------------------------------------
+//Walk to target point, with mouse held, fast control of the target point to walk to----------------------------------------------------------------------
 class FSMCtrl_MoveToPoint: public IFSMCtrl
 {
 public:	
@@ -58,7 +58,7 @@ public:
 	void	Action();
 };
 
-//焦点激活------------------------------
+//Focus activation------------------------------
 class FSMCtrl_FocusActor: public IFSMCtrl
 {
 public:	
@@ -66,7 +66,7 @@ public:
 	void	Action();
 };
 
-//测试------------------------------
+//Test------------------------------
 class FSMCtrl_Test: public IFSMCtrl
 {
 public:	

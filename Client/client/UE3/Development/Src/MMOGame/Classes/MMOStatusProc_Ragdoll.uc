@@ -1,5 +1,5 @@
 //
-// ËÀÍöºó´ò¿ªRagdoll
+// Enable Ragdoll after death
 //
 class MMOStatusProc_Ragdoll extends Object implements(IMMOStatusProc)
 	native

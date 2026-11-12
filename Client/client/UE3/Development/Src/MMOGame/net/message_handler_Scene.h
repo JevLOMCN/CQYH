@@ -27,21 +27,21 @@ M_DECL_PARSE_FUN(m2c_query_line_ack);
 M_DECL_PARSE_FUN(g2c_changescene_enter);
 //M_DECL_PARSE_FUN(g2c_changescene_leave);
 
-//场景变量同步
+//Scene variable sync
 M_DECL_PARSE_FUN(g2c_sync_scene_variables);
 M_DECL_PARSE_FUN(g2c_sync_role_variables);
 M_DECL_PARSE_FUN(g2c_sync_client_variables);
 M_DECL_PARSE_FUN(g2c_update_variable);
 M_DECL_PARSE_FUN(g2c_sync_flag_pos);
 
-//跳转点
+//Teleport point
 M_DECL_PARSE_FUN(g2c_sync_teleport_platform);
 M_DECL_PARSE_FUN(g2c_active_platform);
 
-//复活点
+//respawn point
 M_DECL_PARSE_FUN(g2c_activate_revive_pt);
 
-//进入副本
+//Enter dungeon
 M_DECL_PARSE_FUN(g2c_query_scene_difficulty);
 M_DECL_PARSE_FUN(g2c_select_scene_difficulty);
 M_DECL_PARSE_FUN(g2c_scene_finish);
@@ -49,11 +49,11 @@ M_DECL_PARSE_FUN(g2c_dungeon_finish_data);
 M_DECL_PARSE_FUN(g2c_dungeon_finish_score);
 M_DECL_PARSE_FUN(g2c_dungeon_reward);
 M_DECL_PARSE_FUN(g2c_sync_dungeon_goal);
-//战场
+//Battlefield
 M_DECL_PARSE_FUN(m2c_join_battle_queue);
 M_DECL_PARSE_FUN(m2c_cancel_join_battle_ack);
 M_DECL_PARSE_FUN(m2c_join_battle_confirm_req);
-//战场/竞技场
+//Battlefield/arena
 M_DECL_PARSE_FUN(g2c_sync_combat_stat);
 
 M_DECL_PARSE_FUN(g2c_sync_next_jump_point);

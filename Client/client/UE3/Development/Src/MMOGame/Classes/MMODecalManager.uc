@@ -6,8 +6,8 @@ class MMODecalManager extends DecalManager
 	native
 	config(MMOGame);
 
-var DecalComponent	SelectionDecal;		// 角色选中标记
-var MMOActor		SelectedActor;		// 被选中角色
+var DecalComponent	SelectionDecal;		// Character selection marker
+var MMOActor		SelectedActor;		// Selected character
 
 enum SelectionDecalType
 {

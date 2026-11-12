@@ -41,7 +41,7 @@ final native function ASClickTab(int nIndex);
 DefaultProperties
 {
 	SkillLevelUpLimitLv=10
-	//MovieInfoStr没错，历史原因就叫SkillTree了
+	//MovieInfoStr is right, it is called SkillTree for historical reasons
 	MovieInfoStr="UI_SkillTree.SkillTree"
 	Priority=5
 }

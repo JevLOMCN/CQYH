@@ -1,5 +1,5 @@
 //
-// 主要的NPC基类，完成角色动画管理
+// main NPC base class, handles character animation management
 //
 
 class NPC_Pattern extends Object implements(IExcelable,IReferenceID)

@@ -2,17 +2,17 @@
 #define __MESSAGE_HANDLER_ACHIEVEMENT_H__
 
 public:
-	// 成就获取
+	// Achievement acquisition
     void Send_AchievementComplete(UINT32 id);
-	// 成就比较
+	// Achievement comparison
 	void Send_AchievementCompare(UINT32 roleId);
-	// 获取奖励道具
+	// Get reward items
 	void Send_ObtainRewardItem(UINT32 id);
-	// 杀怪成就完成
+	// Monster kill achievement completed
 	void Send_KillNpcAchievementComplete(UINT16 id, UINT8 index);
-	// 请求公会成就数据
+	// Request guild achievement data
 	void Send_GuildAchievement();
-	// 领取公会奖励
+	// Claim guild reward
 	void Send_ObtainGuildReward(UINT32 id);
 
 M_DECL_PARSE_FUN(g2c_sync_achievement_list);

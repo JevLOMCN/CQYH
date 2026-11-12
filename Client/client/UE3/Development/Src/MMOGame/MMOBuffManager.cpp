@@ -23,18 +23,18 @@ MMOBuffManager::MMOBuffManager(void)
 		ShowBuffsEx[i] = NULL;
 	}
 	DisableUseNormalAbilityBuffType.Empty();
-//	DisableUseAbilityBuffType.AddItem(EBE_Type1); //陆陈磊说受伤不要变红了
-//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Dazzy); //眩晕
-//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Statued); //石化	
-//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Freeze); //冻结
-//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Sleep); //睡眠
+//	DisableUseAbilityBuffType.AddItem(EBE_Type1); //Lu Chenlei said no more turning red when hurt
+//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Dazzy); //stun
+//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Statued); //petrify
+//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Freeze); //freeze
+//	DisableUseNormalAbilityBuffType.AddItem(E_auet_Sleep); //sleep
 
 //	DisableUseAllAbilityBuffType.Empty();
-//	DisableUseAllAbilityBuffType.AddItem(E_auet_Silence); //沉默
-//	DisableUseAllAbilityBuffType.AddItem(E_auet_Chaos); //混乱
-//	DisableUseAllAbilityBuffType.AddItem(E_auet_KnockUp); //击飞
-//	DisableUseAllAbilityBuffType.AddItem(E_auet_KnockDown); //击倒
-//	DisableUseAllAbilityBuffType.AddItem(E_auet_Drag); //拖拽
+//	DisableUseAllAbilityBuffType.AddItem(E_auet_Silence); //silence
+//	DisableUseAllAbilityBuffType.AddItem(E_auet_Chaos); //confusion
+//	DisableUseAllAbilityBuffType.AddItem(E_auet_KnockUp); //knock up
+//	DisableUseAllAbilityBuffType.AddItem(E_auet_KnockDown); //knock down
+//	DisableUseAllAbilityBuffType.AddItem(E_auet_Drag); //drag
 }
 
 UBOOL MMOBuffManager::CheckBuffEnableUseNormalAbility(UBuff* buff)
@@ -187,7 +187,7 @@ void MMOBuffManager::HideSlotBuffEx()
 		MMOUI::GetUIManager()->delegateDeleteBuffPanel(i);
 	}
 
-	//增加功能buff
+	//Add function buff
 	for(int i=0;i<MAXBUFFSLOTEX;i++)
 	{
 		MMOUI::GetUIManager()->delegateDeleteFunctionBuffPanel(i);	
@@ -303,7 +303,7 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 			if(pos->second->Buff->Type==E_auet_Type21)
 			{
 				Mir2Attack::getSingleton().SetAbilityFlag(EAT_FLAG_ZHURI);
-				warnf(TEXT("刷新buff----------增加逐日"));
+				warnf(TEXT("Refresh buff----------add Zhuri (Chase the Sun)"));
 
 			}
 			if(pos->second->Buff->Type==E_auet_Type20)
@@ -338,7 +338,7 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 	}
 
 	
-	//增加普通buff
+	//Add normal buff
 	for(int i=0;i<MAXBUFFSLOT;i++)
 	{
 		if(ShowBuffs[i])
@@ -368,7 +368,7 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 		}
 	}
 
-	//增加功能buff
+	//Add function buff
 	for(int i=0;i<MAXBUFFSLOTEX;i++)
 	{
 		if(ShowBuffsEx[i])
@@ -584,7 +584,7 @@ void MMOBuffManager::TickBuffData(float deltaTime)
 		baseActor->NeedRefreshMaterial = FALSE;
 	}
 
-	//自关闭buff
+	//Self-closing buff
 	for(INT i=0;i<PostDeleteBuffObjID.Num();i++)
 	{
 		DeleteBuff(PostDeleteBuffObjID(i),PostDeleteBuffBuffID(i));
@@ -771,7 +771,7 @@ void MMOBuffManager::DeleteActiveBuff(INT ObjId,INT InId)
 		}
 		pos->second->OverlapEffectComponentIds.clear();
 
-		////自动判定qte buff的附带UI
+		////UI attached to auto-judged qte buff
 		//if(pos->second->Buff && pos->second->Buff->bQTEBuff)
 		//{
 		//	if(MMOFacade::getSingleton().GetMainPlayer()->ServerID == ObjId )
@@ -858,7 +858,7 @@ void MMOBuffManager::ModifyBuff(BuffData* newBuff, INT CreatorId, INT ObjId, INT
 		return;
 	}
 
-	//坐骑的替换特殊处理-----------------------------------------------------------------------
+	//Special handling for mount replacement-----------------------------------------------------------------------
 	if (TemplateId==2501)
 	{
 		MountData* pMountData = MMOFacade::getSingleton().GetMountData(CreatorId);
@@ -931,8 +931,8 @@ void MMOBuffManager::AddNewBuff(INT CreatorId, INT ObjId, INT Id, INT TemplateId
 
 	newBuff->CurrentTime = (MaxDuration - Duration) / 1000.f;
 	// fix bug #23809
-	// 需要存盘的Buff, 服务器发下来的Duration和MaxDuration会有1帧的误差(下线时存盘会晚一帧), 
-	// 如果Component的StartTime小于0.0625秒，则机制上认为Component已经创建过了
+	// For Buffs that need saving, the Duration and MaxDuration sent by the server have a 1-frame error (saving on logout is one frame late),
+	// If the Component's StartTime is less than 0.0625 seconds, the mechanism considers the Component already created
 	if (newBuff->CurrentTime <= (1.0F / (FLOAT)GAME_FPS + 0.1f))
 	{
 		newBuff->CurrentTime = 0.f;
@@ -1001,7 +1001,7 @@ void MMOBuffManager::AddNewBuff(INT CreatorId, INT ObjId, INT Id, INT TemplateId
 	//debugf(TEXT( "------------------------------------------------------------------AddNewBuff buffid = %d" ), TemplateId  );
 
 
-	//add by jimzhang 2012.7.18,增加buff的起始和结束状态触发行为
+	//add by jimzhang 2012.7.18, add buff start and end state trigger behaviors
 	buff->eventDoStart(actor);
 
 	AMMOPlayerController* controller = MMOFacade::getSingleton().GetMainController();
@@ -1123,7 +1123,7 @@ void MMOBuffManager::ChangeBuff(INT CreatorId, INT ObjId, INT Id, INT TemplateId
 		}
 	}
 	else if (StackCount > oldStackCount)
-	{// 增加叠加层数
+	{// Add stack count
 		UBuff* buffTemplate = MMOFacade::getSingleton().FindBuffTemplate(buffData->Buff->TemplateID,  buffData->Level);
 		if (buffTemplate)
 		{
@@ -1169,7 +1169,7 @@ void MMOBuffManager::DeleteBuffByCharacterID(INT ObjId)
 	AMMOActor* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	if( ( mainPlayer != NULL && mainPlayer->ServerID == ObjId) && ( mainCtrl != NULL && mainCtrl->IsTransformed() ) ){
 		mainCtrl->SetTransformState( FALSE );
-		//SetTransformState在前
+		//SetTransformState comes first
 		MMOSkillManager::getSingleton().RecoverCachedSkillsInTransform();
 	}
 }
@@ -1215,9 +1215,9 @@ void MMOBuffManager::DeleteBuff(INT ObjId, INT Id)
 			INT buffTemplateID = data->Buff->GetTemplateID();
 			const TransformSkillGroup *skillGroup = MMOSkillManager::getSingleton().FindTransformSkillGroupByBuffID( buffTemplateID );
 			if( skillGroup != NULL ){
-				//是变身BUFF
+				//Is a transform BUFF
 				controller->SetTransformState( FALSE );
-				//SetTransformState在前
+				//SetTransformState comes first
 				warnf(NAME_Warning, TEXT("======!!!!==================================== [RecoverCachedSkillsInTransform AT %d]"), buffTemplateID );
 				MMOSkillManager::getSingleton().RecoverCachedSkillsInTransform();
 			}

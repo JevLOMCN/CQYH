@@ -5,16 +5,16 @@
 #include "common.h"
 #include "MMOUtil.h"
 
-//强化需要消耗材料的最大种类
+//Maximum number of material types needed for enhancement
 #define ENHANCE_CONSUME_COUNT 3
-//装备部位的最大个数
+//Maximum number of equipment slots
 #define EQUIP_SLOT_COUNT 13
-//强化后可增加的属性的个数
+//Number of attributes that can be added after enhancement
 #define ENHANCE_EFFECT_COUNT 5
-//最大强化等级，方便预分配vector的个数，以免反复重分配和拷贝
+//Maximum enhancement level, convenient for pre-allocating the vector size to avoid repeated reallocation and copying
 #define MAX_ENHANCE_LEVEL 150
 
-//最大激活等级
+//Maximum activation level
 #define MAX_ACTIVE_LEVEL 10
 
 
@@ -57,19 +57,19 @@ struct EquipSlotProperties
 		CurEnhanceLevel = 0;
 		MaxEnhanceLevel = 0;
 	}
-	UINT CurEnhanceLevel;     //当前强化等级
+	UINT CurEnhanceLevel;     //Current enhancement level
 	UINT MaxEnhanceLevel;
 };
 
 
-//强化激活配置表格数据结构
+//Enhancement activation config table data structure
 struct EquipSlotEnhanceActiveTemplate
 {
 	typedef struct
 	{
-		INT EType; //0加成数值，1添加技能等等
-		INT AttributeId; //增加属性id
-		INT Value; //加成数值，或者技能id
+		INT EType; //0 bonus value, 1 add ability, etc.
+		INT AttributeId; //Added attribute id
+		INT Value; //Bonus value, or ability id
 		
 	}EffectData;
 
@@ -140,7 +140,7 @@ public:
 	void ReadEquipSlotEnhanceConfig();
 	const EquipSlotEnhanceCfgData *FindEnhanceConsumeCfg( INT refineLv );
 
-	//自己的强化数据
+	//Own enhancement data
 	EquipSlotProperties *GetCurMySlotEnhanceState( INT slotID )
 	{
 		if( slotID < 0 || slotID >= NES_TOTAL )
@@ -163,21 +163,21 @@ public:
 	UBOOL CheckEnhanceConsume( UEquip *pEquip, INT checkSlotID );
 	//UBOOL CheckMyMaterialCondition(INT slotId);
 
-	//强化阶段等级
+	//Enhancement stage level
 	const TArray<INT> &GetSortedEnhanceExtrPropLvIdx( INT classID )
 	{
 		check( classID >= 0 && classID < EPCT_MAX );
 		return _RefineExtrPropLvIdx[classID];
 	}
 
-	//获得显示文字
+	//Get display text
 	FString GetEquipPropertyNameById(INT id);
 	FString GetEquipSlotNameById(INT id);
 
-	//发送消息
+	//Send message
 	void SendEnhanceEquipSlot( INT refineSlot, INT consumeConID, INT consumeSlotID );
 
-	//弹出框状态
+	//Popup state
 	FORCEINLINE void SetFlag(EnhanceStatus es)
 	{
 		m_iEnhanceFlag |= es;

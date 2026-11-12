@@ -88,7 +88,7 @@ struct FDropActorInfo
 	INT Height;
 	UBOOL IsVisible;
 	float ShowTime;
-	float CannotPickCD;//如果请求一次不能捡，则置上一个倒计时
+	float CannotPickCD;//if a request cannot pick up once, set a countdown
 };
 
 typedef std::map<INT, FDropActorInfo, M_UE3_STL_ALLOC_MAP(INT, FDropActorInfo) > DropActorMap;
@@ -122,7 +122,7 @@ public:
 
 	void UpdateDropHudPos(FLOAT DeltaTime);
 
-	// 主要用于可以接/交任务的掉落 add by zhangrui05@snda
+	// Mainly used for drops that can accept/turn in quests add by zhangrui05@snda
 	void SetDropTipsIcon(INT dropActorId, const FString& icon);
 
 	void SetDropActorCannotPick(INT nDropID,FLOAT pickCD=0.5f);

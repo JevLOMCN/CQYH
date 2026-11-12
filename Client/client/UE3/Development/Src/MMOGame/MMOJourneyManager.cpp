@@ -94,7 +94,7 @@ void MMOJourneyManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 							if (curReputation >= maxReputation)
 							{
 								// #17524
-								//FString text = TEXT("%s声望已满");
+								//FString text = TEXT("%s reputation is full");
 								//MMOChatManager::getSingleton().AddHintMessage(FString::Printf(*text, *(journeyData.Title))); 
 								//MMOUI::GetUIManager()->delegateAddScreenMessage(FString::Printf(*text, *(journeyData.Title)), MsgInfoType_Ex1, TEXT("")); 
 
@@ -106,7 +106,7 @@ void MMOJourneyManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 
 								if (journeyData.Id <= MMOJourneyData::getSingleton().GetMaxActivateJourneyId())
 								{
-									// 新手引导
+									// Tutorial
 									MMOGameEvent_Guide evtGuide(EGUET_ReputationFull);
 									MMOUI::PostGameEvent(&evtGuide);
 								}
@@ -117,7 +117,7 @@ void MMOJourneyManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 
 				case MMOGameEvent_Journey::EJET_GetAwards:
 					{
-						// 新手引导
+						// Tutorial
 						MMOGameEvent_Guide evtGuide(EGUET_GetJourneyAwards);
 						MMOUI::PostGameEvent(&evtGuide);
 					}
@@ -155,7 +155,7 @@ void MMOJourneyManager::LoadData(UINT32 journeyData)
 		}
 	}
 
-	// 保证剧情开启
+	// ensure the story is unlocked
 	MMOJourneyData::getSingleton().ActivateJourneyType(JT_STORY);
 
 	_IsExpand = (HIWORD(journeyData) & 0x01) == 0;
@@ -165,13 +165,13 @@ void MMOJourneyManager::SaveData()
 {
 	UINT32 journeyData = 0;
 
-	// 低16位存储激活类型
+	// low 16 bits store the activation type
 	for (int i = 0; i < JT_TOTAL; ++ i)
 	{
 		journeyData |= MMOJourneyData::getSingleton().IsJourneyTypeActivate((JourneyType)i) ? (1 << i) : 0;
 	}
 
-	// 高16位存储是否展开: 0：展开，1：收起
+	// high 16 bits store whether expanded: 0: expanded, 1: collapsed
 	journeyData |= _IsExpand ? 0 : (1 << 16);
 
 	MMOClientVariableManager::getSingleton().SetClientVariable(ECVT_Journey_Trace, journeyData);
@@ -182,7 +182,7 @@ void MMOJourneyManager::ActivateJourneyType(JourneyType journeyType)
 	MMOJourneyData::getSingleton().ActivateJourneyType(journeyType);
 	SaveData();
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_ActivateJourneyType, journeyType);
 	MMOUI::PostGameEvent(&evtGuide);
 }

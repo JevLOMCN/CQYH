@@ -113,12 +113,12 @@ event PostInitCrowdInstance()
 
 		inst.SteeringBehavior.CrowdInstance = inst;
 
-		// 只处理非自定义的实例
+		// Only handle non-custom instances
 		if(i >= CustomCrowdInstanceData.Length)
 		{
 			tempSteer = CrowdInstanceConfig.SteeringBehavior;
 
-			// 统一配置群体实例参数
+			// Uniformly configure group instance parameters
 			inst.DrawScale3D = CrowdInstanceConfig.DrawScale3D;
 			inst.Mass = CrowdInstanceConfig.Mass;
 			inst.MaxSpeed = CrowdInstanceConfig.MaxSpeed;
@@ -131,7 +131,7 @@ event PostInitCrowdInstance()
 		{
 			tempSteer = CustomCrowdInstanceData[i].SteeringBehavior;
 
-			// 统一配置群体实例参数
+			// Uniformly configure group instance parameters
 			inst.DrawScale3D = CustomCrowdInstanceData[i].DrawScale3D;
 			inst.Mass = CustomCrowdInstanceData[i].Mass;
 			inst.MaxSpeed = CustomCrowdInstanceData[i].MaxSpeed;

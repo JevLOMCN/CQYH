@@ -1,5 +1,5 @@
 //
-// 输入管理类
+// Input management class
 //
 class MMOPlayerInput extends PlayerInput within MMOPlayerController
 	config(Input);

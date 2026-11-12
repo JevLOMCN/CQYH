@@ -14,23 +14,23 @@
 
 IMPLEMENT_CLASS(UMMOUISkillSettingPanel)
 
-//显示的时候做些数据更新
+//do some data updates when displaying
 void UMMOUISkillSettingPanel::PreOnShow(UBOOL v)
 {
 	Super::PreOnShow(v);
 
 	if(v){
 		MMOFacade::getSingleton().PlayUISound(TEXT("menu_skillbook_op"));
-		//如果可见 则刷新界面显示
+		//If visible, refresh the UI display
 		UpdatePanel( ESkillPnl_Active );
 
-		//关闭新技能提示
+		//Close new ability prompt
 		UMMOUIMenuBar *menuBarPanel = (UMMOUIMenuBar*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Skillbar_Menubar );
 		if( menuBarPanel != NULL ){
 			menuBarPanel->ShowMenuBarHint( EMenuType_Skill, EMenuType_Child_Skill, FALSE );
 		}
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowSkillSettingPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -86,7 +86,7 @@ void UMMOUISkillSettingPanel::UpdatePanel( INT panelIdx )
 {
 	UpdateActiveSkillPanel();
 
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_ShowSkillLevelUpPanel);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -151,7 +151,7 @@ void UMMOUISkillSettingPanel::UpdateActiveSkillList()
 			}
 		}
 
-		//据说被动技能也要显示
+		//Reportedly passive abilities also need to be shown
 		TMap< INT, class UMMOAbility* > allMyPassiveSkills = MMOSkillManager::getSingleton().GetAllMainAbilitiesSorted( Player->GetClassId(), ESUIType_Passive );
 		for( TMap< INT, class UMMOAbility* >::TIterator it(allMyPassiveSkills); it; ++it ){
 			UMMOAbility *mainAbility = it.Value();
@@ -161,11 +161,11 @@ void UMMOUISkillSettingPanel::UpdateActiveSkillList()
 			}
 		}
 
-		//排序
+		//Sort
 		MMOSkillManager::getSingleton().SortAllAbilitiesByRequireLevel( allMyMainSkillsClassed );
 	}
 	else{
-		//只显示已学会的
+		//Show only learned ones
 		//mmoSkillMgr.SortAllAbilitiesByRequireLevel( myLearnedMainSkills );
 		for( TMap< INT, class UMMOAbility* >::TIterator it(myLearnedMainSkills); it; ++it ){
 			UMMOAbility *mainAbility = it.Value();
@@ -199,14 +199,14 @@ void UMMOUISkillSettingPanel::UpdateActiveSkillList()
 		//
 		INT mainSkillID = mainAbility->eventGetAbilityId();
 		UMMOAbility **ppMyLearnedSkill = myLearnedMainSkills.Find( mainSkillID );
-		//GetAllMainAbilitiesSorted里的技能没有等级升级相关数据的展开，所以得去技能等级已经展开的表中的信息
+		//Abilities in GetAllMainAbilitiesSorted have no expanded level upgrade data, so get the info from the table where ability levels are already expanded
 		if( ppMyLearnedSkill != NULL ){
 			mainAbility = *ppMyLearnedSkill;
 		}
-		//隐藏未学习到的
+		//Hide unlearned ones
 		UBOOL isDisabled = ( ppMyLearnedSkill == NULL );
 
-		//准备数据，放入刷新数组中
+		//Prepare data, put into the refresh array
 		UGFxObject* itemSingleObj = GFXPlayer->CreateObject( TEXT("UI_SkillTree.SkillTreeAS3.ActiveSkillListItemSingleData") );
 		//check(itemSingleObj != NULL);
 		if(itemSingleObj == NULL){
@@ -241,7 +241,7 @@ void UMMOUISkillSettingPanel::UpdateActiveSkillList()
 			//UMMOAbility* nextLvSkill = MMOFacade::getSingleton().GetAbilityWithRuneByNextLevel( *ppMyLearnedSkill );
 			//if( nextLvSkill == NULL ){
 			if( (*ppMyLearnedSkill)->SpellCommonAttribute.Level >= MAX_SPELL_LEVEL ){
-				//最高级
+				//Max level
 				expStr = TEXT("--/--");
 			}
 			else{
@@ -275,7 +275,7 @@ void UMMOUISkillSettingPanel::UpdateActiveSkillList()
 		//
 		UBOOL isMaxLv = ( mmoSkillMgr.GetAbilityWithRuneByNextLevel( mainAbility ) == NULL );
 		itemSingleObj->SetBool( TEXT("IsMaxLv"), isMaxLv );
-		////铭文技能
+		////Inscription ability
 		uniqueSkillID = 0;
 		INT runeSkillIdx = 0;
 		UBOOL isSkillActive = FALSE;
@@ -315,12 +315,12 @@ void UMMOUISkillSettingPanel::UpdateActiveSkillList()
 //	UBOOL isShow = FALSE;
 //	UBOOL isSkillActive = FALSE;
 //	UMMOAbility* equpRuneSkill = MMOEquipManager::getSingleton().GetWeaponRuneSkill( skillSetIdx, E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND, isSkillActive );
-//	//检查武器符文
+//	//Check weapon rune
 //	if( equpRuneSkill != NULL ){
 //		//FClientItemInfo *itemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND );
 //		INT runeSkillMainSkillID = equpRuneSkill->GetTemplateID();//equpRuneSkill->MainSkill->GetTemplateID();
 //		if( ( runeSkillMainSkillID != skillID && isSkillActive == TRUE ) && skillID > 0 ){
-//			//技能套路不匹配
+//			//Ability pattern does not match
 //			isShow = IsAutoCheckSkillStyle;
 //		}
 //	}
@@ -349,8 +349,8 @@ void UMMOUISkillSettingPanel::ShowActiveSkillDetailOf( UGFxObject *mc, INT skill
 	INT screenSizeX = FGFxEngine::GetEngine()->GetRenderViewport()->GetSizeX();
 	INT screenSizeY = FGFxEngine::GetEngine()->GetRenderViewport()->GetSizeY();
 
-	//确定X，超出屏幕右端则翻转到左边显示
-	INT tuneClap = 8;//8为修正,在右边显示时显得靠近点
+	//Determine X; if beyond the right edge of the screen, flip to display on the left
+	INT tuneClap = 8;//8 is a correction, makes it appear closer when shown on the right
 	INT listPanelArrowPosX = showPosX - tuneClap;
 	INT listPanelPosX = listPanelArrowPosX + (ListArrowMcWidth - ListArrowOffsetX);
 	if( panelPosX + subPanelPosX + listPanelPosX + ActiveSkillsDetaiListPanelWidth > screenSizeX ){
@@ -364,7 +364,7 @@ void UMMOUISkillSettingPanel::ShowActiveSkillDetailOf( UGFxObject *mc, INT skill
 		ActiveDetailSkillListPanelArrowMc->GotoAndStopI( 1 );
 	}
 
-	//确定Y，超出屏幕下端则上移动
+	//Determine Y; if beyond the bottom of the screen, move up
 	INT listPanelArrowPosY = showPosY;// + ActiveSkillsListItemHalfHeight - ListArrowMcHeight/2;
 	INT listPanelPosY = listPanelArrowPosY - ListArrowOffsetY;
 	if( panelPosY + subPanelPosY + listPanelPosY + ActiveSkillsDetaiListPanelHeight > screenSizeY ){
@@ -531,7 +531,7 @@ void UMMOUISkillSettingPanel::UpdateSpecialSkillList()
 			UINT skillUniqueID = MMOSkillManager::CombinateAbilityID( curSpecialSkill._SkillID, 1, 0 );
 			UMMOAbility *skill = mmoSkillMgr.FindAbilityTemplate( skillUniqueID );
 			if( skill != NULL ){
-				//准备数据，放入刷新数组中
+				//Prepare data, put into the refresh array
 				UGFxObject* itemSingleObj = GFXPlayer->CreateObject( TEXT("UI_SkillTree.SkillTreeAS3.SpecialSkillListItemSingleData") );
 				//check(itemSingleObj != NULL);
 				if(itemSingleObj == NULL)
@@ -613,7 +613,7 @@ UBOOL UMMOUISkillSettingPanel::OnDragDrop( class UGFxObject* srcSlotMC,class UGF
 {
 	//MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	//if( srcSlotType == ESPType_SkillSetting && ESPType_SkillBar == destSlotType && srcSlotMC != NULL && destSlotMC != NULL ){
-	//	//拖放新技能
+	//	//Drag and drop new ability
 	//	UINT uniqueSkillID = (UINT)srcSlotMC->GetInt(TEXT("itemIndex"));
 	//	INT toEquipSkillSlotIdx = (INT)destSlotMC->GetInt( TEXT("slotIndex") );
 
@@ -645,7 +645,7 @@ void UMMOUISkillSettingPanel::Init()
 }
 
 //---------------------------------------------
-//主动技能技能
+//Active ability
 void UMMOUISkillSettingPanel::InitActiveSkillMc()
 {
 	ActiveSkillsListPanel = GetObject( TEXT("ActiveSkillListPanelMc") );
@@ -691,7 +691,7 @@ extern bool g_displayDragDropIcon;
 //============================================================================================================================
 void UMMOUISkillSettingPanel::ASLevelUpSkill( int uniqueSkillID )
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_SkillLevelUp);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -715,13 +715,13 @@ void UMMOUISkillSettingPanel::ASLevelUpSkill( int uniqueSkillID )
 	if( skillNextLevel == NULL ){
 		return;
 	}
-	//修炼点不足
+	//not enough cultivation points
 	INT levelUpPts = MMOFacade::getSingleton().GetPlayerMoney( E_MONEYTYPE_SPELL_PTS );
 	if( levelUpPts < skillNextLevel->LvUpRequirePoints ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillTree.ERROR_skill_level_up_needPts") ),MsgInfoType_Table,TEXT("MMOGame.SkillTree.ERROR_skill_level_up_needPts") );
 		return;
 	}
-	//隐藏Tips
+	//hide Tips
 	MMOUI::GetUIManager()->delegateHideTips();
 
 	CMessageHandler::GetInstance().Send_SpellLevelUp( (UINT16)skillID );
@@ -738,7 +738,7 @@ void UMMOUISkillSettingPanel::ASShowTips_SkillLvUpBtn( UGFxObject *mc, INT uniqu
 	//hint = UITextParser::HTMLBeginParagraph();
 	//hint += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillTree.ActiveSkillLvUpHint") );
 	//hint += UITextParser::HTMLEndParagraph();
-	//修炼点
+	//cultivation points
 	UMMOAbility *skill = MMOSkillManager::getSingleton().FindAbilityTemplate( uniqueSkillID );
 	if( skill == NULL ){
 		return;
@@ -764,7 +764,7 @@ void UMMOUISkillSettingPanel::ASShowTips_SkillLvUpBtn( UGFxObject *mc, INT uniqu
 	}
 	hint += UITextParser::HTMLEndParagraph();
 
-	//人物等级需求提示
+	//character level requirement tip
 	AMMOPlayer *mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	INT limitedLevel = ( SkillLevelUpLimitLv >= skillNextLevel->LvUpRequireRoleLevel ? SkillLevelUpLimitLv : skillNextLevel->LvUpRequireRoleLevel );
 	if( mainPlayer && mainPlayer->ActorAttributes->LevelAttributes.Level < limitedLevel ){
@@ -820,7 +820,7 @@ void UMMOUISkillSettingPanel::ASSetSkill( INT skillSetIdx, INT uniqueSkillID )
 //============================================================================================================================
 void UMMOUISkillSettingPanel::ASShowSkillDetail( UGFxObject *mc, INT skillUniqueID, INT showPosX, INT showPosY )
 {
-	//不要了
+	//not needed
 	//if( _SkillSetting == NULL ){
 	//	return;
 	//}

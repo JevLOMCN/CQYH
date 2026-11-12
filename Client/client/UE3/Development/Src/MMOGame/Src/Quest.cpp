@@ -257,7 +257,7 @@ void UQuest::InitDataToExcel()
 	nAcceptTimeStart = timeStart;
 	nAcceptTimeEnd = timeEnd;
 	
-	// 获取子任务目的地
+	// Get sub-quest destination
 	for (INT i = 0; i < 8; ++ i)
 	{
 		Destinations(i).DestMapId = 0;
@@ -442,7 +442,7 @@ void UQuest::InitDataToExcel()
 		}
 	}
 
-	// 把原来的旧数据更新一下
+	// Update the old data
 	for (INT i = 0; i < VarLimit.Num(); ++ i)
 	{
 		FQuestCheckVar* checkVar = &VarLimit(i);			

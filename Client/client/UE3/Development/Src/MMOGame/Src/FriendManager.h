@@ -30,8 +30,8 @@ struct MMOFriendMember
 	INT Online;
 	FString Location;
 	FString Sign;
-	FString AbbName;//名字缩写
-	INT32 nIntimacy; //好友度
+	FString AbbName;//abbreviated name
+	INT32 nIntimacy; //friendship level
 	UINT8 SceneTempID;
 };
 
@@ -78,9 +78,9 @@ public:
 
 	INT GetFriendGroupId ( INT roleId );
 	MMOFriendMember GetFriendInfoByRoleId( INT roleId );	
-	MMOFriendMember* GetFriendGroupMember( INT groupId , INT pos );//用指针，避免找不到
-	MMOFriendMember* GetFriendGroupMemberById( INT groupId , INT id );//用指针，避免找不到
-	MMOFriendMember* GetNearContact( INT pos );//用指针，避免找不到
+	MMOFriendMember* GetFriendGroupMember( INT groupId , INT pos );//use a pointer to avoid not-found
+	MMOFriendMember* GetFriendGroupMemberById( INT groupId , INT id );//use a pointer to avoid not-found
+	MMOFriendMember* GetNearContact( INT pos );//use a pointer to avoid not-found
 	MMOFriendMember* GetBlacklistMember( INT pos );
 	MMOFriendMember* GetEnemylistMember( INT pos );
 	MMOFriendMember* GetBlackMemberByRoleId( INT roleId );
@@ -89,9 +89,9 @@ public:
 	
 	MMOFriendGroup* GetFriendGroup( INT groupId );
 	INT GetFriendGroupNum(){ return FriendGroupList.Num(); }
-	INT GetFriendNumInGroup( INT groupId );//一组里的好友数
-	INT GetTotalFriendNum( );//一一共的好友数
-	INT GetOnlineFriendNumInGroup( INT groupId );//一组里的在线好友数
+	INT GetFriendNumInGroup( INT groupId );//number of friends in a group
+	INT GetTotalFriendNum( );//total number of friends
+	INT GetOnlineFriendNumInGroup( INT groupId );//number of online friends in a group
 	INT GetEmptyFriendGroupId();
 
 	void ChangeFriendGroup(INT RoleId,INT GroupId);
@@ -112,9 +112,9 @@ public:
 	
 	void NotifyNewContact( INT roleId );
 	
-	void MoveGroupPlayerToGroup( INT fromGroupId  , INT toGroupId );//改变一组人的组
-	void MovePlayerToGroup( INT roleId , INT fromGroupId  , INT toGroupId ); //改变组 
-	void DeleteAttention( INT roleId ); //取消关注
+	void MoveGroupPlayerToGroup( INT fromGroupId  , INT toGroupId );//change the group of a group of people
+	void MovePlayerToGroup( INT roleId , INT fromGroupId  , INT toGroupId ); //change group
+	void DeleteAttention( INT roleId ); //unfollow
 
 	void SaveNearContact();
 	void LoadNearContact();
@@ -136,9 +136,9 @@ public:
 
 	void DeleteFriendGroup( INT groupId );
 
-	//添加杀人信息
+	//add kill info
 	void AddKillInfoList( UBOOL iamKiller , INT killerRoleID , INT victimRoleID );
-	//添加掉落信息
+	//add drop info
 	void AddKilledDropItem( UItem* titem , FClientItemInfo* clientItem );
 	TArray<MMOKillInfo>& GetKillInfoList() { return KillInfoList; }
 	void SaveKillInfoData();
@@ -146,17 +146,17 @@ public:
 
 	void TickTime( FLOAT deltaTime );
 
-	//摆摊需求
+	//stall requirement
 	void  UpdateFriendMemberInfo(MMOFriendMember &FriendInfo,INT nRoleID);
 
-	//商城需要一个全部好友数据接口
+	//mall needs an interface for all friend data
 	const TArray<MMOFriendGroup>& GetAllFriendList()const;
 
-	//最近联系人里删除
+	//delete from recent contacts
 	void removeFromNerContactList(int roleId);
 	void UpdateNerContactListMember(MMOFriendMember* mem);
 
-	//好友度发生变化
+	//friendship level changed
 	void UpdateFriendIntimacy(UINT32 roleId,INT32 nIntimacy);
 
 	INT GetPlayerIntimacy(UINT32 roldId);

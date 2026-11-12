@@ -395,7 +395,7 @@ void USeqAct_Modifier::CheckForErrors()
 				}
 			}
 
-			// 不是RootNode但Input/Output都为空
+			// Not RootNode but Input/Output are both empty
 			if(!modifier->bRoot && !modifier->ParentNode
 				&& !(modifier->FalseRetNode || modifier->FalseRetNode || modifier->NextNode))
 			{
@@ -504,7 +504,7 @@ void USeqAct_Modifier::CheckForErrors()
 				*FString::Printf(LocalizeSecure(LocalizeUnrealEdMMO(TEXT("CheckError_ModifierHasMultiRootNode")), *GetFullName())), NULL);
 		}
 	}
-	else // is 子节点
+	else // is child node
 	{
 		if(!bRoot && !ParentNode)
 		{

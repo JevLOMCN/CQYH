@@ -109,12 +109,12 @@ void EquipSlotManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 				panel->_EnhcPanel->UpdateUIViews();
 			}
 
-			//播放粒子特效
+			//Play particle effect
 			//MMOFacade::getSingleton().GetMainPlayer()->ShowEquipLevelUpEffect(_MyEquipSlotProperties[slotId].cur_level,slotId == 0);
 			MMOFacade::getSingleton().GetMainPlayer()->NotifyRefreshEquipLevel( equipSlotEnhaceResultEvt->EnhanceSlotID );
 
 
-			//服务器不发广播就本地模拟一个
+			//If the server doesn't send a broadcast, simulate one locally
 			/*if(!_MyEquipSlotProperties[slotId].bSysTip)
 			{
 				FString MainPlayerName = MMOFacade::getSingleton().GetMainPlayer()->ActorName;
@@ -128,7 +128,7 @@ void EquipSlotManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 			//
 			MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Strong);
 			/*
-			// 成就计数
+			// Achievement count
 			for (INT32 nIndex = 0; nIndex < NES_TOTAL; nIndex++)
 			{
 			}
@@ -173,7 +173,7 @@ void EquipSlotManager::ReadEnhancePropConfig()
 		INT refineDataClassId = mmoFacade.FindClientEnumValue( tabFile->GetData( TEXT("Class"), i ), TEXT("ECHAR_CLASS_TYPE"));
 		INT slotID = mmoFacade.FindClientEnumValue( tabFile->GetData( TEXT("NormalEquipSlot"), i ), TEXT("ENORMAL_EQUIP_SLOT"), 1 );	
 
-		//记录额外强化加成数据索引
+		//Record the index of the extra enhancement bonus data
 		if( slotID == NES_TOTAL && refineDataClassId >= 0 && refineDataClassId < EPCT_MAX )
 		{
 			INT allLevelCnt = _RefineExtrPropLvIdx[refineDataClassId].Num();
@@ -316,7 +316,7 @@ UBOOL EquipSlotManager::CheckEnhanceConsume( INT containerID, INT slotID, INT ch
 	}
 
 
-	//是否是装备
+	//Whether it is equipment
 	UItem *pItem = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UEquip *pEquip = Cast<UEquip>( pItem );
 	if( pEquip == NULL ){
@@ -327,7 +327,7 @@ UBOOL EquipSlotManager::CheckEnhanceConsume( INT containerID, INT slotID, INT ch
 	//
 	UBOOL canEquipToThisSlot = CheckEnhanceConsume( pEquip, checkSlotID );
 	if( !canEquipToThisSlot ){
-		//需要对应装备位置的装备
+		//Requires equipment in the corresponding equipment slot
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.EnhanceGeneral.ERROR_UNFIT_CONSUME_EQUIP") ) ,MsgInfoType_Table,TEXT("MMOGame.EnhanceGeneral.ERROR_UNFIT_CONSUME_EQUIP"));
 		return FALSE;
 	}
@@ -341,7 +341,7 @@ UBOOL EquipSlotManager::CheckEnhanceConsume( UEquip *pEquip, INT checkSlotID )
 		return FALSE;
 	}
 
-	//检查是对应
+	//Check that it corresponds
 	INT equipConID = -1;
 	INT equipSlotID = -1;
 	INT equipType =  pEquip->GetEquipAppearenceTemplate()->EquipType;
@@ -401,7 +401,7 @@ INT EquipSlotManager::GetCurEnhanceHoleLv()
 		{
 			continue;
 		}
-		////时装格子不强化
+		////Fashion grid cells are not enhanced
 		//if( i == NES_AVATAR )
 		//{
 		//	continue;

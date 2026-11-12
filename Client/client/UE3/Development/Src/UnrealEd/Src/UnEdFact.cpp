@@ -6499,7 +6499,7 @@ UObject* UTextureFactory::FactoryCreateBinary
 	}
 
 	// [ming@snda
-	// 1024以上尺寸的贴图拒绝导入
+	// Textures larger than 1024 are refused for import
 	if( LODGroup != TEXTUREGROUP_UI && (Texture->SizeX > 1024 || Texture->SizeY > 1024 ))
 	{
 		Warn->Logf( NAME_Error, TEXT("Texture size larger than 1024, refuse to import.") );
@@ -7562,7 +7562,7 @@ UBOOL UTextureExporterTGA::ExportBinary( UObject* Object, const TCHAR* Type, FAr
 	if( !Texture->HasSourceArt() && Texture->Format != PF_A8R8G8B8 )
 	{
 		warnf(TEXT("Failed to export TGA, source art was not found and texture wasn't PF_A8R8G8B8!"));
-		appMsgf(AMT_OK, TEXT("不是PF_A8R8G8B8的贴图不能导出成TGA格式！")); // oscar@snda
+		appMsgf(AMT_OK, TEXT("Only PF_A8R8G8B8 textures can be exported to TGA!")); // oscar@snda
 		return FALSE;
 	}
 

@@ -1,6 +1,6 @@
 
 //
-// 游戏角色动画树的控制，用于游戏中所有角色对象
+// Control of the game character animation tree, used for all character objects in the game
 //
 
 class MMOActorAT extends Object

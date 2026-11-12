@@ -137,7 +137,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			//
 			FExportMap &curMapData = GetCurMap();
 			if( curMapData.ServerMapType == E_est_Dungeon ){
-				//副本评价点初始化
+				//dungeon rating point initialization
 				INT dungeonDifficulty = GetCurFBDiff();
 				PrepareCurFBAchievementsScore( curMapData.ServerID, dungeonDifficulty );
 			}
@@ -145,7 +145,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 		break;
 	case GameEvent_LeaveServerScene:
 		{
-			//清除路径
+			//clear path
 			//InvalidCurPath();
 			TArray<FVector> pathPos;
 			pathPos.Empty();
@@ -180,7 +180,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 		{
 			AMMOActor *mainActor = MMOFacade::getSingleton().GetMainActor();
 			if( mainActor != NULL ){
-				//重新计算下所在区域，有可能Tick的更新还没到，还是旧数据
+				//recompute the current area, Tick's update may not have arrived yet, still old data
 				INT regionIdx = GetCurPlayerRegionIn( mainActor->Location );
 			}
 
@@ -199,9 +199,9 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 
 	case GameEvent_QuestStateChanged:
 		{
-			// 小地图
+			// minimap
 			PrepareCurMapStaticActorInMapUI();
-			// 大地图
+			// world map
 			PrepareWorldMapStaticActorInMapUI();
 			UMMOUIWorldMap *pWorldMapPanel = ( UMMOUIWorldMap* )MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_WorldMap );
 			if( pWorldMapPanel != NULL && pWorldMapPanel->IsVisible ){
@@ -246,7 +246,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 				FActorInMapUI *pActor = actorArray(i);
 				MMOTeamMember* member = TeamManager::getSingleton().GetMemberById( pActor->_ActorID );
 				if( member == NULL ){
-					//已经离队
+					//already left the team
 					RemoveMapDymcActorGlobal( pActor->_ActorID );
 				}
 			}
@@ -286,7 +286,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 				if( inTeamActor.ActorServerId != myActorServerID ){
 					if( inTeamActor.Online ){
 						//add teammate map data
-						AddOrUpdateMapDymcActorGlobal( inTeamActor.ActorServerId, EACTMUI_GlobalTeammate, inTeamActor.MapID/*此时还没数据*/, inTeamActor.ActorName );
+						AddOrUpdateMapDymcActorGlobal( inTeamActor.ActorServerId, EACTMUI_GlobalTeammate, inTeamActor.MapID/*no data yet*/, inTeamActor.ActorName );
 					}
 				}
 			}
@@ -305,7 +305,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 
 			INT actorServerID = teamMemberUpdateEvt->IntData;
 			if( mainPlayer->ServerID == actorServerID ){
-				//自己不更新
+				//do not update self
 				break;
 			}
 
@@ -315,7 +315,7 @@ void MMOMapDataManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 					AddOrUpdateMapDymcActorGlobal( teamMember->ActorServerId, EACTMUI_GlobalTeammate, teamMember->MapID, teamMember->ActorName );
 				}
 				else{
-					//已经下线
+					//already offline
 					RemoveMapDymcActorGlobal( teamMember->ActorServerId );
 				}
 			}
@@ -475,7 +475,7 @@ void MMOMapDataManager::Shutdown()
 	MMOUI::UnRegisterEventHandler( this, GameEvent_QuestModeChange );
 	MMOUI::UnRegisterEventHandler( this, GameEvent_GuildSabacStateChanged );
 	MMOUI::UnRegisterEventHandler( this, GameEvent_GuildOccupy );
-	//地图UI
+	//map UI
 	UMMOUIWorldMap *pWorldMapPanel = ( UMMOUIWorldMap* )MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_WorldMap );
 	UMMOUIMinimap *pMiniMapPanel = ( UMMOUIMinimap* )MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Minimap );
 	UMMOUIPathMap *pPathMapPanel = ( UMMOUIPathMap* )MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_PathMap );
@@ -853,7 +853,7 @@ ATeleportNetNode *MMOMapDataManager::FindSceneTeleportsNetNode( INT inSceneID, c
 	}//end of world
 	return pTeleportInScene;
 }
-//地图
+//map
 UBOOL MMOMapDataManager::IsMapRegionMultilayer( INT mapID )
 {
 	//FExportMap *pMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfoPointer( sceneID );
@@ -968,7 +968,7 @@ INT MMOMapDataManager::GetReginInMapIdx( INT mapID, const FString &inRegionVolum
 	return -1;
 }
 //===================================================================================
-//地图区域检查
+//map area check
 INT MMOMapDataManager::CheckRegionIn( INT mapID, const FVector &checkPos )
 {
 	//
@@ -987,12 +987,12 @@ INT MMOMapDataManager::CheckRegionIn( INT mapID, const FVector &checkPos )
 		isIn = pRegion->BoundingBox.IsInside( checkPos );
 
 		if( isIn ){
-			//第一次
+			//first time
 			if( curInIdx == -1 ){
 				curInIdx = idx;
 				curInPriority = singleMapRegionList( curInIdx )->Priority;
 			}
-			//取出最大优先级的
+			//take the one with the highest priority
 			if(  pRegion->Priority > curInPriority ){
 				curInIdx = idx;
 				curInPriority = pRegion->Priority;
@@ -1269,7 +1269,7 @@ FMapMark *MMOMapDataManager::AddMapMarkData( INT sceneID, const FString &regionV
 	UINT idx =  mapMarkMap.Num();
 	FMapMark &newMark = mapMarkMap.FindOrAdd( idx );
 
-	//赋值为列表中最大序号
+	//assign the highest index in the list
 	newMark._MarkID = idx;//( ( mapMarkList.Num() > 0 ) ? ( mapMarkList.Last()._MarkID + 1 ) : 0 );
 	newMark._SceneID = sceneID;
 	newMark._RegionName = regionVolumeName;
@@ -1353,7 +1353,7 @@ FMapMark *MMOMapDataManager::RemoveMapMarkData( INT sceneID, INT markID )
 }
 
 //============================================================================================================
-//动态的物体，全地图显示的
+//dynamic objects, shown on the whole map
 
 //
 void MMOMapDataManager::RemoveAllMapDymcActorGlobalOfType( EActorInMapUIType actorType )
@@ -1441,7 +1441,7 @@ FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActorGlobal( INT actorID, EA
 	case EACTMUI_GlobalTeammate:
 		{
 			pActorInMapUI->_UiIconIdx = TEXT("ally");
-			//去掉已经加入在near中的该物体
+			//remove the object already added to near
 			AMMOActor* nearActor = MMOFacade::getSingleton().GetCharacter( actorID );
 			if( nearActor != NULL ){
 				RemoveMapDymcActorNear( actorID );
@@ -1465,12 +1465,12 @@ FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActorGlobal( INT actorID, EA
 	return pActorInMapUI;
 }
 
-//动态的物体，显示在本地玩家周围的
+//dynamic objects, shown around the local player
 FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActorNear( AMMOActor &addCharactor )
 {
 	FString displayName;
 
-	//死人不加
+	//dead are not added
 	if( addCharactor.eventIsDead() ){
 		return NULL;
 	}
@@ -1505,7 +1505,7 @@ FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActorNear( AMMOActor &addCha
 			//	return NULL;
 			//}
 
-			displayName = TEXT("");//这里取不到名字，后续SyncRoleData中会得到
+			displayName = TEXT("");//name cannot be obtained here, it will be obtained later in SyncRoleData
 		}
 		break;
 
@@ -1530,7 +1530,7 @@ FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActorNear( AMMOActor &addCha
 	return pNew;
 }
 
-//地图UI上的动态点
+//dynamic points on the map UI
 FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActor( MapDynamicActorContainer &container, INT actorID, const FString &displayName )
 {
 	FActorInMapUI *pActorInMapUI = container.Find( actorID );
@@ -1570,7 +1570,7 @@ FActorInMapUI *MMOMapDataManager::AddOrUpdateMapDymcActor( MapDynamicActorContai
 			container.Remove( key );
 		}
 		else{
-			objID = container.Num() + 1;//0预留
+			objID = container.Num() + 1;//0 is reserved
 		}
 
 		//if all is using, add an new one
@@ -1699,7 +1699,7 @@ void MMOMapDataManager::RemoveMapDymcActorGlobal( INT actorID )
 	RemoveMapDymcActor( _MapGlobalActors, actorID );
 	//
 	AMMOActor* nearActor = MMOFacade::getSingleton().GetCharacter( actorID );
-	//加入到near中
+	//add to near
 	if( nearActor != NULL ){
 		AddOrUpdateMapDymcActorNear( *nearActor );
 	}
@@ -1756,7 +1756,7 @@ FActorInMapUI *MMOMapDataManager::GetMapDymcActorByUiID( MapDynamicActorContaine
 }
 
 //=================================================================================================================
-//地图UI上的静态点
+//static points on the map UI
 //void MMOMapDataManager::UpdateMapNpcMarks( INT actorID, INT sceneID )
 //{
 //
@@ -1775,19 +1775,19 @@ void MMOMapDataManager::PrepareMapStaticActorInMapUI( INT sceneServerID, TArray<
 		curObjIdx = PutNpcToMapUI( sceneServerID, curObjIdx, container, _ScenePuttedUsefulNpcContainer );
 	}
 	
-	//怪点（只有大地图有显示，所以不用分别记录）
+	//monster points (only shown on the world map, so no need to record separately)
 	curObjIdx = PutNpcGroupsToMapUI( sceneServerID, curObjIdx, container );
 
-	//传送点
+	//teleport point
 	curObjIdx = PutTelportToMapUI( sceneServerID, curObjIdx, container );
 
-	//传送站
+	//teleport station
 	curObjIdx = PutTelportNodeToMapUI( sceneServerID, curObjIdx, container );
 
-	//特殊区域
+	//special area
 	curObjIdx = PutSpeciZoneToMapUI( sceneServerID, curObjIdx, container );
 	
-	//寻路点(区域，不用图标显示，用文字来显示)
+	//pathfinding points (areas, shown with text instead of icons)
 	curObjIdx = PutNavPointsToMapUI( sceneServerID, curObjIdx, container );
 
 	//invalid the rest
@@ -1866,17 +1866,17 @@ int MMOMapDataManager::PutNpcToMapUI( INT sceneServerID, INT curObjIdx, TArray< 
 			}
 		}
 
-		//如果不是功能NPC也没有任务，那么跳过他
+		//if it is not a function NPC and has no quests, skip it
 		if( pNpcInMapInfo->NpcFuncType == 0 &&
 			( npcTaskState != EQHUDS_CanSubmit && npcTaskState != EQHUDS_Acceptable && npcTaskState != EQHUDS_NotValidForSubmit ) ){
 				continue;
 		}
 
-		//不够就增加
+		//add more if not enough
 		if( curObjIdx >= cntAllObjInMap ){
 			FActorInMapUI newStaticActorInMap;
 			container.Push( newStaticActorInMap );
-			//重新计算总数
+			//recompute the total
 			cntAllObjInMap = container.Num();
 		}
 		//
@@ -1942,7 +1942,7 @@ int MMOMapDataManager::PutNpcToMapUI( INT sceneServerID, INT curObjIdx, TArray< 
 		pStaticActorInMap->_UiIconIdx = ( IsNpcHasFun( npcFuncType, ENPCFY_Warehouse ) ? TEXT("warehouse") : pStaticActorInMap->_UiIconIdx );
 		
 
-		//最后检查任务
+		//finally check quests
 		if( isShowQuest ){
 			if( npcTaskState != EQHUDS_None ){
 				pStaticActorInMap->_ToggleFlag |= EACTUIF_TaskNpc;
@@ -1983,7 +1983,7 @@ int MMOMapDataManager::PutNpcToMapUI( INT sceneServerID, INT curObjIdx, TArray< 
 				}
 			}
 
-			//记录任务
+			//record quests
 			INT completeListCnt = completeList.Num();
 			for( INT i = 0; i < completeListCnt; ++i ){
 				UINT &npcID = _CompleteTaskContainer.FindOrAdd( completeList( i ) );
@@ -2008,18 +2008,18 @@ int MMOMapDataManager::PutNpcToMapUI( INT sceneServerID, INT curObjIdx, TArray< 
 }
 
 //============================================================================================================
-//获得当前区域里的所有NPC
+//get all NPCs in the current area
 void MMOMapDataManager::InitMinimapStaticActorsContainer()
 {
 	_MinimapStaticActorsContainer.Empty();
-	//当前地图所显示的区域
+	//area shown by the current map
 	FInMapRegion *pCurReginInMap = _InCurMapRegion;
 	if( pCurReginInMap == NULL ){
 		return;
 	}
 	FBox regionBox = pCurReginInMap->BoundingBox;
 	INT curMapID = pCurReginInMap->MapID;
-	//当前场景所有NPC表
+	//table of all NPCs in the current scene
 	//
 	INT cnt = _ListCurMapUIStaticActors.Num();
 	for( INT i = 0; i < cnt; ++i ){
@@ -2055,7 +2055,7 @@ void MMOMapDataManager::InitMinimapStaticActorsContainer()
 void MMOMapDataManager::InitWorldMapStaticActorsContainer( INT inRegionIdx )
 {
 	_WorldMapStaticActorsContainer.Empty();
-	//当前大地图所显示的区域
+	//area shown by the current world map
 	INT sceneServerID = GetCurWorldMap().ServerID;
 	FInMapRegion *pCurReginInMap = GetReginInMap( sceneServerID, inRegionIdx );
 	if( pCurReginInMap == NULL ){
@@ -2088,11 +2088,11 @@ void MMOMapDataManager::InitWorldMapStaticActorsContainer( INT inRegionIdx )
 	}
 }
 //------------------------------------------------------------------------------------
-//获得当前区域里的所有NPC
+//get all NPCs in the current area
 void MMOMapDataManager::InitWorldMapPuttedUsefulNpcs()
 {
 	_WorldMapPuttedUsefulNpcContainer.Empty();
-	//当前大地图所显示的区域
+	//area shown by the current world map
 	INT sceneServerID = GetCurWorldMap().ServerID;
 	FInMapRegion *pCurReginInMap = GetReginInMap( sceneServerID, _InWorldmapRegionIdx );
 	if( pCurReginInMap == NULL ){
@@ -2100,7 +2100,7 @@ void MMOMapDataManager::InitWorldMapPuttedUsefulNpcs()
 	}
 	FBox regionBox = pCurReginInMap->BoundingBox;
 
-	//当前场景所有NPC表
+	//table of all NPCs in the current scene
 	for( NPCsMarkedInMapContainer::TIterator it(_ScenePuttedUsefulNpcContainer); it; ++it ){
 		FActorInMapUI &npcPointInfo = _ListWorldMapUIStaticActors( it.Value() );
 
@@ -2111,7 +2111,7 @@ void MMOMapDataManager::InitWorldMapPuttedUsefulNpcs()
 	}
 }
 //------------------------------------------------------------------------------------
-//分类当前区域地图里的所有静态点
+//classify all static points in the current area map
 void MMOMapDataManager::ClassifyWorldMapStaicMarks()
 {
 	_WorldMapPuttedFBContainer.Empty();
@@ -2146,7 +2146,7 @@ void MMOMapDataManager::ClassifyWorldMapStaicMarks()
 	}
 }
 //------------------------------------------------------------------------------------
-//获得当前区域里的所有FB
+//get all FBs in the current area
 void MMOMapDataManager::InitWorldMapPuttedFBs()
 {
 	_WorldMapPuttedFBContainer.Empty();
@@ -2168,7 +2168,7 @@ void MMOMapDataManager::InitWorldMapPuttedFBs()
 	}
 }
 //------------------------------------------------------------------------------------
-//获得当前区域里的所有FB
+//get all FBs in the current area
 void MMOMapDataManager::InitWorldMapNavPoints()
 {
 	_WorldMapNavPointsContainer.Empty();
@@ -2190,7 +2190,7 @@ void MMOMapDataManager::InitWorldMapNavPoints()
 	}
 }
 //----------------------------------------------------------------------------------------
-//获得当前区域里的所有怪点
+//get all monster points in the current area
 void MMOMapDataManager::InitWorldMapPuttedNpcGroups()
 {
 	_WorldMapPuttedNpcGroupsContainer.Empty();
@@ -2230,11 +2230,11 @@ int MMOMapDataManager::PutNpcGroupsToMapUI( INT sceneServerID, INT curObjIdx, TA
 	for( INT i = 0; i < cntAllNpcGroup; ++i ){
 		const FNPCGroupInfo &groupNpcInfo = npcGroups(i);
 
-		//不够就增加
+		//add more if not enough
 		if( curObjIdx >= cntAllObjInMap ){
 			FActorInMapUI newStaticActorInMap;
 			container.Push( newStaticActorInMap );
-			//重新计算总数
+			//recompute the total
 			cntAllObjInMap = container.Num();
 		}
 		//
@@ -2302,17 +2302,17 @@ int MMOMapDataManager::PutSpeciZoneToMapUI( INT sceneServerID, INT curObjIdx, TA
 			continue;
 		}
 
-		//只统计紧急任务
+		//only count emergency quests
 		if (quest->QuestType != E_qt_Emegency)
 		{
 			continue;
 		}
 
-		//不够就增加
+		//add more if not enough
 		if( curObjIdx >= cntAllObjInMap ){
 			FActorInMapUI newStaticActorInMap;
 			container.Push( newStaticActorInMap );
-			//重新计算总数
+			//recompute the total
 			cntAllObjInMap = container.Num();
 		}
 		//
@@ -2369,11 +2369,11 @@ int MMOMapDataManager::PutNavPointsToMapUI( INT sceneServerID, INT curObjIdx, TA
 			continue;
 		}
 
-		//不够就增加
+		//add more if not enough
 		if( curObjIdx >= cntAllObjInMap ){
 			FActorInMapUI newStaticActorInMap;
 			container.Push( newStaticActorInMap );
-			//重新计算总数
+			//recompute the total
 			cntAllObjInMap = container.Num();
 		}
 		//
@@ -2424,7 +2424,7 @@ int MMOMapDataManager::PutTelportToMapUI( INT sceneServerID, INT curObjIdx, TArr
 	for( INT i = 0; i < teleportCnt; ++i ){
 		const FTeleportObject *pTeleport = &teleportsList(i);
 		
-		//是否此跳转点是去副本的
+		//whether this jump point leads to a dungeon
 		TArray<FTeleportLink*> teleLinkList;
 		int LnkCnt = pGlobalMapInfo->FindLinkByOrigID( &teleLinkList, mapName, pTeleport->ServerID );
 		if( LnkCnt <= 0 ){
@@ -2432,11 +2432,11 @@ int MMOMapDataManager::PutTelportToMapUI( INT sceneServerID, INT curObjIdx, TArr
 			continue;
 		}
 
-		//不够就增加
+		//add more if not enough
 		if( curObjIdx >= cntAllObjInMap ){
 			FActorInMapUI newStaticActorInMap;
 			container.Push( newStaticActorInMap );
-			//重新计算总数
+			//recompute the total
 			cntAllObjInMap = container.Num();
 		}
 		//
@@ -2449,13 +2449,13 @@ int MMOMapDataManager::PutTelportToMapUI( INT sceneServerID, INT curObjIdx, TArr
 		pStaticActorInMap->_DisplayName = pTeleport->DisplayName;
 		++curObjIdx;
 
-		pStaticActorInMap->_ActorID = pTeleport->ServerID;//此ID场景内唯一，全游戏场景内不唯一
+		pStaticActorInMap->_ActorID = pTeleport->ServerID;//this ID is unique within a scene, not unique across all game scenes
 		pStaticActorInMap->_OrigInMapPos = pTeleport->Location;
 		pStaticActorInMap->_InMapID = sceneServerID;
 		//
 		FExportMap mapInfo	= pGlobalMapInfo->FindMapInfoByName( teleLinkList(0)->ToMapName );
 		if( mapInfo.ServerID == origTeleportMapInfo.ServerID ){
-			//地图内跳转
+			//jump within the map
 			pStaticActorInMap->_Type = EACTMUI_TeleportInDoor;
 			pStaticActorInMap->_UiIconIdx = TEXT("toInDoor");
 		}
@@ -2490,11 +2490,11 @@ int MMOMapDataManager::PutTelportNodeToMapUI( INT sceneServerID, INT curObjIdx, 
 	for( INT i = 0; i < teleportNodeCnt; ++i ){
 		FTeleportNetNodeData *pTNode = teleportNodeList(i);
 
-		//不够就增加
+		//add more if not enough
 		if( curObjIdx >= cntAllObjInMap ){
 			FActorInMapUI newStaticActorInMap;
 			container.Push( newStaticActorInMap );
-			//重新计算总数
+			//recompute the total
 			cntAllObjInMap = container.Num();
 		}
 		//
@@ -2597,7 +2597,7 @@ const TArray<FNaviPointInfo> *MMOMapDataManager::GetNavPointsInMap( INT sceneID 
 	return UGlobalMapInfo::GetSingleton()->GetAllNavPointsInMap( sceneID );
 }
 //============================================================================================================
-//寻路路径
+//pathfinding path
 UINT MMOMapDataManager::GetCurSceneWorldMapPathInterval()
 {
 	UINT interval = 600;
@@ -2644,7 +2644,7 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 	//	warnf( NAME_Log, TEXT("======!!!!========= [CurMainPlayerPath: %dDis:%f, Pos:x=%f,y=%f]"), i, nxtPos.Distance( curPos ), curPos.X, curPos.Y );
 	//}
 
-	//routingPathPointCnt肯定大于等于2
+	//routingPathPointCnt is certainly greater than or equal to 2
 	TArray<FVector> routingPathModified;
 	FVector &firstRoutingPathPos = routingPath(0);
 	if( is2D ){
@@ -2662,13 +2662,13 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 		}
 		FVector pathVec = posEnd - posStart;
 		UINT pathDis = pathVec.Size();
-		//太短
+		//too short
 		if( pathDis <= interval ){
 			continue;
 		}
 		routingPathModified.Push( posEnd );
 	}
-	//routingPath的成员数量肯定大于等于2,只有2点的情况下不管多短都记录
+	//routingPath certainly has at least 2 members; if only 2 points, record regardless of how short
 	FVector &lastRoutingPathPos = routingPath.Last();
 	if( lastRoutingPathPos.Distance( routingPathModified.Last() ) > POSITION_NEAR ){
 		routingPathModified.Push( lastRoutingPathPos );
@@ -2721,7 +2721,7 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 
 		//
 		INT segCnt = ( curPathDis + interval ) / interval;
-		//起始点不用标了吧
+		//no need to mark the start point
 		FVector segPos;
 		for( INT j = 1; j < segCnt; ++j ){
 			segPos = posStart + pathVec * ( posOffset + j * interval );
@@ -2751,7 +2751,7 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 		//
 		INT compareToStandard = (INT)interval - leftPathDis;
 		if( compareToStandard <= POSITION_NEAR && compareToStandard > 0 ){
-			//稍微比interval短一点，是为正好
+			//slightly shorter than interval, to be just right
 			rstPath.Push( posEnd );
 #if DEBUG_DRAW_NAVMESH_PATH
 			if( rstPath.Num() >= 2  ){
@@ -2766,11 +2766,11 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 		}
 
 		if( leftPathDis < POSITION_NEAR ){
-			//超出一点，是为没有超出
+			//slightly over, to avoid overshooting
 			leftPathDis = 0;
 		}
 	}
-	//最后一个可能还没处理
+	//the last one may not have been processed yet
 	if( routingPathPointCnt >= 1 && leftPathDis > INT(interval / 6) ){
 		rstPath.Push( routingPathModified.Last() );
 	}
@@ -2821,7 +2821,7 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 	}
 
 
-	//routingPathPointCnt肯定大于等于2
+	//routingPathPointCnt is certainly greater than or equal to 2
 	TArray<FVector> routingPathModified;
 	FVector &firstRoutingPathPos = routingPath(0);
 	routingPathModified.Push( firstRoutingPathPos );
@@ -2836,13 +2836,13 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 		}
 		FVector pathVec = posEnd - posStart;
 		UINT pathDis = pathVec.Size();
-		//太短
+		//too short
 		if( pathDis <= interval ){
 			continue;
 		}
 		routingPathModified.Push( posEnd );
 	}
-	//routingPath的成员数量肯定大于等于2,只有2点的情况下不管多短都记录
+	//routingPath certainly has at least 2 members; if only 2 points, record regardless of how short
 	FVector &lastRoutingPathPos = routingPath.Last();
 	if( lastRoutingPathPos.Distance( routingPathModified.Last() ) > POSITION_NEAR ){
 		routingPathModified.Push( lastRoutingPathPos );
@@ -2908,7 +2908,7 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 
 		//
 		INT segCnt = ( curPathDis + interval ) / interval;
-		//起始点不用标了吧
+		//no need to mark the start point
 		FVector segPos;
 		for( INT j = 1; j < segCnt; ++j ){
 			segPos = posStart + pathVec * ( posOffset + j * interval );
@@ -2938,7 +2938,7 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 		//
 		INT compareToStandard = (INT)interval - leftPathDis;
 		if( compareToStandard <= POSITION_NEAR && compareToStandard > 0 ){
-			//稍微比interval短一点，是为正好
+			//slightly shorter than interval, to be just right
 			rstPath.Push( posEnd );
 #if DEBUG_DRAW_NAVMESH_PATH
 			if( rstPath.Num() >= 2  ){
@@ -2953,11 +2953,11 @@ TArray<FVector> MMOMapDataManager::GetCurMainPlayerPath( UINT interval, UBOOL is
 		}
 
 		if( leftPathDis < POSITION_NEAR ){
-			//超出一点，是为没有超出
+			//slightly over, to avoid overshooting
 			leftPathDis = 0;
 		}
 	}
-	//最后一个可能还没处理
+	//the last one may not have been processed yet
 	if( routingPathPointCnt >= 1 && leftPathDis > INT(interval / 6) ){
 		rstPath.Push( routingPathModified.Last() );
 	}
@@ -2983,11 +2983,11 @@ void MMOMapDataManager::SetMapPath( TArray< FVector > &pathList )
 	INT curContainerSize = _MapCurPath.Num();
 	FPathPointInMapUI *pPathPosUi;
 	for( INT idx = 0; idx < posCnt; ++idx ){
-		//不够就加
+		//add if not enough
 		if( idx >= curContainerSize ){
 			FPathPointInMapUI pathPosUi;
 			_MapCurPath.Push( pathPosUi );
-			//重新计算总数
+			//recompute the total
 			curContainerSize = _MapCurPath.Num();
 		}
 		//
@@ -3053,7 +3053,7 @@ void MMOMapDataManager::InvalidCurPath()
 			pPathPosUi->_NeedUpdateFlag |= EACTUIUF_WorldMap;
 			//pUiObj->SetVisible( FALSE );
 		}
-		////大地图可能会因为关闭而遭清理结构，不能保留这些new出来的object，这里就直接析构掉
+		////the world map's structures may be cleaned up when closed, these new'd objects cannot be kept, so destruct them directly here
 		//if( pWorldMapPanel != NULL ){
 		//	pWorldMapPanel->DistoryRootMc( pPathPosUi->_UiObjInWorldMap );
 		//}
@@ -3085,7 +3085,7 @@ void MMOMapDataManager::InvalidCurPath()
 //	}
 //
 //	_AllDungeonBaseInfo.Empty();
-//	//剔除标题行
+//	//remove the title row
 //	UINT rowCnt = ArrayString2D.Num();
 //	UINT idx = 0;
 //	for( UINT i=0+1; i < rowCnt; ++i, ++idx )
@@ -3243,7 +3243,7 @@ void MMOMapDataManager::ParseDungeonCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg
 		return;
 	}
 
-	//初始化所有需要记录的数据
+	//initialize all data that needs to be recorded
 	FExportMap &curDungeonMapData = GetCurMap();
 	INT dungeonDifficulty = GetCurFBDiff();
 	PrepareCurFBAchievementsScore( curDungeonMapData.ServerID, dungeonDifficulty );
@@ -3253,7 +3253,7 @@ void MMOMapDataManager::ParseDungeonCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg
 
 		G2C_SYNC_COMBAT_STAT::ROLE_STAT_DATA* pCombatData = ( G2C_SYNC_COMBAT_STAT::ROLE_STAT_DATA* )&serverMsg->DataList[i];
 		if( pMainPlayer->ServerID != pCombatData->dwRoleID ){
-			//只关心自己的数据
+			//only care about own data
 			continue;
 		}
 		//
@@ -3263,7 +3263,7 @@ void MMOMapDataManager::ParseDungeonCombatDatas( G2C_SYNC_COMBAT_STAT* serverMsg
 		_FBAchievementsData(EDgenCnstTgtTyp_Undead)._score = -1;
 	}
 
-	//重新刷一下界面数据，以防可能来晚了
+	//refresh the UI data again, in case it arrived late
 	UMMOUIFBSummary *pFBSummary = (UMMOUIFBSummary*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_FBEndAll_FBSummary );
 	if( pFBSummary != NULL && pFBSummary->IsVisible ){
 		pFBSummary->UpdateFBAchievement();
@@ -3351,7 +3351,7 @@ void MMOMapDataManager::PrepareCurFBAchievementsScore( INT mapID, INT fbDifficul
 		return;
 	}
 
-	//准备固定评价点目标值
+	//prepare fixed rating point target values
 	_FBConstAchievements(EDgenCnstTgtTyp_TargetKilled).TargetValue = fbInfo->StandardBossValue;
 	_FBAchievementsData(EDgenCnstTgtTyp_TargetKilled)._achievementTemplate = &_FBConstAchievements(EDgenCnstTgtTyp_TargetKilled);
 	_FBAchievementsData(EDgenCnstTgtTyp_TargetKilled)._score = 0;
@@ -3370,11 +3370,11 @@ void MMOMapDataManager::PrepareCurFBAchievementsScore( INT mapID, INT fbDifficul
 
 	INT curIdx = EDgenCnstTgtTyp_Max;
 
-	//动态的
+	//dynamic
 	for( INT curFBTargetIdx = 0; curFBTargetIdx < UCONST_MaxDungeonCustomTarget && curIdx < MAX_Dungeon_Target; ++curFBTargetIdx, ++curIdx ){
 		const FDungeonTarget *achiTemplate = &fbInfo->CustomTarget[curFBTargetIdx];
 		if( achiTemplate->TargetValue >= 0 ){
-			//有数据，加入统计
+			//has data, add to stats
 			_FBAchievementsData(curIdx)._achievementTemplate = achiTemplate;
 			_FBAchievementsData(curIdx)._score = -1;
 		}
@@ -3387,16 +3387,16 @@ INT MMOMapDataManager::GetTimeSinceDungeonBegin()
 {
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 
-	//本地的战场开始时间
+	//Local battlefield start time
 	__time32_t localStartServerTime = _DungeonStartUtcTime;
 	_localtime32(&localStartServerTime);
 
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;
 	::GetLocalTime(&curTime);
 	UINT32 curTimeSec = mmoFacade.ConvertSystemTimeToTmTSecond( curTime );
 
-	//本地与服务器的时间差
+	//Time difference between local and server
 	INT32 secDiff = mmoFacade.GetClientToSceneSecondDiff();
 
 	warnf( NAME_Log, TEXT("GetTimeSinceDungeonBegin  curTime:H-%d,M-%d,S-%d"), curTime.wHour, curTime.wMinute, curTime.wSecond );
@@ -3409,7 +3409,7 @@ INT MMOMapDataManager::GetTimeSinceDungeonBegin()
 //
 INT MMOMapDataManager::GetMaxDiffOfType( INT mapID, INT type, INT allTypeMaxDiff )
 {
-	////allTypeMaxDiff表示已打通的难度
+	////allTypeMaxDiff represents the difficulty already cleared
 	//INT maxDiff = esdInvalid;
 	//INT startPos = esdNormal1;
 	//if( type == EFBDTyp_OnePerson ){
@@ -3486,7 +3486,7 @@ void MMOMapDataManager::ActiveRevivePoint( FVector &activePnt )
 
 	particleComp->ActivateSystem( FALSE );
 
-	//文字提示
+	//text tips
 	UMMOUIHintSceneWidget *pSceneHintMsg = ( UMMOUIHintSceneWidget* )MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_DynamicUI_Scene );
 	AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	if( pSceneHintMsg != NULL && mainPlayer != NULL ){

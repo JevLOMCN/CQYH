@@ -16,13 +16,13 @@ var(client) int       StartShowCount								<DisplayName="StartShowCount">;
 var(client) bool      bShowTimeUpTips								<DisplayName="ShowTimeUpTips">;
 var(client) bool      bShowStackCount								<DisplayName="ShowStackCount">;
 var(client) float     LeftTimeToShow								<DisplayName="LeftTimeToShow">; 
-// 中buff对象效果列表,不可叠加效果列表
+// effect list on buffed target, non-stackable effect list
 var(client) editinline array<AbilityComponent> SingleEffectList		<DisplayName="SingleEffectList">;
-// 需要同BUFF叠加数量一致的效果列表
+// effect list that must match the BUFF stack count
 var(client) editinline array<AbilityComponent> OverlapEffectList	<DisplayName="OverlapEffectList">;
-// 中buff对象效果列表,不可叠加效果列表
+// effect list on buffed target, non-stackable effect list
 var(client) array<ComponentNode> SingleComponentList				<DisplayName="SingleComponentList">;
-// 需要同BUFF叠加数量一致的效果列表
+// effect list that must match the BUFF stack count
 var(client) array<ComponentNode> OverlapComponentList				<DisplayName="OverlapComponentList">;
 
 var(client) editinline array<AbilityComponent> BuffEndComponentList;

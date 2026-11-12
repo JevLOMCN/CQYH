@@ -142,7 +142,7 @@ public:
 			const TArray<class ANPCSpawnPoint*>& NPCSpawns = ServerTrigger->GetNPCSpawnPoints();
 			for (INT i = 0; i < NPCSpawns.Num(); ++i)
 			{
-				//对于刚增加的SpawnPoint，内容是空的，直接绘制会导致崩溃
+				//A newly added SpawnPoint has empty content, drawing it directly would crash
 				if( NPCSpawns(i) != NULL )
 					PDI->DrawLine(ServerTriggerObject->Location, NPCSpawns(i)->Location, FColor(255, 255, 0), SDPG_World);
 			}

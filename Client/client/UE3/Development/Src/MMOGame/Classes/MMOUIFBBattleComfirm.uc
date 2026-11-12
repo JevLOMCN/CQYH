@@ -59,7 +59,7 @@ native function UpdateUIMode();
 //		break;
 //	}
 //}
-//在倒计时里打开界面
+//Open the UI during the countdown
 native function OpenInTime( int iMSec );
 event CallASStartCloseCountDown( int iMSec )
 {
@@ -99,7 +99,7 @@ native function SendPlayFBAgain();
 native function WantPlayFbAgain();
 native function SendLeaveFB();
 native function LeaveFB();
-//关闭副本评分，副本抽奖，副本退出重置窗口
+//Close dungeon rating, dungeon lottery, dungeon exit reset windows
 native function CloseAllFBEndUI();
 //
 native function OpenFBBattleComfirm();

@@ -98,7 +98,7 @@ struct native EditorStaticComponentMaskParameterValueOverTime extends EditorPara
     var() ComponentMaskParameterOverTime ParameterValue;
 };
 
-var(MMO) bool IsBloodyContentInstance < DisplayName="ÊÇÑªÐÈÄÚÈÝ" >;
+var(MMO) bool IsBloodyContentInstance < DisplayName="Is Bloody Content" >;
 
 /** Physical material to use for this graphics material. Used for sounds, effects etc.*/
 var() PhysicalMaterial PhysMaterial;

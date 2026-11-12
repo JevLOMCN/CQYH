@@ -8,7 +8,7 @@
 #include "TeamManager.h"
 #include "MMODataManager.h"
 
-//活动类型
+//Activity type
 enum
 {
 	EActivityHot	 = 0,	
@@ -29,34 +29,34 @@ enum EActivityState
 	EActivityOver,
 };
 
-// 完成度显示类型
+// Completion display type
 enum EActivityCompleteType
 {
-	EACPT_None = 0,				// 无法知道是否参与
-	EACPT_Quest,				// 任务完成，活动完成
-	EACPT_Time,					// 时间结束，活动完成
-	EACPT_SignIn,				// 每日签到，活动完成
-	EACPT_Variable,				// 角色变量达到指定值，活动完成
+	EACPT_None = 0,				// Cannot know whether participated
+	EACPT_Quest,				// Quest complete, activity complete
+	EACPT_Time,					// Time ends, activity complete
+	EACPT_SignIn,				// Daily sign-in, activity complete
+	EACPT_Variable,				// Character variable reaches the specified value, activity complete
 };
 
-// 活动系统变量
+// Activity system variables
 enum EActivityRoleVariable
 {
-	EARV_ID_1 = 193,			// 角色变量ID:公会祈祷次数
-	EARV_ID_2 = 213,			// 角色变量ID:公会据点战状态
-	EARV_ID_3 = 214,			// 角色变量ID:幽冥海进入次数
-	EARV_ID_4 = 216,			// 角色变量ID:幽冥海上次进入时间
-	EARV_ID_5 = 217,			// 角色变量ID:公会祈祷上次时间
-	EARV_ID_6 = 218,			// 角色变量ID:九层妖塔上次进入时间
-	EARV_ID_7 = 219,			// 角色变量ID:皇室宝库上次进入时间
-	EARV_ID_8 = 220,			// 角色变量ID:经验武斗场上次进入时间
-	EARV_ID_9 = 195,			// 角色变量ID:演武场进入次数
-	EARV_ID_10 = 179,           // 角色变量ID:角色上次做公会行商时间
-	EARV_ID_11 = 187,           // 角色变量ID:角色每日泡过温泉的时间
-	EARV_ID_12 = 226,			// 角色变量ID:演武场每日计数时间
+	EARV_ID_1 = 193,			// Character variable ID: guild prayer count
+	EARV_ID_2 = 213,			// Character variable ID: guild stronghold war state
+	EARV_ID_3 = 214,			// Character variable ID: Youming Sea entry count
+	EARV_ID_4 = 216,			// Character variable ID: last entry time to Youming Sea
+	EARV_ID_5 = 217,			// Character variable ID: last guild prayer time
+	EARV_ID_6 = 218,			// Character variable ID: last entry time to Nine-Layer Demon Tower
+	EARV_ID_7 = 219,			// Character variable ID: last entry time to Royal Treasury
+	EARV_ID_8 = 220,			// Character variable ID: last entry time to Experience Arena
+	EARV_ID_9 = 195,			// Character variable ID: Training Ground entry count
+	EARV_ID_10 = 179,           // Character variable ID: last time the character did guild trading
+	EARV_ID_11 = 187,           // Character variable ID: time the character soaked in the hot spring daily
+	EARV_ID_12 = 226,			// Character variable ID: Training Ground daily count time
 };
 
-//活动时间
+//Activity time
 struct ActivityTime
 {
 	INT				nStartTime_year;
@@ -85,39 +85,39 @@ struct ActivityTime
 struct RewardBarItem
 {
 	INT nID;
-	INT nVitality;			//累计活跃度
+	INT nVitality;			//Accumulated activity points
 	INT nRewardItemID;
 	INT nRewardItemCount;
 	INT nBoxLevel;
 };
 
-//活动奖励
+//Activity reward
 struct ActivityReward
 {
-	INT				nRewardType;			//1是金钱 2是经验 4是寻宝 金钱经验组合的是1+2等等1+4 2+4 1+2+4组合
-	INT				nRewardVitality;		//活跃度奖励
+	INT				nRewardType;			//1 is gold, 2 is experience, 4 is treasure hunt; gold and experience combined is 1+2, and so on: 1+4, 2+4, 1+2+4
+	INT				nRewardVitality;		//Activity points reward
 	INT				nArrItemID[10];
 };
 
-//活动基本数据
+//Basic activity data
 struct ActivityData
 {
-	INT						nVipLevel;				//是否是VIP活动
-	INT						nActivityID;			//活动ID
-	INT						nLinkQuestType;			//关联任务类型
-	INT						nLinkQuestID;			//关联任务ID
-	INT						nCheckLevelMin;			//等级限制下限
-	INT						nCheckLevelMax;			//等级限制上限
-	INT						nHotStarNum;			//推荐星数
-	INT						nPersonNumMin;			//参与人数下限
-	INT						nPersonNumMax;			//参与人数上限
-	INT						nHaveDoneTimes;			//已经完成的次数
-	INT						nPerDayJoinNum;			//每天参与的次数
-	INT                     nCompleteType;			//完成活动的类型
-	INT                     nCompleteMap;			//完成活动的地图
-	TArray<UINT32>			aTimeLimit;				//活动限制
-	INT                     nGuildActivityType;		//工会活动类型
-	INT                     nRoleVariable;			//活动角色变量
+	INT						nVipLevel;				//Whether it is a VIP activity
+	INT						nActivityID;			//Activity ID
+	INT						nLinkQuestType;			//Linked quest type
+	INT						nLinkQuestID;			//Linked quest ID
+	INT						nCheckLevelMin;			//Level limit lower bound
+	INT						nCheckLevelMax;			//Level limit upper bound
+	INT						nHotStarNum;			//Recommended star count
+	INT						nPersonNumMin;			//Participant count lower bound
+	INT						nPersonNumMax;			//Participant count upper bound
+	INT						nHaveDoneTimes;			//Number of times already completed
+	INT						nPerDayJoinNum;			//Number of participations per day
+	INT                     nCompleteType;			//Type of activity completion
+	INT                     nCompleteMap;			//Map of activity completion
+	TArray<UINT32>			aTimeLimit;				//Activity limits
+	INT                     nGuildActivityType;		//Guild activity type
+	INT                     nRoleVariable;			//Activity character variable
 
 	INT						nActivityType;
 	ActivityTime			nTimeInfo;
@@ -137,7 +137,7 @@ struct ActivityData
 		appMemzero(this, sizeof(ActivityData));
 	}
 };
-//活动配置表读取
+//Read activity config table
 struct ActivityDataProcessor
 {
 	static const TCHAR* GetName()
@@ -178,7 +178,7 @@ struct ActivityDataProcessor
 };
 typedef TDataManger< ActivityData, ActivityDataProcessor >   MMOActivityDataManager;
 
-//活跃度奖励配置读取
+//Read activity points reward config
 struct ActivityRewardBarDataProcessor
 {
 	static const TCHAR* GetName()
@@ -219,24 +219,24 @@ struct ActivityRewardBarDataProcessor
 };
 typedef TDataManger< RewardBarItem, ActivityRewardBarDataProcessor >   MMOActivityRewardBarDataManager;
 
-//副本列表基本数据
+//Basic dungeon list data
 struct FBActivityData
 {
-	INT						nFBID;					//活动ID
+	INT						nFBID;					//Activity ID
 	INT						nFBType;
-	INT						nCheckLevelMin;			//等级限制下限
-	INT						nCheckLevelMax;			//等级限制上限
-	INT						nPersonNumMin;			//参与人数下限
-	INT						nPersonNumMax;			//参与人数上限
-	INT						nHaveDoneTimes;			//已经完成的次数
-	INT						nPerDayJoinNum;			//每天参与的次数
+	INT						nCheckLevelMin;			//Level limit lower bound
+	INT						nCheckLevelMax;			//Level limit upper bound
+	INT						nPersonNumMin;			//Participant count lower bound
+	INT						nPersonNumMax;			//Participant count upper bound
+	INT						nHaveDoneTimes;			//Number of times already completed
+	INT						nPerDayJoinNum;			//Number of participations per day
 	INT						nAcceptNpcID;
 	INT						ndestMapID;
 	INT						nPosX;
 	INT						nPosY;
 	INT						nPosZ;
-	INT						nFBCostActiveValue;		//副本消耗
-	INT						nFBDifficulty;			//副本难度
+	INT						nFBCostActiveValue;		//Dungeon cost
+	INT						nFBDifficulty;			//Dungeon difficulty
 	ActivityTime			nTimeInfo;
 	ActivityReward			nRewardInfo;
 	FString					sDifficultyString;
@@ -252,17 +252,17 @@ struct FBActivityData
 	}
 };
 
-//活动/副本目标表
+//Activity/dungeon target table
 struct ActivityTarget
 {
-	FString sName;     //名称
-	INT sType;         //类型
-	INT sDifficulty;   //难度
-	INT sLevel;        //等级
-	INT sBossCount;    //boss数量
-	INT sConsume;      //消耗活力值
-	INT sAchieve;      //获取的活跃度
-	INT sRecommend;    //推荐人数
+	FString sName;     //Name
+	INT sType;         //Type
+	INT sDifficulty;   //Difficulty
+	INT sLevel;        //Level
+	INT sBossCount;    //Boss count
+	INT sConsume;      //Vitality consumed
+	INT sAchieve;      //Activity points obtained
+	INT sRecommend;    //Recommended player count
 };
 
 struct ActivityTeam
@@ -311,7 +311,7 @@ struct ActivityTeamMember
 };
 
 
-// 活动配置表		
+// Activity config table
 typedef std::list<ActivityData, M_UE3_STL_ALLOC(ActivityData) >		ActivityDataList;
 typedef std::list<FBActivityData, M_UE3_STL_ALLOC(FBActivityData) > FBActivityDataList;
 typedef std::list<RewardBarItem, M_UE3_STL_ALLOC(RewardBarItem) >	RewardBarDataList;
@@ -324,7 +324,7 @@ typedef std::map<INT, ActivityTeamList, M_UE3_STL_ALLOC_MAP(INT, ActivityTeamLis
 
 typedef std::map<UINT16, INT32, M_UE3_STL_ALLOC_MAP(UINT16, INT32)> ActivityVariableMap;
 
-// 活动事件
+// Activity event
 struct MMOGameEvent_Activity : public MMOGameEvent
 {
 public:
@@ -350,7 +350,7 @@ public:
 	INT					nActivityID;
 };
 
-// 活动管理类
+// Activity manager class
 class ActivityManager : public SingletonMeyers<ActivityManager>, public INativeGameEventHandler
 {
 public:
@@ -359,7 +359,7 @@ public:
 
 	enum EActivityHeadTypeSort
 	{
-		//活动的排序
+		//Activity sorting
 		EActivitySortHead_Name,
 		EActivitySortHead_Time,
 		EActivitySortHead_PersonNum,
@@ -368,7 +368,7 @@ public:
 		EActivitySortHead_CompleteStatus,
 		EActivitySortHead_Star,
 
-		//副本的排序
+		//Dungeon sorting
 		EFBSortHead_Level,
 		EFBSortHead_CostActiveValue,
 
@@ -378,9 +378,9 @@ public:
 	void Clear();
 	void Update(FLOAT deltaTime);
 
-	// 活动状态更新事件
+	// Activity state update event
 	virtual void				OnNativeGameEvent(struct MMOGameEvent* evt);
-	// 活动数据
+	// Activity data
 	void						AddActivityData(ActivityData& data);
 	void						AddActivityRewardBarData(RewardBarItem& data);
 	const ActivityData*			GetActivityData(INT activityId) const;
@@ -393,12 +393,12 @@ public:
 	UBOOL						IsActivity(INT questId);
 	INT							GetActivityVipLevel(INT questId);
 
-	// 活动需要判断的属性
+	// Attributes that need to be checked for the activity
 	INT							 GetActivityAcceptMaxTimes(INT activityId);
 	INT							 GetMaxActiveValue();
 	void						 FilterTodayActivity();
 
-	// 获得当前活跃度
+	// Get current activity points
 	INT32   GetActiveValue();
 	INT 	GetRewardState(INT nIndex);
 	INT		GetCurActivityId();
@@ -497,7 +497,7 @@ protected:
 
 	ActivityVariableMap _ActivityVariableMap;
 
-	//活跃度
+	//Activity points
 	INT32			 _ActiveValue;
 	INT32			 _RewardQuestComNum;
 	INT32			 _RewardBit;

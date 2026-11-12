@@ -596,7 +596,7 @@ void UEditorComponent::DrawGrid(const FSceneView* View,FPrimitiveDrawInterface* 
 							actorLayer = actorLayer.ToUpper();
 							if(actorLayer.InStr(LayerNameConfig) == INDEX_NONE)
 							{
-								return false; // 不在Path Layer中就不阻挡寻路
+								return false; // not in Path Layer, so does not block pathfinding
 							}
 							return true;
 						}

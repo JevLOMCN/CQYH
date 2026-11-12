@@ -39,7 +39,7 @@ void FriendManager::Init()
 
 void FriendManager::LoadNearContact()
 {
-	//和账号相关，需要登录后有了好友资料才读取，这样能匹配信息
+	//account related, must be read after login once friend data is available, so the info can match
 	FArchive* archive = NULL;
 	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &archive, TEXT("nearContact") ))
 	{
@@ -134,7 +134,7 @@ void FriendManager::AddNewFriend( INT RoleId , FString FriendName , INT GroupId 
 	MMOGameEvent_OneInt evt( GameEvent_UpdateFriendGroup , GroupId );
 	MMOUI::PostGameEvent( &evt );
 
-	// add by zhangrui 这里查一下其他角色的信息，以备不时之需，（右键菜单的相关操作可能需要这些信息）
+	// add by zhangrui look up other characters' info here just in case (right-click menu operations may need this info)
 	MMOFacade::getSingleton().RequestPlayerBaseInfo(RoleId);
 
 	//MMOFacade::getSingleton().NotifyUpdateFriendGroup(GroupId);
@@ -198,7 +198,7 @@ INT FriendManager::GetTotalFriendNum()
 	return count;
 }
 
-//注意，其实这个online是指非离线----------------------------------------------------------------------------------------------------------------------
+//note, this online actually means not offline----------------------------------------------------------------------------------------------------------------------
 INT FriendManager::GetOnlineFriendNumInGroup( INT groupId )
 {
 	if( FriendGroupList.Num() > groupId )
@@ -255,7 +255,7 @@ void FriendManager::NotifyNewContact( INT roleId )
 	MMOFriendMember mem = GetFriendInfoByRoleId(roleId);
 
 	NearContactList.InsertItem( mem , 0 );
-	//这里有个上限
+	//there is an upper limit here
 	//MMOUI::GetUIManager()->delegateUpdateNearContactList();
 	MMOGameEvent_UpdateNearContact evt;
 	MMOUI::PostGameEvent(&evt);
@@ -425,7 +425,7 @@ void FriendManager::RequestAddAttention( INT RoleId , const FString& TargetName 
 //----------------------------------------------------------------------------------------------------------------------
 void FriendManager::ChangeFriendGroup(INT RoleId,INT GroupId)
 {
-	//这个协议只是告诉服务器，所以客户端直接处理
+	//this protocol only informs the server, so the client handles it directly
 	CMessageHandler::GetInstance().ChangeFriendGroup(RoleId , GroupId);
 
 
@@ -480,7 +480,7 @@ UBOOL FriendManager::IsMyAttention( int RoleId )
 //
 INT FriendManager::GetFriendGroupId( INT RoleId )
 {
-	//好友列表
+	//friend list
 	for ( INT i = 0 ; i < FriendGroupNum ; i++ )
 	{
 		for ( INT j = 0 ; j < FriendGroupList( i ).FriendList.Num() ; j++ )
@@ -492,13 +492,13 @@ INT FriendManager::GetFriendGroupId( INT RoleId )
 		}
 	}
 
-	//关注
+	//Follow
 	if (IsMyAttention(RoleId))
 	{
 		return AttentionGroupId;
 	}
 
-	//仇人
+	//Enemy
 	MMOFriendMember* enemy = FriendManager::getSingleton().GetEnemyMemberByRoleId(RoleId);
 	if (enemy)
 	{
@@ -558,7 +558,7 @@ void FriendManager::MoveGroupPlayerToGroup( INT fromGroupId , INT toGroupId )
 
 	if( FriendGroupList( fromGroupId ).FriendList.Num() == 0 )
 	{
-		//空的就不走了，不然要递归死循环
+		//if empty, do not continue, otherwise it recurses infinitely
 		return;
 	}
 
@@ -578,7 +578,7 @@ void FriendManager::MoveGroupPlayerToGroup( INT fromGroupId , INT toGroupId )
 	//MMOFacade::getSingleton().NotifyUpdateFriendGroup( fromGroupId );
 }
 
-//--------------------------------------------//取消关注---------------------------------------------------------
+//--------------------------------------------//unfollow---------------------------------------------------------
 void FriendManager::DeleteAttention( INT roleId )
 {
 	for ( INT i = 0 ; i < FriendGroupList.Num() ; i++ )
@@ -601,7 +601,7 @@ void FriendManager::DeleteAttention( INT roleId )
 			}
 		}
 	}
-	//从最近联系人中删除
+	//delete from recent contacts
 	removeFromNerContactList(roleId);
 	MMOGameEvent_UpdateNearContact evt;
 	MMOUI::PostGameEvent(&evt);
@@ -625,7 +625,7 @@ void FriendManager::AddNewEnemy(MMOFriendMember& member)
 	}
 
 }
-//--------------------------------------------//取消关注---------------------------------------------------------
+//--------------------------------------------//unfollow---------------------------------------------------------
 void FriendManager::RemoveEnemy( INT roleId )
 {
 	for ( INT i = 0 ; i < EnemyList.Num() ; i++ )
@@ -665,7 +665,7 @@ void FriendManager::DeleteFriendGroup( INT groupId )
 	MMOGameEvent_OneInt evt( GameEvent_FriendDelGroup , groupId );
 	MMOUI::PostGameEvent(&evt);
 
-	//发送消息
+	//Send message
 	CMessageHandler::GetInstance().ChangeFriendGroupName(""  , groupId );
 }
 
@@ -965,7 +965,7 @@ void FriendManager::LoadKillInfoData()
 
 	KillInfoList.Empty();
 
-	//读取二进制
+	//read binary
 	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive,KillInfoFileName ) )
 	{
 		INT TotalSize = pArchive->TotalSize();
@@ -979,7 +979,7 @@ void FriendManager::LoadKillInfoData()
 			pArchive->Serialize( &lenth, sizeof(lenth) );
 			if( lenth > 1024 )
 			{
-				//数据有问题
+				//data is invalid
 				break;
 			}
 			TCHAR info[1024] = {0};
@@ -1062,7 +1062,7 @@ void FriendManager::TickTime( FLOAT deltaTime )
 			startTick = FALSE;
 			startTime = 0.0f;
 
-			//时间到了就把存的部分显示出来
+			//when time is up, show the stored part
 
 			for ( INT i = 0 ; i < KillInfoListBuff.Num() ; i++ )
 			{

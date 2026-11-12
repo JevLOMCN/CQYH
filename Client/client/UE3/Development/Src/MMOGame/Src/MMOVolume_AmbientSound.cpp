@@ -31,7 +31,7 @@ void AMMOVolume_AmbientSound::OnActive(APawn* P, UBOOL bOn)
 			AudioComponentList.Empty();
 
 			TArrayNoInit<class USoundCue*>* soundToPlay = &SoundCueList;
-			// modified by zhangrui05 »•µÙ÷Á“πœµÕ≥
+			// modified by zhangrui05 removed day/night system
 			/*
 			if(MMOWeatherManager::getSingleton().IsNight())
 			{

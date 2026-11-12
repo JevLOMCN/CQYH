@@ -22,7 +22,7 @@ event CallUpdateGuildMemberList(GFxObject dataProvider)
 	ActionScriptVoid("UCUpdateGuildMemberList");
 }
 
-// 家族副本
+// Guild dungeon
 native final function ASOpenDungeon(int dungeonId, int leaderId);
 
 DefaultProperties

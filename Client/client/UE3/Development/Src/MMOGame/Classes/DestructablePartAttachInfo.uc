@@ -1,12 +1,12 @@
 //
-// 可破坏部件绑定的信息
+// destructible part attachment info
 //
 class DestructablePartAttachInfo extends Object
 	editinlinenew
 	hidecategories(Object)
 	native;
 
-// 可破坏部件破坏方式
+// destructible part destruction mode
 enum EDestructResultType
 {
 	EDRT_Hide	    <DisplayName="Hide">,
@@ -14,46 +14,46 @@ enum EDestructResultType
 	EDRT_Drop	    <DisplayName="Drop">
 };
 
-// 如果是静态模型则绑定到绑定点上，否则与主骨架共享动画
+// if it is a static model, attach it to the attach point, otherwise share animation with the main skeleton
 var() bool IsStaticMeshComponent;
 
-// 只有可破坏的对象才会创建视觉表现，如爆炸特效、掉落等
+// only destructible objects create visuals, such as explosion effects, drops, etc.
 var() bool IsDestructable;
 
 var() EDestructResultType DestructType;
 
-// 只有在动画通知时才掉落
+// only drops on animation notify
 var() bool DropByNotify;
 
-// 当角色的血量少于这个值时会被破坏
+// destroyed when the character's HP is below this value
 var() float ExplodeHPPercent;
 
-// 用于标识的名字
+// name used for identification
 var() Name AttachName;
 
-// 用于创建特效或是将静态模型绑定上去的Socket
+// Socket used to create effects or attach a static model
 var() Name AttachSocket <DynamicList="SocketList">;
 
-// 用于绑定或是掉落的静态模型
+// static model used for attaching or dropping
 var() StaticMesh MeshAsset;
 
-// 用于组合绑定的骨架模型,changed by jimzhang 20122.7.14,用component替代Skeletal,为了能使用SkeletalMesh自己的动画
+// skeletal model used for combined attachment, changed by jimzhang 20122.7.14, use component instead of Skeletal, so SkeletalMesh's own animation can be used
 //var()   SkeletalMesh SkelMeshAsset;
 var()   SkeletalMeshComponent SkelMeshComponent;
 
-// 当装备破坏时产生的粒子效果
+// particle effect produced when equipment is destroyed
 var() Emitter ExplodeEmitter;
 
-// 破坏后替换显示模型的数据配置，可以递归指定不同的数据实现多级破坏
+// data config of the model displayed in place after destruction, different data can be specified recursively for multi-stage destruction
 var() editinline DestructablePartAttachInfo ReplaceArmorTemplateOnDestruct;
 
-// 是否是武器
+// whether it is a weapon
 var() bool IsWeapon;
 
-//在角色跑动时会隐藏
+//hidden while the character is running
 var() bool HideWhenRun;
 
-//var(MMOSFX) ParticleSystem BrokenEmitterTemplate <DisplayName="破坏时的粒子特效">;;
+//var(MMOSFX) ParticleSystem BrokenEmitterTemplate <DisplayName="particle effect on destruction">;;
 
 var public StaticMeshComponent MeshComponent;
 //var public SkeletalMeshComponent SkelMeshComponent;

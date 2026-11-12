@@ -164,7 +164,7 @@ void MMOArenaManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 					_VSGettedTryTimes = 0;
 					//
 					if( _CurVSState == ARENA_STAT_WAIT ){
-						//等待状态到开始战斗状态
+						//from waiting state to battle start state
 						if( pVSResult->IsVisible ){
 							pVSResult->Show( FALSE );
 						}
@@ -279,7 +279,7 @@ void MMOArenaManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			MMOGameEvent_OneInt* msg = (MMOGameEvent_OneInt*)evt;
 			UBOOL isWin = ( msg->IntData > 0 );
 			if( isWin ){
-				//胜利
+				//victory
 				++_MyArenaData._CurHighestScore;
 
 				//
@@ -557,12 +557,12 @@ void MMOArenaManager::ReflashArenaTime()
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 
 	if( IsArenaDay() ){
-		//当前本地时间
+		//Current local time
 		SYSTEMTIME curTime;
 		::GetLocalTime(&curTime);
 		UINT32 curTimeSec = mmoFacade.ConvertSystemTimeToTmTSecond( curTime );
 
-		//本地与服务器的时间差
+		//Time difference between local and server
 		INT32 secDiff = mmoFacade.GetClientToSceneSecondDiff();
 		UINT32 newTime = ( ( secDiff > 0 ) ? ( curTimeSec + (UINT32)secDiff ) : ( (UINT32)( curTimeSec - (UINT32)( -secDiff) ) ) );
 		SYSTEMTIME realCurTime = mmoFacade.ConvertUtcSecondToSystemTime( newTime );
@@ -582,7 +582,7 @@ void MMOArenaManager::ReflashArenaTime()
 	}
 
 	//if( IsArenaDay() ){
-	//	//当前本地时间
+	//	//current local time
 	//	__time32_t enterServerTime = (__time32_t)mmoFacade.GetEnterSceneServerTime();
 	//	struct tm* enterServerTM = _localtime32(&enterServerTime);
 	//	if( enterServerTM ){
@@ -644,7 +644,7 @@ void MMOArenaManager::SetNewArenaRoundState( UINT32 baseUTCTime, INT modifySec )
 	//
 	UINT32 curTime = MMOFacade::getSingleton().GetRealClientUTCTime();
 	if( curTime >= roundStartTime ){
-		//已经开始了
+		//already started
 		SetCurArenaState( EAnaSta_InRound );
 	}
 	else{
@@ -718,14 +718,14 @@ UBOOL MMOArenaManager::CanApplyArena( AMMOPlayerController *playerCtrl, FString 
 		return FALSE;
 	}
 
-	//等级
+	//level
 	INT curLevel = player->GetActorLevel();
 	if( curLevel < GetArenaEntryLevel() ){
 		errorKeyStr = TEXT("MMOGame.Arena.EntryLvError");
 		return FALSE;
 	}
 
-	//钱
+	//money
 	INT curMny = player->GetMoney(E_MONEYTYPE_02);
 	if( (UINT)curMny < GetArenaEntryFee() ){
 		errorKeyStr = TEXT("MMOGame.Arena.EntryMoneyError");
@@ -748,7 +748,7 @@ void MMOArenaManager::SetCurArenaState( EArenaState curState )
 	_CurArenaState = curState;
 
 	if( _CurArenaState == EAnaSta_WaitApply ){
-		//清零
+		//clear to zero
 		SetMyCurHighestScore( 0 );
 	}
 
@@ -895,7 +895,7 @@ void MMOArenaManager::PrepareArenaEnter( INT modeId , INT sizeId )
 	_ArenaMode = MapArenaModeByIdx( modeId );	
 	_ArenaSize = MapArenaSize( sizeId );
 
-	//判断组队人数是否合法（且为同一战队）
+	//determine whether the party size is valid (and all from the same team)
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	TeamManager& teamManager = TeamManager::getSingleton();
 	UBOOL valid = TRUE;
@@ -960,7 +960,7 @@ void MMOArenaManager::OpenArenaQueue( INT aveTime , UBOOL newQueue )
 
 	if(newQueue)
 	{
-		//新排队就设置为排队状态
+		//a new queue entry is set to queued state
 		SetArenaStep(ArenaStep_Queuing);
 	}
 
@@ -1091,12 +1091,12 @@ void MMOArenaManager::StartArenaTick( UINT32 serveTime )
 	__time32_t localBattleStartServerTime = _ArenaWaitTime + serveTime;
 	_localtime32(&localBattleStartServerTime);
 
-	//当前本地时间
+	//Current local time
 	SYSTEMTIME curTime;		
 	::GetLocalTime(&curTime);
 	UINT32 curTimeSec = MMOFacade::getSingleton().ConvertSystemTimeToTmTSecond( curTime );
 
-	//本地与服务器的时间差
+	//Time difference between local and server
 	INT32 secDiff = MMOFacade::getSingleton().GetClientToSceneSecondDiff();
 
 	INT sinceStartTimeSec = curTimeSec - ( localBattleStartServerTime + secDiff );
@@ -1204,7 +1204,7 @@ void MMOArenaManager::TickArena( FLOAT deltaTime )
 
 		if( !_CDMoviePlayed && ( _SpareTime <= _CDMovieTime ) && ( _LastSpareTime > _CDMovieTime ) )
 		{
-			//播放10秒倒计时
+			//play 10-second countdown
 			
 			FExportMap *pMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfoPointer( playerCtrl->CurMapID );
 			if( pMapInfo != NULL )
@@ -1226,7 +1226,7 @@ void MMOArenaManager::TickArena( FLOAT deltaTime )
 
 		if( _SpareTime <= 0 )
 		{
-			//打开提示按钮
+			//open the prompt button
 			FExportMap *pMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfoPointer( playerCtrl->CurMapID );
 			if( pMapInfo != NULL )
 			{

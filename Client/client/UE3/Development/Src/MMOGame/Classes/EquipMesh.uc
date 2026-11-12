@@ -23,7 +23,7 @@ enum EComponentAddingType
 	//ECAT_ChangeTexture,
 };
 
-// 对于SkeletalMesh组件,采用哪一种动画数据
+// for SkeletalMesh components, which kind of animation data to use
 enum EUsingAnimationType
 {
 	EUAT_NoAnimation     <DisplayName="EUAT_NoAnimation">,
@@ -52,11 +52,11 @@ var(ToDel) EComponentResourceType    ResourceType				<DisplayName="ResourceType"
 var(ToDel) StaticMesh                StaticMesh					<DisplayName="StaticMesh">;
 var() SkeletalMesh	            SkeletalMesh				<DisplayName="SkeletalMesh">;
 var(ToDel) ParticleSystem            ParticleSystem				<DisplayName="ParticleSystem">;
-// 取消皮肤贴图配置，从而支持贴图换肤色
+// skin texture config removed, to support swapping skin color via texture
 //var() Texture2D				BaseTexture					<DisplayName="BaseTexture">;	// texture for skin
-// 装备贴图
+// equipment texture
 var() Texture2D					RegionTexture				<DisplayName="RegionTexture">;	// texture for body parts
-// 如果是默认装备（裸模），这个就是可更换的皮肤贴图；如果是其它装备，这个就是可更换的颜色贴图（与RegionTexture使用同样的高光和法线贴图）
+// if it is the default equipment (bare model), this is the swappable skin texture; if other equipment, this is the swappable color texture (uses the same specular and normal maps as RegionTexture)
 var() array<Texture2D>			ColorTextures				<DisplayName="ColorTextures">;
 // the texture id this equip uses. for those equipmeshes with different color textures who share the same spec/norm texture
 var() int						UsedColorTextureID			<DisplayName="ColorID">;
@@ -66,7 +66,7 @@ var() bool						bNeedSkinTexture			<DisplayName="NeedSkinTexture">;
 var(ToDel) EComponentAddingType  ComponentAddingType				<DisplayName="ComponentAddingType">;
 // if ComponentAddingType == ECAT_AttachToBaseSocket, have to set a socket name in main character
 var(ToDel) name                  SocketName						<DisplayName="SocketName"|DynamicList="SocketList">;
-// 针对武器,可以切换绑定socket
+// for weapons, the attach socket can be switched
 var(ToDel) name                  CarrySocketName					<DisplayName="CarrySocketName"|DynamicList="SocketList">;
 var(ToDel) bool                  bSupportSwithAttachSocket		<DisplayName="SupportSwithAttachSocket">;
 var(ToDel) EUsingAnimationType   AnimationType					<DisplayName="AnimationType">;
@@ -100,7 +100,7 @@ var() editinline ArmorResourceData ArmorTemplate;
 //var int CurrentAnimKey;
 
 //---------------------------------------------------------------
-// 材质控制器
+// material controller
 //---------------------------------------------------------------
 var MMOActorMaterialController		MaterialController;
 

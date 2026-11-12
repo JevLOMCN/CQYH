@@ -56,7 +56,7 @@ void UNPCTemplate::InitDataToExcel()
 			PhysicAssetData = Cast<UPhysicsAsset>(UObject::StaticLoadObject(UPhysicsAsset::StaticClass(), NULL, *PAName, NULL, LOAD_NoWarn, NULL));
 			if (!PhysicAssetData)
 			{
-				GWarn->MapCheck_Add(MCTYPE_ERROR, this, *FString::Printf(TEXT("无法找到SkeletalMesh: %s 对应的物理资源 PhysicsAsset: %s"), *MeshName, *PAName), NULL);
+				GWarn->MapCheck_Add(MCTYPE_ERROR, this, *FString::Printf(TEXT("Cannot find the physics asset for SkeletalMesh: %s PhysicsAsset: %s"), *MeshName, *PAName), NULL);
 			}
 		}
 	}

@@ -37,10 +37,10 @@ void FriendChatManager::UnInit()
 
 void FriendChatManager::ClearAll()
 {
-	//存档好友聊天记录
+	//save friend chat history
 	//SaveChatLogToFile();
 
-	//清空所有聊天对话
+	//clear all chat conversations
 	for ( INT i = 0 ; i < ContactLogList.Num() ; i++ )
 	{
 		ContactLogList(i).LogList.Empty();
@@ -64,7 +64,7 @@ void FriendChatManager::SaveChatLogToFile()
 {
 	//if( !( HasLoad && !HasSave ) )
 	//{
-	//	//没读取
+	//	//not read
 	//	return;
 	//}
 
@@ -108,7 +108,7 @@ void FriendChatManager::LoadChatLogFromFile()
 
 	ContactLogList.Empty();
 
-	//读取二进制
+	//read binary
 	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive , FriendChatLogFile ) )
 	{
 		INT TotalSize = pArchive->TotalSize();
@@ -129,7 +129,7 @@ void FriendChatManager::LoadChatLogFromFile()
 			contactLog.PlayerName = playerName;
 			contactLog.LogList.Empty();
 			
-			INT num = 0;//？？？这个num不对？
+			INT num = 0;//??? is this num wrong?
 			pArchive->Serialize( &num, sizeof(num) );
 				
 			for ( INT j = 0 ; j < num ; j++ )
@@ -143,7 +143,7 @@ void FriendChatManager::LoadChatLogFromFile()
 
 			if( FriendManager::getSingleton().IsMyFriend( contactLog.RoleId ) )
 			{
-				//好友才加
+				//only add for friends
 				ContactLogList.AddItem(contactLog);
 			}
 			
@@ -301,7 +301,7 @@ void FriendChatManager::AddNewChatLogList(INT nRoleID,FString& strName, FString 
 
 	FString Msg = _GetShowText( senderName , strContent , bfromSelf );
 
-	//已有此人的消息队列，就加入之前队列
+	//if this person already has a message queue, add to the existing queue
 	for(INT i = 0 ; i< ContactLogList.Num() ;i++ ) 
 	{
 		if( ContactLogList(i).RoleId == nRoleID )
@@ -314,7 +314,7 @@ void FriendChatManager::AddNewChatLogList(INT nRoleID,FString& strName, FString 
 			return;
 		}
 	}
-	//否则就新建
+	//otherwise create a new one
 	CL.RoleId = nRoleID;
 	CL.PlayerName = strName;
 	CL.LogList.AddItem( Msg );

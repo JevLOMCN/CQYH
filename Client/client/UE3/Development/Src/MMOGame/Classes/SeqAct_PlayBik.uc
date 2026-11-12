@@ -1,5 +1,5 @@
 
-// 播放指定的视频
+// play the specified video
 
 class SeqAct_PlayBik extends SequenceAction
 	native;

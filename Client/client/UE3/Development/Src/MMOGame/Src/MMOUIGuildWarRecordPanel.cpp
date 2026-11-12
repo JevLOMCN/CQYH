@@ -106,12 +106,12 @@ void UMMOUIGuildWarRecordPanel::UpdateGuildWarRecordList()
 
 		FString content = TEXT("");
 		if (iter->byWarRes == GUILD_WAR_DEFENDER_LOSE)
-		{// 进攻方成功
+		{// Attacker succeeded
 			content = FString::Printf((const TCHAR*)(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildWarRecordSuccess"))),
 				*warTime, *warFrom, *warTo, *warFrom);
 		} 
 		else if (iter->byWarRes == GUILD_WAR_DEFENDER_WIN)
-		{// 防守方成功
+		{// Defender succeeded
 			content = FString::Printf((const TCHAR*)(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Guild.GuildWarRecordFailed"))),
 				*warTime, *warFrom, *warTo, *warTo);
 		}

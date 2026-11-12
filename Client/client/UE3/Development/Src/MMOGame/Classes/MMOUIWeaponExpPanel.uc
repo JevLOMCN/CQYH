@@ -83,7 +83,7 @@ event OnShowWeaponExp(bool show)
 
 		if( LastContainerID == E_CONSLOT_DEFAULT /*E_CONSLOT_EQUIPMENT*/ )
 		{
-			//先去掉之前的抽取武器
+			//First remove the previously drawn weapon
 			RemoveWeaponItem(LastContainerID,LastSlotID);
 		}
 	}

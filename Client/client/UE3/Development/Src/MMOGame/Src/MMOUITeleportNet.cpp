@@ -55,7 +55,7 @@ void UMMOUITeleportNet::UpdateTeleportNetList( BYTE regionID )
 		}
 
 		if( lastSceneID != pNodeInitData->InSceneID ){
-			//第一级表项：地图名
+			//First-level entry: map name
 			lastSceneID = pNodeInitData->InSceneID;
 
 			UGFxObject* itemMapObj = GFXPlayer->CreateObject( TEXT("UI_TeleportNet.TeleportNetAS3.TeleportMapData") );
@@ -74,7 +74,7 @@ void UMMOUITeleportNet::UpdateTeleportNetList( BYTE regionID )
 			dataProvider->SetElementObject( itemObjIdx, itemMapObj );
 			++itemObjIdx;
 		}
-		//第二级表项：跳转点信息
+		//Second-level entry: teleport point info
 		if( curShowNodeID == pNodeInitData->ServerID ){
 			//current node add title
 			UGFxObject* itemCurNodeTitleObj = GFXPlayer->CreateObject( TEXT("ActionScript3.TreeListData") );
@@ -169,7 +169,7 @@ void UMMOUITeleportNet::Init()
 			txtPath += appItoa(i);
 			//_TeleportReginTab[i]->SetText( MMOUI::ParseLocalizedPropertyPath( txtPath ) );
 			_TeleportReginTab[i]->SetString( TEXT("label") , MMOUI::ParseLocalizedPropertyPath( txtPath ) );
-			//暂时隐掉
+			//Temporarily hidden
 			_TeleportReginTab[i]->SetVisible( FALSE );
 		}
 	}

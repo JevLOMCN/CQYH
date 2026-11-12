@@ -81,7 +81,7 @@ POINT LastMousePosition = {0, 0}; // oscar@snda
 extern UBOOL MMOPreHandleOSDeferMessage(UINT, WPARAM, LPARAM);	// zhaojun@snda
 extern void MMOPostHandleOSDeferMessage(UINT, WPARAM, LPARAM);	// zhaojun@snda
 
-#if 1 // add by showlong, 增加对拖动窗口不阻塞游戏功能
+#if 1 // add by showlong, add support for dragging the window without blocking the game
 extern HWND GGameWindow;
 struct FCursorDragCaption 
 {
@@ -155,7 +155,7 @@ struct FCursorDragCaption
 					}
 				}
 
-				//防止标题栏出屏幕
+				//Prevent the title bar from going off screen
 				FIntRect gameWndTitleRect( nNewWndPos.x, nNewWndPos.y, nNewWndPos.x + nWndWidth, nNewWndPos.y + 28 );
 				INT inMonitorIdx = -1;
 				for( INT i = GMonitorVirtualRect.Num() - 1; i >= 0; --i )
@@ -165,7 +165,7 @@ struct FCursorDragCaption
 					{
 						FIntRect newInScreenWndTitleRect( gameWndTitleRect );
 						newInScreenWndTitleRect.Clip( rcMonitor );
-						if( newInScreenWndTitleRect.Area() > 3192 )//3192为标题栏在屏幕中的最小面积
+						if( newInScreenWndTitleRect.Area() > 3192 )//3192 is the minimum area of the title bar on screen
 						{
 							inMonitorIdx = i;
 							break;
@@ -173,14 +173,14 @@ struct FCursorDragCaption
 					}
 				}
 				if( inMonitorIdx < 0 ){
-					//出屏幕了
+					//Went off screen
 					UBOOL isDone = FALSE;
 					FIntPoint tryWndInScreenPoint( newInScreenGameWndRect.Min.X + 2, newInScreenGameWndRect.Min.Y + 2 );
 					for( INT i = GMonitorVirtualRect.Num() - 1; i >= 0; --i )
 					{
 						FIntRect &rcMonitor = GMonitorVirtualRect(i);
 						if( rcMonitor.Contains( tryWndInScreenPoint ) ){
-							//拉回到左下角所在屏幕的顶部
+							//Pull back to the top of the screen containing the bottom-left corner
 							nNewWndPos.y = rcMonitor.Min.Y;
 							isDone = TRUE;
 							break;
@@ -243,7 +243,7 @@ UBOOL CheckIMESupport( HWND Window )
 {
 	HIMC Imc = ImmGetContext( Window );
 
-	// commented by zhaojun@snda, 该函数每帧都执行，都会强行开启IME，暂时屏蔽
+	// commented by zhaojun@snda, this function runs every frame and would forcibly enable IME, temporarily disabled
 	/*
 	if( !Imc )
 	{
@@ -424,7 +424,7 @@ FWindowsViewport::FWindowsViewport(UWindowsClient* InClient,FViewportClient* InV
 	}
 #endif
 
-//	DestroyIME(Window);	// added by zhaojun@snda,初始状态禁用IME
+//	DestroyIME(Window);	// added by zhaojun@snda, disable IME in initial state
 }
 
 FWindowsViewport::~FWindowsViewport()
@@ -486,7 +486,7 @@ void FWindowsViewport::Destroy()
 //	#if 0
 //			STARTUPINFO si = {sizeof(si)};
 //			PROCESS_INFORMATION pi;
-//			//注意：网址前要留有空格
+//			//Note: a space must precede the URL
 //			TCHAR szCommandLine[] = TEXT(" http://act.cq.sdo.com/client/quit1/index.aspx");
 //			BOOL bRes = CreateProcess(TEXT("cqquit.exe"),szCommandLine ,NULL,NULL,FALSE
 //				,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
@@ -1361,7 +1361,7 @@ UBOOL FWindowsViewport::KeyState(FName Key) const
 	}
 }
 
-//@ add by showlong 按键名转键值
+//@ add by showlong key name to key value
 BYTE FWindowsViewport::KeyCode(FName key)
 {
 	BYTE* VirtualKey = Client ? Client->KeyMapNameToVirtual.Find(key) : NULL;
@@ -2111,8 +2111,8 @@ LONG FWindowsViewport::ViewportWndProc( UINT Message, WPARAM wParam, LPARAM lPar
 					return 1;
 				}
 				break;
-#if 1 // mdf by showlong, 增加对拖动窗口不阻塞游戏功能，并关闭后面的代码
-                // 按住标题栏的时候启动拖动
+#if 1 // mdf by showlong, added feature of not blocking the game when dragging the window, and disabled the code below
+                // Start dragging when the title bar is held down
             case SC_MOVE:
 				{
 					//Bruce@snda 
@@ -2128,7 +2128,7 @@ LONG FWindowsViewport::ViewportWndProc( UINT Message, WPARAM wParam, LPARAM lPar
                 if (IsFullscreen())
                     return 1;
                 break;
-                // 关闭alt+space、鼠标点击标题菜单
+                // Disable alt+space and mouse click on title menu
             case SC_KEYMENU:
             case SC_MOUSEMENU:
                 return 1;
@@ -2152,7 +2152,7 @@ LONG FWindowsViewport::ViewportWndProc( UINT Message, WPARAM wParam, LPARAM lPar
 		}
 		return DefWindowProc( Window, Message, wParam, lParam );
 
-#if 1 // add by showlong, 增加对拖动窗口不阻塞游戏功能
+#if 1 // add by showlong, add support for dragging the window without blocking the game
     case WM_NCRBUTTONDOWN:
         if (1)
             return 1;

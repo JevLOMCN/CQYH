@@ -116,7 +116,7 @@ void  UItemSlotActionListener_ItemSplit::SplitItem( UGFxObject* mc )
 	FClientItemInfo* item = MMOFacade::getSingleton().FindItem( E_CONSLOT_DEFAULT , slotId );
 	if( item )
 	{
-		//检查合理性
+		//check validity
 		ClientActionCondition_SplitItem checker;
 
 		FClientActionConditionContex contex;

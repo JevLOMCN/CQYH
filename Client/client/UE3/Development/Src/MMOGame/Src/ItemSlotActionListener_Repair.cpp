@@ -21,7 +21,7 @@ UBOOL UItemSlotActionListener_Repair::OnLeftMousePress(class UGFxObject* mc,BYTE
 	{
 		FString errorName;
 
-		// 只修理装备，并且只有耐久度损耗才修理
+		// only repair equipment, and only repair when durability has been lost
 		UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate( item->m_nTemplateID );
 		UEquip* equip = Cast<UEquip>( itemTemp );
 		if( equip == NULL || itemTemp->ItemType != TEXT("ITEMTYPE_EQUIP") )
@@ -49,7 +49,7 @@ UBOOL UItemSlotActionListener_Repair::OnLeftMousePress(class UGFxObject* mc,BYTE
 		else
 		{
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Bag.EquipNoNeed")),MsgInfoType_Table,TEXT("MMOGame.Bag.EquipNoNeed") );
-			// TODO: 播放不需要修改的音效，etc.
+			// TODO: play sound effects that need no modification, etc.
 		}
 	}
 

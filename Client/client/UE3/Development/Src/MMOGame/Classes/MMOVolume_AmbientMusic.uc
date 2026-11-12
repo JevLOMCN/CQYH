@@ -1,13 +1,13 @@
 //
-// 环境音乐体积
-// 进入体积后播放相应音乐
+// Ambient music volume
+// Play the corresponding music after entering the volume
 //
 
 class MMOVolume_AmbientMusic extends Volume
 	native
 	placeable;
 
-var() bool StopWhenUnTouch <DisplayName="出框后停止播放">;
+var() bool StopWhenUnTouch <DisplayName="Stop playing after leaving the volume">;
 
 var() MusicTrackStruct MusicTrack;
 native final function PlayTrack();
@@ -40,13 +40,13 @@ defaultproperties
 }
 
 /*
-//var(MMO) AudioComponent AmbientAudioComponent <DisplayName="音乐播放组件">;
-//var(MMO) float FadeInDuration <DisplayName="淡入音乐时间(秒)">;
-//var(MMO) float FadeOutDuration <DisplayName="淡出音乐时间(秒)">;
-//var(MMO) float FadeInVolumeLevel <DisplayName="淡入音量百分比">;
-//var(MMO) float FadeOutVolumeLevel <DisplayName="淡出音量百分比">;
+//var(MMO) AudioComponent AmbientAudioComponent <DisplayName="Music play component">;
+//var(MMO) float FadeInDuration <DisplayName="Music fade-in time (seconds)">;
+//var(MMO) float FadeOutDuration <DisplayName="Music fade-out time (seconds)">;
+//var(MMO) float FadeInVolumeLevel <DisplayName="Fade-in volume percentage">;
+//var(MMO) float FadeOutVolumeLevel <DisplayName="Fade-out volume percentage">;
 
-//var(MMO) array< AudioComponent >    AlterAudioComps <DisplayName="动态音效列表">;
+//var(MMO) array< AudioComponent >    AlterAudioComps <DisplayName="Dynamic sound effect list">;
 
 //var      AudioComponent             CurrAudioComp;
 

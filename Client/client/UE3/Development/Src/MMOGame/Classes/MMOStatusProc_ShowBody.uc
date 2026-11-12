@@ -1,5 +1,5 @@
 //
-// ËÀÍöºóÒþ²ØÊ¬Ìå
+// Hide corpse after death
 //
 class MMOStatusProc_ShowBody extends Object implements(IMMOStatusProc)
 	native

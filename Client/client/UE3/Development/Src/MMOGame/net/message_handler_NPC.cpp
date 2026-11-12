@@ -115,7 +115,7 @@ void CMessageHandler::SyncNpcData(G2C_SYNC_NPC_EX_DATA* NewData)
 			npc->ActorAttributes->SetMaxHP(NewData->nMaxHp);
 			if(npc->ActorAttributes->HP>0 && npc->ActorAttributes->HP<=NewData->nMaxHp)
 			{
-				//说明sync_hp已经来过了
+				//Means sync_hp has already arrived
 			}
 			else
 			{
@@ -167,10 +167,10 @@ void CMessageHandler::SyncNpcData(G2C_SYNC_NPC_EX_DATA* NewData)
 
 	MMOFacade::getSingleton().NotifyAddNewNpcData(npc);
 	
-	// 任务NPC
+	// quest NPC
 	MMOQuestManager::getSingleton().UpdateQuestNpcStatus(npc);
 
-	// 工会建筑NPC
+	// Guild building NPC
 	MMOGuildManager::getSingleton().UpdateGuildBuilding(npc);
 }
 

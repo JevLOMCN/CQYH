@@ -97,7 +97,7 @@ void UMMOGFXPlayer_Friend::ASFriendSearchFocusChange(UBOOL in,const FString& sea
 	}
 }
 
-//---------------------------------点击好友消息的提醒---------------------------------------------------------------------------------------
+//---------------------------------click friend message reminder---------------------------------------------------------------------------------------
 void UMMOGFXPlayer_Friend::ASFriendChatList(INT Index)
 {
 	if( ChatHint )
@@ -156,7 +156,7 @@ void UMMOGFXPlayer_Friend::ASFriendItemRightClick(INT Posx,INT Posy,class UGFxOb
 
 //------------------------------------------------------------------------------------------------------------------------
 	/*
-	重整好友聊天
+	Reorganize friend chat
 	*/
 
 // void UMMOGFXPlayer_Friend::ASSendFriendChat( INT WindowId , const FString& ChatMsg)

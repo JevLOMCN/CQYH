@@ -1,5 +1,5 @@
 //
-// IItemSlotActionListener接口
+// IItemSlotActionListener interface
 //
 interface IItemSlotActionListener
 	dependson(TypeDefine)

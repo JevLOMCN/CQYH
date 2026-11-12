@@ -11,7 +11,7 @@ private:
 	M_DECL_PARSE_FUN(g2c_operate_doodad_end);
 	M_DECL_PARSE_FUN(g2c_sync_doodad_open_count);
 
-//门机关同步
+//Door mechanism sync
 M_DECL_PARSE_FUN(g2c_sync_door_state);
 
 

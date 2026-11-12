@@ -120,7 +120,7 @@ void UMMOUIMsgInfo::Init()
 		MsgInfoObjectList(i) = GetObject( FString( TEXT("message") )+appItoa(i) );
 	}
 
-	//颜色
+	//Color
 	MsgInfoTextColor.AddZeroed(MsgInfoType_Num);
 	MsgInfoFilterColor.AddZeroed(MsgInfoType_Num);
 
@@ -201,13 +201,13 @@ void UMMOUIMsgInfo::PlayMsgSound(const FString& snd_name,INT idx)
     }
 
     AMMOActor* actor = MMOFacade::getSingleton().GetMainActor();
-    // 指定了播放索引
+    // Playback index specified
     if (idx >= 0 && idx < snd_lst.Num())
         MMOFacade::getSingleton().PlayUISound(*snd_lst(idx));
-    // 没指定则默认按职业播放
+    // If not specified, play by class by default
     else if (actor->GetClassId() >= 0 && actor->GetClassId() < snd_lst.Num())
         MMOFacade::getSingleton().PlayUISound(*snd_lst(actor->GetClassId()));
-    // 否则随机
+    // Otherwise random
     else
     {
         INT idx = (INT)RandRange(0, snd_lst.Num() - 1);

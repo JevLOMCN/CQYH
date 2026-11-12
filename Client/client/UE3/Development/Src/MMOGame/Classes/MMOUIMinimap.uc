@@ -6,11 +6,11 @@ var MMOUIMinimap _Minimap;
 var bool bShowTips;
 //
 //var Vector2D mapstone3DSize;
-//var Vector2D FullTextureMapSize;//完整地图纹理尺寸
-//var Vector2D SubTextureMapSize;//切分后的地图纹理尺寸
+//var Vector2D FullTextureMapSize;//full map texture size
+//var Vector2D SubTextureMapSize;//map texture size after splitting
 var array<GFxObject> MapTiles;
-var GFxObject MapNPCView;//堆NPC图标的那层
-var GFxObject MapPathView;//路径那层
+var GFxObject MapNPCView;//the layer where NPC icons are stacked
+var GFxObject MapPathView;//the path layer
 var GFxObject MapCoord;
 var GFxObject MapName;
 var GFxObject MapBlock;
@@ -56,9 +56,9 @@ var bool IsSmallMinimapMode;
 
 // add by zhangrui@snda
 var bool IsReputationTrace;
-// 关闭声望条的底部坐标
+// Bottom coordinate when the reputation bar is closed
 var float PanelBottomWithoutReputation;
-// 打开声望条的底部坐标
+// Bottom coordinate when the reputation bar is open
 var float PanelBottomWithReputation;
 
 native function ChangeScene();
@@ -217,7 +217,7 @@ final native function ASShowMapLineDropList();
 
 final native function ASShowTips_PinValue(GFxObject mc);
 final native function ASHideTips_PinValue(GFxObject mc);
-//小地图
+//Minimap
 function ASMinimapZoomIn()
 {
 	if( _Minimap != none)

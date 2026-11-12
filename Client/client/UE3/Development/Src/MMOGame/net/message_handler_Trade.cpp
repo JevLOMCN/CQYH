@@ -100,7 +100,7 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 	//
 	switch( msg->byTradeState )
 	{
-	//被申请交易
+	//Trade requested
 	case etsBeingAsked:
 		{
 			//
@@ -112,7 +112,7 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 					break;
 				}
 
-				//自己被请求
+				//Self was requested
 				pTradeP2P->NotifyApplyDoTrade( pCtrlMe->TradeTargetID );
 				pTradeP2P->MyTradeState = etsBeingAsked;
 			}
@@ -124,7 +124,7 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 			}
 		}
 		break;
-	//等待请求中
+	//Waiting for request
 	case etsAsking:
 		{
 			//
@@ -139,12 +139,12 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 			}
 		}
 		break;
-	//交易被接受
+	//Trade accepted
 	case etsTrading:
 		{
 			//pChara->LifeState = eDoTradeP2P;
 			if( pChara->IsMainPlayer() ){
-				//自己
+				//Self
 				AMMOPlayer *pChara = (AMMOPlayer*)MMOFacade::getSingleton().GetCharacter( pCtrlMe->TradeTargetID );
 				if( pChara != NULL && pTradeP2P->MyTradeState == etsAsking ){
 					//hint in chat channel for trade apply be agreed
@@ -176,7 +176,7 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 			}
 		}
 		break;
-	//锁定
+	//Lock
 	case etsLocked:
 		{
 			//pChara->LifeState = eLockTradeP2P;
@@ -186,7 +186,7 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 			pTradeP2P->NotifyLockP2PTrade( pChara->IsMainPlayer(), TRUE );
 		}
 		break;
-	//确认交易
+	//Confirm trade
 	case etsConfirmed:
 		{
 			if( pChara->IsMainPlayer() ){
@@ -203,12 +203,12 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 			}
 		}
 		break;
-	//交易成功
+	//Trade succeeded
 	case etsSuccess:
 		{
 			if( pChara->IsMainPlayer() ){
 				if( pCtrlMe->TradeTargetID != 0 ){
-					//自己的交易成功
+					//Own trade succeeded
 					pTradeP2P->NotifyTradeResult( FALSE );
 					pCtrlMe->TradeTargetID = 0;
 				}
@@ -219,14 +219,14 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 			}
 		}
 		break;
-	//交易失败
+	//Trade failed
 	case etsFree:
 		{
 			pChara->SetInTrading( FALSE );
 			//
 			if( pChara->IsMainPlayer() ){
 				if( pCtrlMe->TradeTargetID != 0 ){
-					//自己的交易结束（失败）
+					//Own trade ended (failed)
 					pTradeP2P->NotifyTradeResult( TRUE );
 					//
 					pCtrlMe->TradeTargetID = 0;

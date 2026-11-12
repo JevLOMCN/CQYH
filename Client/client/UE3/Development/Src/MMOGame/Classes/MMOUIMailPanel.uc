@@ -27,7 +27,7 @@ native function OnSelectAll();
 
 event InitOnce()
 {
-	// 注意要先在这里初始化再调用后面的NativeInit()
+	// Note: initialize here first before calling NativeInit() below
 	super.InitOnce();
 
 	SendPage = GetObject("send_mail_page_mc");

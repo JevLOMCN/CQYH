@@ -17,7 +17,7 @@ ShopManager::ShopManager()
 
 void ShopManager::Init()
 {
-	//又改成不从本地读了
+	//Changed again to not read from local
 	_crc = 0;
 
 	//SCOPE_LOG_TIME(___INIT__, TEXT("ShopManager::Init"), 0);
@@ -29,7 +29,7 @@ void ShopManager::Init()
 	//	return;
 	//}
 
-	//// 空掉前2行表头不要
+	//// Skip the first 2 rows of table header, not needed
 	//for (INT i = 2; i < strArr2D.Num(); ++i)
 	//{
 	//	const INT C_SHOP_ID_IDX = 2;
@@ -124,7 +124,7 @@ const ServerShopItemData* ShopManager::GetCurShopItem( INT ItemIdx )
 
 ServerShopItemData* ShopManager::GetCurShopItemByItemTempId( INT itemTempId )
 {
-	//注意，这个函数查找正确的前提是，必须商店里不能有两个相同tempId的东西
+	//Note, this function finds correctly only if the shop cannot contain two things with the same tempId
 	if(_curShop)
 	{
 		for ( INT i = 0 ; i < _curShop->_ShowItemList.Num() ; i++ )
@@ -262,9 +262,9 @@ void ShopManager::SaveShopData( INT count , NPC_SHOP_DATA* data )
 
 	if( MMOFacade::getSingleton().BeginExportAccountData( &pArchive , ShopDataFile , false ) )
 	{
-		//先存crc
+		//Store crc first
 		pArchive->Serialize( (void*)(&_crc) , sizeof(UINT32) );
-		//存商品数
+		//Store goods count
 		pArchive->Serialize( (void*)(&count) , sizeof(INT) );
 		pArchive->Serialize( (void*)(data) , sizeof(NPC_SHOP_DATA)*count );
 

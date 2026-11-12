@@ -1,5 +1,5 @@
 //
-// 生成对象
+// Spawn object
 //
 class MMOStatusProc_SpawnActor extends Object implements(IMMOStatusProc)
 	native
@@ -10,7 +10,7 @@ var() Actor ActorTemplate;
 var() int SpawnCount;
 var() Vector2d PositionOffsetRange;
 
-// 如果不随机朝向则与角色朝向一致
+// If orientation is not random, it matches the character's orientation
 var() bool EnableRandomRotation;
 
 event OnExecute(MMOActor actor)

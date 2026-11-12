@@ -21,7 +21,7 @@ void UMMOGFXPlayer_SkillTree::PostAdvance(float DeltaTime)
 //============================================================================================================================
 void UMMOGFXPlayer_SkillTree::ASLevelUpSkill( int uniqueSkillID )
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_SkillLevelUp);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -45,13 +45,13 @@ void UMMOGFXPlayer_SkillTree::ASLevelUpSkill( int uniqueSkillID )
 	if( skillNextLevel == NULL ){
 		return;
 	}
-	//修炼点不足
+	//not enough cultivation points
 	INT levelUpPts = MMOFacade::getSingleton().GetPlayerMoney( E_MONEYTYPE_SPELL_PTS );
 	if( levelUpPts < skillNextLevel->LvUpRequirePoints ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillTree.ERROR_skill_level_up_needPts") ),MsgInfoType_Table,TEXT("MMOGame.SkillTree.ERROR_skill_level_up_needPts") );
 		return;
 	}
-	//隐藏Tips
+	//hide Tips
 	MMOUI::GetUIManager()->delegateHideTips();
 
 	CMessageHandler::GetInstance().Send_SpellLevelUp( (UINT16)skillID );
@@ -68,7 +68,7 @@ void UMMOGFXPlayer_SkillTree::ASShowTips_SkillLvUpBtn( UGFxObject *mc, INT uniqu
 	//hint = UITextParser::HTMLBeginParagraph();
 	//hint += MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SkillTree.ActiveSkillLvUpHint") );
 	//hint += UITextParser::HTMLEndParagraph();
-	//修炼点
+	//cultivation points
 	UMMOAbility *skill = MMOSkillManager::getSingleton().FindAbilityTemplate( uniqueSkillID );
 	if( skill == NULL ){
 		return;
@@ -94,7 +94,7 @@ void UMMOGFXPlayer_SkillTree::ASShowTips_SkillLvUpBtn( UGFxObject *mc, INT uniqu
 	}
 	hint += UITextParser::HTMLEndParagraph();
 
-	//人物等级需求提示
+	//character level requirement tip
 	AMMOPlayer *mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	INT limitedLevel = ( SkillLevelUpLimitLv >= skillNextLevel->LvUpRequireRoleLevel ? SkillLevelUpLimitLv : skillNextLevel->LvUpRequireRoleLevel );
 	if( mainPlayer && mainPlayer->ActorAttributes->LevelAttributes.Level < limitedLevel ){
@@ -149,7 +149,7 @@ void UMMOGFXPlayer_SkillTree::ASSetSkill( INT skillSetIdx, INT uniqueSkillID )
 //============================================================================================================================
 void UMMOGFXPlayer_SkillTree::ASShowSkillDetail( UGFxObject *mc, INT skillUniqueID, INT showPosX, INT showPosY )
 {
-	//不要了
+	//not needed
 	//if( _SkillTree == NULL ){
 	//	return;
 	//}
@@ -445,7 +445,7 @@ void UMMOGFXPlayer_SkillTree::ASShowTips_HeavenHintCtrl(class UGFxObject* mc,INT
 		}
 	case 5:
 		{
-			hintTips = TEXT("倒计时结束后,自动转化");
+			hintTips = TEXT("Converts automatically when the countdown ends");
 			break;
 		}
 	}
@@ -464,7 +464,7 @@ void UMMOGFXPlayer_SkillTree::ASStartDrag(class UGFxObject* SrcItemSlot,BYTE Src
 	UMMOAbility *skill = NULL;
 	UItem* itemTemp = NULL;
 
-	//是否是技能
+	//whether it is an ability
 	if(SrcSlotType == ESPType_SkillTree)
 	{
 		INT uniqueSkillID = SrcItemSlot->GetInt(TEXT("itemIndex"));
@@ -473,9 +473,9 @@ void UMMOGFXPlayer_SkillTree::ASStartDrag(class UGFxObject* SrcItemSlot,BYTE Src
 	}
 	else if(ESPType_HeavenGasEquip == SrcSlotType || ESPType_HeavenGasBag == SrcSlotType || ESPType_HeavenGasBank == SrcSlotType)
 	{
-		//是否是境界气
+		//whether it is realm qi
 		pkGasItem = MMOHeavenManager::getSingleton().GetItemBySlot(SrcContainerID,SrcSlotID);
-		//需要一个图标
+		//needs an icon
 		if(pkGasItem)
 		{
 			const HeavenGasItemConfig*	pkGasTemp = MMOHeavenManager::getSingleton().GetGasTemplate(pkGasItem->nTempID);

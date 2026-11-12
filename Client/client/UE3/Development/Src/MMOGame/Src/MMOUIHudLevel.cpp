@@ -16,7 +16,7 @@ UBOOL UMMOUIHudLevel::DrawMyHUD( class AMMOHud* hud )
 	INT drawSizeX = 1600;
 	INT drawSizeY = 900;
 
-	// 超过才拉伸，小于全切掉
+	// Stretch only if exceeded, cut everything if smaller
 	//if(sizeX > 1600)
 	{
 		FLOAT xScale = (FLOAT)sizeX / 1600.f;
@@ -63,7 +63,7 @@ void UMMOUIHudLevel::LoadBg()
 
 void UMMOUIHudLevel::ClearBg()
 {
-	//智能指针应该是可以直接zhi
+	//Smart pointer should be directly usable
 	textBg = NULL;
 	//if( textBg )
 	//{		

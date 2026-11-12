@@ -1,5 +1,5 @@
 //
-// 行为初始化处理接口
+// Behavior initialization handling interface
 //
 class MMOSteeringBehaviorInitProc_Interpose extends object implements(IMMOSteeringBehaviorInitProc)
 	native

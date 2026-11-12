@@ -58,7 +58,7 @@ void DoodadManager::AddDoodadDropTemplate( INT k, struct FDoodadDropData* dat )
 	DoodadDropTemplateMap::const_iterator i = _DoodadDropMap.find(k);
 	if(i != _DoodadDropMap.end())
 	{
-		warnf(NAME_Error, TEXT("[DoodadManager::AddDoodadDropTemplate] Doodad掉落已经存在，请检查配置冲突！ ID:%d[%s]->[%s]"),
+		warnf(NAME_Error, TEXT("[DoodadManager::AddDoodadDropTemplate] Doodad drop already exists, please check for a config conflict! ID:%d[%s]->[%s]"),
 			k, *dat->ToString(), *i->second->ToString());	
 	}
 	else
@@ -95,7 +95,7 @@ void DoodadManager::LoadDoodadData()
 			if( !Package )
 			{
 				M_AddDataError(TEXT("doodad.txt"),
-					FString::Printf(TEXT("无法加载DOODAD配置包%s，可能文件已经损坏!"), *pkgs(i)));
+					FString::Printf(TEXT("Cannot load DOODAD config package %s, the file may be corrupted!"), *pkgs(i)));
 				continue;;
 			}
 
@@ -149,7 +149,7 @@ struct FDoodadDropData* DoodadManager::FindDoodadDropTemplate( INT templateID )
 
 	INT sceneLv = 0,  sceneDiff = 0, tmpID = 0;
 	FDoodadDropData::DecomposeID(templateID, tmpID, sceneLv, sceneDiff);
-	warnf(NAME_Error, TEXT("Doodad 掉落没有找到，请检查掉落配置表, ID:%d SceneLv:%d SceneDiff:%d"),
+	warnf(NAME_Error, TEXT("Doodad drop not found, please check the drop config table, ID:%d SceneLv:%d SceneDiff:%d"),
 		tmpID, sceneLv * 5, sceneDiff + 1);
 
 	return 0;
@@ -160,7 +160,7 @@ struct FDoodadDropData* DoodadManager::FindDoodadDropTemplate( INT templateID )
 // 	DoodadTemplateMap::const_iterator i = _doodadTemplateMap.find(k);
 // 	if(i != _doodadTemplateMap.end())
 // 	{
-// 		M_AddDataError(TEXT("doodad.txt"), FString::Printf(TEXT("Doodad 模板重复:%d[%s]->[%s]"),
+// 		M_AddDataError(TEXT("doodad.txt"), FString::Printf(TEXT("Doodad template duplicate:%d[%s]->[%s]"),
 // 			k, *node->DoodadName.ToString(), *i->second->DoodadName.ToString()));
 // 	}
 // 	else
@@ -236,13 +236,13 @@ void DoodadManager::SetupQuestDoodadEffect(AMMODoodadActor* actor)
 	UDoodad* doodad = actor->DoodadTemplate;
 	if (!doodad)
 	{
-		warnf(NAME_Error, TEXT("Doodad模板为空 DebugName:%s"), *actor->GetName());
+		warnf(NAME_Error, TEXT("Doodad template is empty DebugName:%s"), *actor->GetName());
 		return;
 	}
 
 	if (!doodad->DoodadAvatar)
 	{
-		warnf(NAME_Error, TEXT("Doodad DoodadAvatar没有配置:%s ID[%d]"), *doodad->DoodadName.ToString(), doodad->DoodadID);
+		warnf(NAME_Error, TEXT("Doodad DoodadAvatar not configured: %s ID[%d]"), *doodad->DoodadName.ToString(), doodad->DoodadID);
 		return;
 	}
 
@@ -250,7 +250,7 @@ void DoodadManager::SetupQuestDoodadEffect(AMMODoodadActor* actor)
 	INT sceneLevel = MMOFacade::getSingleton().GetSceneLevel() / 5;
 	INT doodadDropId = FDoodadDropData::CombineID(doodad->GetTemplateID(), sceneLevel, sceneDifficulty);
 	
-	// 是不是已接任务需要的doodad
+	// Whether it is a doodad needed by an accepted quest
 	if (MMOQuestData::getSingleton().IsAcceptedQuestDoodad(doodadDropId))
 	{
 		actor->IsQuestActive = TRUE;
@@ -272,7 +272,7 @@ void DoodadManager::SetupQuestDoodadEffect(AMMODoodadActor* actor)
 		}
 		else
 		{
-			warnf(NAME_Error, TEXT("Doodad 任务特效粒子资源没有找到:%s,请检查DefaultGame.ini中的[Quest] DoodadEffect配置!"), *questEffect);
+			warnf(NAME_Error, TEXT("Doodad quest effect particle resource not found: %s. Please check the [Quest] DoodadEffect setting in DefaultGame.ini!"), *questEffect);
 		}
 	}
 }
@@ -292,7 +292,7 @@ class UDoodad* DoodadManager::FindDoodadTemplate( INT templateID )
 // 	}
 
 	M_AddDataError(TEXT("doodad.txt"),
-		FString::Printf(TEXT("Doodad 模板没有找到 ID:%d"), templateID));
+		FString::Printf(TEXT("Doodad template not found ID:%d"), templateID));
 	return 0;
 }
 
@@ -346,7 +346,7 @@ class AMMODoodadActor* DoodadManager::AddDoodadActor(const FVector& inLocation, 
 	class AMMODoodadActor* obj = NULL;
 	FName debugName;
 
-#if 0 // oscar@snda 不能这样指定可能会重复的名字
+#if 0 // oscar@snda names that may be duplicated cannot be specified like this
 #if !SHIPPING_PC_GAME
 	debugName = FName(*FString::Printf(TEXT("DoodadActor.DoodadTemplate[%d]_ID[%d]"),
 		doodadTemplate->GetTemplateID(), doodadActorID));
@@ -438,7 +438,7 @@ void DoodadManager::OnDoodadEndOperate(INT InDoodadId, UBOOL bBreak)
 //{
 //    StopRoleAnimByDoodad(FALSE);
 //
-//    // 强制测试代码
+//    // Forced test code
 //    //name = "Default";
 //    _doodadWroking = dd;
 //	_doodadActorWorking = doodadActor;
@@ -552,7 +552,7 @@ void DoodadManager::OnDoodadEndOperate(INT InDoodadId, UBOOL bBreak)
 //		}
 //
 //    case 1:
-//		break;// 交由动作来驱动的，见接口TryPlayDoodadLoopSound。
+//		break;// Driven by animation, see interface TryPlayDoodadLoopSound.
 //
 //    case 2:
 //		{
@@ -587,7 +587,7 @@ class AMMODoodadActor* DoodadManager::FindDoodadActor( INT doodadActorID )
 
 #if !SHIPPING_PC_GAME
 
-// 测试与任务相关的掉落是否正常
+// Test whether quest-related drops are normal
 #define TEST_QUEST_DOODAD_ITEM 1
 
 void DoodadManager::TestDoodadEffect()

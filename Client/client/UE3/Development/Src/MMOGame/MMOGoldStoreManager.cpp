@@ -460,7 +460,7 @@ void MMOGoldStoreManager::ConvertServerGoldStoreItemList_My(MyOrderDataList& arr
 		arr.push_back(itemInfo);
 	}
 
-	//≈≈–Ú
+	//Sort
 	arr.sort(CompareOrderTime);
 }
 

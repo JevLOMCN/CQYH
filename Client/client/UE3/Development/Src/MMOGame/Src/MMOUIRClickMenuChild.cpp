@@ -225,7 +225,7 @@ void UMMOUIRClickMenuChild::ChangeTeamAuctionLimit(INT x,INT y,INT w)
 
 	Show( TRUE );
 
-	//重设子菜单位置
+	//Reset submenu position
 	ModifyChildPos( x , y , ChildHigh+10 , w );
 }
 

@@ -1,5 +1,5 @@
 
-// 服务器阻挡变更事件通知
+// server blocking change event notification
 
 class SeqEvent_Server_DynamicBlockChange extends SequenceEvent;
 

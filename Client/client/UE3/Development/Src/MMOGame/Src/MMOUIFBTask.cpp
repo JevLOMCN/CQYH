@@ -102,7 +102,7 @@ void UMMOUIFBTask::UpdateFBTaskList( INT fbMainTargetIdx )
 	UINT itemObjIdx = 0;
 	UGFxObject* dataProvider = GFXPlayer->CreateArray();
 	
-	//总进度
+	//Total progress
 	if( curFBProgress._MainTarget._Template != NULL ){
 		const FSceneProgress *pFBMainProgressTemplate = curFBProgress._MainTarget._Template;
 
@@ -120,7 +120,7 @@ void UMMOUIFBTask::UpdateFBTaskList( INT fbMainTargetIdx )
 		++itemObjIdx;
 	}
 
-	//进度明细
+	//Progress details
 	curFBProgress._ChildTargets;
 	for( INT j = 0; j < UCONST_MaxSceneMinorTarget; ++j ){
 		const CurSceneProgress &childProgress = curFBProgress._ChildTargets[j];

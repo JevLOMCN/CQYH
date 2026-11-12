@@ -26,10 +26,10 @@ void MMOKillRecordManager::NotifyNewKillMonster(INT nCount)
 {
 	nKillMonsterCount = nCount;
 
-	//触发连斩状态
+	//trigger combo-kill state
 	if(nKillMonsterCount >= CONST_KILL_MINCOUNT)
 	{
-		//最大连斩限制
+		//max combo-kill limit
 		if(nKillMonsterCount > CONST_KILL_MAXCOUNT)
 			nKillMonsterCount = CONST_KILL_MAXCOUNT;
 
@@ -44,7 +44,7 @@ void MMOKillRecordManager::NotifyNewKillPlayer(INT nCount)
 
 	if(nKillPlayerCount >= CONST_KILLPALYERMIN)
 	{
-		//最大连斩限制
+		//max combo-kill limit
 		if(nKillPlayerCount > CONST_KILL_MAXCOUNT)
 			nKillPlayerCount = CONST_KILL_MAXCOUNT;
 
@@ -87,8 +87,8 @@ void MMOKillRecordManager::NotifyKillMonsterMomentaryReward(INT nCount,INT nExp)
 
 FString MMOKillRecordManager::GetKillPlayerCountTitle(INT nCount)
 {
-	static FString strArr[7] = {TEXT("大杀特杀"),TEXT("杀人如麻"),TEXT("无人能挡"),TEXT("变态杀戮"),
-									TEXT("如同妖怪一般"),TEXT("如同神一般"),TEXT("超越神了")};
+	static FString strArr[7] = {TEXT("Killing Spree"),TEXT("Rampage"),TEXT("Unstoppable"),TEXT("Insane Slaughter"),
+									TEXT("Monstrous"),TEXT("Godlike"),TEXT("Beyond Godlike")};
 	if(nCount < 3)
 		nCount = 3;
 	if(nCount > 9)

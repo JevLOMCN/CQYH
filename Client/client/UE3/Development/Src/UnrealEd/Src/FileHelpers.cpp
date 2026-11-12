@@ -1414,7 +1414,7 @@ UBOOL FEditorFileUtils::PromptToCheckoutPackages(UBOOL bCheckDirty, const TArray
 
 				// oscar@snda
 				SetOfPackagesToSubmit.Empty();
-				// 手动checkout的表示是正在编辑的，不用管 SetOfPackagesToSubmit.Add( *OutPackagesNotNeedingCheckout );
+				// Manually checked out means being edited, ignore SetOfPackagesToSubmit.Add( *OutPackagesNotNeedingCheckout );
 				SetOfPackagesToSubmit.Add( succeededPackages );
 				// oscar@snda
 

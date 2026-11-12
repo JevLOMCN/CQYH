@@ -414,7 +414,7 @@ UBOOL FFullScreenMovieBink::InputKey(FViewport* Viewport,INT ControllerId,FName 
 	if( ( bEnableInputProcessing ) && ( bHideRenderingOfMovie == FALSE ) )
 	{
 		UBOOL bIsMoviePlaying = Bink && !MovieFinishEvent->Wait(0);
-		if( Event == IE_Released &&				// modified by zhangrui05, 导致#15241的原因是，游戏里的ESC是released才响应的，这里如果是press，就会先响应
+		if( Event == IE_Released &&				// modified by zhangrui05, the cause of #15241 is that ESC in the game only responds on release; if it were press here, it would respond first
 			bIsMoviePlaying )
 		{
 
@@ -460,7 +460,7 @@ UBOOL FFullScreenMovieBink::InputKey(FViewport* Viewport,INT ControllerId,FName 
 					Key == KEY_Escape ) &&
 					GIsRunning )
 #else
-				// #15625 播放过场时，应该只有按Esc可以跳过，屏蔽其他操作，鼠标点击不会有任何相应。
+				// #15625 When playing a cutscene, only Esc should skip it; other input is blocked and mouse clicks have no effect.
 				if( (Key == KEY_Escape ) && GIsRunning )
 #endif // oscar@snda
 				{

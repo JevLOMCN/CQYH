@@ -190,7 +190,7 @@ void UMMOUIMallPanel::UpdateMallHomeShowList()
 		object->SetInt("ItemTag",pkGoodsInfo->m_byFlag);
 		object->SetInt("ItemType",pkGoodsInfo->m_nRenQi);
 		object->SetInt("ItemNum",pkGoodsInfo->m_shItemCount);
-		//Õ¹Ê¾´¦
+		//Display area
 		object->SetInt("ItemIndex",nIndex + 1);
 		dataProvider->SetElementObject(nIndex++,object);
 	}

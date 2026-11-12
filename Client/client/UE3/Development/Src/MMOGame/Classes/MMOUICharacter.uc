@@ -15,12 +15,12 @@ enum CharaPanelType
 };
 var CharaPanelType _CurType;
 
-//add by jimzhang@sdna.com 增加并行tab页，将角色原面板影片深度增加
+//add by jimzhang@sdna.com add parallel tab pages, increase the movie depth of the original character panel
 var GFxObject showPanel;
 var GFxObject relationPanel;
 var GFxObject famePanel;
 
-//体格强化
+//Physique enhancement
 var MMOUIEquipSlotEnhancePanel _EnhcPanel;
 
 var GFxObject _AttributePanel;
@@ -68,7 +68,7 @@ var array<ReputationData> ReputationList;
 
 native function ToogleVisible();
 
-// todo:没有关闭事件,无法主动关闭SceneCapture
+// todo: no close event, cannot actively close SceneCapture
 native function EnableCapture(bool b);
 
 
@@ -184,7 +184,7 @@ native function bool GetReputationVisible(int ForceID);
 //		ItemObj.SetInt("deepth",1);
 //		ItemObj.SetInt("curReputation",3*i);
 //		ItemObj.SetInt("maxReputation",100);
-//		ItemObj.SetString("txtReputation","关系");
+//		ItemObj.SetString("txtReputation","Relationship");
 
 //		if(i==0||i==3||i==6)ItemObj.SetInt("type",1);
 //		if(i==0||i==6)ItemObj.SetInt("deepth",0);
@@ -332,7 +332,7 @@ function ButtonDrag( int deltaX )
 {
 	local rotator newRot;
 	newRot = GFXPlayer.ShowAvatar.Rotation;
-	newRot.Yaw += -deltaX*100; //30为鼠标移动像素和角度值的系数
+	newRot.Yaw += -deltaX*100; //3030 is the coefficient between mouse movement pixels and angle value
 	GFXPlayer.ShowAvatar.SetPhysics(PHYS_None);
 	GFXPlayer.ShowAvatar.SetRotation(newRot);
 }
@@ -352,7 +352,7 @@ native function PostAdvance(float DeltaTime );
 
 //===============================================================================================================
 //===============================================================================================================
-//体格强化
+//Physique enhancement
 native function ASSelectEquipSlot(int slotId);
 native function ASShowTips_EquipSlot(int id);
 native function ASHideTips_EquipSlot(int id);

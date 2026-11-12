@@ -1,5 +1,5 @@
 //
-// TeleportNetNode 传送网络节点
+// TeleportNetNode teleport network node
 //
 
 class TeleportNetNode extends Actor implements (IPickableActor, IInteractableActor)
@@ -28,7 +28,7 @@ var(MMOServer) int ShowPriority;
 var(MMOServer) string DisplayName;
 var(MMOServer) EWorldRegion RegionID;
 var(MMOServer) string PicResName;
-// 调试用范围线框 - 近战范围
+// debug range wireframe - melee range
 var(Editor) editoronly DrawCylinderComponent TeleportRange;
 
 var() StaticMeshComponent TeleportNodeMesh;
@@ -143,7 +143,7 @@ DefaultProperties
 	//Region=EWR_R1
 	InitState=false
 
-		// 添加调试用范围线框 - 近战范围
+		// add debug range wireframe - melee range
 	Begin Object Class=DrawCylinderComponent  Name=DebugRangeNear0
 		CylinderColor=(R=255,G=0,B=0,A=255)
 		CylinderRadius=400.0

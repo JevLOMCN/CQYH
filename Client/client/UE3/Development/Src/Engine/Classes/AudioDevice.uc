@@ -99,19 +99,19 @@ var			   const	SoundNodeWave					ChirpOutSoundNodeWave;
 
 //--------------------------------------------------------------------------------
 // add by showlong, Start
-/** 整体音效音量 */
+/** Overall sound effect volume */
 var     config bool                                     VolumeTotal_op;
 var     config float                                    VolumeTotal;
-/** 背景音乐音量 */
+/** Background music volume */
 var     config bool                                     VolumeBackMusic_op;
 var     config float                                    VolumeBackMusic;
-/** 环境音效音量 */
+/** Ambient sound effect volume */
 var     config bool                                     VolumeEnv_op;
 var     config float                                    VolumeEnv;
-/** 语言音效音量 */
+/** Voice sound effect volume */
 var     config bool                                     VolumeVoice_op;
 var     config float                                    VolumeVoice;
-/** SFX音效音量 */
+/** SFX sound effect volume */
 var     config bool                                     VolumeSfx_op;
 var     config float                                    VolumeSfx;
 //--------------------------------------------------------------------------------

@@ -503,16 +503,16 @@ struct native ClientAttribute
 	var()   bool    bNormalAttack						<ExportExcel="4"|DisplayName="NormalAttack">;
 	// hit effect
 	var()   bool    bUseHitEffectByWeaponBodyMatrialType<ExportExcel="5"|DisplayName="UseHitEffectByWeaponBodyMatrialType">;
-	// 每秒转的度数
+	// Degrees rotated per second
 	var()   float   RotateSpeed							<ExportExcel="6"|DisplayName="RotateSpeed">;
 
 	//var()   Spell_ControlTagType ControlTag;
 	//var()   Spell_ControlTagType CastControlTag;
 
 	var()   array<HitGroup>  HitGroupInfo				<DisplayName="HitGroupInfo">;
-	var()   bool ShowOnUI								<ExportExcel="7"|DisplayName="ShowOnUI">; //勾上时则不在UI上显示
-	var()   bool bShowLeadUI							<ExportExcel="8"|DisplayName="ShowLeadUI">;   // 是否显示引导条
-	var()   bool CanLMouseEquip							<ExportExcel="9"|DisplayName="CanLMouseEquip">; //左键是否可以装配 
+	var()   bool ShowOnUI								<ExportExcel="7"|DisplayName="ShowOnUI">; //Checked means not shown on UI
+	var()   bool bShowLeadUI							<ExportExcel="8"|DisplayName="ShowLeadUI">;   // Whether to show the lead bar
+	var()   bool CanLMouseEquip							<ExportExcel="9"|DisplayName="CanLMouseEquip">; //Whether left click can equip
 	var()   bool bRequestCancelOnRelease				<ExportExcel="10"|DisplayName="RequestCancelOnRelease">;
 	var()   bool PickTarget								<ExportExcel="11"|DisplayName="PickTarget">;
 	var()   bool GenerateLockStatus;
@@ -744,7 +744,7 @@ struct native CoolDown
 };
 
 var(ServerAttr) AbilitySpellCommonAttribute SpellCommonAttribute	<ExportExcel="0"|DisplayName="SpellCommonAttribute">;
-//song@snda.com 测试 服务器专属属性
+//song@snda.com test, server-only attribute
 var(ServerAttr) name Modifier										<DynamicList="AbilityModifier"|DisplayName="Modifier">;
 var(ServerAttr) float ModifierPara1									<TooltipCondition="Modifier"|DisplayName="ModifierPara1">;
 var(ServerAttr) float ModifierPara2									<TooltipCondition="Modifier"|DisplayName="ModifierPara2">;
@@ -770,37 +770,37 @@ const           MaxSubRuneNum = 9;
 var             array<MMOAbility>           SubRuneList;
 var             string                      RuneIconName;
 var             MMOAbility                  MainSkill;
-//存在对应的符文技能模板表内存中
-//数据是通用的 放这ms不太合理 但省（技能表3维展开很大，基本都有3~5个符文） 功能上这个也只属于玩家UI可见 暂时未见有问题
-//再如需要 可以将表挂至Actor上
-//激活符文所需要的碎片数量
+//Stored in memory in the corresponding rune ability template table
+//The data is shared; putting it here seems a bit odd but saves space (the ability table expands to 3 dimensions, usually 3~5 runes each); functionally only player UI sees it; no problem found so far
+//If needed later, the table can be attached to the Actor
+//Number of shards needed to activate the rune
 var             array<RuneDebris>           vecRuneDebris;
-//符文消耗方式
+//Rune consumption mode
 var             int                         RuneDurabilityType;
-//符文最大耐久
+//Rune max durability
 var             int                         RuneDurMax;
-//符文当前耐久
+//Rune current durability
 var             int                         RuneDurability;
 
-//技能熟练度
+//Ability proficiency
 var int SkillPracticeProgress;
-//技能当前等级最大熟练度
+//Max proficiency of current ability level
 var int LvUpRequirePoints;
-//升级到下一级需要的等级
+//Level needed to upgrade to the next level
 var int LvUpRequireRoleLevel;
-////铭文技能升级物品
+////Inscription ability upgrade item
 //var int LevelUpItemID;
-////铭文技能升级物品数量
+////Inscription ability upgrade item count
 //var int LevelUpItemCnt;
-//技能升级类型
+//Ability upgrade type
 var int SkillPracticeType;
-//技能升级消耗类型 0为不在升级
+//Ability upgrade cost type, 0 means no longer upgrading
 var int SkillPracticeCostType;
-//升级剩余时间
+//Remaining upgrade time
 var int SkillPracticeEndTime;
-//所有玩家可见主动技能 唯一标识索引（不包括符文）
+//Unique index of active abilities visible to all players (excluding runes)
 var int SkillGuiID;
-//所有玩家可见符文 唯一标识索引
+//Unique index of runes visible to all players
 var int SkillGuiRuneID;
 
 // for preview only
@@ -849,17 +849,17 @@ function string GetAbilitySubSchool()
 
 native function string GetAbilityIconName();
 
-//获得指定Slot位置的符文Icon
+//Get the rune Icon at the specified Slot
 native function string GetSubRuneIconName(int RuneSlot );
-//获得符文Icon
+//Get rune Icon
 native function string GetRuneIconName( );
-//获得SkillGuiRuneID
+//Get SkillGuiRuneID
 native function int    GetSkillGuiRuneID( );
-//添加关联子符文
+//Add associated child rune
 native function        AddSubRune(int RuneSlot,MMOAbility SubRune );
-//得到当前的装配的RuneSlot
+//Get the currently equipped RuneSlot
 native function int    GetRuneSlot();
-//设置装配RuneSlot
+//Set equipped RuneSlot
 native function        SetRuneSlot( int inRuneSlot );
 
 event string GetAbilityName()
@@ -983,7 +983,7 @@ event string GetDetailedDescription( int InIndex )
 }
 
 //-------------------------------------------------------
-// 导出到Excel
+// export to Excel
 //-------------------------------------------------------
 cpptext
 {
@@ -997,13 +997,13 @@ cpptext
 	virtual void GetDynamicListValues(const DynamicListInfo& ListInfo, TArray<FString>& Values); // oscar@snda
 }
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues)
 {
 
 }
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row)
 {
 }

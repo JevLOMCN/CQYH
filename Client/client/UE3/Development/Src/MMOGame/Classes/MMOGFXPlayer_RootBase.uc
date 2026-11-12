@@ -29,7 +29,7 @@ struct native GFXUIViewInfo
 
 	structdefaultproperties
 	{
-		// 0 1 2 3 4 共5级，越高的在上面显示
+		// 0 1 2 3 4 0 1 2 3 4, 5 levels in total, higher ones are shown on top
 		Priority=2
 	}
 };

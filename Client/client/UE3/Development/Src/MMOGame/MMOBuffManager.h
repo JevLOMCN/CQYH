@@ -48,7 +48,7 @@ class MMOBuffManager
 
 	//STLInt2BuffDataMap	ActiveBuffs;
 	BuffData*			ShowBuffs[MAXBUFFSLOT];	
-	BuffData*			ShowBuffsEx[MAXBUFFSLOTEX];	//¹¦ÄÜÐÍbuff
+	BuffData*			ShowBuffsEx[MAXBUFFSLOTEX];	//function-type buffs
 	BuffData*			ShowTargetBuffs[MAXBUFFSLOT];	
 	TArray<INT>			DisableUseNormalAbilityBuffType;
 	TArray<INT>			DisableUseAllAbilityBuffType;

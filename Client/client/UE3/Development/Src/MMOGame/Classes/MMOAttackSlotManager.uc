@@ -1,4 +1,4 @@
-// 使近战攻击者在被攻击者周围站成一圈进行攻击
+// Make melee attackers stand in a circle around the target to attack
 
 class MMOAttackSlotManager extends Object
 	native;
@@ -45,7 +45,7 @@ function bool TakeProperSlot( Vector attacker, out float rst, out int slot )
 		return true;
 	}
 	else
-	{   // 左右各5格内随机三次
+	{   // Random three times within 5 cells left and right
 		irand = 5 - Rand( 10 );
 		count = 3;
 		temp = iround + irand;
@@ -64,10 +64,10 @@ function bool TakeProperSlot( Vector attacker, out float rst, out int slot )
 			--count;
 		}
 		if( count == 0 )
-		{   // 没有随机到合适位置 站原地了
+		{   // No suitable position found, stay in place
 			slot = -1;
 			return false;
-			//// 在周围一圈选一个随机位置(怪引得多了，被夹击的几率也就高了)
+			//// Pick a random position in the surrounding circle (the more monsters attracted, the higher the chance of being flanked)
 			//irand = Rand( SlotNum - 1 );
 			//rst = SlotAngleDiff * irand;
 			//Slots[irand] += 1;

@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_CannotInterrupt，是否能被打断
+// PlayerActionEx_CannotInterrupt, whether it can be interrupted
 //
 class PlayerActionEx_CannotInterrupt extends PlayerActionEx_Base
 	native;

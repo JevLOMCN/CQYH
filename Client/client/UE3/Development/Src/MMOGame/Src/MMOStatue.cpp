@@ -9,7 +9,7 @@ void AMMOStatue::DrawHUDPostGFx(AHUD* hud)
 	FVector objectIconWorldPos;
 
 
-	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//Êµ¼ÊÎ»ÖÃ
+	objectIconWorldPos = Location;//(HealthBarPositionOffset>>Rotation);//actual position
 	objectIconWorldPos.Z += 120;
 	screenPos = H->Canvas->Project(objectIconWorldPos);
 

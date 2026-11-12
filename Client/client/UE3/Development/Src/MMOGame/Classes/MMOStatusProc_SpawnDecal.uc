@@ -1,5 +1,5 @@
 //
-// 生成对象
+// Spawn object
 //
 class MMOStatusProc_SpawnDecal extends Object implements(IMMOStatusProc)
 	native

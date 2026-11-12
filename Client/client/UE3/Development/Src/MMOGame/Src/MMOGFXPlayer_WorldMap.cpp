@@ -8,7 +8,7 @@ IMPLEMENT_CLASS(UMMOGFXPlayer_WorldMap)
 
 
 //==============================================================================================
-//世界地图
+//World map
 //==============================================================================================
 void UMMOGFXPlayer_WorldMap::ASClickToWorldMap( INT tileIdx, INT mapID, const FString &regionName )
 {
@@ -48,7 +48,7 @@ void UMMOGFXPlayer_WorldMap::ASShowTipsUnitedMapTile( UGFxObject *fromMc, INT ma
 
 	INT myLevel = MMOFacade::getSingleton().GetMyLevel();
 	if( ( mapInfo->MinPlayerLevel <= myLevel ) && ( myLevel <= mapInfo->MaxPlayerLevel ) ){
-		//只显示在推荐等级之外的
+		//only show those outside the recommended level
 		return;
 	}
 	//tipsContentKey += mapInfo->MapName;
@@ -115,7 +115,7 @@ void UMMOGFXPlayer_WorldMap::ASShowWorldMapTabPanel( int type )
 }
 
 //=================================================================================================
-//大地图
+//big map
 //=================================================================================================
 void UMMOGFXPlayer_WorldMap::BeforeViewUpdate(float DeltaTime)
 {
@@ -147,7 +147,7 @@ void UMMOGFXPlayer_WorldMap::ASMoveToMapPos( INT clickPosX, INT clickPosY )
 	MMOFacade::getSingleton().PlayerMoveToScenePos( curWorldMapInfo, world3DPos );
 }
 
-//移动到标记点
+//move to marker point
 void UMMOGFXPlayer_WorldMap::ASMoveToThisMapMark( INT idxInStaticMap )
 {
 	MMOMapDataManager &mmoMapDataMgr = MMOMapDataManager::getSingleton();
@@ -211,7 +211,7 @@ void UMMOGFXPlayer_WorldMap::ASMoveToThisMapMark( INT idxInStaticMap )
 		mmoMapDataMgr.SetMapPath( pathPos );
 	}
 }
-//加注标记点
+//Add marker point
 void UMMOGFXPlayer_WorldMap::ASAddOrRemoveMarkMap( int clickPosX, int clickPosY )
 {
 	_WorldMap->PrepareShowAddUserMarkPanel( clickPosX, clickPosY );
@@ -234,13 +234,13 @@ void UMMOGFXPlayer_WorldMap::ASCloseUserMarkPanel()
 {
 	_WorldMap->CloseUserMarkPanel();
 }
-//找寻地图上已有的固定点
+//find existing fixed points on the map
 void UMMOGFXPlayer_WorldMap::ASFindThisMapMark( int idx )
 {
 	_WorldMap->HighlightMark( idx );
 }
 
-//找寻地图上任务点
+//find quest points on the map
 void UMMOGFXPlayer_WorldMap::ASFindMapTask( int npcIdx )
 {
 	const TMap< UINT, UINT > &npcInfoInMapRegion = MMOMapDataManager::getSingleton().GetWorldMapPuttedUsefulNpcs();
@@ -253,7 +253,7 @@ void UMMOGFXPlayer_WorldMap::ASFindMapTask( int npcIdx )
 	_WorldMap->HighlightMark( *npcPointIdx );
 }
 
-//切换地图
+//Switch map
 void UMMOGFXPlayer_WorldMap::ASChangeMap( int mapID, int regionInMapIdx )
 {
 	//
@@ -262,13 +262,13 @@ void UMMOGFXPlayer_WorldMap::ASChangeMap( int mapID, int regionInMapIdx )
 	_WorldMap->ResizeMap();
 }
 
-//切换显示功能NPC
+//Toggle showing function NPCs
 void UMMOGFXPlayer_WorldMap::ASToggleFuncNpc( UBOOL isShow )
 {
 	_WorldMap->ToggleShowStaticMarksOf( EACTUIF_FunctionNpc, isShow );
 }
 
-//切换显示任务NPC
+//Toggle showing quest NPCs
 void UMMOGFXPlayer_WorldMap::ASToggleTaskNpc( UBOOL isShow )
 {
 	_WorldMap->ToggleShowStaticMarksOf( EACTUIF_TaskNpc, isShow );
@@ -336,7 +336,7 @@ void UMMOGFXPlayer_WorldMap::ASShowWorldMapMarkHint( INT type, INT idx )
 			if( pMapMark->_DisplayName.IsEmpty() == FALSE ){
 				break;
 			}
-			//因为当初加入这个玩家时，他的信息还没到
+			//because when this player was added, his info had not arrived yet
 			INT roleID = ((FActorInMapUI*)pMapMark)->_ActorID;
 			AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter( roleID );
 			if( pPlayer != NULL && pPlayer->GetActorName().IsEmpty() == FALSE ){

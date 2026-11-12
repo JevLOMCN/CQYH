@@ -74,7 +74,7 @@ native function ASOnClickNewSkillLearnedBtn();
 
 native function FlashHPBar();
 
-//技能设置
+//Ability settings
 native function ASShowTips_SkillSettingActive( GFxObject mc );
 native function ASHideTips_SkillSettingActive( GFxObject mc );
 native function ASSetSkill( int skillKeyType, int skillID );
@@ -83,7 +83,7 @@ native function ASCloseSkillList();
 native function ASShowPanel( int idx );
 native function ASHideShortcutButtons();
 
-//新系统开启,菜单栏添加
+//New system opened, add to menu bar
 native function ASActivateNewSystem(int systemType);
 native function ASShowNextNewSystem();
 
@@ -129,5 +129,5 @@ DefaultProperties
 	//bAllowFocus=false
 	MovieInfoStr="UI_SkillbarWidget.SkillbarWidget"
 	bCloseOnLevelChange=FALSE
-	Priority=2 // 让这个在最下面接受响应键盘、鼠标事件
+	Priority=2 // Keep this at the bottom to receive keyboard and mouse events
 }

@@ -1,5 +1,5 @@
 //
-// 脚步音效,特效编辑临时对象
+// Footstep sound, temporary object for effect editing
 //
 
 class MMOFootstepMaterialEditObject extends Object

@@ -399,7 +399,7 @@ FArchive& operator<<( FArchive& Ar, FPackageFileSummary& Sum )
 
 		//add by JimZhang 2012.10.12
 		INT  SCOPE = 1000000;
-		if(Ar.IsLoading())//读取文件时，判定是不是加密文件包，这样是为了与老的文件包兼容，老的文件包没有加密位置,假定FileVersion是小于EncodeFlags的
+		if(Ar.IsLoading())//When reading a file, determine whether it is an encrypted package, for compatibility with old packages; old packages have no encryption field, assuming FileVersion is less than EncodeFlags
 		{
 			
 			Sum.EncodeFlags = 0;
@@ -409,9 +409,9 @@ FArchive& operator<<( FArchive& Ar, FPackageFileSummary& Sum )
 				Ar << Sum.FileVersion;
 			}
 		}
-		else if(Ar.IsSaving())//新写入文件时，加入加密标志
+		else if(Ar.IsSaving())//When writing a new file, add the encryption flag
 		{
-			Sum.EncodeFlags = 0;//加密
+			Sum.EncodeFlags = 0;//Encryption
 			INT EncodeFlags = Sum.EncodeFlags + SCOPE;
 
 			if(EncodeFlags>SCOPE)
@@ -489,7 +489,7 @@ FArchive& operator<<( FArchive& Ar, FPackageFileSummary& Sum )
 	}
 
 
-	{//增加加密操作 // JimZhang
+	{//Add encryption operation // JimZhang
 		Ar.SetEncode(Sum.EncodeFlags);
 	}
 	return Ar;
@@ -1393,7 +1393,7 @@ UBOOL ULinkerLoad::SerializePackageFileSummary()
 		this->Loader->SetEncode(0); // JimZhang
 		this->SetEncode(0); // JimZhang
 		*this << Summary;
-		//加密标志
+		//Encryption flag
 		// oscar@snda this->Loader->SetEncode(this->IsEncode()); // JimZhang
 
 
@@ -5078,7 +5078,7 @@ FArchive& ULinkerLoad::operator<<( FName& Name )
 void ULinkerLoad::Serialize( void* V, INT Length )
 {
 	Loader->Serialize( V, Length );
- 	//解密运算 // JimZhang
+ 	//Decryption operation // JimZhang
 // 	Loader->DoDecode(V, Length );
 
 }
@@ -5153,10 +5153,10 @@ void ULinkerLoad::AsyncPreloadPackage(const TCHAR* PackageName)
 				INT Result = DeleteFile(*(cfgDir + filesToDel(i)));
 			}
 
-			appMsgf(AMT_OK, TEXT("检测到数据包有错误，已经尝试修复，请重新启动游戏。如果再遇到这个错误请运行全文件修复(FixClient)后启动游戏，或联系客服。\nFailed to find file for package %s for async preloading."), PackageName);
+			appMsgf(AMT_OK, TEXT("Data package error detected and a repair was attempted. Please restart the game. If this error appears again, run the full file repair (FixClient) and then start the game, or contact customer service.\nFailed to find file for package %s for async preloading."), PackageName);
 		}
 #else
-		appMsgf(AMT_OK, TEXT("检测到数据包有错误，请运行全文件修复(FixClient)后启动游戏。\nFailed to find file for package %s for async preloading."), PackageName);
+		appMsgf(AMT_OK, TEXT("Data package error detected. Please run the full file repair (FixClient) and then start the game.\nFailed to find file for package %s for async preloading."), PackageName);
 #endif
 		exit(1);
 	}

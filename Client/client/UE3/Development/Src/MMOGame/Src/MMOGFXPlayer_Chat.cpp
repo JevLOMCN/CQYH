@@ -9,7 +9,7 @@ IMPLEMENT_CLASS(UMMOGFXPlayer_Chat)
 //------------------------------------------------------------------------------------------------------------------------
 void UMMOGFXPlayer_Chat::ASOnPanelClose(const FString& PanelName)
 {
-	// ESC的时候把自己焦点去掉，基本上是让给Skillbar
+	// on ESC remove own focus, basically yielding to the Skillbar
 	if(PanelName == TEXT("Chat"))
 	{
 		UMMOUIBase* PanelSkilbar = MMOUI::FindUIPanel(TEXT("Skillbar"));

@@ -2,7 +2,7 @@
 #define __MESSAGE_HANDLER_GUILD_H__
 
 public:
-	// 公会管理
+	// guild management
 	void Send_QueryGuildName(UINT32 id, UINT32 crc);
 	void Send_CreateGuild(const FString& name, const FString& announce);
 	void Send_ViewGuildList(UINT8 type, UINT32 id);
@@ -30,13 +30,13 @@ public:
 	void Send_GuildChangeStorageRight(UINT8 pos, UINT16 right);
 	void Send_CancelAlliance(UINT32 id);
 
-	// 公会仓库
+	// guild warehouse
 	void Send_GuildMoveItem(UINT8 srcConSlot, UINT8 srcSlot, UINT8 dstConSlot, UINT8 dstSlot);
 	void Send_GuildPushItem(UINT8 srcConSlot, UINT8 srcSlot, UINT8 dstConSlot, UINT8 dstSlot);
 	void Send_GuildPopItem(UINT8 srcConSlot, UINT8 srcSlot, UINT8 dstConSlot, UINT8 dstSlot);
 	void Send_RefreshWarehouse(INT tabID);
 
-	// 公会属地
+	// guild territory
 	void Send_CreateGuildBuilding(UINT32 npcId, UINT8 type);
 	void Send_UpgradeGuildBuilding(UINT8 upgradeType, UINT64 buildingId, INT8 type);
 	void Send_DestroyGuildBuilding(UINT8 delType, UINT64 buildingId);
@@ -47,19 +47,19 @@ public:
 	void Send_EnterGuildMap(UINT8 mapType, UINT32 guildId);
 	void Send_ChangeWeather(UINT32 weatherType, UINT32 timeType);
 
-	// 公会副本
+	// guild dungeon
 	void Send_OpenGuildDungeon(UINT32 dunId, UINT32 leaderId);
 	void Send_EnterGuildDungeon(UINT32 dunId);
 	void Send_RefreshGuildDungeonList();
 
-	// 公会战
+	// guild war
 	void Send_Challenge(const FString& name);
 	void Send_Search();
 	void Send_MatchChallenge(UINT32 id);
 	void Send_MoreGuildInfo();
 	void Send_QueryGuildWarRecord(UINT8 page);
 
-	// 公会活动
+	// guild activity
 	void Send_OpenGuildActivity(UINT32 activityId);
 
 M_DECL_PARSE_FUN(m2c_query_guild_name_ack);

@@ -1,5 +1,5 @@
 //
-//在屏幕上显示较大的Hint
+//Show a larger Hint on screen
 //
 class MMOStatusProc_SetAlwaysWalk extends Object implements(IMMOStatusProc)
 	native

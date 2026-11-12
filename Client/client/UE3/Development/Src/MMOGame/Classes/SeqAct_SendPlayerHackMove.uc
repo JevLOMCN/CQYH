@@ -1,5 +1,5 @@
-// 用于切换客户端发送移动协议给服务器
-// 处理在船上、或是其它静止状态下的移动模拟
+// used to switch the client sending movement messages to the server
+// handle movement simulation while on a ship or in other stationary states
 
 class SeqAct_SendPlayerHackMove extends SequenceAction;
 

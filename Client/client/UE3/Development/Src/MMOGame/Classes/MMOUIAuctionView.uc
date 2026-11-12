@@ -59,15 +59,15 @@ native final function OnSellPage_SellItem(GFxObject mc);
 
 native final function HideAuction_Msg();
 
-// 搜索拍卖信息
+// Search auction info
 native final function ASSearch(GFxObject dt);
 native final function ASSearch_ResetFilter();
 
-// 标签名发生变化
+// Tab name changed
 native final function ASClickTabPage(int idx);
 
 
-// 购买页面
+// Buy page
 native final function ASBuyPage_AuctionClick(int dwAuctionID, int price,int msgType);
 native final function ASBuyPage_AuctionFixedPriceClick(int dwAuctionID, int price);
 
@@ -75,12 +75,12 @@ native final function ASBuyPage_AuctionFailedClick(int dwAuctionID, int price,in
 native final function ASBuyPage_AuctionFailedFixedPriceClick(int dwAuctionID, int price);
 
 
-// 出售页面
+// Sell page
 native final function ASSellPage_CancelSellClick(int dwAuctionID);
 native final function ASSellPage_AuctionSellItemClick(GFxObject dt);
 
 
-// 浏览页面
+// Browse page
 native final function ASViewPage_ClickHeaderSort(int colIdx, bool descending);
 native final function ASViewPage_AuctionClick(int dwAuctionID, int price,int msgType);
 native final function ASViewPage_AuctionFixedPriceClick(int dwAuctionID, int price);
@@ -92,7 +92,7 @@ native final function ASViewPage_PrevPageClick(int pgNum);
 native final function ASViewPage_NextPageClick(int pgNum);
 native final function ASViewPage_GotoPageClick(int pgNum);
 
-//close的时候取消物品锁定
+//closeCancel item lock on close
 native function ASOnPanelClose( string PanelName );
 
 native final function ASTreeListPage_ClickItem(int itemId);

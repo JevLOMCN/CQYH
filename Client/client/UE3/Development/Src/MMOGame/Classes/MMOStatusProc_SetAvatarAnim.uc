@@ -1,5 +1,5 @@
 //
-//…Ë÷√∂Øª≠ºØ
+//Set animation set
 //
 class MMOStatusProc_SetAvatarAnim extends Object implements(IMMOStatusProc)
 	native

@@ -28,8 +28,8 @@ public:
 	void Shutdown();
 	void Clear();
 
-	void StartEffect(FullScreenEffectType EffectType);	// 开始特效
-	void StopEffect(FullScreenEffectType EffectType);	// 结束特效
+	void StartEffect(FullScreenEffectType EffectType);	// start effect
+	void StopEffect(FullScreenEffectType EffectType);	// stop effect
 	void StopAllEffect();	
 
 protected:

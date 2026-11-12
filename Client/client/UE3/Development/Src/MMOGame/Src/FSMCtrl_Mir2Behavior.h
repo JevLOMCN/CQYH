@@ -1,6 +1,6 @@
 /**
  *
- * 游戏虚拟机(FSM)————角色基础行为状态机(~传奇专用~)
+ * Game state machine (FSM) - character basic behavior state machine (~Legend-specific~)
  * Add by jimZhang@sdna.com 2015.3.26 
  * 
  *
@@ -10,7 +10,7 @@
 #define __FSMCTRL_MIR2BEHAVIOR_H__
 #include "FSMCtrl.h"
 
-////MIR2 行为-----------------------------------------------------------------------------------------------------
+////MIR2 behavior-----------------------------------------------------------------------------------------------------
 //class FSMCtrl_Mir2_Action: public IFSMCtrl
 //{
 //public:	

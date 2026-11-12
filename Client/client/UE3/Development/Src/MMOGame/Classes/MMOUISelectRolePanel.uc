@@ -76,7 +76,7 @@ function ASDeleteRole()
 	DeleteRole();
 }
 
-function ASDirectSelectRole(int SelectRoleIndex) //双击人物选择框
+function ASDirectSelectRole(int SelectRoleIndex) //Double-click character selection box
 {
 	ASSelectRole(SelectRoleIndex);
 	ASEnterGame(SelectRoleIndex);
@@ -92,19 +92,19 @@ function ASEnterGame(int SelectRoleIndex)
 	EnterGame(SelectRoleIndex);
 }
 
-//旋转按钮抬起 左手坐标系
+//Rotate button released, left-handed coordinate system
 function ASTurnBtnUp()
 {
 	TurnBtnUp();
 }
 
-//选择角色面板 向右转 
+//Select character panel, rotate right
 function ASSelectTurnRightPress()
 {
 	SelectTurnRightPress();	
 }
 
-//选择角色面板 向左转 
+//Select character panel, rotate left
 function ASSelectTurnLeftPress()
 {
 	SelectTurnLeftPress();	

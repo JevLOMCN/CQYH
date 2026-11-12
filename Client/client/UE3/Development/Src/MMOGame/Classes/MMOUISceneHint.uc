@@ -184,7 +184,7 @@ event RefreshIconInfo( GFxObject target)
 	target.ActionScriptVoid("RefreshIconInfo");
 }
 
-event SetHpInfo( GFxObject target, int Hp, int HpMax, int nState, int VisibleType ) //VisibleType,0不显示，1显示，2只显示血条不显示数字
+event SetHpInfo( GFxObject target, int Hp, int HpMax, int nState, int VisibleType ) //VisibleType, 0 hidden, 1 shown, 2 show only the HP bar without numbers
 {
 	target.ActionScriptVoid("SetHpInfo");
 }

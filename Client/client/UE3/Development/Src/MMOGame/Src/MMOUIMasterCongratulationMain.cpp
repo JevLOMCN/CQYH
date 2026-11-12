@@ -67,7 +67,7 @@ void UMMOUIMasterCongratulationMain::SetCongratulationData(INT nRoleID)
 
 	if(MasterStudentManager::getSingleton().GetMasterStudentState() == E_MASTER_TEACHER)
 	{
-		//是徒弟升级
+		//apprentice leveled up
 		if(pkStudent)
 		{
 			strRelationHint = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Master.CongraluationLvUpToStudent")),*(pkStudent->RoleName));
@@ -86,7 +86,7 @@ void UMMOUIMasterCongratulationMain::SetCongratulationData(INT nRoleID)
 	}
 	else if(nRoleID == master.nRoleID)
 	{
-		//是师傅升级
+		//master leveled up
 		strRelationHint = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Master.CongraluationLvUpToMaster")),*(master.masterName));
 		strCongratulation = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Master.CongraluationLvUpMaster"));
 		nLevel = master.nLevel - master.nCZLevel;
@@ -99,7 +99,7 @@ void UMMOUIMasterCongratulationMain::SetCongratulationData(INT nRoleID)
 	}
 	else
 	{
-		//是同门升级
+		//fellow disciple leveled up
 		if(pkStudent)
 		{
 			strRelationHint = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Master.CongraluationLvUpToTongMen")),*(pkStudent->RoleName));
@@ -173,7 +173,7 @@ void UMMOUIMasterCongratulationMain::SetCongratulationData(INT nRoleID)
 
 void UMMOUIMasterCongratulationMain::ASSendCongratulation(INT nType,INT nRoleID,const FString& strCon)
 {
-	//祝贺
+	//congratulations
 	const AMMOPlayer* pkPlayer       =   MMOFacade::getSingleton().GetMainPlayer();
 	INT nLevel = 0;
 
@@ -184,18 +184,18 @@ void UMMOUIMasterCongratulationMain::ASSendCongratulation(INT nType,INT nRoleID,
 		
 		if(MasterStudentManager::getSingleton().GetMasterStudentState() == E_MASTER_TEACHER)
 		{
-			//是徒弟升级
+			//apprentice leveled up
 			if(pkStudent)
 				nLevel = MasterStudentManager::getSingleton().GetCongratulationLevel(pkStudent->nCZLevel , pkStudent->nLevel);
 		}
 		else if(nRoleID == master.nRoleID)
 		{
-			//是师傅升级
+			//master leveled up
 			nLevel = master.nLevel - master.nCZLevel;
 		}
 		else
 		{
-			//是同门升级
+			//fellow disciple leveled up
 			if(pkStudent)
 				nLevel = MasterStudentManager::getSingleton().GetCongratulationLevel(pkStudent->nCZLevel , pkStudent->nLevel);
 		}

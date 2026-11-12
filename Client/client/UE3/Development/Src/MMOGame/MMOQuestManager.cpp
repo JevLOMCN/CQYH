@@ -217,7 +217,7 @@ void MMOQuestManager::_AcceptQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridD
 		return;
 	}
 
-	// 非紧急任务
+	// non-emergency quest
 	if (quest->QuestType != E_qt_Emegency)
 	{
 		if (_CurQuestGridQuestId[0] != zoneData->nQuestID[0])
@@ -243,7 +243,7 @@ void MMOQuestManager::_AcceptQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridD
 		return;
 	}
 
-	// 紧急任务
+	// emergency quest
 	for (INT i = 0; i < MAX_QUEST_PER_ZONE; ++ i)
 	{
 		quest = MMOQuestData::getSingleton().GetQuestData(zoneData->nQuestID[i]);
@@ -255,7 +255,7 @@ void MMOQuestManager::_AcceptQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridD
 		INT questId = quest->GetTemplateID();
 		if (quest->StartNPCNewId > 0)
 		{
-			// 检查NPC是否在视野
+			// check whether NPC is in view
 			UBOOL npcAppear = FALSE;
 			STLInt2IntMap* npcMap = MMOFacade::getSingleton().GetCharacterMap();
 			if (npcMap)
@@ -279,7 +279,7 @@ void MMOQuestManager::_AcceptQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridD
 					_CurQuestGridQuestId[i] = questId;
 					if (MMOQuestData::getSingleton().IsQuestAvailable(questId))
 					{
-						// 对于有StartNpc的任务，StartNpc如果进入视野内，没接到再接一下
+						// for quests with StartNpc, if StartNpc enters view and the quest was not accepted, accept it again
 						CMessageHandler::GetInstance().Send_AcceptQuest(0, qatEmegency, 0);
 					}
 					else if (MMOQuestData::getSingleton().IsQuestAccepted(questId))
@@ -301,7 +301,7 @@ void MMOQuestManager::_AcceptQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridD
 		}
 		else
 		{
-			// 更新任务追踪
+			// update quest tracking
 			if (_CurQuestGridQuestId[i] != questId)
 			{
 				_CurQuestGridQuestId[i] = questId;
@@ -373,7 +373,7 @@ void MMOQuestManager::_CheckQuestFromGrid()
 		return;
 	}
 
-	// 检查Guid上的任务
+	// check quests on Guid
 	ZONE_DATA* zoneData = NULL;
 	GRID_DATA* gridData = NULL;
 	gServerGridWorld.GetZoneAndGrid(mainPlayer->Location, zoneData, gridData);
@@ -384,7 +384,7 @@ void MMOQuestManager::_CheckQuestFromGrid()
 
 	if (!gridData->bQuest)
 	{
-		// 这里查一下之前的数据，再清空，为的是不要每次UpdateQuestTraceList
+		// check the previous data here, then clear it, to avoid calling UpdateQuestTraceList every time
 		UBOOL foundQuest = FALSE;
 		for (INT i = 0; i < MAX_QUEST_PER_ZONE; ++i)
 		{
@@ -402,7 +402,7 @@ void MMOQuestManager::_CheckQuestFromGrid()
 			MMOUI::PostGameEvent(&evt);
 		}
 
-		// 这里不能清任务类型, 因为格子不能和Volume精确匹配
+		// cannot clear quest type here, because grid cells do not exactly match Volumes
 		//_CurQuestGridType = -1;
 		return;	
 	}
@@ -421,8 +421,8 @@ void MMOQuestManager::_CheckQuestFromGrid()
 	}
 	else
 	{
-		// 如果_CurQuestGridType == -1说明一进地图或者一上线就在QuestVolume里
-		// 这里判断下，如果是紧急任务，直接处理
+		// if _CurQuestGridType == -1, the character is already inside a QuestVolume upon entering the map or logging in
+		// check here: if it is an emergency quest, handle it directly
 		const UQuest* quest = MMOQuestData::getSingleton().GetQuestData(zoneData->nQuestID[0]);
 		if (quest && quest->QuestType == E_qt_Emegency)
 		{
@@ -488,7 +488,7 @@ void MMOQuestManager::Update(FLOAT deltaTime)
 		_UpdateQuestFromGrid(deltaTime);
 	}
 
-	// 服务器在Loading的时候也会计时的，客户端要同步
+	// the server also counts time during Loading, the client must sync
 	_UpdateQuestTime(deltaTime);
 	_UpdateQuestCoolDown(deltaTime); 
 	_UpdateQuestStatusTime(deltaTime);
@@ -501,10 +501,10 @@ void MMOQuestManager::_UpdateQuestPage(float deltaTime)
 		_PageTimeProcess += deltaTime;
 		if (_PageTimeProcess >= _PageTime)
 		{
-			//更改当前页数
+			//change current page number
 			SetQuestDialogCurrentPage(++ _CurPage);
 
-			//发送翻页消息
+			//send page-turn message
 			MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_UpdateQuestPage,_CurPageQuestId);
 			MMOUI::PostGameEvent(&evt);
 
@@ -538,7 +538,7 @@ void MMOQuestManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			UpdateQuestStatus();
 
 			// fix bug #19940
-			// 更新任务追踪
+			// update quest tracking
 			MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_UpdateQuestTraceList, INVALID_QUEST_ID);
 			MMOUI::PostGameEvent(&evt);
 		}
@@ -569,8 +569,8 @@ void MMOQuestManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 			case MMOGameEvent_Quest::EQET_EnterQuestZone:
 				{
 					// TODO:
-					// 这个消息在飞鞋，角色死亡返回出生点，退出游戏等情况下是收不到的
-					// 所以还是要在GRID_DATA里获取_CurQuestGridType
+					// this message is not received when using flying shoes, on character death return to spawn point, on exiting the game, etc.
+					// so _CurQuestGridType still needs to be obtained from GRID_DATA
 					_CurQuestGridType = questEvt->QuestGridType;
 					_CheckQuestFromGrid();
 				}
@@ -578,8 +578,8 @@ void MMOQuestManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 
 			case MMOGameEvent_Quest::EQET_LeaveQuestZone:
 				{
-					// 这个消息在飞鞋，角色死亡返回出生点，退出游戏等情况下是收不到的
-					// 所以还是要在_CheckQuestFromGrid里清一下
+					// this message is not received when using flying shoes, on character death return to spawn point, on exiting the game, etc.
+					// so it still needs to be cleared in _CheckQuestFromGrid
 					_CurQuestGridType = -1;
 
 					if (quest->StartType == EAQT_Zone || quest->FinishType == ESQT_Zone)
@@ -811,7 +811,7 @@ void MMOQuestManager::UpdateQuestTargets(INT32 questId)
 
 	if (quest->FinishType == ESQT_Auto)
 	{
-		// 条件达成, 自动完成任务(进入区域完成任务不算)
+		// condition met, auto-complete quest (entering an area to complete a quest does not count)
 		if (MMOQuestData::getSingleton().IsQuestAccepted(questId) && 
 			MMOQuestData::getSingleton().IsQuestCompassable(questId))
 		{
@@ -832,7 +832,7 @@ void MMOQuestManager::UpdateQuestTargets(INT32 questId)
 	}
 	else if (MMOQuestData::getSingleton().IsQuestRecycle(questId))
 	{
-		// 道具回收任务直接完成
+		// item recycling quest completes directly
 		if (MMOQuestData::getSingleton().IsQuestAccepted(questId) && 
 			MMOQuestData::getSingleton().IsQuestCompassable(questId))
 		{
@@ -1005,7 +1005,7 @@ void MMOQuestManager::UpdateQuestNpcStatus(class ANPC* npc)
 			continue;
 		}
 
-		// 紧急任务不能从NPC接
+		// emergency quests cannot be accepted from NPC
 		if (quest->StartNPCNewId > 0 && quest->StartNPCNewId == npc->Template->TemplateID && quest->QuestType != E_qt_Emegency)
 		{
 			int index = npc->AcceptableQuestList.FindItemIndex((UQuest*)quest);
@@ -1031,7 +1031,7 @@ void MMOQuestManager::UpdateQuestNpcStatus(class ANPC* npc)
 	BYTE type = E_qt_MAX;
 	EQuestHUDStatus state = EQHUDS_None;
 
-	// 可接任务	
+	// available quests
 	for (INT i = 0; i < npc->AcceptableQuestList.Num(); ++ i)
 	{
 		UQuest* quest = npc->AcceptableQuestList(i);		
@@ -1048,7 +1048,7 @@ void MMOQuestManager::UpdateQuestNpcStatus(class ANPC* npc)
 		}						
 	}
 
-	// 悬赏任务NPC
+	// bounty quest NPC
 	if (npc->NPCID == REWARD_QUEST_NPC_ID)
 	{
 		RewardQuestList questList = MMOQuestData::getSingleton().GetRewardQuestList();
@@ -1064,7 +1064,7 @@ void MMOQuestManager::UpdateQuestNpcStatus(class ANPC* npc)
 		}
 	}
 
-	// 可完成任务
+	// completable quests
 	for (INT i = 0; i < npc->CompassableQuestList.Num(); ++ i)
 	{
 		UQuest* quest = npc->CompassableQuestList(i);
@@ -1092,7 +1092,7 @@ void MMOQuestManager::UpdateQuestNpcStatus(class ANPC* npc)
 	GetQuestStateIcon(type, state, FALSE, icon);
 	_SetNpcIcon(npc, icon);
 
-	// #15962 检查任务是否有中转NPC 
+	// #15962 check whether quest has a transit NPC
 	for (INT i = 0; i < npc->CompassableQuestList.Num(); ++ i)
 	{
 		UQuest* quest = npc->CompassableQuestList(i);
@@ -1130,7 +1130,7 @@ void MMOQuestManager::_CheckTransitQuestNpc(const UQuest* quest)
 	ParseContext parseContext;
 	DialogContext dlgContext;
 
-	// 任务描述
+	// quest description
 	if (!quest->QuestDescript.IsEmpty())
 	{
 		INT naStart = quest->QuestDescript.InStr(naKey);
@@ -1161,7 +1161,7 @@ void MMOQuestManager::_CheckTransitQuestNpc(const UQuest* quest)
 		}
 	}
 
-	// 任务变量
+	// quest variables
 	for (INT i = 0; i < quest->CheckVar.Num(); ++i)
 	{
 		FQuestCheckVar checkVar = quest->CheckVar(i);
@@ -1196,7 +1196,7 @@ void MMOQuestManager::_CheckTransitQuestNpc(const UQuest* quest)
 		}
 	}
 
-	// 任务道具
+	// quest items
 	for (INT i = 0; i < quest->CheckItem.Num(); ++ i)
 	{
 		FQuestCheckItem checkItem = quest->CheckItem(i);					
@@ -1247,7 +1247,7 @@ void MMOQuestManager::UpdateQuestDropItemStatus(class AMMODropActor* drop)
 	BYTE type = E_qt_MAX;
 	EQuestHUDStatus state = EQHUDS_None;
 
-	// 可接任务	
+	// available quests
 	QuestDataMap allQuests = MMOQuestData::getSingleton().GetQuestDataMap();
 	for (auto iter = allQuests.begin(); iter != allQuests.end(); ++ iter)
 	{
@@ -1263,7 +1263,7 @@ void MMOQuestManager::UpdateQuestDropItemStatus(class AMMODropActor* drop)
 			continue;
 		}
 
-		// 如果背包里已经有了
+		// if already in bag
 		INT itemSlot = -1;
 		FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindFirstItemPosInContainer(drop->TemplateItemID, E_CONSLOT_DEFAULT, itemSlot);
 		if (itemInfo && itemSlot >= 0)
@@ -1307,7 +1307,7 @@ void MMOQuestManager::TraceAllQuest(bool traceOn)
 	MMOQuestData::getSingleton().TraceAllQuest(traceOn);
 	UpdateQuestStatus(TRUE);
 
-	// 更新任务追踪
+	// update quest tracking
 	MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_UpdateQuestTraceList, INVALID_QUEST_ID);
 	MMOUI::PostGameEvent(&evt);
 }
@@ -1316,7 +1316,7 @@ void MMOQuestManager::TraceQuest(INT questId, bool traceOn)
 {
 	MMOQuestData::getSingleton().TraceQuest(questId, traceOn);
 
-	// 更新任务追踪
+	// update quest tracking
 	MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_UpdateQuestTraceList, questId);
 	MMOUI::PostGameEvent(&evt);
 }
@@ -1373,10 +1373,10 @@ void MMOQuestManager::UpdateQuestItem(INT32 itemId, UBOOL isAdd)
 			if (item && item->GetTemplateID() == itemId)
 			{
 				UpdateQuestTargets(quest->GetTemplateID());
-				// 道具可以加，可以减，所以随时要判定任务状态
+				// items can be added or removed, so quest state must be evaluated at all times
 				UpdateQuestStatus();
 
-				// 提示
+				// tips
 				if (isAdd)
 				{
 					INT itemCount = MMOFacade::getSingleton().GetItemCountInBag(itemId, E_CONSLOT_DEFAULT);
@@ -1436,7 +1436,7 @@ void MMOQuestManager::UpdateVariable(UINT8 varType, INT32 referId, UINT16 index,
 				UpdateRoleVariable(index, val);
 			}
 
-			// LD那边用132号变量来触发第一次进游戏的Matinee，但是这时候关卡还没有加载，所以延时处理
+			// LD uses variable 132 to trigger the first-time-in-game Matinee, but the level is not loaded yet, so handle it with a delay
 			if (index == 132 && val == 1)
 			{
 				_FirstMatinee = TRUE;
@@ -1499,7 +1499,7 @@ void MMOQuestManager::UpdateQuestNpcKillCount(INT questId, UINT16 index, INT val
 	MMOQuestData::getSingleton().UpdateQuestNpcKillCount(questId, index, value);
 	UpdateQuestTargets(questId);
 
-	// 提示
+	// tips
 	const UQuest* quest = MMOQuestData::getSingleton().GetQuestData(questId);
 	const AcceptedQuestData* acceptedQuest = MMOQuestData::getSingleton().GetAcceptedQuestData(questId);
 	if (quest && acceptedQuest && index < quest->CheckKillNpc.Num())
@@ -1532,7 +1532,7 @@ void MMOQuestManager::UpdateQuestDoodadKillCount(INT questId, UINT16 index, INT 
 {
 	UpdateQuestTargets(questId);
 
-	// 提示
+	// tips
 	AcceptedQuestDataMap acceptedQuests = MMOQuestData::getSingleton().GetAcceptedQuests();
 	AcceptedQuestDataMap::iterator iter = acceptedQuests.find(questId);
 	if (iter != acceptedQuests.end())
@@ -1555,7 +1555,7 @@ void MMOQuestManager::UpdateQuestDoodadKillCount(INT questId, UINT16 index, INT 
 							killDoodadCount = Min(killDoodadCount, checkKillDoodad->CheckKillDoodadCnt);
 						}
 
-						// 条件达成，更新任务状态
+						// condition met, update quest state
 						if (killDoodadCount >= checkKillDoodad->CheckKillDoodadCnt)
 						{
 							UpdateQuestStatus();
@@ -1592,7 +1592,7 @@ bool MMOQuestManager::AcceptQuest(INT questId, UBOOL share, INT shareSrcId) cons
 		return false;
 	}
 
-	// 紧急任务不能从这里接
+	// emergency quests cannot be accepted from here
 	if (quest->QuestType == E_qt_Emegency)
 	{
 		return false;
@@ -1630,7 +1630,7 @@ bool MMOQuestManager::CompleteQuest(INT questId, INT selectedAwardIndex)
 		return false;
 	}
 	
-	// 不弹框直接完成的任务，角色无法选择可选奖励，这里找一下默认的
+	// for quests completed directly without a popup, the character cannot choose optional rewards, so find the default here
 	if (selectedAwardIndex == -1)
 	{
 		selectedAwardIndex = MMOQuestData::getSingleton().GetDefaultSelectableAwardItemIndex(questId);
@@ -1707,13 +1707,13 @@ void MMOQuestManager::PlayQuestSound(INT questId, ANPC* npc)
 		return;
 	}
 
-	// 过场播放时, 禁止播放任务音效
+	// disable quest sound effects while cutscene is playing
 	if (mainPlayer->IsInMatinee)
 	{
 		return;
 	}
 
-	// 根据需求#5998，Quest配置的相关SoundCue优先于NPC配置通用SoundCue
+	// per request #5998, SoundCue configured in Quest takes priority over the generic SoundCue configured on NPC
 	const UQuest* quest = MMOQuestData::getSingleton().GetQuestData(questId);
 	if (!quest)
 	{
@@ -1795,7 +1795,7 @@ void MMOQuestManager::NotifyAcceptQuest(INT questId)
 
 	if (MMO::GetCurrentGameState() == EGameState_InGame)
 	{
-		// 如果是主线任务
+		// if it is a main quest
 		if (quest->QuestType == E_qt_Trunk)
 		{
 			_CurTrunkQuestId = questId;
@@ -1805,7 +1805,7 @@ void MMOQuestManager::NotifyAcceptQuest(INT questId)
 			_CurOtherQuestId = questId;
 		}
 
-		// 如果是紧急任务
+		// if it is an emergency quest
 		if (quest->QuestType == E_qt_Emegency)
 		{
 			UMMOUINewEventPanel* newEventPanel = (UMMOUINewEventPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_DynamicUI_NewEvent);
@@ -1822,14 +1822,14 @@ void MMOQuestManager::NotifyAcceptQuest(INT questId)
 			MMOUI::PostGameEvent(&evtGuide);
 		}
 
-		// 如果是悬赏任务
+		// if it is a bounty quest
 		if (quest->QuestType == E_qt_Reward)
 		{
 			MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_UpdateRewardQuestLimit);
 			MMOUI::PostGameEvent(&evt);
 		}
 
-		// 如果是环任务
+		// if it is a circle quest
 		FString acceptStr = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Quest.ChatMsgRecieveQuest"));
 		acceptStr += quest->QuestName;
 		if (quest->CircleID > 0)
@@ -1837,12 +1837,12 @@ void MMOQuestManager::NotifyAcceptQuest(INT questId)
 			CircleQuestInfo info;
 			if (MMOQuestData::getSingleton().GetCircleQuestInfo(quest->CircleID, info))
 			{
-				// 环序号从1开始 #19224
+				// ring index starts from 1 #19224
 				acceptStr += FString::Printf(TEXT("(%02d)"), info.CircleIndex + 1);
 			}
 		}
 
-		// 是否显示接取后对话
+		// whether to show dialogue after accepting
 		if (quest->StartOverWithDialog)
 		{
 			UMMOUIDialogNew* dialog = (UMMOUIDialogNew*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_DialogNew);
@@ -1852,7 +1852,7 @@ void MMOQuestManager::NotifyAcceptQuest(INT questId)
 			}
 		}
 
-		// 是否显示接取后旁白
+		// whether to show narration after accepting
 		USoundCue* questSoundAccepted = ((UQuest*)quest)->GetQuestSoundAccepted();
 		if (questSoundAccepted)
 		{
@@ -1901,7 +1901,7 @@ void MMOQuestManager::NotifyAbandonQuest(INT questId)
 		}
 
 		if (quest->QuestType != E_qt_Emegency)
-		{// 紧急任务因为时间到而自动放弃，不做提示
+		{// emergency quest auto-abandoned due to timeout, no prompt
 			FString acceptStr = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Quest.ChatMsgAbandonQuest"));
 			acceptStr += quest->QuestName;
 			MMOChatManager::getSingleton().AddChatMessage(ECC_System, acceptStr, TEXT(""));
@@ -1925,10 +1925,10 @@ void MMOQuestManager::NotifyCompleteQuest(INT questId)
 	MMOQuestData::getSingleton().CompleteQuest(questId);
 	UpdateQuestStatus();
 
-	// 自动接取下一个
+	// auto-accept next
 	if (quest->AutoStartNextID)
 	{
-		// 需要自动接取的下一个任务不能配接取NPC，否则服务器判定"npc太远")
+		// the next quest to be auto-accepted must not be configured with an accept NPC, otherwise the server reports "npc too far")
 		const UQuest* nextQuest = MMOQuestData::getSingleton().GetQuestData(quest->AutoStartNextID);
 		if (nextQuest && nextQuest->StartNPCNewId == 0)
 		{
@@ -1938,13 +1938,13 @@ void MMOQuestManager::NotifyCompleteQuest(INT questId)
 
 	if (MMO::GetCurrentGameState() == EGameState_InGame)
 	{
-		// 如果是普通任务
+		// if it is a normal quest
 		if (quest->QuestType != E_qt_Trunk)
 		{
 			_CurOtherQuestId = INVALID_QUEST_ID;
 		}
 
-		// 如果是紧急任务
+		// if it is an emergency quest
 		if (quest->QuestType == E_qt_Emegency)
 		{
 			UMMOUINewEventPanel* newEventPanel = (UMMOUINewEventPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_DynamicUI_NewEvent);
@@ -1958,7 +1958,7 @@ void MMOQuestManager::NotifyCompleteQuest(INT questId)
 			MMOUI::GetUIManager()->delegateAddScreenMessage(emergencyStr, MsgInfoType_Table, TEXT("MMOGame.Quest.ChatMsgEmergencyCompleteQuest"));
 
 			// fix bug:#25370
-			// 如果当日紧急任务完成次数达到20后，清除所有玩家已接取的紧急任务
+			// when the number of emergency quests completed today reaches 20, clear all emergency quests accepted by players
 			if (MMOQuestData::getSingleton().IsEmegencyQuestAllCompleteToday())
 			{
 				MMOQuestData::getSingleton().AbandonAllEmergencyQuest();
@@ -1971,7 +1971,7 @@ void MMOQuestManager::NotifyCompleteQuest(INT questId)
 			MMOUI::PostGameEvent(&evt);
 		}
 
-		// 是否显示完成后对话
+		// whether to show dialogue after completion
 		if (quest->FinishOverWithDialog)
 		{
 			UMMOUIDialogNew* dialog = (UMMOUIDialogNew*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_DialogNew);
@@ -1981,7 +1981,7 @@ void MMOQuestManager::NotifyCompleteQuest(INT questId)
 			}
 		}
 
-		// 是否显示接取后旁白
+		// whether to show narration after accepting
 		USoundCue* questSoundComplete = ((UQuest*)quest)->GetQuestSoundComplete();
 		if (questSoundComplete)
 		{
@@ -2003,13 +2003,13 @@ void MMOQuestManager::NotifyCompleteQuest(INT questId)
 	MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_CompleteQuest, questId);
 	MMOUI::PostGameEvent(&evt);
 
-	// 成就
+	// Achievement
 	MMOGameEvent_Achievement evtAch1(adCompleteQuest, questId, 0, 0);
 	MMOUI::PostGameEvent(&evtAch1);
 	MMOGameEvent_Achievement evtAch2(adCompleteQuestCount, MMOQuestData::getSingleton().GetCompletedQuestCount(), 0, 0);
 	MMOUI::PostGameEvent(&evtAch2);
 
-	// 引导
+	// Guide
 	MMOGameEvent_Guide evtGuide(EGUET_CompleteQuest, questId);
 	MMOUI::PostGameEvent(&evtGuide);
 }
@@ -2027,7 +2027,7 @@ void MMOQuestManager::NotifyQuestFailed(INT questId)
 
 	if (MMO::GetCurrentGameState() == EGameState_InGame)
 	{
-		// 如果是普通任务
+		// if it is a normal quest
 		if (quest->QuestType != E_qt_Trunk)
 		{
 			_CurOtherQuestId = INVALID_QUEST_ID;
@@ -2046,9 +2046,9 @@ void MMOQuestManager::NotifyUpdateQuestList(ROLE_DB_QUEST_DATA* questData)
 	MMOQuestData::getSingleton().UpdateQuestList(questData);
 
 	// fix bug #23546
-	// 这时候一旦有任务是可提交状态，并且是自动提交的，向服务器发送CompleteQuest，服务器没有回应
-	// 可能是因为角色还没有进入场景
-	// 把他转移到MMOQuestManager::OnNativeGameEvent里的GameEvent_EnterScene进行处理
+	// at this moment, if any quest is in submittable state and auto-submit, CompleteQuest sent to the server gets no response
+	// probably because the character has not entered the scene yet
+	// move it to GameEvent_EnterScene in MMOQuestManager::OnNativeGameEvent for handling
 	//UpdateAllQuestTargets();
 	//UpdateQuestStatus();
 }
@@ -2086,7 +2086,7 @@ void MMOQuestManager::NotifyRefreshRewardQuestList(const INT32 (&rewardQuestId)[
 		_RewardQuestBrushLeftTime = REWARD_QUEST_BRUSH_CD_INTERVAL;
 	}
 
-	// 是否刷到三星以上为止（#9924）
+	// whether to refresh until three stars or above (#9924)
 	if (_IsAutoRefresh)
 	{
 		if (MMOQuestData::getSingleton().GetAcceptedRewardQuestCount() < MAX_REWARD_QUEST_COUNT_PER_ROLE)
@@ -2100,7 +2100,7 @@ void MMOQuestManager::NotifyRefreshRewardQuestList(const INT32 (&rewardQuestId)[
 				AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 				if (mainPlayer && mainPlayer->GetMoney(MONEYTYPE_02) < REWARD_QUEST_BRUSH_COST)
 				{
-					// 没钱也不刷了
+					// stop refreshing when out of money
 					_IsAutoRefresh = FALSE;
 				}
 				else
@@ -2173,24 +2173,24 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemCaption(const UQuest* quest,
 		return;
 	}
 
-	// 任务标题
+	// quest title
 	FString fontColor;
 	GConfig->GetString(TEXT("TextColor"), TEXT("QuestCaption"), fontColor, GUIColorIni);
 
-	// 任务等级
+	// quest level
 	FString questLevel = UITextParser::HTMLBeginFont(fontColor) 
 		+ appItoa(quest->QuestLevel)
-		+ FString(TEXT("级"))
+		+ FString(TEXT(" Lv"))
 		+ UITextParser::HTMLEndFont();
 
 	FString questTitle = LinkManager::HtmlLink_QuestTraceTitle(quest);
-	// 如果是环任务
+	// if it is a circle quest
 	if (quest->CircleID > 0)
 	{
 		CircleQuestInfo info;
 		if (MMOQuestData::getSingleton().GetCircleQuestInfo(quest->CircleID, info))
 		{
-			// 环序号从1开始 #19224
+			// ring index starts from 1 #19224
 			questTitle += FString::Printf(TEXT("(%02d)"), info.CircleIndex + 1);
 		}
 	}
@@ -2200,7 +2200,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemCaption(const UQuest* quest,
 		+ questTitle
 		+ UITextParser::HTMLEndFont();
 
-	// 完成情况
+	// completion status
 	GConfig->GetString(TEXT("TextColor"), TEXT("QuestCondComplete"), fontColor, GUIColorIni);
 	UBOOL hasConditions = MMOQuestData::getSingleton().HasConditions(quest->GetTemplateID());
 	UBOOL isCompassable = MMOQuestData::getSingleton().IsQuestCompassable(quest->GetTemplateID());
@@ -2210,13 +2210,13 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemCaption(const UQuest* quest,
 		{
 			if (!quest->IsTimeLimit())
 			{
-				// 限时任务要到交付才算完成，这里不要显示(完成)，否则会误导，详见Bug6111
+				// timed quests only count as complete on delivery, do not show (completed) here as it would be misleading, see Bug6111
 				questCaption += UITextParser::HTMLBeginFont(fontColor) 
 					+ MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Quest.CondCompleted")) 
 					+ UITextParser::HTMLEndFont();
 			}
 
-			// 手动提交按钮
+			// manual submit button
 			object->SetBool(TEXT("quest_is_delay_complete"), quest->FinishType == ESQT_Manual);
 		}
 		else if (acceptedQuest->IsFailed)
@@ -2233,20 +2233,20 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemCaption(const UQuest* quest,
 			+ MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Quest.CondCompleted")) 
 			+ UITextParser::HTMLEndFont();
 
-		// 手动提交按钮
+		// manual submit button
 		object->SetBool(TEXT("quest_is_delay_complete"), quest->FinishType == ESQT_Manual);
 	}
 	object->SetString(TEXT("quest_caption"), questCaption);
 	object->SetString(TEXT("quest_level"), questLevel);
 
-	// 新任务标志，只显示一次
+	// new quest marker, shown only once
 	object->SetBool(TEXT("quest_is_new"), acceptedQuest->IsNewQuest);
 	acceptedQuest->IsNewQuest = false;
 
 	object->SetBool(TEXT("quest_is_compassable"), isCompassable);
 	object->SetInt(TEXT("quest_id"), quest->GetTemplateID());
 	object->SetInt(TEXT("quest_type"), quest->QuestType);
-	// 任务道具
+	// quest items
 	object->SetInt(TEXT("quest_item_id"), 0);
 	object->SetPureString(TEXT("quest_item_icon"), TEXT(""));
 	UItem* finishItem = ((UQuest*)quest)->GetFinishItem();
@@ -2286,7 +2286,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemDesc(const UQuest* quest, Ac
 	{
 		if (!quest->QuestCompletedDescript.IsEmpty())
 		{
-			// 任务描述
+			// quest description
 			UITextParser::getSingleton().Parse(parseContext, dlgContext, quest->QuestCompletedDescript);
 			dlgContext.TempText.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 			object->SetPureString(TEXT("quest_detail"), dlgContext.TempText);
@@ -2296,7 +2296,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemDesc(const UQuest* quest, Ac
 	{
 		if (!quest->QuestDescript.IsEmpty())
 		{
-			// 任务描述
+			// quest description
 			UITextParser::getSingleton().Parse(parseContext, dlgContext, quest->QuestDescript);
 			dlgContext.TempText.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 			object->SetPureString(TEXT("quest_detail"), dlgContext.TempText);
@@ -2477,7 +2477,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckVariable(const UQ
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				dlgContext.TempText = TEXT("");
 				UITextParser::getSingleton().ParseContent(parseContext, dlgContext, checkVar.Description);
 				targetDesc = dlgContext.TempText;
@@ -2498,7 +2498,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckVariable(const UQ
 		else if (checkVar.CheckVarType == TEXT("vtClient") &&
 			checkVar.CheckVarID == ECVT_Quest)
 		{
-			// 否存在分职业描述
+			// whether class-specific description exists
 			for (int j = 0; j < quest->CheckClassVar.Num(); ++ j)
 			{
 				FQuestCheckClassVar checkClassVar = quest->CheckClassVar(j);
@@ -2513,7 +2513,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckVariable(const UQ
 			targetDesc = TEXT("");
 			if((acceptedQuest->ClientVariable[checkVar.CheckVarID] & (INT32)(1 << checkVar.CheckVarCnt)) > 0)
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				dlgContext.TempText = TEXT("");
 				UITextParser::getSingleton().ParseContent(parseContext, dlgContext, checkVar.Description);
 				targetDesc = dlgContext.TempText;
@@ -2550,7 +2550,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckVariable(const UQ
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				dlgContext.TempText = TEXT("");
 				UITextParser::getSingleton().ParseContent(parseContext, dlgContext, checkVar.Description);
 				targetDesc = dlgContext.TempText;
@@ -2626,14 +2626,14 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckItem(const UQuest
 					itemName = dlgContext.TempText;
 				}
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*itemName, *_CondNotCompleteColor, itemCount, checkItem->CheckItemCnt);
 				targetDesc = FString::Printf(TEXT("%s"), *itemName);
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (checkItem->Description.IsEmpty())
 				{
 					itemName = item->GetDisplayName();
@@ -2646,7 +2646,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckItem(const UQuest
 					itemName = dlgContext.TempText;
 				}
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*itemName, *_CondCompleteColor, itemCount, checkItem->CheckItemCnt);
 				targetDesc = FString::Printf(TEXT("%s"), *itemName);
@@ -2733,14 +2733,14 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckKillNpc(const UQu
 
 				monsterName.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*monsterName, *_CondNotCompleteColor, acceptQuest->KillNpcCount[i], checkMonster->CheckKillNpcCnt);	
 				targetDesc = FString::Printf(TEXT("%s"), *monsterName);
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (killNpc->Description.IsEmpty())
 				{
 					monsterName = (npc != NULL) ? npc->GetDisplayName() : TEXT("");
@@ -2754,7 +2754,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckKillNpc(const UQu
 
 				monsterName.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*monsterName, *_CondCompleteColor, acceptQuest->KillNpcCount[i], checkMonster->CheckKillNpcCnt);
 				targetDesc = FString::Printf(TEXT("%s"), *monsterName);
@@ -2862,14 +2862,14 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckKillDoodad(const 
 
 				doodadDesc.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*doodadDesc, *_CondNotCompleteColor, acceptQuest->KillDoodadCount[i], checkKillDoodad->CheckKillDoodadCnt);	
 				targetDesc = FString::Printf(TEXT("%s"), *doodadDesc);
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (checkKillDoodad->CheckKillDoodadDesc.IsEmpty())
 				{
 					doodadDesc = doodadName;
@@ -2883,7 +2883,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckKillDoodad(const 
 
 				doodadDesc.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*doodadDesc, *_CondCompleteColor, acceptQuest->KillDoodadCount[i], checkKillDoodad->CheckKillDoodadCnt);
 				targetDesc = FString::Printf(TEXT("%s"), *doodadDesc);
@@ -2967,14 +2967,14 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckKillPlayer(const 
 
 				playerName.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*playerName, *_CondNotCompleteColor, acceptQuest->KillPlayerCount[i], checkKillPlayer->CheckKillPlayerCnt);	
 				targetDesc = FString::Printf(TEXT("%s"), *playerName);
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (checkKillPlayer->CheckKillPlayerDesc.IsEmpty())
 				{
 					//playerName = checkKillPlayer->CheckKillNpcNew->GetDisplayName();
@@ -2988,7 +2988,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckKillPlayer(const 
 
 				playerName.ReplaceInline(TEXT("#1EFF00"), TEXT("#FFF468"));
 
-				// 改为进度条显示个数, 这里就不显示了
+				// changed to show count in progress bar, so not shown here
 				//targetDesc = FString::Printf(TEXT("%s <font color='%s'>(%d/%d)</font>"),
 				//	*playerName, *_CondCompleteColor, acceptQuest->KillPlayerCount[i], checkKillPlayer->CheckKillPlayerCnt);
 				targetDesc = FString::Printf(TEXT("%s"), *playerName);
@@ -3050,7 +3050,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTargetCheckReputation(const 
 
 	FString reputationName;
 	FString reputationLevel;
-	// 获取声望值名字
+	// get reputation name
 	UMMOUICharacter* panel = Cast<UMMOUICharacter>( MMOUI::GetUIManager()->FindUIPanel( MMOUI::GetUIManager()->Panel_Character ) );
 	if (panel)
 	{
@@ -3123,7 +3123,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemTarget(const UQuest* quest, 
 	int destId = 0;
 	if (quest->StartNPCNewId > 0 && quest->StartNpcFly)
 	{
-		// 如果开始任务NPC需要飞鞋
+		// if the start-quest NPC requires flying shoes
 		destId ++;
 	}
 
@@ -3217,7 +3217,7 @@ void MMOQuestManager::_GetQuestAwardMoneyInfo(INT moneyType, FString& moneyName,
 		moneyIcon = TEXT("img://MMO_UIIcon.MoneyIcon.Achievement");
 		break;
 
-		// 下面三个都没有资源, 临时用家族贡献的格式吧
+		// the following three have no resources, temporarily use the family contribution format
 	case MONEYTYPE_MASTER_EXP:
 		moneyName = MMOUI::ParseLocalizedPropertyPath(TEXT("Properties.EMONEY_TYPE.E_MONEYTYPE_MASTER_EXP"));
 		moneyIcon = TEXT("img://MMO_UIIcon.MoneyIcon.GuildHonor");
@@ -3249,7 +3249,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemAward(const UQuest* quest, A
 
 	object->SetString(TEXT("quest_award_caption"), MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Quest.AwardCaption")));
 
-	// 金币，经验，活跃度
+	// gold, experience, activity
 	INT moneyType = quest->AwardCurrencyType;
 	INT money = quest->AwardCurrencyAmount;
 	INT moneyTypeEx = quest->AwardCurrencyTypeEx;
@@ -3295,7 +3295,7 @@ void MMOQuestManager::_SetAcceptedQuestTraceListItemAward(const UQuest* quest, A
 	object->SetString(TEXT("quest_award_activity_icon"), TEXT("img://MMO_ItemIcon_Supplies.item_147"));
 	object->SetInt(TEXT("quest_award_activity"), activity);
 
-	// 道具奖励和可选任务奖励在trace里并列显示，策划保证任务的道具奖励和可选道具奖励之和不超过4个
+	// item rewards and optional quest rewards are shown side by side in trace; designers guarantee item rewards plus optional item rewards do not exceed 4
 	UGFxObject* awardArray = gfxPlayer->CreateArray();
 	if (awardArray)
 	{
@@ -3358,24 +3358,24 @@ void MMOQuestManager::_SetAvailableQuestTraceListItemCaption(const UQuest* quest
 		return;
 	}
 
-	// 任务标题
+	// quest title
 	FString fontColor;
 	GConfig->GetString(TEXT("TextColor"), TEXT("QuestCaption"), fontColor, GUIColorIni);
 
-	// 任务等级
+	// quest level
 	FString questLevel = UITextParser::HTMLBeginFont(fontColor) 
 		+ appItoa(quest->QuestLevel)
-		+ FString(TEXT("级"))
+		+ FString(TEXT(" Lv"))
 		+ UITextParser::HTMLEndFont();
 
 	FString questTitle = LinkManager::HtmlLink_QuestTraceTitle(quest);
-	// 如果是环任务
+	// if it is a circle quest
 	if (quest->CircleID > 0)
 	{
 		CircleQuestInfo info;
 		if (MMOQuestData::getSingleton().GetCircleQuestInfo(quest->CircleID, info))
 		{
-			// 环序号从1开始 #19224
+			// ring index starts from 1 #19224
 			questTitle += FString::Printf(TEXT("(%02d)"), info.CircleIndex + 1);
 		}
 	}
@@ -3385,7 +3385,7 @@ void MMOQuestManager::_SetAvailableQuestTraceListItemCaption(const UQuest* quest
 		+ questTitle
 		+ UITextParser::HTMLEndFont()
 		+ UITextParser::HTMLBeginFont(TEXT("#FFF468"))
-		+ TEXT("(可接)")
+		+ TEXT("(Available)")
 		+ UITextParser::HTMLEndFont();
 
 	object->SetPureString(TEXT("quest_caption"), questCaption);
@@ -3415,7 +3415,7 @@ void MMOQuestManager::_SetAvailableQuestTraceListItemDesc(const UQuest* quest, U
 	FString startDesc = TEXT("");
 	if (quest->StartType == EAQT_Npc)
 	{
-		// 接取NPC
+		// Quest-giver NPC
 		UNPCTemplate* startNpc = ((UQuest*)quest)->GetStartNpc();
 		if (startNpc)
 		{
@@ -3433,11 +3433,11 @@ void MMOQuestManager::_SetAvailableQuestTraceListItemDesc(const UQuest* quest, U
 
 			if (mapName != TEXT(""))
 			{
-				startDesc = FString::Printf(TEXT("<font color='#FFFFFF'>%s</font>的<font color='#FFF468'>%s</font>有事相告,快去找他吧！"), *mapName, *npcName);
+				startDesc = FString::Printf(TEXT("<font color='#FFFFFF'>%s</font> <font color='#FFF468'>%s</font> has something to tell you, go and see them!"), *mapName, *npcName);
 			}
 			else
 			{
-				startDesc = FString::Printf(TEXT("<font color='#FFF468'>%s</font>有事相告,快去找他吧！"), *npcName);
+				startDesc = FString::Printf(TEXT("<font color='#FFF468'>%s</font> has something to tell you, go and see them!"), *npcName);
 			}
 			
 			int destId = 0;
@@ -3450,7 +3450,7 @@ void MMOQuestManager::_SetAvailableQuestTraceListItemDesc(const UQuest* quest, U
 	}
 	else if (quest->StartType == EAQT_Item)
 	{
-		// 接取道具
+		// accept items
 		object->SetInt(TEXT("quest_item_id"), 0);
 		object->SetPureString(TEXT("quest_item_icon"), TEXT(""));
 		UItem* startItem = ((UQuest*)quest)->GetStartItem();
@@ -3644,7 +3644,7 @@ void MMOQuestManager::_SetQuestDetailBaseInfo(const UQuest* quest, UMMOGFXPlayer
 	UBOOL isQuestCompleteWithoutNpc = isQuestCompassable && (quest->FinishType == ESQT_Item || quest->FinishType == ESQT_Zone || quest->FinishType == ESQT_Auto || quest->FinishType == ESQT_Manual);
 	object->SetBool(TEXT("quest_without_npc"), isQuestAvailableWithoutNpc || isQuestCompleteWithoutNpc);
 
-	// 紧急任务属性
+	// emergency quest attributes
 	object->SetBool(TEXT("quest_is_urgent"), quest->QuestType == E_qt_Emegency);
 	FString emergencyStr = FString::Printf(TEXT("%d/%d"), MMOQuestData::getSingleton().GetEmergencyQuestCompleteCount(), MAX_EMERGENCY_QUEST_COMPLETE_PER_DAY);
 	object->SetString(TEXT("quest_urgent"), emergencyStr);
@@ -3667,7 +3667,7 @@ void MMOQuestManager::_SetQuestDetailCaption(const UQuest* quest, UMMOGFXPlayer*
 		return;
 	}
 
-	// 章节
+	// chapter
 	FString ChapterName = TEXT("");
 	FString ChapterDesc = TEXT("");
 	FString StageName = TEXT("");
@@ -3689,7 +3689,7 @@ void MMOQuestManager::_SetQuestDetailCaption(const UQuest* quest, UMMOGFXPlayer*
 	object->SetString(TEXT("quest_stage_desc"), StageDesc);
 	object->SetString(TEXT("quest_chapter_icon"), ChapterIcon);
 
-	// 标题
+	// title
 	FString questCaption = UITextParser::HTMLFormatQuestName(quest, false, true);
 	if (MMOQuestData::getSingleton().IsQuestCompleted(quest->GetTemplateID()))
 	{
@@ -3761,7 +3761,7 @@ void MMOQuestManager::_SetQuestDetailDesc(const UQuest* quest, UMMOGFXPlayer* gf
 	dlgContext.TempText.ReplaceInline(TEXT("#1EFF00"), TEXT("#448407"));
 	object->SetString(TEXT("quest_desc"), dlgContext.TempText);
 
-	// 环任务
+	// circle quest
 	FString questCircle = TEXT("");
 	if (quest->CircleID > 0)
 	{
@@ -3774,7 +3774,7 @@ void MMOQuestManager::_SetQuestDetailDesc(const UQuest* quest, UMMOGFXPlayer* gf
 				CircleQuestInfo info;
 				if (MMOQuestData::getSingleton().GetCircleQuestInfo(quest->CircleID, info))
 				{
-					questCircle = FString::Printf(TEXT("当前跑环次数：%d/%d"), info.CircleIndex + 1, data.CircleSize);
+					questCircle = FString::Printf(TEXT("Current ring quest count: %d/%d"), info.CircleIndex + 1, data.CircleSize);
 				}
 			}
 		}
@@ -3810,7 +3810,7 @@ void MMOQuestManager::_SetQuestDetailCondition(const UQuest* quest, UMMOGFXPlaye
 	INT index = 0;
 	FString conditionDesc;
 
-	// 等级需求
+	// level requirement
 	if (quest->QuestLevel >= 0)
 	{
 		conditionDesc = FString::Printf((const TCHAR*)(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Quest.LevelReq"))), quest->QuestLevel);
@@ -3818,7 +3818,7 @@ void MMOQuestManager::_SetQuestDetailCondition(const UQuest* quest, UMMOGFXPlaye
 		++ index;
 	}
 
-	// 金币需求
+	// gold requirement
 	if (quest->MoneyAmountLimit)
 	{
 		FString moneyName;
@@ -3855,7 +3855,7 @@ void MMOQuestManager::_SetQuestDetailCondition(const UQuest* quest, UMMOGFXPlaye
 		++ index;
 	}
 
-	// 性别需求
+	// gender requirement
 	if (quest->SexLimit)
 	{
 		FString genderName;
@@ -3876,7 +3876,7 @@ void MMOQuestManager::_SetQuestDetailCondition(const UQuest* quest, UMMOGFXPlaye
 		++ index;
 	}
 
-	// 道具需求
+	// item requirement
 	for (INT i = 0; i < quest->ItemLimit.Num(); ++ i)
 	{
 		UItem* item = ((UQuest*)quest)->GetLimitItem(i);
@@ -3891,7 +3891,7 @@ void MMOQuestManager::_SetQuestDetailCondition(const UQuest* quest, UMMOGFXPlaye
 		}
 	}
 
-	// 接取
+	// accept
 	if (quest->StartType == EAQT_Npc)
 	{
 		UNPCTemplate* startNpc = ((UQuest*)quest)->GetStartNpc();
@@ -4094,7 +4094,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckVariable(const UQuest* quest, Ac
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				dlgContext.TempText = TEXT("");
 				UITextParser::getSingleton().ParseContent(parseContext, dlgContext, checkVar.Description);
 				targetDesc = dlgContext.TempText;
@@ -4107,7 +4107,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckVariable(const UQuest* quest, Ac
 		else if (checkVar.CheckVarType == TEXT("vtClient") &&
 			checkVar.CheckVarID == ECVT_Quest)
 		{
-			// 否存在分职业描述
+			// whether class-specific description exists
 			for (int j = 0; j < quest->CheckClassVar.Num(); ++ j)
 			{
 				FQuestCheckClassVar checkClassVar = quest->CheckClassVar(j);
@@ -4121,7 +4121,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckVariable(const UQuest* quest, Ac
 
 			if((acceptedQuest->ClientVariable[checkVar.CheckVarID] & (INT32)(1 << checkVar.CheckVarCnt)) > 0)
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				dlgContext.TempText = TEXT("");
 				UITextParser::getSingleton().ParseContent(parseContext, dlgContext, checkVar.Description);
 				targetDesc = dlgContext.TempText;
@@ -4149,7 +4149,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckVariable(const UQuest* quest, Ac
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				dlgContext.TempText = TEXT("");
 				UITextParser::getSingleton().ParseContent(parseContext, dlgContext, checkVar.Description);
 				targetDesc = dlgContext.TempText;
@@ -4220,7 +4220,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckItem(const UQuest* quest, Accept
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (checkItem->Description.IsEmpty())
 				{
 					itemName = item->GetDisplayName();
@@ -4308,7 +4308,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckKillNpc(const UQuest* quest, Acc
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (killNpc->Description.IsEmpty())
 				{
 					monsterName = (npc != NULL) ? npc->GetDisplayName() : TEXT("");
@@ -4406,7 +4406,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckKillDoodad(const UQuest* quest, 
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (checkKillDoodad->CheckKillDoodadDesc.IsEmpty())
 				{
 					doodadDesc = doodadName;
@@ -4493,7 +4493,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckKillPlayer(const UQuest* quest, 
 			}
 			else
 			{
-				// 条件达成，去除下划线
+				// condition met, remove underline
 				if (checkKillPlayer->CheckKillPlayerDesc.IsEmpty())
 				{
 					//monsterName = checkKillPlayer->CheckKillNpcNew->GetDisplayName();
@@ -4556,7 +4556,7 @@ void MMOQuestManager::_SetQuestDetailTargetCheckReputation(const UQuest* quest, 
 
 	FString reputationName;
 	FString reputationLevel;
-	// 获取声望值名字
+	// get reputation name
 	UMMOUICharacter* panel = Cast<UMMOUICharacter>(MMOUI::GetUIManager()->FindUIPanel(MMOUI::GetUIManager()->Panel_Character));
 	if (panel)
 	{
@@ -4619,7 +4619,7 @@ void MMOQuestManager::_SetQuestDetailTarget(const UQuest* quest, UMMOGFXPlayer* 
 	int destId = 0;
 	if (quest->StartNPCNewId > 0 && quest->StartNpcFly)
 	{
-		// 如果开始任务NPC需要飞鞋
+		// if the start-quest NPC requires flying shoes
 		destId ++;
 	}
 
@@ -4742,7 +4742,7 @@ void MMOQuestManager::_SetQuestDetailAward(const UQuest* quest, UMMOGFXPlayer* g
 		}
 	}
 
-	// 可选任务奖励
+	// optional quest rewards
 	QuestAwardItemInfoList selectableAwardList;
 	MMOQuestData::getSingleton().GetSelectableAwardItemList(quest->GetTemplateID(), selectableAwardList);
 	if (selectableAwardList.size() > 0)
@@ -4769,8 +4769,8 @@ void MMOQuestManager::_SetQuestDetailAward(const UQuest* quest, UMMOGFXPlayer* g
 		}
 	}
 
-	// 金币，经验，活跃度
-	// 修正缺陷：10796
+	// gold, experience, activity
+	// bug fix: 10796
 	INT moneyType = quest->AwardCurrencyType;
 	INT money = quest->AwardCurrencyAmount;
 	INT moneyTypeEx = quest->AwardCurrencyTypeEx;
@@ -4941,7 +4941,7 @@ void MMOQuestManager::SetQuestDialogCurrentPage(INT page)
 
 	if (_CurPageQuestId != INVALID_QUEST_ID)
 	{
-		// 过场播放时, 禁止播放任务音效
+		// disable quest sound effects while cutscene is playing
 		AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 		if (mainPlayer && !mainPlayer->IsInMatinee)
 		{
@@ -4982,7 +4982,7 @@ void MMOQuestManager::SetQuestDialogCurrentPage(INT page)
 
 	if (_CurPage > 0)
 	{
-		// 引导事件
+		// Tutorial event
 		MMOGameEvent_Guide evtGuide(EGUET_QuestPageDown);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -5038,7 +5038,7 @@ void MMOQuestManager::AddQuestCoolDown(INT questId, UINT32 coolDown)
 
 void MMOQuestManager::_ProcessFirstEnterScene()
 {
-	// 任务 #25538
+	// quest #25538
 	QuestTraceList questList = MMOQuestData::getSingleton().GetReAcceptQuestList();
 	QuestTraceList::iterator iter = questList.begin();
 	for (; iter != questList.end(); ++iter)

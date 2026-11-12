@@ -1,5 +1,5 @@
 //
-// 用于场景中放置参考模型及动画的类
+// Class used to place reference models and animations in the scene
 //
 
 class MMORefPostureSkeletalMeshActor extends SkeletalMeshActor
@@ -9,7 +9,7 @@ var(MMO) name AnimationNameToPlay <DisplayName="AnimationNameToPlay">;
 var(MMO) float PauseAnimTimePosition <DisplayName="PauseAnimTimePosition">;
 var(MMO) StaticMeshComponent WeaponPreview;
 
-// 初始化函数
+// Initialization function
 simulated event PostBeginPlay()
 {
 	super.PostBeginPlay();

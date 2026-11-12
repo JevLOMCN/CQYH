@@ -10,9 +10,9 @@ class LevelStreaming extends Object
 	abstract
 	editinlinenew
 	native;
-//Level的自动赋值编号,手动刷新点击 SaveAllLevels(Force)， hemu@snda  120327 
+//Auto-assigned Level number; to refresh manually click SaveAllLevels(Force), hemu@snda  120327
 var(MMO) editconst const byte    SubLevelID <DisplayName="SubLevelID" >;
-//属于的LevelGroup编号，动态副本由服务器指定加载哪些Group  hemu@snda  120327 
+//LevelGroup number it belongs to; for dynamic instances the server specifies which Groups to load  hemu@snda  120327
 var(MMO) const byte                     SubLevelGroupID <DisplayName="SubLevelGroupID" >;
 
 
@@ -91,7 +91,7 @@ var() const editconst LevelGridVolume EditorGridVolume;
 /** Row, column and depth of this streaming level in a streaming grid network */
 var() const editconst int GridPosition[ 3 ];
 
-// oscar@snda 需要缓冲一段时间
+// oscar@snda needs to buffer for a while
 var transient float KeepLoadingTime;
 
 cpptext

@@ -22,9 +22,9 @@ var GFxObject MousePostion_Tf;
 var GFxObject MapPaper;
 var GFxObject MapBGLoader;
 //var GFxObject MapPlayerView;
-var GFxObject MapNPCView;//堆NPC图标的那层
-var GFxObject MapPathView;//路径那层
-var GFxObject MapExtraInfoView;//显示图标补充信息的那层
+var GFxObject MapNPCView;//the layer where NPC icons are stacked
+var GFxObject MapPathView;//the path layer
+var GFxObject MapExtraInfoView;//the layer that shows supplementary icon info
 var bool IsToShowMapMarksExtraInfo;
 //
 var GFxObject _MapMarkfilter_tf;
@@ -79,7 +79,7 @@ var FLOAT ScaledValidMapPhotoSize;
 
 var Vector2D MapBGLoaderPos;
 var Vector2D MapBGMoveLimit;
-var Vector2D MapImgOffset;//地图航拍图贴到最终地图上时的偏移
+var Vector2D MapImgOffset;//offset when pasting the aerial map image onto the final map
 
 var Vector2D LastMoveModify;
 var bool IsTipsShowed;
@@ -125,7 +125,7 @@ event FlashWorldMapTaskList( GFxObject Provider )
 {
 	ActionScriptVoid( "UCUpdateWorldMapTaskList" );
 }
-//更新NPC，副本列表
+//Update NPC, dungeon list
 native function UpdateMapStaticMarkList();
 //
 event FlashWorldMapPointsList( GFxObject Provider )
@@ -256,23 +256,23 @@ native function ASWorldMapZoomTo( int level );
 
 native function ASMapDrag( float deltaX, float deltaY );
 
-//加注标记点
+//Add marker point
 native function ASAddOrRemoveMarkMap( int clickPosX, int clickPosY );
-//选择标记点共享目标
+//Select marker point share target
 native function ASChangeShareUserMarkTarget( int listIdx, int targetType );
-//共享标记点
+//Share marker point
 native function ASShareUserMark( int targetType );
-//切换地图
+//Switch map
 native function ASChangeMap( int mapID, int regionInMapIdx );
-//切换显示大地图或是全局地图
+//Toggle between large map and global map
 native function ASShowWorldMapTabPanel( int type );
-//找寻地图上的固定点
+//Find fixed points on the map
 native function ASFindThisMapMark( int idx );
 //
 native function ASFindMapTask( int npcIdx );
-//切换显示功能NPC
+//Toggle showing function NPCs
 native function ASToggleFuncNpc( bool isShow );
-//切换显示任务NPC
+//Toggle showing quest NPCs
 native function ASToggleTaskNpc( bool isShow );
 //
 native function ASInputCoodinateAndMoveTo( int inputX, int inputY );
@@ -282,13 +282,13 @@ native function ASConfirmAddUserMark();
 native function ASConfirmDelUserMark();
 //
 native function ASCloseUserMarkPanel();
-//移动到地图标记点
+//Move to map marker point
 native function ASMoveToThisMapMark( int idxInStaticMap );
-//地图点提示显示
+//Map point tooltip display
 native function ASShowWorldMapMarkHint( int type, int idx );
 //
 native function ASHideWorldMapMarkHint();
-//地图点击移动
+//Map click movement
 native function ASMoveToMapPos( int clickPosX, int clickPosY );
 //native function ASMoveToRealMapPos( int mapPosX, int mapPosY );
 //
@@ -300,7 +300,7 @@ native function ASHideTipsWorldMapMarkListItem( GFxObject mc );
 	
 //}
 
-//世界地图
+//World map
 native function ASClickToWorldMap( int tileIdx, int mapID, string regionName );
 native function ASClickToBack( GfxObject fromMc, GfxObject toBackMc );
 native function ASClickToNewWorld( GfxObject fromMc, GfxObject toNewMc );
@@ -326,7 +326,7 @@ DefaultProperties
 	MapUIZoomDefault=0.63//0.467
 	ValidMapPhotoSize=1024//512*2*2;
 	ScaledValidMapPhotoSize=597//380*2;
-	//ZoomDefaultQuot=0.7421875//地图UI有效区域长与实际地图长的比值380*2/(512*2)
+	//ZoomDefaultQuot=0.7421875//ratio of map UI valid area length to actual map length 380*2/(512*2)
 	//MapImgOffsetX=366.48421052631578947368421052632//(652*2-380*2)/2/ZoomDefaultQuot
 	////183.24210526315789473684210526316//(652-380)/2/ZoomDefaultQuot
 	//MapImgOffsetY=1239.5789473684210526315789473684//((540*2-380*2)/2+380*2 )/ZoomDefaultQuot

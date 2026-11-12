@@ -177,7 +177,7 @@ UBOOL LinkManager::CallBackLinkOut( class UGFxObject* parameterArray )
 
 void LinkManager::_ShowMapInfoTips(INT mapId, INT x, INT y)
 {
-	// 临时屏蔽
+	// Temporarily disabled
 #if 0
 	FExportMap* mapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfoPointer(mapId);
 	if (!mapInfo)
@@ -233,7 +233,7 @@ UBOOL LinkManager::CallBackLink_NPCNav(class UGFxObject* parameterArray,INT butt
 	GET_LINK_NODE(MapID);
 	GET_LINK_NODE(NeedMove);
 
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_ClickNaviLink);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -297,7 +297,7 @@ UBOOL	LinkManager::CallBackLink_NavFly(class UGFxObject* parameterArray,INT butt
 	GET_LINK_NODE(questId);
 	GET_LINK_NODE(destId);
 	
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_ClickFlyLink);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -769,7 +769,7 @@ UBOOL LinkManager::CallBackLink_NavPointName( class UGFxObject* parameterArray ,
 	GET_LINK_NODE(mapId);
 	GET_LINK_NODE(needMove);
 	
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_ClickNaviLink);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -1001,7 +1001,7 @@ FString LinkManager::HtmlLink_QuestTraceAccept( const UQuest* questTemplate )
 {
 	FString res = LINK_START(ELinkType_QuestTraceAccept)		
 		+LINK_NODE(questTemplate->GetTemplateID())
-		+LINK_ENDU(TEXT("直接接取"));
+		+LINK_ENDU(TEXT("Accept directly"));
 
 	return res;
 }
@@ -1168,7 +1168,7 @@ UBOOL LinkManager::CallBackLink_AchievementClassOut( class UGFxObject* parameter
 	return TRUE;
 }
 
-//用超链接的方式打开指定界面
+//Open the specified UI via hyperlink
 FString LinkManager::HtmlLink_OpenPanel(const FString& displayName, FString panelName)
 {
 	FString	str = LINK_START(ELinkType_OpenPanel)
@@ -1260,7 +1260,7 @@ UBOOL LinkManager::CallBackLink_OpenMap(class UGFxObject* parameterArray,INT but
 
 		worldMapPanel->ShowMapMarksInfomation(foundNpc);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_OpenNpcMap);
 		MMOUI::PostGameEvent(&evtGuide);
 	}

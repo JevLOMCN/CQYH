@@ -94,7 +94,7 @@ public:
 					g_currentCursorIndex = (INT)EMC_IBEAM;
 					g_lockMouseCursorForUI = true;
 					break;
-				case GFx::MouseCursorEvent::BUTTON: //add by JimZhang 用于舒工口谕，让拾取点在名字和物品上同样是拾取的cursor
+				case GFx::MouseCursorEvent::BUTTON: //add by JimZhang for Shu Gong's verbal order, so the pick point uses the pickup cursor on both names and items
 					g_currentCursorIndex = (INT)EMC_Pick;
 					g_lockMouseCursorForUI = true;
 					break;
@@ -206,7 +206,7 @@ void UMMOGFXPlayer::ResetDragState()
 
 UItem* GetItemTemplateFromSlot(class UGFxObject* SrcItemSlot,BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID)
 {
-	//是否是物品
+	//whether it is an item
 	UItem* itemTemp = NULL;
 	switch( SrcSlotType )
 	{
@@ -245,7 +245,7 @@ UItem* GetItemTemplateFromSlot(class UGFxObject* SrcItemSlot,BYTE SrcSlotType,BY
 
 void PlayDragDropSound(class UGFxObject* SrcItemSlot,BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID, EActionSound actionType)
 {
-	//是否是物品
+	//whether it is an item
 	UItem* itemTemp = GetItemTemplateFromSlot(SrcItemSlot, SrcSlotType, SrcContainerID, SrcSlotID);
 	
 	if(itemTemp)
@@ -258,7 +258,7 @@ void PlayDragDropSound(class UGFxObject* SrcItemSlot,BYTE SrcSlotType,BYTE SrcCo
 
 void PlayDragDropSound(BYTE SrcContainerID, INT SrcSlotID, EActionSound actionType)
 {
-	//是否是物品
+	//whether it is an item
 	UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(SrcContainerID, SrcSlotID);
 
 	if(itemTemp)
@@ -271,7 +271,7 @@ void PlayDragDropSound(BYTE SrcContainerID, INT SrcSlotID, EActionSound actionTy
 
 
 
-//新版拖动接口-------------------------------------------------------------------------------------------------------------------------------------------------------
+//new drag interface-------------------------------------------------------------------------------------------------------------------------------------------------------
 void UMMOGFXPlayer::ASSlot_MouseLeftPress(class UGFxObject* mcSlot)
 {
 	if(mcSlot==NULL)return;
@@ -384,7 +384,7 @@ void UMMOGFXPlayer::ASSlot_MouseRightClick(class UGFxObject* mcSlot)
 	UBOOL bDefault  = FALSE;
 
 
-	//测试
+	//test
 	UGFxObject* renderSlot = mcSlot->GetObject(TEXT("SlotRender"));
 	if(renderSlot)
 	{
@@ -416,7 +416,7 @@ void UMMOGFXPlayer::MouseLeftPressItem(class UGFxObject* mc,BYTE SlotType,BYTE C
 	if(!g_PanelList.empty())
 	{
 		PanelList panelList = g_PanelList;
-		//先执行普通层，再执行默认层
+		//execute the normal layer first, then the default layer
 		for(int i=0;i<2;i++)
 		{
 			UBOOL bDefault = i > 0;
@@ -456,7 +456,7 @@ void UMMOGFXPlayer::ASDoubleClickSlot(class UGFxObject* SrcSlotMC,BYTE SrcSlotTy
 	if(!g_PanelList.empty())
 	{
 		PanelList panelList = g_PanelList;
-		//先执行普通层，再执行默认层
+		//execute the normal layer first, then the default layer
 		for(int i = 0; i < 2; i++)
 		{
 			UBOOL bDefault = i > 0;
@@ -496,7 +496,7 @@ void UMMOGFXPlayer::MouseLeftClickItem(class UGFxObject* mc,BYTE SlotType,BYTE C
 	if(!g_PanelList.empty())
 	{
 		PanelList panelList = g_PanelList;
-		//先执行普通层，再执行默认层
+		//execute the normal layer first, then the default layer
 		for(int i = 0; i < 2; i++)
 		{
 			UBOOL bDefault = i > 0;
@@ -525,7 +525,7 @@ void UMMOGFXPlayer::MouseRightClickItem(class UGFxObject* mc,BYTE SlotType,BYTE 
 {
 	PlayDragDropSound(ContainerID, SlotID, EActionSound_MousePutdown);
 
-	////按住Shift右击的特殊处理，没处去就放这吧
+	////special handling for Shift + right click, put it here since there is nowhere else
 	//UBOOL isOperated = MMOEquipManager::getSingleton().ShortcutToPutIntoUIPanel( SlotType, ContainerID, SlotID );
 	//if( isOperated == TRUE ){
 	//	return;
@@ -541,7 +541,7 @@ void UMMOGFXPlayer::MouseRightClickItem(class UGFxObject* mc,BYTE SlotType,BYTE 
 	if(!g_PanelList.empty())
 	{
 		PanelList panelList = g_PanelList;
-		//先执行普通层，再执行默认层
+		//execute the normal layer first, then the default layer
 		for(int i = 0; i < 2; i++)
 		{
 			UBOOL bDefault = i > 0;
@@ -566,7 +566,7 @@ void UMMOGFXPlayer::MouseRightClickItem(class UGFxObject* mc,BYTE SlotType,BYTE 
 		}
 	}
 
-	////default处理
+	////default handling
 	//if(res==FALSE)
 	//{
 	//	UMMOUIBase* Panel = MMOUI::GetUIManager()->FindUIPanel(MMOUI::GetUIManager()->Panel_Character);
@@ -606,7 +606,7 @@ void UMMOGFXPlayer::ASStartDrag(class UGFxObject* SrcItemSlot,BYTE SrcSlotType,B
 	UItem* itemTemp = NULL;
 	UMMOAbility *skill = NULL;
 
-	//是否是技能
+	//whether it is an ability
 	switch( SrcSlotType )
 	{
 	case ESPType_SkillSetting:
@@ -638,7 +638,7 @@ void UMMOGFXPlayer::ASStartDrag(class UGFxObject* SrcItemSlot,BYTE SrcSlotType,B
 		break;
 	default:
 		{
-			//是否是物品
+			//whether it is an item
 			AMMOActor* mainPlayer = MMOFacade::getSingleton().GetMainActor();
 			itemTemp = GetItemTemplateFromSlot(SrcItemSlot, SrcSlotType, SrcContainerID, SrcSlotID);
 			if(itemTemp)
@@ -782,7 +782,7 @@ void UMMOGFXPlayer::ASDragRelease(class UGFxObject* SrcItemSlot,	BYTE SrcSlotTyp
 	//`log("================ ASDragRelease in UC");
 	if(TopmostSlotType == ESPType_Invalid) 
 	{
-		// 先让最上层的面板处理下, 还要想想是否有更好的方式处理
+		// let the topmost panel handle it first, need to think about whether there is a better way
 		UBOOL proced = FALSE;
 		if(mmoGfxPlayer)
 		{
@@ -892,12 +892,12 @@ void UMMOGFXPlayer::ASRollOverItemSlot(class UGFxObject* mc,BYTE SlotType,BYTE C
 	}
 	//MMOUI::GetUIManager()->delegateShowTipsHTML(TFT_ItemSlot, mc);
 
-    //使用ItemSlot的面板很多 
-    //对应的类型可能是Item 可能是Skill Rune Active Avarta Passive 
+    //many panels use ItemSlot
+    //the corresponding type may be Item, Skill, Rune, Active, Avatar or Passive
     INT TipsType = TFT_ItemSlot;
     switch ( SlotType )
     {
-        //内部一些具体扩展 再到内部去做
+        //some specific internal extensions are done internally
     case ESPType_Bag:	
     case ESPType_Shop:
     case ESPType_ShopSell:
@@ -1286,14 +1286,14 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
 		return;
 	}
 
-	// TODO: 检查这个是不是加在这里合适
+	// TODO: check whether it is appropriate to add this here
 // 	for (INT i = 0; i < UIObjectList.Num(); ++i)
 // 	{
 // 		UMMOUIBase* pUI = UIObjectList(i);
 // 		pUI->SetItemSlotData(mc, tItem, SlotType, ContainerID, SlotID, inISS);
 // 	}
 
-//--add by jimZhang 防止同item重复刷新---------------------------------------------------------
+//--add by jimZhang prevent refreshing the same item repeatedly---------------------------------------------------------
 #ifdef UI_OPTIMIZATION
 	
 	if (ContainerID != E_CONSLOT_RESOURCE)
@@ -1325,7 +1325,7 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
     mc->SetBool("isSlotUnusable", FALSE );
 
 
-    //置于Loader之上
+    //placed above the Loader
     if( ISS_ItemLocked == inISS || ISS_SlotLocked == inISS )
     {
         mc->SetBool("isSlotLocked", TRUE );
@@ -1335,7 +1335,7 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
        mc->SetBool("isSlotUnusable", TRUE );
     }
 
-    //直接替换Loader
+    //directly replace the Loader
 	if( ISS_SlotLocked == inISS || !tItem )
 	{
 		eventCallSetItemData( mc , 0 , TEXT("") , -1, SlotType, TEXT("") , ITEMCOLOR_INVALID , ContainerID , SlotID );
@@ -1349,12 +1349,12 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
 			warnf(NAME_Error, TEXT("Main Actor is null @ UMMOGFXPlayer::SetItemSlotData!"));
 		}
 		
-        //有iteminfo为本地商品
+        //having iteminfo means a local product
         FClientItemInfo* itemInfo = NULL;
 		
 		if( SlotType == ESPType_ShopSell )
 		{
-			//回购商品
+			//buyback product
 			itemInfo = (FClientItemInfo*)MMOFacade::getSingleton().FindSoldItem(SlotID);
 		}
 		else if ( SlotType == ESPType_GuildWarehouse )
@@ -1390,26 +1390,26 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
 			{
 				if( itemInfo )
 				{ 
-					//摆摊时 如果当前物品已经上架
+					//when setting up a stall, if the current item is already listed
 					if( itemInfo->IsOnSale && ESPType_StallSetting == SlotType )
 					{
 						eventCallSetItemData( mc , itemInfo->OnSaleCount , iconPath , tItem->ItemId , SlotType, TEXT("") , tItem->ItemColor + 1, ContainerID, SlotID );
 					}
-                    //灵魂被拖入灵魂融合界面
+                    //soul dragged into the soul fusion screen
                     else if( itemInfo->IsDragIntoOtherUI >= 0 && (ESPType_SoulEmbed == SlotType || ESPType_SoulLevelUp == SlotType || ESPType_SoulUnEmbed == SlotType))
                     {
                         eventCallSetItemData( mc , 1 , iconPath , tItem->ItemId , SlotType, TEXT("") , tItem->ItemColor + 1, ContainerID, SlotID );
                     }
-                    //融灵时，则其他界面都不显示 
+                    //during soul fusion, other screens are not shown
                     else if( itemInfo->IsDragIntoOtherUI >= 0 && itemInfo->m_nCurDur <= 0 ) 
                     {
 						if (itemInfo->IsDragIntoOtherUI == ESPType_StallSetting)
-						{// 摆摊时，背包里的图标不隐藏
+						{// when setting up a stall, icons in the bag are not hidden
 							eventCallSetItemData( mc , itemInfo->m_nCurDur , iconPath , tItem->ItemId , SlotType, TEXT("") , tItem->ItemColor + 1, ContainerID, SlotID );
 						}
 						else
 						{
-							//显示空
+							//show empty
 							eventCallSetItemData( mc , 0 , TEXT("") , -1, SlotType, TEXT("") , ITEMCOLOR_INVALID, ContainerID, SlotID );
 						}
                     }
@@ -1418,7 +1418,7 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
 					    eventCallSetItemData( mc , itemInfo->m_nCurDur , iconPath , tItem->ItemId , SlotType, TEXT("") , tItem->ItemColor + 1, ContainerID, SlotID );
                     }
 
-					//被锁定的需要打叉
+					//locked ones need a cross mark
 					if( itemInfo != NULL && mc != NULL ){
 						mc->SetBool( TEXT("MarkLocked"), itemInfo->IsDragIntoOtherUI >= 0 );
 					}
@@ -1431,7 +1431,7 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
 					}
 					else
 					{
-						//DefaultDuration按理很早就不能用了，设1不知道对不对，如果有bug的话，或者像前面那样用if = shop里强制？
+						//DefaultDuration should have been unusable long ago, not sure if setting 1 is right; if there is a bug, maybe force it in shop like earlier with if =?
 						eventCallSetItemData( mc , 1/*tItem->DefaultDuration*/ , iconPath  , tItem->ItemId, SlotType, TEXT("") , tItem->ItemColor + 1, ContainerID, SlotID );
 					}
 				}
@@ -1444,11 +1444,11 @@ void UMMOGFXPlayer::SetItemSlotData(class UGFxObject* mc,class UItem* tItem,BYTE
 		case E_DURTYPE_RECOVER:
 		case E_DURTYPE_PURITY:
 			{
-				// junjie@snda：IsDragIntoOtherUI在融灵界面还是需要显示图标的，只是打上一个大叉
-				// zhangrui05@snda: 摆摊时，背包也要现实打叉的icon，#20879
+				// junjie@snda: IsDragIntoOtherUI still needs to show the icon in the soul fusion screen, just with a big cross on it
+				// zhangrui05@snda: when setting up a stall, the bag also needs to show the crossed icon, #20879
 				eventCallSetItemData( mc , 1 , iconPath , tItem->ItemId, SlotType, TEXT("") , tItem->ItemColor + 1, ContainerID, SlotID );
            
-				//被锁定的需要打叉
+				//locked ones need a cross mark
 				if (itemInfo != NULL && mc != NULL)
 				{
 					mc->SetBool( TEXT("MarkLocked"), itemInfo->IsDragIntoOtherUI >= 0 );
@@ -1546,7 +1546,7 @@ void UMMOGFXPlayer::SetNoninteractiveIconSlot( UGFxObject *mc, INT itemID, const
 
 	mc->Invoke( TEXT("SetData"), asArgs );
 }
-//一些公用接口,便于在as3里为所欲为///////////////////////////////////////////////////////////////////////////////////////
+//some common interfaces, convenient for doing whatever in as3///////////////////////////////////////////////////////////////////////////////////////
 void UMMOGFXPlayer::DebugString(const FString& str)
 {
 	debugf( TEXT("test"));
@@ -1593,7 +1593,7 @@ void UMMOGFXPlayer::SetLabelByID(class UGFxObject* mc, const FString& textID)
 	if(mc)mc->SetString(TEXT("label"), MMOUI::ParseLocalizedPropertyPath(textID)  );
 }
 
-//显示时间
+//Show time
 void UMMOGFXPlayer::TimeDisplay(class UGFxObject* mc, int seconds)
 {
 	if(mc)mc->SetString(TEXT("text"), MMOFacade::getSingleton().TimeDisplay(seconds) );
@@ -1603,7 +1603,7 @@ void UMMOGFXPlayer::GetReviveCountDown(class UGFxObject* mc, const FString& resN
 {
 	FExportMap mapInfo = MMOMapDataManager::getSingleton().GetCurMap();
 	if( mapInfo.ServerMapType == E_est_BattleField ){
-		//战场复活
+		//battlefield revive
 		INT reviveTime = 30;
 
 		FBattleTemplate* pBattle = MMOBattleManager::getSingleton().GetEnteredBattle();
@@ -1961,7 +1961,7 @@ void UMMOGFXPlayer::ShowAllUI(UBOOL inShow)
 
 void UMMOGFXPlayer::RegisterUI(class UMMOUIBase* UIMenu, FName inFriendlyName)
 {
-	warnf(NAME_DevGFxUI, TEXT("RegisterUI %s, 修改完UI后应该不会再调用到这里，注意检查代码！"), *inFriendlyName.ToString());
+	warnf(NAME_DevGFxUI, TEXT("RegisterUI %s: this should no longer be called after the UI changes, please check the code!"), *inFriendlyName.ToString());
 // 	debugf( TEXT("[UMMOGFXPlayer::RegisterUI] RegisterUI:%s "), *inFriendlyName.ToString() );
  	if( UIMenu != NULL )
  	{
@@ -1999,7 +1999,7 @@ FString UMMOGFXPlayer::GetASHeadIconFrame( BYTE playerClass, UBOOL isFemale )
 void UMMOGFXPlayer::SetGfxFocus(class UGFxObject* mc)
 {
 	if(mc==NULL)return;
-	// 设置本MOVIE为焦点
+	// set this MOVIE as focus
 	//FGFxEngine::GetEngine()->SetFocusMovie(pMovie);
 	eventCallSetStageFocus(mc);
 }
@@ -2043,7 +2043,7 @@ UBOOL UMMOGFXPlayer::SetFocusPanelByName(const FName controllerName)
 // add by zhangrui05@snda
 void UMMOGFXPlayer::ASCloseGuidePanel(INT id)
 {
-	// 引导事件
+	// Tutorial event
 	MMOGameEvent_Guide evtGuide(EGUET_CloseGuidePanel, id);
 	MMOUI::PostGameEvent(&evtGuide); 
 }

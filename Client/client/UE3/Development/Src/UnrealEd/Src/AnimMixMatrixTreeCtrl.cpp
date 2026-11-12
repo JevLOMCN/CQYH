@@ -1,6 +1,6 @@
 /*=============================================================================
 	hemu@snda 120416
-	动画混合参数表，用于播放连击动作等情况下动作的平滑返回播放
+	Animation blend parameter table, used for smooth return playback of animations such as combo actions
 =============================================================================*/
 
 #include "AnimMixMatrixTreeCtrl.h"

@@ -13,7 +13,7 @@
 
 using namespace FSM;
 
-//创建时注册到FSMCtrlManager
+//Register to FSMCtrlManager on creation
 IFSMCtrl::IFSMCtrl(void)
 {
 	FSMCtrlManager::getSingleton().AddFSMCtrl(this);

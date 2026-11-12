@@ -43,12 +43,12 @@ void UMMOUIFriendListContent::ClearUI()
 	}
 	for ( INT i = 1 ; i < AttentionGroupId ; i++ )
 	{
-		//删除所有组
+		//Delete all groups
 		eventCallDeleteGroup(i);
 	}
 }
 
-//更新所有好友
+//Update all friends
 void UMMOUIFriendListContent::UpdateMyFriend()
 {
 	INT GroupNum = FriendManager::getSingleton().GetFriendGroupNum(); 
@@ -59,7 +59,7 @@ void UMMOUIFriendListContent::UpdateMyFriend()
 		{
 			continue;
 		}
-		if( fGroup->GroupName.IsEmpty() ) //无此分组
+		if( fGroup->GroupName.IsEmpty() ) //no such group
 		{
 			eventCallDeleteGroup(i);		
 		}
@@ -71,7 +71,7 @@ void UMMOUIFriendListContent::UpdateMyFriend()
 	}
 }
 
-//更新一组好友
+//Update one group of friends
 void UMMOUIFriendListContent::UpdateFriendGroup( INT groupId )
 {
 	MMOFriendGroup* fGroup = FriendManager::getSingleton().GetFriendGroup(groupId);
@@ -88,7 +88,7 @@ void UMMOUIFriendListContent::UpdateFriendGroup( INT groupId )
 	FriendManager::getSingleton().SortFriendGroup( groupId );
 
 	INT friendNum = fGroup->FriendList.Num(); 
-	//注意，其实这个online是指非离线
+	//Note: this online actually means not offline
 	INT onlineFriendNum = FriendManager::getSingleton().GetOnlineFriendNumInGroup(groupId); 
 
 	UGFxObject *data = GFXPlayer->CreateObject(TEXT("Object"));

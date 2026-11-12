@@ -91,7 +91,7 @@ void GuideDataProcessor::ParseData(GuideData* obj, class CTabFile* dataRow, int 
 	{
 		data.Sound = TEXT("");
 	}
-	// 用于发行版资源列表
+	// used for the release build resource list
 	if (obj)
 	{
 		obj->Sound = data.Sound;
@@ -198,7 +198,7 @@ UBOOL MMOGuideData::LoadGuideData(const TCHAR* filePath)
 	return TRUE;
 }
 
-// 发型版资源加载的时候用这个
+// use this when loading release build resources
 UBOOL MMOGuideData::LoadGuideDataFromUpk()
 {
 	TArray<FString> DirArray;
@@ -221,7 +221,7 @@ UBOOL MMOGuideData::LoadGuideDataFromUpk()
 			UPackage* package = UObject::LoadPackage( NULL, *packageDirs(j), LOAD_Verify );
 			if (!package)
 			{
-				M_AddDataError(TEXT("guide"), FString::Printf(TEXT("无法加载任务数据包: %s"), *packageDirs(j)));
+				M_AddDataError(TEXT("guide"), FString::Printf(TEXT("Cannot load quest data package: %s"), *packageDirs(j)));
 				continue;
 			}
 
@@ -360,7 +360,7 @@ void MMOGuideData::AddGuideData(const GuideData& data)
 {
 	_GuideDataMap.insert(std::make_pair(data.Id, data));
 
-	// 激活事件列表
+	// activation event list
 	GuideEventMap::iterator iterActivate = _ActivateGuideEventMap.find(data.ActivateType);
 	if (iterActivate != _ActivateGuideEventMap.end())
 	{
@@ -375,7 +375,7 @@ void MMOGuideData::AddGuideData(const GuideData& data)
 		_ActivateGuideEventMap.insert(std::make_pair(data.ActivateType, list));
 	}
 
-	// 终止事件列表
+	// termination event list
 	GuideEventMap::iterator iterDeactive = _DeactiveGuideEventMap.find(data.DeactiveType);
 	if (iterDeactive != _DeactiveGuideEventMap.end())
 	{

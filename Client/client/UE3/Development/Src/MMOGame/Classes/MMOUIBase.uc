@@ -30,25 +30,25 @@ var bool IsShowWithOutTarget;
 var bool CanChangeTabOnPostShow;
 
 /*
- * 显示排斥标记，相同位的都不能同时显示，不同位的可以共存
- * 默认	            0
- * 与Bag共存	    1
+ * Display exclusion flag: panels with the same bit cannot be shown together, different bits can coexist
+ * Default	            0
+ * Coexists with Bag	    1
  * Bag	            2
- * 对话框、技能	    1|2   对话框弹出会关闭所有其它面板
+ * Dialog, ability	    1|2   popping up a dialog closes all other panels
  */ 
 var config int ExclusiveWithVisibilityMask;
 
-// 自己的标记
+// Own flag
 var config int ExclusiveVisibilityMask;
 
 /*
- * 自动同时显示标记，某个面板显示时会自动显示相同标记位的面板
- * 默认              0
+ * Auto co-display flag: when a panel is shown, panels with the same flag bit are shown automatically
+ * Default              0
  * Bag               1
  */
 var config int CoexistWithVisibilityMask;
 
-// 自己的标记
+// Own flag
 var config int CoexistVisibilityMask;
 
 var config bool ShowInMatinee;
@@ -59,7 +59,7 @@ native function NativeInitLoad();
 
 event InitLoadOld(name inFrndName, MMOGFXPlayer pl)
 {
-	`log("这里也是不需要的调用，注意去掉相关代码:" @ self @ inFrndName);
+	`log("This call is also not needed, remember to remove the related code:" @ self @ inFrndName);
 }
 
 
@@ -68,7 +68,7 @@ event InitLoad(MMOGFXPlayer pl)
 	//FriendlyName = FrndName; // move to defautl properties
 // 	if(inFrndName != '')	
 // 	{
-// 		`log("貌似还有在InitLoad中传了名字过来的，需要修正代码:" @ self @ string(inFrndName));
+// 		`log("it seems a name is also passed in via InitLoad, code needs fixing:" @ self @ string(inFrndName));
 // 	}
 
 	GFXPlayer = pl;
@@ -84,7 +84,7 @@ event InitLoad(MMOGFXPlayer pl)
 	}
 
 	SetString("PanelName", string(FriendlyName));
-	SetDistanceTick(GFXPlayer); // TODO：检查这个的合理性
+	SetDistanceTick(GFXPlayer); // TODO: check whether this is reasonable
 
 	NativeInitLoad();
 }
@@ -221,7 +221,7 @@ native function UpdateTeamContent();
 
 native function OnStallStateChange(EEStallState state);
 
-//add by jimZhang@snda.com， chenge screen Pos to gfx pos
+//add by jimZhang@snda.com, chenge screen Pos to gfx pos
 // native function Vector GetGfxOffsetVector(Vector Pos,float CavWidth,float CavHeight);
 //native function bool GetlockMouseCursorForUI();
 

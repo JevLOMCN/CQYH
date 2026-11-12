@@ -19,7 +19,7 @@ const static INT gs_perMailCostBindMoney = 1000;
 void UMMOUIMailPanel::ASReadMail(INT mailID)
 {
 	MailManager::getSingleton().SetMailWndOpen(TRUE);
-	// 先看本地是否有缓存的，有的话就不用发协议了
+	// first check whether it is cached locally, if so no need to send the protocol
 	if(!MailManager::getSingleton().TryReadCachedMail(mailID))
 	{
 		CMessageHandler::GetInstance().Send_ReadMail(mailID);
@@ -397,7 +397,7 @@ void UMMOUIMailPanel::TurnSendMail(const FString& playerName)
 		contentName = playerName.Left(Pos);
 	}
 	eventCallSetPlayerName(contentName);
-	//切换到send页
+	//Switch to the send page
 	eventCallShowTabPage(1);
 }
 
@@ -410,7 +410,7 @@ void UMMOUIMailPanel::PostOnShow(UBOOL show)
 		CMessageHandler::GetInstance().Send_RecvMailList(); // TODO: optimize
 		UpdateRecentPlayers();
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowMailPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 	}

@@ -77,23 +77,23 @@ class AuctionSearchFilter
 {
 public:
 
-	BYTE	MainType;		// 主类型(EAuctionTypeMain)
-	BYTE	SubType;		// 次类型(EAuctionTypeSub_Weapon_Warrior、EAuctionTypeSub_Weapon_assassin、……)
+	BYTE	MainType;		// main type (EAuctionTypeMain)
+	BYTE	SubType;		// sub type (EAuctionTypeSub_Weapon_Warrior, EAuctionTypeSub_Weapon_assassin, ...)
 
-	FString	SearchName;		// 搜索名
+	FString	SearchName;		// search name
 	TArray<INT> FindIDList;
-	BYTE	PlayerClass;	// 职业
+	BYTE	PlayerClass;	// class
 	
-	// 等级范围
+	// Level range
 	INT		LevelMin;
 	INT		LevelMax;
 	
-	INT		ItemColor;		// 品质
+	INT		ItemColor;		// quality
 	
-	EAuctionStatus AuctionState;	// 状态
+	EAuctionStatus AuctionState;	// status
 	//INT		SearchPageNumb;
-	UINT8	SortType;		// 排序类型
-	UBOOL	SortAscendent;	// 升/降序
+	UINT8	SortType;		// sort type
+	UBOOL	SortAscendent;	// ascending/descending
 
 	Auction_SearchTyep searchType;
 
@@ -111,7 +111,7 @@ struct ClientAuctionItemInfo : public FClientItemInfo
 	//INT32       nSellerLevel;
 	INT64       nPrice;
 	INT64       nBuyoutPrice;
-	INT64       nDepositPrice; //保证金
+	INT64       nDepositPrice; //deposit
 	UINT32      dwStartTime;
 	UINT32      dwFinishTime;
 	UINT8       byAuctionStatus;
@@ -344,7 +344,7 @@ public:
 
 	void RequistInitUIData();
 
-	// 登陆成功或者切换角色后调用此接口
+	// Called after login succeeds or after switching character
 	void Reset();
 
 	void ResetPageNumber();
@@ -403,7 +403,7 @@ public:
 	bool LastActionIsNextPage() const { return _lastActionIsNextPage; }
 	void LastActionIsNextPage(bool val);
 
-	bool CheckItemIsAuction(UINT32 itemId);//检查物品竞价是否自己最高
+	bool CheckItemIsAuction(UINT32 itemId);//check whether you are the highest bidder on the item
 
 	ItemInfo* GetAuctionItemInfo(INT itemId);
 
@@ -502,7 +502,7 @@ public:
 protected:
 
 	EAuctionTabId _currentTabPage;
-	AuctionSearchFilter _searchFilter;		// 过滤器数据
+	AuctionSearchFilter _searchFilter;		// filter data
 	
 	AuctionItemList _auctionViewItemList;
 	AuctionItemList _auctionMySellingItemList;
@@ -516,7 +516,7 @@ protected:
 	INT _currentPageNum;
 	INT _maxPageNumb;
 	bool _lastActionIsNextPage;
-	INT _peakMaxPage; // 当前搜索过程最高页数
+	INT _peakMaxPage; // highest page count in the current search
 
 
 	static void TryAddToList(AuctionItemList&lst, const ClientAuctionItemInfo& info);

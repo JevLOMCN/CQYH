@@ -5685,7 +5685,7 @@ void UPropertyInputCombo::SendToObjects( WxPropertyControl* InItem )
 		bContainsMultipleValueString = FALSE;
 	}
 
-	//song@snda.com 用于服务器专属属性的tooltip设置
+	//song@snda.com used for tooltip settings of server-only attributes
 	if(NodeProperty->GetName() == TEXT("Modifier"))
 	{
 		FPropertyNode* PropertyRootNode = InItem->GetPropertyNode()->GetParentNode();

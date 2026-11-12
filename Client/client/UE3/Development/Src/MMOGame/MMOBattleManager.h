@@ -29,9 +29,9 @@ enum eBattleState
 	EBTLS_ENDING
 };
 
-//战场个人得分
+//Battlefield personal score
 struct FBattlePlayerScore
-{	//个人战场获得的分数，分数含义根据不同战场而不同
+{	//Score earned in the personal battlefield, meaning varies by battlefield
 	INT	_Sum;
 
 	INT _Kills;
@@ -41,13 +41,13 @@ struct FBattlePlayerScore
 	INT _Heals;
 };
 
-//战场个人奖励
+//Battlefield personal reward
 struct FBattlePlayerAwards
 {
 	INT _Points;
 };
 
-//战场玩家
+//Battlefield players
 struct FBattlePlayer
 {
 	INT			_ID;
@@ -64,7 +64,7 @@ struct FBattlePlayer
 
 	eBattlePlayerState	_State;
 	bool				_IsLeader;
-	//0为己方
+	//0 is own side
 	BYTE				_BtlTeamID;
 };
 
@@ -123,7 +123,7 @@ public:
 	TMap< UINT, UBOOL > &GetRoleIncompleteList(){
 		return _RoleInfoIncompleteList;
 	}
-	//战场信息
+	//Battlefield info
 	//void AddBattleTemplate( FBattleTemplate* battle );
 	//void ClearBattleTemplates();
 	INT GetBattleTemplateCnt();
@@ -141,14 +141,14 @@ public:
 	eBattlePlayerState CvtToBattleState( INT iState );
 	
 	INT GetCurBattleSidesCnt();
-	//战场状态
+	//Battlefield state
 	eBattleState GetCurBattleState(){ return _BattleState; }
 	UBOOL IsWaiting(){ return (_BattleState == EBTLS_QUEUEING) ? TRUE : FALSE; }
 	void SetWaiting( UBOOL isW ){ _BattleState = ( (isW == TRUE) ? EBTLS_QUEUEING : _BattleState ); }
 	UBOOL IsInBattle();
 	UBOOL IsBattleEnding(){ return (_BattleState == EBTLS_ENDING) ? TRUE : FALSE; }
 	void SetBattleState( eBattleState state ){ _BattleState = state; }
-	//战场得分
+	//Battlefield score
 	void SetBattleTeamScore( INT btlTeamID, INT score ){
 			_BattleTeamScore.FindOrAdd( btlTeamID ) = score;
 	}
@@ -162,20 +162,20 @@ public:
 	//
 	INT GetWinTeamID();
 
-	//当前正加入的战场
+	//Battlefield currently being joined
 	INT GetJoinedBattleID(){ return _JoinedBattleID; }
 	void SetJoinedBattleID( INT id ){ _JoinedBattleID = id; }
-	//当然已进入的战场
+	//Battlefield already entered
 	FExportMap *GetEnteredBattleMapData();
 	FBattleTemplate* GetEnteredBattle();
 	void SetEnteredBattleID( INT id ){ _EnteredBattleID = id; }
 
 	void ToggleRandomBattles( INT id, UBOOL isChoosed );
-	//加入时间
+	//Join time
 	_SYSTEMTIME GetJoinedBattleTime(){
 		return _JoinLocalTime;
 	}
-	//开始时间
+	//Start time
 	INT GetTimeSinceBattleBegin();
 	UINT32 GetBattleStartTime(){ return _BattleStartUtcTime; }
 	void SetBattleStartTime( UINT32 startTime, int modifySec ){ _BattleStartUtcTime = startTime + modifySec; }
@@ -183,40 +183,40 @@ public:
 	UBOOL IsBattleBegin(){ return _IsBattleBegin; }
 	void SetBattleBegin( UBOOL is ){ _IsBattleBegin = is; }
 private:
-	//信息还不完整的玩家ID
+	//IDs of players whose info is incomplete
 	TMap< UINT, UBOOL > _RoleInfoIncompleteList;
 	TMap< UINT, UBOOL > _RoleInfoIncompleteListUnSended;
-	//战场人员
+	//Battlefield members
 	//std::map< INT, FBattlePlayer > BattlePlayerList;
 	BattlePlayerMap _BattlePlayerList;
 
-	//战场信息
+	//Battlefield info
 	UMMOBattleTemplate *_BattlesInfo;
-	//能使用的战场
+	//Usable battlefields
 	TArray< UINT > _ActivedBattles;
 
-	//申请加入的战场ID,申请时0表示随机战场
+	//Battlefield ID applied to join, 0 means random battlefield when applying
 	INT _PrepareJoinedBtlID;
-	//所有随机战场列表
+	//List of all random battlefields
 	typedef TMap< INT, INT > RandomBattleMap;
 	RandomBattleMap  _RandomBattlesList;
-	//当前战场ID(已申请)
+	//Current battlefield ID (applied)
 	INT _JoinedBattleID;
-	//当前战场ID(已在的)
+	//Current battlefield ID (already in)
 	INT _EnteredBattleID;
-	//是否等待加入战场中
+	//Whether waiting to join a battlefield
 	eBattleState _BattleState;
-	//加入战场队列的时间
+	//Time of joining the battlefield queue
 	_SYSTEMTIME _JoinLocalTime;
-	//战场开始时间
+	//Battlefield start time
 	UINT32 _BattleStartUtcTime;
 	UBOOL _IsBattleBegin;
-	//战场分数统计
+	//Battlefield score statistics
 	//static const INT MAX_BATTLE_TEAM = 3;
 	TMap<INT,INT> _BattleTeamScore;
-	//胜利的队伍
+	//Winning team
 	INT _WinTeamID;
-	//战场结果
+	//Battlefield result
 	UBOOL _IsDogfall;
 };
 

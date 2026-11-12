@@ -19,7 +19,7 @@ struct native FStaticMeshActorInfo
 };
 
 var() editconst StaticMesh StaticMesh;
-var() editconst array<FStaticMeshActorInfo> StaticMeshs; // 原来的StaticMeshActor的信息
+var() editconst array<FStaticMeshActorInfo> StaticMeshs; // Info of the original StaticMeshActor
 
 defaultproperties
 {

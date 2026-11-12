@@ -42,7 +42,7 @@ void WebHtmlManager::OpenNewSurvey()
 bool WebHtmlManager::AddNewUrlMessageBox(FString url)
 {
 	/*
-	开启等级已限制
+	unlock level already restricted
 	*/
 	UMMOUIMenuBar* menuBar = Cast<UMMOUIMenuBar>(MMOUI::GetUIManager()->FindUIPanel(MMOUI::GetUIManager()->Panel_Skillbar_Menubar));
 	if (!menuBar)
@@ -104,10 +104,10 @@ BOOL WebHTMLContent::RepalceUrl(TArray<FString>& arrUrl)
 {
 	if(arrUrl.Num() == 0)
 		return FALSE;
-	//加载模板
+	//load template
 	LoadWebPage();
 
-	//内容替换
+	//replace content
 	FString wholeReplace;
 	for (INT n = 0;  n< arrUrl.Num(); ++n)
 	{
@@ -121,14 +121,14 @@ BOOL WebHTMLContent::RepalceUrl(TArray<FString>& arrUrl)
 	{
 		strContent = strContent.Mid(nPos);
 	}
-	//生成新的html
+	//generate new html
 	return SaveWebPage();
 }
 BOOL WebHTMLContent::EnCodeUrl(FString url,FString& strReplace)
 {
 	strReplace = GetSeclectionTemplateHTML();
 	strReplace = strReplace.Replace(*strRepHrefUrlTag,*url);
-	strReplace = strReplace.Replace(*strRepUrlTitleTag,TEXT("系统提示"));
+	strReplace = strReplace.Replace(*strRepUrlTitleTag,TEXT("System Notice"));
 	return TRUE;
 }
 BOOL WebHTMLContent::LoadWebPage()
@@ -237,7 +237,7 @@ struct CursorDragWebWindowCaption
 		7|		6	 |	8
 		 |			 |
 	*/
-	INT  nFrameSizeState;//如上图状态值示意图
+	INT  nFrameSizeState;//state value as shown in the diagram above
 	POINT	nOldCursorPoint;
 	RECT	nOldWndRect;
 	POINT	nLstFramePoint;
@@ -322,7 +322,7 @@ void WebHtmlManager::OpenGameService( FString roleName, INT roleLv )
 	int tempInt;
 	//FString fStrTemp;
 
-	//玩家账号（加密）
+	//player account (encrypted)
 	url_cfg += TEXT("&id");
 
 	stdStrTemp = FTCHARToANSI( CMessageHandler::GetInstance()._UserName );
@@ -332,18 +332,18 @@ void WebHtmlManager::OpenGameService( FString roleName, INT roleLv )
 
 	pFunSDRS_Release( szEncryptAccount );
 	szEncryptAccount = NULL;
-	//玩家等级
+	//player level
 	url_cfg += TEXT("&gd=");
 	url_cfg += appItoa( roleLv );
-	//游戏
+	//game
 	url_cfg += TEXT("&gm=991002359");
-	//服务器大区
+	//server region
 	url_cfg += TEXT("&ar=");
 	url_cfg += appItoa( g_loginAreaID );
-	//游戏服务器
+	//game server
 	url_cfg += TEXT("&sv=");
 	url_cfg += appItoa( g_loginServerGroup );
-	//角色信息（加密）
+	//character info (encrypted)
 	url_cfg += TEXT("&rl=");
 
 	stdStrTemp = FTCHARToANSI( *roleName );
@@ -788,7 +788,7 @@ std::string WebHtmlManager::QURL_UrlEncode(const std::string& str)
 
 
 
-//百分号编码
+//percent encoding
 //http://zh.wikipedia.org/zh-cn/%E7%99%BE%E5%88%86%E5%8F%B7%E7%BC%96%E7%A0%81
 
 BOOL WebHtmlManager::UrlEncode(const char* szSrc, char* pBuf, int cbBufLen, BOOL bUpperCase)
@@ -803,7 +803,7 @@ BOOL WebHtmlManager::UrlEncode(const char* szSrc, char* pBuf, int cbBufLen, BOOL
 		return TRUE;
 	}
 
-	//先转换到UTF-8
+	//convert to UTF-8 first
 	char baseChar = bUpperCase ? 'A' : 'a';
 	int cchWideChar = MultiByteToWideChar(CP_ACP, 0, szSrc, len_ascii, NULL, 0);
 	LPWSTR pUnicode = (LPWSTR)malloc((cchWideChar + 1) * sizeof(WCHAR));
@@ -822,7 +822,7 @@ BOOL WebHtmlManager::UrlEncode(const char* szSrc, char* pBuf, int cbBufLen, BOOL
 	pUTF8[cbUTF8] = '\0';
 
 	unsigned char c;
-	int cbDest = 0; //累加
+	int cbDest = 0; //accumulate
 	unsigned char *pSrc = (unsigned char*)pUTF8;
 	unsigned char *pDest = (unsigned char*)pBuf;
 	while(*pSrc && cbDest < cbBufLen - 1)
@@ -842,7 +842,7 @@ BOOL WebHtmlManager::UrlEncode(const char* szSrc, char* pBuf, int cbBufLen, BOOL
 		}
 		else
 		{
-			//检查缓冲区大小是否够用？
+			//check whether buffer size is sufficient?
 			if(cbDest + 3 > cbBufLen - 1)
 				break;
 			pDest[0] = '%';
@@ -860,7 +860,7 @@ BOOL WebHtmlManager::UrlEncode(const char* szSrc, char* pBuf, int cbBufLen, BOOL
 	return TRUE;
 }
 
-//解码后是utf-8编码
+//after decoding it is utf-8 encoded
 BOOL WebHtmlManager::UrlDecode(const char* szSrc, char* pBuf, int cbBufLen)
 {
 	if(szSrc == NULL || pBuf == NULL || cbBufLen <= 0)
@@ -877,7 +877,7 @@ BOOL WebHtmlManager::UrlDecode(const char* szSrc, char* pBuf, int cbBufLen)
 	if(pUTF8 == NULL)
 		return FALSE;
 
-	int cbDest = 0; //累加
+	int cbDest = 0; //accumulate
 	unsigned char *pSrc = (unsigned char*)szSrc;
 	unsigned char *pDest = (unsigned char*)pUTF8;
 	while(*pSrc)
@@ -885,7 +885,7 @@ BOOL WebHtmlManager::UrlDecode(const char* szSrc, char* pBuf, int cbBufLen)
 		if(*pSrc == '%')
 		{
 			*pDest = 0;
-			//高位
+			//high bits
 			if(pSrc[1] >= 'A' && pSrc[1] <= 'F')
 				*pDest += (pSrc[1] - 'A' + 10) * 0x10;
 			else if(pSrc[1] >= 'a' && pSrc[1] <= 'f')
@@ -893,7 +893,7 @@ BOOL WebHtmlManager::UrlDecode(const char* szSrc, char* pBuf, int cbBufLen)
 			else
 				*pDest += (pSrc[1] - '0') * 0x10;
 
-			//低位
+			//low bits
 			if(pSrc[2] >= 'A' && pSrc[2] <= 'F')
 				*pDest += (pSrc[2] - 'A' + 10);
 			else if(pSrc[2] >= 'a' && pSrc[2] <= 'f')
@@ -942,10 +942,10 @@ FString WebHtmlManager::GetWholePath(const FString& path)
  	std::string name_safe = QURL_UrlEncode(name_ansi);
  	FANSIToTCHAR name_tchar(name_safe.c_str());
 
-	//游戏编号
+	//game ID
 	wholeStr += _T("&appId=991002359");
 
-	//玩家帐户名
+	//player account name
 	wholeStr += _T("&ptId=");
 	wholeStr += CMessageHandler::GetInstance()._UserName;
 

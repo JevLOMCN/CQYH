@@ -55,7 +55,7 @@ void MMOHeavenManager::LoadHeavenData()
 	bServerWaiting = TRUE;
 	pkTargetGasSlot = NULL;
 	nCurConvertType = 0;
-	nGasOperateType = 0; //0是无效  1是练气获得  2是合成获得 3是兑换获得
+	nGasOperateType = 0; //0 is invalid  1 obtained by qi cultivation  2 obtained by synthesis 3 obtained by exchange
 }
 
 void MMOHeavenManager::Update(FLOAT deltaTime)
@@ -128,7 +128,7 @@ INT	MMOHeavenManager::GetEquipGasPower()
 }
 INT	MMOHeavenManager::GetCanEquipSlotID()
 {
-	//默认第一个
+	//default to the first
 	INT nSlotID = 0;
 	for (INT n = 0; (n < arrSlotGasEquip.Num())&&(n < UCONST_GasEquipSlotMaxNum); ++n)
 	{
@@ -298,7 +298,7 @@ void MMOHeavenManager::NotifyGameStateChange()
 	if(bFirst&&MMO::GetCurrentGameState() == EGameState_InGame)
 	{
 		bFirst = FALSE;
-		//计算离线时间转化
+		//compute offline time conversion
 		CheckSendOutLineConverter(nHeavenLevel);
 	}
 }
@@ -310,7 +310,7 @@ void MMOHeavenManager::NotifyBloodOpen(INT nPage)
 	evt.SlotContainerID = nPage;
 	MMOUI::PostGameEvent(&evt);
 
-	// 成就
+	// Achievement
 	int openPageCount = 0;
 	for (int i = 0; i < MAX_BLOODSEA_PAGE; ++ i)
 	{
@@ -340,7 +340,7 @@ void MMOHeavenManager::UpdateCheckSendNormalConverter()
 	else
 		tLastSend = 0;
 
-	//等级不足、魂不足、等待服务端响应时 都不tick
+	//no tick when level is insufficient, soul is insufficient, or waiting for the server response
 	if(bLevelLimited || bSoulLimited || bServerWaiting)
 		return;
 
@@ -383,7 +383,7 @@ UINT32 MMOHeavenManager::GetTodayConvertMaxTimes()
 
 INT	MMOHeavenManager::GetNeedMoneyOpenSlot(INT nContainerID, INT nSlotIndex)
 {
-	INT nMoney = 0;//nSlotIndex是数量
+	INT nMoney = 0;//nSlotIndex is the quantity
 	if(nContainerID == sasbtBag)
 	{
 		for (INT n = arrSlotGasBag.Num(); n < arrSlotGasBag.Num() + nSlotIndex && n < UCONST_GasBagSlotMaxNum;++n)
@@ -413,7 +413,7 @@ INT	MMOHeavenManager::GetNeedMoneyOpenSlot(INT nContainerID, INT nSlotIndex)
 }
 INT	MMOHeavenManager::GetNeedMoneyConvert()
 {
-	//第一次转化 免费
+	//first conversion is free
 	if(nCurHeavenExp <= 0 && nHeavenLevel == 1)
 		return 0;
 	HeavenLevelConfig* pkLevel =  GetHeavenLevelDataIn(nHeavenLevel);
@@ -596,7 +596,7 @@ INT	MMOHeavenManager::GetGasExpLevelUp(HeavenGasItemConfig*pkGas,INT nExp)
 
 	INT nCurExp = nExp/* + pkGasTemp->nExp*/;
 	INT nLevel = pkGasTemp->nLevel;
-	//这个循环太依赖配置 配置错就可能死在循环里了 加以保护
+	//this loop depends too much on config; a config error could hang in the loop, so protect it
 	INT nWhileCircle = 0;
 	while(nCurExp >= pkGasTemp->nNextLevelExp)
 	{
@@ -662,7 +662,7 @@ void MMOHeavenManager::SetLastOffLineTime(UINT32 dwTime)
 {
 	dwLastOfflineTime = dwTime;
 }
-// 检查离线转化
+// check offline conversion
 void MMOHeavenManager::CheckSendOutLineConverter(INT nLevel)
 {
 	// vip right
@@ -856,7 +856,7 @@ void MMOHeavenManager::GetHeavenBloodTips(FString&tips,INT nPage,INT nSlot)
 	{
 		const BloodSlot* pkLastSlot = GetBloodSlot(nPage,nSlot - 1);
 		if(pkLastSlot&&pkLastSlot->nValue == 0)
-			tips = TEXT("需先开启前面一格");
+			tips = TEXT("Unlock the previous slot first");
 		else
 			tips = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Heaven.BloodSlotOPHint2"));
 	}
@@ -888,7 +888,7 @@ void MMOHeavenManager::GetHeavenBloodTips(FString&tips,INT nPage,INT nSlot)
 			return;
 		tips += UITextParser::HTMLBeginFont(TEXT("#555555"));
 		tips += UITextParser::HTMLNewLine();
-		tips +=  FString::Printf(TEXT("第%d重"),pkSlot->nValue + 1);/*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Heaven.BloodSlotOPHint4"));*/
+		tips +=  FString::Printf(TEXT("Tier %d"),pkSlot->nValue + 1);/*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Heaven.BloodSlotOPHint4"));*/
 		tips += UITextParser::HTMLNewLine();
 		GenerateGasTipsByNodeID(tips,pkNextConfig->nAttValue1,pkNextConfig->nAttValue2);
 		tips += UITextParser::HTMLEndFont();
@@ -976,7 +976,7 @@ void MMOHeavenManager::ShowNewGasHint(INT nGasID)
 	FString strInfo = FString::Printf(*MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Heaven.HeavenGasHintGet")),*(pkGas->name),pkGas->nLevel);
 	MMOUI::GetUIManager()->delegateAddScreenMessage(strInfo,MsgInfoType_Table,TEXT("MMOGame.Heaven.HeavenGasHintGet"));
 }
-//封装tips
+//wrap tips
 void MMOHeavenManager::GetHeavenTips(FString& tips,INT nLevel)
 {
 	tips = TEXT("");
@@ -1156,7 +1156,7 @@ void MMOHeavenManager::NotifyUpdateHeavenData(const ROLE_DB_SPIRIT_DATA* pkData)
 
 	bServerWaiting = FALSE;
 	CheckSetNeedTime(TRUE);
-	//刷新境界战斗力
+	//refresh realm combat power
 	MMOPowerManager::getSingleton().UpdatePartPower( PowerPart_HeavenPow );
 	MMOGameEvent_Heaven evt( MMOGameEvent_Heaven::EHeavenEvent_SynData);
 	MMOUI::PostGameEvent(&evt);
@@ -1175,7 +1175,7 @@ void MMOHeavenManager::NotifyUpdateBloodState(INT nPage,INT nIndex, INT nNum)
 		evt.nValue = nNum;
 		MMOUI::PostGameEvent(&evt);
 
-		// 成就
+		// Achievement
 		MMOGameEvent_Achievement evtAch1(adSpiritBloodPageCompleteCount, nPage, nNum, 0);
 		MMOUI::PostGameEvent(&evtAch1);
 
@@ -1194,7 +1194,7 @@ void MMOHeavenManager::NotifyOpenGasSlot(INT nContainerID,INT nSlotIndex)
 			arrSlotGasEquip.AddItem(GasSlot());
 		}
 
-		// 成就
+		// Achievement
 		MMOGameEvent_Achievement evtAch(adSpiritBuyAirEquipSlotCount, arrSlotGasEquip.Num(), 0, 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
@@ -1207,7 +1207,7 @@ void MMOHeavenManager::NotifyOpenGasSlot(INT nContainerID,INT nSlotIndex)
 			arrSlotGasBag.AddItem(GasSlot());
 		}
 
-		// 成就
+		// Achievement
 		MMOGameEvent_Achievement evtAch(adSpiritBuyAirBagSlotCount, arrSlotGasBag.Num(), 0, 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
@@ -1220,7 +1220,7 @@ void MMOHeavenManager::NotifyOpenGasSlot(INT nContainerID,INT nSlotIndex)
 			arrSlotGasBank.AddItem(GasSlot());
 		}
 
-		// 成就
+		// Achievement
 		MMOGameEvent_Achievement evtAch(adSpiritBuyAirStallSlotCount, arrSlotGasBank.Num(), 0, 0);
 		MMOUI::PostGameEvent(&evtAch);
 	}
@@ -1356,7 +1356,7 @@ void MMOHeavenManager::NotifyUpdateHeavenLevel(INT nLevel)
 		MMOUI::PostGameEvent(&evt);
 		MMOUI::GetUIManager()->delegateAddScreenMessage(strLevel,MsgInfoType_Table,TEXT("MMOGame.Heaven.LevelUp"));
 	}
-	//刷新境界战斗力
+	//refresh realm combat power
 	MMOPowerManager::getSingleton().UpdatePartPower( PowerPart_HeavenPow );
 	CheckSetNeedTime();
 	MMOGameEvent_Heaven evt( MMOGameEvent_Heaven::EHeavenEvent_UpdateLevel);
@@ -1420,7 +1420,7 @@ void MMOHeavenManager::ClearTargetSlot()
 {
 	pkTargetGasSlot = NULL;
 }
-//需要拦截的都返回True
+//return True for everything that needs to be intercepted
 BOOL MMOHeavenManager::CheckGasBagFull()
 {
 	for (INT n = 0; n < arrSlotGasBag.Num(); ++n)
@@ -1487,7 +1487,7 @@ BOOL MMOHeavenManager::CheckLeveltoOpenSlot(INT nContainerID, INT nSlotID)
 BOOL MMOHeavenManager::CheckHeavenLeveltoEquipSlot(INT nContainerID, INT nSlotID)
 {
 	if(nContainerID == sasbtEquip)
-	{//装备一个一个开
+	{//open equipment one by one
 		INT nCount = arrSlotGasEquip.Num();
 		if (nCount < arrSlotTax.Num())
 		{
@@ -1651,7 +1651,7 @@ void MMOHeavenManager::ParseHeavenError(INT32 errorId, INT32 param1, INT32 param
 	{
 		if(param1 < 0)
 			param1 = 0;
-		dwLastExp2PtsTime = param1 + 20;//约定往后拉20秒
+		dwLastExp2PtsTime = param1 + 20;//by convention, push back 20 seconds
 		bServerWaiting = FALSE;
 		CheckSetNeedTime(TRUE);
 	}

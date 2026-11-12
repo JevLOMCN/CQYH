@@ -1,5 +1,5 @@
 //
-// 相机导航碰撞框，当玩家与该碰撞框接触时，相机自动平滑过度到这个角度
+// Camera navigation collision box; when the player touches this collision box, the camera automatically transitions smoothly to this angle
 //
 
 class MMOVolume_CammeraNavigator extends PhysicsVolume
@@ -74,7 +74,7 @@ simulated event PawnLeavingVolume(Pawn P)
 		pc = MMOPlayerController(player.Controller);
 		cam = MMOPlayerCamera(pc.PlayerCamera);
 
-		// 如果离开时需要重置 并且 当前参考体积体还是自己就清空
+		// If it needs resetting on leaving and the current reference volume is still itself, clear it
 		if(ResetCameraOnPlayerExitLeave && (cam.CamNavVolume == self))
 		{
 			cam.CamNavVolume = none;

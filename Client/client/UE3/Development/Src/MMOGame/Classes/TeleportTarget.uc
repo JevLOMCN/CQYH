@@ -1,5 +1,5 @@
 //
-// TeleportTarget 传送目标点
+// TeleportTarget teleport target point
 //
 
 class TeleportTarget extends Actor implements (IPickableActor, IInteractableActor)
@@ -14,7 +14,7 @@ var(MMOServer) editoronly string DisplayName;
 var() editoronly EPickPriority PickPriority;
 
 // add by zhangrui05
-// fix bug #20450，绑定的npc (寻路需要，室内的NPC导航)
+// fix bug #20450, bound npc (needed for pathfinding, indoor NPC navigation)
 var() editoronly int NpcId;
 
 var editoronly ArrowComponent EditorArrow;
@@ -33,7 +33,7 @@ native function SetSilhouette( bool show, Vector sc = vect( 1.f, 1.f, 0.f ) );
 
 cpptext
 {
-	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda 永远不在游戏中加载
+	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda never loaded in game
 }
 
 

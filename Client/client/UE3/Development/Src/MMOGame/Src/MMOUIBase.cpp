@@ -195,7 +195,7 @@ void UMMOUIBase::PostOnShow(UBOOL v)
 		CanMoveTop = TRUE;
 		MMOUI::MoveToTop(this);
 
-		// 判定当前面板是否要显示帮助按钮
+		// determine whether the current panel should show the help button
 		HelperData data;
 		if (MMOHelperData::getSingleton().GetHelperData(FriendlyName.ToString(), data))
 		{
@@ -253,7 +253,7 @@ void UMMOUIBase::Show( UBOOL V, INT panelPriority )
 			if(CurPriority-1!=panelPriority || CurPanelPriority==panelPriority)
 			{
 				this->SetInt("CurPriority",panelPriority+1);	
-				eventShowPanel(V, panelPriority); // 用新重构后的接口
+				eventShowPanel(V, panelPriority); // use the newly refactored interface
 			}
 			CurPanelName = FriendlyName;
 		}
@@ -264,17 +264,17 @@ void UMMOUIBase::Show( UBOOL V, INT panelPriority )
 
 	//if(V)
 	//{
-	//	//删除上一次关闭的动态UI
+	//	//delete the dynamic UI closed last time
 	//	MMOUI::GetUIManager()->CloseLastPlayerByPanelName(FriendlyName);
 	//}
 	//else
 	//{
-	//	//将本UI设为等待删除UI
+	//	//set this UI as the UI pending deletion
 	//	MMOUI::GetUIManager()->SetLastPlayerNameByPanelName(FriendlyName);
 	//}
 
 
-	//遍历关闭其他打开的窗口
+	//iterate and close other open windows
 	//MMOUI::GetUIManager()->OnUIShow(self, v);
 	MMOUI::GetUIManager()->OnUIShow(this, V);
 
@@ -495,7 +495,7 @@ void UMMOUIBase::TickForTestInteractNPCDistance(float deltaTime)
 {
 	if(IsTargetOutDistanceClose&&(this->IsVisible))
 	{
-		//随身商店可直接打开某些UI
+		//portable shop can directly open certain UIs
 		if (IsShowWithOutTarget)
 		{
 			return;
@@ -511,7 +511,7 @@ void UMMOUIBase::TickForTestInteractNPCDistance(float deltaTime)
 			static INT fTimeSpan = 0;
 			if(++fTimeSpan > 10)
 			{
-				fTimeSpan = 0;//延迟判断一次距离
+				fTimeSpan = 0;//delay the distance check once
 				INT CurDistance = (selectActor->Location-MMOFacade::getSingleton().GetMainController()->Pawn->Location).Size2D();
 				if(CurDistance >= nTargetMaxDistance)
 					Show(FALSE);

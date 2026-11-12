@@ -7,13 +7,13 @@
 
 using namespace ExternalMessage;
 
-//Start掉落物品 拾取相关-----
+//Start dropped item pickup related-----
 void CMessageHandler::Send_PickDropItem(INT	DropID,UINT8 iMode )
 {
     AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
     if( player && player->bDead )
     {
-        //死亡后不能拾取
+        //Cannot pick up after death
         return;
     }
 
@@ -59,7 +59,7 @@ void CMessageHandler::Parse_g2c_sync_drop_list(const char* buf, UINT32 size)
 	{
 		DROP_INFO* pDropItem = &msg->astDrops[i];
 
-		//从服务器坐标转换为本地坐标
+		//Convert from server coordinates to local coordinates
 		FVector vDropLocation(pDropItem->wDestX, pDropItem->wDestY, pDropItem->wDestZ);
 		ConvertCoordN2C(vDropLocation);
 
@@ -83,7 +83,7 @@ void CMessageHandler::Parse_g2c_generate_drop_from_object(const char* buf, UINT3
 	G2C_GENERATE_DROP_FROM_OBJECT* msg = (G2C_GENERATE_DROP_FROM_OBJECT*)buf;
 	DROP_INFO* pDropItem = &msg->drop;
 
-	//从服务器坐标转换为本地坐标
+	//Convert from server coordinates to local coordinates
 	FVector vDropLocation(pDropItem->wDestX, pDropItem->wDestY, pDropItem->wDestZ);
 	ConvertCoordN2C(vDropLocation);
 
@@ -95,7 +95,7 @@ void CMessageHandler::Parse_g2c_generate_drop_from_object(const char* buf, UINT3
 	}
 	else
 	{
-		//spawnLoc = actor->Location;				 // todo 不注释,会有BUG	#15007
+		//spawnLoc = actor->Location;				 // todo do not comment out, there will be a BUG	#15007
 	}
 
 	MMODropManager::getSingleton().AddDropActor(
@@ -157,17 +157,17 @@ void CMessageHandler::Parse_g2c_pickup_item(const char* buf, UINT32 size)
 
 	 FString chatMsg;
 
-	//玩家的个人提示
+	//Player's personal hint
 	if( player->IsMainPlayer() )
 	{
 		/*
-        //背包咧获得新物品会做提示
+        //Bag shows a hint when obtaining new items
         FString sMsg ;
 		sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.PickUpInfoText" )),
 			*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.YouText" )),*tItem->GetDisplayName(),1);
 		MMOChatManager::getSingleton().AddSystemMessage( sMsg );*/
 
-		//判断品质 决定是否弹小窗
+		//Check quality to decide whether to pop up a small window
 		/*if( tItem->ItemColor >= pc->ColorAboveAsTreasure )
 		pHudMovie->AddPickItemInfo( itemInfo->nTemplateID );*/
 		/*	chatMsg = FString::Printf(TEXT("%s%s x%d"),
@@ -209,7 +209,7 @@ void CMessageHandler::Parse_g2c_pickup_money(const char* buf, UINT32 size)
 		return;
 	}
 
-	//得到多少钱 Msg信息添加
+	//Amount of money obtained, add Msg info
 	AMMOHud* hud = MMOFacade::getSingleton().GetMyHud();
 	if( !hud )
 		return;
@@ -217,7 +217,7 @@ void CMessageHandler::Parse_g2c_pickup_money(const char* buf, UINT32 size)
 	if( !pHudMovie )
 		return;
 
-	//玩家的个人提示
+	//Player's personal hint
 	FString sMsg ;
 	sMsg = FString::Printf(*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.PickUpInfoText" )),
 		*MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.GamePlay.YouText" )), *tItem->GetDisplayName(), msg->nCount );
@@ -249,4 +249,4 @@ void CMessageHandler::Parse_g2c_drop_roll_result(const char* buf, UINT32 size)
 {
 	G2C_DROP_ROLL_RESULT* msg = (G2C_DROP_ROLL_RESULT*)buf;
 }*/
-//End掉落物品 拾取相关-----
+//End dropped item pickup related-----

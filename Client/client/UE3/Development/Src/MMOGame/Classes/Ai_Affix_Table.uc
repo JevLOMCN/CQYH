@@ -70,18 +70,18 @@ var() array<Ai_Affix> Table			<DisplayName="Table">;
 native function bool IsNeedArchetype();
 
 //-------------------------------------------------------
-// 导出到Excel
+// export to Excel
 //-------------------------------------------------------
 cpptext
 {
 }
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues)
 {
 }
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row)
 {
 

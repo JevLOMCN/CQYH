@@ -19,17 +19,17 @@ enum ItemSlotType
 	TFT_PlainText,
 	TFT_NormalText,
 	TFT_FreeStyle,
-	TFT_AutoSizeTips,//可根据字符数量自动调节tips宽度的tips
+	TFT_AutoSizeTips,//tips whose width auto-adjusts to the character count
 	TFT_AvartaRuneButton,
-	TFT_SkillEquipped, //显示人物身上的技能
-	TFT_SkillSlotTemplate,//模板技能，Slot元件上附带的技能
-	TFT_SkillOfMyWithNext,//模板技能，Slot元件上附带的技能,带下一级
-	TFT_SkillTemplate,//模板技能，非Slot元件，通过元件的UniqueSkillID，获取技能
-	TFT_SkillTemplateWithNext,//模板技能，非Slot元件，通过元件的UniqueSkillID，获取技能, 附带下一级
+	TFT_SkillEquipped, //show abilities on the character
+	TFT_SkillSlotTemplate,//template ability, the ability attached to the Slot component
+	TFT_SkillOfMyWithNext,//template ability, the ability attached to the Slot component, with next level
+	TFT_SkillTemplate,//template ability, non-Slot component, ability obtained via the component's UniqueSkillID
+	TFT_SkillTemplateWithNext,//template ability, non-Slot component, ability obtained via the component's UniqueSkillID, with next level
 	TFT_LockedSlot,
 	TFT_HeavenGasSlot,
-	TFT_EquipSlotEnhance,//强化属性阶段提示
-	TFT_Link,//超链接
+	TFT_EquipSlotEnhance,//enhance attribute stage hint
+	TFT_Link,//hyperlink
 	TFT_EquipDurability,
 	TFT_GoldStore,
 };

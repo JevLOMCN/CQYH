@@ -65,7 +65,7 @@ public:
 	const FString& GetRoleNameCompare() { return _RoleNameCompare; }
 	void CompleteCommonAchievement(UINT32 id);
 
-	// 消息
+	// Message
 	void NotifyAchievementListUpdate(const char* list);
 	void NotifyAchievementVariableUpdate(INT32 index, INT32 value);
 	void NotifyAchievementCompareListUpdate(UINT32 roleId, const char* list);
@@ -82,9 +82,9 @@ public:
 
 protected:
 	UBOOL _BeginSyncAchievementCheck;
-	// 发包缓存
+	// Send packet cache
 	AchievementIdSet _AchievementCompleteSet;
-	// 比较
+	// Compare
 	UBOOL _IsCompare;
 	FString _RoleNameCompare;
 };

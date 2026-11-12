@@ -1,5 +1,5 @@
 //
-// 动画通知生成地面贴花
+// animation notify spawn ground decal
 //
 class AnimNotify_SpawnDecal extends AnimNotify_ScriptedEx
 	;
@@ -9,10 +9,10 @@ var(MMOSFX) float ImpactDecalSizeMin;
 var(MMOSFX) float ImpactDecalSizeMax;
 var(MMOSFX) float ImpactDecalDepth;
 
-// 如果是MITV则用帧时间自动计算，静态的贴花用这个时间
+// if MITV, time is calculated automatically from frame time; static decals use this time
 var(MMOSFX) float ImpactDecalLifespanNonMITV;
 
-// 用于创建贴花位置的参考绑定点(Socket)，如果没有指定则使用角色的当前位置
+// reference attach point (Socket) used to create the decal position, uses the character's current position if not specified
 var(MMO) name SocketName <DynamicList="SocketList">;
 
 function SpawnImpactDecal(Actor actor, MaterialInterface impactMat,

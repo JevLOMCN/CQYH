@@ -8,7 +8,7 @@ TMap< FString, TArray<FString> > g_clientTabFiles;
 void StatTabHeader(const FString& tabFileName, const FString& headerName, const FString& headerUsage)
 {
 	bool isClientUsage = headerUsage == TEXT("Client") || headerUsage == TEXT("Both");
-	// N/AÊÇ»úÃÜ || headerUsage == TEXT("N/A");
+	// N/A means confidential || headerUsage == TEXT("N/A");
 	if(isClientUsage)
 	{
 		return;

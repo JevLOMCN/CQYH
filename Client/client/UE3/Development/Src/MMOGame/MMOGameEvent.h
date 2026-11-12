@@ -5,7 +5,7 @@
 #include "MMOGameUIClasses.h"
 
 //------------------------------------------------------------------------
-// 游戏事件定义
+// game event definitions
 //------------------------------------------------------------------------
 enum EGameEvent
 {
@@ -139,7 +139,7 @@ enum EGameEvent
 	GameEvent_TeamExpand,
 	GameEvent_SendTeamExpand,
 
-	//组队拍卖
+	//team auction
 	GameEvent_TeamAuctionNewAuction,
 	GameEvent_TeamAuctionOtherBid,
 	GameEvent_TeamAuctionNewItem,

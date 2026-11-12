@@ -7,7 +7,7 @@
 #include "MMOUtil.h"
 #include "MMODataManager.h"
 
-// 公用
+// common
 enum
 {
 	INVALID_QUEST_VAR_ID = -1,
@@ -29,7 +29,7 @@ enum EQestState
 	EQS_Completed = 2
 };
 
-// 任务数据
+// quest data
 struct QuestDataProcessor
 {
 	static const TCHAR* GetName()
@@ -67,14 +67,14 @@ typedef TDataManger<UQuest, QuestDataProcessor> QuestDataManager;
 typedef std::map<INT, class UQuest*, M_UE3_STL_ALLOC_MAP(INT, class UQuest*)> QuestDataMap;	
 typedef std::list<class UQuest*, M_UE3_STL_ALLOC(class UQuest*)> QuestDataList;					
 
-// 任务Npc
+// quest Npc
 struct QuestNpcInfo
 {
 	QuestDataMap StartQuestList;
 	QuestDataMap EndQuestList;
 };
 
-// 已接任务
+// accepted quests
 class AcceptedQuestData
 {
 public:
@@ -103,33 +103,33 @@ public:
 	void _Assign(const ROLE_DB_QUEST_DATA::ROLE_DB_ACCEPTED_QUEST &src);
 };
 
-// 任务奖励
+// quest rewards
 struct QuestAwardItemInfo
 {
 	UItem* ItemTemplate;
 	INT Count;
-	INT Index; // 原始配置时的下标
+	INT Index; // index in the original config
 };
 
-typedef std::map<INT, QuestNpcInfo, M_UE3_STL_ALLOC_MAP(INT, QuestNpcInfo)> QuestNpcInfoMap;					// 任务NPC
-typedef std::map<INT, AcceptedQuestData, M_UE3_STL_ALLOC_MAP(INT, AcceptedQuestData)> AcceptedQuestDataMap;		// 已接任务
-typedef std::map<INT, class UQuest*, M_UE3_STL_ALLOC_MAP(INT, class UQuest*)> AvailableQuestDataMap;			// 可接任务
+typedef std::map<INT, QuestNpcInfo, M_UE3_STL_ALLOC_MAP(INT, QuestNpcInfo)> QuestNpcInfoMap;					// quest NPC
+typedef std::map<INT, AcceptedQuestData, M_UE3_STL_ALLOC_MAP(INT, AcceptedQuestData)> AcceptedQuestDataMap;		// accepted quests
+typedef std::map<INT, class UQuest*, M_UE3_STL_ALLOC_MAP(INT, class UQuest*)> AvailableQuestDataMap;			// acceptable quests
 
-typedef std::list<INT, M_UE3_STL_ALLOC(INT) > QuestTraceList;													// 任务追踪
+typedef std::list<INT, M_UE3_STL_ALLOC(INT) > QuestTraceList;													// quest tracking
 
-typedef std::vector<QuestAwardItemInfo, M_UE3_STL_ALLOC(QuestAwardItemInfo)> QuestAwardItemInfoList;			// 任务奖励
+typedef std::vector<QuestAwardItemInfo, M_UE3_STL_ALLOC(QuestAwardItemInfo)> QuestAwardItemInfoList;			// quest rewards
 
-// 环任务数据
+// circle quest data
 struct CircleQuestData
 {
-	INT CircleId;									// 环号
-	INT	CircleGroup;								// 环组
-	INT	CircleRoundMax;								// 每日环任务最多可做多少轮
-	INT	CircleSize;									// 当前环任务包还的任务数
-	INT ResetTime;									// 重置时间
-	INT Level;										// 玩家等级
-	INT	CircleRound;								// 环任务的轮号
-	INT RewardId[MAX_QUEST_PER_CIRCLE];				// 奖励组索引
+	INT CircleId;									// circle number
+	INT	CircleGroup;								// circle group
+	INT	CircleRoundMax;								// max rounds of circle quests per day
+	INT	CircleSize;									// number of quests in the current circle quest package
+	INT ResetTime;									// reset time
+	INT Level;										// player level
+	INT	CircleRound;								// round number of the circle quest
+	INT RewardId[MAX_QUEST_PER_CIRCLE];				// reward group index
 };
 
 struct CircleQuestDataProcessor
@@ -166,8 +166,8 @@ struct CircleQuestDataProcessor
 
 typedef TDataManger<CircleQuestData, CircleQuestDataProcessor> CircleQuestDataManager;
 
-// 一个环任务的奖励是由：环号，玩家等级，玩家当前完成的环任务序号，三个要素决定的
-// 环任务奖励数据
+// a circle quest's reward is determined by three factors: circle number, player level, and the sequence number of the circle quest the player has completed
+// circle quest reward data
 struct CircleQuestRewardData
 {
 	INT RewardId;
@@ -241,11 +241,11 @@ struct CircleQuestInfo
 	{}
 };
 
-typedef std::map<INT, CircleQuestData, M_UE3_STL_ALLOC_MAP(INT, CircleQuestData)> CircleQuestDataMap;						// 环任务数据
-typedef std::map<INT, CircleQuestRewardData, M_UE3_STL_ALLOC_MAP(INT, CircleQuestRewardData)> CircleQuestRewardDataMap;		// 环任务奖励数据
-typedef std::map<INT, CircleQuestInfo, M_UE3_STL_ALLOC_MAP(INT, CircleQuestInfo)> CircleQuestInfoMap;						// 环任务完成信息
+typedef std::map<INT, CircleQuestData, M_UE3_STL_ALLOC_MAP(INT, CircleQuestData)> CircleQuestDataMap;						// circle quest data
+typedef std::map<INT, CircleQuestRewardData, M_UE3_STL_ALLOC_MAP(INT, CircleQuestRewardData)> CircleQuestRewardDataMap;		// circle quest reward data
+typedef std::map<INT, CircleQuestInfo, M_UE3_STL_ALLOC_MAP(INT, CircleQuestInfo)> CircleQuestInfoMap;						// circle quest completion info
 
-// 悬赏任务
+// bounty quest
 struct RewardQuestInfo
 {
 	UINT32 QuestId;
@@ -257,9 +257,9 @@ struct RewardQuestInfo
 	{}
 };
 
-typedef std::list<RewardQuestInfo, M_UE3_STL_ALLOC(RewardQuestInfo) > RewardQuestList;										// 悬赏任务列表
+typedef std::list<RewardQuestInfo, M_UE3_STL_ALLOC(RewardQuestInfo) > RewardQuestList;										// bounty quest list
 
-// 悬赏任务花费
+// bounty quest cost
 struct RewardQuestCostData
 {
 	INT Time;
@@ -306,7 +306,7 @@ struct RewardQuestCostDataProcessor
 typedef TDataManger<RewardQuestCostData, RewardQuestCostDataProcessor> RewardQuestCostDataManager;
 typedef std::map<INT, RewardQuestCostData, M_UE3_STL_ALLOC_MAP(INT, RewardQuestCostData)> RewardQuestCostDataMap;
 
-// 剧情任务
+// story quest
 struct StoryQuestData
 {
 	UINT32 Chapter;
@@ -369,10 +369,10 @@ typedef std::list<UINT32, M_UE3_STL_ALLOC(UINT32) > StoryQuestChapterList;
 typedef std::list<UINT32, M_UE3_STL_ALLOC(UINT32) > StoryQuestStageList;
 typedef std::map<UINT32, StoryQuestStageList, M_UE3_STL_ALLOC_MAP(UINT32, StoryQuestStageList)> StoryQuestChapterStageMap;
 
-// 任务地图
+// quest map
 typedef std::map<UINT32, QuestDataList, M_UE3_STL_ALLOC_MAP(UINT32, QuestDataList)> QuestMapDataMap;
 
-// 回收任务
+// recovery quest
 struct QuestRecycleData
 {
 	INT ItemLevel;
@@ -416,11 +416,11 @@ struct QuestRecycleDataProcessor
 typedef TDataManger<QuestRecycleData, QuestRecycleDataProcessor> QuestRecycleDataManager;
 typedef std::vector<QuestRecycleData, M_UE3_STL_ALLOC(QuestRecycleData)> QuestRecycleDataList;
 
-// 杀怪任务：
-// 怪物->已接任务映射	
+// kill-monster quest:
+// monster -> accepted quest mapping
 typedef std::map<UINT32, QuestTraceList, M_UE3_STL_ALLOC_MAP(UINT32, QuestTraceList)> MonsterAcceptedQuestsMap;
 
-// 紧急任务信息：用来记录紧急任务的CD时间，判断当前紧急任务是否可接
+// emergency quest info: used to record the CD time of emergency quests and determine whether the current emergency quest can be accepted
 struct EmergencyQuestCoolDownInfo
 {
 	INT QuestId;
@@ -429,7 +429,7 @@ struct EmergencyQuestCoolDownInfo
 
 typedef std::map<INT, EmergencyQuestCoolDownInfo, M_UE3_STL_ALLOC_MAP(INT, EmergencyQuestCoolDownInfo)> EmergencyQuestCoolDownMap;
 
-// 任务掉落
+// quest drops
 typedef std::set<INT> DoodadDropSet;
 struct QuestDoodadData
 {
@@ -478,42 +478,42 @@ struct QuestDoodadDataProcessor
 typedef TDataManger<QuestDoodadData, QuestDoodadDataProcessor> QuestDoodadDataManager;
 typedef std::map<INT, QuestDoodadData, M_UE3_STL_ALLOC_MAP(INT, QuestDoodadData)> QuestDoodadDataMap;
 
-// 引导任务按位枚举
+// guide quest bitwise enum
 enum GuideQuestType
 {
 	GQT_Invalid = 0,
-	GQT_Friend,						// 添加好友，完成任务
-	GQT_Mail,						// 发送邮件，完成任务
-	GQT_Master,						// 拜师，完成任务
-	GQT_Soul,						// 魂转修炼点，完成任务
-	GQT_UpgradeSkill,				// 技能升级，完成任务
-	GQT_Posy,						// 符文镶嵌，完成任务
-	GQT_Guild,						// 创建公会，完成任务
-	GQT_Team,						// 组队，完成任务
-	GQT_EmbedEquip,					// 灵石镶嵌，完成任务
-	GQT_PickEquip,					// 灵石摘取，完成任务
-	GQT_Strong,						// 体格强化，完成任务
-	GQT_Heaven,						// 装备气海，完成任务
-	GQT_Appraisal,					// 鉴定装备，完成任务
-	GQT_Battlefield,				// 进入竞技场，完成任务
-	GQT_Extendbag,					// 扩展包裹，完成任务
-	GQT_Mount,						// 装备坐骑，完成任务
-	GQT_Chat,						// 发送聊天，完成任务
-	GQT_UpgradeEquip,				// 装备升级，完成任务
-	GQT_UseSkill,					// 使用技能，完成任务
-	GQT_LearnSkill,					// 学习技能，完成任务
-	GQT_GetItem,					// 获得道具，完成任务
-	GQT_EquipItem,					// 装备道具，完成任务
-	GQT_Compose,					// 合成道具，完成任务
-	GQT_Decompose,					// 分解道具，完成任务
+	GQT_Friend,						// add a friend, complete quest
+	GQT_Mail,						// send a mail, complete quest
+	GQT_Master,						// take a master, complete quest
+	GQT_Soul,						// convert soul to training points, complete quest
+	GQT_UpgradeSkill,				// upgrade skill, complete quest
+	GQT_Posy,						// rune inlay, complete quest
+	GQT_Guild,						// create a guild, complete quest
+	GQT_Team,						// form a team, complete quest
+	GQT_EmbedEquip,					// spirit stone inlay, complete quest
+	GQT_PickEquip,					// spirit stone removal, complete quest
+	GQT_Strong,						// physique enhancement, complete quest
+	GQT_Heaven,						// equipment Qihai, complete quest
+	GQT_Appraisal,					// appraise equipment, complete quest
+	GQT_Battlefield,				// enter the arena, complete quest
+	GQT_Extendbag,					// expand bag, complete quest
+	GQT_Mount,						// equip mount, complete quest
+	GQT_Chat,						// send chat, complete quest
+	GQT_UpgradeEquip,				// upgrade equipment, complete quest
+	GQT_UseSkill,					// use ability, complete quest
+	GQT_LearnSkill,					// learn ability, complete quest
+	GQT_GetItem,					// obtain item, complete quest
+	GQT_EquipItem,					// equip item, complete quest
+	GQT_Compose,					// compose item, complete quest
+	GQT_Decompose,					// decompose item, complete quest
 
-	GQT_EquipRemake,				// 装备重铸，完成任务
-	GQT_BookRemake,					// 技能书重铸，完成任务
-	GQT_Booster,					// 佣兵，完成任务
-	GQT_Exercise,					// 历练，完成任务
+	GQT_EquipRemake,				// remake equipment, complete quest
+	GQT_BookRemake,					// remake skill book, complete quest
+	GQT_Booster,					// mercenary, complete quest
+	GQT_Exercise,					// training, complete quest
 };
 
-// 建立怪物组->怪物表映射
+// build monster group -> monster table mapping
 typedef std::list<INT, M_UE3_STL_ALLOC(INT) > MonsterList;
 typedef std::map<INT, MonsterList, M_UE3_STL_ALLOC_MAP(INT, MonsterList)> MonsterGroupMap;
 
@@ -527,7 +527,7 @@ public:
 	void Shutdown();
 	void Clear();
 
-	// 任务数据
+	// quest data
 	void LoadQuestDataFromUpk();
 	void AddQuestData(UQuest* data);
 	const class UQuest* GetQuestData(INT questId) const;
@@ -535,22 +535,22 @@ public:
 	void UpdateQuestList(ROLE_DB_QUEST_DATA* questData);
 	EQestState GetQuestState(INT questId);
 
-	// 任务操作
+	// quest operations
 	void AcceptQuest(INT questId);
 	void AbandonQuest(INT questId);
 	void CompleteQuest(INT questId);
 
-	// 任务NPC
+	// quest NPC
 	EQuestHUDStatus IsNpcHasMyQuest(INT npcId, TArray<INT>* completeList,
 		TArray<INT>* uncompleteList, 
 		TArray<INT>* availableList);
 
-	// 可接任务
+	// available quests
 	TArray<UQuest*> GetAvailableQuestsByType(EQUEST_TYPE type);
 	INT GetAvailableQuestCount();
 	bool IsQuestAvailable(INT questId);
 
-	// 已接任务
+	// accepted quests
 	const AcceptedQuestDataMap& GetAcceptedQuests() const;
 	TArray<UQuest*> GetAcceptedQuestsByType(EQUEST_TYPE type = E_qt_MAX);
 	AcceptedQuestDataMap& GetAcceptedQuests();
@@ -558,7 +558,7 @@ public:
 	const AcceptedQuestData* GetAcceptedQuestData(INT questId) const;
 	AcceptedQuestData* GetAcceptedQuestData(INT questId);
 
-	// 完成任务		
+	// complete quest
 	TArray<UQuest*> GetCompassableQuestsByType(EQUEST_TYPE type);
 	TArray<UQuest*> GetCompletedQuestsByType(EQUEST_TYPE type);
 	UBOOL IsQuestCompassable(INT questId) const;
@@ -575,7 +575,7 @@ public:
 		INT32& Min, 
 		INT32& seconds) const;
 
-	// 任务完成条件
+	// quest completion conditions
 	void UpdateQuestReachLevel(INT curLevel);
 	void UpdateQuestNpcKillCount(INT questId, UINT16 index, INT val);
 	void UpdateQuestDoodadKillCount(INT questId, UINT16 index, INT val);
@@ -586,20 +586,20 @@ public:
 	void UpdateRoleVariable(UINT16 index, INT val);
 	void UpdateQuestTime(INT timeCount);
 
-	// 任务追踪
+	// quest tracking
 	const QuestTraceList& GetAcceptedQuestTraceList();
 	const QuestTraceList& GetAvailableQuestTraceList();
 	UBOOL HasConditions(INT questId);
 	void TraceAllQuest(bool traceOn);
 	void TraceQuest(INT questId, bool traceOn);
 
-	// 任务奖励
+	// quest rewards
 	void GetAwardItemList(INT questId, QuestAwardItemInfoList& list);
 	void GetSelectableAwardItemList(INT questId, QuestAwardItemInfoList& list);
 	INT GetSelectableAwardItemCount(INT questId);
 	INT GetDefaultSelectableAwardItemIndex(INT questId);
 
-	// 环任务相关
+	// ring quest related
 	UBOOL GetCircleQuestData(INT circleId, INT playerLevel, CircleQuestData& data);
 	UBOOL GetCircleQuestRewardData(INT circleId, INT circleIndex, INT playerLevel, 
 		CircleQuestRewardData& reward);
@@ -609,7 +609,7 @@ public:
 	void AddCircleQuestData(const CircleQuestData& data);
 	void AddCircleQuestRewardData(const CircleQuestRewardData& data);
 
-	// 悬赏任务
+	// bounty quest
 	const RewardQuestList& GetRewardQuestList() const;
 	void SetRewardQuestCostCount(INT count);
 	INT GetRewardQuestCostCount() { return _RewardQuestCostCount; }
@@ -620,7 +620,7 @@ public:
 	INT GetRewardQuestCost(INT time);
 	void AddRewardQuestCostData(const RewardQuestCostData& data);
 
-	// 剧情任务
+	// story quest
 	UBOOL GetStoryQuestData(UINT32 chapter, UINT32 stage, StoryQuestData& data);
 	const StoryQuestChapterStageMap& GetStoryQuestChapterStageMap();
 	const QuestMapDataMap& GetQuestMapDataMap();
@@ -628,12 +628,12 @@ public:
 	void AddStoryQuestData(const StoryQuestData& data);
 	UBOOL IsStoryQuestPast(INT chapter, INT stage);
 
-	// 道具回收
+	// item recycling
 	void AddQuestRecycle(const QuestRecycleData& questRecycle);
 	const QuestRecycleDataList& GetQuestRecycleList() { return _QuestRecycleDataList; }
 	UBOOL IsQuestRecycle(INT questId);
 
-	// 紧急任务
+	// emergency quest
 	void AddEmergencyQuestCoolDown(INT questId, INT coolDown);
 	void UpdateEmergencyQuestCoolDown(INT deltaTime);
 	INT GetEmergencyQuestCoolDown(INT questId) const;
@@ -641,7 +641,7 @@ public:
 	UBOOL IsEmegencyQuestAllCompleteToday();
 	void AbandonAllEmergencyQuest();
 
-	// 任务掉落
+	// quest drops
 #if !SHIPPING_PC_GAME
 	void GenerateQuestDoodadDropData(const TCHAR* filePath);
 #endif
@@ -649,7 +649,7 @@ public:
 	const QuestDoodadDataMap& GetQuestDoodadDataMap() { return _QuestDoodadDataMap; }
 	UBOOL IsAcceptedQuestDoodad(INT doodadDropId);
 
-	// 杀怪任务
+	// monster-kill quest
 	UBOOL GetNormalQuestListByMonsterBeTraced(INT monsterId, QuestTraceList& questList);
 	UBOOL GetEmergencyQuestListByMonsterBeTraced(INT monsterId, QuestTraceList& questList);
 	UBOOL IsSingleMonsterQuest(INT questId);
@@ -657,10 +657,10 @@ public:
 	void AddMonsterGroupData(INT groupId, INT monsterId);
 	UBOOL GetGroupMonsterList(INT groupId, MonsterList& list);
 
-	// 等级触发任务
+	// level-triggered quest
 	const QuestDataList& GetLevelTriggerQuestList() const;
 
-	// 设置任务失败
+	// set quest failed
 	void SetQuestFailed(INT questId);
 
 	// 
@@ -695,7 +695,7 @@ protected:
 	void _AddAcceptedQuest(const ROLE_DB_QUEST_DATA::ROLE_DB_ACCEPTED_QUEST& questData, bool isNewQuest);
 	void _RemoveAcceptedQuest(INT questId);
 	
-	// 可接任务限制检查
+	// check available-quest restrictions
 	UBOOL _CheckAvailableQuestLimit_Job(const UQuest* quest, AMMOPlayer* mainPlayer) const;
 	UBOOL _CheckAvailableQuestLimit_Sex(const UQuest* quest, AMMOPlayer* mainPlayer) const;
 	UBOOL _CheckAvailableQuestLimit_Master(const UQuest* quest, AMMOPlayer* mainPlayer) const;
@@ -713,7 +713,7 @@ protected:
 	UBOOL _CheckAvailableQuestLimit_Item(const UQuest* quest, AMMOPlayer* mainPlayer) const;
 	UBOOL _CheckAvailableQuestLimit_Team(const UQuest* quest, AMMOPlayer* mainPlayer) const;
 
-	// 完成任务条件检查
+	// check quest completion conditions
 	UBOOL _CheckCompleteQuestCondition_Time(const UQuest* quest, const AcceptedQuestData* data) const;
 	UBOOL _CheckCompleteQuestCondition_KillMonster(const UQuest* quest, const AcceptedQuestData* data) const;
 	UBOOL _CheckCompleteQuestCondition_Item(const UQuest* quest, const AcceptedQuestData* data) const;
@@ -726,14 +726,14 @@ protected:
 	UBOOL _CheckCompleteQuestCondition_Doodad(const UQuest* quest, const AcceptedQuestData* data) const;
 	UBOOL _CheckCompleteQuestCondition_KillPlayer(const UQuest* quest, const AcceptedQuestData* data) const;
 
-	// 道具奖励
+	// Item reward
 	bool _IsItemForMe(EPlayerClass job, EGenderType gender, const UItem* item);
 
-	// 剧情任务
+	// story quest
 	void _AddStoryQuestChapterStage(UINT32 chapter, UINT32 stage);
 	void _AddStoryQuestPastChapter(UINT32 chapter);
 
-	// 杀怪任务
+	// monster-kill quest
 	void _AddMonsterAcceptedQuest(INT monsterId, INT questId);
 	void _RemoveMonsterAcceptedQuest(INT monsterId, INT questId);
 
@@ -757,42 +757,42 @@ protected:
 	CircleQuestRewardDataMap _CircleQuestRewardDataMap;
 	CircleQuestInfoMap _CircleQuestInfoMap;
 
-	// 悬赏任务
+	// bounty quest
 	RewardQuestList _RewardQuestList;
 	INT _RewardQuestFreeCount;
 	INT _RewardQuestCostCount;
 	RewardQuestCostDataMap _RewardQuestCostDataMap;
 
-	// 剧情任务
+	// story quest
 	StoryQuestDataMap _StoryQuestDataMap;
 	StoryQuestChapterStageMap _StoryQuestChapterStageMap;
 	StoryQuestChapterList _StoryQuestPastChapterList;
 
-	// 任务地图
+	// quest map
 	QuestMapDataMap _QuestMapDataMap;
 
-	// 任务回收
+	// quest recycling
 	QuestRecycleDataList _QuestRecycleDataList;
 
-	// 紧急任务
-	EmergencyQuestCoolDownMap _EmergencyQuestCoolDownMap;				// 已接紧急任务信息		
+	// emergency quest
+	EmergencyQuestCoolDownMap _EmergencyQuestCoolDownMap;				// accepted emergency quest info
 
-	// 杀怪任务
+	// monster-kill quest
 	MonsterAcceptedQuestsMap _MonsterAcceptedNormalMap;
 	MonsterAcceptedQuestsMap _MonsterAcceptedEmergencyMap;
 
-	// 任务掉落
+	// quest drops
 	QuestDoodadDataMap _QuestDoodadDataMap;
 
-	// 等级达到触发任务
+	// quest triggered on reaching level
 	QuestDataList _LevelTriggerQuestList;
 
-	// 紧急任务
+	// emergency quest
 	INT _EmergencyQuestCompleteCount;
 
 	MonsterGroupMap _MonsterGroupMap;
 
-	// 需要重新接取的主线任务
+	// main quest that needs to be re-accepted
 	QuestTraceList _ReAcceptQuestList;
 };
 

@@ -241,7 +241,7 @@ void FSMIO_Target::ClearDesireActor()
 {
 	FSM::Target.LastDesireMMOActor = FSM::Target.DesireMMOActor;
 	FSM::Target.AttackMMOActor = FSM::Target.DesireMMOActor = NULL;
-	//FSM::Ctrl.IsBattleState = FALSE;	//关闭战斗状态
+	//FSM::Ctrl.IsBattleState = FALSE;	//Turn off battle state
 	if(FSM::Target.LastDesireMMOActor != FSM::Target.DesireMMOActor){
 		MMOGameEvent_TargetEvent evt(MMOGameEvent_TargetEvent::ETCT_DesiredTarget, FSM::Target.CurTargetMMOActor, FSM::Target.SelectMMOActor);
 		MMOUI::PostGameEvent(&evt);
@@ -270,7 +270,7 @@ void FSMIO_Target::SetDesireFClassAbility(UMMOAbility* Ability,UBOOL bAddOrRemov
 	{
 		FSM::Ability.DesireFClassAbility = NULL;
 	}
-	//防止技能升级后，id相同而level不同的情况
+	//Prevent the case where after an ability upgrade the id is the same but the level differs
 	else if (FSM::Ability.DesireFClassAbility && Ability && FSM::Ability.DesireFClassAbility->SpellCommonAttribute.Id == Ability->SpellCommonAttribute.Id)
 	{
 		FSM::Ability.DesireFClassAbility = NULL;
@@ -375,7 +375,7 @@ void FSMIO_Target::SetDesireAbility(UMMOAbility* Ability)
 
 void FSMIO_Target::ClearDesireAbility(UMMOAbility* Ability)
 {
-	//结束需要结束的技能
+	//End the abilities that need to end
 	AMMOPlayerController* Controller	=	MMOFacade::getSingleton().GetMainController();
 	if( Ability && Controller)
 	{
@@ -387,7 +387,7 @@ void FSMIO_Target::ClearDesireAbility(UMMOAbility* Ability)
 	FSM::Ability.DesireAbility =	FSMIO::getSingleton().Ctrl.GetLeftBtnBindAbility(FALSE); // NULL; 
 	FSM::Ability.UsableAbility =	FSMIO::getSingleton().Ctrl.GetLeftBtnBindAbility(FALSE); // NULL;
 	FSM::Ctrl.KeyType = KT_PRIMARY;
-	//FSM::Ctrl.IsBattleState = FALSE;	//关闭战斗状态
+	//FSM::Ctrl.IsBattleState = FALSE;	//Turn off battle state
 }
 
 void	FSMIO_Target::SetTargetActor(AActor* TargetActor)
@@ -917,7 +917,7 @@ void FSMIO_Ctrl::PrimaryKeyDown()
 	AMMODoodadActor* doodad = Cast<AMMODoodadActor>(FSM::Target.CurTargetActor);
 	if(doodad && doodad->GetMouseCursor()==0)
 	{
-		//隐形doodod,无法选中
+		//Invisible doodad, cannot be selected
 	}
 	else
 	{
@@ -1009,25 +1009,25 @@ void FSMIO_Ctrl::SecondaryKeyDown()
 	FSM::Ctrl.state_AiDesire= FALSE;
 	if(MMOFacade::getSingleton().GCTType == GC_DIABLO3)
 	{
-		//D3里面的右键，用来施放技能
+		//Right button in D3, used to cast abilities
 		FSM::Ctrl.state_Attack	= TRUE;
 	}
 	else if(MMOFacade::getSingleton().GCTType == GC_LOL)
 	{
-		//LOL里的左键，用来选择
+		//Left button in LOL, used to select
 	}
 	else if(MMOFacade::getSingleton().GCTType == GC_MIR2)
 	{
-		//传奇里的右键，用来走路
+		//Right button in Legend, used to walk
 		FSM::Ctrl.state_Moving	= TRUE;
 	}
 	else if(MMOFacade::getSingleton().GCTType == GC_MIRFOREVER)
 	{
-		//传奇永恒里的左键，用来走路
+		//Left button in Legend Eternal, used to walk
 		//FSM::Ctrl.state_Moving	= TRUE;
 
-		//舒工再次口谕后的取消
-		////舒工口谕后的改动，
+		//Cancel after Engineer Shu's second verbal instruction
+		////Change after Engineer Shu's verbal instruction,
 		//if(	(FSM::Target.DesireInteractableActor || FSM::Target.DesireMMOActor)&&
 		//	FSM::Target.DesireMMOActor==FSM::Target.CurTargetMMOActor &&
 		//	FSM::Target.DesireAttackble==FALSE)
@@ -1069,7 +1069,7 @@ void FSMIO_Ctrl::SecondaryKeyUp()
 
 void FSMIO_Ctrl::UpdateMoving()
 {
-	//在移动状态下走路
+	//Walk while in move state
 	if( FSM::Ctrl.state_Moving			&&
 		FSM::Input.ShiftDown==FALSE		&&
 		FSM::Input.CtrlBtnDown==FALSE	&&

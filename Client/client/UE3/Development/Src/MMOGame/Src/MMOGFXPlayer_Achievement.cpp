@@ -90,7 +90,7 @@ void UMMOGFXPlayer_Achievement::ASObtainRewardItem(INT id)
 
 	if (mainPlayer->eventIsDead())
 	{
-		FString text = TEXT("死亡状态无法领取奖励");
+		FString text = TEXT("Cannot claim rewards while dead");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, text);
 		return;
 	}

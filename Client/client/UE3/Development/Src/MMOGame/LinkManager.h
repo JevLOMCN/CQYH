@@ -57,7 +57,7 @@ public:
 
 	static UBOOL	NullCallBackLinkOverOut(class UGFxObject* parameterArray);
 
-	//寻路
+	//Pathfinding
 	static FString HtmlLink_NPCNav(const FString& linkString, UINT NpcTemplateID, UINT MapID, UBOOL needMove);
 	static UBOOL	CallBackLink_NPCNav(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_NPCNavOver(class UGFxObject* parameterArray);
@@ -88,24 +88,24 @@ public:
 	static UBOOL	CallBackLink_NavFlyOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_NavFlyOut(class UGFxObject* parameterArray);
 
-	//chat里人名
+	//Name in chat
 	static FString HtmlLink_ChatPlayer(const FString& linkString , INT playerId );
 	static UBOOL	CallBackLink_ChatPlayer(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_ChatPlayerOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_ChatPlayerOut(class UGFxObject* parameterArray);
 
-	//拍卖行人名
+	//auction house player name
 	static FString HtmlLink_AuctionPlayer(const FString& linkString , INT playerId );
 	static UBOOL	CallBackLink_AuctionPlayer(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_AuctionPlayerOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_AuctionPlayerOut(class UGFxObject* parameterArray);
 
-	//杀人信息
+	//kill info
 	static FString HtmlLink_KillInfoPlayer(const FString& linkString , INT playerId );
 	static UBOOL	CallBackLink_KillInfoPlayer(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_KillInfoPlayerOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_KillInfoPlayerOut(class UGFxObject* parameterArray);
-	//Item链接
+	//Item link
 	static FString HtmlLink_Item(UItem* itemTemplate);
 	static FString HtmlLink_ColorItem(UItem* itemTemplate);
 	static FString HtmlLink_ColorItem(UItem* itemTemplate, FClientItemInfo* pItemInfo, LINK_ITEM_TYPE type = LIT_ITEM);
@@ -122,13 +122,13 @@ public:
 	static UBOOL	CallBackLink_ChatItem_AuctionOut(class UGFxObject* parameterArray);
 
 
-	//点击任务标题出现任务面板
+	//click quest title to open quest panel
 	static FString HtmlLink_QuestTraceTitle(const UQuest* questTemplate);
 	static UBOOL	CallBackLink_QuestTraceTitle(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_QuestTraceTitleOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_QuestTraceTitleOut(class UGFxObject* parameterArray);
 
-	//直接接取任务链接(用于可接任务列表)
+	//link to accept quest directly (for the acceptable quest list)
 	static FString HtmlLink_QuestTraceAccept(const UQuest* questTemplate);
 	static UBOOL	CallBackLink_QuestTraceAccept(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_QuestTraceAcceptOver(class UGFxObject* parameterArray);
@@ -145,13 +145,13 @@ public:
 	static UBOOL	CallBackLink_AchievementClassOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_AchievementClassOut(class UGFxObject* parameterArray);
 
-	//用超链接的方式打开指定界面
+	//Open the specified UI via hyperlink
 	static FString  HtmlLink_OpenPanel(const FString& displayName, FString panelName);
 	static UBOOL	CallBackLink_OpenPanel(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_OpenPanelOver(class UGFxObject* parameterArray);
 	static UBOOL	CallBackLink_OpenPanelOut(class UGFxObject* parameterArray);
 
-	//点击NPC超链接，打开地图并且标明NPC位置
+	//click NPC hyperlink, open map and mark NPC position
 	static FString  HtmlLink_OpenMap(const FString& linkString, UINT npcId, UINT mapId, const FString& mapRegin, FVector2D point);
 	static UBOOL	CallBackLink_OpenMap(class UGFxObject* parameterArray,INT buttonIdx);
 	static UBOOL	CallBackLink_OpenMapOver(class UGFxObject* parameterArray);

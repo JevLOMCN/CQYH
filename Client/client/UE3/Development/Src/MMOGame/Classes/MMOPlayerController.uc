@@ -1,5 +1,5 @@
 
-// 游戏角色控制器
+// Game character controller
 //
 class MMOPlayerController extends GamePlayerController
 	native
@@ -17,7 +17,7 @@ var SoundCue LowHPWarningSoundCue;
 // Game states
 var array< class<MMOGameState> > GameStateClasses;
 
-// 测试相机参数
+// Test camera parameters
 var int ToggleCameraFov;
 struct native TestCameraFov
 {
@@ -62,7 +62,7 @@ var MMOUIBase InputPanel;
 	var int nHairColor;
 	var int nSkinColor;
 	var int nHairType;
-	//Avatar信息放到后面单独处理 
+	//Avatar info is handled separately later
 };
 //
 struct native AvatarInfo
@@ -72,31 +72,31 @@ struct native AvatarInfo
 	var int OffHand;
 	var int EquipList[11/*NES_VISIBLE_TOTAL*/];
 };
-//多个角色的装备信息列表 
+//Equipment info list of multiple characters
 var array<AvatarInfo>  AvatarInfoList;
 
 var array<RoleInfo> RoleList; 
 var array<RoleInfo> DeletingRoleList; 
-//当前加载的地图
+//Currently loaded map
 var string MapName;
 var int CurMapID;
-// 使用鼠标右键旋转镜头
+// Use right mouse button to rotate the camera
 var bool		EnableMouseRotCam;
 
-//判断是否按下鼠标左键
+//Determine whether the left mouse button is pressed
 var bool        IsLeftMousePressed;
 var transient bool bLeftMousePressed;
 var transient bool bRightMousePressed;
 var transient float MousePressedTime;
 var transient bool bInAutoFollowState;
 
-////判断是否按下鼠标右键
+////Determine whether the right mouse button is pressed
 //var bool        IsRightMousePressed;
-//激活聊天框状态
+//Chat box active state
 var bool	    ChatBoxActived;
 
 //var bool        Repairing;
-////累计鼠标按下时间
+////Accumulated mouse press time
 //var float       DeltaTimeAccumulated;
 
 //var NPC      LockNPC;
@@ -104,22 +104,22 @@ var bool	    ChatBoxActived;
 
 var bool        bUIMask;
 var string        MaskWidgetName;
-var array<int> SkillMap;//技能映射表 0-9,10:'-',11:'+',12:'mouseright'
+var array<int> SkillMap;//skill mapping table 0-9,10:'-',11:'+',12:'mouseright'
 
-// 鼠标移动目标点的标记
+// Marker for mouse move target point
 var MeshMarker TargetLocationMarker;
 var MMOActor   TargetLocationActor;
 var Vector     TargetLocationPos; 
 var bool       TargetLocationMarkerCanShow;
 var MeshMarker PickLocationMarker;
 
-// 当前鼠标键盘操作模式，0是键盘模式，1是鼠标，2是鼠标+键盘
+// Current mouse/keyboard control mode, 0 is keyboard, 1 is mouse, 2 is mouse+keyboard
 var config int MoveMode;
-//保存的登录名
+//Saved login name
 var config string SaveUserName;
-//是否使用Flash中的鼠标
+//Whether to use the mouse in Flash
 var config bool bShowSoftMouse;
-//键盘控制路线
+//Keyboard control route
 var int MoveModeByKey;
 
 var transient float LastUpdateFPSTime;
@@ -152,12 +152,12 @@ var Vector		DestLocation;
 var Vector		TempDest;
 var Vector      StartTrace;
 var Vector      EndTrace;
-// 是否处于朝鼠标方向自动寻路
+// Whether auto pathfinding toward the mouse direction
 var Vector      TryingMoveDest;
 var Vector      LastMoveDest;
 var bool        bTryingMoveToMouse;
-var bool        bLinearMovement;    //是否直线走到目标点
-var bool        bOptimizeTargetPos; //是否优化过目标点
+var bool        bLinearMovement;    //whether to walk straight to the target point
+var bool        bOptimizeTargetPos; //whether the target point has been optimized
 var bool        bMoveRound;
 
 var Vector      TryingMoveDirection;
@@ -192,14 +192,14 @@ var bool        bShowGrid;
 //	var NavigationPoint         m_DestNavPoint;
 //`endif
 
-// 目标梯子，进入状态时设置好自动移动
+// Target ladder, auto move is set when entering the state
 //var Ladder TargetLadder;
 
 //var array<MMOStone>    StoneValid;
 //var MMOStone    StoneToHold;
 //var MMOStone    StoneInHand;
 
-// 为了测试换装系统加入的临时变量
+// Temporary variables added to test the outfit change system
 var bool tempFlag1;
 var bool tempFlag2;
 var bool tempFlag3;
@@ -213,32 +213,32 @@ var vector WalkingExMoveDir;
 // 0:F 1:B 2:L, 3:R
 var int MoveKeyInfo[4];  
 
-// 鼠标按下时自动攻击
+// Auto attack when mouse is pressed
 var bool EnableMouseAutoAttack;
 
-// 开关键盘移动
+// Toggle keyboard movement
 var public bool EnableKeyboardMove;
 
-// 是否在等待技能施放的服务器回应
+// Whether waiting for the server response to ability cast
 var public int WaitingForTheAbilityRespond;
-// 是否在等待移动的服务器回应
+// Whether waiting for the server response to movement
 var public float WaitingForTheMoveToRespond;
-// 是否处于技能缓存等待时间
+// Whether in the ability buffer wait time
 var public float WaitingForTheAbilityBuf;
-// 是否处于安全区武器切换消息等待时间
+// Whether in the safe zone weapon switch message wait time
 var public float WaitingForTheCombatPose;
-// 是否处于骑姿切换消息的等待时间
+// Whether in the riding pose switch message wait time
 var public float WaitingForEquipMount;
 
 /*
-// 击退方向
+// Knockback direction
 var Vector BeatBackDir;
 var float BeatBackTime;
 */
-//光标在输入框中，需要限制操作
+//Cursor is in the input box, operations need to be restricted
 var bool InTextInput;
 
-/// 受击临时属性
+/// Hit temporary attributes
 var transient AbilityHitEffectComponent CurrentHitEffect;
 
 //Bruce@snda 
@@ -249,103 +249,103 @@ var transient int 	GlobalSeqLoop;
 var transient int   nPlayType;
 //Bruce@snda 
 
-//// 起跳时对好下滑点开始位置
+//// Align the slide start position when jumping
 //var bool EnableSlideJumpUpdate;
 
-//// 是否正在离开下滑框
+//// Whether leaving the slide box
 //var bool IsJumpOffSlideDown;
 
-// 保存旧的RootMotionMode
+// Save old RootMotionMode
 var ERootMotionMode OldRootMotionMode;
 
-//// 无限跳开启
+//// Infinite jump enabled
 //var config bool EnableSuperJump;
 
-//// 是否能跳
+//// Whether can jump
 //var bool EnableJump;
 
-//// 下滑速度
+//// Slide speed
 //var config float SlideDownSpeed;
 
-//// 走墙速度
+//// Wall walking speed
 //var config float WalkWallSpeed;
 
-//// 水平起跳速度倍数()
+//// Horizontal jump speed multiplier()
 //var config float JumpVelocityScale;
 
-//// 起跳Z速度
+//// Jump Z speed
 // var config float JumpZSpeed;
 
-// // 起跳预算距离
+// // Jump budget distance
 // var config float JumpDist;
 
-// // 起跳预算高度
+// // Jump budget height
 // var config float JumpHeight;
 
-// // 走墙时的玩家操作力量，需要不断按空格键积蓄
+// // Player control force while wall walking, must keep pressing space to accumulate
 // var float MoveOnWallStrength;
 
-// // 走墙时的玩家操作力量衰减速度，多少秒减为0
+// // Decay speed of player control force while wall walking, seconds to reach 0
 // var config float MoveOnWallStrengthFallOffSpeed;
 
-// // 走墙时的玩家操作力量增加速度，按一下空格键增加多少
+// // Increase speed of player control force while wall walking, amount added per space press
 // var config float MoveOnWallStrengthAddSpeed;
 
-// // 走墙时的玩家操作力量掉落
+// // Player control force drop while wall walking
 // var float MoveOnWallStrengthFalling;
 
- // 玩家最远交互距离
+ // Player max interaction distance
  var config float MaxInteractiveDistance;
 
- // 自动拾取物品扫描距离 4X4格子
+ // Auto pickup item scan distance 4X4 grid cells
  var config float MaxPickDistance;
 
- // 同步范围一屏的宽度
+ // Width of one screen of sync range
  var config float SyncScreenWidth;
- // 同步范围一屏的一半宽度
+ // Half width of one screen of sync range
  var config float SyncScreenHalfWidth;
 
 //------------------------------------------------------------
-// 场景交互操控
+// Scene interaction control
 //------------------------------------------------------------
 //var MMOVolume_TriggerLinkageObject CurrentInteractVolume;
 
-//// 是否能进行交互更新
+//// Whether interaction update is allowed
 //var bool EnableInteractUpdate;
 
 
-//// 是否往顺时针方向推
+//// Whether pushing clockwise
 //var bool InteractMoveCW;
 
-//// 准备推的时候离哪个SOCKET近
+//// Which SOCKET is nearest when preparing to push
 //var name NearestSocketName;
 //var bool IsStandCWPosition;
 
-//// 抓杆动作完成后打开推拉响应
+//// Enable push/pull response after grab lever animation completes
 //var bool EnablePushPull;
 
-//// 是否正在播放抓杆动作
+//// Whether the grab lever animation is playing
 //var bool IsPlayingHoldAnim;
 
-//// 抓杆动画时间
+//// Grab lever animation time
 //var float HoldAnimTime;
 
-//// 从播放开始到现在已经完成的抓杆动画时间
+//// Grab lever animation time completed since playback started
 //var float HoldAnimTimeElapsed;
 
-//// 抓杆开始玩家角色位置
+//// Player character position at grab lever start
 //var Vector InitPosBeforeHold;
 
-//// 抓杆开始玩家角色朝向
+//// Player character facing at grab lever start
 //var rotator InitRotBeforeHold;
 
-//// 推杆转动速度(Percent/Second)
+//// Lever rotation speed (Percent/Second)
 //var config float MoveHandSpikeSpeed;
 
-//// 推杆标准转速度(角度/秒)
+//// Lever standard rotation speed (degrees/second)
 //var config float MoveSpikeStandardSpeed;
 
-//只显示大于此颜色品质的装备
+//Only show equipment with color quality greater than this
 var config EItemColor ColorAboveAsTreasure;
 
 var bool         bIsInQTE;
@@ -353,12 +353,12 @@ var IQTEActor    QTEOwner;
 var bool         bIsInBossQTE;
 var bool         bIsOperatingDoodad;
 
-var bool        RecreatePlayer; // 切换场景时是否重建pawn
+var bool        RecreatePlayer; // whether to recreate pawn when switching scenes
 //var string  RoleName;
 var int RoleLv;
-//当前玩家是否在魂练中 如果是ID大于0
+//Whether the current player is in soul training; if so, ID is greater than 0
 //var int FastPracticeId;
-//魂蛋点数 技能点
+//Soul egg points, ability points
 var int SkillPoint;
 
 enum QTEType
@@ -378,15 +378,15 @@ enum ReviveType
 
 var QTEType     CurrQTEType;
 
-// 天气系统测试
+// Weather system test
 
-// 资源模板管理器
+// Resource template manager
 //var ResourceTemplateManager ResourceTemplates;
 
 //------------------------------------------------------------
-// 网络协议相关变量
+// Network protocol related variables
 //------------------------------------------------------------
-// 登录的IP和端口
+// Login IP and port
 
 
 // var config array<string> LoginServerIP;//ServeNum
@@ -396,10 +396,10 @@ var QTEType     CurrQTEType;
 
 var transient int PawnServerId;
 
-var config string PlayerPawnArchetypeName;     // 记录pawn的archetype类型，切场景时得以保存
+var config string PlayerPawnArchetypeName;     // records the pawn archetype type, preserved when switching scenes
 var config array<string> PlayerPawnLoginSelectArchetypeName;
 
-// 客户端是否可使用技能
+// Whether the client can use abilities
 var bool ClientCanUseAbility;
 var bool IsInTransform;
 
@@ -408,10 +408,10 @@ var config int ClassADftSkillLR[2];
 var config int ClassBDftSkill[4];
 var config int ClassBDftSkillLR[2];
 
-// 在特定的情况下需要玩家定时发送移动协议给服务器
+// In certain cases the player must periodically send movement messages to the server
 //var bool HackSendMoveToServer;
 
-// 上报玩家自己的坐标开关与计时
+// Switch and timer for reporting the player's own coordinates
 var bool bNeedCommitPosition;
 var int PawnLastCommitPositionTickCount;
 
@@ -419,12 +419,12 @@ var transient bool bRequestedAbility;
 
 var bool                bDesiredActor;
 var Actor               DesiredActor;
-var transient MMOActor	SelectedActor;	// 当前选中的目标角色
-var int TradeTargetID;                  //当前交易对象ID
-var transient MMODropActor PickItemActor;  // 当前试图拣选的物品
+var transient MMOActor	SelectedActor;	// currently selected target character
+var int TradeTargetID;                  //current trade target ID
+var transient MMODropActor PickItemActor;  // item currently being picked up
 //var transient MMODecalManager	    MyDecalManager;
 
-//服务器同步的装备，同步后在更新时更新上去
+//Equipment synced from server, applied on the next update after syncing
 
 var bool CurrentShowAllUI;
 
@@ -446,7 +446,7 @@ cpptext
 	virtual void SyncPosition( );
 	// fangruyi@snda.com
 
-	// LifeSpan QTE总时长,单位秒
+	// LifeSpan QTE total duration, in seconds
 	void OnQTEStart(class UBuff*  BuffTemplate,INT objId ,  FLOAT LifeSpan);
 
 	void OnQTEEnd(class UBuff*  BuffTemplate, class AMMOActor* Target);
@@ -461,13 +461,13 @@ cpptext
 
 	//void RequestUseAbility(INT InSlotId);
 
-	// zhaojun@snda, 需要重载的寻路参数
+	// zhaojun@snda, pathfinding parameters that need to be overridden
 	virtual void SetupPathfindingParams( FNavMeshPathParams& out_ParamCache );
 
 }
 
 native function string ConsoleCommand(string Command, optional bool bWriteToLog = true);
-// 设置当前鼠标的文件名，如default.ini，在DefaultGame.ini中的[Cursor]配置，并在MMOGame\Content\CursorAni存放
+// Set the current mouse file name, e.g. default.ini, configured in [Cursor] of DefaultGame.ini and stored in MMOGame\Content\CursorAni
 final native function SetCurrentMouseCursor(EMMOCursorType cursorType);
 
 exec function TestMouseCursor(EMMOCursorType cursorType)
@@ -475,7 +475,7 @@ exec function TestMouseCursor(EMMOCursorType cursorType)
 	SetCurrentMouseCursor(cursorType);
 }
 
-// 向C++管理器注册对象
+// Register object with the C++ manager
 final native function RegisterToNativeManager();
 
 // if ResX < 0 && ResY < 0, set viewport to fullscreen
@@ -485,7 +485,7 @@ final native function GetSystemSettings(out int WorldLevel, out int TextureLevel
 // open time factor
 final native function SetTimeFactor(int state, float value, float time);
 //------------------------------------------------------------
-// 网络协议相关函数
+// Network protocol related functions
 //------------------------------------------------------------
 final native function SendRequest_SelectPlayer( int nPlayerID );
 final native function SendRequestSetFocus(int InTargetId);
@@ -509,15 +509,15 @@ final native function OnQTEFinish( int id );
 native function SetCharAvatart(int i);
 
 final native function CallBack_PreLoad_ChangeScene(); 
-// 2D地图数据生成
+// 2D map data generation
 //final native function   Gen2DMapData( int w, int h );
 
-// 导出机关、区域信息
+// Export mechanism and area info
 //final native function ExportDataForServer();
 
-//整个程序周期只存在一个AMMOPlayerController，角色重新登录后，所有需要重置的数据放在这里进行
+//Only one AMMOPlayerController exists for the whole program lifetime; after a character logs in again, all data that needs resetting is put here
 final native function ResetData( );
-//登录
+//Login
 final native function LoginGame(string IP, int Port, string username, string password);
 
 //Bruce@snda 
@@ -578,7 +578,7 @@ event  SaveSlotBind()
 		ClassBDftSkillLR[0] = KeyMapMgr.GetCmdIDBySlotID( ECK_Slot1 );
 		ClassBDftSkillLR[1] = KeyMapMgr.GetCmdIDBySlotID( ECK_Slot2 );
 	}
-	//Release 版本有问题 暂时使用配置
+	//Release version has a problem, temporarily use config
 	SaveConfig();
 }
 
@@ -592,7 +592,7 @@ event Pawn SpawnCharacter(Vector Loc, Rotator Rot)
 	return ResultPawn;
 }
 
-//各种测试---------------------------------------------------------------------------------------------------------------------
+//Various tests---------------------------------------------------------------------------------------------------------------------
 exec function TestNpcTalk( string strWords )
 {
 	local MMOUISceneHint mPanel;
@@ -795,7 +795,7 @@ exec function DebugShowPos()
 
 exec native function TestMyNewLogic();
 
-// EventSound 测试
+// EventSound test
 exec native function TestEventSound();
 
 exec function DrawNpcInfo()
@@ -824,7 +824,7 @@ native function SetShowTheOtherPlayersByHotKey(bool bShow);
 
 native function ClearOldSceneFlags();
 
-// 初始化函数
+// Initialization function
 native final function NativePostBeginPlay();
 
 simulated event PostBeginPlay()
@@ -863,7 +863,7 @@ simulated event PostBeginPlay()
 	m_NavHelper.Setup( self );
 //`endif
 	
-	// 创建一个临时中间对象
+	// Create a temporary intermediate object
 	RegisterToNativeManager();
 
 	//ResourceTemplates.RegisterToFacade();
@@ -951,14 +951,14 @@ native function OnHUDLoaded( );
 //	MMOHud(myHUD).HudMovie.SetUIPlayerVisible( show);
 //}
 
-// 打开RootMotion
+// Enable RootMotion
 function SetRootMotionMode( ERootMotionMode mode )
 {
 	OldRootMotionMode = Pawn.Mesh.RootMotionMode;
 	Pawn.Mesh.RootMotionMode = mode;
 }
 
-// 恢复到之前的RootMotionMode
+// Restore to the previous RootMotionMode
 function RestoreRootMotionMode()
 {
 	Pawn.Mesh.RootMotionMode = OldRootMotionMode;
@@ -1071,20 +1071,20 @@ exec function ShowState()
 //	ShowQTETip(true, EHT_WarningTrap, , 200, 400, 20);
 //}
 //---------------------------------------------------------------
-// 相机操作函数
+// Camera operation functions
 //---------------------------------------------------------------
 
-// 鼠标中键滚动缩放 - 拉近
+// Mouse wheel zoom - zoom in
 native final function ZoomCameraIn();
 
-// 鼠标中键滚动缩放 - 拉远
+// Mouse wheel zoom - zoom out
 native final function ZoomCameraOut();
 
 //---------------------------------------------------------------
-// 相机控制台参数修改函数
+// Camera console parameter modification functions
 //---------------------------------------------------------------
 
-// 设置相机与角色的最大距离
+// Set max distance between camera and character
 exec function CamNearCameraDistance(float minDist, float maxDist)
 {
 	local MMOPlayerCamera cam;
@@ -1139,7 +1139,7 @@ exec function CamNearCameraDofPram( float DofFocusDistance, float DofFocusRadius
 	}
 }
 
-// 显示相机与角色的最大距离到控制台窗口
+// Show max distance between camera and character in the console window
 exec function ShowCamDistance()
 {
 	local MMOPlayerCamera cam;
@@ -1154,7 +1154,7 @@ exec function ShowCamDistance()
 	}
 }
 
-//// 显示当前相机与角色的距离到控制台窗口
+//// Show current distance between camera and character in the console window
 //exec function ShowCamCurrentOffsetDistance()
 //{
 //	local MMOPlayerCamera cam;
@@ -1165,7 +1165,7 @@ exec function ShowCamDistance()
 //	}
 //}
 
-// 设置相机Pitch偏移值
+// Set camera Pitch offset
 exec function CamPitchOffset(float nearDegree, float farDegree)
 {
 	local MMOPlayerCamera cam;
@@ -1178,7 +1178,7 @@ exec function CamPitchOffset(float nearDegree, float farDegree)
 	}
 }
 
-// 显示相机当前的Pitch值
+// Show current camera Pitch value
 exec function ShowCamPitchOffset()
 {
 	local MMOPlayerCamera cam;
@@ -1193,7 +1193,7 @@ exec function ShowCamPitchOffset()
 	}
 }
 
-// 设置相机Yaw偏移值
+// Set camera Yaw offset
 exec function CamYawOffset(float offsetDegree)
 {
 	local MMOPlayerCamera cam;
@@ -1205,7 +1205,7 @@ exec function CamYawOffset(float offsetDegree)
 	}
 }
 
-// 显示相机当前的Yaw值
+// Show current camera Yaw value
 exec function ShowCamYawOffset()
 {
 	local MMOPlayerCamera cam;
@@ -1216,7 +1216,7 @@ exec function ShowCamYawOffset()
 	}
 }
 
-// 设置相机的远近FOV
+// Set camera near/far FOV
 exec function CamFov(float nearFovDegree, float farFovDegree)
 {
 	local MMOPlayerCamera cam;
@@ -1229,7 +1229,7 @@ exec function CamFov(float nearFovDegree, float farFovDegree)
 	}
 }
 
-// 显示当前相机的FOV
+// Show current camera FOV
 exec function ShowCamFOV()
 {
 	local MMOPlayerCamera cam;
@@ -1240,7 +1240,7 @@ exec function ShowCamFOV()
 	}
 }
 
-// 设置目标点偏移
+// Set target point offset
 exec function CamLookAtOffset(float nearDist, float farDist)
 {
 	local MMOPlayerCamera cam;
@@ -1253,7 +1253,7 @@ exec function CamLookAtOffset(float nearDist, float farDist)
 	}
 }
 
-// 显示当前相机的LookAt偏移值
+// Show current camera LookAt offset value
 exec function ShowCamLookAtOffset()
 {
 	local MMOPlayerCamera cam;
@@ -1263,7 +1263,7 @@ exec function ShowCamLookAtOffset()
 		`log("Lookat Offset Near:" @cam.NearCameraLookAtOffset $ " Far:" @cam.FarCameraLookAtOffset $" Current:" @cam.GetCurrentLookAtOffset());
 	}
 }
-// 设置相机拉近速度
+// Set camera zoom-in speed
 exec function CamSetSpeed(float  fSpeed)
 {
 	local MMOPlayerCamera cam;
@@ -1273,7 +1273,7 @@ exec function CamSetSpeed(float  fSpeed)
 		cam.DefaultMoveSpeed = fSpeed;
 	}
 }
-// 设置相机拉近百分比
+// Set camera zoom-in percentage
 exec function CamSetScale(float  fScale)
 {
 	local MMOPlayerCamera cam;
@@ -1283,7 +1283,7 @@ exec function CamSetScale(float  fScale)
 		cam.DefaultMoveScale = fScale;
 	}
 }
-// 设置相机开启调试模式
+// Enable camera debug mode
 exec function CamSetDebug(bool  bEnableDebug)
 {
 	local MMOPlayerCamera cam;
@@ -1307,10 +1307,10 @@ exec function CamSetSmooth(bool  sms)
 	}
 }
 //---------------------------------------------------------------
-// 辅助显示物体调试控制台参数修改函数
+// Debug console parameter modification functions for auxiliary object display
 //---------------------------------------------------------------
 
-// 设置远程范围半径
+// Set ranged range radius
 exec function DebugRangeFar(float val)
 {
 	local MMOPlayer mmoPlayer;
@@ -1320,7 +1320,7 @@ exec function DebugRangeFar(float val)
 }
 
 
-// 设置近战范围半径
+// Set melee range radius
 exec function DebugRangeNear(float val)
 {
 	local MMOPlayer mmoPlayer;
@@ -1329,7 +1329,7 @@ exec function DebugRangeNear(float val)
 	`log("Current Near Range:" @ val);
 }
 
-// 显示技能动作轨迹线
+// Show ability animation trajectory line
 exec function DebugAbilityLine()
 {
 	MMOGame(WorldInfo.Game).DrawAbilityDebugLine = !MMOGame(WorldInfo.Game).DrawAbilityDebugLine;
@@ -1340,7 +1340,7 @@ exec function DebugSelfCenterBox()
 	MMOGame(WorldInfo.Game).DrawSelfCenterBox = !MMOGame(WorldInfo.Game).DrawSelfCenterBox;
 }
 
-// 是否显示调试角色状态
+// Whether to show debug character state
 exec function DebugActorStates(bool on)
 {
 	MMOGame(WorldInfo.Game).DrawDebugActorState = on;
@@ -1351,7 +1351,7 @@ exec function ClearDebugLine()
 	FlushPersistentDebugLines();
 }
 
-// 测试震动屏幕
+// Test screen shake
 exec function TestShakeCam()
 {
 	local MMOPlayerCamera cam;
@@ -1364,7 +1364,7 @@ exec function TestShakeCam()
 	}
 }
 //---------------------------------------------------------------
-// 鼠标移动角色控制
+// Mouse move character control
 //---------------------------------------------------------------
 
 event int CanProcessMouseKeyEvent(bool bLeftMouse, bool bRelease)
@@ -1625,7 +1625,7 @@ event bool FindPath(Vector Des)
 //`else
 //`endif
 		//`log("findpath0");
-		//初始化为 false,我们可以至少运行一次状态帧和重新计算距离
+		//Initialized to false so that we can run the state frame and recompute the distance at least once
 		//`log("++++++++++++ Find Path OK!");
 		return true;
 	}
@@ -1634,7 +1634,7 @@ event bool FindPath(Vector Des)
 	return false;
 }
 
-// 判定是否有可到达的寻路点
+// Determine whether there is a reachable pathfinding point
 function bool HasNavPath(Vector Des)
 {
 //`if( NavMeshImp )
@@ -1656,14 +1656,14 @@ event StartMoveToTargetPosition()
 	if( FindPath() )
 	{
 	//	`log( "startmoveto1");
-		// 如果当前正在移动，就不要切换状态，以免动画重置产生滑步
+		// If currently moving, do not switch state, to avoid animation reset causing foot sliding
 		if(!IsInState('MouseClickMove'))
 		{
 			 GotoState( 'MouseClickMove' );
 		}
 		m_fDeltaPathingTime = 0.f;
 	}
-	else // 走不到就飞过去 后面检查是否可到达
+	else // fly over if unreachable; reachability is checked afterwards
 	{
 		`log( "++++++++++++ FindPath failed");
 		ScriptTrace();
@@ -1946,7 +1946,7 @@ event AddCmdMoveToActor(Actor Target, Vector DefaultPos,optional float Offset = 
 			AddCmdWaitingForClearCache();
 		}
 
-		//add by jimzhang@snda.com 用nearto替代原来的moveto，nearto有1/8秒检测taget位置的功能，
+		//add by jimzhang@snda.com use nearto instead of the original moveto; nearto can check the target position every 1/8 second,
 		MoveNearToAction = new class'PlayerActionEx_MoveNearTo';
 		MoveNearToAction.Destination    = Temp;
 		MoveNearToAction.Destination.Z  += 10;
@@ -2120,7 +2120,7 @@ event AddCmdUseAbility(MMOAbility InAbility, optional Actor target, optional Vec
 	//	}
 
 	//	//else{
-	//	//	SendRequestAbility( 4001 );//拿武器技能
+	//	//	SendRequestAbility( 4001 );//draw weapon ability
 	//	//	WaitingForTheAbilityRespond = 4001;
 	//	//	return;
 	//	//}
@@ -2143,7 +2143,7 @@ event AddCmdUseAbility(MMOAbility InAbility, optional Actor target, optional Vec
 	UseAbilityAction.targetActorType = targetActorType;
 	UseAbilityAction.bPrimAttackDynamicAbility = bPrimAttackDynamicAbility;
 
-	//如果有target目标，则用目标的坐标作为target坐标，因为延时命令执行时，target目标会在移动，一般锁定点技能，target是为null jimzhang@snda.com
+	//If there is a target, use the target's coordinates as the target coordinates, because the target moves while the delayed command executes; for point-lock abilities the target is null jimzhang@snda.com
 	if(UseAbilityAction.Target!=none)
 	{
 		UseAbilityAction.targetActorID = UseAbilityAction.Target.ServerID;
@@ -2196,7 +2196,7 @@ native function  Actor GetSelectTarget();
 
 native final function DebugIdleBegin();
 
-// 待机状态
+// Idle state
 //state Idle
 //{
 //	event PushedState()
@@ -2296,7 +2296,7 @@ event MoveToPoint(Vector Des)
 //		`log("tActor.MoveType == EMT_PrepareStall || tActor.MoveType == EMT_InStall");
 //		return;
 //	}
-//	//add by jim ,用于actor接触阻挡的判定
+//	//add by jim, used to determine actor contact with blocking
 //	if(EnableMoving(Des)==false)
 //	{
 //		return;
@@ -2316,7 +2316,7 @@ event MoveToPoint(Vector Des)
 //		bHaveToGetNextWayPoint = false;
 //		UpdateMoving();
 //	}
-//	else//如果不能往前走一步，则转向吧，意思一下
+//	else//if unable to step forward, then just turn, as a gesture
 //	{
 //		//AutoRotation();
 //	}
@@ -2493,10 +2493,10 @@ final native function StopMove(optional bool NeedToNotifyServer = false);
 
 
 
-//获取鼠标
+//Get mouse
 native function Vector2D GetMousePosition();
 
-// 时间更新函数
+// Time update function
 native function NativeGeneratePickRay();
 native function NativeGetPickPoint();
 native function NativeGetPickPointActorPreferred();
@@ -2546,7 +2546,7 @@ exec function ChangeMoveMode(int mode)
 	//}
 }
 
-//这个函数实际是在初始化
+//This function is actually initialization
 function UpdateSkillPanel()
 {
 
@@ -2992,7 +2992,7 @@ Begin:
 	//GotoState('Idle');
 }
 
-// 受伤事件
+// Injury event
 event NotifyTakeHitEx( Controller InstigatedBy, Vector HitLocation, int Damage, class<DamageType> DamageType, Vector Momentum, DamageResult dmgRst )
 {
 	/*
@@ -3028,10 +3028,10 @@ function bool IsUsingAbility()
 }
 
 //---------------------------------------------------------------
-// 工具函数
+// Utility functions
 //---------------------------------------------------------------
 
-// 加载关卡名字
+// Load level name
 exec function LoadLevel(string levelName)
 {
 	WorldInfo.SeamlessTravel(LevelName);
@@ -3039,8 +3039,8 @@ exec function LoadLevel(string levelName)
 
 function AbilityEnd(int id)
 {
-	//`log("技能用完");
-	// 技能结束响应函数
+	//`log("ability used up");
+	// Ability end response function
 }
 
 native function NativeTestResetDrop();
@@ -3163,8 +3163,8 @@ event TeleportToScene(string targetMapName, vector TargetPos ,EGameState nextSta
 	//return;
 	MMOHud( myHUD).ShowLoadMovie(true);
 
-	//需要确保在List里的地图都是有的
-	//只在这里设置Loading状态
+	//Must ensure all maps in the List exist
+	//Only set the Loading state here
 	//MMOGame( WorldInfo.Game ).SceneType = EST_Loading;
 	//class'MMOUIManager'.static.ActiveGameState(EGameState_Loading);
 	//`log("Now Game State:"@MMOGame( WorldInfo.Game).SceneType );
@@ -3240,7 +3240,7 @@ function bool InputKey( int ControllerId, name Key, EInputEvent Event, float Amo
 
 
 //---------------------------------------------------------------
-// HUD管理
+// HUD management
 //---------------------------------------------------------------
 /** Does any manual HUD drawing for the Player -- called by this PC's HUD during its PostRender */
  native function DrawHUD( HUD H );
@@ -3260,10 +3260,10 @@ event InitInputSystem()
 }
 
 //---------------------------s--------------------------
-// 场景交互动作功能
+// Scene interaction action functions
 //-----------------------------------------------------
 
-// 朝一个方向跳
+// Jump in a direction
 //function JumpToDir(Vector dir)
 //{
 //	local Vector targetJumpPos;
@@ -3273,7 +3273,7 @@ event InitInputSystem()
 //		return;
 //	}
 
-//	// 先切状态，保证后面速度能正常运作
+//	// Switch state first, to ensure the speed works properly afterwards
 //	GotoState('FallingEx');
 
 //	targetJumpPos.X = 0;
@@ -3295,7 +3295,7 @@ event InitInputSystem()
 //	MMOActor(Pawn).PlayAnimation('JumpUp');
 //}
 
-// 打开连跳功能
+// Enable chain jump
 //exec function JumpEnableSuper(bool on)
 //{
 //	EnableSuperJump = on;
@@ -3306,7 +3306,7 @@ event InitInputSystem()
 //	EnableJump = on;
 //}
 
-// 空格键按下时根据不同的标记切换状态
+// Switch state by different flags when space is pressed
 //exec function JumpEx()
 //{
 //	local bool lastJumpEnable;
@@ -3356,7 +3356,7 @@ event InitInputSystem()
 //	JumpToDir(vector(Pawn.Rotation));
 //}
 
-// 下落状态
+// Falling state
 //state FallingEx
 //{
 //	event bool NotifyLanded(vector HitNormal, Actor FloorActor)
@@ -3538,7 +3538,7 @@ event InitInputSystem()
 //		//`log("OSCAR:_________ HitWall::EndState" @NextStateName);
 //	}
 //}
-// 举物体过程
+// Lifting object process
 //state HoldUpObject
 //{
 //	event BeginState(Name PreviousStateName)
@@ -3796,7 +3796,7 @@ exec function ShowHitHUDText(bool on)
 }
 
 //------------------------------------------------------------------------
-// 性能测试函数
+// Performance test functions
 //------------------------------------------------------------------------
 // benchmark function prepare
 exec function BFP(optional bool showSkel = true)
@@ -3908,7 +3908,7 @@ exec function DebugFrame(bool   bFreeze = true )
 	ConsoleCommand("set engine bEnableColorClear true");
 	
 }
-//在连击中是否可以转向
+//Whether turning is allowed during a combo
 exec function SetCanRotWhenCombo( bool bCan )
 {
 	MMOPlayer(Pawn).CanRotWhenCombo = bCan;
@@ -4063,7 +4063,7 @@ exec function SetMoveSpeed(int spd)
 	Pawn.GroundSpeed = spd;
 }
 
-//重载基类函数 ，原来是会destroy hud
+//Override base class function; originally it would destroy hud
 reliable client function ClientSetHUD(class<HUD> newHUDType)
 {	
 	if( myHUD == none)
@@ -4256,7 +4256,7 @@ exec native final function TestDropX(int itemTemplateID, int count, optional int
 exec native final function TestDropAll(int dist = 100);
 exec native final function TestDropAnim(float g, float iniSpeed, float rps, float rpsAcc, float spawnDelay);
 exec native final function TestDropSetParm(string parName, string parVal);
-// add by zhangrui05 任务 #13020
+// add by zhangrui05 quest #13020
 exec native final function TestDropMoney(int moneyId, int count);
 
 exec native final function TestDoodad(int doodadTemplateID, optional int remainCnt=3);
@@ -4266,7 +4266,7 @@ exec function ShowGridFlag()
 	bShowGrid = !bShowGrid;
 }
 
-// 跟随Matinee角色
+// Follow Matinee character
 state PlayerMatinee
 {
 	event BeginState(Name PreviousStateName)
@@ -4290,12 +4290,12 @@ state PlayerMatinee
 
 exec native function TestMatineeSubtitle(bool show, string subtitle);
 
-//方便测试用
+//For easy testing
 exec native function ReloadTween();
 
 exec native function ReloadFreeTips();
 
-// 美术想要关LE，用这个指令可以看关掉的效果。
+// Artists want to turn off LE; this command shows the effect when it is off.
 exec function ToggleLightEnvironment()
 {
 	local MMOPlayer pl;

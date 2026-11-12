@@ -1,5 +1,5 @@
 //
-// 使用技能
+// Use ability
 //
 class MMOStatusProc_SetMaterial extends Object implements(IMMOStatusProc)
 	native

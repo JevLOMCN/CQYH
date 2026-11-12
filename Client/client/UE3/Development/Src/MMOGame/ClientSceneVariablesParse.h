@@ -22,7 +22,7 @@
 		bool ParseSceneVariable( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &serverData );
 	};
 
-	// 默认场景处理
+	// Default scene handling
 	bool Act_Battle_State( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );
 	bool Act_Battle_TeamOneScoreChange( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );
 	bool Act_Battle_TeamTwoScoreChange( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );
@@ -41,9 +41,9 @@
 
 
 
-	// 抢旗战场地图场景变量处理
-	bool Act_Battle_TeamTwoGetFlag( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );//蓝方
-	bool Act_Battle_TeamOneGetFlag( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );//红方
+	// Scene variable handling for the capture-the-flag battlefield map
+	bool Act_Battle_TeamTwoGetFlag( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );//Blue team
+	bool Act_Battle_TeamOneGetFlag( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );//Red team
 	bool Act_Battle_FlagBattleEvent( INT sceneID, const G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA &data );
 	class BattleFlagSceneVariableAction : public ClientSceneVariableActionTemplate
 	{
@@ -52,15 +52,15 @@
 		BattleFlagSceneVariableAction()
 		{
 			AddSceneVariableAction( 0, Act_Battle_State );
-			//蓝方分数变化
+			//Blue team score change
 			AddSceneVariableAction( 2, Act_Battle_TeamTwoScoreChange );
-			//红方分数变化
+			//Red team score change
 			AddSceneVariableAction( 1, Act_Battle_TeamOneScoreChange );
-			//红方夺旗
+			//Red team captures flag
 			AddSceneVariableAction( 3, Act_Battle_TeamTwoGetFlag );
-			//蓝方夺旗
+			//Blue team captures flag
 			AddSceneVariableAction( 4, Act_Battle_TeamOneGetFlag );
-			//时间同步
+			//Time sync
 			AddSceneVariableAction( 5, Act_Battle_SyncTime );
 			//battle event
 			AddSceneVariableAction( 10, Act_Battle_FlagBattleEvent );

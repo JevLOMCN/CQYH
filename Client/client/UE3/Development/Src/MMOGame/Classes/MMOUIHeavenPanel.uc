@@ -8,7 +8,7 @@ var GFxObject pkSoulSlot;
 native function ConfirmConverter(GFxObject mc);
 native function CancelConverter(GFxObject mc);
 //AS - > UC
-//¸üÐÂ»êÖµ
+//Update soul value
 native function bool OnLeftMousePress(GFxObject mc, ESlotPanelType SlotType, ECONTAINER_SLOT ContainerID, int SlotID,bool bDefault);
 native function bool OnLeftMouseClick(GFxObject mc, ESlotPanelType SlotType, ECONTAINER_SLOT ContainerID, int SlotID,bool bDefault);
 native function bool OnRightMouseClick(GFxObject mc, ESlotPanelType SlotType, ECONTAINER_SLOT ContainerID, int SlotID,bool bDefault);

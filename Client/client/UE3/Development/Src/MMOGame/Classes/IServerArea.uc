@@ -1,33 +1,33 @@
 //
-// IServerArea接口
+// IServerArea interface
 //
 interface IServerArea
 	native;
 
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 native function RegisterToFacade();
 
-// 取得相应ID
+// Get the corresponding ID
 native function int GetAreaID();
 native function SetAutoID(int id);
 
-// 服务器通知协议
+// Server notification protocol
 event OnServerNotify(bool on);
 
-// 取得物体大小
+// Get object size
 native function Box GetObjectServerBounds();
 
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
-// 取得关联的阻挡框
+// Get the associated blocking box
 //native function array<DynamicBlockingVolume> GetBlockingVolumes();
 
-// 取得关联的NPC出生点
+// get the associated NPC spawn point
 //native function array<NPCSpawnPoint> GetNPCSpawnPoints();
 
-// 返回一个调试用的标识名
+// Return an identifier name for debugging
 native function string GetClientName();
 
-// 取得关联的机关，以便在当前事件区域完成后，激活这些机关
+// Get associated mechanisms, to activate them after the current event area completes
 //native function array<IServerTrigger> GetLinkedTrigger();

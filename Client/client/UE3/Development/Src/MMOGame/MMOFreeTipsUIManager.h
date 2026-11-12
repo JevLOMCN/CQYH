@@ -58,11 +58,11 @@ public:
 
 public:
 	INT	  GetColumnIndex(FString ColumnName, TArray<FString>& ColumnList);
-	//增加一个mmouibase的指定组件的tips
+	//add tips for a specified component of an mmouibase
 	void AddTipsListenerByName(UMMOUIBase* pPanel);
 	void CallUCSetFreeTips(UMMOUIBase* pPanel, FString Elem1,FString Elem2,FString Elem3,FString Elem4,FString TipsScript,FString TipsType);
 	void CallUCSetFreeTips(UMMOUIBase* pPanel, FreeTipsData* pTipsData);
-	//获取
+	//get
 	DataList*		GetTipsDataList(FString MovieName,FString PanelName, UBOOL bCreateList);
 	FreeTipsData*	GetTipsData(DataList* pDataList,FString Element1Name,FString Element2Name,FString Element3Name,FString Element4Name);
 	FreeTipsData*	GetTipsData(FString MovieName,FString PanelName,FString Element1Name,FString Element2Name,FString Element3Name,FString Element4Name, UBOOL bCreateList);

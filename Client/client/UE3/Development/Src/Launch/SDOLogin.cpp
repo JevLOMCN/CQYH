@@ -102,7 +102,7 @@ void LoadSDOLogin()
  		return;
  	}
 
-	appSetSplashText(SplashTextType::StartupProgress, TEXT("加载SDO登录组件..."));
+	appSetSplashText(SplashTextType::StartupProgress, TEXT("Loading SDO login component..."));
 // 
 // 	g_isSDOLogin = true;
 // 
@@ -235,7 +235,7 @@ void ShowLoginDialog()
 	{
 		warnf(NAME_Log, TEXT("==SDO== ShowLoginDialog"));
 
-		appSetSplashText(SplashTextType::StartupProgress, TEXT("显示SDO登录界面..."));
+		appSetSplashText(SplashTextType::StartupProgress, TEXT("Showing SDO login window..."));
 
 		g_canShowGameWind = true;
 		//SendMessage(GGameWindow, WM_ACTIVATEAPP, 0,0);

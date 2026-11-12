@@ -72,7 +72,7 @@ void MMOHurtManager::Update(float deltaTime)
 	{
 		if (CheckHurt())
 		{
-			//判断玩家是否在战斗状态
+			//determine whether the player is in combat
 			AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 			if (!player)
 			{
@@ -119,7 +119,7 @@ void MMOHurtManager::UpdateAllHurt(UINT playerId,INT32 hurt)
 					if (CheckHurt())
 					{
 						SetAllHurt(Abs(hurt));
-						//更新UI
+						//update UI
 						PostUpdateEvent();
 					}
 					else
@@ -149,7 +149,7 @@ BOOL MMOHurtManager::CheckHurt()
 
 void MMOHurtManager::ShowScreenMsg()
 {
-	//添加一个滚屏提示
+	//Add a scrolling text prompt
 	FString error = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOErrorInfo.ERROR_CODE_DEF.errHurtIsMax"));
 	MMOUI::GetUIManager()->delegateAddScreenMessage(error,MsgInfoType_Table,TEXT("MMOErrorInfo.ERROR_CODE_DEF.errHurtIsMax"));
 }

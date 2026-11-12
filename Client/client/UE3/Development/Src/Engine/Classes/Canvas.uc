@@ -413,7 +413,7 @@ native noexport final function TextSize(coerce string String, out float XL, out 
 native noexport final function DrawText(coerce string Text, optional bool CR = true, optional float XScale = 1.0, optional float YScale = 1.0, optional const out FontRenderInfo RenderInfo);
 
 /** Convert a 3D vector to a 2D screen coords. */
-//hemu@snda C++ native需要调用这里
+//hemu@snda C++ native needs to call this
 //native noexport final function vector Project(vector location);
 native  final function vector Project(vector Location);
 
@@ -422,7 +422,7 @@ native  final function vector Project(vector Location);
  * @param WorldOrigin (out) - world-space origin vector
  * @param WorldDirection (out) - world-space direction vector
  */
-//hemu@snda C++ native需要调用这里
+//hemu@snda C++ native needs to call this
 //native noexport final function DeProject(vector2D ScreenPos, out vector WorldOrigin, out vector WorldDirection);
 native  final function DeProject(vector2D ScreenPos, out vector WorldOrigin, out vector WorldDirection);
 

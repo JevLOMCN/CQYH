@@ -20,7 +20,7 @@ cpptext
 	}
 event DoActionProc(Actor BaseActor)
 {
-	//add by jimzhang ,在技能的component中能调用action
+	//add by jimzhang, allow calling action in the ability component
 	local int i, j;
 	local MMOActor actor;
 	//`log("****************************************** AbilityAnimationComponent  ");

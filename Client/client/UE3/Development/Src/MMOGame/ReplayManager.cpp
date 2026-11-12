@@ -117,7 +117,7 @@ void ReplayManager::Recode( FReplayData* newData )
 		_archive->Flush();
 	}
 
-	// 不需要保存到内存中
+	// no need to save in memory
 	//_replayDataList.push_back(newData);
 #endif
 

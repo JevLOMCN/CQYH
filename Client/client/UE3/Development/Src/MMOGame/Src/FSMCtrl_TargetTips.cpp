@@ -14,13 +14,13 @@
 using namespace FSM;
 extern bool g_disableAllInput;
 
-//FSM控制类注册-------------------------------------------------------------------------------------------------------------------------------------------------
+//FSM control class registration-------------------------------------------------------------------------------------------------------------------------------------------------
 ADD_FSM_CTRL(FSMCtrl_TargetInfoHUD)
 	ADD_FSM_CTRL(FSMCtrl_TeleportTips)
 	ADD_FSM_CTRL(FSMCtrl_DoodadTips)
 
 
-	//目标的头像条--------------------------------------------------------------------------------------------------------------------------------------------------
+	//Target portrait bar--------------------------------------------------------------------------------------------------------------------------------------------------
 	UBOOL FSMCtrl_TargetInfoHUD::Update(FLOAT DelTime)
 {
 	if (MMO::GetCurrentGameState() != EGameState_InGame)
@@ -31,7 +31,7 @@ ADD_FSM_CTRL(FSMCtrl_TargetInfoHUD)
 	{
 		return FALSE;
 	}
-	//当前目标
+	//Current target
 	if(FSM::Target.CurTargetMMOActor!= FSM::Target.LastTargetActor)
 	{
 		return TRUE;
@@ -40,7 +40,7 @@ ADD_FSM_CTRL(FSMCtrl_TargetInfoHUD)
 }
 void FSMCtrl_TargetInfoHUD::Action()
 {
-	//触碰目标
+	//Touched target
 	if(	FSM::Target.LastTargetMMOActor!=FSM::Target.CurTargetMMOActor )
 	{
 		MMOGameEvent_TargetEvent evt(MMOGameEvent_TargetEvent::ETCT_CurrentTarget, FSM::Target.CurTargetMMOActor, FSM::Target.SelectMMOActor);
@@ -60,7 +60,7 @@ UBOOL FSMCtrl_TeleportTips::Update(FLOAT DelTime)
 	{
 		return FALSE;
 	}
-	//当前目标
+	//Current target
 	if(FSM::Target.CurTargetActor!= FSM::Target.LastTargetActor)
 	{
 		return TRUE;
@@ -83,7 +83,7 @@ void FSMCtrl_TeleportTips::Action()
 		//MMOUI::GetUIManager()->delegateShowFreeStyleTips( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.TeleportOrig.Name") ), pTeleportOrig->ToSceneName );
 		MMOUI::GetUIManager()->delegateShowFreeStyleTips( TEXT(""), pTeleportOrig->ToSceneName, CM_TIPS_Style2, 1 );
 		MMOUI::GetUIManager()->delegateAnchorTips( tipsPos, TRUE );
-		//显示特效
+		//Show effect
 		pTeleportOrig->ActiveFoucsEffect( TRUE );
 		IsShowTips = TRUE;
 	}
@@ -92,7 +92,7 @@ void FSMCtrl_TeleportTips::Action()
 		MMOUI::GetUIManager()->delegateHideTips();
 		IsShowTips = FALSE;
 
-		//处理跳转点特效关闭
+		//Handle closing of teleport point effect
 		ATeleportOrig *lastTeleportOrig	= Cast<ATeleportOrig>(FSM::Target.LastTargetActor);
 		if( lastTeleportOrig )
 		{
@@ -129,7 +129,7 @@ void FSMCtrl_DoodadTips::Action()
 		if(doodadTemp && doodadTemp->DoododNameDisplay)
 		{
 			//FString doodadTips;
-			//// 提示道具需求
+			//// Hint item requirement
 			//if(doodadTemp->RequireItemID > 0)
 			//{
 			//	FString locReqItem;
@@ -155,7 +155,7 @@ void FSMCtrl_DoodadTips::Action()
 			//		doodadTips += FString::Printf(TEXT("Item:%d"), doodadTemp->RequireItemID);
 			//	}
 			//}
-			//// 有开启限制，不管能否开启，也就是VarValue不管是否正确时，都要显示到TIPS
+			//// Has an unlock restriction; whether or not it can be unlocked, i.e. whether or not VarValue is correct, always show in TIPS
 			//if(pDoodadActor->IsVarRequired() && !doodadTemp->TipsText.IsEmpty())
 			//{
 			//	doodadTips += MMOUI::ParseLocalizedPropertyPath(TEXT("Doodad.RequireVar"));

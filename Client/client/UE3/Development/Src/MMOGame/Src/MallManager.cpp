@@ -221,7 +221,7 @@ void MallManager::NotifyBuyInfo(const M2C_SALE_INFO*pkData)
 		if(tp == NULL)
 			continue;
 		FString strName = UTF8_TO_TCHAR(data.szRoleName);
-		FString strInfo = FString::Printf(TEXT("<font color='#14a800'>[%d时%d分]</font> %s 购买了"),tp->tm_hour,tp->tm_min,*strName);
+		FString strInfo = FString::Printf(TEXT("<font color='#14a800'>[%d:%02d]</font> %s purchased"),tp->tm_hour,tp->tm_min,*strName);
 
 		strInfo += LinkManager::HtmlLink_ColorItem(pkItem);
 
@@ -240,7 +240,7 @@ void MallManager::TestMallInfo()
 		tm     *tp = localtime(&time);
 		if(tp == NULL)
 			continue;
-		FString strInfo = FString::Printf(TEXT("<font color='#14a800'>[%d时%d分]</font> wanjia 购买了"),tp->tm_hour,tp->tm_min);
+		FString strInfo = FString::Printf(TEXT("<font color='#14a800'>[%d:%02d]</font> Player purchased"),tp->tm_hour,tp->tm_min);
 
 		strInfo += LinkManager::HtmlLink_ColorItem(pkItem);
 

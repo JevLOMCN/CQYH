@@ -1,12 +1,12 @@
 //
-// 音效配置管理
+// Sound effect config management
 //
 class MMOSoundManager extends Object
 	hidecategories(Object)
 	dependson(MMOPhysicalMaterialProperty)
 	native;
 
-// 武器音效材质
+// Weapon sound material
 // enum ESoundMaterialWeapon
 // {
 // 	ESMW_None <DisplayName="None">,
@@ -15,7 +15,7 @@ class MMOSoundManager extends Object
 // };
 
 
-// 衣服音效材质
+// Clothing sound material
 // enum ESoundMaterialCloth
 // {
 // 	ESMC_None <DisplayName="None">,
@@ -60,7 +60,7 @@ var(MMO) SoundCue DefaultFootstepSound;
 
 var(MMO) float FootSetpEffectLifeTime;
 
-// 默认参数
+// Default parameters
 var(MMO) FootstepSoundInfo DefaultInfo;
 
 
@@ -68,7 +68,7 @@ var(MMO) FootstepSoundInfo DefaultInfo;
 var(MaterialSound) editinline array<AnimMaterialSound> AnimMaterialSounds;
 
 
-// 音效播放方式
+// Sound effect play mode
 enum ESoundFXPlayStyle
 {
 	ESPS_Original  <DisplayName="Original">,
@@ -77,14 +77,14 @@ enum ESoundFXPlayStyle
 	ESPS_Random  <DisplayName="Random">
 };
 
-// 按数量或等级播放音效的信息
+// Info for playing sound effects by count or level
 struct native SoundFXPlayStyleByLevelInfo
 {
 	var() int Level;
 	var() SoundCue SourceSoundFX;	
 };
 
-// 音效信息
+// Sound effect info
 struct native SoundFXInfo
 {
 	var() SoundCue SourceSoundFX;
@@ -93,23 +93,23 @@ struct native SoundFXInfo
 	var() editinline array<SoundFXPlayStyleByLevelInfo> SoundFXList;
 };
 
-// 默认音效信息参数
+// Default sound effect info parameters
 var(MMO) SoundFXInfo DefaultSoundFXInfo;
 
-// 音效播放列表
+// Sound effect play list
 var(MMO) editinline array<SoundFXInfo> SoundFXInfoList;
 
-// 音效计数信息
+// Sound effect count info
 struct native SoundFXCountInfo
 {
-	// 声音样本
+	// Sound sample
 	var SoundCue SoundCue;
 
-	// 当前播放了多少次
+	// Number of times played so far
 	var int Count;
 };
 
-// 当前音效的计数管理
+// Count management of the current sound effect
 var array<SoundFXCountInfo> SoundFXCountInfoList;
 
 native final static function MMOSoundManager GetSoundManager();
@@ -158,7 +158,7 @@ function FootstepSoundInfo GetFootstepInfo(int FootDown, name MaterialType)
 	// checking for a '' material in case of empty array elements
 }
 
-// 取得音效播放信息
+// Get sound effect play info
 function SoundFXInfo GetSoundFXInfo(SoundCue srcCue)
 {
 	local int i;
@@ -167,7 +167,7 @@ function SoundFXInfo GetSoundFXInfo(SoundCue srcCue)
 	return (i == -1) ? DefaultSoundFXInfo : SoundFXInfoList[i];
 }
 
-// 取得音效播放信息
+// Get sound effect play info
 function SoundCue GetSoundFXCue(int count, SoundCue srcCue)
 {
 	local int i, j;
@@ -186,7 +186,7 @@ function SoundCue GetSoundFXCue(int count, SoundCue srcCue)
 			return srcCue;
 			break;
 
-		// 根据数量返回最后一个大于等于它的音效
+		// Return the last sound effect greater than or equal to it by count
 		case ESPS_ByCount:
 			for(j = 0; j < SoundFXInfoList[i].SoundFXList.Length; ++j)
 			{
@@ -201,7 +201,7 @@ function SoundCue GetSoundFXCue(int count, SoundCue srcCue)
 			}
 			break;
 
-			// 根据等级
+			// By level
 		case ESPS_ByLevel:
 			for(j = 0; j < SoundFXInfoList[i].SoundFXList.Length; ++j)
 			{
@@ -245,20 +245,20 @@ function PlaySoundFX(Actor Owner, AnimNodeSequence AnimSeqInstigator, AnimNotify
 			lastCue = par.ToPlaySound;
 			break;
 
-		// 根据数量限定播放次数
+		// Limit play count by count
 		case ESPS_ByCount:
 			j = SoundFXCountInfoList.Find('SoundCue', par.ToPlaySound);
 			if(j != -1)
 			{
 				if(SoundFXCountInfoList[j].Count >= SoundFXInfoList[i].MaxPlayCount)
 				{
-					// 如果达到最大数量就不放
+					// Do not play if the max count is reached
 					return;
 				}
 				
 				SoundFXCountInfoList[j].Count = SoundFXCountInfoList[j].Count + 1;
 			}
-			else // 第一次放
+			else // first play
 			{
 				sci.SoundCue = SoundFXInfoList[i].SourceSoundFX;
 				sci.Count = 1;
@@ -271,7 +271,7 @@ function PlaySoundFX(Actor Owner, AnimNodeSequence AnimSeqInstigator, AnimNotify
 
 			break;
 
-			// TODO:根据等级
+			// TODO: by level
 		case ESPS_ByLevel:
 			//for(j = 0; j < SoundFXInfoList[i].SoundFXList.Length; ++j)
 			//{

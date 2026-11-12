@@ -742,7 +742,7 @@ void UApexStaticDestructibleComponent::InitComponentRBPhys(UBOOL bFixed)
 			warnf(NAME_Error, TEXT("Failed to create NxApexActor with asset '%s'"), *DestructibleAsset->GetName());
 		}
 		// oscar@snda
-		//NxApexActor没有代码 不知道为什么createApexActor会失败，先注释掉，让程序正常运行
+		//NxApexActor has no code; don't know why createApexActor fails, comment it out for now so the program runs normally
 		//check(ApexDestructibleActor);
 		if(ApexDestructibleActor)
 		{

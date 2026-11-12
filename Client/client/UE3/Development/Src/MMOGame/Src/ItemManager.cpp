@@ -217,7 +217,7 @@ UBOOL UItemManager::PrepareMerge()
 
 	if(GIsGame)
 	{
-		// 遍历当前所穿装备
+		// iterate over currently worn equipment
 		for( INT i = 0; i < EquippedItemList_Normal.Num(); ++i )
 		{
 			//INT texSizeX, texSizeY, texOrigX, texOrigY;
@@ -249,7 +249,7 @@ UBOOL UItemManager::PrepareMerge()
 			continue;
 		
 		INT type = DefaultMeshList(i)->MeshType;
-		// 用肩甲代替脸部进行合并
+		// use shoulder armor in place of the face for merging
 		if( ReplaceFaceByShoulder )
 		{
 			if( type == EBMT_LShoulder )
@@ -295,11 +295,11 @@ UBOOL UItemManager::PrepareMerge()
 		MergedMesh->Parts(i).Mesh = pMesh;
 		for( INT j = 0; j < meshArray[i].Num(); ++j )
 		{
-			// 第一层的装备决定了是否需要皮肤贴图
-			// 腰带不会有皮肤贴图 所以去掉i==5的情况
+			// the first-layer equipment decides whether a skin texture is needed
+			// Belt has no skin texture so drop the i==5 case
 			if( j == 0 && i != 5 && ( !ReplaceFaceByShoulder || i != EBMT_Face ) && meshArray[i](j)->bNeedSkinTexture )
 			{
-				// 这两张图应该是预先准备好的
+				// these two textures should be prepared in advance
 				MergedMesh->Parts(i).Textures.AddItem( SkinTextures(i) );
 				MergedMesh->Parts(i).Textures_Base.AddItem( SkinTexturesBase(i) );
 			}
@@ -739,7 +739,7 @@ UItem* UItemManager::RequestTakeOn(INT SlotId, INT TargetSlotId, UBOOL normalEqu
 
 
 	if( autoChagneBag && SlotId != -1 )
-		slotInBag = FetchItem( TempItem, E_CONSLOT_DEFAULT );	// 从装备包裹中取出
+		slotInBag = FetchItem( TempItem, E_CONSLOT_DEFAULT );	// take out from equipment bag
 
 	if( normalEquip )
 	{
@@ -773,7 +773,7 @@ UItem* UItemManager::RequestTakeOn(INT SlotId, INT TargetSlotId, UBOOL normalEqu
 			Owner->RebuildAllMeshMaterialList();
 			Owner->NeedRefreshMaterial = TRUE;
 
-			// 重建材质后会影响头发颜色，这里再设置一下
+			// rebuilding the material affects hair color, set it again here
 			ApplyHairColor(CurrentHairColorIdx);
 		}
 	}
@@ -863,7 +863,7 @@ UBOOL UItemManager::RequestTakeOff(INT SlotId, UBOOL normalEquip)
 			Owner->RebuildAllMeshMaterialList();
 			Owner->NeedRefreshMaterial = TRUE;
 
-			// 重建材质后会影响头发颜色，这里再设置一下
+			// rebuilding the material affects hair color, set it again here
 			ApplyHairColor(CurrentHairColorIdx);
 		}
 	}
@@ -903,7 +903,7 @@ UBOOL UItemManager::IsAdvancedEquipAppearence(BYTE bag, INT slot)
 	if (player->IsMainPlayer())
 	{
 		if (slot == -1)
-		{// 进入角色选择界面的时候，拿不到装备的iteminfo，服务器是单独把这个值发下来的
+		{// when entering the character select screen, the equipment's iteminfo is unavailable, the server sends this value separately
 			return player->WeaponUpgradePoint >= player->WeaponUpgradeTopLevel;
 		}
 		else
@@ -1176,7 +1176,7 @@ void UItemManager::SetDefaultMeshes(class UAvatarData* InAvatarData,INT InKey)
 		}
 	}
 
-	// avatar data里配置了使用预先合并模型，这边就要用肩甲代替脸部进行合并
+	// avatar data is configured to use a pre-merged model, so shoulder armor must replace the face for merging here
 	ReplaceFaceByShoulder = InAvatarData->MergeShoulder;
 }
 
@@ -1189,9 +1189,9 @@ void UItemManager::RefreshSkinTexture( INT defaultMeshID, UBOOL colorOnly )
 	if( pMesh == NULL || pMesh->MeshType >= 5/*SkinTextures.Num()*/ )
 		return;
 
-	// 记录皮肤颜色贴图
-	// 对默认装备而言，UsedColorTextureID代表用来查找Specular/Normal贴图的那张图的id
-	// 实际使用的皮肤颜色贴图是通过CurrentSkinColorIdx来决定的
+	// record skin color texture
+	// for default equipment, UsedColorTextureID is the id of the texture used to look up Specular/Normal textures
+	// the skin color texture actually used is decided by CurrentSkinColorIdx
 	if( !colorOnly )
 	{
 		if( pMesh->UsedColorTextureID >= 0 &&
@@ -1235,7 +1235,7 @@ void UItemManager::RefreshSkinTexture( INT defaultMeshID, UBOOL colorOnly )
 //------------------------------------------------------------------------
 void UItemManager::Init(class AMMOActor* OwnerTarget)
 {
-	// 初始化数组大小
+	// initialize array size
 	CurrentMeshList.AddZeroed(EBMT_None);
 	EquippedItemList_Normal.AddZeroed(E_NES_TOTAL);
 	//EquippedItemList_Avatar.AddZeroed(EAES_Count);
@@ -1250,7 +1250,7 @@ void UItemManager::Init(class AMMOActor* OwnerTarget)
 
 	if( !Owner->UseingAvatar )
 	{
-		// init的时候MMOActor里还没有AvatarData，以下的初始化毫无意义，因为在Reset的时候还要做一遍 -ming
+		// at init time MMOActor has no AvatarData yet, the initialization below is pointless since it is done again on Reset -ming
 		return;
 	}
 
@@ -1266,15 +1266,15 @@ void UItemManager::Init(class AMMOActor* OwnerTarget)
 		GenderType = EGT_None;
 	}
 
-	// 判断是否采用新换装方式
+	// determine whether to use the new outfit-change method
 	UseMergedMesh = Owner->UseingAvatar->UseMergedMesh;
 
 	//debugf( TEXT("[MMO Debug] Init Item Manager %s"), *Owner->GetName() );
 
 	//BagEquipList.AddZeroed(Capacity);
-	//BagItemList.AddZeroed(Capacity); //物品道具包裹
-	//BagMaterialList.AddZeroed(Capacity); //材料包裹
-	//BagQuestList.AddZeroed(Capacity); //任务包裹
+	//BagItemList.AddZeroed(Capacity); //item bag
+	//BagMaterialList.AddZeroed(Capacity); //material bag
+	//BagQuestList.AddZeroed(Capacity); //quest bag
 	//BagBankList.AddZeroed(Capacity);
 
 	if( UseMergedMesh )

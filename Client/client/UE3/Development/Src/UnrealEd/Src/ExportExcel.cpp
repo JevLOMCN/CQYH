@@ -87,13 +87,13 @@ void SetDefaultValue(UObject *Obj, const TCHAR* Section)
 					{
 						BYTE* Data = (BYTE*)Obj + ObjPro->Offset;
 						int nIndex = appAtoi(*MetaData);
-						//用来排序
+						//Used for sorting
 						ExportProperty(Data, ObjPro, ParentNode, nIndex);
 					}
 				}
 			}
 		}
-		//导入默认值
+		//Import default values
 		ImportProperty(ParentNode, nHeadIndex, DefaultValues);
 
 	}
@@ -647,7 +647,7 @@ void ExportToExcel(const TArray< UObject* >& ObjectsInPackages, TArray< TArray<F
 
 	//data.AddZeroed(exportingObjs.Num() + 2);
 
-	// 如果表头还没有导出过，先导出表头
+	// If the table header has not been exported yet, export it first
 	TArray<FString> Headers, DefaultValues;
 	if(ExportExcelHeader(*FString::Printf(TEXT("Excel.%s"), *ExcelName), Headers, DefaultValues, GEditorIni ))
 	{
@@ -686,7 +686,7 @@ void ExportToExcel(const TArray< UObject* >& ObjectsInPackages, TArray< TArray<F
 
 		g_debugIndex2 = 0;
 
-		//数据
+		//Data
 		{
 			g_currentProcObject = Obj;
 			FString MetaData;
@@ -1077,7 +1077,7 @@ void ImportFromExcel(TArray< TArray<FString> >& dataSource, TMap<FString, UObjec
 	INT TotalSteps = ObjectsInPackages.Num();
 	GWarn->StatusUpdatef(CurSaveStep, TotalSteps,*FString::Printf(TEXT("Importing Excel")));
 
-	int rowIdx = 2; // 跳过表头和默认数据组
+	int rowIdx = 2; // skip table header and default data group
 
 	for(; rowIdx < dataSource.Num(); ++rowIdx)
 	{
@@ -1137,7 +1137,7 @@ void ImportFromExcel(TArray< TArray<FString> >& dataSource, TMap<FString, UObjec
 						{
 							BYTE* Data = (BYTE*)Obj + ObjPro->Offset;
 							int nIndex = appAtoi(*MetaData);
-							//用来排序
+							//Used for sorting
 							ExportProperty(Data, ObjPro, ParentNode, nIndex);
 						}
 					}
@@ -1146,7 +1146,7 @@ void ImportFromExcel(TArray< TArray<FString> >& dataSource, TMap<FString, UObjec
 
 			TArray<FString>& StrArr = (TArray<FString>&)dataSource(rowIdx);
 			//CLRTools::ToFStringArray((*ExcelData)[rowIdx], StrArr);
-			//导入默认值
+			//Import default values
 			ImportProperty(ParentNode, nHeadIndex, StrArr);
 			TScriptInterface<IIExcelable> excelObj = ScriptInterfaceCast<IIExcelable>(Obj);
 			check(excelObj);
@@ -1261,7 +1261,7 @@ void ImportFromExcel(TArray< TArray<FString> >& dataSource, TMap<FString, UObjec
 						{
 							BYTE* Data = (BYTE*)newObj + ObjPro->Offset;
 							int nIndex = appAtoi(*MetaData);
-							//用来排序
+							//Used for sorting
 							ExportProperty(Data, ObjPro, ParentNode, nIndex);
 						}
 					}
@@ -1540,7 +1540,7 @@ void CheckIDError( class UClass* classType, const TArray<UPackage*>& pkgs)
 		{
 			Obj1->CheckForErrors();
 
-			if(classType != UMMOAbility::StaticClass()) // 技能有重复的ID
+			if(classType != UMMOAbility::StaticClass()) // abilities have duplicate IDs
 			{
 				TScriptInterface<IIReferenceID> referenceObj1 = ScriptInterfaceCast<IIReferenceID>(Obj1);
 				if(referenceObj1)
@@ -1719,7 +1719,7 @@ void FixModifier()
 	}
 
 	TArray<USeqAct_Modifier*> needFix;
-	// 根据input/output修正逻辑结构上的错误
+	// Fix logical structure errors according to input/output
 	for (INT i = 0; i < objs.Num(); ++i)
 	{
 		USeqAct_Modifier* obj = objs(i);
@@ -1730,7 +1730,7 @@ void FixModifier()
 			for (INT j = 0; j < obj->Modifiers.Num(); ++j)
 			{
 				USeqAct_Modifier* modifier = obj->Modifiers(j);
-				// 如果发现有错误的根节点在中间情况
+				// If a wrong root node is found in the middle
 				if((modifier->bRoot && modifier->ParentNode))
 				{
 					errorModifier = true;
@@ -1805,7 +1805,7 @@ void FixModifier()
 			}
 
 			
-			// 根据GraphLink修正不正确的ParentNode LogicLink
+			// Fix incorrect ParentNode LogicLink according to GraphLink
 			for (INT j = 0; j < obj->Modifiers.Num(); ++j)
 			{
 				USeqAct_Modifier* modifier = obj->Modifiers(j);
@@ -1840,7 +1840,7 @@ void FixModifier()
 				}
 			} // for j
 
-			// 选择最树中最顶层的为root节点
+			// Choose the topmost one in the tree as the root node
 			if(errorModifier || rootNodeCnt == 0 || rootNodeCnt > 1)
 			{
 				obj->Modify();
@@ -1867,10 +1867,10 @@ void FixModifier()
 					}
 
 				EndOutTest:
-					// input没有的就是根节点
+					// Those without input are root nodes
 					//if(modifier->InputLinks(0).LinkedOp == NULL)
 
-					// 没被output连过的就是根节点
+					// Those never connected by output are root nodes
 					if(!foundOutLink)
 					{
 						modifier->bRoot = TRUE;
@@ -1903,7 +1903,7 @@ void FixModifier()
 	}
 
 #if 0
-	// 被遗忘的节点，加入到列表中再说
+	// Forgotten nodes, add to the list for now
 	for (INT i = 0; i < objs.Num(); ++i)
 	{
 		USeqAct_Modifier* obj = objs(i);

@@ -124,7 +124,7 @@ TArray<class ADoodadSpawnPoint*> ADoodadSpawnGroup::GetDoodadSpawnPoints()
  void ADoodadSpawnGroup::IniSpirite()
 {
 	/*USpriteComponent *Sprite =NULL ;
-	//先取出Sprite组件
+	//First take out the Sprite component
 	for(UINT ComponentIndex = 0 ; ComponentIndex < (UINT)this->Components.Num() ; ++ ComponentIndex)
 	{
 		if( this->Components(ComponentIndex)->IsA( USpriteComponent::StaticClass() ) )
@@ -137,27 +137,27 @@ TArray<class ADoodadSpawnPoint*> ADoodadSpawnGroup::GetDoodadSpawnPoints()
 	{
 		UTextureRenderTarget2D *rtTarget2D;
 		rtTarget2D->Init( SpawnGroupSpriteTex->SizeX, SpawnGroupSpriteTex->SizeY, SpawnGroupSpriteTex->Format, this );	
-		// 将普通Sprite图片(在初始化组件时创建)拷贝到RT上
+		// Copy the normal Sprite image (created when initializing the component) onto the RT
 		if( SpawnGroupSpriteTex!= NULL )
 		{
 			CopyTextureToRenderTargetTexture( SpawnGroupSpriteTex,rtTarget2D );
 		}
-		// 再通过Canvas绘制相关的GroupID
+		// Then draw the related GroupID via Canvas
 		FCanvas Canvas( rtTarget2D, NULL );
 
 		DrawString(&Canvas, 5, 0, *FString::Printf( TEXT("NPCSpawn Group ID:%d __NPC Count: %d"), AutoServerID , NPCSpawnPoints.Num() ), GEngine->SmallFont, FColor(255,0,0) );
 
-		//通知给 rendering thread
+		//Notify the rendering thread
 		Canvas.Flush(TRUE);
 
 
 		//UTexture2D* newTex = rtTarget2D;
 		//Sprite->SetSprite ( newTex );
-		//完成，提交
+		//Done, submit
 		FlushRenderingCommands();
 	}
 	*/
-			//添加入渲染队列
+			//Add to render queue
 	/*	{
 			ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
 				UpdateMeshPaintRTCommand3,
@@ -197,7 +197,7 @@ TArray<class ADoodadSpawnPoint*> ADoodadSpawnGroup::GetDoodadSpawnPoints()
 //			const TArray<class ANPCSpawnPoint*>& NPCSpawns = MMONpcSpawnGroupActor->GetNPCSpawnPoints();
 //			for (INT i = 0; i < NPCSpawns.Num(); ++i)
 //			{
-//				//对于刚增加的SpawnPoint，内容是空的，直接绘制会导致崩溃
+//				//A newly added SpawnPoint has empty content, drawing it directly would crash
 //				if( NPCSpawns(i) != NULL )
 //					PDI->DrawLine(MMONpcSpawnGroupActor->Location, NPCSpawns(i)->Location, FColor(255, 255, 0), SDPG_UnrealEdForeground, 3.0f );
 //			}

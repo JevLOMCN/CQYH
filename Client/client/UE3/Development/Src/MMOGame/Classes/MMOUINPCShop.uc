@@ -13,21 +13,21 @@ var transient int MaxPage;
 var transient int CurTab;
 
 var transient GamePlayDataManager GpDataManager;
-var const int ItemSize; //一页里商品格子的尺寸
+var const int ItemSize; //size of an item grid cell in a page
 var const int TabNum;
 var transient GFxObject ShopMessage;
 var GFxObject ConfirmMsgBox;
 
-var transient item MessageItem; //message显示的item
-var transient int MessageItemShopSlot; //message显示的item的商店slot，服务器要……
+var transient item MessageItem; //item displayed by message
+var transient int MessageItemShopSlot; //shop slot of the item displayed by message, the server needs...
 var transient bool IsFilterUseToggle;
 
 var transient MMOPlayer           MainPlayer;
 var transient MMOPlayerController PC;
 
-//var transient init array<ShopItemTemplate> EquipShopItemList; //装备
-//var transient init array<ShopItemTemplate> NormalShopItemList; //消耗
-//var transient init array<ShopItemTemplate> MaterialShopItemList; //材料
+//var transient init array<ShopItemTemplate> EquipShopItemList; //equipment
+//var transient init array<ShopItemTemplate> NormalShopItemList; //consumables
+//var transient init array<ShopItemTemplate> MaterialShopItemList; //materials
 
 var transient ItemSlotActionListener_Repair RepairAction;
 
@@ -137,7 +137,7 @@ native function ClickRepairAll();
 
 native function RepairItem( int ConSlot , int ItemSlot );
  
-// 购买处理
+// Purchase handling
 //function ShopMsgAck( bool agree , GFXObject mc )
 //{
 	//local int count;
@@ -164,7 +164,7 @@ event ClickRepair()
 {
 	//_curState = ENSS_Repair;
 
-	//// OSCARTODO: 重构掉这个切换修理状态的函数
+	//// OSCARTODO: refactor away this function that toggles repair state
 	//NativeRepair();
 
 	//if(RepairAction == none)
@@ -276,7 +276,7 @@ native function bool SkipCaptureInputKey(String key, EInputEvent eIE, const stri
 
 // event bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string strHoverControllerName, Vector2D ClickPosInMovieSpace)
 // {
-// 	// 鼠标滚动，且不在界面内
+// 	// Mouse scroll, and not inside the UI
 // 	if ((key == "MouseScrollUp" || key == "MouseScrollDown") && (strHoverControllerName == ""))
 // 		return false;
 // 	else

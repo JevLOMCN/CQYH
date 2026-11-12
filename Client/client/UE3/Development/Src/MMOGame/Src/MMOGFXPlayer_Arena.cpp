@@ -48,9 +48,9 @@ void UMMOGFXPlayer_Arena::ASToggleShowBonusPanel( UBOOL isToShow )
 	}
 
 	if( isToShow == TRUE ){
-		//竞技场胜负奖励
+		//arena win/loss reward
 		_ArenaEntrance->UpdateArenaMnyReward();
-		//竞技场胜负
+		//arena win/loss
 		_ArenaEntrance->UpdateArenaWinResult();
 	}
 

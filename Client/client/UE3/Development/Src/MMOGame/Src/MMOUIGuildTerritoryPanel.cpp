@@ -85,7 +85,7 @@ void UMMOUIGuildTerritoryPanel::UpdateGuildTerritoryInfo()
 	UINT32 crystalMax = MMOGuildData::getSingleton().GetGuildTerritoryResMax(GUILD_ATTR_CRYSTAL);
 	UINT32 silverMax = MMOGuildData::getSingleton().GetGuildTerritoryResMax(GUILD_ATTR_SILVER);
 	
-	// 维护费用上限
+	// Upkeep cost cap
 	UINT32 keepupMax = 0;
 	GuildBuildingList guildBuildingList = MMOGuildData::getSingleton().GetGuildBuildingList();
 	GuildBuildingList::iterator iter = guildBuildingList.begin();
@@ -154,7 +154,7 @@ void UMMOUIGuildTerritoryPanel::UpdateGuildTerritoryUpgradeList()
 		return;
 	}
 
-	// 建筑升级
+	// Building upgrade
 	GuildBuildingUpgradeList guildBuildingUpgradeList = MMOGuildData::getSingleton().GetGuildBuildingUpgradeList();
 	GuildBuildingUpgradeList::iterator iterBuilding = guildBuildingUpgradeList.begin();
 	INT index = 0;
@@ -196,7 +196,7 @@ void UMMOUIGuildTerritoryPanel::UpdateGuildTerritoryUpgradeList()
 			__time32_t localTime = iterBuilding->UpgradeEndTime;
 			struct tm *time = _localtime32(&localTime); 
 			
-			// 如果是今天
+			// If it is today
 			FString finishTime = TEXT("");
 
 			if (today && time)
@@ -225,7 +225,7 @@ void UMMOUIGuildTerritoryPanel::UpdateGuildTerritoryUpgradeList()
 		}
 	}
 
-	// 福利升级
+	// Welfare upgrade
 	GuildWelfareUpgradeList guildWelfareUpgradeList = MMOGuildData::getSingleton().GetGuildWelfareUpgradeList();
 	GuildWelfareUpgradeList::iterator iterWelfare = guildWelfareUpgradeList.begin();
 	for (; iterWelfare != guildWelfareUpgradeList.end(); ++ iterWelfare)
@@ -271,7 +271,7 @@ void UMMOUIGuildTerritoryPanel::UpdateGuildTerritoryUpgradeList()
 			__time32_t localTime = iterWelfare->UpgradeEndTime;
 			struct tm *time = _localtime32(&localTime); 
 
-			// 如果是今天
+			// If it is today
 			FString finishTime = TEXT("");
 			if (today && time)
 			{
@@ -519,7 +519,7 @@ void UMMOUIGuildTerritoryPanel::ASShowBuildingUpgradePanel(INT buildingType)
 	UINT32 buildingCount = MMOGuildData::getSingleton().GetGuildBuildingCount(buildingType);
 	if (buildingCount == 0)
 	{
-		FString text = TEXT("请先通过基座建造该建筑才能升级");
+		FString text = TEXT("Build this building on a foundation first before upgrading");
 		FString textString = TEXT("MMOGame.Guild.IronStoreLimit");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, textString);
 		return;

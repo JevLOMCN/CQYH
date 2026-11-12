@@ -89,7 +89,7 @@ UBOOL UMMOUIMountPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject*
 	if (SrcContainerID == DestContainerID && SrcSlotID == DestSlotID)
 		return FALSE;
 
-	//if(SrcSlotType == ESPType_Mount && DestSlotType == ESPType_Invalid) // 扔掉
+	//if(SrcSlotType == ESPType_Mount && DestSlotType == ESPType_Invalid) // discard
 	//{
 	//	FClientItemInfo* info = MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID);
 	//	if(info)
@@ -109,7 +109,7 @@ UBOOL UMMOUIMountPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject*
 
 	//	return TRUE;
 	//}
-	//else if(SrcSlotType == ESPType_Mount && DestSlotType == ESPType_Mount)  // 交换
+	//else if(SrcSlotType == ESPType_Mount && DestSlotType == ESPType_Mount)  // swap
 	//{
 	//	FClientItemInfo* info = MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID);
 	//	if(info)
@@ -131,7 +131,7 @@ UBOOL UMMOUIMountPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject*
 	//		INT srcSlotEquipType = SrcSlotMC->GetInt(TEXT("itemid"));
 	//		INT destSlotEquipType = DestSlotMC->GetInt(TEXT("itemid"));
 
-	//		// 不同类型的格子不能互换
+	//		// Grids of different types cannot be swapped
 	//		if(srcSlotEquipType != destSlotEquipType)
 	//		{
 	//			return TRUE;
@@ -142,10 +142,10 @@ UBOOL UMMOUIMountPanel::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject*
 	//		return TRUE;
 	//	}
 	//}
-	//else if(SrcSlotType == ESPType_Mount && DestSlotType == ESPType_Bag) // 脱装备
+	//else if(SrcSlotType == ESPType_Mount && DestSlotType == ESPType_Bag) // unequip
 	//{
 	//	FClientItemInfo* info = MMOFacade::getSingleton().FindItem(DestContainerID, DestSlotID);
-	//	if(info) // 如果目标格子有装备并且没绑定的
+	//	if(info) // if the target grid has equipment that is not bound
 	//	{
 	//		UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(info->m_nTemplateID);
 

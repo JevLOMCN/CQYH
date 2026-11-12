@@ -181,7 +181,7 @@ void UMMOUIRClickMenu::OnNativeGameEvent(struct MMOGameEvent* evt)
 	}
 }
 
-//公会大类
+//guild category
 bool UMMOUIRClickMenu::AddMenuItem_Guild(FScriptDelegate &func)
 {
 	bool bAddLine = false;
@@ -192,16 +192,16 @@ bool UMMOUIRClickMenu::AddMenuItem_Guild(FScriptDelegate &func)
 	}
 
 	if (MMOGuildData::getSingleton().GetGuildBaseInfo().Id > 0)
-	{// 我有公会
+	{// I have a guild
 		UINT8 post = MMOGuildData::getSingleton().GetGuildFullMemberPost(mainPlayer->ServerID);
 		INT ownerPost = MMOGuildData::getSingleton().GetGuildFullMemberPost(OwnerRoleId);
 		UINT16 rights = MMOGuildData::getSingleton().GetGuildRights(post);
 
 		if (ownerPost != GUILD_POSITION_NONE)
-		{// 对方和我同一个公会
+		{// The other party is in the same guild as me
 			if (post < ownerPost && (rights & G_POS_RIGHT_BANISH) > 0)
 			{
-				// 踢出公会
+				// Kick from guild
 				func.FunctionName = "ClickKickOutGuild";
 				AddMenuItem(func, TEXT("KickOutGuild"));
 				bAddLine = true;
@@ -209,7 +209,7 @@ bool UMMOUIRClickMenu::AddMenuItem_Guild(FScriptDelegate &func)
 			
 			if (post <= ownerPost && (rights & G_POS_RIGHT_FORBID_CHAT) > 0)
 			{
-				// 公会禁言
+				// Guild mute
 				if (MMOGuildData::getSingleton().IsGuildFullMemberForbitChat(OwnerRoleId))
 				{
 					func.FunctionName = "ClickForbidChatOff";
@@ -225,31 +225,31 @@ bool UMMOUIRClickMenu::AddMenuItem_Guild(FScriptDelegate &func)
 			}
 		}
 		else
-		{// 对方没有公会或者和我不同公会
-			// 如果目标和我不在同一张地图OwnerActor为空，所以这里用OwnerRoleId
+		{// The other party has no guild or is in a different guild from me
+			// If the target is not on the same map as me OwnerActor is empty, so use OwnerRoleId here
 			PlayerBaseInfo* playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo(OwnerRoleId, TRUE);
 			if (playerInfo)
 			{		
 				if (playerInfo->_GuildName.IsEmpty())
-				{// 对方没有公会
+				{// The other party has no guild
 					if ((rights & G_POS_RIGHT_INVITE) > 0)
 					{
-						// 邀请加入公会
+						// Invite to join guild
 						func.FunctionName = "ClickInviteToJoinGuild";
 						AddMenuItem(func, TEXT("InviteToJoinGuild"));
 						bAddLine = true;
 					}
 					else if((rights & G_POS_RIGHT_RECRUIT) > 0)
 					{
-						// 推荐加入公会
+						// Recommend joining guild
 						func.FunctionName = "ClickRecommendJoinGuild";
 						AddMenuItem(func, TEXT("RecommendJoinGuild"));
 						bAddLine = true;
 					}
 				}
 				else
-				{// 对方和我不同公会
-					// 复制公会名字
+				{// The other party is in a different guild from me
+					// copy guild name
 					func.FunctionName = "ClickCopyGuildName";
 					AddMenuItem(func, TEXT("CopyGuildName"));
 					bAddLine = true;
@@ -258,14 +258,14 @@ bool UMMOUIRClickMenu::AddMenuItem_Guild(FScriptDelegate &func)
 		}
 	}
 	else
-	{// 我没公会
+	{// I have no guild
 		if(OwnerActor && !OwnerActor->GuildName.IsEmpty())
-		{// 对方有公会
-			// 申请加入公会
+		{// The other party has a guild
+			// Apply to join guild
 			func.FunctionName = "ClickApplyToJoinGuild";
 			AddMenuItem(func, TEXT("ApplyToJoinGuild"));
 
-			// 复制公会名字
+			// copy guild name
 			func.FunctionName = "ClickCopyGuildName";
 			AddMenuItem(func, TEXT("CopyGuildName"));
 
@@ -276,7 +276,7 @@ bool UMMOUIRClickMenu::AddMenuItem_Guild(FScriptDelegate &func)
 	return bAddLine;
 }
 
-//公会右键菜单
+//Guild right-click menu
 void UMMOUIRClickMenu::_GuildMenuFormat()
 {
 	class AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
@@ -293,7 +293,7 @@ void UMMOUIRClickMenu::_GuildMenuFormat()
 	FScriptDelegate func( EC_EventParm);
 	func.Object = this;
 
-	// 离线会员，不查看资料
+	// Offline member, do not view info
 	GuildFullMemberInfo memberInfo;
 	if (MMOGuildData::getSingleton().GetGuildFullMemberInfo(OwnerRoleId, memberInfo))
 	{
@@ -310,10 +310,10 @@ void UMMOUIRClickMenu::_GuildMenuFormat()
 	UINT16 rights = MMOGuildData::getSingleton().GetGuildRights(post);
 
 	if (ownerPost != GUILD_POSITION_NONE)
-	{// 对方和我同一个公会
+	{// The other party is in the same guild as me
 		if (post < ownerPost && (rights & G_POS_RIGHT_BANISH) > 0)
 		{
-			// 踢出公会
+			// Kick from guild
 			func.FunctionName = "ClickKickOutGuild";
 			AddMenuItem(func, TEXT("KickOutGuild"));
 			AddLine();
@@ -321,7 +321,7 @@ void UMMOUIRClickMenu::_GuildMenuFormat()
 
 		if (post <= ownerPost && (rights & G_POS_RIGHT_FORBID_CHAT) > 0)
 		{
-			// 公会禁言
+			// Guild mute
 			if (MMOGuildData::getSingleton().IsGuildFullMemberForbitChat(OwnerRoleId))
 			{
 				func.FunctionName = "ClickForbidChatOff";
@@ -338,7 +338,7 @@ void UMMOUIRClickMenu::_GuildMenuFormat()
 	}
 }
 
-//通用右键菜单
+//Common right-click menu
 void UMMOUIRClickMenu::_MenuFormat(INT nType)
 {
 	FScriptDelegate func( EC_EventParm);
@@ -350,11 +350,11 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 	}
 
 	/*
-	是玩家自己  只显示 
-	1查看资料
-	2组队操作
+	Is the player themselves  only show
+	1 View info
+	2 Party operations
 	*/
-	//自己
+	//Self
 	if( OwnerRoleId == Player->ServerID  )
 	{
 		if( TeamManager::getSingleton().HasTeam() )
@@ -368,7 +368,7 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 			AddMenuItem( func , TEXT("ChangeTeamAuctionLimit") );
 			}*/
 		}
-		//查看自己资料
+		//view own profile
 		func.FunctionName = "ClickViewProfile";
 		AddMenuItem( func , TEXT("ViewProfile") );
 
@@ -376,52 +376,52 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 	}
 
 	/*
-	他人的顺序:
-	聊天类
-	组队类
-	常规类
-	家族类
-	师徒类
-	常规类设置
-	复制名字
+	Order for others:
+	Chat
+	Party
+	General
+	Clan
+	Master/apprentice
+	General settings
+	Copy name
 	*/
 	bool bAddLine = true;
-	//申请交易
+	//request trade
 	if( nType == ERCMType_TargetInfo )
 	{
 		func.FunctionName = "ClickApplyDoTrade";
 		AddMenuItem( func, TEXT("ApplyDoTrade") );
 	}
-	//1聊天类
+	//1 Chat
 	{
 		if( FriendManager::getSingleton().IsMyFriend( OwnerRoleId )  )
 		{
 			func.FunctionName = "ClickOpenContactDialog";
 			AddMenuItem( func , TEXT("EnterChat") );
 		}	
-		//私聊
+		//private chat
 		func.FunctionName = "ClickEnterPrivateChat"; 
 		AddMenuItem( func , TEXT("PrivateChat") );	
-		//邮件
+		//mail
 		func.FunctionName = "ClickSendMail";
 		AddMenuItem( func , TEXT("SendMail") );
 		
 		AddLine();
 	}
 
-	//2组队类
+	//2 Party
 	{
 		bAddLine = false;
 		if( !TeamManager::getSingleton().HasTeam() ) 
 		{
-			//申请入队
+			//apply to join team
 			func.FunctionName = "ClickInvitePlayerIntoTeam";
 			AddMenuItem(  func , TEXT("joinTeam") );
 			bAddLine = true;
 		}
 		else if( TeamManager::getSingleton().HasTeam() && !TeamManager::getSingleton().InMyTeam(OwnerRoleId) )
 		{
-			//我有队，对方不在我队里，邀请入队
+			//I have a party, the other is not in my party, invite to party
 			func.FunctionName = "ClickInvitePlayerIntoTeam";
 			AddMenuItem( func , TEXT("InviteTeam") );
 			bAddLine = true;
@@ -429,12 +429,12 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 
 		if( TeamManager::getSingleton().HasTeam() && TeamManager::getSingleton().IsTeamLeader() )
 		{
-			if(TeamManager::getSingleton().GetMemberById(OwnerRoleId))//如果在队伍中
+			if(TeamManager::getSingleton().GetMemberById(OwnerRoleId))//if in the party
 			{
-				//踢出队伍
+				//kick from team
 				func.FunctionName = "ClickLeaveTeam";
 				AddMenuItem( func , TEXT("KickOutTeam") );
-				//移交队长
+				//transfer leader
 				func.FunctionName = "ClickMoveLeader";
 				AddMenuItem( func , TEXT("MoveLeader") );
 				bAddLine = true;
@@ -444,14 +444,14 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 			AddLine();
 	}
 
-	//3常规类
+	//3 General
 	{
 		if( nType == ERCMType_TargetInfo )
 		{
 			func.FunctionName = "ClickViewProfile";
 			AddMenuItem( func , TEXT("ViewProfile") );
 
-			//点击跟随/取消跟随
+			//click follow/unfollow
 			if(1)
 			{
 				func.FunctionName = "ClickFollow";
@@ -472,13 +472,13 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 			|| nType == ERCMType_RankListPlayer || nType == ERCMType_Attention || nType == ERCMType_TeamMember || nType == ERCMType_Contact )
 		{
 			if( FriendManager::getSingleton().IsMyFriend(OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(OwnerRoleId) )
-			{   //取消关注
+			{   //unfollow
 				func.FunctionName = "ClickDeleteFriend";
 				AddMenuItem( func , TEXT("DelAttention") );	
 			}
 			else
 			{
-				//加为关注
+				//add to follow
 				func.FunctionName = "ClickAddFriend";
 				AddMenuItem( func , TEXT("AddAttention") );	
 			}
@@ -500,19 +500,19 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 				AddMenuItem( func , TEXT("MoveFriend") );
 			}
 		}
-		////申请交易
+		////Request trade
 		//if( nType == ERCMType_TargetInfo )
 		//{
 		//	func.FunctionName = "ClickApplyDoTrade";
 		//	AddMenuItem( func, TEXT("ApplyDoTrade") );
 		//}
-		// Achievement成就比较
+		// Achievement comparison
 		func.FunctionName = "ClickAchievementCompare";
 		AddMenuItem( func, TEXT("CompareAchievement") );
 		AddLine();
 	}
 
-	//4公会类
+	//4 Guild
 	{
 		if( nType == ERCMType_TargetInfo || 
 			nType == ERCMType_ChatPlayer ||
@@ -536,7 +536,7 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 		}
 	}
 
-	//5师徒类
+	//5 Master/apprentice
 	{
 		bAddLine = false;
 		if (E_MASTER_NONE == MasterStudentManager::getSingleton().GetMasterStudentState())
@@ -583,30 +583,30 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 			AddLine();
 	}
 
-	//6常规类设置
+	//6 General settings
 	{
 		bAddLine = false;
 		if( nType == ERCMType_Friend || ERCMType_ChatPlayer )
 		{
 			if( FriendManager::getSingleton().InMyBlackList(OwnerRoleId) )
 			{
-				//取消屏蔽
+				//unblock
 				func.FunctionName = "ClickRemoveFromBlackList";
 				AddMenuItem( func , TEXT("RemoveBlack") );
 				bAddLine = true;
 			}
 			else
 			{
-				//屏蔽聊天
+				//block chat
 				func.FunctionName = "ClickMoveToBlackList";
 				AddMenuItem( func , TEXT("MoveToBlack") );
 				bAddLine = true;
 			}
 		}
-		//举报玩家
+		//Report player
 		//func.FunctionName = "ClickCommon3";
 		//AddMenuItem( func , TEXT("Common3") );
-		//追踪位置
+		//Track position
 		//func.FunctionName = "ClickCommon4";
 		//AddMenuItem( func , TEXT("Common4") );
 		if(bAddLine)
@@ -632,7 +632,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByTargetInfo(INT RoleId, const FString& RoleN
 	AMMOPlayer* OwnerPlayer = Cast<AMMOPlayer>( OwnerActor );
 	if( !OwnerPlayer ) 
 	{
-		return FALSE;//不是玩家
+		return FALSE;//not a player
 	}
 
 	if( OwnerPlayer == Player )
@@ -642,10 +642,10 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByTargetInfo(INT RoleId, const FString& RoleN
 
 	if(OwnerPlayer->Owner)
 	{
-		return FALSE;//是英雄
+		return FALSE;//is a hero
 	}
 
-	_MenuFormat(ERCMType_TargetInfo);//通用右键菜单2
+	_MenuFormat(ERCMType_TargetInfo);//common right-click menu 2
 	return TRUE;
 }
 
@@ -718,7 +718,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByBattleMember( INT roleId )
 	//		AddMenuItem( func , TEXT("InviteTeam") );
 	//	}
 
-	//	//需求不能全满足，解散和换队长没协议支持
+	//	//Requirements cannot all be met, disband and change leader have no protocol support
 	//	if( isSelf )
 	//	{
 	//		func.FunctionName = "ClickRemoveBattleTeam";
@@ -727,7 +727,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByBattleMember( INT roleId )
 
 	//	if( imLeader && !isSelf )
 	//	{
-	//		//踢出战队
+	//		//Kick from team
 	//		func.FunctionName = "ClickRemoveBattleTeam";
 	//		AddMenuItem( func , TEXT("RemoveBattleMember") );	
 	//	}
@@ -772,7 +772,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByMyTeam(INT index)
 	OwnerRoleId = tMem->ActorServerId;
 	OwnerActor = GetActorByRoleId(OwnerRoleId);
 
-	_MenuFormat(ERCMType_TeamMember);//通用右键菜单2
+	_MenuFormat(ERCMType_TeamMember);//common right-click menu 2
 	return TRUE;
 }
 //-----------------------------------------
@@ -804,25 +804,25 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByRankListPlayer( INT roleId , const FString&
 	FScriptDelegate func(EC_EventParm);
 	func.Object = this;
 
-	//发起私聊
+	//Start private chat
 	//func.FunctionName = 
-	//查看角色信息
+	//View character info
 	//func.FunctionName = "ClickViewProfileOnRank";
 	//AddMenuItem( func , TEXT("Equip"));
 
-	//查看体格强化
+	//View physique enhancement
 	//func.FunctionName = "ClickOpenBuild";
 	//AddMenuItem( func , TEXT("Build"));
 
-	//查看技能
+	//View skills
 	//func.FunctionName = "ClickOpenSkill";
 	//AddMenuItem( func , TEXT("Skill"));
 
-	//查看境界
+	//View realm
 	//func.FunctionName = "ClickOpenJingjie";
 	//AddMenuItem( func , TEXT("Jingjie"));
 
-	_MenuFormat(ERCMType_RankListPlayer);//通用右键菜单2
+	_MenuFormat(ERCMType_RankListPlayer);//common right-click menu 2
 	return TRUE;
 }
 
@@ -851,7 +851,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByRankListGuild( INT guildId , const FString&
 	//AddMenuItem( func , TEXT("GuildInfo"));
 
 	// modified by zhangrui05
-	//MenuFormat(ERCMType_RankListGuild);//通用右键菜单2
+	//MenuFormat(ERCMType_RankListGuild);//common right-click menu 2
 	func.FunctionName = "ClickCopyName";
 	AddMenuItem( func , TEXT("CopyName") );
 
@@ -881,7 +881,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByFriend( INT roleId , const FString& roleNam
 
 UBOOL UMMOUIRClickMenu::_MenuFormatByBlack(int Index )
 {
-	//其实不用这个了
+	//This is actually no longer needed
 	if( FriendManager::getSingleton().GetBlackNum() <= Index)
 	{
 		return FALSE;
@@ -923,7 +923,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByMasterPlayer( INT roleId , const FString& p
 	OwnerName = playerName;
 	OwnerRoleId = roleId;
 
-	_MenuFormat(ERCMType_MasterStudent);//通用右键菜单2
+	_MenuFormat(ERCMType_MasterStudent);//common right-click menu 2
 	return TRUE;
 
 }
@@ -942,16 +942,16 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByGuildMember(INT RoleId)
 	}
 		
 	OwnerRoleId = RoleId;
-	OwnerActor = GetActorByRoleId(RoleId); // OwnerActor 可能为NULL, 这里允许成员不在线
+	OwnerActor = GetActorByRoleId(RoleId); // OwnerActor may be NULL, members are allowed to be offline here
 	OwnerName = info.Name;
 
-	// 任务 #21837
+	// Quest #21837
 	if (info.LastLoginTime > 0)
-	{// 不在线，只显示查看资料和禁言
+	{// Offline, only show view info and mute
 		_GuildMenuFormat();
 	}
 	else
-	{// 在线，显示通用右键菜单
+	{// Online, show the common right-click menu
 		_MenuFormat(ERCMType_TargetInfo);
 	}
 	return TRUE;
@@ -968,7 +968,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByGuildAlliance(INT guildId, const FString& g
 	func.FunctionName = "ClickCancelAlliance";
 	AddMenuItem(func , TEXT("CancelAlliance"));
 	
-	// 复制公会名字
+	// copy guild name
 	func.FunctionName = "ClickCopyGuildNameByPanel";
 	AddMenuItem(func, TEXT("CopyGuildName"));
 
@@ -992,7 +992,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByGuildEnemy(INT guildId, const FString& guil
 		AddMenuItem(func, TEXT("GuildWar"));
 	}
 
-	// 复制公会名字
+	// copy guild name
 	func.FunctionName = "ClickCopyGuildNameByPanel";
 	AddMenuItem(func, TEXT("CopyGuildName"));
 
@@ -1013,7 +1013,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByAuctionPlayer( INT roleId , const FString& 
 	if(Player==NULL)
 		return FALSE;
 
-	//检查自己
+	//check self
 	if (OwnerRoleId == Player->ServerID)
 		if( OwnerRoleId == Player->ServerID  )
 	{
@@ -1022,7 +1022,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByAuctionPlayer( INT roleId , const FString& 
 			func.FunctionName = "ClickLeaveTeam";
 			AddMenuItem( func , TEXT("LeaveTeam") );
 		}
-		//查看自己资料
+		//view own profile
 		func.FunctionName = "ClickViewProfile";
 		AddMenuItem( func , TEXT("ViewProfile") );
 
@@ -1030,29 +1030,29 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByAuctionPlayer( INT roleId , const FString& 
 	}
 
 
-	//私聊
+	//private chat
 	func.FunctionName = "ClickEnterPrivateChat"; 
 	AddMenuItem( func , TEXT("PrivateChat") );	
 
 
 	if( FriendManager::getSingleton().IsMyFriend(OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(OwnerRoleId) )
-	{   //取消关注
+	{   //unfollow
 		func.FunctionName = "ClickDeleteFriend";
 		AddMenuItem( func , TEXT("DelAttention") );	
 	}
 	else
 	{
-		//加为关注
+		//add to follow
 		func.FunctionName = "ClickAddFriend";
 		AddMenuItem( func , TEXT("AddAttention") );	
 	}
 
-	//复制名字
+	//copy name
 	func.FunctionName = "ClickCopyName";
 	AddMenuItem( func , TEXT("CopyName") );
 
-	// 公会类
-	// 复制公会名字
+	// guild category
+	// copy guild name
 	PlayerBaseInfo* playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo(OwnerRoleId, TRUE);
 	if (playerInfo && !playerInfo->_GuildName.IsEmpty())
 	{
@@ -1463,9 +1463,9 @@ void UMMOUIRClickMenu::ClickViewProfile( INT inMenuIdx )
 
 	Show(FALSE);
 }
-//点击跟随/取消跟随
+//click follow/unfollow
 void UMMOUIRClickMenu::ClickFollow( INT inMenuIdx ){
-	//跟随
+	//Follow
 	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 	if(pc){
 		OwnerActor = GetActorByRoleId(OwnerRoleId);
@@ -1477,7 +1477,7 @@ void UMMOUIRClickMenu::ClickFollow( INT inMenuIdx ){
 	}
 }
 void UMMOUIRClickMenu::ClickNullFollow( INT inMenuIdx ){
-	//不跟随
+	//Unfollow
 	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 	if(pc){
 		pc->eventClearAllCmd();
@@ -1485,7 +1485,7 @@ void UMMOUIRClickMenu::ClickNullFollow( INT inMenuIdx ){
 	}
 }
 
-// 邀请加入家族
+// Invite to join clan
 void UMMOUIRClickMenu::ClickInviteToJoinGuild( INT inMenuIdx )
 {
 	PlayerBaseInfo* playerInfo = MMOFacade::getSingleton().GetPlayerBaseInfo(OwnerRoleId);
@@ -1497,7 +1497,7 @@ void UMMOUIRClickMenu::ClickInviteToJoinGuild( INT inMenuIdx )
 	Show(FALSE);
 }
 
-//推荐加入家族
+//Recommend joining clan
 void UMMOUIRClickMenu::ClickRecommendJoinGuild( INT inMenuIdx )
 {
 	PlayerBaseInfo* playerInfo = MMOFacade::getSingleton().GetPlayerBaseInfo(OwnerRoleId);
@@ -1512,7 +1512,7 @@ void UMMOUIRClickMenu::ClickRecommendJoinGuild( INT inMenuIdx )
 void UMMOUIRClickMenu::ClickApplyDoTrade( INT inMenuIdx )
 {
 	//MMOUI::GetUIManager()->LoadMoviePlayers( MMOUI::GetUIManager()->MoviePlayer_TradeP2P );
-	UMMOUITradeP2P *pTradeP2P = (UMMOUITradeP2P*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_TradeP2P );//为了载入
+	UMMOUITradeP2P *pTradeP2P = (UMMOUITradeP2P*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_TradeP2P );//for loading
 	MMOUI::GetUIManager()->delegateApplyDoTrade(OwnerRoleId);	
 	Show(FALSE);
 }
@@ -1544,12 +1544,12 @@ void UMMOUIRClickMenu::ClickChangeTeamAuctionLimit( INT inMenuIdx )
 	INT x = GetInt( TEXT("x") ) + width;
 	INT y = GetInt( TEXT("y") ) + CurClickButton->GetInt(TEXT("y")) ;
 	
-	//重设子菜单位置
+	//Reset submenu position
 	MMOUI::GetUIManager()->delegateOpenRClickChildMenu_Team(x,y,width);
 }
 
 
-//申请加入家族
+//Apply to join clan
 void UMMOUIRClickMenu::ClickApplyToJoinGuild( INT inMenuIdx )
 {
 	AMMOActor* actor = MMOFacade::getSingleton().GetCharacter(OwnerRoleId);
@@ -1560,7 +1560,7 @@ void UMMOUIRClickMenu::ClickApplyToJoinGuild( INT inMenuIdx )
 	Show(FALSE);
 }
 
-//踢出家族
+//Kick from clan
 void UMMOUIRClickMenu::ClickKickOutGuild( INT inMenuIdx )
 {
 	UMMOUIGuildMainPanel* mainPanel = (UMMOUIGuildMainPanel*)MMOUI::FindUIPanelEx(MMOUI::GetUIManager()->Panel_Guild_Main);
@@ -1571,7 +1571,7 @@ void UMMOUIRClickMenu::ClickKickOutGuild( INT inMenuIdx )
 	Show(FALSE);
 }
 
-//公会禁言
+//Guild mute
 void UMMOUIRClickMenu::ClickForbidChatOn( INT inMenuIdx )
 {
 	CMessageHandler::GetInstance().Send_GuildForbidChat(GUILD_CHAT_FORBID, OwnerRoleId);
@@ -1627,8 +1627,8 @@ void UMMOUIRClickMenu::ClickGuildWar(INT inMenuIdx)
 	Show(FALSE);
 }
 
-//师徒类
-//拜师
+//Master/apprentice
+//become apprentice
 void UMMOUIRClickMenu::ClickApplyMaster( INT inMenuIdx )
 {
 	CMessageHandler::GetInstance().Send_SubmitApplyToMaster(OwnerRoleId);
@@ -1642,12 +1642,12 @@ void UMMOUIRClickMenu::ClickApplyStudent( INT inMenuIdx )
 	MMOChatManager::getSingleton().AddSystemMessage( hintText );
 	Show(FALSE);
 }
-//收徒
+//Take apprentice
 void UMMOUIRClickMenu::ClickReadmastermsg( INT inMenuIdx )
 {
 	Show(FALSE);
 }
-//逐出师门
+//Expel from master's school
 void UMMOUIRClickMenu::ClickExpell( INT inMenuIdx )
 {
 	if (_ConfirmBox)
@@ -1707,7 +1707,7 @@ void UMMOUIRClickMenu::LeaveMasterCancel()
 	_ConfirmBox = NULL;
 }
 
-//背叛师门
+//Betray master
 void UMMOUIRClickMenu::ClickBetryMaster( INT inMenuIdx )
 {
 	FScriptDelegate LeaveMasterDelegate(EC_EventParm);
@@ -1827,7 +1827,7 @@ UBOOL UMMOUIRClickMenu::ChangeMenu(INT RoleId,const FString& RoleName,INT index,
 }
 
 //=======================================================================================================================
-//地图换线按钮右键菜单
+//Map line switch button right-click menu
 UBOOL UMMOUIRClickMenu::_MenuFormatByMapChangeLine( const FString &title )
 {
 	OwnerName = title;
@@ -1843,7 +1843,7 @@ UBOOL UMMOUIRClickMenu::_MenuFormatByMapChangeLine( const FString &title )
 		return FALSE;
 	}
 
-	//获得当前地图的分线
+	//get the lines of the current map
 	TArray< MapLineInfo > &sceneLines = pMapDataManager->GetCurMapLines();
 	INT curCombinatedSceneID = pMapDataManager->GetCurSceneLineIn();
 
@@ -1880,11 +1880,11 @@ void UMMOUIRClickMenu::ClickChangeMapLine( INT inMenuIdx )
 {
 	MMOMapDataManager *pMapDataManager = &MMOMapDataManager::getSingleton();
 
-	//获得当前地图的分线
+	//get the lines of the current map
 	TArray< MapLineInfo > &sceneLines = pMapDataManager->GetCurMapLines();
 	INT curCombinatedSceneID = pMapDataManager->GetCurSceneLineIn();
 
-	//列表项里没有现在所在地图的线，所以索引需要转换
+	//The list items do not include the line of the current map, so the index needs conversion
 	INT linesCnt = sceneLines.Num();
 	INT curLineInListIdx = linesCnt;
 	for( INT i = 0; i < linesCnt; ++i ){
@@ -1912,7 +1912,7 @@ void UMMOUIRClickMenu::ClickChangeMapLine( INT inMenuIdx )
 }
 
 //=======================================================================================================================
-//副本离开
+//Leave dungeon
 UBOOL UMMOUIRClickMenu::_MenuFormatByDungeon(const FString& title)
 {
 	OwnerName = title;
@@ -1978,23 +1978,23 @@ void UMMOUIRClickMenu::ClickLeaveBattleEnterQueue( INT inMenuIdx )
 }
 //=======================================================================================================================
 
-//结婚
-//求婚
+//Marry
+//Propose
 void UMMOUIRClickMenu::ClickMerry( INT inMenuIdx ){}
-//离婚
+//Divorce
 void UMMOUIRClickMenu::ClickDivorce( INT inMenuIdx ){}
 
-//常规类设置
-//屏蔽聊天
+//general settings
+//block chat
 void UMMOUIRClickMenu::ClickCommon1( INT inMenuIdx ){}
-//取消屏蔽
+//unblock
 void UMMOUIRClickMenu::ClickCommon2( INT inMenuIdx ){}
-//举报玩家
+//Report player
 void UMMOUIRClickMenu::ClickCommon3( INT inMenuIdx ){}
-//追踪位置
+//Track position
 void UMMOUIRClickMenu::ClickCommon4( INT inMenuIdx ){}
 
-//复制名字
+//copy name
 void UMMOUIRClickMenu::ClickCopyName( INT inMenuIdx )
 {
 	appClipboardCopy( *OwnerName );
@@ -2006,7 +2006,7 @@ void UMMOUIRClickMenu::ASClickRightMenuItem(INT MenuLevel,INT ItemId)
 	eventClickItem( MenuLevel , ItemId );
 }
 
-//复制公会名字(通过玩家)
+//Copy guild name (via player)
 void UMMOUIRClickMenu::ClickCopyGuildName( INT inMenuIdx )
 {
 	PlayerBaseInfo* playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo(OwnerRoleId, TRUE);
@@ -2017,7 +2017,7 @@ void UMMOUIRClickMenu::ClickCopyGuildName( INT inMenuIdx )
 	Show(FALSE);
 }
 
-//复制公会名字(通过界面)
+//Copy guild name (via UI)
 void UMMOUIRClickMenu::ClickCopyGuildNameByPanel(INT inMenuIdx)
 {
 	GuildQueryInfo guildInfo;

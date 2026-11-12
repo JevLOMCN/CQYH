@@ -13,7 +13,7 @@ enum
 	MAX_HELP_BASE_CLASS_COUNT = 20,
 };
 
-// АяжњЪ§Он
+// help data
 struct HelperData
 {
 	UINT32 Id;

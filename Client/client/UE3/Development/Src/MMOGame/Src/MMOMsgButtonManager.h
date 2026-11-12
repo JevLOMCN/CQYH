@@ -28,13 +28,13 @@ enum eMsgBtnShowType
 
 enum eEventHandleType
 {
-	//EVENTHANDLE_DELEGATE,					//用函数委托的方式响应
-	EVENTHANDLE_GAMEEVENT,				//事件的方式响应
-	EVENTHANDLE_NOMSGBOX					//点击消息球后，没有消息弹框，委托响应
+	//EVENTHANDLE_DELEGATE,					//respond via function delegate
+	EVENTHANDLE_GAMEEVENT,				//respond via event
+	EVENTHANDLE_NOMSGBOX					//after clicking the message orb, no message box, respond via delegate
 };
 
 //////////////////////////////////////////////////////////////////////////
-//没有消息弹框的消息球，事件委托的参数，方便以后扩展
+//parameter of the event delegate for message orbs without a message box, convenient for future extension
 //////////////////////////////////////////////////////////////////////////
 struct MMOMsgButtonManager_Parms
 {

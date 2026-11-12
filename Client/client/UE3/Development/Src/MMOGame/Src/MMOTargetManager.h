@@ -1,13 +1,13 @@
 /**
  * jimZhang@sdna.com 2013.1.22 
  *
- * 暗黑3来袭，技能施放和角色控制要做到细腻人性化，智能化
- * 总述1-4技能，鼠标左右键技能，鼠标左键兼做行走控制
- * 轻按1-4和鼠标右键技能键，如果是典型指向技能，会检测鼠标所指位置，
- * 如有敌人，则走过去对敌人施放技能
- * 如无敌人，则相当于走过去
- * 按住1-4和鼠标右键技能键，如果是典型指向技能，会检测鼠标所指位置，
- * 相当于一路A过去，
+ * Diablo 3 is here; ability casting and character control must be refined, user-friendly and smart
+ * Overview of abilities 1-4, left/right mouse button abilities; left mouse button also doubles as walk control
+ * Tap 1-4 or the right mouse ability key; if it is a typical targeted ability, it checks the position under the mouse,
+ * if there is an enemy, walk over and cast the ability on the enemy
+ * if there is no enemy, it is equivalent to walking over
+ * Hold 1-4 or the right mouse ability key; if it is a typical targeted ability, it checks the position under the mouse,
+ * equivalent to attack-moving all the way there,
  */
 
 #ifndef __MMOTARGETMANAGER_H__
@@ -59,162 +59,162 @@ class MMOTargetManager : public SingletonMeyers<MMOTargetManager>
 
 	enum CTRL_STATE
 	{
-		CS_IDLE,					//待机态
-		CS_MOVE,					//移动态
-		CS_BATTLEMOVE,				//战斗态
+		CS_IDLE,					//idle state
+		CS_MOVE,					//move state
+		CS_BATTLEMOVE,				//battle state
 	};
 
-	enum DESIRE_STATE				//状态触发
+	enum DESIRE_STATE				//state trigger
 	{
-		DS_NORMAL,					//低电平				
-		DS_TRIGGER,					//升触发
-		DS_HOLDON,					//高电平
-		DS_RELEASE,					//降触发	
+		DS_NORMAL,					//low level
+		DS_TRIGGER,					//rising edge trigger
+		DS_HOLDON,					//high level
+		DS_RELEASE,					//falling edge trigger
 	};
 
 	enum SEARCH_TYPE
 	{
-		ST_CLOSED_ALL,				//靠的最近的所有类型obj
-		ST_CLOSED_DAMAGEABLE,		//靠的最近的可攻击类型
-		ST_CLOSED_FRIENDLY,			//靠的最近的友好类型
-		ST_INNER_ALL,				//在范围内的先被检测到的所有类型
-		ST_INNER_DAMAGEABLE,		//在范围内的先被检测到的可攻击类型
-		ST_INNER_FRIENDLY,			//在范围内的先被检测到的友好类型	
+		ST_CLOSED_ALL,				//closest obj of all types
+		ST_CLOSED_DAMAGEABLE,		//closest attackable type
+		ST_CLOSED_FRIENDLY,			//closest friendly type
+		ST_INNER_ALL,				//first detected within range, all types
+		ST_INNER_DAMAGEABLE,		//first detected within range, attackable type
+		ST_INNER_FRIENDLY,			//first detected within range, friendly type
 	};
 
 public:
 	MMOTargetManager();
 	virtual ~MMOTargetManager(){};
 
-private://各种状态
-	UBOOL			stateInterrupt;			//顺序中断，用于相同判定状态下，根据重要顺序性判定，这是唯一依赖排列的，是串行的，其余的条件全是并行的，对执行先后无影响
+private://various states
+	UBOOL			stateInterrupt;			//sequential interrupt, used among identical judgment states to judge by priority order; this is the only order-dependent one and is serial, all other conditions are parallel and independent of execution order
 	
-	AMMOPlayer*		stateMainPlayer;		//主角
-	AMMOPlayerController*	stateController;//主控制
-	UBOOL			stateStallState	;		//摆摊状态
+	AMMOPlayer*		stateMainPlayer;		//main character
+	AMMOPlayerController*	stateController;//main controller
+	UBOOL			stateStallState	;		//stall state
 
-	UMMOAbility*	stateLeftBtnAbility;	//左键装备的技能
-	UMMOAbility*	stateDesireAbility;		//按键施放的技能（初始）
-	UMMOAbility*	stateAbility;			//按键施放的技能（能用）
-	UBOOL			stateKeyPressed;		//按下键	
-	UBOOL			stateShiftDown;			//shift是否按下
-	UBOOL			stateLeftBtnDown;		//鼠标左键是否按下
-	UBOOL			stateLeftBtn;			//鼠标左键激发的技能
-	UBOOL			stateAbilityEnable;		//是否可以用技能
-	UBOOL			stateMoveEnable;		//可以行走
-	UBOOL			stateMoveKeyDown;		//移动按键有按
-	UBOOL			statePathOptimize;		//寻路点是否为不为直线或者优化过
-	UBOOL			stateIsShowTips;		//显示物体tips
-	UBOOL			statePickTarget;		//当前技能是否pickTarget
+	UMMOAbility*	stateLeftBtnAbility;	//ability equipped on left button
+	UMMOAbility*	stateDesireAbility;		//ability cast by key (initial)
+	UMMOAbility*	stateAbility;			//ability cast by key (usable)
+	UBOOL			stateKeyPressed;		//key pressed
+	UBOOL			stateShiftDown;			//whether shift is pressed
+	UBOOL			stateLeftBtnDown;		//whether left mouse button is pressed
+	UBOOL			stateLeftBtn;			//ability triggered by left mouse button
+	UBOOL			stateAbilityEnable;		//whether abilities can be used
+	UBOOL			stateMoveEnable;		//can walk
+	UBOOL			stateMoveKeyDown;		//a movement key is pressed
+	UBOOL			statePathOptimize;		//whether the pathfinding points are non-straight or optimized
+	UBOOL			stateIsShowTips;		//show object tips
+	UBOOL			statePickTarget;		//whether current ability is pickTarget
 
-	AActor*			stateLastTargetActor;	//上一帧目标actor
-	AActor*			stateTargetActor;		//目标actor
-	AMMOActor*		stateLastTargetMMOActor;//上一帧目标mmoactor
-	AMMOActor*		stateTargetMMOActor;	//目标mmoactor
+	AActor*			stateLastTargetActor;	//previous frame target actor
+	AActor*			stateTargetActor;		//target actor
+	AMMOActor*		stateLastTargetMMOActor;//previous frame target mmoactor
+	AMMOActor*		stateTargetMMOActor;	//target mmoactor
 	INT				stateTargetMMOActorID;		//
 	INT				stateLastTargetMMOActorID;	//
-	AMMOPlayer*		stateTargetMMOPlayer;	//目标mmoplayer
-	ANPC*			stateTargetNPC;			//目标npc
-// 	ADropItemActor* stateTargetItem;		//目标捡取物
-	ATeleportOrig*	stateTeleportOrig;		//目标传送点
-	ATeleportNetNode* stateTeleportNetNode;	//目标传送网点
-	AMMODoodadActor*  stateDoodadActor;	//doodad指针		
-	UBOOL			stateAttackble;			//目标是否可攻击
-	UBOOL			stateIsDead;			//目标是否死亡
-	FVector			stateTargetPos;			//目标点
+	AMMOPlayer*		stateTargetMMOPlayer;	//target mmoplayer
+	ANPC*			stateTargetNPC;			//target npc
+// 	ADropItemActor* stateTargetItem;		//target pickup item
+	ATeleportOrig*	stateTeleportOrig;		//target teleport point
+	ATeleportNetNode* stateTeleportNetNode;	//target teleport network node
+	AMMODoodadActor*  stateDoodadActor;	//doodad pointer
+	UBOOL			stateAttackble;			//whether target is attackable
+	UBOOL			stateIsDead;			//whether target is dead
+	FVector			stateTargetPos;			//target point
 
-	AActor*			stateDesireActor;		//初始目标actor
-	AMMOActor*		stateDesireMMOActor;	//初始目标mmoactor
-	AMMOActor*		stateLastDesireMMOActor;//上一帧初始目标mmoactor
-	AMMOPlayer*		stateDesireMMOPlayer;	//初始目标mmoplayer
-	ANPC*			stateDesireNPC;			//初始目标npc
-	INT				stateDesireNPCTempleteID;//初始目标npctempleteID
-	//AMMODropActor* stateDesireItem;		//初始目标捡取物
-	UBOOL			stateDesireAttackble;	//初始目标是否可攻击
-	FVector			stateDesirePos;			//初始目标点
-	FLOAT			stateSetFocusDelayTime; //申请选择消息延时
+	AActor*			stateDesireActor;		//initial target actor
+	AMMOActor*		stateDesireMMOActor;	//initial target mmoactor
+	AMMOActor*		stateLastDesireMMOActor;//previous frame initial target mmoactor
+	AMMOPlayer*		stateDesireMMOPlayer;	//initial target mmoplayer
+	ANPC*			stateDesireNPC;			//initial target npc
+	INT				stateDesireNPCTempleteID;//initial target npc templateID
+	//AMMODropActor* stateDesireItem;		//initial target pickup item
+	UBOOL			stateDesireAttackble;	//whether initial target is attackable
+	FVector			stateDesirePos;			//initial target point
+	FLOAT			stateSetFocusDelayTime; //delay for select message request
 
-	AMMOActor*		stateAttackMMOActor;	//攻击目标mmoactor
-	AMMOActor*		stateSelectMMOActor;	//选中的mmoactor目标
+	AMMOActor*		stateAttackMMOActor;	//attack target mmoactor
+	AMMOActor*		stateSelectMMOActor;	//selected mmoactor target
 
-	AActor*			stateFocusActor;		//焦点actor
-	AMMOActor*		stateFocusMMOActor;		//焦点mmoactor
-	AMMOPlayer*		stateFocusMMOPlayer;	//焦点mmoplayer
+	AActor*			stateFocusActor;		//focus actor
+	AMMOActor*		stateFocusMMOActor;		//focus mmoactor
+	AMMOPlayer*		stateFocusMMOPlayer;	//focus mmoplayer
 
 
-	CTRL_STATE		stateCtrlState;			//角色控制状态，根据研究暗黑3得到两个状态，加上一个待机态
-	DESIRE_STATE	stateDesireState;		//按键状态
+	CTRL_STATE		stateCtrlState;			//character control state; two states derived from studying Diablo 3, plus an idle state
+	DESIRE_STATE	stateDesireState;		//key state
 
-	FLOAT			statePressedTime;		//按键累计时间;
-	FLOAT			stateFastTime;			//快循环计时;
-	FLOAT			stateSlowTime;			//慢循环计时;
-	FLOAT			stateAiCdTime;			//ai控制型cd;
-	FLOAT			stateAbilityRespondTime;//等待技能消息回应时间;
-	FLOAT			stateAiInSafeZoneTime;	//ai控制在安全区收刀时间;
-	FLOAT			stateWarningTime;		//警告即使器
+	FLOAT			statePressedTime;		//accumulated key press time;
+	FLOAT			stateFastTime;			//fast loop timer;
+	FLOAT			stateSlowTime;			//slow loop timer;
+	FLOAT			stateAiCdTime;			//AI-controlled cd;
+	FLOAT			stateAbilityRespondTime;//time waiting for ability message response;
+	FLOAT			stateAiInSafeZoneTime;	//AI-controlled time to sheathe weapon in safe zone;
+	FLOAT			stateWarningTime;		//warning timer
 
 
 private:
-	FVector			LastMouseHitNavMeshLocation;			//上次/帧鼠标拾取点
-	FLOAT			TimeQTE;								//QTE计时;
-	INT				AresFlag;								//gm 自动进化战神模式
-	INT				AresIndex;								//gm 自动进化战神模式序号
-	FLOAT			AresDeltaTime;							//步骤间隔时间
+	FVector			LastMouseHitNavMeshLocation;			//last/frame mouse pick point
+	FLOAT			TimeQTE;								//QTE timer;
+	INT				AresFlag;								//gm auto-evolve God of War mode
+	INT				AresIndex;								//gm auto-evolve God of War mode index
+	FLOAT			AresDeltaTime;							//interval between steps
 
-private://各种状态
-	//按shift键施法
+private://various states
+	//cast while holding shift
 	UBOOL	stateShiftAbility();
-	//原地释放技能
+	//cast ability in place
 	UBOOL	stateStayAndUseAbility();
-	//追击并释放技能
+	//chase and cast ability
 	UBOOL	stateMoveToAndUseAbility();
-	//搜索敌人并释放技能
+	//search for enemy and cast ability
 	UBOOL   stateSearchAndUseAbility();
-	//走近并交互
+	//walk close and interact
 	UBOOL	stateMoveToAndInteract();
-// 	//走近并摆摊
+// 	//walk close and set up stall
 // 	UBOOL	stateMoveToAndStall();
-// 	//走近捡东西
+// 	//walk close and pick up item
 // 	UBOOL	stateMoveToPickItem();
-	//走到目标点
+	//walk to target point
 	UBOOL	stateMoveToPoint();
-	//走到指定坐标点
+	//walk to specified coordinate
 	UBOOL	stateMoveToDesirePoint();
-	//选中显示第三方头像
+	//show third-party portrait on selection
 	UBOOL	stateShowInfo();
-	//选中物体tips显示
+	//selected object tips display
 	UBOOL	stateShowTips();
-	//选中物体脚底光标显示
+	//selected object under-foot cursor display
 	UBOOL	stateShowSelectMark();
-	//键盘控制移动
+	//keyboard movement control
 	UBOOL	stateMoveByKey();
-	//自动寻怪
+	//auto find monster
 	UBOOL	stateSearchEnemy();
-	//自动切换键状态
+	//auto switch key state
 	UBOOL	stateAIContral();
-	//自动检测在安全区内收刀
+	//auto detect sheathing weapon in safe zone
 	UBOOL	stateAIInSafeZone();
-	//自动是否要释放解qte技能
+	//auto decide whether to cast QTE-breaking ability
 	UBOOL	stateAIBossQTE();
-	//摆摊时候点击处理
+	//click handling while setting up stall
 	UBOOL	stateClickStallState();
-	//特殊的定时提示，比如主武器的耐久度不等间隔警示
+	//special timed prompts, e.g. irregular-interval durability warnings for the main weapon
 	UBOOL	stateStackWarningState();
-	//智能清除分解，鉴定，修理等状态，
+	//smartly clear states such as decompose, identify, repair,
 	UBOOL	stateReleaseOperation();
-	//gm 组合测试，自动成为战神
+	//gm combo test, automatically become God of War
 	UBOOL	stateUpdateAres();
 
 private:
-	FVector			OptimizeTargetPos(FVector TargetPos );	//获取优化点
-	UMMOAbility*	OptimizeAbility(UMMOAbility* Ability);	//获取优化技能
-	INT				OptimizeTargetID(FRotator Rotator, FVector Location,FLOAT Radius, SEARCH_TYPE SType);	//获取优化的目标 
+	FVector			OptimizeTargetPos(FVector TargetPos );	//get optimized point
+	UMMOAbility*	OptimizeAbility(UMMOAbility* Ability);	//get optimized ability
+	INT				OptimizeTargetID(FRotator Rotator, FVector Location,FLOAT Radius, SEARCH_TYPE SType);	//get optimized target
 	FVector			OptimizeMoveOffset(BYTE* pMode );
 
 public:
-	UMMOAbility*	GetDefaultAbility();	//获取各种职业默认技能
+	UMMOAbility*	GetDefaultAbility();	//get default ability of each class
 
-public://各种方法
+public://various methods
 	void	Clear();
 	void	AITick(FLOAT DeltaTime);
 	UBOOL	UpdateState(FLOAT DeltaTime);

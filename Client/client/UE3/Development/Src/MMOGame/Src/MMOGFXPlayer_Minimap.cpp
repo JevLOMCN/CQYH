@@ -52,7 +52,7 @@ void UMMOGFXPlayer_Minimap::ASShowMapLineDropList()
 //========================================================================================================
 void UMMOGFXPlayer_Minimap::ASChangeSceneLine( int lineID )
 {
-	// 新手引导
+	// Tutorial
 	MMOGameEvent_Guide evtGuide(EGUET_SwitchLine);
 	MMOUI::PostGameEvent(&evtGuide);
 
@@ -157,7 +157,7 @@ void UMMOGFXPlayer_Minimap::ASShowMinimapMarkHint( INT type, INT idx )
 	case EACTMUI_NearPlayer:
 		{
 			pMapMark = pMapDataMgr->GetMapDymcActorNearByUiID( idx );
-			//因为当初加入这个玩家时，他的信息还没到
+			//because when this player was added, his info had not arrived yet
 			if( pMapMark != NULL ){
 				AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter(  ((FActorInMapUI*)pMapMark)->_ActorID );
 				if( pPlayer != NULL ){

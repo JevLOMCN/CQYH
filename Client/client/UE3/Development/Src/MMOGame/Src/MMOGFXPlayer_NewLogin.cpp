@@ -91,7 +91,7 @@ void UMMOGFXPlayer_NewLogin::ASQuitGame()
 //----------------------------------------------------------------------------
 void UMMOGFXPlayer_NewLogin::ASRequestReturnLogin()
 {
-	//OnDisconnected 之后再调
+	//call after OnDisconnected
 
 	CMessageHandler::GetInstance().CloseConnection(true);
 	//MMOUI::GetUIManager()->SendReturnLogin();

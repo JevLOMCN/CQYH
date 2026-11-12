@@ -75,7 +75,7 @@ void UMMOUIAchievementPanel::PostOnShow(UBOOL v)
 			}
 		}
 
-		// 如果上一次还在公会里, 公会解散后的情况
+		// if still in a guild last time, case where the guild was disbanded
 		if (!hasGuild)
 		{
 			if (_CurBaseClass == AC_GUILD1 ||
@@ -234,7 +234,7 @@ void UMMOUIAchievementPanel::UpdateAchievementCagetory(int type)
 		FString baseClassName = MMOUI::ParseLocalizedPropertyPath(FString(TEXT("MMOGame.Achievement.")) + 
 			MMOAchievementData::S_AchievementClassName[i] + appItoa(0), findLoc);
 		
-		// 返回"?"为无效Key
+		// returning "?" means invalid Key
 		// INT errorPos = baseClassName.InStr(TEXT("?"));
 		if (!findLoc)
 		{
@@ -456,7 +456,7 @@ void UMMOUIAchievementPanel::UpdateAchievementSummary(int type)
 
 void UMMOUIAchievementPanel::UpdateAchievementData(INT baseClass, INT subClass)
 {
-	// 点数，标题，完成进度
+	// points, title, completion progress
 	UBOOL isCompare = MMOAchievementManager::getSingleton().IsCompare();
 	FString roleName = TEXT("");
 	AMMOActor* actor = MMOFacade::getSingleton().GetMainActor();
@@ -496,7 +496,7 @@ void UMMOUIAchievementPanel::_UpdateCommonAchievementInfo(UGFxObject* dataProvid
 		return;
 	}
 
-	// 隐藏成就，没获取，不显示
+	// hidden achievement, not obtained, do not show
 	if (data.Hide && !info.IsObtain)
 	{
 		return;
@@ -508,7 +508,7 @@ void UMMOUIAchievementPanel::_UpdateCommonAchievementInfo(UGFxObject* dataProvid
 		return;
 	}
 
-	// 基础信息
+	// basic info
 	object->SetInt(TEXT("achievement_id"), data.Id);
 	object->SetBool(TEXT("achievement_is_obtain"), info.IsObtain);
 	object->SetString(TEXT("achievement_icon"), data.Icon);
@@ -525,13 +525,13 @@ void UMMOUIAchievementPanel::_UpdateCommonAchievementInfo(UGFxObject* dataProvid
 	}
 	object->SetString(TEXT("achievement_date"), ObtainDate);
 
-	// 是否获得前置成就
+	// whether the prerequisite achievement is obtained
 	UBOOL isPreObtain1 = data.PreAchievement[0] == 0 || MMOAchievementData::getSingleton().IsAchievementObtain(data.PreAchievement[0]);
 	UBOOL isPreObtain2 = data.PreAchievement[1] == 0 || MMOAchievementData::getSingleton().IsAchievementObtain(data.PreAchievement[1]);
 	object->SetBool(TEXT("achievement_is_pre_obtain"), isPreObtain1 && isPreObtain2);
 
-	// 奖励信息
-	// 因为现在奖励ui（道具或者称号）只有一个，暂时以第一个为主
+	// reward info
+	// since there is currently only one reward ui (item or title), use the first one for now
 	object->SetInt(TEXT("achievement_reward_type"), data.RewardType[0]);
 	object->SetString(TEXT("achievement_reward_item"), TEXT(""));
 	object->SetString(TEXT("achievement_reward_title"), TEXT(""));
@@ -561,7 +561,7 @@ void UMMOUIAchievementPanel::_UpdateCommonAchievementInfo(UGFxObject* dataProvid
 	}
 	object->SetBool(TEXT("achievement_is_get_reward"), info.IsGetReward);
 
-	// 细节信息
+	// detail info
 	object->SetInt(TEXT("achievement_detail"), data.DetailType);
 	if (data.DetailType == ADT_CONDITION)
 	{
@@ -592,7 +592,7 @@ void UMMOUIAchievementPanel::_UpdateCommonAchievementInfo(UGFxObject* dataProvid
 		object->SetInt(TEXT("achievement_progress_max"), max == 0 ? 1 : max);
 	}
 
-	// 对比信息
+	// comparison info
 	UBOOL isCompare = MMOAchievementManager::getSingleton().IsCompare();
 	object->SetBool(TEXT("achievement_is_compare"), isCompare);
 	object->SetString(TEXT("achievement_icon_comp"), data.Icon);
@@ -629,7 +629,7 @@ void UMMOUIAchievementPanel::_UpdateGuildAchievementInfo(UGFxObject* dataProvide
 		return;
 	}
 
-	// 隐藏成就，没获取，不显示
+	// hidden achievement, not obtained, do not show
 	if (data.Hide && !info.IsObtain)
 	{
 		return;
@@ -641,7 +641,7 @@ void UMMOUIAchievementPanel::_UpdateGuildAchievementInfo(UGFxObject* dataProvide
 		return;
 	}
 
-	// 基础信息
+	// basic info
 	object->SetInt(TEXT("achievement_id"), id);
 	object->SetBool(TEXT("achievement_is_obtain"), info.IsObtain);
 	object->SetString(TEXT("achievement_icon"), data.Icon);
@@ -650,8 +650,8 @@ void UMMOUIAchievementPanel::_UpdateGuildAchievementInfo(UGFxObject* dataProvide
 	object->SetString(TEXT("achievement_date"), TEXT(""));
 	object->SetBool(TEXT("achievement_is_pre_obtain"), TRUE);
 
-	// 奖励信息
-	// 因为现在奖励ui（道具或者称号）只有一个，暂时以第一个为主
+	// reward info
+	// since there is currently only one reward ui (item or title), use the first one for now
 	object->SetString(TEXT("achievement_reward_item"), TEXT(""));
 	object->SetString(TEXT("achievement_reward_title"), TEXT(""));
 
@@ -698,10 +698,10 @@ void UMMOUIAchievementPanel::_UpdateGuildAchievementInfo(UGFxObject* dataProvide
 
 	object->SetBool(TEXT("achievement_is_get_reward"), info.IsGetReward);
 
-	// 细节信息
+	// detail info
 	object->SetInt(TEXT("achievement_detail"), ADT_NULL);
 	
-	// 对比信息
+	// comparison info
 	object->SetBool(TEXT("achievement_is_compare"), FALSE);
 	object->SetString(TEXT("achievement_icon_comp"), data.Icon);
 	object->SetString(TEXT("achievement_date_comp"), TEXT(""));
@@ -734,7 +734,7 @@ void UMMOUIAchievementPanel::_UpdateKillNpcAchievementInfo(UGFxObject* dataProvi
 		return;
 	}
 
-	// 隐藏成就，没获取，不显示
+	// hidden achievement, not obtained, do not show
 	if (data.Hide[killIndex] && !info.IsObtain)
 	{
 		return;
@@ -746,7 +746,7 @@ void UMMOUIAchievementPanel::_UpdateKillNpcAchievementInfo(UGFxObject* dataProvi
 		return;
 	}
 
-	// 基础信息
+	// basic info
 	object->SetInt(TEXT("achievement_id"), id);
 	object->SetBool(TEXT("achievement_is_obtain"), info.IsObtain);
 	object->SetString(TEXT("achievement_icon"), data.Icon);
@@ -766,8 +766,8 @@ void UMMOUIAchievementPanel::_UpdateKillNpcAchievementInfo(UGFxObject* dataProvi
 	object->SetString(TEXT("achievement_date"), ObtainDate);
 	object->SetBool(TEXT("achievement_is_pre_obtain"), TRUE);
 
-	// 奖励信息
-	// 因为现在奖励ui（道具或者称号）只有一个，暂时以第一个为主
+	// reward info
+	// since there is currently only one reward ui (item or title), use the first one for now
 	object->SetInt(TEXT("achievement_reward_type"), data.RewardExp[killIndex] > 0 ? adtExp : adtInvalid);
 	object->SetString(TEXT("achievement_reward_item"), TEXT(""));
 	object->SetString(TEXT("achievement_reward_title"), TEXT(""));
@@ -778,7 +778,7 @@ void UMMOUIAchievementPanel::_UpdateKillNpcAchievementInfo(UGFxObject* dataProvi
 	}
 	object->SetBool(TEXT("achievement_is_get_reward"), info.IsGetReward);
 
-	// 细节信息
+	// detail info
 	object->SetInt(TEXT("achievement_detail"), ADT_PROGRESS);
 	UINT32 cur = abs(info.CurProgress);
 	UINT32 max = abs(info.MaxProgress);
@@ -786,7 +786,7 @@ void UMMOUIAchievementPanel::_UpdateKillNpcAchievementInfo(UGFxObject* dataProvi
 	object->SetInt(TEXT("achievement_progress_cur"), cur);
 	object->SetInt(TEXT("achievement_progress_max"), max == 0 ? 1 : max);
 
-	// 对比信息
+	// comparison info
 	object->SetBool(TEXT("achievement_is_compare"), FALSE);
 	object->SetString(TEXT("achievement_icon_comp"), data.Icon);
 
@@ -899,7 +899,7 @@ void UMMOUIAchievementPanel::ASObtainRewardItem(INT id)
 
 	if (mainPlayer->eventIsDead())
 	{
-		FString text = TEXT("死亡状态无法领取奖励");
+		FString text = TEXT("Cannot claim rewards while dead");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, text);
 		return;
 	}

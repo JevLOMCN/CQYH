@@ -3,7 +3,7 @@
 	Filename: 	UMMOGFXPlayer_PickWidget
 	file ext:	uc
 	Author:		hemu@snda
-	Purpose:	掉落拾取 Panel-MMOUIDropItemTips
+	Purpose:	Drop pickup Panel-MMOUIDropItemTips
 *********************************************************************/
 
 class MMOUIDropItemTips extends MMOUIBase
@@ -23,11 +23,11 @@ class MMOUIDropItemTips extends MMOUIBase
 //Grid
 // var const int GridHeight;
 // //var const int GridWidth;
-// //最靠近主角的
+// //Closest to the main character
 // // var PickableItem BaseItem;
-// //行格子数
+// //Number of grid cell rows
 // var int MaxRow;
-// //列格子数
+// //Number of grid cell columns
 // var int MaxColumn;
 
 
@@ -68,7 +68,7 @@ event InitLoad(MMOGFXPlayer pl)
 
 native final function Pickup( int ItemID );
 
-event SetHpInfo( GFxObject target, int id, String str, int txColor, String strIcon, int quality ) //VisibleType,0不显示，1显示，2只显示血条不显示数字
+event SetHpInfo( GFxObject target, int id, String str, int txColor, String strIcon, int quality ) //VisibleType, 0 hidden, 1 shown, 2 show only the HP bar without numbers
 {
 	target.ActionScriptVoid("SetTipContent");
 }

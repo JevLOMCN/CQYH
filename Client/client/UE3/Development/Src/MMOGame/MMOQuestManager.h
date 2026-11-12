@@ -9,7 +9,7 @@
 #define MIN_PAGENUMBER 1
 #define MAX_PAGENUMBER 8
 
-// 任务事件
+// quest events
 struct MMOGameEvent_Quest : public MMOGameEvent
 {
 public:
@@ -62,25 +62,25 @@ public:
 	void Clear();
 	void Update(FLOAT deltaTime);
 
-	// 任务事件
+	// quest events
 	virtual void OnNativeGameEvent(struct MMOGameEvent* evt);
 
-	// 任务NPC
+	// quest NPC
 	void UpdateQuestNpcStatus(class ANPC* npc);
 	EQuestHUDStatus IsNpcHasMyQuest(INT npcId, TArray<INT>* completeList, TArray<INT>* uncompleteList, TArray<INT>* availableList);
 	void UpdateNpcName(ANPC* npc);
 	void UpdateNpcHp(ANPC* npc, INT hp);
 
-	// 掉落触发接/交任务
+	// drop triggers accept/submit quest
 	void UpdateQuestDropItemStatus(class AMMODropActor* drop);
 
-	// 可接任务
+	// available quests
 	bool AcceptQuest(INT questId, UBOOL share, INT shareSrcId) const;
 
-	// 完成任务		
+	// complete quest
 	bool CompleteQuest(INT questId, INT selectedAwardIndex);
 
-	// 任务追踪
+	// quest tracking
 	void TraceQuest(INT32 questId, bool traceOn);
 	void TraceAllQuest(bool traceOn);
 	UBOOL IsMonsterBeTraced(INT monsterId);
@@ -89,24 +89,24 @@ public:
 	void UpdateQuestTargets(INT32 questId);
 	void UpdateAllQuestTargets();
 
-	// 悬赏任务
+	// bounty quest
 	void InitRewardQuestList();
 	void RefreshRewardQuestList(UBOOL autoRefresh);
 	void SetRewardQuestRefreshTime(INT time);
 	INT GetRewardQuestRefreshTime() {return _RewardQuestBrushLeftTime;}
 
-	// 飞鞋相关
+	// flying shoes related
 	UBOOL FlyToDestination(INT questId, INT destIndex);
 	INT GetLastFlyShoesUseTimes() {_LastFlyShoesUseTimes;}
 
-	// UI数据
+	// UI data
 	UGFxObject* GetQuestTraceData(INT questId, UMMOGFXPlayer* gfxPlayer, EQuestTraceListType type);
 	UGFxObject* GetQuestDetailData(INT questId, UMMOGFXPlayer* gfxPlayer, UBOOL isDialog);
 
-	// 任务音效
+	// quest sound effects
 	void PlayQuestSound(INT questId, ANPC* npc);
 
-	// 任务完成条件
+	// quest completion conditions
 	void UpdateQuestBuff(INT buffId);
 	void UpdateQuestReputation();
 	void UpdateQuestNpcKillCount(INT questId, UINT16 index, INT val);
@@ -121,7 +121,7 @@ public:
 	void UpdateAllQuestItem();
 	void UpdateVariable(UINT8 varType, INT32 referId, UINT16 index, INT32 val);
 
-	// 任务翻页对话
+	// quest page-turn dialogue
 	void SetQuestDialogCurrentPage(INT page);
 	INT GetQuestDialogCurrentPage() {return _CurPage;}
 
@@ -165,8 +165,8 @@ public:
 	void AddQuestCoolDown(INT questId, UINT32 coolDown);
 
 protected:
-	// UI数据
-	// 已接任务列表
+	// UI data
+	// accepted quest list
 	void _SetAcceptedQuestTraceListItemTargetCheckTalkNpc(const UQuest* quest, AcceptedQuestData* acceptedQuest, int& destId, UMMOGFXPlayer* gfxPlayer, UGFxObject* objectArray, int& index);
 	void _SetAcceptedQuestTraceListItemTargetCheckLevel(const UQuest* quest, AcceptedQuestData* acceptedQuest, int& destId, UMMOGFXPlayer* gfxPlayer, UGFxObject* objectArray, int& index);
 	void _SetAcceptedQuestTraceListItemTargetCheckVariable(const UQuest* quest, AcceptedQuestData* acceptedQuest, int& destId, UMMOGFXPlayer* gfxPlayer, UGFxObject* objectArray, int& index);
@@ -182,11 +182,11 @@ protected:
 	void _SetAcceptedQuestTraceListItemTime(const UQuest* quest, AcceptedQuestData* acceptedQuest, UMMOGFXPlayer* gfxPlayer, UGFxObject* object);
 	void _SetAcceptedQuestTraceListItemAward(const UQuest* quest, AcceptedQuestData* acceptedQuest, UMMOGFXPlayer* gfxPlayer, UGFxObject* object);
 
-	// 可接任务列表
+	// available quest list
 	void _SetAvailableQuestTraceListItemCaption(const UQuest* quest, UMMOGFXPlayer* gfxPlayer, UGFxObject* object);
 	void _SetAvailableQuestTraceListItemDesc(const UQuest* quest, UMMOGFXPlayer* gfxPlayer, UGFxObject* object);
 
-	// 任务详情
+	// quest details
 	void _SetQuestDetailTargetCheckTalkNpc(const UQuest* quest, AcceptedQuestData* acceptedQuest, int& destId, UMMOGFXPlayer* gfxPlayer, UGFxObject* objectArray, int& index);
 	void _SetQuestDetailTargetCheckLevel(const UQuest* quest, AcceptedQuestData* acceptedQuest, int& destId, UMMOGFXPlayer* gfxPlayer, UGFxObject* objectArray, int& index);
 	void _SetQuestDetailTargetCheckVariable(const UQuest* quest, AcceptedQuestData* acceptedQuest, int& destId, UMMOGFXPlayer* gfxPlayer, UGFxObject* objectArray, int& index);
@@ -204,21 +204,21 @@ protected:
 	void _SetQuestDetailSubmit(const UQuest* quest, UMMOGFXPlayer* gfxPlayer, UGFxObject* object);
 	void _SetQuestDetailAward(const UQuest* quest, UMMOGFXPlayer* gfxPlayer, UGFxObject* object);
 
-	// 中转NPC检查
+	// transit NPC check
 	void _CheckTransitQuestNpc(const UQuest* quest);
 
-	// 任务NPC
+	// quest NPC
 	void _OnNPCInteract(INT serverId, INT npcId);
 	void _GetMonsterHp(INT npcId, INT& curHp, INT& maxHp);
 	void _SetNpcIcon(class ANPC* npc, const FString& iconName);
 
-	// 限时任务
+	// timed quest
 	void _UpdateQuestTime(FLOAT deltaTime);
 
-	// 悬赏任务
+	// bounty quest
 	void _UpdateRewardQuest(FLOAT deltaTime);
 
-	// 区域任务
+	// area quest
 	void _ExploreZoneFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridData);
 	void _AcceptQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridData);
 	void _CompleteQuestFromGrid(ZONE_DATA* zoneData, GRID_DATA* gridData);
@@ -227,7 +227,7 @@ protected:
 	void _UpdateQuestCoolDown(FLOAT deltaTime);
 	void _UpdateQuestStatusTime(FLOAT deltaTime);
 
-	// 任务对话翻页
+	// quest dialogue page turn
 	void _UpdateQuestPage(float deltaTime);
 
 	void _UpdateQuestStatus();
@@ -242,44 +242,44 @@ protected:
 	FString _CondNotCompleteColor;
 	FString _CondComplete;
 
-	// 飞鞋
+	// flying shoes
 	INT _CurFlyQuestId;
 	INT _CurFlyDestId;
-	// 飞鞋剩余使用次数
+	// remaining flying shoes uses
 	INT _LastFlyShoesUseTimes;	
 
-	// 悬赏任务
+	// bounty quest
 	UBOOL _IsAutoRefresh;
 	UBOOL _HasRewardQuest;
 	INT _RewardQuestBrushLeftTime;
 	FLOAT _RewardQuestBrushLeftTimeProcess;
 
-	// 区域任务
+	// area quest
 	INT _CurQuestGridType;
 	INT _CurQuestGridQuestId[MAX_QUEST_PER_ZONE];
 	FLOAT _QuestGridQueryTimeProcess;
 
-	// 任务对话分页
+	// quest dialogue pagination
 	INT _CurPage;
 	INT _PageTime;
 	FLOAT _PageTimeProcess;
 	DialogContext* _QuestDialongContext;
 	INT _CurPageQuestId;
 
-	// 限时任务
+	// timed quest
 	FLOAT _LimitedTimeQuestProcess;
 
-	// 首次进入游戏触发过场
+	// trigger cutscene on first entering the game
 	UBOOL _FirstMatinee;
 
-	// 记录当前主线/非主线任务的ID,用于任务面板显示
+	// record current main/non-main quest ID, used for quest panel display
 	INT _CurTrunkQuestId;
 	INT _CurOtherQuestId;
 
-	// 紧急任务CD
+	// emergency quest CD
 	FLOAT _QuestCoolDownTimeProcess;
 
-	// 任务状态更新标记
+	// quest state update flag
 	UBOOL _NeedUpdateQuestStatus;
 	FLOAT _QuestStatusTimeProcess;
 	UBOOL _FirstEnterScene;

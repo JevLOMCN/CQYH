@@ -13,7 +13,7 @@ class BlockingVolume extends Volume
 var() bool bBlockCamera;
 
 // oscar@snda
-// 是否只是客户端使用的（如果是不用导出）
+// Whether it is client-only (if so, no need to export)
 var(MMOServer) bool IsClientOnly;
 // oscar@snda
 

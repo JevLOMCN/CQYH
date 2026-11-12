@@ -1,5 +1,5 @@
 /*
- * MMOACTOR类型角色,材质颜色修改器,半透明修改组件
+ * MMOACTOR type character, material color modifier, translucency modifier component
  * 
  * */
 class AbilityEnabledCollsion extends AbilityComponent

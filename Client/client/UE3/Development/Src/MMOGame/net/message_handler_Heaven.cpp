@@ -121,7 +121,7 @@ void CMessageHandler::Send_BuyGasSlot(INT nContainerID,INT nSlotID)
 //#endif
 }
 
-//一键合�
+//One-click merge
 void CMessageHandler::Send_MergeGasOneKey(INT destSlotID)
 {
 	MMOHeavenManager::getSingleton().SetGasOperateType(HeavenGasOperateType_Merge);
@@ -220,7 +220,7 @@ void CMessageHandler::Parse_g2c_spirit_exp_change(const char* buf, UINT32 size)
 
 	if (MMOHeavenManager::getSingleton().GetConvertType() == (INT)HeavenConvertType_JustConvert)
 	{
-		// 引导任务
+		// Guide quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Soul);
 	}
 }
@@ -232,7 +232,7 @@ void CMessageHandler::Parse_g2c_spirit_up(const char* buf, UINT32 size)
 		return;
 	MMOHeavenManager::getSingleton().NotifyUpdateHeavenLevel(msg->nLevel);
 
-	// 成就
+	// Achievement
 	MMOGameEvent_Achievement evtAch(adSpiritLevel, msg->nLevel, 0, 0);
 	MMOUI::PostGameEvent(&evtAch);
 }
@@ -246,25 +246,25 @@ void CMessageHandler::Parse_g2c_spirit_air_change(const char* buf, UINT32 size)
 
 	if(MMOHeavenManager::getSingleton().GetGasOperateType() == (INT)HeavenGasOperateType_Practise)
 	{
-		//练气成功
+		//Qi training succeeded
 
-		//新手引导
+		//Newbie guide
 		MMOGameEvent_Guide evtGuide(EGUET_OpenGas);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
 	else if(MMOHeavenManager::getSingleton().GetGasOperateType() == (INT)HeavenGasOperateType_Merge)
 	{
-		//合成成功
+		//Synthesis succeeded
 	}
 	else if (MMOHeavenManager::getSingleton().GetGasOperateType() == (INT)HeavenGasOperateType_Invalid)
 	{
 		//
 		if(msg->nExp > 0 && msg->nAirID>0 && msg->nBagType == (INT)sasbtEquip)
 		{
-			//引导任务
+			//Guide quest
 			MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Heaven);
 
-			//新手引导
+			//Newbie guide
 			MMOGameEvent_Guide evtGuide(EGUET_EquipGas);
 			MMOUI::PostGameEvent(&evtGuide);
 		}

@@ -1,5 +1,5 @@
 //
-// °ó¶¨ÌØÐ§
+// Bind effect
 //
 class MMOStatusProc_AttachLight extends Object implements(IMMOStatusProc)
 	native

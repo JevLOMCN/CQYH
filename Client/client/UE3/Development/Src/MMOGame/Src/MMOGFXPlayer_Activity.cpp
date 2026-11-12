@@ -159,7 +159,7 @@ void UMMOGFXPlayer_Activity::ASClickGetReward()
 		INT nState = ActivityManager::getSingleton().GetRewardState(nIndex);
 		if(nState == 1)
 		{
-			//點一次只領取一個
+			//claim only one at a time
 			const RewardBarItem* rewardData = ActivityManager::getSingleton().GetRewardBarCondition(nIndex);
 			if( rewardData != NULL ){
 				CMessageHandler::GetInstance().Send_GetActivityReward(rewardData->nID);
@@ -185,12 +185,12 @@ void UMMOGFXPlayer_Activity::ASShowActivityFBView()
 	{
 		if(ActivityManager::getSingleton().GetActivityFilterType() == EActivityCopy)
 		{
-			//副本
+			//Dungeon
 			_ActivityPanel->SetFBDetailInfo(ActivityManager::getSingleton().GetCurActivityId());
 		}
 		else
 		{
-			//活动
+			//Activity
 			_ActivityPanel->SetActivityDetailInfo(ActivityManager::getSingleton().GetCurActivityId());
 		}
 	}

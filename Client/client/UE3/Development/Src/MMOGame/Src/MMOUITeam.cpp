@@ -91,7 +91,7 @@ void UMMOUITeam::NativeInitOnce()
 //	}
 //	else
 //	{
-//		//不在野外地图，不能退队
+//		//Not on a field map, cannot leave team
 //		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Team.SceneCannotLeaveTeam") ) );
 //	}
 //	
@@ -131,7 +131,7 @@ void UMMOUITeam::UpdateMyTeam()
 		ValidGfxObjectFunction( TeamNameTextField , SetVisible(TRUE) );
 		//ValidGfxObjectFunction( TeamNameFrame , SetVisible(TRUE) );
 		
-		//队长
+		//Team leader
 		if( teamMgr.IsTeamLeader() )
 		{
 			//ValidGfxObjectFunction( AssignTypeButtonFree , SetBool( TEXT("enabled") , true ) );
@@ -150,7 +150,7 @@ void UMMOUITeam::UpdateMyTeam()
 		}
 		else
 		{
-			//不是队长才需要更新队名
+			//Only need to update team name if not team leader
 			//ValidGfxObjectFunction( TeamNameTextField , SetText( teamMgr.GetTeamName() ) );
 
 			//ValidGfxObjectFunction( AssignTypeButtonFree , SetBool( TEXT("enabled") , false ) );
@@ -167,7 +167,7 @@ void UMMOUITeam::UpdateMyTeam()
 			eventCallSetAutoTeamVisible(false);
 		}
 
-		//队伍拾取
+		//Team loot
 		if( teamMgr.GetAssignType() == etaFreeForAll )
 		{
 			if( AssignTypeButtonFree )
@@ -229,7 +229,7 @@ void UMMOUITeam::_UpdateMyTeamMember()
 	UMMOUIManager* UIMgr = MMOUI::GetUIManager();
 	INT MyTeamMemberCount = teamMgr.GetTeamMemberCount();
 
-	if( teamMgr.GetTeamMemberCount() > NormalTeamNum/*teamMgr.GetMemberLimit() >= LargeTeamNum*/ ) //大队伍
+	if( teamMgr.GetTeamMemberCount() > NormalTeamNum/*teamMgr.GetMemberLimit() >= LargeTeamNum*/ ) //large team
 	{
 		MemberItem20->SetVisible(true);	
 		//ValidGfxObjectFunction( TeamExpandButton , SetVisible(false) );
@@ -244,7 +244,7 @@ void UMMOUITeam::_UpdateMyTeamMember()
 			}
 			ListItem->SetVisible(false);
 
-			if( i < MyTeamMemberCount ) //有这个队友
+			if( i < MyTeamMemberCount ) //this teammate exists
 			{
 				MMOTeamMember* teamMember = teamMgr.GetTeamMember(i);
 				if(teamMember)
@@ -277,7 +277,7 @@ void UMMOUITeam::_UpdateMyTeamMember()
 			}
 		}
 	}
-	else //小队伍
+	else //small team
 	{
 		MemberItem5->SetVisible(true);
 		for( INT i = 0 ; i< NormalTeamNum ; i++ )
@@ -352,7 +352,7 @@ void UMMOUITeam::_UpdateMyTeamMember()
 //------------------------------------------------------------------------
 void UMMOUITeam::CenterCreateLeaveButton(UBOOL center)
 {
-	////这个按键会动两个位置
+	////This key moves two positions
 	//if( center )
 	//{
 	//	ValidGfxObjectFunction( TeamCreateOrLeaveButton , SetFloat( TEXT("x") , 111 ) ); 
@@ -556,7 +556,7 @@ void UMMOUITeam::SaveName()
 
 	if( MMOUI::HasCensoredWord(TeamName) )
 	{		
-		//队名非法，恢复原来名字
+		//Team name invalid, restore original name
 		TeamNameTextField->SetText( TeamManager::getSingleton().GetTeamName() );
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Team.TeamNameInvalid")),MsgInfoType_Table,TEXT("MMOGame.Team.TeamNameInvalid") );
 		return;
@@ -705,7 +705,7 @@ void UMMOUITeam::PostOnShow(UBOOL show)
 
 		ValidGfxObjectFunction( TeamNameTextField , SetText( TeamManager::getSingleton().GetTeamName() ) );
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_ShowTeamPanel);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -998,7 +998,7 @@ void UMMOUITeam::TeamContentTab(int tabid)
 		NearTeamCurPage = 0;
 		UpdateMyTeam();
 	}
-	else if( tabid == EUITeam_NearbyPlayer ) //附近玩家
+	else if( tabid == EUITeam_NearbyPlayer ) //nearby players
 	{
 		NearbyPlayerPanel->SetVisible(true);
 		NearbyTeamPanel->SetVisible(false);

@@ -34,7 +34,7 @@ public:
 
 	void UpdatePartPower( EPowerPart type );
 
-	//专为单件武器的战斗力
+	//combat power for a single weapon only
 	void UpdateEquipPower( FClientItemInfo* item );
 
 	INT GetPower();

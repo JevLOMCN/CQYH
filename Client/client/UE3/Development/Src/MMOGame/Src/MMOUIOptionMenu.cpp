@@ -144,7 +144,7 @@ void UMMOUIOptionMenu::ShowMapLineList()
 		return;
 	}
 
-	//获得当前地图的分线
+	//get the lines of the current map
 	TArray< MapLineInfo > &sceneLines = pMapDataManager->GetCurMapLines();
 	INT curCombinatedSceneID = pMapDataManager->GetCurSceneLineIn();
 
@@ -189,22 +189,22 @@ void UMMOUIOptionMenu::NativeReturnLogin()
 {
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_OptionQuit,TRUE, "");
 	UMMOUIOptionQuit* QUI =  Cast<UMMOUIOptionQuit>(FindUIPanel(MMOUI::GetUIManager()->Panel_OptionQuit));
-	//QUI->eventUCInitQuitTimer("将在 ", 20, " 秒后自动退出游戏...");
+	//QUI->eventUCInitQuitTimer("Will ", 20, " seconds then exit game automatically...");
 	if(QUI)
 	{
 		QUI->_ReturnType = 1;
 		UGFxObject* immedObj	=QUI->GetObject(TEXT("quit_immed"));
 		if(immedObj)
 		{
-			immedObj->SetString(TEXT("label"),TEXT("立即返回"));
+			immedObj->SetString(TEXT("label"),TEXT("Return Now"));
 		}
 		UGFxObject* cancelObj	=QUI->GetObject(TEXT("quit_cancel"));
 		if(cancelObj)
 		{
-			cancelObj->SetString(TEXT("label"),TEXT("取消返回"));
+			cancelObj->SetString(TEXT("label"),TEXT("Cancel Return"));
 		}
 
-		QUI->eventUCInitQuitTimer(TEXT("将在"), 10, TEXT("秒后返回登录界面"));
+		QUI->eventUCInitQuitTimer(TEXT("Returning to the login screen in "), 10, TEXT(" seconds"));
 	}
 
 	MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_OptionMenu,FALSE, "");

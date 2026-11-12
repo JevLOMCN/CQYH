@@ -3,7 +3,7 @@
 	Filename: 	UMMOGFXPlayer_PickWidget
 	file ext:	uc
 	Author:		hemu@snda
-	Purpose:	µÙ¬‰ ∞»° GFXPlayer-PickWidget
+	Purpose:	Drop pickup GFXPlayer-PickWidget
 *********************************************************************/
 
 class MMOGFXPlayer_PickWidget extends MMOGFXPlayer

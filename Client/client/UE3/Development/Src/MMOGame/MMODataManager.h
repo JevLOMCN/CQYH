@@ -13,7 +13,7 @@
 #define M_SKIP_ROWS 3
 #define M_INVALID_DATA_IDX (-1)
 
-// 实现以下接口声明时传第二个模板参数DataProcessor
+// Pass DataProcessor as the second template parameter when implementing the following interface declarations
 /*
 template<typename T>
 struct TStructDataProcessor
@@ -64,7 +64,7 @@ struct FindDataIndexResult
 	}
 };
 
-// 统计所有读取的表列
+// Count all columns read from tables
 #if !SHIPPING_PC_GAME
 
 void StatTabHeader(const FString& tabFileName, const FString& headerName, const FString& headerUsage);
@@ -101,7 +101,7 @@ FString TReadDataValue_FString(const FString& headerName, class CTabFile* dataRo
 	}
 	else
 	{
-		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("表头:%s 没有找到!"), *headerName));
+		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Table header: %s not found!"), *headerName));
 		return headerName;
 	}
 }
@@ -129,7 +129,7 @@ INT TReadDataValue_Int(const FString& headerName, class CTabFile* dataRow, int r
 	}
 	else
 	{
-		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("表头:%s 没有找到!"), *headerName));
+		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Table header: %s not found!"), *headerName));
 		return 0;
 	}
 }
@@ -147,7 +147,7 @@ BYTE TReadDataValue_ServerEnum(const FString& headerName, class CTabFile* dataRo
 		UEnum* Enum = FindObject<UEnum>(UServerEnum::StaticClass(), clientEnumName, TRUE);
 		if(!Enum)
 		{
-			M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("服务器Enum类型未找到:%s"), clientEnumName));
+			M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Server enum type not found: %s"), clientEnumName));
 			return 0;
 		}
 
@@ -160,7 +160,7 @@ BYTE TReadDataValue_ServerEnum(const FString& headerName, class CTabFile* dataRo
 
 			if(INDEX_NONE == retVal)
 			{
-				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("服务器Enum值读取失败%s : %s"), clientEnumName, dat));
+				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Failed to read server enum value %s : %s"), clientEnumName, dat));
 				return 0;
 			}
 
@@ -175,7 +175,7 @@ BYTE TReadDataValue_ServerEnum(const FString& headerName, class CTabFile* dataRo
 
 			if(INDEX_NONE == retVal)
 			{
-				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("默认服务器Enum值读取失败%s : %s"), clientEnumName, *defaultVal));
+				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Failed to read default server enum value %s : %s"), clientEnumName, *defaultVal));
 				return 0;
 			}
 
@@ -184,7 +184,7 @@ BYTE TReadDataValue_ServerEnum(const FString& headerName, class CTabFile* dataRo
 	}
 	else
 	{
-		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("服务器Enum类型表头未找到:%s"), *headerName));
+		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Server enum type header not found: %s"), *headerName));
 		return 0;
 	}
 }
@@ -212,7 +212,7 @@ FLOAT TReadDataValue_Float(const FString& headerName, class CTabFile* dataRow, i
 	}
 	else
 	{
-		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("表头:%s 没有找到!"), *headerName));
+		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Table header: %s not found!"), *headerName));
 		return 0;
 	}
 }
@@ -233,7 +233,7 @@ T* LoadUEObject(const FString& inObjPath, const FString& cfgFile)
 
 	if(!obj)
 	{
-		M_AddDataError(cfgFile, FString::Printf(TEXT("加载数据对象失败:%s 资源可能被不恰当删除或是已经换名"), *objPath));
+		M_AddDataError(cfgFile, FString::Printf(TEXT("Failed to load data object: %s. The resource may have been deleted improperly or renamed"), *objPath));
 		return 0;
 	}
 
@@ -264,7 +264,7 @@ ObjectType* TReadDataValue_Object(const FString& headerName, class CTabFile* dat
 
 			if(!objectValue)
 			{
-				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("加载数据对象失败:%s 资源可能被不恰当删除或是已经换名"), *objPath));
+				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Failed to load data object: %s. The resource may have been deleted improperly or renamed"), *objPath));
 				return 0;
 			}
 
@@ -278,7 +278,7 @@ ObjectType* TReadDataValue_Object(const FString& headerName, class CTabFile* dat
 	}
 	else
 	{
-		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("表头:%s 没有找到!"), *headerName));
+		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Table header: %s not found!"), *headerName));
 		return 0;
 	}
 }
@@ -304,7 +304,7 @@ ObjectType* TReadDataValue_TemplateIDObject(const FString& headerName, class CTa
 	}
 	else
 	{
-		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("表头:%s 没有找到!"), *headerName));
+		M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Table header: %s not found!"), *headerName));
 		return 0;
 	}
 }
@@ -427,7 +427,7 @@ const TCHAR* TDataManger<DataType, DataProcessor, KeyType>::FindDefaultValue(int
 // 			return _tabFile->GetData(idx, M_DEFAULT_VALUE_ROW);
 // 		}
 
-		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("无法找到默认值的列号:%d 最大列数:%d"), idx, _defaultValues.Num()));
+		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("Cannot find default value column: %d max columns: %d"), idx, _defaultValues.Num()));
 	}
 
 	return TEXT("");
@@ -440,7 +440,7 @@ const TCHAR* TDataManger<DataType, DataProcessor, KeyType>::FindDefaultValue(con
 	if(!r.FoundResult)
 	{
 #if !SHIPPING_PC_GAME
-		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("默认值未找到，表头:%s"), *headerName));
+		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("Default value not found, header: %s"), *headerName));
 #endif
 		return TEXT("");
 	}
@@ -455,7 +455,7 @@ const TCHAR* TDataManger<DataType, DataProcessor, KeyType>::FindHeaderUsage(cons
 	if(!r.FoundResult)
 	{
 #if !SHIPPING_PC_GAME
-		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("Header Usage 未找到，表头:%s"), *headerName));
+		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("Header Usage not found, header: %s"), *headerName));
 #endif
 		return TEXT("");
 	}
@@ -493,7 +493,7 @@ void TDataManger<DataType, DataProcessor, KeyType>::InitFromData(class CTabFile*
 	if(!id.FoundResult)
 	{
 #if !SHIPPING_PC_GAME
-		appMsgf(AMT_OK, TEXT("没有找到表头:%s 配置文件：%s"), *DataProcessor::GetTemplateIDName(), DataProcessor::GetName());
+		appMsgf(AMT_OK, TEXT("Header not found: %s config file: %s"), *DataProcessor::GetTemplateIDName(), DataProcessor::GetName());
 #endif
 		return;
 	}
@@ -569,7 +569,7 @@ void TDataManger<DataType, DataProcessor, KeyType>::AddData(KeyType id, DataType
 	DataTypeMap::iterator it = _dataMap.find(id);
 	if(it != _dataMap.end())
 	{
-		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("重复数据id:%d, 用 [%s] 替换掉了 [%s]"),
+		M_AddDataError(GetTabfileName(), FString::Printf(TEXT("Duplicate data id: %d, replaced [%s] with [%s]"),
 			id, *DataProcessor::FormatAsString(obj), *DataProcessor::FormatAsString(it->second)));
 
 		DataProcessor::DestroyDataObject(it->second);

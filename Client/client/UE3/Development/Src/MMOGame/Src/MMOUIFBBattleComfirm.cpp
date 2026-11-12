@@ -151,7 +151,7 @@ void UMMOUIFBBattleComfirm::InitFBBattleComfirmMc()
 }
 
 //========================================================================================
-//在倒计时里打开界面
+//Open the UI during the countdown
 void UMMOUIFBBattleComfirm::OpenInTime( int iMSec )
 {
 	eventCallASStartCloseCountDown( iMSec );
@@ -210,7 +210,7 @@ void UMMOUIFBBattleComfirm::HideFBSummary()
 void UMMOUIFBBattleComfirm::SendPlayFBAgain()
 {
 	CMessageHandler::GetInstance().Send_PlayFBAgain();
-	//还要重发一遍。。。。
+	//need to resend again....
 	INT curFBDiff = MMOMapDataManager::getSingleton().GetCurFBDiff();
 	CMessageHandler::GetInstance().Send_SelMapDifficulty( curFBDiff );
 	CMessageHandler::GetInstance().Send_EnterDungeon( curFBDiff );
@@ -303,7 +303,7 @@ void UMMOUIFBBattleComfirm::HideFBAward()
 }
 
 //========================================================================================================
-//关闭副本评分，副本抽奖，副本退出重置窗口
+//Close dungeon rating, dungeon lottery, dungeon exit reset windows
 void UMMOUIFBBattleComfirm::CloseAllFBEndUI()
 {
 	UMMOUIFBAward *pFBAwardPanel = (UMMOUIFBAward*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_FBEndAll_FBAward );

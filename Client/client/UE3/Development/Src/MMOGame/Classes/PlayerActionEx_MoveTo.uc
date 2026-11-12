@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_MoveTo，移动到点
+// PlayerActionEx_MoveTo, move to point
 //
 class PlayerActionEx_MoveTo extends PlayerActionEx_Base
 	native;

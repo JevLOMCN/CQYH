@@ -28,20 +28,20 @@ void UMMOUIPVPBattle::PreOnShow( UBOOL show )
 
 	//if( show && !IsWaitingBattle() && ConfirmMsgBox == NULL ){
 	if( show && ConfirmMsgBox == NULL ){
-		//清空
+		//Clear
 			ResetBattleData();
 		//ResetBattleShow();
 
-		//设置战场列表
+		//Set battleground list
 		UpdateBattleList();
 
 		//
 		if( !IsRandomMode ){
-			//设置当前选择的战场界面
+			//Set the currently selected battleground UI
 			UpdateCurBattle( SelectedBtlID );
 		}
 		else{
-			//设置随机战场界面
+			//Set random battleground UI
 			UpdateRandomBattlePanel();
 		}
 
@@ -296,7 +296,7 @@ void UMMOUIPVPBattle::UpdateRandomBattlePanel()
 
 				rewardNum = pBattle->Reward.Items(i).Num;
 				INT itemID = pBattle->Reward.Items(i).ID;
-				if( itemID < E_MONEYTYPE_MAX ){//说明是钱
+				if( itemID < E_MONEYTYPE_MAX ){//it is money
 					if( itemID >= E_MONEYTYPE_01 ){
 						FString moneyName;
 						FString moneyIcon = UITextParser::GetMoneyIconImgAndName( moneyName, itemID );
@@ -393,7 +393,7 @@ void UMMOUIPVPBattle::UpdateCurBattle( INT battleID )
 
 			rewardNum = pBattle->Reward.Items(i).Num;
 			INT itemID = pBattle->Reward.Items(i).ID;
-			if( itemID < E_MONEYTYPE_MAX ){//说明是钱
+			if( itemID < E_MONEYTYPE_MAX ){//it is money
 				if( itemID >= E_MONEYTYPE_01 ){
 					FString moneyName;
 					FString moneyIcon = UITextParser::GetMoneyIconImgAndName( moneyName, itemID );
@@ -565,7 +565,7 @@ void UMMOUIPVPBattle::NotifyEnterBattle()
 //
 void UMMOUIPVPBattle::AgreeEnterBattle()
 {
-	//已经进入战场，恢复动态加载让其销毁
+	//Already entered battleground, restore dynamic loading so it gets destroyed
 	IsDynamicLoad = TRUE;
 
 	MMOBattleManager::getSingleton().ConfirmJoinBattle( TRUE );
@@ -579,7 +579,7 @@ void UMMOUIPVPBattle::AgreeEnterBattle()
 //
 void UMMOUIPVPBattle::DiagreeEnterBattle()
 {
-	//恢复动态加载
+	//Restore dynamic loading
 	IsDynamicLoad = TRUE;
 
 	MMOBattleManager::getSingleton().ConfirmJoinBattle( FALSE );
@@ -587,7 +587,7 @@ void UMMOUIPVPBattle::DiagreeEnterBattle()
 	ConfirmMsgBox = NULL;
 
 	CheckJoinButtons();
-	//相当于离开战场队列
+	//Equivalent to leaving the battleground queue
 	NotifyLeaveBattle();
 }
 //----------------------------------------------------
@@ -634,7 +634,7 @@ void UMMOUIPVPBattle::JoinSingleBattle()
 //
 void UMMOUIPVPBattle::NotifyJoinedBattle( int battleID )
 {
-	//不要动态了，待会进战场后再变成动态加载
+	//No dynamic for now, switch to dynamic loading after entering the battleground
 	IsDynamicLoad = FALSE;
 
 	//disable join others
@@ -673,7 +673,7 @@ void UMMOUIPVPBattle::NotifyJoinedBattle( int battleID )
 //----------------------------------------------------
 void UMMOUIPVPBattle::LeaveBattle()
 {
-	//离开排队队伍，恢复动态加载
+	//Leave the queue, restore dynamic loading
 	IsDynamicLoad = TRUE;
 
 	//set data and send message
@@ -759,7 +759,7 @@ void UMMOUIPVPBattle::InitBattleMc()
 	}
 	//BtlQuickSelectBtn = BattlePanelMC.GetObject( "BtlQuickSelectBtn" );
 	BtlQuickSelectBtn = GetObject( TEXT("BtlQuickSelectBtn") );
-	//单选
+	//Single select
 	//BtlFreeSelectPanel = BattlePanelMC.GetObject( "FreeSelect_mc" );
 	BtlFreeSelectPanel = GetObject( TEXT("FreeSelect_mc") );
 
@@ -774,7 +774,7 @@ void UMMOUIPVPBattle::InitBattleMc()
 	BtlAwardExpTf = BtlFreeSelectPanel->GetObject( TEXT("BtlAwardExpTf") );
 	BtlAwardExpTf->SetVisible( false );
 	BtlLevelTf = BtlFreeSelectPanel->GetObject( TEXT("BtlLevelTf") );
-	//随机
+	//Random
 	//RdmBtlSelectPanel = BattlePanelMC.GetObject( "RandomSelect_mc" );
 	RdmBtlSelectPanel = GetObject( TEXT("RandomSelect_mc") );
 

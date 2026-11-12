@@ -42,7 +42,7 @@ UBOOL _bReturnLogin = FALSE;
 	INT g_moveModGridSize = 1;
 #endif
 
-INT g_netLagToleranceDisatnce = 3; // 网络延迟的距离容差范围，多少个格子
+INT g_netLagToleranceDisatnce = 3; // distance tolerance for network lag, in grid cells
 
 FLOAT g_inMoveRateScale_1 = 0.85;
 FLOAT g_inMoveRateScale_2 = 1.0;
@@ -105,7 +105,7 @@ void AMMOPlayerController::DebugIdleBegin()
 
 void AMMOPlayerController::SetSystemSettings(INT WorldLevel,INT TextureLevel,INT ShadowLevel,INT ResX,INT ResY,UBOOL fullscreen)
 {
-	// TODO: 暂时只设置分辨率
+	// TODO: only set the resolution for now
 	
 	ConsoleCommand(FString::Printf(TEXT("setres %dx%d %s"), ResX, ResY,
 		fullscreen ? TEXT("F") : TEXT("W")));
@@ -138,7 +138,7 @@ void AMMOPlayerController::GetSystemSettings(INT& WorldLevel,INT& TextureLevel,I
 //----------------------
 void AMMOPlayerController::SetTimeFactor(INT state, FLOAT value, FLOAT time)
 {
-	//便于恢复速度
+	//makes it easy to restore speed
 	//if (GTimeFactorState == 0)
 	{
 		GTimeFactorState = state;
@@ -172,10 +172,10 @@ void AMMOPlayerController::LoginGame(const FString& IP,INT Port, const FString& 
 	CMessageHandler::GetInstance().Login(*IP, Port, *UserName,*Password, connectToBS);
 }
 
-//整个程序周期只存在一个AMMOPlayerController，角色重新登录后，所有需要重置的数据放在这里进行
+//Only one AMMOPlayerController exists for the whole program lifetime; after a character logs in again, all data that needs resetting is put here
 void AMMOPlayerController::ResetData( )
 {
-	//PCtrl中数据应是不需要其他玩家知晓，相对操作者的独立数据 
+	//data in PCtrl should not need to be known by other players, independent data relative to the operator
 	RoleList.Empty();
 	DeletingRoleList.Empty();
 	AvatarInfoList.Empty();
@@ -335,7 +335,7 @@ void AMMOPlayerController::SwitchUIPlayerByMapName(const FString& MapName)
 
 	LocalMap = LocalMap.ToLower();
 
-	//if(  appStrcmp(*MapName,*LocalMap) == 0  ) //登录场景
+	//if(  appStrcmp(*MapName,*LocalMap) == 0  ) //login scene
 	//{
 	//	MMOFacade::getSingleton().NotifyEnterLogin();
 	//}
@@ -345,12 +345,12 @@ void AMMOPlayerController::SwitchUIPlayerByMapName(const FString& MapName)
 	//}
 /*
 #if 0 // OSCARLOGIN:
-	if(  appStrcmp(*MapName,*LocalMap) == 0  ) //登录场景
+	if(  appStrcmp(*MapName,*LocalMap) == 0  ) //login scene
 	{
 		MMOFacade::getSingleton().NotifyEnterLogin();
 		if( SplashMovie &&  HudMovie)
 		{ 
-			//Login界面关闭其他无关界面 取消Focus
+			//close other unrelated UI on the Login screen, cancel Focus
 			MMOUI::CloseAllPanels( FALSE );
 			HudMovie->eventSetUIPlayerVisible(false);
 			HudMovie->Close(false);
@@ -368,7 +368,7 @@ void AMMOPlayerController::SwitchUIPlayerByMapName(const FString& MapName)
 			SplashMovie->eventSetUIPlayerVisible(false);
 			SplashMovie->Close(false);
 
-			//GameHud会被移除 但也不至于把逻辑反过来写一遍吧
+			//GameHud will be removed, but there's no need to write the logic backwards
 			HudMovie->Start();
 			HudMovie->Advance(0);
 			HudMovie->eventSetUIPlayerVisible(true);
@@ -411,7 +411,7 @@ void AMMOPlayerController::SendRequest_MoveTo(FVector Position,UBOOL bRunOrWalk)
 
 					FLOAT L = DisDir.Size2D();
 					FLOAT P = abs(DisDir.X)+abs(DisDir.Y);
-					UBOOL bAxial = (P/L>1.2);	//轴向
+					UBOOL bAxial = (P/L>1.2);	//axial
 
 					if(bRunOrWalk)
 					{
@@ -423,7 +423,7 @@ void AMMOPlayerController::SendRequest_MoveTo(FVector Position,UBOOL bRunOrWalk)
 
 						pSelfPlayer->SetMoveType(bAxial?EMT_Run:EMT_Run_Oblique);					
 
-						//动画相位的智能复位，站立一段时候后，再次启动的时候，相位从初始值开始
+						//smart reset of animation phase: after standing for a while, when restarting the phase starts from the initial value
 						if(pSelfPlayer->isMoving==FALSE && pSelfPlayer->ResetMovePhaseTime<0.0f)
 						{
 							pSelfPlayer->SetMoveAnimPosition(bAxial?g_Run_Phase[pSelfPlayer->GetClassId()]:g_Run_Oblique_Phase[pSelfPlayer->GetClassId()]);	
@@ -442,7 +442,7 @@ void AMMOPlayerController::SendRequest_MoveTo(FVector Position,UBOOL bRunOrWalk)
 
 						pSelfPlayer->SetMoveType(bAxial?EMT_Walk:EMT_Walk_Oblique);
 
-						//动画相位的智能复位，站立一段时候后，再次启动的时候，相位从初始值开始
+						//smart reset of animation phase: after standing for a while, when restarting the phase starts from the initial value
 						if(pSelfPlayer->isMoving==FALSE && pSelfPlayer->ResetMovePhaseTime<0.0f)
 						{
 							pSelfPlayer->SetMoveAnimPosition(bAxial?g_Walk_Phase[pSelfPlayer->GetClassId()]:g_Walk_Oblique_Phase[pSelfPlayer->GetClassId()]);	
@@ -815,7 +815,7 @@ void AMMOPlayerController::OnLeaveScene()
 	ClearOldSceneFlags();
 	FSMIO::getSingleton().Target.ClearDesireActor();
 
-	////退出安全区检测
+	////exit safe zone check
 	//AMMOPlayer* player = Cast<AMMOPlayer>(Pawn);
 	//if(player && player->IsInSafeZone)
 	//{
@@ -927,7 +927,7 @@ void AMMOPlayerController::SyncPosition()
 		}
 	}
 }
-//切换Avatar显示装备 ------------------------------------------------------------------------
+//switch Avatar displayed equipment ------------------------------------------------------------------------
 void AMMOPlayerController::SetCharAvatart(int i)
 {
 	AMMOPlayer *pPlayer=GetPlayer();
@@ -1022,7 +1022,7 @@ void AMMOPlayerController::DoMsgBoxOk( INT MsgBoxId, UBOOL agree)
 {
 	switch (MsgBoxId)
 	{
-	case 1://复活
+	case 1://revive
 		CMessageHandler::GetInstance().Send_Revive( 0 );
 		break;
 	default:
@@ -1243,21 +1243,21 @@ FVector AMMOPlayerController::GetFixedMouseHitWorldLocation()
 //		return;
 //	}
 //
-//	////增加非锁定技能的补偿方式
+//	////add a compensation method for non-locking abilities
 //	//MaxDis = InAbility->eventGetMaxAttackDistance();
 //
-//	//if(InAbility->SpellCommonAttribute.LockType == ESL_Type1) //锁定自身技能
+//	//if(InAbility->SpellCommonAttribute.LockType == ESL_Type1) //lock own ability
 //	//{
 //	//	eventAddCmdUseAbility(InAbility, Target, Point);
 //	//}
-//	//else if(InAbility->SpellCommonAttribute.LockType == ESL_Type2) //锁定角色技能
+//	//else if(InAbility->SpellCommonAttribute.LockType == ESL_Type2) //lock character ability
 //	//{
 //	//
 //	//	eventAddCmdMoveToActor((Target, MaxDis * 0.75);
 //	//	eventAddCmdUseAbility(InAbility, Target, Point, false);
 //
 //	//}
-//	//else if(InAbility->SpellCommonAttribute.LockType == ESL_Type3) //鼠标指向
+//	//else if(InAbility->SpellCommonAttribute.LockType == ESL_Type3) //mouse pointing
 //	//{
 //
 //	//	eventAddCmdMoveToActor(Target, MaxDis * 0.75);
@@ -1309,7 +1309,7 @@ UBOOL AMMOPlayerController::EnableMoving(FVector Des)
 	FLOAT ActorDistance;
 	UBOOL bTouch = FALSE;
 	AMMOActor* Self = (AMMOActor*)Pawn;
-	//add by jim ,用于actor接触阻挡的判定
+	//add by jim, used for actor contact blocking determination
 	Self->onTouchActor2.Empty();
 	for (TArrayNoInit<class AMMOActor*>::TIterator i(Self->onTouchActor); i; ++i)
 	{
@@ -1317,7 +1317,7 @@ UBOOL AMMOPlayerController::EnableMoving(FVector Des)
 
 		v1 = p->Location - Pawn->Location ;
 		ActorDistance =  sqrt( v1.X*v1.X + v1.Y*v1.Y + v1.Z*v1.Z);
-		//判定确实是相交的，容差系数0.8
+		//determined to really intersect, tolerance factor 0.8
 		FLOAT d1 = Pawn->CylinderComponent ? Pawn->CylinderComponent->CollisionRadius : 0.0f;
 		FLOAT d2 = p->CylinderComponent ? p->CylinderComponent->CollisionRadius : 0.0f;
 		if( ActorDistance*0.8 < d1+d2 )
@@ -1375,7 +1375,7 @@ void AMMOPlayerController::OnAbilityTimerBarStart(class UMMOAbility* Skill, FLOA
 		FLOAT timeScale = 1.0/Rate;
 		switch(Skill->SpellCommonAttribute.PrepareType)
 		{
-		case ES_PT_Type1: //引导
+		case ES_PT_Type1: //channeling
 			{
 				FLOAT TotalTime = FLOAT(Skill->SpellCommonAttribute.PrepareTimeMax - Skill->SpellCommonAttribute.PrepareTimeMin) / FLOAT(Skill->SpellCommonAttribute.Interval);
 				TotalTime *= FLOAT(IntervalTime)/1000.f;
@@ -1384,14 +1384,14 @@ void AMMOPlayerController::OnAbilityTimerBarStart(class UMMOAbility* Skill, FLOA
 				/////if(HudMovie)HudMovie->eventShowProgressBar(INT(TotalTime*1000.f),Skill->SpellCommonAttribute.AbilityName.ToString(), 1);
 			}
 			break;
-		case ES_PT_Type2: //吟唱
+		case ES_PT_Type2: //chanting
 			{
 				FLOAT TotalTime = Skill->SpellCommonAttribute.PrepareTimeMin * timeScale;
 				MMOUI::GetUIManager()->ShowProgressBar(INT(TotalTime*1000.f),Skill->ClientCommonAttribute.AbilityName, 0);
 				//MMOUI::GetUIManager()->delegateShowProgressBar(INT(TotalTime*1000.f),Skill->ClientCommonAttribute.AbilityName, 0);
 			}
 			break;
-		case ES_PT_Type5: //蓄力
+		case ES_PT_Type5: //charging
 			{
 				FLOAT FullTime	= Skill->SpellCommonAttribute.AccumulateTimeMax * timeScale;
 				MMOUI::GetUIManager()->ShowProgressBarStrength( INT(FullTime*1000.f) ,Skill->SpellCommonAttribute.AccumulateSeg );
@@ -1409,17 +1409,17 @@ void AMMOPlayerController::OnAbilityTimerBarEnd(class UMMOAbility* Skill,UBOOL b
 	{
 		switch(Skill->SpellCommonAttribute.PrepareType)
 		{
-		case ES_PT_Type1: //引导
+		case ES_PT_Type1: //channeling
 			if(bBreak){
 				MMOUI::GetUIManager()->CloseProgressBar(INT(bBreak));
 				//MMOUI::GetUIManager()->delegateCloseProgressBar(INT(bBreak));
 			}
 			break;
-		case ES_PT_Type2: //吟唱
+		case ES_PT_Type2: //chanting
 			MMOUI::GetUIManager()->CloseProgressBar(INT(bBreak));
 			//MMOUI::GetUIManager()->delegateCloseProgressBar(INT(bBreak));
 			break;
-		case ES_PT_Type5: //蓄力
+		case ES_PT_Type5: //charging
 			MMOUI::GetUIManager()->CloseProgressBarStrength(INT(bBreak));
 			//MMOUI::GetUIManager()->delegateCloseProgressBarStrength(INT(bBreak));
 			break;
@@ -1632,7 +1632,7 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 	TryingMoveDest.Z = (INT)(TryingMoveDest.Z + 0.5f);
 
 
-#if 0 // .jump myd  .jump 15210 16534 19400 之后测试这段才OK
+#if 0 // .jump myd  .jump 15210 16534 19400 this section is OK to test afterwards
 	TryingMoveDest = MouseHitWorldLocation;
 	TryingMoveDest.X = 15213.110;
 	TryingMoveDest.Y = 17302.793;
@@ -1674,17 +1674,17 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 	}
 #endif	
 
-	//判断有无必要寻路
+	//determine whether pathfinding is necessary
 	if(bOptimized && (Pawn->Location-TryingMoveDest).Size2D()<64.0f*3.0f )
 	{
 		return FALSE;
 	}
 
-	//判定可否直线直达
+	//determine whether it can be reached in a straight line
 	UBOOL bFind = gServerGridWorld.GeneratePathLine(Pawn->Location, TryingMoveDest);
 	if(bFind==FALSE){
 		bFind = gServerGridWorld.GeneratePath(Pawn->Location, TryingMoveDest);
-		gServerGridWorld.GeneratePathAnz();//路径优化
+		gServerGridWorld.GeneratePathAnz();//path optimization
 	}
 
 #if !SHIPPING_PC_GAME
@@ -1706,9 +1706,9 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 			bLinearMovement = false;
 		}
 	}
-	//else//寻路失败的时候
+	//else//when pathfinding fails
 	//{
-	//	//准备--------------------------------------------------------------------------------
+	//	//preparation--------------------------------------------------------------------------------
 	//	bLinearMovement = false;
 	//	FLOAT   DeltaStep = 64.0f;
 	//	FVector footLocation = Pawn->Location - FVector(0.0,0.0,Pawn->CylinderComponent->CollisionHeight * 0.5f);
@@ -1718,9 +1718,9 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 	//	FVector Dir = fixedTargetPos-footLocation;
 	//	Dir.Normalize();
 
-	//	//判定是否直线行走还是最近点行走
+	//	//determine whether to walk in a straight line or to the nearest point
 	//	UBOOL bF = gServerGridWorld.GeneratePath(footLocation, footLocation+Dir*DeltaStep*2.0f);
-	//	if(bF)//直线行走
+	//	if(bF)//walk in a straight line
 	//	{
 	//		FVector TestPos_Target = BisectionSearchDest(footLocation,footLocation,fixedTargetPos,8);
 	//		//TestPos_Target = TestPos_Target - Dir*DeltaStep;
@@ -1762,7 +1762,7 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 //		FVector TestPos_Target = BisectionSearchDest(footLocation,footLocation,fixedTargetPos,8);
 //		if((TestPos_Target-Pawn->Location).Size2D()>=64.0f+64.0f )
 //		{
-//			//离边缘有64距离
+//			//64 distance from the edge
 //			FVector dir = TestPos_Target - Pawn->Location;
 //			dir.Normalize();
 //			FVector des = TestPos_Target-dir*64.0f;
@@ -1865,7 +1865,7 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 //
 //		if(bCanMove && (TestPos_Target-Pawn->Location).Size2D()>=64.0f+64.0f )
 //		{
-//			//离边缘有64距离
+//			//64 distance from the edge
 //			FVector dir = TestPos_Target - Pawn->Location;
 //			dir.Normalize();
 //			FVector des = TestPos_Target-dir*64.0f;
@@ -1991,9 +1991,9 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 //
 //		if(bFind==FALSE && k>1)
 //		{
-//			// 找到后要退回1格，并取格子化坐标
+//			// after finding, step back 1 cell and take the grid-aligned coordinate
 //			FVector moveDist = Pawn->Location + dir * g_moveModGridSize * Max(0, (k - 1));
-//			moveDist.X = (INT)(moveDist.X / g_moveModGridSize) * g_moveModGridSize + 64 / 2; // 只能按64的半格来走
+//			moveDist.X = (INT)(moveDist.X / g_moveModGridSize) * g_moveModGridSize + 64 / 2; // can only walk in half cells of 64
 //			moveDist.Y = (INT)(moveDist.Y / g_moveModGridSize) * g_moveModGridSize + 64 / 2;
 //
 //			bFind = gServerGridWorld.GeneratePath(Pawn->Location, moveDist);
@@ -2009,7 +2009,7 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 ////-------------------------------------------------------------------------------------------------------------------------
 
 
-//	} // 点到不可走的点时
+//	} // when clicking an unwalkable point
 	//----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -2040,7 +2040,7 @@ UBOOL AMMOPlayerController::ValidateMoveDest()
 #endif
 	
 
-	//warnf(NAME_Error, TEXT("寻路开始----------------------------------------"));
+	//warnf(NAME_Error, TEXT("pathfinding start----------------------------------------"));
 #if !SHIPPING_PC_GAME
 if(g_drawPathDebug)
 {
@@ -2049,13 +2049,13 @@ if(g_drawPathDebug)
 		FVector wayPoint;
 		int     wayPointIndex=0;
 		bool	bRes = true;
-		warnf( TEXT("寻路算法开始----------from: %s -> %s"),*Pawn->Location.ToString(), *TryingMoveDest.ToString());
+		warnf( TEXT("Pathfinding started----------from: %s -> %s"),*Pawn->Location.ToString(), *TryingMoveDest.ToString());
 		while(bRes){
 			bRes = gServerGridWorld.FetchPath(wayPoint, wayPointIndex++);
 			if (bRes)
 				warnf( TEXT("P%d: X:%f Y:%f Z:%f"),wayPointIndex,wayPoint.X,wayPoint.Y,wayPoint.Z);
 		}
-		warnf( TEXT("寻路算法结束------------------------------------------"));
+		warnf( TEXT("Pathfinding finished------------------------------------------"));
 	}
 }
 #endif
@@ -2166,7 +2166,7 @@ void AMMOPlayerController::UpdateMoving()
 //		return;
 //	}
 //
-//	///////////////////////是否在有效的区域内///////////////////////////////
+//	///////////////////////whether within a valid region///////////////////////////////
 //
 //	//ZONE_DATA* pSrcZone = NULL;
 //	//GRID_DATA* pSrcGrid = NULL;
@@ -2174,7 +2174,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //	//if (!pSrcZone || !pSrcGrid)
 //	//{
-//	//	warnf(NAME_Error, TEXT("发现角色陷入障碍物深处，寻路失败，有可能地图的navMesh需要重新生成一下，和服务器差别过大，请查找原因！"));
+//	//	warnf(NAME_Error, TEXT("Character found deep inside an obstacle, pathfinding failed. The map's navMesh may need to be regenerated, it differs too much from the server, please find the cause!"));
 //	//	return;
 //	//}
 //
@@ -2184,7 +2184,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //	//if (!pDestZone || !pDestGrid)
 //	//{
-//	//	warnf(NAME_Error, TEXT("目标点无效，请检查"));
+//	//	warnf(NAME_Error, TEXT("Target point invalid, please check"));
 //	//	return;
 //	//}
 //
@@ -2193,7 +2193,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //	FVector NextPoint;
 //	FVector MicroNextPoint;
-//	//寻路过程中处理
+//	//handling during pathfinding
 //	UBOOL bRes = gServerGridWorld.FetchPath(NextPoint);
 //	if(bRes)
 //	{
@@ -2215,7 +2215,7 @@ void AMMOPlayerController::UpdateMoving()
 //		if(MMOFacade::getSingleton().CheckPlayerBlock(Pawn->Location, MicroNextPoint,player)	)
 //		{
 //			bHaveToGetNextWayPoint = FALSE;
-//			warnf(TEXT("行走被阻挡"));
+//			warnf(TEXT("Walking blocked"));
 //			FSMIO::getSingleton().Trigger.SetWaitingSendMove(FALSE);
 //			if (TargetLocationMarker)
 //			{
@@ -2225,18 +2225,18 @@ void AMMOPlayerController::UpdateMoving()
 //		else
 //		{
 //			//SendRequest_MoveTo(	GetOptimizedDes(NextPoint)	);
-//			//warnf(NAME_Error, TEXT("寻路中途点------UpdateMoving-------x:%f   y:%f"),NextPoint.X,NextPoint.Y );
+//			//warnf(NAME_Error, TEXT("pathfinding midway point------UpdateMoving-------x:%f   y:%f"),NextPoint.X,NextPoint.Y );
 //#ifdef DEBUG_SYNC_INFO
-//			warnf(TEXT("行走过程中，中途折点，发送行走消息-----------X:%f Y:%f Z:%f"),NextPoint.X,NextPoint.Y,NextPoint.Z );
+//			warnf(TEXT("During walking, midway turning point, sending walk message-----------X:%f Y:%f Z:%f"),NextPoint.X,NextPoint.Y,NextPoint.Z );
 //#endif
 //			SendRequest_MoveTo(	NextPoint	);
 //		}
 //	}
-//	else//如果中途断掉，重新寻路
+//	else//if interrupted midway, pathfind again
 //	{
 //		bHaveToGetNextWayPoint = FALSE;
 //		//bLinearMovement=false;
-//		warnf(TEXT("寻路结束"));
+//		warnf(TEXT("pathfinding ended"));
 //		FSMIO::getSingleton().Trigger.SetWaitingSendMove(FALSE);
 //		if (TargetLocationMarker)
 //		{
@@ -2258,7 +2258,7 @@ void AMMOPlayerController::UpdateMoving()
 //	FNavMeshPolyBase* PolySrc = NULL;
 //	FNavMeshPolyBase* PolyDest = NULL;
 //
-//	//1. 判断是不是走到目标点了
+//	//1. determine whether the target point has been reached
 //	if( (TryingMoveDest - Pawn->Location).Size2D() < 10.0f )
 //	{
 //		if(TargetLocationMarker)TargetLocationMarker->Hide();
@@ -2268,7 +2268,7 @@ void AMMOPlayerController::UpdateMoving()
 //	TestPylonS = NavigationHandle->GetPylonFromPos(Pawn->Location, &PolySrc);
 //	TestPylonD = NavigationHandle->GetPylonFromPos(TryingMoveDest, &PolyDest);
 //
-//	//人在navMesh之外，先直线走到navMesh上离他位置最近的点
+//	//the person is outside the navMesh, first walk in a straight line to the point on the navMesh nearest to him
 //	//FLOAT fCollisionRadius = Pawn->GetCollisionRadius();
 //	FLOAT fCollisionRadius = PathFindCollisionRadius;
 //	if(TestPylonS == NULL)
@@ -2284,21 +2284,21 @@ void AMMOPlayerController::UpdateMoving()
 //		}
 //		else
 //		{
-//			warnf(NAME_Error, TEXT("发现角色陷入障碍物深处，寻路失败，有可能地图的navMesh需要重新生成一下，和服务器差别过大，请查找原因！"));
+//			warnf(NAME_Error, TEXT("Character found deep inside an obstacle, pathfinding failed. The map's navMesh may need to be regenerated, it differs too much from the server, please find the cause!"));
 //			return;
 //		}
 //	}
 //
-//	//目标点在navMesh之外，先寻找离目标点最近的在navMesh上的点
+//	//the target point is outside the navMesh, first find the point on the navMesh nearest to the target point
 //	if(TestPylonD == NULL)
 //	{
 //		bHaveToGetNextWayPoint = FALSE;
 //		b2D = TRUE;
 //
-//		//预先寻找最近的导航点
+//		//find the nearest navigation point beforehand
 //		if( NavigationHandle->GetClosedPosInNavigationMash(
 //			TryingMoveDest, Pawn->WalkableFloorZ, FLOAT(64 * 16),
-//			fCollisionRadius, ClosedPos )   )//先搜寻范围32倍格子
+//			fCollisionRadius, ClosedPos )   )//first search a range of 32 times the grid
 //		{
 //			bOptimizeTargetPos = (TryingMoveDest - ClosedPos).Size2D() > fCollisionRadius;
 //			TestPylonD = NavigationHandle->GetPylonFromPos(ClosedPos);
@@ -2316,7 +2316,7 @@ void AMMOPlayerController::UpdateMoving()
 //				FLOAT L = P.Z-TryingMoveDest.Z;
 //				FLOAT S = Pawn->Location.Z-TryingMoveDest.Z;
 //				TryingMoveDest = P + D*(L-S)/L;
-//				warnf(NAME_Error, TEXT("在目标点没有找到navMesh，自动转成2d屏幕鼠标坐标"));
+//				warnf(NAME_Error, TEXT("No navMesh found at the target point, automatically converted to 2d screen mouse coordinates"));
 //			}
 //
 //
@@ -2327,7 +2327,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //				if( NavigationHandle->GetClosedPosInNavigationMash(
 //					TryingMoveDest, Pawn->WalkableFloorZ, FLOAT(64 * 16),
-//					fCollisionRadius, ClosedPos )   )//先搜寻范围32倍格子
+//					fCollisionRadius, ClosedPos )   )//first search a range of 32 times the grid
 //				{
 //					//bOptimizeTargetPos = (TryingMoveDest - ClosedPos).Size2D() > fCollisionRadius;
 //					TestPylonD = NavigationHandle->GetPylonFromPos(TryingMoveDest);
@@ -2342,7 +2342,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //				TryingMoveDest = (TryingMoveDest+Pawn->Location)/2.0;
 //				//TestPylonD = NavigationHandle->GetPylonFromPos(TryingMoveDest);
-//				warnf(NAME_Error, TEXT("路径预折分！%d"), Loop );
+//				warnf(NAME_Error, TEXT("Path pre-split! %d"), Loop );
 //				Loop = Loop+1;
 //			}
 //		}
@@ -2351,9 +2351,9 @@ void AMMOPlayerController::UpdateMoving()
 //
 //	if(TestPylonD)
 //	{
-//		if(bHaveToGetNextWayPoint == FALSE)//寻路过程中不进行匹配
+//		if(bHaveToGetNextWayPoint == FALSE)//no matching during pathfinding
 //		{
-//			//如果点击在poly内，但是离边缘小于碰撞半径的情况下
+//			//if the click is inside the poly but less than the collision radius from the edge
 //			FVector TryingMoveDest2 = TestPylonD->NavMeshPtr->W2LTransformFVector(TryingMoveDest);
 //			if(TestPylonD->NavMeshPtr->ContainsPoint( TryingMoveDest2 ) == FALSE )
 //			{
@@ -2369,7 +2369,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //			//if (!pPoly)
 //			//{
-//			//	warnf(NAME_Error, TEXT("終點無效"));
+//			//	warnf(NAME_Error, TEXT("Endpoint invalid"));
 //			//	return;
 //			//}
 //
@@ -2428,14 +2428,14 @@ void AMMOPlayerController::UpdateMoving()
 //		}
 //	}
 //
-//	//判断是否在寻路过程中
+//	//determine whether pathfinding is in progress
 //	if(bHaveToGetNextWayPoint == FALSE)
 //	{
 //		bFoundPath = eventFindPath(TryingMoveDest);
 //
-//		if(bFoundPath==false)//如果寻路不到
+//		if(bFoundPath==false)//if no path is found
 //		{
-//			warnf(NAME_Error, TEXT("路径不通！"));
+//			warnf(NAME_Error, TEXT("Path is blocked!"));
 //			//
 //			FString errorStr = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOErrorInfo.Navigation.NoPath") );
 //			MMOUI::GetUIManager()->delegateAddScreenMessage( errorStr ,MsgInfoType_Table,TEXT("MMOErrorInfo.Navigation.NoPath"));
@@ -2446,7 +2446,7 @@ void AMMOPlayerController::UpdateMoving()
 //		}
 //	}
 //
-//	//寻路过程中处理
+//	//handling during pathfinding
 //	if( m_NavHelper->GetNextMoveLocation( NextPoint, fCollisionRadius)) // Pawn->GetCollisionRadius()/5 ))
 //	{
 //		MMOGameEvent_Any evt(GameEvent_UpdateMovePath);
@@ -2462,7 +2462,7 @@ void AMMOPlayerController::UpdateMoving()
 //		startPoint.Z = 0;
 //		endPoint.Z = 0;
 //
-//		//防止寻找失败，但是报正确，其实点在原点没动，navmesh连这种bug都有，要命咧
+//		//prevent the case where the search fails but reports success, when the point is actually at the origin and didn't move; navmesh even has this kind of bug, terrible
 //		if((NextPoint-Pawn->Location).SizeSquared2D()<KINDA_SMALL_NUMBER)
 //		{
 //			endPoint = NextPoint = TryingMoveDest;
@@ -2471,7 +2471,7 @@ void AMMOPlayerController::UpdateMoving()
 //
 //		FLOAT dis = PointDistToSegment(point, startPoint, endPoint, OutClosestPoint); 
 //
-//		//因为有碰撞半径，有时候搜点的时候会先到一个远的点,（这个nevMesh有点傻，途经终点而不停，奔到远点后再回奔终点）
+//		//because of the collision radius, the point search sometimes goes to a far point first (this nevMesh is a bit dumb: it passes the endpoint without stopping, runs to the far point, then runs back to the endpoint)
 //		if(dis<fCollisionRadius && (NextPoint-Pawn->Location).SizeSquared2D()>=(TryingMoveDest-Pawn->Location).SizeSquared2D()   )
 //		{
 //			bLinearMovement=true;
@@ -2479,7 +2479,7 @@ void AMMOPlayerController::UpdateMoving()
 //			SendRequest_MoveTo(TryingMoveDest);
 //			//GWorld->GetWorldInfo()->DrawDebugLine(TryingMoveDest+FVector(0.0f,0.0f,1000.f),TryingMoveDest+FVector(0.0f,0.0f,-1000.f),255,255,0,TRUE);
 //			//FVector delta = TryingMoveDest - Pawn->Location;
-//			//warnf(NAME_Error, TEXT("这是终点next : %f,%f pos:%f,%f"),delta.Size2D(),delta.SizeSquared2D(), TryingMoveDest.X,TryingMoveDest.Y );
+//			//warnf(NAME_Error, TEXT("this is the endpoint next : %f,%f pos:%f,%f"),delta.Size2D(),delta.SizeSquared2D(), TryingMoveDest.X,TryingMoveDest.Y );
 //		}
 //		else
 //		{
@@ -2499,14 +2499,14 @@ void AMMOPlayerController::UpdateMoving()
 //		}
 //
 //	}
-//	else//如果中途断掉，重新寻路
+//	else//if interrupted midway, pathfind again
 //	{
 //		bHaveToGetNextWayPoint = FALSE;
 //		//eventMoveToPoint(TryingMoveDest);
 //		bLinearMovement=false;
 //		//eventRequestAndDoMove(TryingMoveDest, Pawn->GroundSpeed,TRUE);
 //		SendRequest_MoveTo(TryingMoveDest);
-//		warnf(NAME_Error, TEXT("寻路中途，找不到下一点了"));
+//		warnf(NAME_Error, TEXT("Midway through pathfinding, cannot find the next point"));
 //		//UpdateMoving();
 //	}
 //#endif
@@ -2702,7 +2702,7 @@ void AMMOPlayerController::NativeAddCmdUseAbility(UMMOAbility *InAbility, AActor
 
 	if( curActor->CanUseAnyAbility() == false )
 	{
-		//上一个动作还未结束
+		//the previous action has not finished yet
 		warnf( NAME_Log, TEXT("can not use ability ,return!") );
 		return;
 	}
@@ -2726,7 +2726,7 @@ void AMMOPlayerController::NativeAddCmdUseAbility(UMMOAbility *InAbility, AActor
 		return;
 	}
 
-	//蓝不够
+	//Not enough mana
 	UBOOL isManaOK = InAbility->CanUseManaCheck( curActor );
 	if( isManaOK == FALSE )
 	{
@@ -2762,7 +2762,7 @@ void AMMOPlayerController::NativeAddCmdUseAbility(UMMOAbility *InAbility, AActor
 		useAbilityAction->Target = Cast< AMMOActor >( target );
 		useAbilityAction->bPrimAttackDynamicAbility = FALSE;
 
-		//如果有target目标，则用目标的坐标作为target坐标，因为延时命令执行时，target目标会在移动，一般锁定点技能，target是为null jimzhang@snda.com
+		//If there is a target, use the target's coordinates as the target coordinates, because the target moves while the delayed command executes; for point-lock abilities the target is null jimzhang@snda.com
 		if(useAbilityAction->Target != NULL )
 		{
 			useAbilityAction->TargetLocation = target->Location;
@@ -2827,7 +2827,7 @@ void AMMOPlayerController::PressAbilityKey(class UMMOAbility* InAbility,class AA
 		FSMIO::getSingleton().Target.SetKeepRunning(FALSE);
 	}
 
-	//开关类技能执行
+	//toggle-type ability execution
 	if(InAbility && InAbility->SpellCommonAttribute.CastType==E_spct_Switch)
 	{
 		if(bRelease==FALSE)
@@ -2861,7 +2861,7 @@ void AMMOPlayerController::PressAbilityKey(class UMMOAbility* InAbility,class AA
 		return;
 	}
 
-	//非开关类技能
+	//non-toggle ability
 	if(bRelease)
 	{
 		FSMIO::getSingleton().Ctrl.AbilityKeyUp();
@@ -2878,7 +2878,7 @@ void AMMOPlayerController::PressAbilityKey(class UMMOAbility* InAbility,class AA
 			}
 			else
 			{
-				//这个错误提示不用提示，所以杠掉..... 
+				//this error message needs no prompt, so it is struck out.....
 				//FString enumVal(g_szErrorCodeNameList[errSpellConditionError]);
 				//FString strString = FString::Printf(TEXT("MMOErrorInfo.ERROR_CODE_DEF.%s"), *enumVal);
 				//MMOUI::GetUIManager()->delegateAddScreenMessage(FString::Printf(TEXT("MMOErrorInfo.ERROR_CODE_DEF.%s"), *enumVal),MsgInfoType_Table,strString);
@@ -3546,14 +3546,14 @@ void AMMOPlayerController::SetTraceActor(class AActor* inTraceActor)
 //		}
 //		//else if( TraceActor->IsA(AMMODropActor::StaticClass()) )
 //		//{
-//		//	//黄色宝藏
+//		//	//yellow treasure
 //		//	AMMODropActor* dropActor = Cast<AMMODropActor>(TraceActor);
 //		//	dropActor->Mesh->ShowSilhouette = TRUE;
 //		//	dropActor->Mesh->SilhouetteColor = FVector( 1, 1, 0 );
 //		//}
 //		//else if( TraceActor->IsA(AMMODoodadActor::StaticClass()) )
 //		//{
-//		//	//黄色宝藏
+//		//	//yellow treasure
 //		//	AMMODoodadActor* doodadActor = Cast<AMMODoodadActor>(TraceActor);
 //		//	if(doodadActor->CanInteract())
 //		//	{
@@ -3573,7 +3573,7 @@ void AMMOPlayerController::SetTraceActor(class AActor* inTraceActor)
 //	}
 }
 
-////用于Trace到非Actor，如UI等元素，但实现和Trace到actor一样结果的方法 
+////a method for Tracing to non-Actors such as UI elements, with the same result as Tracing to an actor
 //void AMMOPlayerController::SetDesiredTraceActor(AActor* tActor )
 //{
 //	SetTraceActor(tActor);
@@ -3606,7 +3606,7 @@ void AMMOPlayerController::SetTraceActor(class AActor* inTraceActor)
 
 void AMMOPlayerController::NativeOnRightMouseKey(UBOOL bRelease)
 {
-	// 点击到游戏中，即所有界面不响应鼠标右键，发出失去焦点，但其任然是焦点UI，zhaojun@snda-----------------------------------------------------------
+	// clicking into the game, i.e. all UI doesn't respond to the right mouse button, sends focus lost, but it is still the focus UI, zhaojun@snda-----------------------------------------------------------
 	if (FGFxEngine::GetEngine()->GetFocusMovie(0) && FGFxEngine::GetEngine()->GetFocusMovie(0)->pUMovie)
 	{
 		if (InTextInput)
@@ -3646,12 +3646,12 @@ void AMMOPlayerController::NativeOnRightMouseKey(UBOOL bRelease)
 
 	if(bRelease==false)
 	{
-		//右键关闭UI，鉴定，分解，等的特殊处理
+		//special handling for closing UI with right click, identify, decompose, etc.
 		MMOUI::GetUIManager()->ClearCurrentItemSlotActionListener();
 	}
 	SetTraceActor(PickPointActorPreferred(StartTrace, EndTrace));
 
-	if(bRelease)//松开
+	if(bRelease)//released
 	{
 		bRightMousePressed = !bRelease;
 		PressAbilityKey(ToUseAbility,NULL, bRelease,FALSE);
@@ -3675,7 +3675,7 @@ void AMMOPlayerController::SetTransformState( UBOOL isTransformed )
 	IsInTransform = isTransformed;
 }
 
-//确认Slot切换
+//confirm Slot switch
 void AMMOPlayerController::EquipNewSpellAndAutoUnequipOld( int slotId, int abilityId, int abilityLv, int runeSlot, UBOOL isLocked )
 {
 	MMOSkillManager &mmoSkillMgr = MMOSkillManager::getSingleton();
@@ -3688,7 +3688,7 @@ void AMMOPlayerController::EquipNewSpellAndAutoUnequipOld( int slotId, int abili
 
 	//
 	if( abilityId <= 0 ){
-        //空的Slot
+        //empty Slot
 		UnEquipSpell( slotId, isLocked );
 	}
 	else{
@@ -3698,14 +3698,14 @@ void AMMOPlayerController::EquipNewSpellAndAutoUnequipOld( int slotId, int abili
 			warnf( NAME_Error, TEXT("AMMOPlayerController::EquipSpell FindAbilityTemplate FAILED At skillID:%d,LV:%d,RuneID:%d"), abilityId, abilityLv, runeSlot );
 		}
         
-		//先卸下原装配的技能
+		//first unequip the previously equipped ability
 		UnEquipSpell( slotId, isLocked );
 
-		//装配新技能
+		//equip the new ability
 		AMMOPlayer* mainPlayer = Cast<AMMOPlayer>( Pawn);
 		mainPlayer->EquipSpell( slotId, newAbility );
 
-		//Slot上有技能 则这个Slot肯定Locked为false
+		//if the Slot has an ability, then this Slot is definitely not Locked
         KeyMapManager->BindingSlot( slotId, UICT_UseAbility, abilityId );
 
 		FSMIO::getSingleton().Target.UpdateDesireAbility( slotId, abilityId);
@@ -3713,11 +3713,11 @@ void AMMOPlayerController::EquipNewSpellAndAutoUnequipOld( int slotId, int abili
 	}	
 }
 
-//卸载装配的技能
+//unequip the equipped ability
 void AMMOPlayerController::UnEquipSpell( INT slotId, UBOOL isLocked )
 {
 	AMMOPlayer* mainPlayer = Cast<AMMOPlayer>( Pawn);
-	//先卸下原装配的技能
+	//first unequip the previously equipped ability
 	INT oldEquipedSkillID = KeyMapManager->GetCmdIDBySlotID( slotId );
 	UMMOAbility *pEquipedSkill = mainPlayer->GetEquipedAbilityById( oldEquipedSkillID );
 	if( pEquipedSkill != NULL ){
@@ -3727,7 +3727,7 @@ void AMMOPlayerController::UnEquipSpell( INT slotId, UBOOL isLocked )
 	KeyMapManager->UnBindingSlot( slotId, isLocked );
 }
 
-//在场景中显示技能范围
+//show ability range in the scene
 void AMMOPlayerController::GuildAbilityInScene( UMMOAbility *toGuildAbility, UBOOL isToShow )
 {
 	//warnf(NAME_Warning, TEXT("AMMOPlayerController::GuildAbilityInScene %s %d") , *toGuildAbility->eventGetAbilityName(), isToShow);
@@ -3822,7 +3822,7 @@ void AMMOPlayerController::NativeMoveToPoint(FVector Des, UBOOL bRunOrWalk,UBOOL
 	}
 	else
 	{
-		//无法行走被阻挡，验证动态阻挡的正确性，主要是检查是否有格子上的actor是错误的
+		//cannot walk, blocked; verify the correctness of dynamic blocking, mainly checking whether any actor on a grid cell is wrong
 		static UBOOL bOpen = TRUE;
 		if(bOpen)
 		{
@@ -3838,7 +3838,7 @@ void AMMOPlayerController::NativeMoveToPoint(FVector Des, UBOOL bRunOrWalk,UBOOL
 
 			if(dis2D<91.0f)
 			{
-				DesEx = mainActor->ServerLocation + dir*128.0f*1.20f;//系数1.2是为了均分八格子为22.5°
+				DesEx = mainActor->ServerLocation + dir*128.0f*1.20f;//the factor 1.2 is to divide the eight grid cells evenly into 22.5 degrees
 			}
 		
 			INT MoveDirIndex		= gServerGridWorld.OptimizeDir_Mir2(mainActor->ServerLocation,DesEx);
@@ -3884,7 +3884,7 @@ void AMMOPlayerController::SetTargetLocationMarker(FVector Pos, class AMMOActor*
 
 void AMMOPlayerController::ShowTargetLocationMarker()
 {
-	// 过场播放时, 禁止显示
+	// during cutscene playback, disable display
 	AMMOPlayer* mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
 	if (mainPlayer && mainPlayer->IsInMatinee)
 	{
@@ -3894,7 +3894,7 @@ void AMMOPlayerController::ShowTargetLocationMarker()
 	if(TargetLocationActor==NULL && TargetLocationMarkerCanShow){
 		if(TargetLocationMarker ) //&&  Pawn && Pawn->isMoving )
 		{
-			// navmesh较真实地形有一定的偏差，绘制行走点时pick到真实地形上，zhaojun@snda
+			// navmesh deviates somewhat from the real terrain, so pick onto the real terrain when drawing walk points, zhaojun@snda
 			FCheckResult* HitR = MMO::PickPoint(TargetLocationPos + FVector(0,0,100), TargetLocationPos - FVector(0,0,100), this->Pawn);
 			if(HitR)
 			{
@@ -3909,7 +3909,7 @@ void AMMOPlayerController::ShowTargetLocationMarker()
 //
 void AMMOPlayerController::NativeOnLeftMouseKey(UBOOL bRelease)
 {
-	// 点击到游戏中，即所有界面不响应鼠标左键，发出失去焦点，但其任然是焦点UI，zhaojun@snda-----------------------------------------------------
+	// clicking into the game, i.e. all UI doesn't respond to the left mouse button, sends focus lost, but it is still the focus UI, zhaojun@snda-----------------------------------------------------
 // 	FGFxMovie* pFocus = FGFxEngine::GetEngine()->GetFocusMovie(0);
 // 	if(pFocus && pFocus->pUMovie)
 // 	{
@@ -3953,12 +3953,12 @@ void AMMOPlayerController::NativeOnLeftMouseKey(UBOOL bRelease)
 
 	UMMOAbility* ToUseAbility = FSMIO::getSingleton().Ctrl.GetLeftBtnBindAbility(bRelease);
 	
-	if(bRelease)//松开
+	if(bRelease)//released
 	{
 		bLeftMousePressed = false;
 		PressAbilityKey(ToUseAbility,NULL, bRelease,TRUE);
 	}
-	else//按下
+	else//pressed
 	{
 		bLeftMousePressed = true;
 //		NativeGetPickPointActorPreferred();
@@ -4039,7 +4039,7 @@ void AMMOPlayerController::SetCurrentMouseCursor(BYTE cursorType)
 	MMOFacade::SetMouseCursor((EMMOCursorType)cursorType);
 }
 
-////技能升级功能开启
+////Ability upgrade function enabled
 //void AMMOPlayerController::EnableSkillUp( UBOOL isEnable )
 //{
 //    UMMOUISkillPanel* skillPanel = ( UMMOUISkillPanel* )MMOUI::FindUIPanel ( "Skill" );
@@ -4151,8 +4151,8 @@ void AMMOPlayerController::NativeOnEnterPressed()
 {
 	debugf(TEXT("---------------[AMMOPlayerController::NativeOnEnterPressed]"));
 
-	// oscar@snda 移到KeyManager中
-// 	// 判定当前是否是聊天输入模式，并进行切换，设置焦点
+	// oscar@snda moved to KeyManager
+// 	// determine whether it is currently chat input mode, switch, and set focus
 // 	UMMOUIBase* PanelChat = MMOUI::FindUIPanel(TEXT("Chat"));
 // 	UMMOUIBase* PanelSkilbar = MMOUI::FindUIPanel(TEXT("Skillbar"));
 // 	UMMOUIChat* Chat = Cast<UMMOUIChat>(MMOUI::FindUIPanel(TEXT("Chat")));
@@ -4172,11 +4172,11 @@ void AMMOPlayerController::NativeOnEnterPressed()
 // // 			Chat->ShowInputArea(FALSE);
 // // 			//FGFxEngine::GetEngine()->SetFocusMovie(PanelSkilbar->GFXPlayer->pMovie);
 // // 			MMOUI::RemoveTop(PanelChat); 
-// // 			//PanelChat->GFXPlayer->ASFocusInTextInput(FALSE);	// 该句应有chat->OnFoucsLost()执行过来，这里暂时hack
+// // 			//PanelChat->GFXPlayer->ASFocusInTextInput(FALSE);	// this should be executed from chat->OnFoucsLost(), hacked here for now
 // // 		}
 // // 		else
 // // 		{
-// // 			//非聊天的输入框
+// // 			//non-chat input box
 // // 			// do nothing
 // // 		}
 // 	}
@@ -4187,7 +4187,7 @@ void AMMOPlayerController::NativeOnEnterPressed()
 // 		//FGFxEngine::GetEngine()->SetFocusMovie(PanelChat->GFXPlayer->pMovie);
 // 		Chat->eventCallShowPrivateName();
 // 		MMOUI::MoveToTop(PanelChat);
-// 		Chat->Invoke(TEXT("SetTextInputFocus"),Args);	// 该句应有chat->OnFoucsGained()执行过来，这里暂时hack
+// 		Chat->Invoke(TEXT("SetTextInputFocus"),Args);	// this should be executed from chat->OnFoucsGained(), hacked here for now
 // 	}
 	
 }
@@ -4342,7 +4342,7 @@ void AMMOPlayerController::NativeTestEfficiency(INT nEfficiency)
 
 void AMMOPlayerController::NativeTestVersion()
 {
-	//MMOUI::GetUIManager()->delegateShowUnlockAOGString(TEXT("声望升级"));
+	//MMOUI::GetUIManager()->delegateShowUnlockAOGString(TEXT("Reputation level up"));
 
 	//MMOGameEvent_MarqueeNoticeInfo evt(  "1111111111111" , "#ffff00" , 3 , 20000 );
 	//MMOUI::PostGameEvent( &evt);
@@ -4373,11 +4373,11 @@ void AMMOPlayerController::NativeTestBlock(INT BlockType, FLOAT BlockRadius)
 	MMOFacade::getSingleton().BlockRadius = BlockRadius;
 }
 
-//退出游戏 重新登录
+//exit the game and log in again
 extern void ShowSDOLoginDialogWnd(bool bForce);
 void AMMOPlayerController::ReturnLogin()
 {
-    //直接加载地图 进入Loading状态
+    //load the map directly and enter the Loading state
     if( EGameState_InGame == MMO::GetCurrentGameState() || EGameState_Loading == MMO::GetCurrentGameState())
     {
         MMO::ActiveGameState( EGameState_Loading );
@@ -4417,10 +4417,10 @@ void AMMOPlayerController::ReturnLogin()
   
 }
 
-//退出游戏 重新选择人物 预留着 
+//exit the game and reselect character, reserved
 void AMMOPlayerController::ReturnSelect()
 {
-    //直接加载地图 进入Loading状态
+    //load the map directly and enter the Loading state
     MMO::ActiveGameState( EGameState_Loading );
 
     FString LocalMap = FFilename(GConfig->GetStr( TEXT("URL"), TEXT("LocalMap"),	GEngineIni )).GetBaseFilename();
@@ -4727,7 +4727,7 @@ UBOOL AMMOPlayerController::IsPlayingMatinee()
 
 		 if(!strKey.IsEmpty())
 		 {
-			 FString text = FString::Printf( TEXT("使用快捷键%s可以显示/隐藏其他玩家"), *(strKey) );
+			 FString text = FString::Printf( TEXT("Press %s to show/hide other players"), *(strKey) );
 			 MMOChatManager::getSingleton().AddSystemMessage( text );
 			 MMOUI::GetUIManager()->delegateAddScreenMessage( text ,MsgInfoType_Normal);
 		 }
@@ -4911,11 +4911,11 @@ void  AMMOPlayerController::NativeTest(INT testData)
 	//MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 	//for( INT i = E_NES_MAIN_HAND; i < E_NES_TOTAL; ++i ){
 	//	if( i == E_NES_AVATAR ){
-	//		//暂时没有
+	//		//none for now
 	//		continue;
 	//	}
 
-	//	//其他
+	//	//other
 	//	FClientItemInfo* pItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED , i );
 	//	if( pItemInfo != NULL && testData == i ){
 	//		pItemInfo->m_nCurDur = pItemInfo->m_nMaxDur * 0.2;
@@ -5039,80 +5039,80 @@ void AMMOPlayerController::SetSmoothFrameRate(UBOOL on,FLOAT minFPS,FLOAT maxFPS
 #if !MMO_FINAL_SHIPPING
 
 INT TheWarriorEquipForLevel40[] = {
-	//50910141, //--剑盾
-	50910241, //--巨剑
-	//50910341, //--双斧
-	50911141, //--头部
-	50911241, //--肩部
-	50911341, //--身体
-	50911441, //--腿部
-	50911541, //--腰部
-	50911641, //--手腕
-	50911741, //--脚
-	50911841, //--披风
-	//50952141, //--手镯
-	//50952142, //--手镯
-	//50952241, //--项链
-	//50952341, //--戒指
-	//50952342 //--戒指
+	//50910141, //--sword and shield
+	50910241, //--greatsword
+	//50910341, //--dual axes
+	50911141, //--head
+	50911241, //--shoulders
+	50911341, //--body
+	50911441, //--legs
+	50911541, //--waist
+	50911641, //--wrists
+	50911741, //--feet
+	50911841, //--cloak
+	//50952141, //--bracelet
+	//50952142, //--bracelet
+	//50952241, //--necklace
+	//50952341, //--ring
+	//50952342 //--ring
 };
 
 
 INT TheAssassinEquipForLevel40[] = {
-	//50920141,// --剑盾
-	//50920241,// --巨剑
-	50920341,// --双斧
-	50921141,// --头部
-	50921241,// --肩部
-	50921341,// --身体
-	50921441,// --腿部
-	50921541,// --腰部
-	50921641,// --手腕
-	50921741,// --脚
-	50921841,// --披风
-	//50952141,// --手镯
-	//50952142,// --手镯
-	//50952241,// --项链
-	//50952341,// --戒指
-	//50952342 --戒指
+	//50920141,// --sword and shield
+	//50920241,// --greatsword
+	50920341,// --dual axes
+	50921141,// --head
+	50921241,// --shoulders
+	50921341,// --body
+	50921441,// --legs
+	50921541,// --waist
+	50921641,// --wrists
+	50921741,// --feet
+	50921841,// --cloak
+	//50952141,// --bracelet
+	//50952142,// --bracelet
+	//50952241,// --necklace
+	//50952341,// --ring
+	//50952342 --ring
 };
 
 INT TheArcherEquipForLevel40[] = {
-	//50930141,// --双弩
-	//50930241,// --重弩
-	50930341,// --弓
-	50931141,// --头部
-	50931241,// --肩部
-	50931341,// --身体
-	50931441,// --腿部
-	50931541,// --腰部
-	50931641,// --手腕
-	50931741,// --脚
-	50931841,// --披风
-	//50952141,// --手镯
-	//50952142,// --手镯
-	//50952241,// --项链
-	//50952341,// --戒指
-	//50952342 --戒指
+	//50930141,// --dual crossbows
+	//50930241,// --heavy crossbow
+	50930341,// --bow
+	50931141,// --head
+	50931241,// --shoulders
+	50931341,// --body
+	50931441,// --legs
+	50931541,// --waist
+	50931641,// --wrists
+	50931741,// --feet
+	50931841,// --cloak
+	//50952141,// --bracelet
+	//50952142,// --bracelet
+	//50952241,// --necklace
+	//50952341,// --ring
+	//50952342 --ring
 };
 
 INT TheMageEquipForLevel40[] = {
-	//50940141,// --祭祀小刀
-	//50940241,// --锤盾
-	50940341,// --法杖
-	50941141,// --头部
-	50941241,// --肩部
-	50941341,// --身体
-	50941441,// --腿部
-	50941541,// --腰部
-	50941641,// --手腕
-	50941741,// --脚
-	50941841,// --披风
-	//50952141,// --手镯
-	//50952142,// --手镯
-	//50952241,// --项链
-	//50952341,// --戒指
-	//50952342 --戒指
+	//50940141,// --ritual dagger
+	//50940241,// --hammer and shield
+	50940341,// --staff
+	50941141,// --head
+	50941241,// --shoulders
+	50941341,// --body
+	50941441,// --legs
+	50941541,// --waist
+	50941641,// --wrists
+	50941741,// --feet
+	50941841,// --cloak
+	//50952141,// --bracelet
+	//50952142,// --bracelet
+	//50952241,// --necklace
+	//50952341,// --ring
+	//50952342 --ring
 };
 
 INT* testEquipArr[] =

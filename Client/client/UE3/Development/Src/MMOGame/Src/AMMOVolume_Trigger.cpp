@@ -173,7 +173,7 @@ void AMMOVolume_Trigger::OnTriggerGuide(class AMMOPlayer* Other)
 {
 	if (Other && Other->IsMainPlayer())
 	{
-		// Òýµ¼
+		// Guide
 		MMOGameEvent_Guide evtGuide(EGUET_EnterZone, GuideId);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
@@ -222,7 +222,7 @@ void AMMOVolume_Trigger::OnLeaveSafe(class AMMOPlayer* Other)
 	//		//{
 	//		//	warnf(NAME_Error, TEXT("OnLeaveSafe!"));
 	//		//}
-	//		MMOFacade::getSingleton().GetMMOBuffManager()->DeleteBuff(Other->ServerID, SERVERID_SAFEZONE);// >AddOrChangeBuff(NULL, Other->ServerID, 2502999, 2502, 0, 1.0, 1¡£0, 1,TRUE);
+	//		MMOFacade::getSingleton().GetMMOBuffManager()->DeleteBuff(Other->ServerID, SERVERID_SAFEZONE);// >AddOrChangeBuff(NULL, Other->ServerID, 2502999, 2502, 0, 1.0, 1.0, 1,TRUE);
 	//	}
 
 	//}

@@ -79,7 +79,7 @@ BYTE AMMODropActor::GetMouseCursor()
 
 bool AMMODropActor::CanBePick()
 {
-	// 动画期间不能被PICK，确保掉到地上的动画完成播放
+	// cannot be PICKed during the animation, ensure the drop-to-ground animation finishes playing
 	if(EnableSpawnAnim)
 	{
 		return false;
@@ -107,7 +107,7 @@ void AMMODropActor::Pickup()
 		return;
 	}
 
-	// 任务 #16150 负重检查(绑金，金币，经验不检查)
+	// quest #16150 weight check (bound gold, gold coins, exp are not checked)
 	if (ItemTemplate->GetTemplateID() != 0 &&
 		ItemTemplate->GetTemplateID() != 1 &&
 		ItemTemplate->GetTemplateID() != 10)
@@ -218,7 +218,7 @@ void AMMODropActor::EndSpawnAnim(bool isNew)
 		}
 	}
 
-	// 货币
+	// currency
 	//if(ItemTemplate && ItemTemplate->GetTemplateID() <= 100)
 	if(g_SetToTargetPosOnEnd)
 	{
@@ -298,7 +298,7 @@ void AMMODropActor::TickSpecial( FLOAT DeltaSeconds )
 		}
 		else
 		{
-			// 是金币
+			// is gold coins
 			if(TemplateItemID < 100 && SpawnScaleTimer < 1.0f )
 			{
 				SpawnScaleTimer += DeltaSeconds * SpawnScaleSpeed;

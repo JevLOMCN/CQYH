@@ -57,7 +57,7 @@ void NPCTemplateIndexDataProcessor::ParseData( NPCTemplateDataIndex* obj, class 
 {
 	obj->ObjectPath = TReadDataValue_FString<NPCTemplateDataIndexManager>(TEXT("Index"), dataRow, rowIdx);
 	obj->DisplayName = TReadDataValue_FString<NPCTemplateDataIndexManager>(TEXT("DisplayName"), dataRow, rowIdx);
-	// add by zhangrui05@snda：任务需要建立怪物组的列表
+	// add by zhangrui05@snda: quests need a list of monster groups
 	INT groupId = TReadDataValue_Int<NPCTemplateDataIndexManager>(TEXT("GroupID"), dataRow, rowIdx);
 	INT monsterId = TReadDataValue_Int<NPCTemplateDataIndexManager>(TEXT("TemplateID"), dataRow, rowIdx);
 	if (groupId > 0)

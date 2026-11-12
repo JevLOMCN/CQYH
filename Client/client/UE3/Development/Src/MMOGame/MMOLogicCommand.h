@@ -9,25 +9,25 @@
 class ILogicCommandFactory;
 
 //------------------------------------------------------------------------
-// 逻辑操作命令类型
+// logic command type
 //------------------------------------------------------------------------
 enum ELogicCommandType
 {
 	LCT_Invalid = -1,
-	LCT_Action,				// 动作
-	LCT_StopAction,			// 停止动作
-	LCT_Move,				// 移动
-	LCT_StopMove,			// 中止移动
-	LCT_AbilityUse,			// 直接使用技能
-	LCT_AbilitySpell,		// 分解技能聚气
-	LCT_AbilityCast,		// 分解技能发招
-	LCT_AbilityGuide,		// 分解技能引导
-	LCT_LifeAbility,		// 生活技能
+	LCT_Action,				// action
+	LCT_StopAction,			// stop action
+	LCT_Move,				// move
+	LCT_StopMove,			// stop move
+	LCT_AbilityUse,			// use ability directly
+	LCT_AbilitySpell,		// decomposed ability: charge
+	LCT_AbilityCast,		// decomposed ability: cast
+	LCT_AbilityGuide,		// decomposed ability: channel
+	LCT_LifeAbility,		// life skill
 	LCT_Max
 };
 
 //------------------------------------------------------------------------
-// 逻辑操作命令参数
+// logic command parameters
 //------------------------------------------------------------------------
 struct LogicCommandParameter
 {
@@ -37,7 +37,7 @@ struct LogicCommandParameter
 };
 
 //------------------------------------------------------------------------
-// 逻辑操作命令数据结构封装
+// logic command data structure wrapper
 //------------------------------------------------------------------------
 class LogicCommand// : public FUseSystemMallocForNew
 {
@@ -61,16 +61,16 @@ public:
 
 protected:
 
-	// 起始时间
+	// start time
 	UINT	_startTime;
 
-	// 逻辑计数
+	// logic count
 	INT		_logicCount;
 
-	// 技能类型
+	// ability type
 	ELogicCommandType _cmdType;
 
-	// 逻辑命令工厂管理
+	// logic command factory management
 	typedef std::map<int, ILogicCommandFactory*> LogicFactoryMap;
 	static LogicFactoryMap g_logicFactoryMap;
 
@@ -79,7 +79,7 @@ protected:
 };
 
 //------------------------------------------------------------------------
-// 逻辑操作命令对象工厂
+// logic command object factory
 //------------------------------------------------------------------------
 class ILogicCommandFactory
 {

@@ -3,11 +3,11 @@ class MMOUIRClickMenuChild extends MMOUIBase
 
 var GFxObject _ConfirmBox;
 var const int ButtonMaxNum;
-var GFxObject CurClickButton; //点击的按钮
+var GFxObject CurClickButton; //clicked button
 var int ChildStep;
 var int ChildHigh;
 var int OwnerRoleId;
-var array<delegate<ClickFunc> > FuncListChild; // 二级的
+var array<delegate<ClickFunc> > FuncListChild; // secondary
 
 delegate ClickFunc( int idx );
 

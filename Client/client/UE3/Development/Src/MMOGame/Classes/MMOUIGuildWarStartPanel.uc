@@ -17,7 +17,7 @@ event CallUpdateGuildWarStartInfo(string icon, string text)
 	ActionScriptVoid("UCUpdateGuildWarStartInfo");
 }
 
-// ≤Œ’Ω
+// Join battle
 native final function ASJoinWar();
 
 DefaultProperties

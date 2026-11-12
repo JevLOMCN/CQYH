@@ -24,7 +24,7 @@ event CallSetGuildWelfarePage(int curPage, int maxPage)
 	ActionScriptVoid("UCSetGuildWelfarePage");
 }
 
-// ·­Ò³
+// Turn page
 native final function ASWelfarePageUp();
 native final function ASWelfarePageDown();
 native final function ASPurchaseWelfare(int id);

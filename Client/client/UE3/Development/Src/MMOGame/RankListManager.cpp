@@ -175,7 +175,7 @@ void RankListManager::SetType(RANK_LIST type)
 			eRankList = rlArena1v1;
 		}
 		break;
-	case rlLevel:					// 等级排行榜
+	case rlLevel:					// level ranking
 	case rlLevelWarrior:
 	case	rlLevelMage:
 	case	rlLevelRogue:
@@ -185,7 +185,7 @@ void RankListManager::SetType(RANK_LIST type)
 			eRankList = rlLevel;
 			break;
 		}
-	case rlPower:					// 战斗力排行榜
+	case rlPower:					// combat power ranking
 	case	rlPowerWarrior:
 	case	rlPowerMage:
 	case	rlPowerRogue:
@@ -195,7 +195,7 @@ void RankListManager::SetType(RANK_LIST type)
 			eRankList = rlPower;
 			break;
 		}
-	//case	rlArmerPower:				// 装备战斗力排行榜
+	//case	rlArmerPower:				// equipment combat power ranking
 	//case	rlArmerPowerWarrior:
 	//case rlArmerPowerMage:
 	//case	rlArmerPowerRogue:
@@ -204,7 +204,7 @@ void RankListManager::SetType(RANK_LIST type)
 	//		eRankList = rlArmerPower;
 	//		break;
 	//	}
-	//case	rlSpiritPower:				// 境界战斗力排行榜
+	//case	rlSpiritPower:				// realm combat power ranking
 	//case	rlSpiritPowerWarrior:
 	//case	rlSpiritPowerMage:
 	//case	rlSpiritPowerRogue:
@@ -213,10 +213,10 @@ void RankListManager::SetType(RANK_LIST type)
 	//		eRankList = rlSpiritPower;
 	//		break;
 	//	}
-	case	rlGuild_Resource_Wood:		// 家族资源01
-	case	rlGuild_Resource_Herb:		// 家族资源02
-	case	rlGuild_Resource_Crystal:	// 家族资源03
-	case	rlGuild_Resource_Silver:	// 家族资源04
+	case	rlGuild_Resource_Wood:		// family resource 01
+	case	rlGuild_Resource_Herb:		// family resource 02
+	case	rlGuild_Resource_Crystal:	// family resource 03
+	case	rlGuild_Resource_Silver:	// family resource 04
 		{
 			eRankList = rlGuild_Resource_Herb;
 			break;
@@ -229,7 +229,7 @@ void RankListManager::SetType(RANK_LIST type)
 	//		eRankList = rlDungeonNormalScore;
 	//		break;
 	//	}
-	//case rlItemPower:                   //体格战斗力
+	//case rlItemPower:                   //physique combat power
 	//case rlItemPowerWarrior:
 	//case rlItemPowerMage:
 	//case rlItemPowerRogue:
@@ -281,33 +281,33 @@ INT RankListManager::getMaxRankListCount()
 {
 	switch(GetType())
 	{
-	case	rlLevel:					// 等级排行榜
-	case	rlPower:					// 战斗力排行榜
-	//case	rlArmerPower:				// 装备战斗力排行榜
-	//case	rlSpiritPower:				// 境界战斗力排行榜
-	//case	rlItemPower:                // 体格战斗力
-	case	rlMoney:					// 财富排行榜
-	case	rlAchievement:				// 成就点数排行榜
-	case	rlMaster:					// 名师值排行榜
-	case	rlPkValue:					// pk值排行榜
-	case	rlTotalKillCount:			// 总杀人数
+	case	rlLevel:					// level ranking
+	case	rlPower:					// combat power ranking
+	//case	rlArmerPower:				// equipment combat power ranking
+	//case	rlSpiritPower:				// realm combat power ranking
+	//case	rlItemPower:                // physique combat power
+	case	rlMoney:					// wealth ranking
+	case	rlAchievement:				// achievement points ranking
+	case	rlMaster:					// famous master value ranking
+	case	rlPkValue:					// pk value ranking
+	case	rlTotalKillCount:			// total kills
 	//case rlExp:
 		{
 			return MAXRANKLISTCOUNT_PERSON;
 			break;
 		}
-		// 家族排行榜
-	case	rlGuild_Level:				// 家族等级排行榜
-	case	rlGuild_Money:				// 家族金钱排行榜
-	case	rlGuild_Resource_Herb:		// 家族资源01
+		// family ranking
+	case	rlGuild_Level:				// family level ranking
+	case	rlGuild_Money:				// family money ranking
+	case	rlGuild_Resource_Herb:		// family resource 01
 	case	rlGuild_Pow:
 	case    rlGuild_War:
 
-		// 竞技场排行榜
+		// arena ranking
 	//case	rlRoleArenaScore:				
 	//case	rlArenaScore:
-	case	rlGuild_Resource_Wood:		    // 家族资源02
-	case	rlGuild_Resource_Crystal:	    // 家族资源03
+	case	rlGuild_Resource_Wood:		    // family resource 02
+	case	rlGuild_Resource_Crystal:	    // family resource 03
 	case	rlGuild_Resource_Silver:	
 		{
 			return MAXRANKLISTCOUNT_GUILD;

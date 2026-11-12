@@ -206,7 +206,7 @@ UBOOL MMOAssistData::IsDropAutoPick(UINT32 id)
 		return iter->second.AutoPick;
 	}
 
-	// 表里没配的默认自动拾取
+	// Default to auto-pickup if not configured in the table
 	return TRUE;
 }
 
@@ -218,7 +218,7 @@ UBOOL MMOAssistData::IsDropVisible(UINT32 id)
 		return iter->second.Visible;
 	}
 
-	// 表里没配的默认可见
+	// Default to visible if not configured in the table
 	return TRUE;
 }
 

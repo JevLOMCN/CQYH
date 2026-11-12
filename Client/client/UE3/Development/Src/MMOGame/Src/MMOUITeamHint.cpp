@@ -130,7 +130,7 @@ void UMMOUITeamHint::UpdateHint()
 
 void UMMOUITeamHint::ASTeamHintLeave()
 {
-	//MMOMsgBoxManager::getSingleton().AddModalMessageBoxEvent( TEXT("Àë¿ª¶ÓÎé£¿") , 0 , GameEvent_TeamLeaveAsk );
+	//MMOMsgBoxManager::getSingleton().AddModalMessageBoxEvent( TEXT("Leave party?") , 0 , GameEvent_TeamLeaveAsk );
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	if(player)
 	{

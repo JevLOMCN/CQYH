@@ -92,7 +92,7 @@ event DeleteTargetBuffPanel(int buffSlotID)
 	TargetInfo.DeleteBuff( buffSlotID );
 }
 
-//≤ª”√
+//Unused
 function SetHp( int ComboCount)
 {
 	ActionScriptVoid("root.SetCombo");

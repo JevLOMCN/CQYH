@@ -184,7 +184,7 @@ void UStallManager::AddStallItem(int stallSlot, int srcConId, int srcSlotId, int
 	FClientItemInfo* tItemInfo = MMOFacade::getSingleton().FindItem(srcConId , srcSlotId);
 	if (tItemInfo)
 	{
-		// fix bug #23292 这里不能减，会影响耐久，经验瓶的储值
+		// fix bug #23292 cannot subtract here, it would affect durability and the stored value of the experience bottle
 		//tItemInfo->MinusSaleDur(itemCount); 
 		tItemInfo->SetSaleDur(tItemInfo->m_nCurDur);
 	}
@@ -205,7 +205,7 @@ void UStallManager::AddStallItem(int stallSlot, int srcConId, int srcSlotId, int
 
 	if (durType == E_DURTYPE_STACK)
 	{
-		// 现在无法在已经售出的slot上叠加
+		// currently cannot stack on an already sold slot
 		stallItemInfo.CurDur = itemCount;
 		if (stallItemInfo.Item)
 		{
@@ -214,7 +214,7 @@ void UStallManager::AddStallItem(int stallSlot, int srcConId, int srcSlotId, int
 	}
 	else 
 	{
-		// 装备或者无耐久物品 无法叠加 
+		// equipment or items without durability cannot be stacked
 		stallItemInfo.CurDur = 1;
 	}
 
@@ -241,7 +241,7 @@ void UStallManager::AddStallBuyItem(int stallSlot, int itemId, int itemCurDur, i
 	stallItemInfo.DurType = item->ItemDuration;
 	stallItemInfo.Price = itemPrice;
 	stallItemInfo.ModifyTime = modfiyTime;
-	stallItemInfo.SrcBag   = E_CONSLOT_STALL_BUY; //固定 存在本地的StallBuy
+	stallItemInfo.SrcBag   = E_CONSLOT_STALL_BUY; //fixed, StallBuy stored locally
 	stallItemInfo.SrcSlot  = stallSlot;
 
 	if (stallItemInfo.DurType == E_DURTYPE_STACK)
@@ -266,7 +266,7 @@ void UStallManager::ResetStallSellItem(int stallSlot)
 		return;
 	}
 
-	// 背包解锁
+	// bag unlock
 	if (_StallItemSellInfo[stallSlot].SrcBag >= 0 && _StallItemSellInfo[stallSlot].SrcSlot >= 0)
 	{
 		MMOFacade::getSingleton().LockItem(_StallItemSellInfo[stallSlot].SrcBag, _StallItemSellInfo[stallSlot].SrcSlot, -1);
@@ -308,14 +308,14 @@ void UStallManager::BuyStallItem(int stallSlot, int leftCount)
 	{
 		return;
 	}
-	//将拆出来的Dur数量加回去 Flag这里不做处理 到最后一并清
+	//add the split-out Dur amount back; Flag is not handled here, cleared all at once at the end
 	stallItemInfo.CurDur = leftCount;
 	SetStallBuyItem(stallSlot, stallItemInfo);
 
 	FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindItem(stallItemInfo.SrcBag , stallItemInfo.SrcSlot);
 	if (itemInfo)
 	{
-		//重新计算当前出售物品总价
+		//recalculate total price of items currently for sale
 		itemInfo->OnSaleCount = leftCount;
 		itemInfo->m_nCurDur = leftCount;
 	}
@@ -395,7 +395,7 @@ void UStallManager::SellStallItem(int stallSlot, int sellCount)
 		return;
 	}
 
-	// 加入交易记录
+	// add to trade record
 	StallRecordInfo record;
 	__time32_t localTime;
 	_time32(&localTime);
@@ -409,7 +409,7 @@ void UStallManager::SellStallItem(int stallSlot, int sellCount)
 	{
 		record.ItemName = FString::Printf(TEXT("%s x%d"), *item->GetDisplayName(), sellCount);
 	}
-	record.Operate = TEXT("出售");
+	record.Operate = TEXT("Sell");
 	record.Profit = stallItemInfo.Price * sellCount;
 	_StallRecordInfoList.push_back(record);
 
@@ -419,7 +419,7 @@ void UStallManager::SellStallItem(int stallSlot, int sellCount)
 	FClientItemInfo* itemInfo = MMOFacade::getSingleton().FindItem(stallItemInfo.SrcBag , stallItemInfo.SrcSlot);
 	if (itemInfo)
 	{
-		//重新计算当前出售物品总价
+		//recalculate total price of items currently for sale
 		itemInfo->OnSaleCount -= sellCount;
 		//tItemInfo->m_nCurDur = tItemInfo->OriDur - tItemInfo->OnSaleCount;
 		//tItemInfo->OriDur -= sellCount;
@@ -446,7 +446,7 @@ void UStallManager::RemoveStallItem(int stallSlot)
 		return;
 	}
 
-	// 将拆出来的Dur数量加回去 Flag这里不做处理 到最后一并清
+	// add the split-out Dur amount back; Flag is not handled here, cleared all at once at the end
 	if (stallItemInfo.Item)
 	{
 		stallItemInfo.Item->DefaultDuration += stallItemInfo.CurDur;
@@ -567,7 +567,7 @@ void UStallManager::CreateStallActor(AMMOPlayer* player)
 		return;
 	}
 
-	// 加入到管理列表
+	// add to management list
 	_StallPlayerActorMap.insert(std::make_pair(player->ServerID, stallActor->GetIndex()));
 
 	if (!stallActor->StallMeshComponent)
@@ -628,7 +628,7 @@ void UStallManager::RequestOpenStall()
 		return;
 	}
 
-	// 检查Guid上能不能摆摊
+	// check whether stall can be set up on Guid
 	ZONE_DATA* zoneData = NULL;
 	GRID_DATA* gridData = NULL;
 	INT tax = EST_5;
@@ -643,7 +643,7 @@ void UStallManager::RequestOpenStall()
 		}
 	}
 
-	// 检查距离周围摊位的距离
+	// check distance to surrounding stalls
 	STLInt2IntMap* characterMap = MMOFacade::getSingleton().GetCharacterMap();
 	if (characterMap)
 	{
@@ -665,7 +665,7 @@ void UStallManager::RequestOpenStall()
 		}
 	}
 
-	// 找到最近的摆摊点
+	// find the nearest stall spot
 	AMMOStallPoint* stallPoint = 0;
 	FLOAT dist = 1e30;
 	for (TObjectIterator<AMMOStallPoint> iter; iter; ++ iter)
@@ -706,7 +706,7 @@ void UStallManager::OpenStall(AMMOPlayer* player)
 		MMOUI::GetUIManager()->delegateOpenBag(E_CONSLOT_DEFAULT);
 		MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_Stall_StallSetting, TRUE, "");
 
-		// 税率
+		// tax rate
 		SetTax(EST_5);
 		ZONE_DATA* zoneData = NULL;
 		GRID_DATA* gridData = NULL;

@@ -15,19 +15,19 @@
 
 using namespace FSM;
 
-//FSM控制类注册--------------------------------------------------------------------------------------------------
+//FSM control class registration--------------------------------------------------------------------------------------------------
 //ADD_FSM_CTRL(FSMCtrl_Mir2_PlayerClassA_Attack)
 
 extern UBOOL g_PreMovetoPoint;
 extern INT g_TotalFrameNum;
-////shift键原地使用技能---------------------------------------------------------------------------------------------
-//UBOOL FSMCtrl_Mir2_PlayerClassA_Attack::Update(FLOAT DelTime)//战士
+////Shift key use ability in place---------------------------------------------------------------------------------------------
+//UBOOL FSMCtrl_Mir2_PlayerClassA_Attack::Update(FLOAT DelTime)//Warrior
 //{
 //	if( FSM::Char.MainPlayer		&&
 //		FSM::Char.Controller		&&
 //		FSM::Char.MainPlayer->GetClassId()==EPCT_PlayerClassA )
 //	{
-//		//主键攻击
+//		//Main key attack
 //		if(FSM::Ctrl.KeyType==KT_PRIMARY)
 //		{
 //
@@ -46,13 +46,13 @@ extern INT g_TotalFrameNum;
 //
 //	switch(MMOFacade::getSingleton().GetMainActor()->GetClassId())
 //	{
-//	case EPCT_PlayerClassA://战士
+//	case EPCT_PlayerClassA://Warrior
 //		_ActivateGuide(2019);
 //		break;
-//	case EPCT_PlayerClassB://法师
-//	case EPCT_PlayerClassC://刺客
-//	case EPCT_PlayerClassD://弓手
-//	case EPCT_PlayerClassE://道士
+//	case EPCT_PlayerClassB://Mage
+//	case EPCT_PlayerClassC://Assassin
+//	case EPCT_PlayerClassD://Archer
+//	case EPCT_PlayerClassE://Taoist
 //
 //
 //
@@ -73,7 +73,7 @@ extern INT g_TotalFrameNum;
 //	}
 //
 //
-//	////按住shift进行强行有目标的攻击的暂停
+//	////Holding shift pauses forced targeted attack
 //	//if(	FSM::Input.ShiftDown==FALSE	&&
 //	//	FSM::Input.ShiftDown_Last==TRUE&&
 //	//	FSM::Target.DesireMMOActor &&
@@ -93,9 +93,9 @@ extern INT g_TotalFrameNum;
 //
 //void FSMCtrl_ShiftAbility::Action()
 //{
-//	//直接施放技能
+//	//Cast ability directly
 //	if(FSM::Char.Controller){
-//		//这是一个奇葩的分支，shift按住攻击目标的时候要能释放开关类技能
+//		//This is an odd branch, when holding shift to attack a target, toggle-type abilities must be castable
 //		if(FSM::Ability.UsableAbility->SpellCommonAttribute.CanMoveInPrepare)
 //		{
 //			if(FSM::Ctrl.state_Switching_Flag)

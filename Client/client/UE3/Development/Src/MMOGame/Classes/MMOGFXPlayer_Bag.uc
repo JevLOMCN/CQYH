@@ -38,7 +38,7 @@ function RegisterMoneyExchange( MMOUIMoneyExchange mc )
 // moved
 event bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string strHoverControllerName, Vector2D ClickPosInMovieSpace)
 {
-	// 鼠标滚动，且不在界面内
+	// Mouse wheel scroll, and not inside the UI
 	if ((key == "MouseScrollUp" || key == "MouseScrollDown") && (strHoverControllerName == ""))
 		return false;
 	else
@@ -53,7 +53,7 @@ event ClearItemSlot(GFxObject ItemSlot)
 	local int slotId;
 	conslotId = ECONTAINER_SLOT( ItemSlot.GetInt("containerID") );
 	slotId = ItemSlot.GetInt("slotID");
-	//重载掉这个函数，bag里清格子属性是ESPType_Bag
+	//Override this function; clearing slot attributes in bag uses ESPType_Bag
 	SetItemSlotData( ItemSlot, none, ESPType_Bag , conslotId , slotId );
 }
 
@@ -96,7 +96,7 @@ native function ASSignatureItem();// moved
 
 native function ASClickMoneyChain( bool selected );// moved
 
-//重载一下这个
+//Override this
 native function SetItemSlotData( GFxObject mc , Item tItem, ESlotPanelType SlotType, optional ECONTAINER_SLOT ContainerID = E_CONSLOT_MAX, optional int SlotID = -1, optional EItemSlotState inISS = ISS_Normal); // moved
 native function ASStartDrag(GFxObject srcItemSlot, ESlotPanelType srcSlotType, ECONTAINER_SLOT srcContainerID, int srcSlotID); // moved
 

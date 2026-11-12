@@ -33,7 +33,7 @@ void UMMOUIActivityQuitPanel::PostOnShow(UBOOL v)
 	if(v)
 	{
 #if 0
-		// 2.6版本暂时改为直接退出游戏（缺陷：11644）
+		// version 2.6 temporarily changed to exit the game directly (defect: 11644)
 		MMOUI::GetUIManager()->SendQuitGame();
 		Show(FALSE);
 #endif

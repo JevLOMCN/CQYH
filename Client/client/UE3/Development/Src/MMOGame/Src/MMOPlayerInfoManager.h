@@ -22,7 +22,7 @@ typedef struct _PlayerDetailInfo
 	INT Sex;
 	FString RoleName;
 	INT Power;
-	//¾³½ç
+	//realm
 	INT heavenLevel;
 	INT heavenExp;
 	UBOOL isLevelLimited;

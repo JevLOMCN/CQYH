@@ -1,10 +1,10 @@
 //
-// 动画通知扩展类
+// animation notify extension class
 //
 class AnimNotify_ScriptedEx extends AnimNotify_Scripted
 	;
 
-// 取得Socket位置
+// get Socket position
 function vector GetSocketWorldPosition(SkeletalMeshComponent mesh, name socketName)
 {
 	local Vector pos;
@@ -16,7 +16,7 @@ function vector GetSocketWorldPosition(SkeletalMeshComponent mesh, name socketNa
 	return pos;
 }
 
-// 取得Socket朝向
+// get Socket orientation
 function rotator GetSocketWorldRotation(SkeletalMeshComponent mesh, name socketName)
 {
 	local Vector pos;
@@ -28,7 +28,7 @@ function rotator GetSocketWorldRotation(SkeletalMeshComponent mesh, name socketN
 	return rot;
 }
 
-// 如果没有socket就取角色位置
+// if there is no socket, use the character position
 function GetWorldPosRot(Actor Owner, name socketName, out Vector pos, out Rotator rot)
 {
 	local Pawn pawn;

@@ -28,7 +28,7 @@ event InitOnce()
 }
 
 native function NativeInitOnce();
-//Õ½¶Ó
+//Battle team
 native function UpdateBattleMemberList();
 native function UpdateBattleTeamInfo();
 native function AcceptJoinBattleTeam( GFxObject mc );

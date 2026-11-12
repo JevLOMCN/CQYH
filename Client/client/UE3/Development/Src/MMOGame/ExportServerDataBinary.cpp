@@ -28,7 +28,7 @@ void ExportBinaryServerScene()
 	GServerSceneExporterList.Empty();
 
 	//
-	// 注册所有的导出器(注意先后顺序会影响导出数据顺序)
+	// Register all exporters (note that the order affects the order of exported data)
 	//
 	//------------------------------------------------------------------------
 	//REG_SERVER_EXPORTER(Exporter_TriggerVolume);
@@ -42,7 +42,7 @@ void ExportBinaryServerScene()
 	//------------------------------------------------------------------------
 
 	//
-	// 注册所有的扩展导出器(处理需要二次加工的全局数据导出)
+	// Register all extension exporters (handle global data export that needs secondary processing)
 	//
 	//------------------------------------------------------------------------
 	REG_GLOBAL_EXPORTEREX(Exporter_Teleports);
@@ -60,13 +60,13 @@ void ExportBinaryServerScene()
 	}
 
 	GlobalAutoID = 0;
-	// 先预处理一遍
+	// Preprocess once first
 	for (INT i = 0; i < GServerSceneExporterList.Num(); ++i)
 	{
 		GServerSceneExporterList(i)->PrePorcess(GlobalAutoID);
 	}
 
-	// 再导出
+	// Then export
 	FString ExportDir;
 	GConfig->GetString(TEXT("Configuration"), TEXT("ServerSceneDataExport"), ExportDir, GEditorIni);
 	FString PathName = ExportDir + GWorld->GetWorldInfo()->GetMapName() + TEXT("\\");
@@ -74,14 +74,14 @@ void ExportBinaryServerScene()
 	FString fileName = PathName + GWorld->GetWorldInfo()->GetMapName() + TEXT(".scn");
 
 	FBufferArchive    memAr;
-	//先申请足够的空间，防止后面ReAllocate地址会发生改变，导致修改SCENE_FILE_BLOCK_HEADER失效
-	//@万一场景文件出问题，先到这里瞧瞧 hemu@snda 120508
+	//Allocate enough space first, to prevent the address from changing on a later ReAllocate, which would invalidate modifications to SCENE_FILE_BLOCK_HEADER
+	//@In case the scene file has problems, look here first hemu@snda 120508
 	memAr.Add(  1024*1024*5  );
-	//SCENE_FILE_HEADER 头文件写入
+	//Write SCENE_FILE_HEADER header
 	SCENE_FILE_HEADER fileHeader = {0};
 	fileHeader.dwTag = SCENE_FILE_TAG;
 	fileHeader.dwVersion = SCENE_FILE_VERSION;
-	//注意：GServerSceneExporterList.Num() != BlockCount 
+	//Note: GServerSceneExporterList.Num() != BlockCount
 	fileHeader.nBlockCount  = 0;
 	for (INT i = 0; i < GServerSceneExporterList.Num(); ++i)
 	{
@@ -89,20 +89,20 @@ void ExportBinaryServerScene()
 	}
 	memAr.ByteOrderSerialize(&fileHeader, sizeof(SCENE_FILE_HEADER));
 
-	//写入Exporter下的每一个BlockHead
+	//Write each BlockHead under the Exporter
 	INT32	nTotalOffset = 0;
 	for (INT i = 0; i < GServerSceneExporterList.Num(); ++i)
 	{
-		//传入，读出每个blkHdrs的Offset
+		//Pass in, read out the Offset of each blkHdrs
 		GServerSceneExporterList(i)->WriteHeader(memAr);
 	}
-	//写入具体Data
+	//Write the actual Data
 	for (INT i = 0; i < GServerSceneExporterList.Num(); ++i)
 	{
 		GServerSceneExporterList(i)->WriteData(memAr);
 	}
 
-	// 创建文件前先尝试从P4 Checkout以判定是否已经有这个文件
+	// Before creating the file, first try a P4 Checkout to determine whether this file already exists
 #if HAVE_SCC
 	FCheckoutResult sccResult = FSourceControl::TryCheckOut(fileName);
 #endif
@@ -822,13 +822,13 @@ BOOL ExportLandscape(CEditorScene* pScene, ULandscapeHeightfieldCollisionCompone
 				}
 				else if(val == 255)
 				{
-					// 不为空
+					// Not empty
 				}				
-				//else if(val == 0) // 直接为洞，不带物理材质
+				//else if(val == 0) // Directly a hole, without physical material
 				//{
 				//	continue;
 				//}
-				else if(val == DataLayerIdx) // 物理材质时的洞
+				else if(val == DataLayerIdx) // Hole when using physical material
 				{
 #ifdef _DEBUG
 					//INT TexX = CollisionSubsectionSizeVerts * 0 + X;
@@ -1111,7 +1111,7 @@ BOOL ExportActor(CEditorScene* pScene, AActor* Actor)
 	actorLayer = actorLayer.ToUpper();
 	if(actorLayer.InStr(LayerNameConfig) == INDEX_NONE)
 	{
-		return TRUE; // 不在Path Layer中就不阻挡寻路
+		return TRUE; // Not in the Path Layer, so it doesn't block pathfinding
 	}
 
 	for (INT ComponentIndex = 0; ComponentIndex < Actor->AllComponents.Num(); ComponentIndex++)
@@ -1972,7 +1972,7 @@ UBOOL AScout::GenerateGridData(void)
 				Actor->CollisionType != COLLIDE_NoCollision &&
 				Actor->CollisionType != COLLIDE_BlockWeapons;
 
-			// 静态MESH,如会自动隐藏,则不导出
+			// Static MESH, if it auto-hides, don't export
 			if (Actor && Actor->IsA(AStaticMeshActor::StaticClass()) && ((AStaticMeshActor*)(Actor))->bCanHidden)
 			{
 				bCanExport = FALSE;

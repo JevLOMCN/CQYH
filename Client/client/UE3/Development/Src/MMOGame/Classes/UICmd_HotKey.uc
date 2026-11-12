@@ -82,7 +82,7 @@ event Use()
 	case ECK_HotKey_Enhance:
 		break;
 	case ECK_HotKey_Shift:
-		//增加
+		//add
 		class'MMOUIManager'.static.OnLeftShift(false);
 		break;
 	case ECK_HotKey_Activity:
@@ -124,7 +124,7 @@ event OnRelease()
 		class'MMOUIManager'.static.MoveByKey(EMCK_Back,false);
 		break;
 	case ECK_HotKey_Shift:
-		//增加 
+		//add
 		class'MMOUIManager'.static.OnLeftShift(true);
 		break;
 	}

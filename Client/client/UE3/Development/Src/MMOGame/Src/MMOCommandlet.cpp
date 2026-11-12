@@ -52,13 +52,13 @@ void ConvertConfig( const FString text , FString fileName , LanguageType langTyp
 	while( textCopy.Len() > 0 )
 	{
 		FString line = GetLine( textCopy );
-		//空行跳过
+		//skip empty lines
 		if( line.Len() == 0 )
 			continue;
-		//注释行跳过
+		//skip comment lines
 		if( line.Left(1) == TEXT(";") )
 			continue;
-		//判断是session还是key
+		//determine whether it is session or key
 		INT nextSession = line.InStr( TEXT("[") );
 		INT nextValue = line.InStr( TEXT("=") );
 		if( nextSession < 0 && nextValue < 0 )
@@ -120,7 +120,7 @@ FString GetLine( FString& text )
 	return outLine;
 	
 }
-//rightChop是截掉左边取右边……雷死
+//rightChop cuts off the left and takes the right... what a pain
 
 FString NewLine( FString text , INT startPos )
 {
@@ -741,7 +741,7 @@ INT UMakeDataTemplateListCommandlet::Main( const FString& Params )
 INT UMakeQuestDoodadDropDataCommandlet::Main(const FString& Params)
 {
 #if !SHIPPING_PC_GAME
-	// 依赖数据
+	// dependency data
 	MMOItemDataManager::getSingleton().InitFromFile(TEXT("item.txt"), true);
 	MMOEquipDataManager::getSingleton().InitFromFile(TEXT("item_armor.txt"), true);
 
@@ -750,7 +750,7 @@ INT UMakeQuestDoodadDropDataCommandlet::Main(const FString& Params)
 	MMODoodadDropDataManager::getSingleton().InitFromFile(TEXT("doodad_drop_data.txt"), true);
 	MMOQuestData::getSingleton().LoadQuestDataFromUpk();
 
-	// 生成数据
+	// generated data
 	MMOQuestData::getSingleton().GenerateQuestDoodadDropData(TEXT("quest_doodad.txt"));
 #endif
 	return 0;

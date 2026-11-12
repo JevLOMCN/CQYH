@@ -204,7 +204,7 @@ UBOOL UMMOUISoulEmbed::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObject*
 	}
 
 	UBOOL rtn = FALSE;
-	//从背包到融灵
+	//from bag to spirit fusion
 	if( srcSlotType == ESPType_Bag ){
 		//
 		if( destSlotType == ESPType_SoulEmbed ){
@@ -223,7 +223,7 @@ UBOOL UMMOUISoulEmbed::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObject*
 		return rtn;
 	}
 	else if( destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		if( srcSlotType == ESPType_SoulEmbed ){
 			rtn = OnDragDropEmbed( srcSlotMC, destSlotMC, srcSlotType, srcContainerID, srcSlotID, destSlotType, destContainerID, destSlotID );
 		}
@@ -398,7 +398,7 @@ void UMMOUISoulEmbed::GrayAllInBagNoNeedForSoulEmbed( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -424,14 +424,14 @@ UBOOL UMMOUISoulEmbed::IsNeedToGrayOnSoulEmbed( UItem *pItemInBag, const FClient
 
 	//
 	UBOOL noNeedToGray = FALSE;
-	//是否是灵石
+	//Whether it is a spirit stone
 	const SoulInfo *pSoulInfo = MMOEquipManager::getSingleton().FindSoulInfoByItemTemplateID( pItemInfo->m_nTemplateID );
 	noNeedToGray = ( pSoulInfo != NULL );
-	//是否是有孔装备
+	//Whether it is equipment with sockets
 	if( noNeedToGray != TRUE ){
 		UEquip *pEmbedEquip = Cast<UEquip>( pItemInBag );
 		if( pEmbedEquip != NULL ){
-			//检查孔洞
+			//Check sockets
 			bool hasHole = false;
 			//UINT8 *pSocketType = (UINT8 *)SOCKET_COMBINATION[pItemInfo->m_bySocketCombination];
 			for(INT i = 0; i < MAX_SOCKET_COUNT; i++){
@@ -474,13 +474,13 @@ UBOOL UMMOUISoulEmbed::OnRightMouseClickEmbed(class UGFxObject* mc,BYTE SlotType
 				return TRUE;
 			}
 
-			////检查是否在界面中(本界面或是其他操作界面)
+			////Check whether in a UI (this UI or another operation UI)
 			//if( pItemInfo->IsDragIntoOtherUI >= 0  ){
 			//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOErrorInfo.EClientActionConditionCheckType.ECACCT_Item_CheckInPanelUsing") ) );
 			//	return TRUE;
 			//}
 
-			//是否是装备
+			//Whether it is equipment
 			UItem *pEmbedItem = mmoFacade.FindItemTemplate( pItemInfo->m_nTemplateID );
 			UEquip *pEmbedEquip = Cast<UEquip>( pEmbedItem );
 			if( pEmbedEquip != NULL ){
@@ -532,13 +532,13 @@ UBOOL UMMOUISoulEmbed::OnDragDropEmbed( class UGFxObject* srcSlotMC,class UGFxOb
 	}
 	
 	if( srcSlotType == ESPType_Bag && destSlotType == ESPType_SoulEmbed ){
-		//从背包到融灵
+		//from bag to spirit fusion
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
 			return TRUE;
 		}
 
-		//检查是否在界面中(本界面或是其他操作界面)
+		//check whether in a UI (this UI or another operation UI)
 		//
 		ClientActionCondition_SoulEmbedOrUnEmbed checker;
 
@@ -575,7 +575,7 @@ UBOOL UMMOUISoulEmbed::OnDragDropEmbed( class UGFxObject* srcSlotMC,class UGFxOb
 	}
 	
 	if( srcSlotType == ESPType_SoulEmbed && destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		INT panelSlotID = (INT)srcSlotMC->GetFloat( "EquipID" );
 		switch( panelSlotID )
 		{
@@ -608,19 +608,19 @@ void UMMOUISoulEmbed::BagSlotChangeOnSoulEmbed( INT bagId, INT slotId )
 	FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( bagId, slotId );
 
 	if( _ToEmbedEquip._ConID == bagId && _ToEmbedEquip._SlotID == slotId ){
-		//融灵的装备变化
+		//Spirit fusion equipment changed
 		if( pItemInfo == NULL ){
 			UnSetSoulEmbedEquip();
 		}
 		else{
-			//刷新灵插槽
+			//Refresh spirit slots
 			UpdateEquipSoulSlot();
-			//刷新属性
+			//Refresh attributes
 			UpdateSoulEmbedProp();
 		}
 	}
 	else{
-		//融灵使用的灵发生变化
+		//Spirit used for spirit fusion changed
 		for( INT i = 0; i < MAX_EmbedSoul; ++i ){
 			if( _ToEmbedSoul[i]._ConID == bagId && _ToEmbedSoul[i]._SlotID == slotId ){
 				if( pItemInfo == NULL ){
@@ -660,7 +660,7 @@ INT UMMOUISoulEmbed::UpdateEquipSoulSlot()
 
 	for( INT i = 0; i < MAX_SOCKET_COUNT; ++i ){
 		if( _ToEmbedSoul[i]._ConID >= 0 || _ToEmbedSoul[i]._SlotID >= 0 ){
-			//强制解锁放入界面中的灵石
+			//Force unlock the spirit stones placed in the UI
 			SetSoulToEmbeInEquip( -1, -1, i );
 		}
 		_ToEmbedSoul[i]._ConID = -1;
@@ -731,10 +731,10 @@ INT UMMOUISoulEmbed::UpdateEquipSoulSlot()
 //=============================================================================================================================
 void UMMOUISoulEmbed::UpdateSoulEmbedProp()
 {
-	//刷新属性
+	//Refresh attributes
 	UpdateEquipPropData( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 	UpdateToEmbedSoulPropData();
-	//刷新界面
+	//Refresh UI
 	UpdateEquipOrigSoulProp();
 	UpdateEquipSoulResultProp();
 	//UpdateEquipSoulTotalProp();
@@ -745,7 +745,7 @@ void UMMOUISoulEmbed::UpdateEquipPropData( INT conID, INT slotID )
 	//MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	//MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 
-	////当前是否有待融灵的装备
+	////Whether there is currently equipment awaiting spirit fusion
 	//FClientItemInfo *pEquipInfo = mmoFacade.FindItem( conID, slotID );
 	//if( pEquipInfo == NULL )
 	//{
@@ -804,7 +804,7 @@ void UMMOUISoulEmbed::UpdateToEmbedSoulPropData()
 	//		continue;
 	//	}
 
-	//	//找到要融灵到装备的灵
+	//	//Find the spirit to fuse into the equipment
 	//	FClientItemInfo *pSoulItemInfo = mmoFacade.FindItem( toEmbedSoulPos._ConID, toEmbedSoulPos._SlotID );
 	//	if( pSoulItemInfo == NULL ){
 	//		continue;
@@ -815,14 +815,14 @@ void UMMOUISoulEmbed::UpdateToEmbedSoulPropData()
 	//		continue;
 	//	}
 
-	//	//找到属性
+	//	//Find attributes
 	//	const ItemRandomAttr* propAttr = mmoFacade.GetRandomAttributById( pSoulInfo->_AttrID );
 	//	if( propAttr == NULL ){
 	//		warnf(NAME_Error, TEXT("======!!!!======= [UpdateToEmbedSoulPropData ItemAttr Not FOUND]") );
 	//		continue;
 	//	}
 
-	//	//记录属性
+	//	//Record attributes
 	//	INT *pAttrValue = _ToEmbeSoulPropAdd.Find( propAttr->attrType );
 	//	if( pAttrValue == NULL ){
 	//		pAttrValue = &_ToEmbeSoulPropAdd.FindOrAdd( propAttr->attrType );
@@ -848,7 +848,7 @@ FString UMMOUISoulEmbed::FormatEquipOrigSoulProp()
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 
-	//当前是否有待融灵的装备
+	//Whether there is currently equipment awaiting spirit fusion
 	FClientItemInfo *pEquipInfo = NULL;
 	if( _CurType == ESOLPT_Embed ){
 		pEquipInfo = mmoFacade.FindItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
@@ -919,7 +919,7 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 
-	//当前装备融灵情况，有拔除融灵则标红
+	//Current equipment spirit fusion status; mark red if a fused spirit is removed
 	FClientItemInfo *pEquipInfo = NULL;
 	if( _CurType == ESOLPT_Embed ){
 		pEquipInfo = mmoFacade.FindItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
@@ -948,7 +948,7 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 				continue;
 			}
 
-			//输出属性
+			//Output attributes
 			if( _ToUnEmbedSoulIdx == i && _CurType == ESOLPT_Unembed){
 				totalPropText += UITextParser::HTMLBeginParagraph();
 				totalPropText += UITextParser::HTMLBeginFont( UITextParser::GetTipsColor(TEXT("AlertColor")) );
@@ -963,7 +963,7 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 			totalPropText += UITextParser::HTMLEndParagraph();
 		}
 	}
-	//是否有新的融灵
+	//Whether there is a new spirit fusion
 	FString addAttributeColor;
 	GConfig->GetString(TEXT("TextColor"), TEXT("AddAttributeColor"), addAttributeColor, GUIColorIni);
 	if( _CurType == ESOLPT_Embed ){
@@ -973,7 +973,7 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 				continue;
 			}
 
-			//找到要融灵到装备的灵
+			//Find the spirit to fuse into the equipment
 			FClientItemInfo *pSoulItemInfo = mmoFacade.FindItem( toEmbedSoulPos._ConID, toEmbedSoulPos._SlotID );
 			if( pSoulItemInfo == NULL ){
 				continue;
@@ -984,14 +984,14 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 				continue;
 			}
 
-			//找到属性
+			//Find attributes
 			const ItemRandomAttr* propAttr = mmoFacade.GetRandomAttributById( pSoulInfo->_AttrID );
 			if( propAttr == NULL ){
 				warnf(NAME_Error, TEXT("======!!!!======= [UpdateToEmbedSoulPropData ItemAttr Not FOUND]") );
 				continue;
 			}
 
-			//输出属性
+			//Output attributes
 			totalPropText += UITextParser::HTMLBeginParagraph();
 			 
 			totalPropText += UITextParser::HTMLBeginFont( addAttributeColor );
@@ -1022,7 +1022,7 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 	//		color = UITextParser::GetTipsColor(TEXT("AlertColor"));
 	//	}
 
-	//	//组合文字
+	//	//Combine text
 	//	totalPropText += UITextParser::HTMLBeginFont( color );
 	//	//
 	//	totalPropText += propStr;
@@ -1041,7 +1041,7 @@ FString UMMOUISoulEmbed::FormatEquipSoulResultProp()
 //=============================================================================================================================
 void UMMOUISoulEmbed::UpdateEquipSoulTotalProp()
 {
-	//物品已带的灵属性和准备加上的灵属性
+	//Spirit attributes already on the item and spirit attributes about to be added
 	TMap<FString, INT> totalSoulProp = _EmbedEquipPropSoulAdd;
 	for( TMap<FString, INT>::TIterator itor( _ToEmbeSoulPropAdd ); itor; ++itor )
 	{
@@ -1103,7 +1103,7 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	if( containerID < 0 || slotID < 0 ){
 		if( _ToEmbedEquip._ConID >= 0 && _ToEmbedEquip._SlotID >= 0 ){
-			//清空，取下灵
+			//Clear, remove spirit
 			//if( pBagPanel != NULL && _ToEmbedEquip._ConID == E_CONSLOT_DEFAULT ){
 				MMOFacade::getSingleton().LockItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID, -1 );
 			//}
@@ -1116,19 +1116,19 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 		_ToEmbedEquip._ConID = -1;
 		_ToEmbedEquip._SlotID = -1;
 
-		//刷新灵插槽
+		//Refresh spirit slots
 		UpdateEquipSoulSlot();
 		for(INT i = 0; i < MAX_SOCKET_COUNT; i++){
 			SetSoulToEmbeInEquip( -1, -1, i );
 		}
 
-		//刷新属性
+		//Refresh attributes
 		UpdateSoulEmbedProp();
 
 		return TRUE;
 	}
 
-	//设置需融灵的装备
+	//Set the equipment to fuse spirits into
 	FClientItemInfo *pInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pInfo == NULL ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_NOT_FOUND") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_NOT_FOUND") );
@@ -1136,7 +1136,7 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 	}
 
 
-	//是否是装备
+	//Whether it is equipment
 	UItem *pEmbedItem = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UEquip *pEmbedEquip = Cast<UEquip>( pEmbedItem );
 	if( pEmbedEquip == NULL ){
@@ -1144,7 +1144,7 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//检查空洞
+	//Check empty sockets
 	bool hasHole = false;
 	//UINT8 *pSocketType = (UINT8 *)SOCKET_COMBINATION[pInfo->m_bySocketCombination];
 	for(INT i = 0; i < MAX_SOCKET_COUNT; i++){
@@ -1159,7 +1159,7 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//解锁背包内原先放置的灵
+	//Unlock the spirit previously placed in the bag
 	if( _ToEmbedEquip._ConID >= 0 && _ToEmbedEquip._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _ToEmbedEquip._ConID == E_CONSLOT_DEFAULT ){
 			MMOFacade::getSingleton().LockItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID, -1 );
@@ -1169,19 +1169,19 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 	_ToEmbedEquip._ConID = containerID;
 	_ToEmbedEquip._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( _ToEmbedEquipMc, pEmbedItem, ESPType_SoulEmbed, _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 	GFXPlayer->eventCallSetItemData( _ToEmbedEquipMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pEmbedItem ), pEmbedItem->ItemId, ESPType_SoulEmbed, TEXT(""), pEmbedItem->ItemColor+1, _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 
-	//锁住背包内原先放置的灵
+	//lock the spirit previously placed in the bag
 	//if( pBagPanel != NULL && _ToEmbedEquip._ConID == E_CONSLOT_DEFAULT ){
 		MMOFacade::getSingleton().LockItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID, ESPType_SoulEmbed );
 	//}
 
-	//刷新灵插槽
+	//Refresh spirit slots
 	UpdateEquipSoulSlot();
 
-	//刷新属性
+	//Refresh attributes
 	UpdateSoulEmbedProp();
 
 
@@ -1194,7 +1194,7 @@ UBOOL UMMOUISoulEmbed::SetSoulEmbedEquip( INT containerID, INT slotID )
 //=============================================================================================================================
 UBOOL UMMOUISoulEmbed::UnSetSoulToEmbeInEquip( INT targetSlotID )
 {
-	//当前是否有待融灵的装备
+	//Whether there is currently equipment awaiting spirit fusion
 	FClientItemInfo *pEquipInfo = MMOFacade::getSingleton().FindItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 	if( pEquipInfo == NULL ){
 		return FALSE;
@@ -1203,7 +1203,7 @@ UBOOL UMMOUISoulEmbed::UnSetSoulToEmbeInEquip( INT targetSlotID )
 	if( targetSlotID < 0 || targetSlotID >= MAX_SOCKET_COUNT ){
 		return FALSE;
 	}
-	//检查此洞是否已经融灵过
+	//Check whether this socket has already been fused
 	if( pEquipInfo->m_nSoulID[targetSlotID] > 0 ){
 		return FALSE;
 	}
@@ -1233,12 +1233,12 @@ INT UMMOUISoulEmbed::AutoSetSoulToEmbeInEquip( int containerID, int slotID )
 
 	const SoulInfo* pSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pSoulItemInfo->m_nTemplateID );
 	if( pSoulInfo == NULL ){
-		//放入的不是灵物品
+		//The item placed is not a spirit item
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") );
 		return -1;
 	}
 
-	//当前是否有待融灵的装备
+	//Whether there is currently equipment awaiting spirit fusion
 	FClientItemInfo *pEquipInfo = mmoFacade.FindItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 	if( pEquipInfo == NULL ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_EMBED_EQUIP_NOT_PUTTED") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_EMBED_EQUIP_NOT_PUTTED") );
@@ -1249,17 +1249,17 @@ INT UMMOUISoulEmbed::AutoSetSoulToEmbeInEquip( int containerID, int slotID )
 	INT idx = 0;
 	UBOOL hasUnfitSlot = FALSE;
 	for( ; idx < MAX_SOCKET_COUNT; ++idx ){
-		//检查此洞是否已经融灵过
+		//Check whether this socket has already been fused
 		if( pEquipInfo->m_nSoulID[idx] > 0 ){
 			continue;
 		}
 
-		//检查此洞是否已放入待融灵的灵或无法再次放入
+		//Check whether this socket already has a spirit awaiting fusion or cannot accept another
 		if( ( _ToEmbedSoul[idx]._ConID >= 0 && _ToEmbedSoul[idx]._SlotID >= 0 ) || _ToEmbedSoul[idx]._IsValid != TRUE ){
 			continue;
 		}
 
-		//检查此洞是否适合此灵灵
+		//Check whether this socket suits this spirit
 		//UINT8 *pSocketType = (UINT8 *)SOCKET_COMBINATION[pEquipInfo->m_bySocketCombination];
 		if( pEquipInfo->GetSocketType(idx) != pSoulInfo->_MatchSocket && pEquipInfo->GetSocketType(idx) != SOCKET_COLORFUL ){
 			hasUnfitSlot = TRUE;
@@ -1304,15 +1304,15 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 	FClientItemInfo *pSoulItemInfo = NULL;
 	UItem *pSoulItem = NULL;
 	const SoulInfo* pSoulInfo = NULL;
-	//位置值是否合法，不合法是为取下灵
+	//Whether the position value is valid; invalid means removing the spirit
 	if( containerID >= 0 && slotID >= 0 ){
-		//当前是否有待融灵的装备
+		//Whether there is currently equipment awaiting spirit fusion
 		FClientItemInfo *pEquipInfo = mmoFacade.FindItem( _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 		if( pEquipInfo == NULL ){
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_EMBED_EQUIP_NOT_PUTTED") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_EMBED_EQUIP_NOT_PUTTED") );
 			return FALSE;
 		}
-		//找到要融灵到装备的灵
+		//Find the spirit to fuse into the equipment
 		pSoulItemInfo = mmoFacade.FindItem( containerID, slotID );
 		if( pSoulItemInfo == NULL ){
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_NOT_FOUND") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_NOT_FOUND") );
@@ -1327,25 +1327,25 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 
 		pSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pSoulItemInfo->m_nTemplateID );
 		if( pSoulInfo == NULL ){
-			//放入的不是灵物品
+			//The item placed is not a spirit item
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") );
 			return FALSE;
 		}
 
-		//检查此洞是否已经融灵过
+		//Check whether this socket has already been fused
 		if( pEquipInfo->m_nSoulID[targetSlotID] > 0 ){
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ALREADY_HAS_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ALREADY_HAS_SOUL") );
 			return FALSE;
 		}
 
-		//检查此洞是否适合此灵
+		//Check whether this socket suits this spirit
 		//UINT8 *pSocketType = (UINT8 *)SOCKET_COMBINATION[pEquipInfo->m_bySocketCombination];
 		if( pEquipInfo->GetSocketType(targetSlotID) != pSoulInfo->_MatchSocket && pEquipInfo->GetSocketType(targetSlotID) != SOCKET_COLORFUL ){
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_SOUL_UNFIT") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_SOUL_UNFIT"));
 			return FALSE;
 		}
 
-		////检查宝石使用等级限制,装备等级高于宝石等级
+		////Check gem usage level limit, equipment level is higher than gem level
 		//UItem *pEquipItem = mmoFacade.FindItemTemplate( pEquipInfo->m_nTemplateID );
 		//if( pEquipItem != NULL && pEquipItem->RequireLevel < pSoulInfo->_SoulLevel ){
 		//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_EMBED_LEVEL_TOO_HIGHT") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_EMBED_LEVEL_TOO_HIGHT"));
@@ -1353,7 +1353,7 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 		//}
 	}
 
-	//解锁背包内原先放置的灵
+	//Unlock the spirit previously placed in the bag
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	FOperationItemBagPos &toEmbedSoulPos = _ToEmbedSoul[targetSlotID];
 	if( toEmbedSoulPos._ConID >= 0 && toEmbedSoulPos._SlotID >= 0 ){
@@ -1362,7 +1362,7 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 		//}
 	}
 
-	//是否是取下准备融灵的灵
+	//Whether removing the spirit prepared for fusion
 	UGFxObject *pSlotMc = _EmbedSoulMc[targetSlotID]._Slot;
 	//if( ( pSoulItemInfo == NULL ) && ( toEmbedSoulPos._ConID >= 0 && toEmbedSoulPos._SlotID >= 0 ) ){
 	if( pSoulItemInfo == NULL ){
@@ -1374,9 +1374,9 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 		//GFXPlayer->SetItemSlotData( pSlotMc, NULL, ESPType_SoulEmbed, -1, -1 );
 		GFXPlayer->eventCallSetItemData( pSlotMc , 0 , TEXT("") , -1, ESPType_SoulEmbed, TEXT("") , ITEMCOLOR_INVALID, -1, -1 );
 
-		//刷新信息
+		//Refresh info
 		UpdateToEmbedSoulPropData();
-		//刷新界面
+		//Refresh UI
 		UpdateEquipSoulResultProp();
 		//UpdateEquipSoulTotalProp();
 
@@ -1384,22 +1384,22 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 		return TRUE;
 	}
 
-	//设置要融灵的灵
+	//Set the spirit to fuse
 	toEmbedSoulPos._ConID = containerID;
 	toEmbedSoulPos._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( pSlotMc, pSoulItem, ESPType_SoulEmbed, toEmbedSoulPos._ConID, toEmbedSoulPos._SlotID );
 	GFXPlayer->eventCallSetItemData( pSlotMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pSoulItem ), pSoulItem->ItemId, ESPType_SoulEmbed, TEXT(""), pSoulItem->ItemColor+1, toEmbedSoulPos._ConID, toEmbedSoulPos._SlotID );
 
-	//锁住背包内原先放置的灵
+	//lock the spirit previously placed in the bag
 	//if( pBagPanel != NULL && toEmbedSoulPos._ConID == E_CONSLOT_DEFAULT ){
 		MMOFacade::getSingleton().LockItem( toEmbedSoulPos._ConID, toEmbedSoulPos._SlotID, ESPType_SoulEmbed );
 	//}
 
-	//刷新信息
+	//Refresh info
 	UpdateToEmbedSoulPropData();
-	//刷新界面
+	//Refresh UI
 	UpdateEquipSoulResultProp();
 	//UpdateEquipSoulTotalProp();
 
@@ -1413,10 +1413,10 @@ UBOOL UMMOUISoulEmbed::SetSoulToEmbeInEquip( INT containerID, INT slotID, INT ta
 void UMMOUISoulEmbed::ConfirmSoulEmbed()
 {
 	//if( !IsEquipPuttedInCanOp() ){
-	//	//此界面被锁定了，无法进行操作
+	//	//This UI is locked, cannot operate
 	//	return;
 	//}
-	//没有需要融灵的装备
+	//No equipment to fuse spirits into
 	if( _ToEmbedEquip._ConID < 0 || _ToEmbedEquip._SlotID < 0 ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_EMBED_EQUIP_NOT_FOUND") ) ,MsgInfoType_Table, TEXT("MMOGame.SoulEmbed.ERROR_SOUL_EMBED_EQUIP_NOT_FOUND"));
 		return;
@@ -1442,7 +1442,7 @@ void UMMOUISoulEmbed::ConfirmSoulEmbed()
 		eventCallASSoulEmbedSuccessAnim( animiMask );
 	}
 	
-	//没有放入融灵的灵
+	//No spirit placed for fusion
 	if( hasSendEmbed == FALSE ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_EMBED_NOT_FOUND") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_EMBED_NOT_FOUND"));
 		return;
@@ -1452,18 +1452,18 @@ void UMMOUISoulEmbed::ConfirmSoulEmbed()
 void UMMOUISoulEmbed::OnNotifySoulEmbed( INT result )
 {
 	if( result != FALSE ){
-		//成功，有BagSlot通知，哪里把刷新做掉了
+		//Success; BagSlot notification handles the refresh
 		if( _IsWaitReult ){
-			//为了只显示一次成功消息
+			//So the success message is shown only once
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_EMBED_SUCCEED") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_EMBED_SUCCEED"));
 			_IsWaitReult = FALSE;
 		}
 
-		//一个灵镶嵌成功，一个通知
+		//One spirit inlaid successfully, one notification
 		for( INT i = 0; i < MAX_EmbedSoul; ++i ){
-			//清理镶嵌数据
+			//Clear inlay data
 			if( _ToEmbedSoul[i]._ConID >= 0 || _ToEmbedSoul[i]._SlotID >= 0 ){
-				//强制解锁放入界面中的灵石
+				//Force unlock the spirit stones placed in the UI
 				SetSoulToEmbeInEquip( -1, -1, i );
 				//
 				_ToEmbedSoul[i]._ConID = 0;
@@ -1472,14 +1472,14 @@ void UMMOUISoulEmbed::OnNotifySoulEmbed( INT result )
 			}
 		}
 
-		//  引导任务
+		//  tutorial quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_EmbedEquip);
 
 		MMOGameEvent_Guide evtGuide(EGUET_GemEmbed);
 		MMOUI::PostGameEvent(&evtGuide);
 	}
 	else{
-		//失败
+		//Failed
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_EMBED_FAILED") ),MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_EMBED_FAILED") );
 
 		_IsWaitReult = FALSE;
@@ -1511,7 +1511,7 @@ void UMMOUISoulEmbed::GrayAllInBagNoNeedForSoulUnEmbed( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -1535,13 +1535,13 @@ UBOOL UMMOUISoulEmbed::IsNeedToGrayOnSoulUnEmbed( UItem *pItemInBag, const FClie
 	}
 
 	UBOOL noNeedToGray = FALSE;
-	//是否是有孔装备
+	//Whether it is equipment with sockets
 	UEquip *pEmbedEquip = Cast<UEquip>( pItemInBag );
 	if( pEmbedEquip != NULL ){
-		//检查嵌有灵石的孔洞
+		//Check sockets with spirit stones inlaid
 		//UINT8 *pSocketType = (UINT8 *)SOCKET_COMBINATION[pItemInfo->m_bySocketCombination];
 		for(INT i = 0; i < MAX_SOCKET_COUNT; ++i){
-			//检查嵌有灵石的孔洞
+			//Check sockets with spirit stones inlaid
 			if( pItemInfo->m_nSoulID[i] > 0 ){
 				noNeedToGray = TRUE;
 				break;
@@ -1579,13 +1579,13 @@ UBOOL UMMOUISoulEmbed::OnRightMouseClickUnEmbed(class UGFxObject* mc,BYTE SlotTy
 				return TRUE;
 			}
 
-			////检查是否在界面中(本界面或是其他操作界面)
+			////Check whether in a UI (this UI or another operation UI)
 			//if( pItemInfo->IsDragIntoOtherUI >= 0  ){
 			//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOErrorInfo.EClientActionConditionCheckType.ECACCT_Item_CheckInPanelUsing") ) );
 			//	return TRUE;
 			//}
 
-			//是否是装备
+			//Whether it is equipment
 			UItem *pEmbedItem = mmoFacade.FindItemTemplate( pItemInfo->m_nTemplateID );
 			UEquip *pEmbedEquip = Cast<UEquip>( pEmbedItem );
 			if( pEmbedEquip != NULL ){
@@ -1627,13 +1627,13 @@ UBOOL UMMOUISoulEmbed::OnDragDropUnEmbed( class UGFxObject* srcSlotMC,class UGFx
 	}
 
 	if( srcSlotType == ESPType_Bag && destSlotType == ESPType_SoulUnEmbed ){
-		//从背包到融灵
+		//from bag to spirit fusion
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
 			return TRUE;
 		}
 
-		//检查是否在界面中(本界面或是其他操作界面)
+		//check whether in a UI (this UI or another operation UI)
 		//
 		ClientActionCondition_SoulEmbedOrUnEmbed checker;
 
@@ -1663,7 +1663,7 @@ UBOOL UMMOUISoulEmbed::OnDragDropUnEmbed( class UGFxObject* srcSlotMC,class UGFx
 	}
 
 	if( srcSlotType == ESPType_SoulUnEmbed && destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		INT panelSlotID = (INT)srcSlotMC->GetFloat( "EquipID" );
 		switch( panelSlotID )
 		{
@@ -1691,15 +1691,15 @@ void UMMOUISoulEmbed::BagSlotChangeOnSoulUnEmbed( INT bagId, INT slotId )
 	FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( bagId, slotId );
 
 	if( _ToUnEmbedEquip._ConID == bagId && _ToUnEmbedEquip._SlotID == slotId ){
-		//融灵的装备变化
+		//Spirit fusion equipment changed
 		if( pItemInfo == NULL ){
 			SelectSoulToUnEmbed( -1 );
 			UnSetSoulUnEmbedEquip();
 		}
 		else{
-			//刷新灵插槽
+			//Refresh spirit slots
 			UpdateUnEmbedSlot();
-			//刷新属性
+			//Refresh attributes
 			UpdateSoulEmbedPropInUnEmbed();
 		}
 	}
@@ -1753,10 +1753,10 @@ void UMMOUISoulEmbed::SelectSoulToUnEmbed( INT idx )
 //================================================================================================================================
 void UMMOUISoulEmbed::UpdateSoulEmbedPropInUnEmbed()
 {
-	//刷新属性
+	//Refresh attributes
 	UpdateEquipPropData( _ToUnEmbedEquip._ConID, _ToUnEmbedEquip._SlotID );
 	UpdateToUnEmbedSoulPropData();
-	//刷新界面
+	//Refresh UI
 	UpdateSoulUnEmbedFee();
 	UpdateEquipOrigSoulPropInUnEmbed();
 	UpdateEquipResultPropInUnEmbed();
@@ -1784,14 +1784,14 @@ void UMMOUISoulEmbed::UpdateToUnEmbedSoulPropData()
 		return;
 	}
 
-	//找到属性
+	//Find attributes
 	const ItemRandomAttr* propAttr = mmoFacade.GetRandomAttributById( pSoulInfo->_AttrID );
 	if( propAttr == NULL ){
 		warnf(NAME_Error, TEXT("======!!!!======= [UpdateToEmbedSoulPropData ItemAttr Not FOUND]") );
 		return;
 	}
 
-	//记录属性
+	//Record attributes
 	INT *pAttrValue = _ToEmbeSoulPropAdd.Find( propAttr->attrType );
 	if( pAttrValue == NULL )
 	{
@@ -1872,7 +1872,7 @@ UBOOL UMMOUISoulEmbed::SetSoulUnEmbedEquip( INT containerID, INT slotID )
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	if( containerID < 0 || slotID < 0 ){
 		if( _ToUnEmbedEquip._ConID >= 0 && _ToUnEmbedEquip._SlotID >= 0 ){
-			//清空，取下灵
+			//Clear, remove spirit
 			//if( pBagPanel != NULL && _ToUnEmbedEquip._ConID == E_CONSLOT_DEFAULT ){
 				MMOFacade::getSingleton().LockItem( _ToUnEmbedEquip._ConID, _ToUnEmbedEquip._SlotID, -1 );
 			//}
@@ -1885,15 +1885,15 @@ UBOOL UMMOUISoulEmbed::SetSoulUnEmbedEquip( INT containerID, INT slotID )
 		_ToUnEmbedEquip._ConID = -1;
 		_ToUnEmbedEquip._SlotID = -1;
 
-		//刷灵插槽
+		//Refresh spirit slots
 		UpdateUnEmbedSlot();
-		//刷新属性
+		//Refresh attributes
 		UpdateSoulEmbedPropInUnEmbed();
 
 		return TRUE;
 	}
 
-	//设置需融灵的装备
+	//Set the equipment to fuse spirits into
 	FClientItemInfo *pInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pInfo == NULL ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_NOT_FOUND") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_NOT_FOUND") );
@@ -1901,7 +1901,7 @@ UBOOL UMMOUISoulEmbed::SetSoulUnEmbedEquip( INT containerID, INT slotID )
 	}
 
 
-	//是否是装备
+	//Whether it is equipment
 	UItem *pEmbedItem = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 	UEquip *pEmbedEquip = Cast<UEquip>( pEmbedItem );
 	if( pEmbedEquip == NULL ){
@@ -1909,7 +1909,7 @@ UBOOL UMMOUISoulEmbed::SetSoulUnEmbedEquip( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//检查空洞
+	//Check empty sockets
 	bool hasHole = false;
 	//UINT8 *pSocketType = (UINT8 *)SOCKET_COMBINATION[pInfo->m_bySocketCombination];
 	for(INT i = 0; i < MAX_SOCKET_COUNT; i++){
@@ -1924,7 +1924,7 @@ UBOOL UMMOUISoulEmbed::SetSoulUnEmbedEquip( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//解锁背包内原先放置的灵
+	//Unlock the spirit previously placed in the bag
 	if( _ToUnEmbedEquip._ConID >= 0 && _ToUnEmbedEquip._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _ToUnEmbedEquip._ConID == E_CONSLOT_DEFAULT ){
 			MMOFacade::getSingleton().LockItem( _ToUnEmbedEquip._ConID, _ToUnEmbedEquip._SlotID, -1 );
@@ -1934,19 +1934,19 @@ UBOOL UMMOUISoulEmbed::SetSoulUnEmbedEquip( INT containerID, INT slotID )
 	_ToUnEmbedEquip._ConID = containerID;
 	_ToUnEmbedEquip._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( _ToEmbedEquipMc, pEmbedItem, ESPType_SoulEmbed, _ToEmbedEquip._ConID, _ToEmbedEquip._SlotID );
 	GFXPlayer->eventCallSetItemData( _ToUnEmbedEquipMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pEmbedItem ), pEmbedItem->ItemId, ESPType_SoulUnEmbed, TEXT(""), pEmbedItem->ItemColor+1, _ToUnEmbedEquip._ConID, _ToUnEmbedEquip._SlotID );
 
-	//锁住背包内原先放置的灵
+	//lock the spirit previously placed in the bag
 	//if( pBagPanel != NULL && _ToUnEmbedEquip._ConID == E_CONSLOT_DEFAULT ){
 		MMOFacade::getSingleton().LockItem( _ToUnEmbedEquip._ConID, _ToUnEmbedEquip._SlotID, ESPType_SoulUnEmbed );
 	//}
 
-	//刷灵插槽
+	//Refresh spirit slots
 	UpdateUnEmbedSlot();
 
-	//刷新属性
+	//Refresh attributes
 	UpdateSoulEmbedPropInUnEmbed();
 
 	return TRUE;
@@ -2012,23 +2012,23 @@ void UMMOUISoulEmbed::UpdateUnEmbedSlot()
 void UMMOUISoulEmbed::ConfirmSoulUnEmbed()
 {
 	//if( !IsEquipPuttedInCanOp() ){
-	//	//此界面被锁定了，无法进行操作
+	//	//This UI is locked, cannot operate
 	//	return;
 	//}
 
-	//没有需要融灵的装备
+	//No equipment to fuse spirits into
 	if( _ToUnEmbedEquip._ConID < 0 || _ToUnEmbedEquip._SlotID < 0 ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_UNEMBED_NOT_FOUND") ),MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_UNEMBED_NOT_FOUND") );
 		return;
 	}
 
-	//没有选定需要拔除的灵
+	//No spirit selected for removal
 	if( _ToUnEmbedSoulIdx < 0 || _ToUnEmbedSoulIdx >= MAX_EmbedSoul ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_UNEMBED_SOUL_NOT_SELECTED") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_UNEMBED_SOUL_NOT_SELECTED"));
 		return;
 	}
 
-	//没有足够的钱
+	//Not enough money
 	UBOOL isMoneyOK = UpdateSoulUnEmbedFee();
 	if( isMoneyOK == FALSE ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_UNEMBED_NOT_ENOUGH_MONEY") ),MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_TO_UNEMBED_NOT_ENOUGH_MONEY") );
@@ -2044,14 +2044,14 @@ void UMMOUISoulEmbed::ConfirmSoulUnEmbed()
 void UMMOUISoulEmbed::OnNotifySoulUnEmbed( INT result )
 {
 	if( result != FALSE ){
-		//成功
+		//Success
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_UNEMBED_SUCCEED") ),MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_UNEMBED_SUCCEED") );
 
-		//  引导任务
+		//  tutorial quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_PickEquip);
 	}
 	else{
-		//失败
+		//Failed
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulEmbed.ERROR_SOUL_UNEMBED_FAILED") ),MsgInfoType_Table,TEXT("MMOGame.SoulEmbed.ERROR_SOUL_UNEMBED_FAILED") );
 	}
 
@@ -2082,7 +2082,7 @@ void UMMOUISoulEmbed::GrayAllInBagNoNeedForSoulLevelUp( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -2107,7 +2107,7 @@ UBOOL UMMOUISoulEmbed::IsNeedToGrayOnSoulLvUp( UItem *pItemInBag, const FClientI
 
 	//
 	UBOOL noNeedToGray = FALSE;
-	//是否是灵石
+	//Whether it is a spirit stone
 	const SoulInfo *pSoulInfo = MMOEquipManager::getSingleton().FindSoulInfoByItemTemplateID( pItemInfo->m_nTemplateID );
 	noNeedToGray = ( pSoulInfo != NULL );
 
@@ -2124,7 +2124,7 @@ void UMMOUISoulEmbed::BagSlotChangeOnSoulLvUp( INT bagId, INT slotId )
 	FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( bagId, slotId );
 
 	if( _ToLvUpSoul._ConID == bagId && _ToLvUpSoul._SlotID == slotId ){
-		//需升级的魂
+		//Soul to upgrade
 		if( pItemInfo == NULL ){
 			UnSetLevelUpSoul();
 		}
@@ -2133,10 +2133,10 @@ void UMMOUISoulEmbed::BagSlotChangeOnSoulLvUp( INT bagId, INT slotId )
 		}
 	}
 	else if( _HelpLvUpSoulItem._ConID == bagId && _HelpLvUpSoulItem._SlotID == slotId ){
-		//提升升级成功率的物品
+		//Item that raises upgrade success rate
 	}
 	else{
-		//升级吸收的魂
+		//Soul absorbed for upgrade
 		for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
 			if( _SacrificeSoul[i]._ConID == bagId && _SacrificeSoul[i]._SlotID == slotId ){
 				if( pItemInfo == NULL ){
@@ -2145,7 +2145,7 @@ void UMMOUISoulEmbed::BagSlotChangeOnSoulLvUp( INT bagId, INT slotId )
 				else{
 					INT unSetCnt = AutoUnSetPackedSoulScrifice( bagId, slotId );
 					if( unSetCnt > 0 ){
-						//放入的灵堆叠数量不够
+						//The placed spirit stack count is insufficient
 						MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") );
 					}
 					break;
@@ -2244,7 +2244,7 @@ UBOOL UMMOUISoulEmbed::OnDragDropLvUp( class UGFxObject* srcSlotMC,class UGFxObj
 		return FALSE;
 	}
 
-	//从背包到融灵
+	//from bag to spirit fusion
 	if( srcSlotType == ESPType_Bag ){
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
@@ -2293,7 +2293,7 @@ UBOOL UMMOUISoulEmbed::OnDragDropLvUp( class UGFxObject* srcSlotMC,class UGFxObj
 		return TRUE;
 	}
 	else if( destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		INT panelSlotID = (INT)srcSlotMC->GetFloat( TEXT("EquipID") );
 		if( srcSlotType == ESPType_SoulLevelUp ){
 			switch( panelSlotID )
@@ -2331,9 +2331,9 @@ UBOOL UMMOUISoulEmbed::OnDragDropLvUp( class UGFxObject* srcSlotMC,class UGFxObj
 //=============================================================================================================================
 void UMMOUISoulEmbed::UpdateSoulLevelUp()
 {
-	//待升级的灵
+	//Spirit to upgrade
 	SetLevelUpSoul( _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID );
-	//吸收的灵
+	//Absorbed spirit
 	for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
 		if( _SacrificeSoul[i]._ConID >= 0 ){
 			FClientItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( _SacrificeSoul[i]._ConID, _SacrificeSoul[i]._SlotID );
@@ -2427,13 +2427,13 @@ INT UMMOUISoulEmbed::UpdateSuccessRatio()
 	//get next level soul information
 	const SoulInfo* pNextLvSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pLvUpSoulInfo->_UpgradeSoulID );
 	if( pNextLvSoulInfo == NULL ){
-		//就认为是最高级了
+		//Consider it max level
 		_SuccessRitoTf->SetText( TEXT("") );
 		return 0;
 	}
 
 	INT curValue = 0;
-	//吸收的灵魂
+	//Absorbed soul
 	for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
 		if( _SacrificeSoul[i]._ConID < 0 || _SacrificeSoul[i]._SlotID < 0 ){
 			continue;
@@ -2467,7 +2467,7 @@ INT UMMOUISoulEmbed::UpdateSuccessRatio()
 		rate = 100;
 	}
 
-	//提升成功率道具成功率加成
+	//Success rate bonus from success-rate-boosting item
 	_HelpLvUpSoulItem;
 
 	//
@@ -2490,7 +2490,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 	MMOFacade &mmoFacade = MMOFacade::getSingleton();
 	MMOEquipManager &equipMgr = MMOEquipManager::getSingleton();
 
-	//设置待升级的魂
+	//Set soul to upgrade
 	FClientItemInfo *pSoulItemInfo = NULL;
 	UItem *pSoulItem = NULL;
 	const SoulInfo* pSoulInfo = NULL;
@@ -2511,7 +2511,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 		//
 		pSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pSoulItemInfo->m_nTemplateID );
 		if( pSoulInfo == NULL ){
-			//放入的不是灵物品
+			//The item placed is not a spirit item
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") );
 			return FALSE;
 		}
@@ -2519,14 +2519,14 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 		//
 		UBOOL isAlreadyInUse = pSoulItemInfo->IsDragIntoOtherUI > -1;
 		if( isAlreadyInUse && ( _ToLvUpSoul._ConID != containerID && _ToLvUpSoul._SlotID != slotID ) ){
-			//正在被使用（应该是在灵吸收栏中或是交易中）
+			//Being used (probably in the spirit absorption slot or in a trade)
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE") );
 			return FALSE;
 		}
 	}
 
 
-	//解锁背包内原先放置的魂
+	//Unlock the soul previously placed in the bag
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	if( _ToLvUpSoul._ConID >= 0 && _ToLvUpSoul._SlotID >= 0 ){
 		//if( pBagPanel != NULL && _ToLvUpSoul._ConID == E_CONSLOT_DEFAULT ){
@@ -2534,7 +2534,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 		//}
 	}
 
-	//清空，取下魂
+	//Clear, remove soul
 	if( ( pSoulItemInfo == NULL ) && ( _ToLvUpSoul._ConID >= 0 && _ToLvUpSoul._SlotID >= 0 ) ){
 		//if( pBagPanel != NULL && _ToLvUpSoul._ConID == E_CONSLOT_DEFAULT ){
 		MMOFacade::getSingleton().LockItem( _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID, -1 );
@@ -2547,10 +2547,10 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 		_ToLvUpSoul._ConID = -1;
 		_ToLvUpSoul._SlotID = -1;
 
-		//刷新信息
+		//Refresh info
 		UpdateSoulInfo();
 
-		//成功率刷新
+		//Refresh success rate
 		UpdateSuccessRatio();
 
 		return TRUE;
@@ -2560,7 +2560,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 	_ToLvUpSoul._ConID = containerID;
 	_ToLvUpSoul._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( _ToLvUpSoulMc, pSoulItem, ESPType_SoulLevelUp, _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID );
 	if( pSoulItem != NULL ){
 		GFXPlayer->eventCallSetItemData( _ToLvUpSoulMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pSoulItem ), pSoulItem->ItemId, ESPType_SoulLevelUp, TEXT(""), pSoulItem->ItemColor+1, _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID );
@@ -2569,15 +2569,15 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoul( INT containerID, INT slotID )
 		GFXPlayer->eventCallSetItemData( _ToLvUpSoulMc , 0 , TEXT("") , -1, ESPType_SoulLevelUp, TEXT("") , ITEMCOLOR_INVALID, -1, -1 );
 	}
 
-	//锁住背包内原先放置的魂
+	//Lock the soul previously placed in the bag
 	//if( pBagPanel != NULL && _ToLvUpSoul._ConID == E_CONSLOT_DEFAULT ){
 	MMOFacade::getSingleton().LockItem( _ToLvUpSoul._ConID, _ToLvUpSoul._SlotID, ESPType_SoulLevelUp );
 	//}
 
-	//刷新信息
+	//Refresh info
 	UpdateSoulInfo();
 
-	//成功率刷新
+	//Refresh success rate
 	UpdateSuccessRatio();
 
 	return TRUE;
@@ -2627,7 +2627,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 	UGFxObject *pSlotMc = _SacrificeSoulMc[targetSlotID];
 	FOperationItemBagPos &toSacrifySoulPos = _SacrificeSoul[targetSlotID];
 
-	//设置吸收的魂
+	//Set absorbed soul
 	FClientItemInfo *pSoulItemInfo = NULL;
 	UItem *pSoulItem = NULL;
 	const SoulInfo* pSoulInfo = NULL;
@@ -2648,7 +2648,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 		//
 		pSoulInfo = equipMgr.FindSoulInfoByItemTemplateID( pSoulItemInfo->m_nTemplateID );
 		if( pSoulInfo == NULL ){
-			//放入的不是灵物品
+			//The item placed is not a spirit item
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_A_SOUL"));
 			return FALSE;
 		}
@@ -2661,13 +2661,13 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 			if( pSoulItemInfo->IsDragIntoOtherUI == ESPType_SoulLevelUp && !isInLevelUpSlot ){
 				UBOOL isEnough = IsEnoughSoulsCanAddMoreScrifice( containerID, slotID );
 				if( !isEnough ){
-					//放入的灵堆叠数量不够
+					//The placed spirit stack count is insufficient
 					MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_NOT_ENOUGH_SOUL") );
 					return FALSE;
 				}
 			}
 			else{
-				//正在被使用（应该是在灵升级栏中或是交易中）
+				//Being used (probably in the spirit upgrade slot or in a trade)
 				MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE") ) ,MsgInfoType_Table,TEXT("MMOGame.Soul.ERROR_ITEM_IN_USE"));
 				return FALSE;
 			}
@@ -2675,10 +2675,10 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 	}
 
 
-	//解锁背包内原先放置的魂
+	//Unlock the soul previously placed in the bag
 	//UMMOUIBag *pBagPanel = (UMMOUIBag*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_Bag );
 	if( ( pSoulItemInfo == NULL ) && ( toSacrifySoulPos._ConID >= 0 && toSacrifySoulPos._SlotID >= 0 ) ){
-		//清空，取下魂
+		//Clear, remove soul
 		//if( pBagPanel != NULL && toSacrifySoulPos._ConID == E_CONSLOT_DEFAULT ){
 		INT puttedCnt = 0;
 		for( INT i = 0; i < MAX_SacrificeSoul; ++i ){
@@ -2699,7 +2699,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 		toSacrifySoulPos._ConID = -1;
 		toSacrifySoulPos._SlotID = -1;
 
-		//成功率刷新
+		//Refresh success rate
 		UpdateSuccessRatio();
 
 		return TRUE;
@@ -2709,7 +2709,7 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 	toSacrifySoulPos._ConID = containerID;
 	toSacrifySoulPos._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	//GFXPlayer->SetItemSlotData( pSlotMc, pSoulItem, ESPType_SoulLevelUp, toSacrifySoulPos._ConID, toSacrifySoulPos._SlotID );
 	if( pSoulItem != NULL ){
 		GFXPlayer->eventCallSetItemData( pSlotMc, 1, MMOFacade::getSingleton().GetItemIconNamePersonalized( pSoulItem ), pSoulItem->ItemId, ESPType_SoulLevelUp, TEXT(""), pSoulItem->ItemColor+1, toSacrifySoulPos._ConID, toSacrifySoulPos._SlotID );
@@ -2718,12 +2718,12 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSacrifice( INT containerID, INT slotID, INT
 		GFXPlayer->eventCallSetItemData( pSlotMc , 0 , TEXT("") , -1, ESPType_SoulLevelUp, TEXT("") , ITEMCOLOR_INVALID, -1, -1 );
 	}
 
-	//锁住背包内原先放置的魂
+	//Lock the soul previously placed in the bag
 	//if( pBagPanel != NULL && toSacrifySoulPos._ConID == E_CONSLOT_DEFAULT ){
 	MMOFacade::getSingleton().LockItem( toSacrifySoulPos._ConID, toSacrifySoulPos._SlotID, ESPType_SoulLevelUp );
 	//}
 
-	//成功率刷新
+	//Refresh success rate
 	UpdateSuccessRatio();
 
 	return TRUE;
@@ -2744,11 +2744,11 @@ UBOOL UMMOUISoulEmbed::SetLevelUpSoulSuccessHelp( INT containerID, INT slotID )
 void UMMOUISoulEmbed::ConfirmSoulLevelUp()
 {
 	//if( !IsEquipPuttedInCanOp() ){
-	//	//此界面被锁定了，无法进行操作
+	//	//This UI is locked, cannot operate
 	//	return;
 	//}
 
-	//没有需要升级的灵
+	//No spirit to upgrade
 	if( _ToLvUpSoul._ConID < 0 || _ToLvUpSoul._SlotID < 0 ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_NOT_INPUT") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_NOT_INPUT"));
 		return;
@@ -2765,7 +2765,7 @@ void UMMOUISoulEmbed::ConfirmSoulLevelUp()
 		scarificeSoulSlotVector.push_back( _SacrificeSoul[i]._SlotID );
 	}
 
-	//没有吸收的灵，不可能升级成功
+	//No absorbed spirit, upgrade cannot succeed
 	if( scarificeSoulContVector.empty() ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_NEED_SACRIFICE_SOUL") ),MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_NEED_SACRIFICE_SOUL") );
 		return;
@@ -2779,14 +2779,14 @@ void UMMOUISoulEmbed::ConfirmSoulLevelUp()
 void UMMOUISoulEmbed::OnNotifySoulLevelUpResult( int result )
 {
 	if( result != FALSE ){
-		//成功，有BagSlotChange通知，那里把刷新做掉了
-		//不支持连续升级，这里就置空了
+		//Success; BagSlotChange notification handles the refresh
+		//Continuous upgrade not supported, so clear it here
 		UnSetLevelUpSoul();
 
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_SUCCEED") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_SUCCEED"));
 	}
 	else{
-		//失败
+		//Failed
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_FAILED") ) ,MsgInfoType_Table,TEXT("MMOGame.SoulLevelUp.ERROR_SOUL_LEVELUP_FAILED"));
 	}
 }

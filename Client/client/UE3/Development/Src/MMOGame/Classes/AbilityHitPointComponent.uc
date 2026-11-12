@@ -7,11 +7,11 @@ class AbilityHitPointComponent extends AbilityComponent
 
 
 var() int   HitPointId;
-// 由服务器造成伤害而带来效果列表
+// list of effects caused by server damage
 var(ServerEffect) editinline array<AbilityComponent> ServerEffectList;
 
 
-// 客户端效果
+// client effect
 var(ClientEffect) float Degree<ClampMin = 0.0 | ClampMax = 360.0>;
 var(ClientEffect) float Radius;
 var(ClientEffect) float DamageValue;
@@ -20,7 +20,7 @@ var(ClientEffect) float DamageValue;
 var(ServerEffect) DeathStyle AbilityDeath;
 var(ClientEffect) editinline array<AbilityComponent> ClientEffectList;
 
-// 技能虚拟子弹效果资源
+// ability virtual bullet effect resource
 var(bullet) editinline array<AbilityEmitterComponent> BulletComponents;
 var(bullet) bool bShowTheFirstBullet;
 var(bullet) bool bLinkFromLastTarget;

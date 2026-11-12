@@ -8,9 +8,9 @@
 #include "MMOUtil.h"
 #include "MMODataManager.h"
 /*
-编号	地图ID	适用职业	最低等级	最高等级	出现权重	Tips内容
-	1	0	0	0	100	100	最多二十个中文字
-	2	101	1	10	20	200	最多二十个中文字
+No.	map ID	applicable class	min level	max level	spawn weight	Tips content
+	1	0	0	0	100	100	at most twenty Chinese characters
+	2	101	1	10	20	200	at most twenty Chinese characters
 */
 
 struct LoadMapTipsData
@@ -87,7 +87,7 @@ public:
 	INT     RandomNO(std::list<INT>&listRand) const;
 private:
 	VecLoadMapTipsData vecMapTips;
-	INT				nNextMapID;//要跳转的地图ID 
+	INT				nNextMapID;//map ID to jump to
 };
 
 

@@ -25,7 +25,7 @@ function ASRegisterGuildWarStartPanel(MMOUIGuildWarStartPanel mc)
 
 native function PostAdvance( float dt );
 
-// ≤Œ’Ω
+// Join battle
 native final function ASJoinWar();
 
 DefaultProperties

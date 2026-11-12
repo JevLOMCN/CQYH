@@ -65,7 +65,7 @@ native function CancelReplaceWeaponSkill( GFxObject pMc );
 //
 native function ConfirmTryReplaceWeaponSkill( GFxObject pMc );
 native function CancelTryReplaceWeaponSkill( GFxObject pMc );
-//现有武器技能
+//Existing weapon ability
 event CallASSetWSkillRplcCurSkillTotalCount( int cnt )
 {
 	ActionScriptVoid( "UCSetWSkillRplcCurSkillTotalCount" );
@@ -76,7 +76,7 @@ event CallASUpdateWSkillRplcCurSkillInfo( GFxObject dataArray )
 	ActionScriptVoid( "UCUpdateWSkillRplcCurSkillInfo" );
 }
 
-//准备替换的武器技能
+//Weapon ability about to be replaced
 event CallAsSetWSkillRplcSkillTotalCount( int cnt )
 {
 	ActionScriptVoid( "UCSetWSkillRplcSkillTotalCount" );
@@ -87,7 +87,7 @@ event CallASUpdatetWSkillRplcSkillInfo( GFxObject dataArray )
 	ActionScriptVoid( "UCUpdatetWSkillRplcSkillInfo" );
 }
 
-//消耗
+//Cost
 event CallASSetWSkillRplcCnsmItemData( int itemTemplateID, string iconName, int itemColor, int slotType )
 {
 	ActionScriptVoid( "UCSetWSkillRplcCnsmItemData" );
@@ -98,7 +98,7 @@ event CallASUpdateWSkillRplcItemNum( int needCnt, int curCnt )
 	ActionScriptVoid( "UCUpdateWSkillRplcItemNum" );
 }
 
-//获得技能的特效
+//Effect for gaining ability
 event CallASUpdateWSkillRplcEffect( int isTryReplace, int idx )
 {
 	ActionScriptVoid( "UCUpdateWSkillRplcEffect" );
@@ -109,7 +109,7 @@ event CallASSetWSkillRplcMoneyNeed( string moneyNeed )
 	ActionScriptVoid( "UCSetWSkillRplcMoneyNeed" );
 }
 
-//按钮动态
+//Button animation
 event CallASEnableWSkillRplcTryRplc( bool isEnable )
 {
 	ActionScriptVoid( "UCEnableWSkillRplcTryRplc" );

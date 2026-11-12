@@ -37,7 +37,7 @@ cpptext
 	#if WITH_EDITOR
 	virtual void CheckForErrors()
 	{
-		// 不需要检查
+		// No need to check
 	}
 	#endif
 }

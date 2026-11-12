@@ -22,7 +22,7 @@ void UMMOGFXPlayer_SceneHint::BeforeViewUpdate(FLOAT DeltaTime)
 //		return;
 //	}
 //	/*
-//	性能调节提示
+//	performance tuning tips
 //	*/
 //
 //	static FLOAT g_lastCheckTime = 0.0f;
@@ -37,7 +37,7 @@ void UMMOGFXPlayer_SceneHint::BeforeViewUpdate(FLOAT DeltaTime)
 //			/*extern FLOAT GAverageFPS;
 //			if(GAverageFPS < GSystemSettings.LowerCheckFPS)*/
 //			
-//			// 过场动画时不要检测提示
+//			// don't check tips during cutscenes
 //			if(!MMOFacade::getSingleton().GetMainController()->IsPlayingMatinee())
 //			{
 //				//FLOAT fInGameStateFps = MMOFacade::getSingleton().GetGameSateFps();
@@ -186,7 +186,7 @@ void UMMOGFXPlayer_SceneHint::UnInit()
 //				
 //					if(!strKey.IsEmpty())
 //					{
-//						FString text = FString::Printf( TEXT("按快捷键: %s 可以隐藏周围玩家") , *(strKey) );
+//						FString text = FString::Printf( TEXT("Press hotkey: %s to hide nearby players") , *(strKey) );
 //						MMOChatManager::getSingleton().AddSystemMessage( text );
 //						MMOUI::GetUIManager()->delegateAddScreenMessage( text ,MsgInfoType_Normal);
 //					}

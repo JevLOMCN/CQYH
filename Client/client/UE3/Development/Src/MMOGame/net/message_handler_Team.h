@@ -26,7 +26,7 @@
 		M_DECL_PARSE_FUN(m2c_team_changeinfo ); 
 		M_DECL_PARSE_FUN(m2c_team_answer); 
 		/*M_DECL_PARSE_FUN(g2c_sync_teaminfo ); */
-		//M_DECL_PARSE_FUN(g2c_sync_teammember);//这个协议服务器还没用
+		//M_DECL_PARSE_FUN(g2c_sync_teammember);//The server does not use this protocol yet
 		M_DECL_PARSE_FUN(g2c_team_sync_member);
 		M_DECL_PARSE_FUN(m2c_team_sync_memberinfo);
 		M_DECL_PARSE_FUN(g2c_sync_adjacent_role_noteam);

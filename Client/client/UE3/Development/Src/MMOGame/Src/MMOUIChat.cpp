@@ -27,7 +27,7 @@ INT Anz_Unicode2_Utf8( const FString& InputName, INT LimitSize)
 	//size_t Length = InputName.Len();
 	//const TCHAR*  chatMsgBuffer= *InputName;
 
-	//linjian写，有问题，york用ue3函数修改了下
+	//written by linjian, has problems, york modified it with a ue3 function
 	FTCHARToUTF8 conv(*InputName);
 	INT lenth = conv.Length() + 1;
 	if( lenth > LimitSize)
@@ -131,7 +131,7 @@ INT Anz_Unicode2_Utf8( const FString& InputName, INT LimitSize)
 //	return res;
 //}
 
-#if (SHIPPING_PC_GAME)  //GM命令模式开启
+#if (SHIPPING_PC_GAME)  //GM command mode enabled
 bool bUseGMCmd = true;
 #else
 bool bUseGMCmd = true;
@@ -183,14 +183,14 @@ void UMMOUIChat::SendMessage(INT TypeId,const FString& msg,UBOOL showMsg)
 		return;
 	}
 
-	// 任务 #18213 add by zhangrui05
+	// Task #18213 add by zhangrui05
 	if (MMOChatManager::getSingleton().ParseSpecialCommand(msg))
 	{
 		return;
 	}
 
 	FString newMsg = msg;
-	//简单限制一下字数
+	//simple limit on character count
 	INT msgCount = Anz_Unicode2_Utf8( newMsg, MAX_CHAT_MESSAGE_LEN - 2);
 	if(msgCount<newMsg.Len())
 	{
@@ -272,7 +272,7 @@ void UMMOUIChat::SendMessage(INT TypeId,const FString& msg,UBOOL showMsg)
 		
 	}
 	
-	//这个玩意全无规律，数据一些来自服务器宏，一些来自玩家当前数据。表都没法配
+	//this thing has no regularity at all; some data comes from server macros, some from the player's current data. The table can't even be configured
 	switch ( CurrentChannel )
 	{
 		case  ECC_World:
@@ -288,7 +288,7 @@ void UMMOUIChat::SendMessage(INT TypeId,const FString& msg,UBOOL showMsg)
 			}
 			break;
 		case ECC_Guild:
-			ChannelId = otGuild; //先没有以后补
+			ChannelId = otGuild; //none for now, to be added later
 			TargetId = MMOGuildData::getSingleton().GetGuildBaseInfo().Id;
 			if( MMOGuildData::getSingleton().GetGuildBaseInfo().Id == 0 )
 			{
@@ -304,7 +304,7 @@ void UMMOUIChat::SendMessage(INT TypeId,const FString& msg,UBOOL showMsg)
 		case ECC_Team:
 			ChannelId = otTeam;
 			TargetId = TeamManager::getSingleton().TeamID;
-			if( TargetId  <= 0 )//不在队伍中
+			if( TargetId  <= 0 )//not in a team
 			{
 				if (showMsg)
 				{
@@ -330,14 +330,14 @@ void UMMOUIChat::SendMessage(INT TypeId,const FString& msg,UBOOL showMsg)
 
 			if (MMOChatManager::getSingleton().CheckTrumpetItem() == FALSE)
 			{
-				//添加一个滚屏提示
+				//Add a scrolling text prompt
 				FString error = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOErrorInfo.Chat.NoTrumpetItem"));
 				MMOUI::GetUIManager()->delegateAddScreenMessage(error,MsgInfoType_Table,TEXT("MMOErrorInfo.Chat.NoTrumpetItem"));
 				return;
 			}
 			else if (MMOChatManager::getSingleton().GetIsInTrumpetCDTimes())
 			{
-				//添加一个滚屏提示
+				//Add a scrolling text prompt
 				FString tips = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOErrorInfo.Chat.TrumpetItemCD"));
 				FString error = FString::Printf(*tips,MMOChatManager::getSingleton().TrumpetCDTimes);
 		
@@ -355,7 +355,7 @@ void UMMOUIChat::SendMessage(INT TypeId,const FString& msg,UBOOL showMsg)
 	ActiveCurChatMessageFilterChannel( EChat_Channel(CurrentChannel) );
 
 
-	// 引导任务
+	// Guide quest
 	MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Chat);
 
 	MMOGameEvent_Guide evtGuide(EGUET_SendChat);
@@ -409,12 +409,12 @@ void UMMOUIChat::SendPrivateChatMessage(FString inContent)
 
 void UMMOUIChat::ActiveCurChatMessageFilterChannel( EChat_Channel channel )
 {
-	//需求是，先判断非默认过滤频道
+	//requirement is to first check non-default filter channels
 	TArray<ChatFilterChannelMessage>& ChatFilterChannelList = MMOChatManager::getSingleton().GetChatFilterChannelList();
 
 	if( ChatFilterChannelList( CurrentFilterChannel ).ChannelFilterType == (ChatFilterChannelList(CurrentFilterChannel).ChannelFilterType| (0x1<<channel)) )
 	{
-		//当前频道即可显示发送内容，不用切换
+		//the current channel can display the sent content, no need to switch
 		return;
 	}
 	
@@ -430,7 +430,7 @@ void UMMOUIChat::ActiveCurChatMessageFilterChannel( EChat_Channel channel )
 			return;
 		}
 	}
-	//非默认里没找到，再找默认的过滤频道
+	//not found among non-default, then look for the default filter channel
 	for ( INT i = 0 ; i < ChatFilterChannelList.Num() ; i++ )
 	{
 		if( !ChatFilterChannelList(i).IsDefaultChannel )
@@ -510,7 +510,7 @@ void UMMOUIChat::NativeInitOnce()
 
 	FString datastring;
 
-	////发言频道，到系统频道即可
+	////speaking channel, system channel is enough
 	//for( INT i = 0 ; i< ECC_System ; i++ ) 
 	//{
 	//	if( i == 0 )
@@ -525,7 +525,7 @@ void UMMOUIChat::NativeInitOnce()
 
 	CreateDropDownList(ChatDropDown);
 
-	//默认初始页
+	//default initial page
 	//TurnFilterChannel(1);
 }
 
@@ -650,7 +650,7 @@ UBOOL UMMOUIChat::OnEsc()
 //-----------------------------------------------------------------------------------------------------------------------------
 void UMMOUIChat::EnterScene()
 {
-	//进入时清理一遍
+	//clean up once on entering
 	//ChatBuffList.Empty();
 
 	//for ( INT i = 0 ; i < ChatFilterChannelList.Num() ; i++ )
@@ -681,7 +681,7 @@ void UMMOUIChat::PlayerMoneyChange(BYTE MoneyType,INT DeltaMoney)
 
 	if(MMO::GetCurrentGameState() != EGameState_InGame)
 	{
-		//不在游戏中不更新显示
+		//do not update display when not in game
 		return;
 	}
 
@@ -819,13 +819,13 @@ void UMMOUIChat::ProcessChatMsgBuff()
 					{
 						ChatFilterChannelList(i).ChatMessageList.Remove( 0 );
 					}
-					//综合中的消息要添加到Hint频道
+					//messages in General must be added to the Hint channel
 					//if (TypeId == ECC_System)
 					//{
 						//MMOChatManager::getSingleton().AddHintItem(CM);
 					//}
 
-					if(CurrentFilterChannel == i)//当前频道可以显示的消息add by JimZhang@snda.com
+					if(CurrentFilterChannel == i)//messages the current channel can display add by JimZhang@snda.com
 					{
 						if(DataProvider==NULL)
 						{
@@ -842,7 +842,7 @@ void UMMOUIChat::ProcessChatMsgBuff()
 
 			}
 
-			//需要泡泡表现
+			//needs bubble display
 			AMMOActor* actor = pFacade->GetCharacter( chatActorId );
 			if( actor != NULL && pSceneHint != NULL ){
 				EActorClassType actorType = (EActorClassType)actor->GetActorType();
@@ -1025,7 +1025,7 @@ void UMMOUIChat::RefreshChatChannel()
 		}
 	}
 
-	//刷新数据
+	//refresh data
 	if(DataProvider){
 		eventCallClearChatMsg();
 		eventCallAddChatMsg(DataProvider);
@@ -1256,7 +1256,7 @@ void UMMOUIChat::ShowTrumpet()
 {
 	if(CurrentChannel == ECC_Trumpet)
 	{
-		//检测是否有传音道具
+		//check whether there is a megaphone item
 		BOOL isShow = MMOChatManager::getSingleton().CheckTrumpetItem();
 		eventCallShowTrumpet(isShow);
 
@@ -1512,7 +1512,7 @@ void UMMOUIChat::CleanChnnelChat()
 //---------moved--------------
 void UMMOUIChat::ASOnPanelClose(const FString& PanelName)
 {
-	// ESC的时候把自己焦点去掉，基本上是让给Skillbar
+	// on ESC remove own focus, basically yielding to the Skillbar
 	if(PanelName == TEXT("Chat"))
 	{
 		UMMOUIBase* PanelSkilbar = MMOUI::FindUIPanel(TEXT("Skillbar"));
@@ -1653,7 +1653,7 @@ void UMMOUIChat::ASTimeEvent( INT eventType )
 		}
 	}
 	else if( leftSec > 60 * 45 ){
-		//不需要提示了
+		//no longer need prompt
 		eventCallASSetTimeEvent( eGameTimeHintType_init, 0, 60 );
 	}
 }

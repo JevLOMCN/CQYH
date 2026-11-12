@@ -10,18 +10,18 @@ IMPLEMENT_CLASS(UMMOUIContactLevel)
 
 //----------------------------
 /*
-//重新整理好友聊天
+//reorganize friend chat
 */
 
 /*
 DispatchChatContent
 
-分三种情况:
-	1对方在自己的聊天列表内 
+Three cases:
+	1 the other party is in own chat list
 
-	2对方在自己的聊天列表内 并且当前正在聊天中的
+	2 the other party is in own chat list and currently chatting
 
-	3对方不在自己的聊天列表内
+	3 the other party is not in own chat list
 */
 
 void UMMOUIContactLevel::DispatchChatContent(INT nRoleID,FString& strContent)
@@ -59,7 +59,7 @@ void UMMOUIContactLevel::DispatchChatContent(INT nRoleID,FString& strContent)
 			INT nIndex = FriendChatManager::getSingleton().GetRoleIndexByChatList(nRoleID);
 			if (nIndex >= 0)
 			{
-				//页签闪烁
+				//tab flashing
 				eventCallUCShowRoleItemEffect(nIndex);
 			}
 			
@@ -82,7 +82,7 @@ void UMMOUIContactLevel::SendFriendChat(int nRoleID, FString strContent)
 	
 	if( FriendInfo.RoleId != nRoleID) 
 	{
-		return; // 非法
+		return; // invalid
 	}
 	
 
@@ -111,7 +111,7 @@ void  UMMOUIContactLevel::SetRoleChatContent(INT nRoleID)
 	
 	MMOFriendMember FriendInfo = FriendManager::getSingleton().GetFriendInfoByRoleId( nRoleID );
 
-	//或者来自摆摊
+	//or from stall
 	FriendManager::getSingleton().UpdateFriendMemberInfo(FriendInfo,nRoleID);
 
 	FString Msg = TEXT("");
@@ -176,11 +176,11 @@ void UMMOUIContactLevel::UpdateRoleChatList()
 			FriendManager::getSingleton().UpdateFriendMemberInfo(member,curChatList(n));
 			if(member.RoleId != 0)
 			{
-				//性别
+				//gender
 				itemObj->SetInt(TEXT("RoleID"), member.RoleId );
-				//职业
+				//class
 				itemObj->SetString(TEXT("RoleName"), member.ActorName);
-				// 角色ID
+				// character ID
 				itemObj->SetInt(_T("OnLine"), member.Online);
 
 				if(nCurRoleID > 0&& nCurRoleID == member.RoleId )
@@ -198,7 +198,7 @@ void UMMOUIContactLevel::UpdateRoleChatList()
 
 void UMMOUIContactLevel::SelectNewRoleChat(INT RoleId,const FString& PlayerName)
 {
-	/** 去掉好友限制
+	/** remove friend restriction
 	/*if( !FriendManager::getSingleton().IsMyFriend(RoleId))
 		return;*/
 
@@ -309,19 +309,19 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 	MMOUI::ReplaceCensoredWord(strCC, CensoredWord_ChatRecive);
 	DispatchChatContent(RoleId,strCC);
 }
-// 重整好友聊天
+// reorganize friend chat
 
-//-------------------------该类2个核心函数之一，别人给你发消息走这个分发，另一个是点击好友聊天信息请看SelectFriendChat--------------------------------------------------
+//-------------------------one of the 2 core functions of this class, messages others send you are dispatched through this; the other is clicking friend chat info, see SelectFriendChat--------------------------------------------------
 // void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	MMOFriendMember FriendInfo;
 // 	
 // 	if( Player && Player->ServerID == RoleId) 
 // 	{
-// 		//自己发给自己的情况
+// 		//case of sending to oneself
 // 		FriendInfo.RoleId = RoleId;
 // 		FriendInfo.ActorName = Player->ActorName;
 // 	}
@@ -332,11 +332,11 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	
 // 	if( FriendInfo.RoleId != RoleId ) 
 // 	{
-// 		return; // 非法
+// 		return; // invalid
 // 	}
 // 
 // 	FString FriendName = FriendInfo.ActorName;
-// 	AddtoContactLog( RoleId , FriendName , Content ); //不管是否有窗口，先加入Log
+// 	AddtoContactLog( RoleId , FriendName , Content ); //add to Log regardless of whether there is a window
 // 
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
 // 	{
@@ -344,18 +344,18 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		{
 // 			if( ContactWindowList(i).RoleId[j] == RoleId )
 // 			{
-// 				//与来消息的玩家间有创建出的窗口		
+// 				//there is a created window with the player who sent the message
 // 
 // 				AddtoReadContactLog( RoleId , FriendName , Content );
 // 
 // 				if( ContactWindowList(i).ActiveId == j )
 // 				{				
-// 					//当前窗口正是激活的那个
+// 					//the current window is the active one
 // 					AddContactMessage( ContactWindowList(i).Widget , FriendName  );
 // 				}
 // 				else
 // 				{
-// 					//未激活的话要给个激活提示
+// 					//if not active, give an activation prompt
 // 					SetChildTabHint( ContactWindowList(i).Widget , j , TRUE );
 // 				}
 // 
@@ -364,7 +364,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		}
 // 	}	
 // 
-// 	//无现成窗口，加到未读列表里
+// 	//no existing window, add to unread list
 // 	AddtoUnReadContactLog( RoleId , FriendInfo.ActorName , Content );
 // 
 // 	MMOFacade::getSingleton().NotifyUnReadFriendChatMsgChange( );
@@ -409,7 +409,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::ClearUI()
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	FriendChatMgr = &FriendChatManager::getSingleton();
@@ -417,7 +417,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	{
 // 		return;
 // 	}
-// 	//清空所有窗口
+// 	//clear all windows
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
 // 	{
 // 		FASValue AsVal(EC_EventParm);	
@@ -434,7 +434,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::AddtoReadContactLog(INT RoleId,const FString& PlayerName,const FString& Content,UBOOL fromSelf)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	ContactLogStruct CL(EC_EventParm);
@@ -468,7 +468,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::AddtoUnReadContactLog(INT RoleId,const FString& PlayerName,const FString& Content,UBOOL addLog )
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if(!FriendChatMgr)
@@ -505,10 +505,10 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	FriendChatMgr->UnReadContactLogList.AddItem(CL);
 // }
 
-//------------------------------------加到对话框里-------------------------------------------------
+//------------------------------------add to dialog box-------------------------------------------------
 // void UMMOUIContactLevel::AddContactMessage( UGFxObject* Window , const FString& PlayerName /*,const FString& Content*/)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( !Window )
@@ -524,7 +524,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // 	FString Msg;
 // 
-// 	//原来使用ReadContactLogList，后来改成log了	
+// 	//originally used ReadContactLogList, later changed to log
 // 	TArray<ContactLogStruct>& showList = FriendChatMgr->ContactLogList;
 // 	for( INT i = 0 ; i < showList.Num() ; i++ )
 // 	{		
@@ -556,12 +556,12 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::ContactWindowTab(UGFxObject* Window,INT Tab)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( Tab >= WindowChatNum || !Window )
 // 	{
-// 		return;//非法
+// 		return;//invalid
 // 	}
 // 
 // 	INT WindowId = Window->GetInt(TEXT("WindowId"));
@@ -578,7 +578,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::CreateNewWindow(const FString& PlayerName , INT RoleId )
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 		FASValue AsVal(EC_EventParm);
@@ -629,7 +629,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //--------------------------
 // void UMMOUIContactLevel::SetNewWindowText( UGFxObject* window )
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	INT faceNum = 0;
@@ -649,11 +649,11 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	}
 // }
 // 
-// //-----------------------------------------把未显示列表的移到出来------------------------
+// //-----------------------------------------move those in the not-shown list out------------------------
 // void UMMOUIContactLevel::MoveUnReadMsgToRead(INT RoleId,const FString& PlayerName)
 // {
 // 
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if(!FriendChatMgr)
@@ -680,22 +680,22 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	}
 // 	if( UnReadIndex < 0 )
 // 	{
-// 		//没有未读
+// 		//no unread
 // 		return;
 // 	}
-// 	if( ReadIndex < 0 ) //没有这个人，就新建一个
+// 	if( ReadIndex < 0 ) //this person doesn't exist, create a new one
 // 	{
 // 		ContactLogStruct NewContackLog(EC_EventParm);
 // 		NewContackLog.RoleId = RoleId;
 // 		NewContackLog.PlayerName = PlayerName;
 // 		ReadIndex = FriendChatMgr->ReadContactLogList.AddItem(NewContackLog);		
 // 	}
-// 	//复制数据
+// 	//copy data
 // 	for ( INT k = 0 ; k < FriendChatMgr->UnReadContactLogList(UnReadIndex).LogList.Num() ; k++ )
 // 	{
 // 		FriendChatMgr->ReadContactLogList( ReadIndex ).LogList.AddItem( FriendChatMgr->UnReadContactLogList(UnReadIndex).LogList(k) );
 // 	}
-// 	//把原来的删掉
+// 	//delete the original
 // 	FriendChatMgr->UnReadContactLogList(UnReadIndex).LogList.Empty();
 // 	FriendChatMgr->UnReadContactLogList.Remove(UnReadIndex);
 // 	return;
@@ -714,7 +714,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // INT UMMOUIContactLevel::GetWindowIdByRoleId( INT roleId )
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
@@ -732,10 +732,10 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	return -1;
 // }
 // 
-// //-------------------------------------------点击好友的聊天，该类最核心的2个功能函数之一，另一个是分发消息FriendChatMsg-------------------
+// //-------------------------------------------click friend's chat, one of the 2 core functions of this class, the other is dispatching messages FriendChatMsg-------------------
 // void UMMOUIContactLevel::SelectFriendChat(INT RoleId,const FString& RoleName)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( !FriendManager::getSingleton().IsMyFriend(RoleId))
@@ -743,17 +743,17 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		return;
 // 	}
 // 
-// 	//如果有未读的话，就把未读信息转到已读
+// 	//if there are unread ones, move unread info to read
 // 	MoveUnReadMsgToRead( RoleId , RoleName );
 // 
-// 	//先看有没有这个对话窗口打开
+// 	//first see whether this dialog window is open
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
 // 	{
 // 		for ( INT j = 0 ; j < WindowChatNum ; j++ )
 // 		{
 // 			if( ContactWindowList(i).RoleId[j] == RoleId ) 
 // 			{
-// 				//有这个窗口，激活之
+// 				//this window exists, activate it
 // 				ContactWindowList(i).ActiveId = j ;
 // 				ActiveChildWindow( ContactWindowList(i).Widget , j );
 // 				return;
@@ -761,12 +761,12 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		}		
 // 	}
 // 
-// 	//没有现成窗口，寻找大窗口中是否有空闲可以打开
+// 	//no existing window, look for a free one among the big windows to open
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
 // 	{
 // 		for ( INT j = 0 ; j < WindowChatNum ; j++ )
 // 		{
-// 			if( ContactWindowList(i).RoleId[j] == 0 ) //有窗口空着就显示，然后激活
+// 			if( ContactWindowList(i).RoleId[j] == 0 ) //if a window is free, show it, then activate
 // 			{
 // 				
 // 				ContactWindowList(i).RoleId[j] = RoleId;
@@ -779,7 +779,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		}		
 // 	}
 // 
-// 	//没有空闲，创建新的大窗口
+// 	//none free, create a new big window
 // 	CreateNewWindow( RoleName , RoleId );
 // 
 // 	
@@ -789,13 +789,13 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::ActiveChildWindow(class UGFxObject* Window,INT ChildId)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( Window )
 // 	{
 // 		SetChildTabHint( Window , ChildId , FALSE );
-// 		//todo 高亮
+// 		//todo highlight
 // 		ContactWindowTab( Window , ChildId );
 // 
 // 		if(GFXPlayer)
@@ -824,7 +824,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::AddtoContactLog(INT RoleId,const FString& PlayerName,const FString& Content,UBOOL fromSelf)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if(!FriendChatMgr)
@@ -832,9 +832,9 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		return;
 // 	}
 // 
-// 	//注意：自己联系对方和对方联系自己都会添加在这里，roleid和name总是对方的
+// 	//note: both contacting the other party and the other party contacting you are added here; roleid and name are always the other party's
 // 
-// 	//告知管理器最新联系人
+// 	//tell the manager the latest contact
 // 	FriendManager::getSingleton().NotifyNewContact(RoleId);
 // 	
 // 	ContactLogStruct CL(EC_EventParm);
@@ -852,7 +852,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // 	FString Msg = _GetShowText( senderName , Content , fromSelf );
 // 
-// 	//已有此人的消息队列，就加入之前队列
+// 	//already have a message queue for this person, add to the previous queue
 // 	for(INT i = 0 ; i< FriendChatMgr->ContactLogList.Num() ;i++ ) 
 // 	{
 // 		if( FriendChatMgr->ContactLogList(i).RoleId == RoleId )
@@ -865,7 +865,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 			return;
 // 		}
 // 	}
-// 	//否则就新建
+// 	//otherwise create new
 // 	CL.RoleId = RoleId;
 // 	CL.PlayerName = PlayerName;
 // 	CL.LogList.AddItem( Msg );
@@ -877,7 +877,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::SendFriendChatMessage(INT WindowId,const FString& MsgContent)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 	
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
@@ -887,12 +887,12 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 			INT TargetId = ContactWindowList(i).RoleId[ ContactWindowList(i).ActiveId ];
 // 			CMessageHandler::GetInstance().SendFriendChat(TargetId,MsgContent);
 // 
-// 			//说完话，把话加到自己的框里
+// 			//after speaking, add the words to own box
 // 			MMOFriendMember FriendInfo = FriendManager::getSingleton().GetFriendInfoByRoleId( TargetId );
 // 		
 // 			if( FriendInfo.RoleId != TargetId ) 
 // 			{
-// 				return; // 非法
+// 				return; // illegal
 // 			}
 // 			FString FriendName = FriendInfo.ActorName;
 // 			AddtoContactLog( TargetId , FriendName , MsgContent , true );
@@ -904,10 +904,10 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	}
 // }
 // 
-// //---------------------------设置窗口提醒---------------
+// //---------------------------Set window reminder---------------
 // void UMMOUIContactLevel::SetChildTabHint( UGFxObject* Window , INT ChildId , UBOOL openHint )
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( !Window )
@@ -936,7 +936,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // }
 // void UMMOUIContactLevel::ChangeToTab(INT nRoleID)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
@@ -945,7 +945,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		{
 // 			if( ContactWindowList(i).RoleId[j] == nRoleID ) 
 // 			{
-// 				//有这个窗口，激活之
+// 				//this window exists, activate it
 // 				ContactWindowList(i).ActiveId = j ;
 // 				ActiveChildWindow( ContactWindowList(i).Widget , j );
 // 				return;
@@ -953,10 +953,10 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 		}		
 // 	}
 // }
-// //---------------------------设置子窗口----------------------------------------------------------
+// //---------------------------Set child window----------------------------------------------------------
 // void UMMOUIContactLevel::SetChildWindow(UGFxObject* Window , INT ChildId , UBOOL Visible , UBOOL CloseVisible , FString PlayerName , INT roleId )
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( !Window )
@@ -1027,7 +1027,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::RemoveWindow(const FString& WindowName)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	FASValue AsVal(EC_EventParm);	
@@ -1043,7 +1043,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 	{
 // 		if( ContactWindowList(i).WindowName == WindowName )
 // 		{
-// 			//删掉ReadLog的相关
+// 			//Delete ReadLog related
 // 			for ( INT j = 0 ; j < WindowChatNum ; j++ )
 // 			{
 // 				for ( INT k = FriendChatMgr->ReadContactLogList.Num()-1 ; k >= 0 ; k-- )
@@ -1055,7 +1055,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 					}
 // 				}
 // 			}
-// 			//删除窗口
+// 			//Delete window
 // 			ContactWindowList.Remove(i,1);
 // 		}
 // 	}
@@ -1064,7 +1064,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::WindowTabClose(class UGFxObject* Window,class UGFxObject* Tab)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	if( !Window || !Tab )
@@ -1077,11 +1077,11 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
 // 	{
-// 		if( ContactWindowList(i).WindowId == WindowId ) // 找到该窗口
+// 		if( ContactWindowList(i).WindowId == WindowId ) // found the window
 // 		{
 // 			INT OpenChildWindowNum = GetWindowOpenChildNum(ContactWindowList(i).WindowId);
 // 
-// 			if( ContactWindowList(i).ActiveId == TabId ) //关闭的是激活显示的那个
+// 			if( ContactWindowList(i).ActiveId == TabId ) //the closed one is the active displayed one
 // 			{
 // 				if( TabId == 0  )
 // 				{
@@ -1098,12 +1098,12 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // 			for ( INT j = TabId ; j < OpenChildWindowNum ; j++ )
 // 			{
-// 				if( j != OpenChildWindowNum-1 ) //前移
+// 				if( j != OpenChildWindowNum-1 ) //move forward
 // 				{
 // 					ContactWindowList(i).RoleId[j] = ContactWindowList(i).RoleId[j+1];
 // 					ContactWindowList(i).PlayerName[j] = ContactWindowList(i).PlayerName[j+1];
 // 				}
-// 				else//排在最后的一个子窗口就不管了
+// 				else//the last child window is ignored
 // 				{
 // 					ContactWindowList(i).RoleId[j] = 0 ;
 // 					ContactWindowList(i).PlayerName[j] = TEXT("");
@@ -1124,7 +1124,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // INT UMMOUIContactLevel::GetWindowOpenChildNum(INT WindowId)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	INT Num = 0;
@@ -1149,7 +1149,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::UpdateWindowTab(INT WindowId)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	for ( INT i = 0 ; i < ContactWindowList.Num() ; i++ )
@@ -1162,7 +1162,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 			{
 // 				if( OpenNum == 1 && j == 0 )
 // 				{ 
-// 					//只有一个的话，是特殊的，是不能X掉的
+// 					//If there is only one, it is special and cannot be closed with X
 // 					SetChildWindow( ContactWindowList(i).Widget , 0 , TRUE , FALSE , ContactWindowList(i).PlayerName[0] , ContactWindowList(i).RoleId[0] );
 // 					continue;
 // 				}
@@ -1178,7 +1178,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // //-------------------------------------------------------------------------------------
 // void UMMOUIContactLevel::MiniMizeWindow(const FString& WindowName)
 // {
-// 	//重新整理好友聊天
+// 	//reorganize friend chat
 // 	return;
 // 
 // 	for( INT i = 0 ; i< ContactWindowList.Num() ; i++ )
@@ -1186,7 +1186,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // 		if( ContactWindowList(i).WindowName == WindowName )
 // 		{
-// 			//删掉ReadLog的相关
+// 			//Delete ReadLog related
 // 			for ( INT j = 0 ; j < WindowChatNum ; j++ )
 // 			{
 // 				if( ContactWindowList(i).RoleId[j] != 0 )
@@ -1207,7 +1207,7 @@ void UMMOUIContactLevel::FriendChatMsg(INT RoleId,const FString& Content)
 // 
 // void UMMOUIContactLevel::PostOnShow(UBOOL v)
 // {
-// 	//重载掉，因为不要movetop
+// 	//Override, because movetop is not wanted
 // }
 // 
 // FString UMMOUIContactLevel::_GetShowText( const FString& playerName , const FString& content , UBOOL myWord )

@@ -57,10 +57,10 @@ void UMMOUIWorldMap::ShowCurSceneMapConent()
 	//	UpdateMapStaticMarkList();
 	//}
 
-	//回世界地图按钮
+	//Back to world map button
 	eventCallASShowBackUnitedMapBtn( FALSE );
 
-	//Tab键
+	//Tab key
 	ShowMapPanelContent( ePnlTyp_WorldMap );
 }
 
@@ -103,7 +103,7 @@ void UMMOUIWorldMap::InitWorldMap( INT mapID, INT regionDataIdx )
 		}
 	}
 	
-	//标签页
+	//Tab page
 	if( mapID == pMapDataMgr->GetCurMap().ServerID ){
 		eventCallASChangeWorldMapTabBtn( ePnlTyp_WorldMap );
 	}
@@ -111,7 +111,7 @@ void UMMOUIWorldMap::InitWorldMap( INT mapID, INT regionDataIdx )
 		eventCallASChangeWorldMapTabBtn( ePnlTyp_UnitedMap );
 	}
 
-	//设置为当前所在场景地图为大地图所显示的地图
+	//Set the current scene map as the map displayed in the big map
 	pMapDataMgr->SetCurWorldMap( mapID, regionDataIdx );
 	IsMultilayerRegion = pMapDataMgr->IsMapRegionMultilayer( mapID );
 
@@ -158,14 +158,14 @@ void UMMOUIWorldMap::InitWorldMap( INT mapID, INT regionDataIdx )
 	//
 	UpdateMapStaticMarkList();
 
-	//路径只显示在当前地图（大地图）
+	//Path is only shown on the current map (big map)
 	UGFxObject *pPathPointContainerMc = eventCallASGetMapMarkUIObjectContainer( EACTMUI_PathPoint );
 	if( pPathPointContainerMc != NULL ){
 		UBOOL isShowInWorldMap = ( _CurPanelType == ePnlTyp_WorldMap );
 		pPathPointContainerMc->SetVisible( isShowInWorldMap );
 	}
 
-	//显示公会据点战文字
+	//Show guild stronghold war text
 	UpdateGuildOccupyInfo(mapID);
 }
 /*
@@ -207,10 +207,10 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	INT maxImgTileRowNum = RegionInMap.WorldMapTileRowNum;
 	INT maxImgTileColNum = RegionInMap.WorldMapTileColNum;
 
-	//scale3dTo2d为3d坐标到2d坐标的转换比例，此局域地图坐标Y轴方向与世界3d坐标Y轴相反
+	//scale3dTo2d is the conversion ratio from 3d coordinates to 2d coordinates; this local map's Y axis direction is opposite to the world 3d Y axis
 	//INT oneCoordToPixels = RegionInMap.WorldMapPixelSize;
 	//if(oneCoordToPixels == 0){
-	//	//错的
+	//	//wrong
 	//	oneCoordToPixels = 54;
 	//}
 	//INT realCoordStepToPixels = (INT)( MAP_SNAPSHOT_COORDINATE_STEP / oneCoordToPixels );
@@ -277,11 +277,11 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	pWorldMapTiles->Initialize( GFXPlayer, strTexPath, player3dPos, tileSizeX, tileSizeY,
 							 maxImgTileRowNum, maxImgTileColNum, map3Dto2D, beforeUIScale2dOffsetInMap, afterTurned2dOffsetInMap, MapUIZoomDefault );
 
-	//底板路径
+	//Base layer path
 	if( MapBGLoader != NULL ){
 		UTexture2D* tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, *strUILoaderBgTexPath, NULL, LOAD_NoWarn, NULL) );
 		if( tex == NULL ){
-			//没图，用默认的
+			//No image, use the default
 			tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, TEXT("MMO_UIWorldMapImg.wMapDefaultBg"), NULL, LOAD_NoWarn, NULL) );
 		}
 
@@ -340,7 +340,7 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	FVector2D map3Dto2D;
 	map3Dto2D = map3Dto2DNoScaled;
 
-	//地图的数据都是按512大小的输出图来计算的，这里把他当做1024的图用
+	//Map data is all calculated based on a 512-size output image, treated here as a 1024 image
 	FLOAT worldMapResScale = 0.5;
 	map3Dto2D /= worldMapResScale;//MapUIZoomDefault;
 	//
@@ -366,7 +366,7 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 		}
 	}
 	else{
-		//UI中地图Img为1304 X 1080
+		//Map Img in UI is 1304 X 1080
 		MapUiCenterPos.X = PaperZoneSize.X / 2 / MapUIResScale;
 		MapUiCenterPos.Y = PaperZoneSize.Y / 2 / MapUIResScale;
 		//MapUiCenterPos.X = PaperZoneSize.X / 2;
@@ -389,11 +389,11 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	FLOAT totalUIScale = MapUIZoom * MapUIResScale;
 	pWorldMapTiles->Initialize( GFXPlayer, strTexPath, player3dPos, tileSizeX, tileSizeY, maxImgTileRowNum, maxImgTileColNum, map3Dto2D, beforeUIScale2dOffsetInMap, MapImgOffset, totalUIScale );
 
-	//底板路径
+	//Base layer path
 	if( MapBGLoader != NULL ){
 		UTexture2D* tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, *strUILoaderBgTexPath, NULL, LOAD_NoWarn, NULL) );
 		if( tex == NULL ){
-			//是否沿用其他的图
+			//Whether to reuse another image
 			tex = Cast<UTexture2D>( UObject::StaticLoadObject( UTexture2D::StaticClass(), NULL, TEXT("MMO_UIWorldMapImg.wMapDefaultBg"), NULL, LOAD_NoWarn, NULL) );
 		}
 
@@ -590,7 +590,7 @@ void UMMOUIWorldMap::WorldMapOnShow( UBOOL isShow )
 		eventUCSetXY( lastInputPos.X / 100, lastInputPos.Y / 100 );
 	}
 	else{
-		//隐藏地图Icon信息显示
+		//Hide map Icon info display
 		ShowMapMarksInfomation( FALSE );
 	}
 }
@@ -956,7 +956,7 @@ void UMMOUIWorldMap::UpdateMarksNearPlayer( FVector centerPos3D, float fYawDeg )
 		if( pDynmActor->_IsValid == TRUE && pDynmActor->_Type != EACTMUI_InVisible ){
 			AMMOActor* nearActor = gameFacade.GetCharacter( pDynmActor->_ActorID );
 			if( nearActor == NULL ){
-				//this become invalid,remove it(应该早被移除了的)
+				//this become invalid,remove it(should have been removed long ago)
 				pMapDataMgr->RemoveMapDymcActorNear( pDynmActor->_ActorID );
 				if( pDynmActor->_UiObjInWorldMap ){
 					pDynmActor->_UiObjInWorldMap->SetVisible( FALSE );
@@ -1040,7 +1040,7 @@ void UMMOUIWorldMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg
 				pUiObj = pDynmActor->_UiObjInWorldMap;
 			}
 
-			//是否在此地图
+			//whether in this map
 			UBOOL canShow = ( pDynmActor->_InMapID == curWorldMapID );
 			pUiObj->SetVisible( canShow );
 			//pUiObj->SetInt( TEXT("Type"), pDynmActor->_Type );
@@ -1061,7 +1061,7 @@ void UMMOUIWorldMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg
 						AMMOActor* nearActor = gameFacade.GetCharacter( pDynmActor->_ActorID );
 						MMOTeamMember *pTeammate = teamManager.GetMemberById( pDynmActor->_ActorID );
 						if( pTeammate == NULL ){
-							//this become invalid,remove it(应该早被移除了的)
+							//this become invalid,remove it(should have been removed long ago)
 							pMapDataMgr->RemoveMapDymcActorGlobal( pDynmActor->_ActorID );
 							++iter;
 							//
@@ -1077,7 +1077,7 @@ void UMMOUIWorldMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg
 
 							UBOOL canShow = ( pTeammate->MapID == curWorldMapID );
 							if( canShow && curWorldMapID == curMapID ){
-								//队友在当前大地图上，且当前大地图就是当前所在场景地图
+								//Teammate is on the current big map, and the current big map is the current scene map
 								if( curMap.ServerMapType == E_est_Line ){
 									canShow &= ( pTeammate->MapLineID == curMapLineID );
 								}
@@ -1256,7 +1256,7 @@ void UMMOUIWorldMap::UpdateMapPath( FVector centerPos3D, float fYawDeg )
 		}
 	}//end of for loop of all static actors
 
-	////隐藏已经经过的点
+	////Hide points already passed
 	//INT removePtCnt = 0;
 	//if( disBetween <= MAP_PATH_POINT_REMOVE_LENGTH ){
 	//	removePtCnt = nowAtPosIdx + 1;
@@ -1309,7 +1309,7 @@ void UMMOUIWorldMap::UpdateMapMarksInfomation( FVector centerPos3D, float fYawDe
 			//FVector2D inWorldMapPos2D = pWorldMapTiles->Map2DOffsetFromWorld3DPos( pMarkInfo->_OrigInMapPos, centerPos3D );
 			FVector2D inWorldMapPos2D;
 			if( pMarkInfo->_OrigInMapPos.IsZero() ){
-				//无效坐标
+				//Invalid coordinates
 				inWorldMapPos2D.X = inWorldMapPos2D.Y = 0;
 			}
 			else{
@@ -1323,7 +1323,7 @@ void UMMOUIWorldMap::UpdateMapMarksInfomation( FVector centerPos3D, float fYawDe
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
-//@desc:每次大地图隐藏时都会随之隐藏，需再次显示时需要要再次调用
+//@desc:Hidden whenever the big map is hidden, must be called again to show it again
 void UMMOUIWorldMap::ShowMapMarksInfomation( UBOOL isToShow )
 { 
 	IsToShowMapMarksExtraInfo = isToShow;
@@ -1345,7 +1345,7 @@ void UMMOUIWorldMap::UpdateMapTilesPosition()
 	////FVector2D noScaledCenter = MapUiCenterPos / pMapTiles->_ZoomFactor;
 	//pMapTiles->TilesGoAroundByPosInTile( MapUiCenterPos, true );
 
-	////372，279为遮罩的半长宽
+	////372, 279 are the half width and height of the mask
 	////LastMoveModify = pMapTiles->KeepTilesNotExceed( PaperMaskBorder.X / 2, PaperMaskBorder.Y / 2 );
 	////FVector2D offset = pMapTiles->TilesKeepNotExceedBoundAround( MapUiCenterPos, 372, 279 );
 	////MapUiCenterPos -= LastMoveModify;
@@ -1356,7 +1356,7 @@ void UMMOUIWorldMap::UpdateMapTilesPosition()
 UBOOL UMMOUIWorldMap::CheckMapPosition( float &moveDeltaX, float &moveDeltaY )
 {
 	UBOOL isOutside = FALSE;
-	//是否已经到边缘
+	//Whether already at the edge
 	//MapBGMoveLimit.X = ( PaperZoneSize.X * MapUIZoom - PaperMaskBorder.X ) / 2;
 	//MapBGMoveLimit.Y = ( PaperZoneSize.Y * MapUIZoom - PaperMaskBorder.Y ) / 2;
 	FLOAT limitX = MapBGMoveLimit.X;
@@ -1421,7 +1421,7 @@ void UMMOUIWorldMap::HighlightMark( INT idxInStaticMap )
 	}
 
 	FActorInMapUI &staticMark = staticMarks( idxInStaticMap );
-	//UI表现
+	//UI presentation
 	if( staticMark._UiObjInWorldMap ){
 		UGFxObject *pHintAnim = staticMark._UiObjInWorldMap->GetObject( TEXT("glow_mc") );
 		if( pHintAnim != NULL ){
@@ -1429,7 +1429,7 @@ void UMMOUIWorldMap::HighlightMark( INT idxInStaticMap )
 		}
 	}
 	
-	//满屏时不移动地图,ZoomLevel为0即为满屏(地图缩到最小)
+	//Do not move the map when full screen; ZoomLevel 0 means full screen (map zoomed to minimum)
 	if( ZoomLevel != 0 ){
 		MMOMapImgTiles *pWorldMapTiles = MMOMapImgTiles::GetMapImgTiles(E_WORLDMAP_TILES);
 		//FVector2D markInWorldMapPos2D = pWorldMapTiles->Map2DPosByWorld3DPos( staticMark._OrigInMapPos );
@@ -1828,13 +1828,13 @@ void UMMOUIWorldMap::ToggleShowStaticMarksOf( INT enumEActorInMapFlag, UBOOL isS
 }
 
 //============================================================================================================================================
-//更新地图下拉框
+//Update map dropdown
 void UMMOUIWorldMap::UpdateMapList()
 {
 	MMOMapDataManager *pMapDataManager = &MMOMapDataManager::getSingleton();
 	//UGlobalMapInfo *pGlobalMapInfo = UGlobalMapInfo::GetSingleton();
 
-	//获得当前区域里的所有NPC
+	//get all NPCs in the current area
 	TMap< INT, TArray<FInMapRegion*> > &mapRegions = pMapDataManager->GetAllMapRegions();
 	INT curMapID = pMapDataManager->GetCurWorldMap().ServerID;
 
@@ -1860,14 +1860,14 @@ void UMMOUIWorldMap::UpdateMapList()
 				continue;
 			}
 
-			//写入控件数据
+			//write control data
 			mapListObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapDropDownListData") );
 
 			mapListObj->SetString( TEXT("label"), pRegion->DisplayName );
 			if( pRegion->DisplayName.IsEmpty() ){
-				//等配了删除这节
+				//Delete this section once configured
 				FString name = UGlobalMapInfo::GetSingleton()->FindMapInfo( pRegion->MapID ).MapDisplayName;
-				name += TEXT("缺少名字");
+				name += TEXT("Missing name");
 				mapListObj->SetString( TEXT("label"), name );
 			}
 			mapListObj->SetInt( TEXT("listIndex"), itemObjIdx );
@@ -1894,19 +1894,19 @@ void UMMOUIWorldMap::UpdateMapList()
 	eventFlashWorldMapMapList( dataProvider, curItemObjIdx );
 }
 //============================================================================================================================================
-//更新任务下拉框
+//Update quest dropdown
 void UMMOUIWorldMap::UpdateMapTaskList()
 {
 	MMOMapDataManager *pMapDataManager = &MMOMapDataManager::getSingleton();
 
-	//获得当前区域里的所有NPC
+	//get all NPCs in the current area
 	const TMap< UINT, UINT > &npcInfoInMapRegion = pMapDataManager->GetWorldMapPuttedUsefulNpcs();
 
 	UGFxObject* dataProvider = GFXPlayer->CreateArray();
 	UINT itemObjIdx = 0;
 	UGFxObject* mapTaskListObj = NULL;
 
-	//完成的任务
+	//Completed quests
 	TMap< UINT, UINT > &completeTasks = pMapDataManager->GetCompleteTaskInWorldMap();
 	for( TMap< UINT, UINT >::TIterator it(completeTasks); it; ++it ){
 		UINT npcIdx = it.Value();
@@ -1922,7 +1922,7 @@ void UMMOUIWorldMap::UpdateMapTaskList()
 		if( pTask == NULL ){
 			continue;
 		}
-		//写入控件数据
+		//write control data
 		mapTaskListObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapDropDownListData") );
 
 		mapTaskListObj->SetString( TEXT("label"), pTask->QuestName );
@@ -1934,7 +1934,7 @@ void UMMOUIWorldMap::UpdateMapTaskList()
 		++itemObjIdx;
 	}
 
-	//为完成的任务
+	//Uncompleted quests
 	TMap< UINT, UINT > &unCompleteTasks = pMapDataManager->GetUncompleteTaskInWorldMap();
 	for( TMap< UINT, UINT >::TIterator it(unCompleteTasks); it; ++it ){
 		UINT npcID = it.Value();
@@ -1950,7 +1950,7 @@ void UMMOUIWorldMap::UpdateMapTaskList()
 		if( pTask == NULL ){
 			continue;
 		}
-		//写入控件数据
+		//write control data
 		mapTaskListObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapDropDownListData") );
 
 		mapTaskListObj->SetString( TEXT("label"), pTask->QuestName );
@@ -1962,7 +1962,7 @@ void UMMOUIWorldMap::UpdateMapTaskList()
 		++itemObjIdx;
 	}
 
-	//可以接的任务
+	//Quests that can be accepted
 	TMap< UINT, UINT > &acceptableTasks = pMapDataManager->GetAcceptableTaskInWorldMap();
 	for( TMap< UINT, UINT >::TIterator it(acceptableTasks); it; ++it ){
 		UINT npcID = it.Value();
@@ -1978,7 +1978,7 @@ void UMMOUIWorldMap::UpdateMapTaskList()
 		if( pTask == NULL ){
 			continue;
 		}
-		//写入控件数据
+		//write control data
 		mapTaskListObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapDropDownListData") );
 
 		mapTaskListObj->SetString( TEXT("label"), pTask->QuestName );
@@ -1995,7 +1995,7 @@ void UMMOUIWorldMap::UpdateMapTaskList()
 }
 
 //============================================================================================================================================
-//更新NPC，怪点，副本列表
+//Update NPC, monster spot, instance lists
 void UMMOUIWorldMap::UpdateMapStaticMarkList()
 {
 	MMOMapDataManager *pMapDataManager = &MMOMapDataManager::getSingleton();
@@ -2030,14 +2030,14 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 		}
 	}
 
-	//第二级表项：NPC明细
+	//Second-level entry: NPC details
 	for( INT i = 0; i < MapMarkListClass_Max; ++i ){
 		TArray<UINT> &npcIdxArray = funcNpcIdx[i];
 		INT npcCnt = npcIdxArray.Num();
 
 		for( INT j = 0; j < npcCnt; ++j ){
 			if( j == 0 ){
-				//NPC标题
+				//NPC title
 				UGFxObject* npcListTitleObj = GFXPlayer->CreateObject( TEXT("ActionScript3.TreeListData") );
 				FString titleLookUp = TEXT( "MMOGame.WorldMap.WorldMapUiText");
 				titleLookUp += appItoa( i );
@@ -2051,7 +2051,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 				++itemObjIdx;
 			}
 
-			//第二级表项：NPC明细
+			//Second-level entry: NPC details
 			UINT npcPointIdx = npcIdxArray(j);
 			if( !staticMarks.IsValidIndex( npcPointIdx ) ){
 				continue;
@@ -2085,7 +2085,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 	}
 
 
-	////怪点
+	////Monster spot
 	//const TMap< INT, UINT > &npcGroupInfoInMapRegion = pMapDataManager->GetWorldMapPuttedNpcGroups();
 
 	//if( npcGroupInfoInMapRegion.Num() > 0 ){
@@ -2101,7 +2101,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 	//	++itemObjIdx;
 	//}
 
-	////第二级表项：怪点明细
+	////Second-level entry: monster spot details
 	//for ( TMap< INT, UINT >::TConstIterator iter(npcGroupInfoInMapRegion); iter; ++iter ){
 	//	UINT npcGroupPointIdx = iter.Value();
 	//	if( !staticMarks.IsValidIndex( npcGroupPointIdx ) ){
@@ -2147,7 +2147,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 		++itemObjIdx;
 	}
 
-	//第二级表项：FB明细
+	//Second-level entry: FB details
 	for ( TMap< UINT, UINT >::TConstIterator iter(fbInfoInMapRegion); iter; ++iter ){
 		UINT fbPointIdx = iter.Value();
 		if( !staticMarks.IsValidIndex( fbPointIdx ) ){
@@ -2171,7 +2171,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 		++itemObjIdx;
 	}
 
-	//寻路点
+	//Pathfinding point
 	UBOOL hasNavPointsTitle = FALSE;
 	const TMap< UINT, UINT > &mapNavPoints = pMapDataManager->GetWorldMapNavPoints();
 	for ( TMap< UINT, UINT >::TConstIterator iter(mapNavPoints); iter; ++iter ){
@@ -2181,7 +2181,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 		}
 
 		if( !hasNavPointsTitle ){
-			//标题
+			//Title
 			UGFxObject* navPointListTitleObj = GFXPlayer->CreateObject( TEXT("ActionScript3.TreeListData") );
 
 			navPointListTitleObj->SetString( TEXT("label"), MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WorldMap.WorldMapUiText5") ) );
@@ -2196,7 +2196,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarkList()
 			hasNavPointsTitle = TRUE;
 		}
 
-		//路点明细
+		//Waypoint details
 		UGFxObject* itemFbObj = GFXPlayer->CreateObject( TEXT("UI_WorldMap.WorldMapAS3.MapStaticMarkData") );
 
 		FActorInMapUI &navPointInfo = staticMarks( mapNavPointInStaticMarkIdx );
@@ -2410,7 +2410,7 @@ void UMMOUIWorldMap::InitWorldMapMc()
 	if( mapMaskZoneMc != NULL ){
 		MaskZonePos.X = mapMaskZoneMc->GetInt( TEXT("x") );
 		MaskZonePos.Y = mapMaskZoneMc->GetInt( TEXT("y") );
-		PaperMaskBorder.X = mapMaskZoneMc->GetInt( TEXT("width") );//取出来总是651，但实际是652
+		PaperMaskBorder.X = mapMaskZoneMc->GetInt( TEXT("width") );//always returns 651, but it is actually 652
 		PaperMaskBorder.Y = mapMaskZoneMc->GetInt( TEXT("height") );
 	}
 
@@ -2599,7 +2599,7 @@ void UMMOUIWorldMap::DistoryRootMc( UGFxObject* &pMc )
 //
 //
 //==============================================================================================
-//世界地图
+//World map
 //==============================================================================================
 void UMMOUIWorldMap::ASClickToWorldMap( INT tileIdx, INT mapID, const FString &regionName )
 {
@@ -2638,7 +2638,7 @@ void UMMOUIWorldMap::ASShowTipsUnitedMapTile( UGFxObject *fromMc, INT mapID, con
 
 	INT myLevel = MMOFacade::getSingleton().GetMyLevel();
 	if( ( mapInfo->MinPlayerLevel <= myLevel ) && ( myLevel <= mapInfo->MaxPlayerLevel ) ){
-		//只显示在推荐等级之外的
+		//only show those outside the recommended level
 		return;
 	}
 	//tipsContentKey += mapInfo->MapName;
@@ -2700,7 +2700,7 @@ void UMMOUIWorldMap::ASShowWorldMapTabPanel( int type )
 }
 
 //=================================================================================================
-//大地图
+//big map
 //=================================================================================================
 void UMMOUIWorldMap::BeforeViewUpdate(float DeltaTime)
 {
@@ -2737,7 +2737,7 @@ void UMMOUIWorldMap::ASMoveToMapPos( INT clickPosX, INT clickPosY )
 }
 
 
-//移动到标记点
+//move to marker point
 void UMMOUIWorldMap::ASMoveToThisMapMark( INT idxInStaticMap )
 {
 	MMOMapDataManager &mmoMapDataMgr = MMOMapDataManager::getSingleton();
@@ -2818,7 +2818,7 @@ void UMMOUIWorldMap::ASMoveToThisMapMark( INT idxInStaticMap )
 	}
 }
 
-//加注标记点
+//Add marker point
 void UMMOUIWorldMap::ASAddOrRemoveMarkMap( int clickPosX, int clickPosY )
 {
 	PrepareShowAddUserMarkPanel( clickPosX, clickPosY );
@@ -2841,13 +2841,13 @@ void UMMOUIWorldMap::ASCloseUserMarkPanel()
 {
 	CloseUserMarkPanel();
 }
-//找寻地图上已有的固定点
+//find existing fixed points on the map
 void UMMOUIWorldMap::ASFindThisMapMark( int idx )
 {
 	HighlightMark( idx );
 }
 
-//找寻地图上任务点
+//find quest points on the map
 void UMMOUIWorldMap::ASFindMapTask( int npcIdx )
 {
 	const TMap< UINT, UINT > &npcInfoInMapRegion = MMOMapDataManager::getSingleton().GetWorldMapPuttedUsefulNpcs();
@@ -2860,7 +2860,7 @@ void UMMOUIWorldMap::ASFindMapTask( int npcIdx )
 	HighlightMark( *npcPointIdx );
 }
 
-//切换地图
+//Switch map
 void UMMOUIWorldMap::ASChangeMap( int mapID, int regionInMapIdx )
 {
 	//
@@ -2869,13 +2869,13 @@ void UMMOUIWorldMap::ASChangeMap( int mapID, int regionInMapIdx )
 	ResizeMap();
 }
 
-//切换显示功能NPC
+//Toggle showing function NPCs
 void UMMOUIWorldMap::ASToggleFuncNpc( UBOOL isShow )
 {
 	ToggleShowStaticMarksOf( EACTUIF_FunctionNpc, isShow );
 }
 
-//切换显示任务NPC
+//Toggle showing quest NPCs
 void UMMOUIWorldMap::ASToggleTaskNpc( UBOOL isShow )
 {
 	ToggleShowStaticMarksOf( EACTUIF_TaskNpc, isShow );
@@ -2943,7 +2943,7 @@ void UMMOUIWorldMap::ASShowWorldMapMarkHint( INT type, INT idx )
 			if( pMapMark->_DisplayName.IsEmpty() == FALSE ){
 				break;
 			}
-			//因为当初加入这个玩家时，他的信息还没到
+			//because when this player was added, his info had not arrived yet
 			INT roleID = ((FActorInMapUI*)pMapMark)->_ActorID;
 			AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter( roleID );
 			if( pPlayer != NULL && pPlayer->GetActorName().IsEmpty() == FALSE ){

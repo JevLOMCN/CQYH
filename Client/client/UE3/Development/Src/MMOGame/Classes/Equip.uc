@@ -1,10 +1,10 @@
 /*
- * 装备类,功能包含服装,装甲,武器等可视物件
- * 支持换静态网络模型,骨骼蒙皮,粒子,贴图四种可视对象
+ * equipment class, functions include clothing, armor, weapons and other visible objects
+ * supports four kinds of visible objects: swapped static mesh, skeletal skinning, particle, texture
  * 
- * 对于非贴图的物品,模型以Component的方式组合在一起, 有两种,一种是添加到Actor的Components数组里去,另一种是绑定到BAse骨架的一个socket上去
+ * for non-texture items, models are combined as Components in two ways: one is added to the Actor's Components array, the other is attached to a socket of the Base skeleton
  *
- * 对于SkeletalMesh,动画有两种,一种是使用base的动画,另一种是使用独立的动画,后者需要配置动画树,动画集,播放节点信息.
+ * for SkeletalMesh there are two kinds of animation: one uses the base animation, the other uses independent animation, which requires configuring the animation tree, animation set, and playback node info.
  * 
  * 
  * 
@@ -61,31 +61,31 @@ var deprecated editinline array< EquipMesh > MeshListTemplate_F	<DisplayName="Me
 var() private{private} EquipAppearence EquipAppearenceTemplate <ExportExcel="42"|DisplayName="EquipAppearenceTemplate">;
 var string EquipAppearenceTemplate_Str;
 
-// 任务 #21843 add by zhangrui05@snda
+// task #21843 add by zhangrui05@snda
 var() private{private} EquipAppearence AdvancedEquipAppearenceTemplate <ExportExcel = "49" | DisplayName = "AdvancedEquipAppearenceTemplate">;
 var string AdvancedEquipAppearenceTemplate_Str;
 
 var	transient array< EquipMesh>	MeshList;
 
-//接Item导出
+//export linked to Item
 var() int MaxRefineLevel								<ExportExcel="38"|ClampMin=0 | ClampMax=300|DisplayName="MaxRefineLevel">;
-//固定属性
+//fixed attributes
 var() FixAttr FixAttrbutes								<ExportExcel="39"|DisplayName="FixAttrbutes">;
-//追加属性
+//additional attributes
 //var() array<AddAttr> AddAttrList						<ExportExcel="33"|DisplayName="AddAttrList">;
-//是否需要鉴定
+//whether identification is required
 var() bool NeedIdentify									<ExportExcel="40"|DisplayName="NeedIdentify">;
 
-//武器符文
+//weapon rune
 var() int MaxRuneCount				<ExportExcel="41"|DisplayName="MaxRuneCount">;
-//统一使用Item里的DropMesh
+//use the DropMesh in Item uniformly
 //var()	StaticMesh			DropMeshTemp;
 var() int SocketCount									<ExportExcel="43"|DisplayName="SocketCount">;
 
-var() int RepairCost; // 修理价格 绑金
-var() int RepairCostSpecial; // 特别修理价格
-var() int IdentifyCost; // 鉴定价格 绑金
-var() int RandomizeCost; // 洗炼价格 绑金
+var() int RepairCost; // repair price, bound gold
+var() int RepairCostSpecial; // special repair price
+var() int IdentifyCost; // identify price, bound gold
+var() int RandomizeCost; // reforge price, bound gold
 
 var() int RequireMaxPhyAtk					<ExportExcel="45"|DisplayName="RequireMaxPhyAtk">;
 var() int RequireMaxMagAtk					<ExportExcel="46"|DisplayName="RequireMaxMagAtk">;
@@ -226,7 +226,7 @@ native final function SetSilhouette( bool show, Vector sc );
 //	}
 //}
 
-//// 针对武器,盾牌之类可以手持或收起状态切换
+//// for weapons, shields, etc. that can switch between held and stowed states
 //event bool SwitchHold(bool bHoldInHand)
 //{
 //	local EquipMesh em;
@@ -260,16 +260,16 @@ function Tick( float DeltaTime )
 native function String GetIconName(int nState = 0);
 native function String GetIconNamePostfixBy(int actorClass);
 //-------------------------------------------------------
-// 导出到Excel
+// export to Excel
 //-------------------------------------------------------
 
-// 导出表头,先调用脚本函数，再调用native函数
+// export table header, call the script function first, then the native function
 event ScriptExportExcelHeaders(out array<string> Header, out array<string> DefaultValues)
 {
 	super.ScriptExportExcelHeaders(Header, DefaultValues);
 }
 
-// 导出每行数据,先调用脚本函数，再调用native函数
+// export each row of data, call the script function first, then the native function
 event ScriptDataToExcel(out array<string> Row)
 {
 	super.ScriptDataToExcel(Row);

@@ -124,14 +124,14 @@ UBOOL UMMOUIGuildWarehouse::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType
 
 	if (SlotType == ESPType_GuildWarehouse)
 	{	
-		//判断取出权限
+		//Check withdraw permission
 		ItemInfo* itemInfo = MMOGuildData::getSingleton().GetWarehouseItem(_CurPage, SlotID);
 		if (itemInfo)
 		{
 			UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(itemInfo->m_nTemplateID);
 			if (itemTemp)
 			{
-				// 如果是装备扔到装备栏
+				// If it is equipment, throw it to the equipment tab
 				if (Cast<UEquip>(itemTemp))
 				{
 					INT EmptySlot = MMOFacade::getSingleton().GetEmptyItemSlot(E_CONSLOT_DEFAULT);
@@ -146,7 +146,7 @@ UBOOL UMMOUIGuildWarehouse::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType
 						MMOUI::GetUIManager()->delegateAddScreenMessage(msg, MsgInfoType_Table, TEXT("MMOErrorInfo.EClientActionConditionCheckType.ECACCT_Bag_Full"));
 					}
 				}
-				else // 不是装备的扔到默认栏
+				else // non-equipment goes to the default tab
 				{
 					INT EmptySlot = MMOFacade::getSingleton().GetEmptyItemSlot(E_CONSLOT_DEFAULT);
 					if (EmptySlot >= 0)
@@ -165,9 +165,9 @@ UBOOL UMMOUIGuildWarehouse::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType
 
 		return TRUE;
 	}
-	else if (SlotType == ESPType_Bag) // 存入
+	else if (SlotType == ESPType_Bag) // deposit
 	{
-		//判断存入权限
+		//Check deposit permission
 		ItemInfo* itemInfo = MMOFacade::getSingleton().FindItem(ContainerID , SlotID);
 		if (itemInfo)
 		{
@@ -193,7 +193,7 @@ void UMMOUIGuildWarehouse::UpdateAccessInfo()
 {
 	AccessInfoList& list = MMOGuildData::getSingleton().GetAccessInfoList();
 	FString infoText;
-	//这里逆着放
+	//Placed in reverse here
 	for (INT i = (INT)list.size() - 1; i >= 0; i--)
 	{
 		GuildWareAccessInfo& item = list[i];
@@ -201,7 +201,7 @@ void UMMOUIGuildWarehouse::UpdateAccessInfo()
 		PlayerBaseInfo* playerInfo = MMOFacade::getSingleton().GetPlayerBaseInfo(item.RoleId);
 		if (!playerInfo)
 		{
-			//没同步下来的话，先不显示这条		
+			//If not yet synced down, do not show this entry for now
 			continue;			
 		}
 		
@@ -214,14 +214,14 @@ void UMMOUIGuildWarehouse::UpdateAccessInfo()
 		UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(item.ItemTempId);
 		FString itemName = UITextParser::HTMLFormatItemName(itemTemp);
 		
-		//时间先不放
+		//Do not place time for now
 		if (item.Type == STORAGE_HE_TYPE_PUSH)
 		{
-			infoText += FString::Printf(TEXT("%s 存入 %s x%d \n\n"), *UITextParser::HTMLFormatPlayerName(item.RoleName), *itemName, item.Count);
+			infoText += FString::Printf(TEXT("%s deposited %s x%d \n\n"), *UITextParser::HTMLFormatPlayerName(item.RoleName), *itemName, item.Count);
 		}
 		else if (item.Type == STORAGE_HE_TYPE_POP)
 		{
-			infoText += FString::Printf(TEXT("%s 取出 %s x%d \n\n"), *UITextParser::HTMLFormatPlayerName(item.RoleName), *itemName, item.Count);
+			infoText += FString::Printf(TEXT("%s withdrew %s x%d \n\n"), *UITextParser::HTMLFormatPlayerName(item.RoleName), *itemName, item.Count);
 		}
 	}
 
@@ -300,7 +300,7 @@ UBOOL UMMOUIGuildWarehouse::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObj
 		desInfo = MMOGuildData::getSingleton().GetWarehouseItem(_CurPage, DestSlotID);
 	}
 /*
-	if (SrcSlotType == ESPType_Bag && DestSlotType == ESPType_Invalid) // 扔掉背包中的
+	if (SrcSlotType == ESPType_Bag && DestSlotType == ESPType_Invalid) // discard from bag
 	{
 		if (srcInfo) 
 		{
@@ -325,9 +325,9 @@ UBOOL UMMOUIGuildWarehouse::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObj
 	else 
 */
 	if ((SrcSlotType == ESPType_Bag || SrcSlotType == ESPType_GuildWarehouse) && 
-		(DestSlotType == ESPType_Bag || DestSlotType == ESPType_GuildWarehouse))// 交换
+		(DestSlotType == ESPType_Bag || DestSlotType == ESPType_GuildWarehouse))// swap
 	{
-		//检查是否被锁界面功能锁定
+		//check whether locked by UI function lock
 		if (srcInfo)
 		{
 			UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(srcInfo->m_nTemplateID);
@@ -344,7 +344,7 @@ UBOOL UMMOUIGuildWarehouse::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObj
 			}
 		}
 
-		//目标物品检查
+		//target item check
 		if (desInfo)
 		{
 			UItem* itemTemp = MMOFacade::getSingleton().FindItemTemplate(desInfo->m_nTemplateID);
@@ -372,13 +372,13 @@ UBOOL UMMOUIGuildWarehouse::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObj
 		}
 		else if (DestSlotType == ESPType_GuildWarehouse && SrcSlotType == ESPType_Bag)
 		{
-			//判断权限
-			//放入
+			//Check permission
+			//Put in
 			CMessageHandler::GetInstance().Send_GuildPushItem(SrcContainerID, SrcSlotID, _CurPage, DestSlotID);
 		}
 		else if (DestSlotType == ESPType_Bag && SrcSlotType == ESPType_GuildWarehouse)
 		{
-			//判断权限
+			//Check permission
 			CMessageHandler::GetInstance().Send_GuildPopItem(_CurPage, SrcSlotID, DestContainerID, DestSlotID);
 		}
 		return TRUE;

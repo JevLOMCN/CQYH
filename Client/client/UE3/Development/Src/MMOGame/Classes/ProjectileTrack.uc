@@ -10,12 +10,12 @@ class ProjectileTrack extends MMOEmitter;
 //var(ProjectileTrack) ETrackTargetType TrackTargetType;
 //var(ProjectileTrack) float Speed;
 //var(ProjectileTrack) float Acc;
-//var(ProjectileTrack) float MaxLineDistance  <DisplayName="直线形最远冲击距离">;
-//var(ProjectileTrack) int UpDegree    <DisplayName="抛物线向上偏角[0,90)">;
-//var(ProjectileTrack) float TimeToFinishFixRotation  <DisplayName="较正朝向时间比值(0,2)">;
+//var(ProjectileTrack) float MaxLineDistance  <DisplayName="max impact distance of straight line type">;
+//var(ProjectileTrack) int UpDegree    <DisplayName="parabola upward angle [0,90)">;
+//var(ProjectileTrack) float TimeToFinishFixRotation  <DisplayName="orientation correction time ratio (0,2)">;
 //var(ProjectileTrack) ETrackLineType TrackLineType;
 //var(ProjectileTrack) float CollisionSizeForTrack;
-////var(ProjectileTrack) ETargetRelationType TargetRelationType  <DisplayName="目标阵营类型">;
+////var(ProjectileTrack) ETargetRelationType TargetRelationType  <DisplayName="target faction type">;
 
 //var transient array<AbilityComponent>  OnHitFunctionalities;
 //var transient array<AbilityComponent>  OnStartEffects;

@@ -3,7 +3,7 @@
 	Filename: 	StudentDetailManager
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	师徒系统Model StudentDetailManager 管理当前的徒弟列表
+	Purpose:	master/apprentice system Model StudentDetailManager manages the current apprentice list
 *********************************************************************/
 #include "stdafx.h"
 //#include "Facade.h"
@@ -46,10 +46,10 @@ void StudentDetailManager::AddStudentDetail( struct M2C_MASTER_NTF_MST_INFO::MAS
 	}
 	else
 	{
-		//直接刷新数据 
-		//IsSelected 不动
+		//refresh data directly
+		//leave IsSelected unchanged
 		i->second->byLevel = StudentDetail->byLevel;
-		i->second->byClass = StudentDetail->byClass; //以防万一
+		i->second->byClass = StudentDetail->byClass; //just in case
 		i->second->byCZCount = StudentDetail->byCZCount;
 		i->second->byMstState = StudentDetail->byMstState;
 		//warnf(NAME_Error, TEXT("[StudentDetailManager::AddStudentDetail] StudentDetail already exist:%d"), StudentDetail->dwRoleID);
@@ -125,7 +125,7 @@ void StudentDetailManager::ApplySelected()
 	{
 		if(i->second->IsSelected)
 		{
-			//拜师
+			//become apprentice
 			//CMessageHandler::GetInstance().Send_StudentDetailSubmitStudApp( i->second->dwRoleID ) ; 
 		}
 		else

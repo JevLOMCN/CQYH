@@ -20,7 +20,7 @@ DECLARE_CYCLE_STAT(TEXT("Proc Msg Buf Cycle"),MMOSTAT_Network_ProcMsgBuf,MMOSTAT
 
 
 DECLARE_CYCLE_STAT(TEXT("DropItemSystem Time"), STAT_DropItemSystemTime, MMOSTATGROUP_Logic );
-//只能两层 目前
+//only two levels for now
 DECLARE_CYCLE_STAT(TEXT("DropItemManager Time"), STAT_DropItemManagerTime, MMOSTATGROUP_Logic );
 DECLARE_CYCLE_STAT(TEXT("DropItemTips Time"), STAT_DropItemTipsTime, MMOSTATGROUP_Logic );
 

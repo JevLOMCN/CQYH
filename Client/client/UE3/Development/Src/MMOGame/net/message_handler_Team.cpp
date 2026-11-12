@@ -109,7 +109,7 @@ void CMessageHandler::Send_TeamAnswer( INT RoleId , UBOOL Agree, INT TeamOperate
 	//msg.dwRoleID = RoleId;
 	_Send(&msg, sizeof(msg) );
 }
-//------------------------------------------------------------------------//换队长，改队伍属性
+//------------------------------------------------------------------------//change leader, change team attributes
 void CMessageHandler::Send_OperateTeam( INT LeadId , INT AssignType , INT TeamMemberLimit , FString TeamName , INT auctionItemColor )
 {
 	C2M_TEAM_CHANGEINFO msg;
@@ -135,7 +135,7 @@ void CMessageHandler::Send_QueryTeam(UINT32 roleId)
 //----------------------------------------------------------------------------
 void CMessageHandler::Parse_m2c_team_join(const char* buf, UINT32 size)
 { 
-	//创建队伍成功 或者 登陆时候
+	//Team creation succeeded or at login time
 	M2C_TEAM_JOIN* msg = (M2C_TEAM_JOIN*)buf;
 
 	AMMOPlayer* pl = MMOFacade::getSingleton().GetMainPlayer();
@@ -172,10 +172,10 @@ void CMessageHandler::Parse_m2c_team_join(const char* buf, UINT32 size)
 		if(MMO::GetCurrentGameState() == EGameState_InGame)
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Team.CreateTeam") ) ,MsgInfoType_Table,TEXT("MMOGame.Team.CreateTeam"));
 
-		// 引导任务
+		// Guide quest
 		MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Team);
 
-		// 新手引导
+		// Tutorial
 		MMOGameEvent_Guide evtGuide(EGUET_CreateTeam);
 		MMOUI::PostGameEvent(&evtGuide);
 
@@ -198,7 +198,7 @@ void CMessageHandler::Parse_m2c_team_join(const char* buf, UINT32 size)
 		Member.isLeader = ( msg->dwLeadID == MI.dwRoleID );
 		Member.Online = ( MI.byState == etsOnline );
 
-		//查找玩家列表里是否有此人
+		//Look up whether this person is in the player list
 		AMMOPlayer* mem = Cast<AMMOPlayer>( MMOFacade::getSingleton().GetCharacter(Member.ActorServerId) );
 		if( mem )
 		{
@@ -510,7 +510,7 @@ void CMessageHandler::Parse_m2c_team_add_member(const char* buf, UINT32 size)
 	MMOMapDataManager *pMapDataMgr = &MMOMapDataManager::getSingleton();
 	if( pl )
 	{
-		//是自己，就返回
+		//It is self, so return
 		if( pl->ServerID == msg->stAddMember.dwRoleID)
 		{
 			MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Team.IAddTeam")),MsgInfoType_Table,TEXT("MMOGame.Team.IAddTeam") );
@@ -583,7 +583,7 @@ void CMessageHandler::Parse_m2c_team_remove_member(const char* buf, UINT32 size)
 		MMOUI::PostGameEvent(&evt);
 	}
 }
-////----------------------------------------------------------------------------初始化同步一次
+////----------------------------------------------------------------------------initial sync once
 //void CMessageHandler::Parse_g2c_sync_teaminfo(const char* buf, UINT32 size)
 //{
 //	G2C_SYNC_TEAMINFO* msg = (G2C_SYNC_TEAMINFO*)buf;
@@ -625,7 +625,7 @@ void CMessageHandler::Parse_m2c_team_remove_member(const char* buf, UINT32 size)
 //-----------------------------------------------------------
 void CMessageHandler::Parse_g2c_sync_adjacent_role_noteam(const char* buf, UINT32 size)
 {
-	//客户端本地判断，不用这个协议了
+	//Client judges locally, this protocol is no longer needed
 	//G2C_SYNC_ADJACENT_ROLE_NOTEAM* msg = (G2C_SYNC_ADJACENT_ROLE_NOTEAM*)buf;
 	//for (UINT32 i = 0 ; i<msg->byCount  ;i++ )
 	//{

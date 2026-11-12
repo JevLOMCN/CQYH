@@ -50,7 +50,7 @@ void UMMOGFXPlayer_RootBase::Init()
 	RootMC = GetVariableObject(TEXT("_root"));
 	ManagerMC = RootMC->GetObject(TEXT("rootContainer"));
 
-	// TODOUI: 检查这个机制是否可以去掉
+	// TODOUI: check whether this mechanism can be removed
 	MMOUI::RegisterMoviePlayer(this, FName(*GetClass()->GetName()));
 
 
@@ -104,7 +104,7 @@ UBOOL UMMOGFXPlayer_RootBase::LoadView(FGFXUIViewInfo InViewInfo)
 	//ManagerMC->Invoke( TEXT("loadMovie"), args );
 
 	// modified by zhangrui05
-	// 这里避免含有多个Panel的swf被重复加载
+	// avoid reloading swf files containing multiple Panels
 	UBOOL swfLoaded = FALSE;
 	for(INT i = 0; i < LoadedMovies.Num(); i++ )
 	{
@@ -122,7 +122,7 @@ UBOOL UMMOGFXPlayer_RootBase::LoadView(FGFXUIViewInfo InViewInfo)
 
 	LoadedViews.AddItem( InViewInfo.ViewName );
 
-	Advance(0.1f); // 需要这个去让UI显示更新下
+	Advance(0.1f); // needed to make the UI refresh
 
 	return TRUE;
 }
@@ -202,7 +202,7 @@ UBOOL UMMOGFXPlayer_RootBase::WidgetInitialized(FName WidgetName,FName WidgetPat
 
 			MMOUI::SetPanelToMoviePlayer(WidgetName, FName(*GetClass()->GetName()));
 
-			MMOUI::RegisterUIPanel(uiBase, uiBase->FriendlyName); // TODO:移到更好的位置
+			MMOUI::RegisterUIPanel(uiBase, uiBase->FriendlyName); // TODO: move to a better place
 			uiBase->Init();
 			uiBase->eventInitOnce();
 			return TRUE;

@@ -15,7 +15,7 @@ function RegisterShop( MMOUINPCShop mc )
 //moved
 event bool SkipCaptureInputKey(const string key, EInputEvent eIE, const string strHoverControllerName, Vector2D ClickPosInMovieSpace)
 {
-	// 鼠标滚动，且不在界面内
+	// Mouse wheel scroll, and not inside the UI
 	if ((key == "MouseScrollUp" || key == "MouseScrollDown") && (strHoverControllerName == ""))
 		return false;
 	else
@@ -68,7 +68,7 @@ function ASNPCShopPageNext()//moved
 	_NPCShop.PageNext();
 }
 
-// 购买处理
+// Purchase handling
 //function ASShopMsgAck( bool agree , GFXObject mc )
 //{
 	//_NPCShop.ShopMsgAck( agree , mc );

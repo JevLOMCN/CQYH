@@ -39,7 +39,7 @@ UGlobalMapInfo* UGlobalMapInfo::GetSingleton()
 
 		if(!GlobalMapInfoSingleton)
 		{
-			appMsgf(AMT_OK, TEXT("加载地图数据时发生错误，可能是配置文件不存在,请检查本地是否有该文件:\r\n%s"), *cnfgName);
+			appMsgf(AMT_OK, TEXT("Error loading map data. The config file may not exist, please check whether it is present locally:\r\n%s"), *cnfgName);
 		}
 
 		GlobalMapInfoSingleton->AddToRoot();
@@ -231,7 +231,7 @@ void UGlobalMapInfo::LoadTeleportsFromXML()
 			FServerMapInfos* mapInfo = &mapInfoNew;
 			for (INT k = 0; k < ServerMapInfoList.Num(); ++k)
 			{
-				// 找到当前导出列表中有服务器地图ID相同的就不要新添加
+				// if the current export list already has the same server map ID, do not add a new one
 				if(ServerMapInfoList(k).ServerMapID == ExportMaps(i).ServerID)
 				{
 					mapInfo = &ServerMapInfoList(k);
@@ -240,7 +240,7 @@ void UGlobalMapInfo::LoadTeleportsFromXML()
 				}
 			}
 
-			mapInfo->MapName = ExportMaps(i).MapDisplayName; // 说要用汉字名
+			mapInfo->MapName = ExportMaps(i).MapDisplayName; // said to use the Chinese name
 			mapInfo->ConfigName = ExportMaps(i).MapName;
 			mapInfo->ServerMapID = ExportMaps(i).ServerID;
 			mapInfo->Map2DExportSize = mapSize;
@@ -351,7 +351,7 @@ void UGlobalMapInfo::LoadTeleportsFromXML()
 						mapTeleports->TeleportTargetList.AddItem(*tel);
 					}
 				}
-				//传送站节点
+				//Teleport station node
 				else if(e.name() == "TeleportNetNode")
 				{
 					//INT teleportNetNodeID = getIntAttribuate("ServerID", e);
@@ -437,7 +437,7 @@ void UGlobalMapInfo::LoadTeleportsFromXML()
 			//++k;
 		}
 	}
-	//teleport net node 编号
+	//teleport net node number
 	INT finCnt = TeleportNetNodeList.Num();
 	for( INT k = 0; k < finCnt ; ++k ){
 		TeleportNetNodeList(k).ServerID = k;
@@ -743,13 +743,13 @@ void UGlobalMapInfo::ExportToServer()
 
 	LoadTeleportsFromXML();
 
-	// 场景自动编号
+	// scene auto-numbering
 // 	for (INT i = 0; i < ServerMapInfoList.Num(); ++i)
 // 	{
 // 		ServerMapInfoList(i).ServerMapID = i + 1;
 // 	}
 
-	{ // 导出场景配置
+	{ // export scene config
 		FString ServerMapCfgFile;
 		GConfig->GetString(TEXT("Configuration"), TEXT("ServerMapCfgFile"), ServerMapCfgFile, GEditorIni);
 
@@ -878,7 +878,7 @@ void UGlobalMapInfo::ExportToServer()
 
 		StringArrList.AddItem(rowData);
 
-		// 加用法标记
+		// add usage tag
 		TArray<FString> rowUsageData;
 		for (INT i = 0; i < rowData.Num(); ++i)
 		{
@@ -887,7 +887,7 @@ void UGlobalMapInfo::ExportToServer()
 
 		StringArrList.AddItem(rowUsageData);
 		
-		// 默认值
+		// default value
 		rowUsageData.Empty();
 		for (INT i = 0; i < rowData.Num(); ++i)
 		{
@@ -937,7 +937,7 @@ void UGlobalMapInfo::ExportToServer()
 
 			rowData.AddItem(mapExportInfo.Script);
 
-			// FinishTarget变更为Id，因为NPCTemplate会导致游戏模式下客户端预加载大量资源， modified by zhangrui05
+			// FinishTarget changed to Id, because NPCTemplate causes the client to preload lots of resources in game mode, modified by zhangrui05
 			rowData.AddItem(FString::Printf(TEXT("%s"), mapExportInfo.FinishTarget > 0 ? *FString::Printf(TEXT("%d"), mapExportInfo.FinishTarget) : TEXT("0")));
 
 			////rowData.AddItem(FString::Printf(TEXT("%d"), mapExportInfo.bPK));
@@ -1036,7 +1036,7 @@ void UGlobalMapInfo::ExportToServer()
 		sccResult2.TryAddToDefaultChangelist();
 	}
 	//
-	{ // 导出副本信息
+	{ // export dungeon info
 		FString ServerDungeonCfgFile;
 		GConfig->GetString(TEXT("Configuration"), TEXT("ServerDungeonCfgFile"), ServerDungeonCfgFile, GEditorIni);
 
@@ -1112,7 +1112,7 @@ void UGlobalMapInfo::ExportToServer()
 
 		DungeonStringArrList.AddItem(dungeonRowData);
 
-		// 加用法标记
+		// add usage tag
 		TArray<FString> rowUsageData;
 		for (INT i = 0; i < dungeonRowData.Num(); ++i)
 		{
@@ -1121,7 +1121,7 @@ void UGlobalMapInfo::ExportToServer()
 
 		DungeonStringArrList.AddItem(rowUsageData);
 
-		// 默认值
+		// default value
 		rowUsageData.Empty();
 		for (INT i = 0; i < dungeonRowData.Num(); ++i)
 		{
@@ -1205,14 +1205,14 @@ void UGlobalMapInfo::ExportToServer()
 		MServerMapCfgExport::ExportToExcel(DungeonStringArrList, ServerDungeonCfgExcelFile, ServerDungeonCfgFile);
 	}
 
-	{ // 导出全部场景传送点到服务器
-		//22配对的传送点
+	{ // export all scene teleport points to server
+		//paired teleport points of 22
 		FString ServerMapTeleportsFile;
 		GConfig->GetString(TEXT("Configuration"), TEXT("ServerMapTeleportsFile"), ServerMapTeleportsFile, GEditorIni);
 		FCheckoutResult sccResult = FSourceControl::TryCheckOut(ServerMapTeleportsFile);
 		SaveToFile(ServerMapTeleportsFile);
 		sccResult.TryAddToDefaultChangelist();
-		//区域传送网络
+		//area teleport network
 		FString ServerMapTeleportNetNodesFile;
 		GConfig->GetString(TEXT("Configuration"), TEXT("ServerMapTeleportNetNodesFile"), ServerMapTeleportNetNodesFile, GEditorIni);
 		FCheckoutResult stnnResult = FSourceControl::TryCheckOut(ServerMapTeleportNetNodesFile);
@@ -1232,7 +1232,7 @@ void UGlobalMapInfo::ExportToServer()
 	this->SavePackage();
 
 // 
-// 	{ // 导出全部场景传送点到客户端
+// 	{ // export all scene teleport points to client
 // 		FString ClientMapTeleportsFile;
 // 		GConfig->GetString(TEXT("Configuration"), TEXT("ClientMapTeleportsFile"), ClientMapTeleportsFile, GEditorIni);
 // 		FCheckoutResult sccResult = FSourceControl::TryCheckOut(ClientMapTeleportsFile);
@@ -1616,7 +1616,7 @@ void UGlobalMapInfo::LoadNPCInfoFromXMLFiles()
 
 		INT mapID = FindMapID(xmlFile.Left(xmlFile.Len() - ext.Len()));
 		if( mapID <= 0 ){
-			//没找到
+			//not found
 			continue;
 		}
 
@@ -1672,7 +1672,7 @@ void UGlobalMapInfo::LoadNpcSpawnGroupInfoFromXMLFiles()
 	TArray<FString> npcGroupFiles;
 	GFileManager->FindFiles(npcGroupFiles, *(FString(TEXT("*")) + ext), TRUE, false);
 
-	//以新数据为准
+	//new data takes precedence
 	singleton->SceneContentList.Empty();
 
 	//
@@ -1684,7 +1684,7 @@ void UGlobalMapInfo::LoadNpcSpawnGroupInfoFromXMLFiles()
 
 		INT mapID = FindMapID(xmlFile.Left(xmlFile.Len() - ext.Len()));
 		if( mapID <= 0 ){
-			GWarn->MapCheck_Add(MapCheckType::MCTYPE_ERROR, this, *FString::Printf( TEXT("%s.Spawngroup文件对应的地图没有在ExportMap里，补填ExportMap或者删掉该文件!"), *xmlFile.Left(xmlFile.Len() - ext.Len()) ), NULL);
+			GWarn->MapCheck_Add(MapCheckType::MCTYPE_ERROR, this, *FString::Printf( TEXT("The map for the %s.Spawngroup file is not in ExportMap. Add it to ExportMap or delete the file!"), *xmlFile.Left(xmlFile.Len() - ext.Len()) ), NULL);
 			continue;
 		}
 
@@ -1693,7 +1693,7 @@ void UGlobalMapInfo::LoadNpcSpawnGroupInfoFromXMLFiles()
 		for( INT j = 0; j < sceneContentListCnt; ++j ){
 			if( singleton->SceneContentList(j).MapID == mapID ){
 				pCurSceneContent = &singleton->SceneContentList(j);
-				//清理
+				//cleanup
 				pCurSceneContent->NpcGroupsInfoList.Empty();
 				break;
 			}
@@ -1901,7 +1901,7 @@ void UGlobalMapInfo::LoadNaviPointInfoFromXMLFiles()
 		INT mapID = FindMapID(fileBuffer.Left(fileBuffer.Len() - ext.Len()));
 		if( mapID <= 0 ){
 			FString mapName = fileBuffer.Left(fileBuffer.Len() - ext.Len());
-			GWarn->MapCheck_Add(MapCheckType::MCTYPE_ERROR, this, *FString::Printf( TEXT("%s.navipoints无法找到对应的地图(%s)!"), *mapName, *mapName ), NULL);
+			GWarn->MapCheck_Add(MapCheckType::MCTYPE_ERROR, this, *FString::Printf( TEXT("%s.navipoints cannot find the matching map (%s)!"), *mapName, *mapName ), NULL);
 			continue;
 		}
 
@@ -1912,7 +1912,7 @@ void UGlobalMapInfo::LoadNaviPointInfoFromXMLFiles()
 			if( NaviPointInfoList(j).MapID == mapID )
 			{
 				pMapNavPoints = &NaviPointInfoList(j);
-				//清理
+				//cleanup
 				pMapNavPoints->Infos.Empty();
 				break;
 			}
@@ -1988,7 +1988,7 @@ void UGlobalMapInfo::LoadQuestVolumeInfoFromXMLFiles()
 		for( INT j = 0; j < mapQuestVolListCnt; ++j ){
 			if( QuestVolumeInfoList(j).MapID == mapID ){
 				pCurMapQuestVols = &QuestVolumeInfoList(j);
-				//清理
+				//cleanup
 				pCurMapQuestVols->Infos.Empty();
 				break;
 			}
@@ -2057,7 +2057,7 @@ void UGlobalMapInfo::PostLoad()
 
 
 //------------------------------------------------------------------------------------------------
-// 反导场景配置数据
+// reverse-import scene config data
 //------------------------------------------------------------------------------------------------
 
 #if !SHIPPING_PC_GAME
@@ -2105,7 +2105,7 @@ struct SceneConfigDataExcelImporter
 #if WITH_EDITOR
 	static void CollectReferencedResourceFromDataTable(FExportMap* obj, TSet<FString>& outResList)
 	{
-		// FinishTarget变更为Id，因为NPCTemplate会导致游戏模式下客户端预加载大量资源， modified by zhangrui05
+		// FinishTarget changed to Id, because NPCTemplate causes the client to preload lots of resources in game mode, modified by zhangrui05
 		//_CollectReferencedResource(obj->FinishTarget, outResList);
 	}
 #endif
@@ -2153,7 +2153,7 @@ void SceneConfigDataExcelImporter::ParseData(FExportMap* obj, class CTabFile* da
 	obj->MaxPortalLevel = TReadDataValue_Int<SceneConfigReader>(TEXT("MaxPortalLevel"), dataRow, rowIdx);
 
 	obj->Script = TReadDataValue_FString<SceneConfigReader>(TEXT("Script"), dataRow, rowIdx);
-	// FinishTarget变更为Id，因为NPCTemplate会导致游戏模式下客户端预加载大量资源， modified by zhangrui05
+	// FinishTarget changed to Id, because NPCTemplate causes the client to preload lots of resources in game mode, modified by zhangrui05
 	//obj->FinishTarget = TReadDataValue_TemplateIDObject<UNPCTemplate, SceneConfigReader, TemplateObjectFinder_NPCTemplate>(TEXT("FinishTarget"), dataRow, rowIdx);
 	obj->FinishTarget = TReadDataValue_Int<SceneConfigReader>(TEXT("FinishTarget"), dataRow, rowIdx);
 
@@ -2162,13 +2162,13 @@ void SceneConfigDataExcelImporter::ParseData(FExportMap* obj, class CTabFile* da
 	//obj->bReducedDurability = TReadDataValue_Int<SceneConfigReader>(TEXT("bReducedDurability"), dataRow, rowIdx);
 	//obj->DropItemDurability = TReadDataValue_Int<SceneConfigReader>(TEXT("DropItemDurability"), dataRow, rowIdx);
 
-	//是否可以使用回城卷
+	//whether the town portal scroll can be used
 	obj->UseScroolDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotUseScroll"), dataRow, rowIdx);
-	//是否可以使用指定坐标传送
+	//whether teleport to specified coordinates can be used
 	obj->UseTeleportRingDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotUseTeleportRing"), dataRow, rowIdx);
-	//是否可以（拉/被拉）玩家
+	//whether players can be (pulled/pulled by) others
 	obj->BeRecalledDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotBeRecalled"), dataRow, rowIdx);
-	//聊天限制
+	//chat restrictions
 	obj->ChatGroupDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotGroupChat"), dataRow, rowIdx);
 	obj->ChatSceneDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotSceneChat"), dataRow, rowIdx);
 	obj->ChatScreenDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotScreenChat"), dataRow, rowIdx);
@@ -2176,9 +2176,9 @@ void SceneConfigDataExcelImporter::ParseData(FExportMap* obj, class CTabFile* da
 	obj->ChatTeamDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotTeamChat"), dataRow, rowIdx);
 	obj->ChatGuildDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotGuildChat"), dataRow, rowIdx);
 	obj->ChatFriendDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotFriendChat"), dataRow, rowIdx);
-	//是否可以交易
+	//whether trading is allowed
 	obj->TradeDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotTrade"), dataRow, rowIdx);
-	//是否可以丢出物品
+	//whether dropping items is allowed
 	//obj->ItemDropDisabled = TReadDataValue_Int<SceneConfigReader>(TEXT("CannotDrop"), dataRow, rowIdx);
 	obj->EnableAntiCheat = TReadDataValue_Int<SceneConfigReader>(TEXT("EnableAntiCheat"), dataRow, rowIdx);
 	obj->GpkPunish = TReadDataValue_Int<SceneConfigReader>(TEXT("GpkPunish"), dataRow, rowIdx);

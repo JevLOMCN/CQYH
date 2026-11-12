@@ -65,7 +65,7 @@ void UMMOGFXPlayer_GuildTerritory::ASUpdateGuildBuildingCreateData(INT buildingT
 
 void UMMOGFXPlayer_GuildTerritory::ASCreateGuildBuilding(INT buildingType)
 {
-	// 队列满
+	// queue full
 	GuildBuildingUpgradeList guildBuildingUpgradeList = MMOGuildData::getSingleton().GetGuildBuildingUpgradeList();
 	if (guildBuildingUpgradeList.size() >= GUILD_MAX_UPGRADE_BUILDING_COUNT)
 	{
@@ -75,39 +75,39 @@ void UMMOGFXPlayer_GuildTerritory::ASCreateGuildBuilding(INT buildingType)
 
 	GuildBuildingData buildingData;
 	MMOGuildData::getSingleton().GetGuildBuildingData(buildingType, 0, buildingData);
-	// 资源不足
+	// insufficient resources
 	GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 	if (baseInfo.Money < buildingData.GuildMoneyReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("公会资金不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient guild funds"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Herb < buildingData.HerbReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("粮食不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient grain"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Wood < buildingData.WoodReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("木材不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient wood"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Crystal < buildingData.CrystalReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("石料不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient stone"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Silver < buildingData.SilverReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("铁矿不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient iron ore"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 
-	// 前置建筑
+	// prerequisite building
 	UINT32 preBuildingLv = MMOGuildData::getSingleton().GetGuildBuildingMaxLevel(buildingData.PreBuildingType);
 	if (preBuildingLv < buildingData.PreBuildingLevel)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("前置建筑等级过低"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Prerequisite building level too low"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 
@@ -118,16 +118,16 @@ void UMMOGFXPlayer_GuildTerritory::ASCreateGuildBuilding(INT buildingType)
 		CMessageHandler::GetInstance().Send_CreateGuildBuilding((UINT32)(_GuildBuildingCreatePanel->_NpcId), (UINT8)buildingType);
 	}
 }
-// 资捐献
+// resource donation
 void UMMOGFXPlayer_GuildTerritory::ASContribute(INT type, INT count)
 {
 	if (count == 0)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("捐献数量不能为0"),MsgInfoType_Table,TEXT("捐献数量不能为0"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Donation amount cannot be 0"),MsgInfoType_Table,TEXT("Donation amount cannot be 0"));
 		return;
 	}
 
-	// 判定资源是否已达上限
+	// determine whether resources have reached the limit
 	INT realType =  GUILD_ATTR_HERB + type;
 	UINT32 resMax = MMOGuildData::getSingleton().GetGuildTerritoryResMax(realType);
 	UINT32 resCur = MMOGuildData::getSingleton().GetCurGuildTerritoryRes(realType);
@@ -161,7 +161,7 @@ void UMMOGFXPlayer_GuildTerritory::ASContribute(INT type, INT count)
 	// #15422
 	if (resCur + count > resMax)
 	{
-		FString text = TEXT("捐献数量过大，无法捐献资源");		
+		FString text = TEXT("Donation amount too large, cannot donate resources");		
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text,MsgInfoType_Table,TEXT("MMOGame.Guild.MoneyStoreLimit"));
 		return;
 	}
@@ -187,7 +187,7 @@ void UMMOGFXPlayer_GuildTerritory::ASShowBuildingUpgradePanel(INT buildingType)
 	UINT32 buildingCount = MMOGuildData::getSingleton().GetGuildBuildingCount(buildingType);
 	if (buildingCount == 0)
 	{
-		FString text = TEXT("请先通过基座建造该建筑才能升级");
+		FString text = TEXT("Build this building on a foundation first before upgrading");
 		FString textString = TEXT("MMOGame.Guild.IronStoreLimit");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(text, MsgInfoType_Table, textString);
 		return;
@@ -228,7 +228,7 @@ void UMMOGFXPlayer_GuildTerritory::ASDestroyBuilding(int buildingIdHigh, int bui
 
 void UMMOGFXPlayer_GuildTerritory::ASUpgradeBuilding(int buildingIdHigh, int buildingIdLow, int npcId)
 {
-	// 队列满
+	// queue full
 	GuildBuildingUpgradeList guildBuildingUpgradeList = MMOGuildData::getSingleton().GetGuildBuildingUpgradeList();
 	if (guildBuildingUpgradeList.size() >= GUILD_MAX_UPGRADE_BUILDING_COUNT)
 	{
@@ -236,7 +236,7 @@ void UMMOGFXPlayer_GuildTerritory::ASUpgradeBuilding(int buildingIdHigh, int bui
 		return;
 	}
 
-	// 等级满
+	// level maxed
 	UINT64 idHigh = buildingIdHigh;
 	UINT64 idLow = buildingIdLow;
 	UINT64 buildingId = (idHigh << 32) | idLow;
@@ -251,39 +251,39 @@ void UMMOGFXPlayer_GuildTerritory::ASUpgradeBuilding(int buildingIdHigh, int bui
 		return;
 	}
 
-	// 资源不足
+	// insufficient resources
 	GuildBaseInfo baseInfo = MMOGuildData::getSingleton().GetGuildBaseInfo();
 	if (baseInfo.Money < buildingData.GuildMoneyReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("公会资金不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient guild funds"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Herb < buildingData.HerbReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("粮食不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient grain"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Wood < buildingData.WoodReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("木材不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient wood"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Crystal < buildingData.CrystalReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("石料不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient stone"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	if (baseInfo.Silver < buildingData.SilverReq)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("铁矿不足"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Insufficient iron ore"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 
-	// 前置建筑
+	// prerequisite building
 	UINT32 preBuildingLv = MMOGuildData::getSingleton().GetGuildBuildingMaxLevel(buildingData.PreBuildingType);
 	if (preBuildingLv < buildingData.PreBuildingLevel)
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("前置建筑等级过低"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Prerequisite building level too low"),MsgInfoType_Table,TEXT("MMOGame.Guild.BuildingUpgradeMaxLevel"));
 		return;
 	}
 	
@@ -318,7 +318,7 @@ void UMMOGFXPlayer_GuildTerritory::ASShowWelfareUpgradePanel(INT id)
 
 void UMMOGFXPlayer_GuildTerritory::ASUpgradeWelfare(INT id)
 {
-	// 队列满
+	// queue full
 	GuildWelfareUpgradeList guildWelfareUpgradeList = MMOGuildData::getSingleton().GetGuildWelfareUpgradeList();
 	if (guildWelfareUpgradeList.size() >= GUILD_MAX_UPGRADE_AURA_COUNT)
 	{
@@ -326,7 +326,7 @@ void UMMOGFXPlayer_GuildTerritory::ASUpgradeWelfare(INT id)
 		return;
 	}
 	
-	// 等级满
+	// level maxed
 	GuildWelfareData welfareData;
 	MMOGuildData::getSingleton().GetGuildWelfareData(id, 0, welfareData);
 	UINT32 welfareLv = MMOGuildData::getSingleton().GetGuildWelfareLevel(id);

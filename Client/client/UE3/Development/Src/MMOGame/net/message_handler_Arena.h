@@ -28,7 +28,7 @@ private:
 //	//void Send_CreateBattleTeam( const FString& teamName , int iconID );
 //
 //	void Send_PrepareArenaEnter( INT mode , INT size );
-//	//排队时离开
+//	//Leave while queuing
 //	void Send_ArenaQueueLeave(); 
 //	void Send_ArenaJoinAck( UBOOL agree );
 //

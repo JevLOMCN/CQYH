@@ -1,5 +1,5 @@
 //
-// PlayerActionEx_OpenStall，摆摊
+// PlayerActionEx_OpenStall, open stall
 //
 class PlayerActionEx_OpenStall extends PlayerActionEx_Base
 	native;

@@ -3,7 +3,7 @@
 	Filename: 	UMMOGFXPlayer_PickWidget
 	file ext:	cpp
 	Author:		hemu@snda
-	Purpose:	掉落拾取 Panel-MMOUIDropItemTips
+	Purpose:	Drop pickup Panel-MMOUIDropItemTips
 *********************************************************************/
 
 #include "stdafx.h"
@@ -50,7 +50,7 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 
 // void UMMOUIDropItemTips::EnterScene()
 // {
-//     //蛋疼 这个广播包不在了
+//     //annoying, this broadcast packet is gone
 //     //DisableAll( );
 //     Show(DefaultVisible);
 // }
@@ -116,7 +116,7 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 //         return;
 //     }
 // 
-//     //找到一个可用的控件 如没有，则扩充当前的CtrlPool
+//     //Find an available control; if none, expand the current CtrlPool
 //     FTipCtrl* tipCtrl = NULL; 
 //     for( int i = 0; i < TipCtrlPoolSize; ++i  )
 //     {
@@ -125,7 +125,7 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 //             tipCtrl = &TipCtrlPool( i );
 //             if( NULL == tipCtrl->Tip )
 //             {
-//                 //正常情况下 不应出现
+//                 //Should not appear normally
 //                 tipCtrl->Tip = this->AttachMovie( TEXT("DropItemHint"), FString::Printf( TEXT("PickableTips%d"),i) );
 //             }
 //             break;
@@ -148,7 +148,7 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 //         return;
 //     }
 // 
-//     //填充相关数据
+//     //Fill in related data
 //     UGFxObject* tTips = tipCtrl->Tip;
 //     tipCtrl->IsUsed   = TRUE;
 //     tipCtrl->Id       = dropItem->PickItem->Id;
@@ -186,7 +186,7 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 // 
 //     //SCOPE_CYCLE_COUNTER(STAT_DropItemSystemTime)
 // 
-//     //持续显示时间倒计时
+//     //Continuous display time countdown
 // 	if( IsAutoHide && TipRemainedShowTime > 0 )
 // 	{
 // 		TipRemainedShowTime -= deltaTime;
@@ -238,7 +238,7 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 //     if( !Validate() )
 //         return;
 // 
-//     //掉落太多，顶开会撑满屏幕，暂不排序..
+//     //Too many drops, pushing aside would fill the screen, not sorting for now..
 //     if( EnableAutoGridTip ) 
 //     {
 //         for( int i = 0;i < DropItemMgr->DropItemList.Num();i++ )
@@ -279,14 +279,14 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 // 
 //     SCOPE_CYCLE_COUNTER(STAT_DropItemTipsTime)
 // 
-//     //无重迭，reture=0,高于原层reture <0 ，低于原层return>0
-//     if( Item.ScreenPos.X <= DrawnItem.ScreenPos.X   )//在左
+//     //No overlap, return=0, higher than original layer return <0, lower than original layer return>0
+//     if( Item.ScreenPos.X <= DrawnItem.ScreenPos.X   )//on the left
 //     {
 //         if( Item.ScreenPos.X + Item.Width <= DrawnItem.ScreenPos.X )
 //         {
 //             return 0;
 //         }
-//         else if(  Item.ScreenPos.Y + GridHeight <= DrawnItem.ScreenPos.Y  )//上
+//         else if(  Item.ScreenPos.Y + GridHeight <= DrawnItem.ScreenPos.Y  )//above
 //         {
 //             return 0;
 //         }
@@ -295,13 +295,13 @@ void UMMOUIDropItemTips::PostOnShow(UBOOL show)
 //             return 0;
 //         }
 //     }
-//     else//右
+//     else//right
 //     {
 //         if( Item.ScreenPos.X >= DrawnItem.ScreenPos.X + DrawnItem.Width )
 //         {
 //             return 0;
 //         }
-//         else if(  Item.ScreenPos.Y + GridHeight <= DrawnItem.ScreenPos.Y  )//上
+//         else if(  Item.ScreenPos.Y + GridHeight <= DrawnItem.ScreenPos.Y  )//above
 //         {
 //             return 0;
 //         }

@@ -1,7 +1,7 @@
 class MMOUIPVPBattle extends MMOUIBase
 	native(UI);
 
-//战场
+//Battlefield
 //var int JoinedBtlID;
 //var bool IsBtlWaiting;
 var bool IsRandomMode;
@@ -13,7 +13,7 @@ var int CurBtlListPage;
 var const int BtlListMax;//1
 var GFxObject BtlBtns[2];
 var GFxObject BtlQuickSelectBtn;
-//单选战场面板
+//Single-select battlefield panel
 //var GFxObject BtlPageTf;
 var GFxObject BtlFreeSelectPanel;
 
@@ -24,7 +24,7 @@ var const int BtlItemMax;//1
 var GFxObject BtlAwardItemsIcon[2];
 var GFxObject BtlAwardExpTf;
 var GFxObject BtlLevelTf;
-//随机战场面板
+//Random battlefield panel
 var GFxObject RdmBtlSelectPanel;
 
 var GFxObject RdmBtlDescTf;
@@ -32,7 +32,7 @@ var const int RdmBtlItemMax;//1
 var GFxObject RdmBtlAwardItemsIcon[2];
 var GFxObject RdmBtlAwardExpTf;
 var GFxObject RdmBtlLevelTf;
-//按钮
+//Button
 var GFxObject BtlSingleJoinBtn;
 var GFxObject BtlTeamJoinBtn;
 var GFxObject BtlLeaveBtn;
@@ -99,7 +99,7 @@ function ASSelectBattle( int idx )
 {
 	SelectBattle( idx );
 }
-//随机战场列表勾选
+//Random battlefield list checkbox
 function ASToggleBattle( int id, bool isSelected )
 {
 	MultiSelectBattle( id, isSelected );

@@ -1,7 +1,7 @@
 /****
 ****
 * @todo
-* 需要去除这一块
+* This block needs to be removed
 *****/
 class MMOServerTrigger extends Actor implements(IServerTrigger, IAbilityDamageable)
 	placeable
@@ -21,7 +21,7 @@ var(MMOServer) array<IServerTrigger> LinkedTrigger;
 
 var(MMOServer_Delay) int DelayTime;
 
-// 关联的阻挡框
+// Associated blocking box
 var(MMOServer_Blocking) array<DynamicBlockingVolume> AssociatedBlockingVolume;
 
 var(MMOServer_NPCSpawn) array<NPCSpawnPoint> NPCSpawnPoints;
@@ -60,7 +60,7 @@ event TakeDamage(int DamageAmount, Controller EventInstigator, vector HitLocatio
 	`log("_________ MMOServerTriggerObject: TakeDamage" @DamageCauser);
 }
 
-// 取得阵营标识，以计算伤害
+// Get faction ID to calculate damage
 event int GetFriendlyMask()
 {
 	return 0;
@@ -80,39 +80,39 @@ event bool IsDead()
 native function ETriggerType GetTriggerType();
 native function ETrapEventType GetTrapEventType();
 
-// 注册到Facade中以便查找
+// Register with Facade for lookup
 native function RegisterToFacade();
 
 native function int GetTriggerID();
 native function SetAutoID(int id);
 
-// 取得关联的阻挡框
+// Get the associated blocking box
 native function array<DynamicBlockingVolume> GetBlockingVolumes();
 
-// 取得物体大小
+// Get object size
 native function Box GetObjectServerBounds();
 
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
-// 开始状态是否是，开启、关闭、不可用
+// Whether the initial state is open, closed, or unavailable
 native function ETriggerInitState GetServerInitState();
 
-// 返回一个调试用的标识名
+// Return an identifier name for debugging
 native function string GetClientName();
 
-// 取得关联的NPC出生点
+// get the associated NPC spawn point
 native function array<NPCSpawnPoint> GetNPCSpawnPoints();
 
-// 取得关联的机关，以便在当前事件区域完成后，激活这些机关
+// Get associated mechanisms, to activate them after the current event area completes
 native function array<IServerTrigger> GetLinkedTrigger();
 
 native function int GetDelayTime();
 
-// 触发技能列表
+// Trigger ability list
 native function array<AbilityEvent> GetAbilityList();
 
-// 触发技能列表
+// Trigger ability list
 native function TeleportEvent GetTeleportEvent();
 
 native function array<IServerArea> GetLinkedEventArea();
@@ -165,7 +165,7 @@ DefaultProperties
 	End Object
 	Components.Add(Sprite);
 
-	// 添加调试用范围线框 - 远程攻击范围
+	// Add debug range wireframe - ranged attack range
 	Begin Object Class=DrawCylinderComponent  Name=DebugRangeFar0
 		CylinderColor=(R=0,G=255,B=0,A=255)
 		CylinderRadius=40.0

@@ -2270,7 +2270,7 @@ void UMeshComponent::CloseEffect(INT InEffectId)
 		INT OldPriority = 0;
 		UMaterialInterface* ToUseMat = NULL;
 
-		// 如果有缓存的材质，要切换到缓存的材质
+		// If there is a cached material, switch to the cached material
 		if (MeshMaterials.Num() > 0 && BackupChangedMaterials.Num() > 0)
 		{
 			bSetAnOldMat = TRUE;
@@ -2464,7 +2464,7 @@ void UMeshComponent::ChangeMaterial(INT InEffectId, class UMaterialInstance* InN
 
 	if (Priority >= MaterialChangePriority)
 	{
-		// 备份当前材质，用于恢复
+		// Back up the current material for restoring
 		if (MeshMaterials.Num() > 0 && MaterialChangeEffectId != -1 && MaterialUsedType == MUT_NewMaterial)
 		{
 			INT index = BackupChangedMaterials.AddZeroed();
@@ -2488,7 +2488,7 @@ void UMeshComponent::ChangeMaterial(INT InEffectId, class UMaterialInstance* InN
 	}
 	else
 	{
-		// 备份当前材质，用于恢复
+		// Back up the current material for restoring
 		if (MeshMaterials.Num() > 0 && MaterialChangeEffectId != -1 && MaterialUsedType == MUT_NewMaterial)
 		{
 			INT index = 0;

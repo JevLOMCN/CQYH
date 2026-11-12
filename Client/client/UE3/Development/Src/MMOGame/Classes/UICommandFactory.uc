@@ -3,7 +3,7 @@
 class UICommandFactory extends Object
 	native(UI);
 
-//ÓëEngineÖĞµÄCT³åÍ»
+//conflicts with CT in Engine
 enum UICommandType
 {
 	UICT_UseAbility,

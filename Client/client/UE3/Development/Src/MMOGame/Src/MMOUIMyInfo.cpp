@@ -25,7 +25,7 @@ void UMMOUIPlayerInfo::PlayerHPChange(INT NewHP,INT MaxHP)
 	}
 	else 
 		HPPercent = float(NewHP)/MaxHP ;
-	if( LastHP <=  NewHP ) //变大
+	if( LastHP <=  NewHP ) //increased
 		bTailHP = false;
 	else
 		bTailHP = true;
@@ -65,7 +65,7 @@ void UMMOUIPlayerInfo::PlayerMPChange(INT NewMP,INT MaxMP)
 	if( LastMP <=  NewMP )
 		bTailMP = false;
 	else
-		bTailMP = false;//拖尾有bug，改成关掉
+		bTailMP = false;//trail has a bug, changed to off
 	MPPercent = Clamp(MPPercent,0.01f,1.0f);
 	UGFxObject* mpTxt = GetObject( TEXT("MpBar_mc.mptxt_mc"));
 	if(mpTxt)
@@ -334,7 +334,7 @@ void UMMOUIMyInfo::ASSetPkMode(int PkMode)
 void UMMOUIMyInfo::ASPkModeChange()
 {
 	int NewPkMode = CurrentPkMode+1;
-	if(NewPkMode>4)NewPkMode=0;//最多五种模式
+	if(NewPkMode>4)NewPkMode=0;//at most five modes
 
 	ASSetPkMode(NewPkMode);
 }

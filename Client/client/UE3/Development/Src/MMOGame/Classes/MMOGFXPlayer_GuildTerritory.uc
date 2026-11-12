@@ -75,10 +75,10 @@ function ASRegisterGuildDungeonExitPanel(MMOUIGuildDungeonExitPanel mc)
 native function PostAdvance( float dt );
 
 native final function ShowGuildTerritoryPanel();
-// 资源捐献
+// Resource donation
 native final function ASContribute(int type, int count);
 
-// 家族属地
+// Guild territory
 native final function ASCancelUpgradeBuilding(int buildingIdHigh, int buildingIdLow);
 native final function ASCancelUpgradeWelfare(int id);
 
@@ -93,13 +93,13 @@ native final function ASDestroyBuilding(int buildingIdHigh, int buildingIdLow, i
 native final function ASShowWelfareUpgradePanel(int id);
 native final function ASUpgradeWelfare(int id);
 
-// 翻页
+// Turn page
 native final function ASWelfarePageUp();
 native final function ASWelfarePageDown();
 native final function ASPurchaseWelfare(int id);
 native final function ASChangeWeather(int weatherType, int durationType);
 
-// 家族副本
+// Guild dungeon
 native final function ASOpenDungeon(int dungeonId, int leaderId);
 native final function ASEnterDungeon(int dungeonId);
 native final function ASLeaveGuildDungeon();

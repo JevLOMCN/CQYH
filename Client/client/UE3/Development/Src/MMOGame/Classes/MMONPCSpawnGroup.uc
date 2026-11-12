@@ -1,5 +1,5 @@
 // MMONPCSpwanGroup
-//NPC出生点群组
+//NPC spawn point group
 //hemu@snda 120424
 
 class MMONPCSpawnGroup extends Actor
@@ -10,25 +10,25 @@ class MMONPCSpawnGroup extends Actor
 	ClassGroup(__Server_Old__);
 
 var editoronly Texture2D SpawnGroupSpriteTex;
-// 自动编号的服务器用ID
+// auto-numbered ID for server use
 var(MMOServer_NPCSpawn) editoronly editconst int AutoServerID;
 
-// 自动出生，如果要由Kismet控制需要设置为false
+// auto spawn, must be set to false if controlled by Kismet
 var(MMOServer_NPCSpawn) editoronly bool IsAutoSpawn;
-//自动重生，同样， 如果要由Kismet控制需要设置为false
+//auto respawn, likewise, must be set to false if controlled by Kismet
 var(MMOServer_NPCSpawn) editoronly bool IsAutoReSpawn;
 
-// 手动配置的出生组ID，NPC将归组到这个ID上
+// manually configured spawn group ID, NPCs will be grouped under this ID
 //var(MMOServer_NPCSpawn) int NPCSpawnGroupId;
 //var(MMOServer_NPCSpawn) editoronly int   RespawnTime;
 var(MMOServer_NPCSpawn) editoronly int RespawnTimeMin;
 var(MMOServer_NPCSpawn) editoronly int RespawnTimeMax;
-//手动配置怪物出生几率
+//manually configured monster spawn chance
 var(MMOServer_NPCSpawn) editoronly int MaxConcurrentPoint;
-//关联的出生点
+//associated spawn point
 var(MMOServer_NPCSpawn) editoronly array<NPCSpawnPoint> NPCSpawnPoints;
 
-//显示组件
+//display component
 var(MMOClient) editoronly CylinderComponent CollisionCylinder;
 var(MMOClient) editoronly DrawCylinderComponent EditorCollisionCylinder;
 var(MMOClient) editoronly StaticMeshComponent EditorStaticMeshComponent;
@@ -37,9 +37,9 @@ var editoronly SpriteComponent EditorSprite;
 var editoronly MMONpcSpawnGroupEditorComponent EditorComponent;
 
 
-// 取得关联的NPC出生点
+// get the associated NPC spawn point
 native function array<NPCSpawnPoint> GetNPCSpawnPoints();
-// 取得物体位置
+// get object position
 native function vector GetObjectServerPosition();
 
 cpptext
@@ -52,7 +52,7 @@ cpptext
 	virtual void CheckForErrors();
 	#endif
 
-	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda 永远不在游戏中加载
+	virtual UBOOL NeedsLoadForClient() const { return FALSE; } // oscar@snda never loaded in game
 
 }
 native function    IniSpirite();

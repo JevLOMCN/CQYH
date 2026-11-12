@@ -117,7 +117,7 @@ namespace PackageTools
 							   TArray<UObject*>& OutObjects )
 	{
 // oscar@snda
-#if 0 // 注意新创建的对象不在包里
+#if 0 // note newly created objects are not in the package
 		if( InPackages == NULL )
 		{
 			return;
@@ -201,7 +201,7 @@ namespace PackageTools
 			return;
 		}
 
-#if 0  // 注意新创建的对象不在包里
+#if 0  // note newly created objects are not in the package
 		for ( INT PackageIndex = 0 ; PackageIndex < InPackages->Num() ; ++PackageIndex )
 		{
 			UPackage* Package = ( *InPackages )(PackageIndex);
@@ -274,7 +274,7 @@ namespace PackageTools
 		FString ObjType,
 		TArray<UObject*>& OutObjects )
 	{
-#if 0 // 注意新创建的对象不在包里
+#if 0 // note newly created objects are not in the package
 		if( InPackages == NULL )
 		{
 			return;

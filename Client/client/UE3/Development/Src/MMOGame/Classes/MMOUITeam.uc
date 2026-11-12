@@ -13,7 +13,7 @@ var int     TabPage;
 var int     SelectPlayerIndex;
 var int     SelectTeamIndex;
 
-//自动组队
+//Auto team
 var bool    AutoTeam;
 
 var bool bNearTeam;
@@ -213,7 +213,7 @@ native function SaveName();
 
 
 
-//队伍扩展
+//Team extension
 native function TeamExpand();
 
 
@@ -238,7 +238,7 @@ function ASTeamContentTab(int i)
 	TeamContentTab(i);
 }
 
-//组队部分的响应
+//Party part responses
 function ASTeamEnterNearbyTeam()
 {
 	EnterNearbyTeam();

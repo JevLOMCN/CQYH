@@ -1,18 +1,18 @@
 //
-// 通知在特定的时候绑定一个模型
+// notify to attach a model at a specific time
 //
 class AnimNotify_PlayParticleEffectEx extends AnimNotify_ScriptedEx
 	;
 
 var(MMO) ParticleSystem PSTemplate;
 
-// 用于创建粒子特效的绑定点(Socket)，如果没有指定则使用角色的当前位置
+// attach point (Socket) used to create the particle effect, uses the character's current position if not specified
 var(MMO) name SocketName <DynamicList="SocketList">;
 
-// 角色朝向不会影响粒子的朝向
+// character facing does not affect particle facing
 var(MMO) bool KeepZeroRotation;
 
-// 创建粒子时的位置偏移量(世界坐标)
+// position offset when creating the particle (world coordinates)
 var(MMO) Vector RelativeLocation;
 var(MMO) Rotator RelativeRotation;
 

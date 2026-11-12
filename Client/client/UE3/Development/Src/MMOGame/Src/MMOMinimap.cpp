@@ -99,7 +99,7 @@ void UMMOUIMinimap::OnNativeGameEvent(struct MMOGameEvent* evt)
 			{
 				FLOAT curTime = MMOWeatherManager::getSingleton().GetCurTime();
 				
-				// 换算到480帧里，0点在第360帧，为了配合动画效果，提前10帧
+				// convert to 480 frames, 0:00 is at frame 360, 10 frames early to match the animation effect
 				INT curTimeAnim = (INT)(curTime / 24.0f * 480 + 350) % 480;
 				//eventCallUpdateDayTime(curTimeAnim);
 			}
@@ -158,7 +158,7 @@ void UMMOUIMinimap::PreOnShow(UBOOL show)
 		}
 	}
 	else{
-		//为了隐藏的时候同时隐藏下拉表(现在下拉表无法自动隐藏)
+		//so that hiding also hides the dropdown table (the dropdown table currently cannot hide automatically)
 		eventResetSceneLinesList();
 	}
 }
@@ -191,7 +191,7 @@ void UMMOUIMinimap::ChangeScene()
 		}
 	}
 
-	//如果有确认框还没点，自动取消
+	//if a confirmation box has not been clicked, cancel it automatically
 	if( ConfirmMsgBox != NULL ){
 		MMOMsgBoxManager::getSingleton().DispatchMsgBoxButtonNo( ConfirmMsgBox );
 	}
@@ -199,7 +199,7 @@ void UMMOUIMinimap::ChangeScene()
 	//update dropdown list of scene lines
 	eventResetSceneLinesList();
 }
-//倒计时
+//countdown
 void UMMOUIMinimap::ShowMapTimeCount( INT sec, UBOOL isToShow/* = TRUE*/ )
 {
 	if( !isToShow ){
@@ -209,7 +209,7 @@ void UMMOUIMinimap::ShowMapTimeCount( INT sec, UBOOL isToShow/* = TRUE*/ )
 
 	eventStartFBTimeCountDown( sec );
 }
-//进入新场景时调用
+//called when entering a new scene
 void UMMOUIMinimap::InitMiniMap()
 {
 	AMMOPlayerController *pCtrl;
@@ -231,7 +231,7 @@ void UMMOUIMinimap::InitMiniMap()
 	if( pCurReginInCurMap == NULL ){
 		warnf(NAME_Error, TEXT("======!!!!======= [UMMOUIMinimap::InitMiniMap] NoMapRegion in Map:[%s]"), *CurMapTexName );
 		if( MapName ){
-			MapName->SetText( TEXT("未知区域") );
+			MapName->SetText( TEXT("Unknown area") );
 		}
 	}
 	else{
@@ -240,7 +240,7 @@ void UMMOUIMinimap::InitMiniMap()
 		if( MapName ){
 			MapName->SetText( CurMapDisplayName );
 			if( CurMapDisplayName.IsEmpty() ){
-				MapName->SetText( TEXT("没有名字") );
+				MapName->SetText( TEXT("No name") );
 			}
 		}
 	}
@@ -273,7 +273,7 @@ void UMMOUIMinimap::InitMiniMap()
 		//MapNPCView->SetFloat( "rotation", 0 );
 	}
 
-	//更新地图固定点
+	//update map fixed points
 	InitMapStaticMarks();
 	
 	return;
@@ -299,9 +299,9 @@ void UMMOUIMinimap::InitMiniMapTiles( const FString& inMapFileName, FInMapRegion
 	INT maxImgTileColNum = RegionInMap.MiniMapTileColNum;
 	//
 	//INT oneCoordToPixels = RegionInMap.MiniMapPixelSize;
-	////scale3dTo2d为3d坐标到2d坐标的转换比例，此局域地图坐标Y轴方向与世界3d坐标Y轴相反
+	////scale3dTo2d is the conversion ratio from 3d coordinates to 2d coordinates; this local map's Y axis direction is opposite to the world 3d Y axis
 	//if(oneCoordToPixels==0){
-	//	//错的
+	//	//wrong
 	//	oneCoordToPixels = 54;
 	//}
 	//INT realCoordStepToPixels = (INT)( MAP_SNAPSHOT_COORDINATE_STEP / oneCoordToPixels );
@@ -344,7 +344,7 @@ void UMMOUIMinimap::InitMiniMapTiles( const FString& inMapFileName, FInMapRegion
 }
 
 */
-////改用与大地图同一资源
+////changed to use the same resource as the big map
 void UMMOUIMinimap::InitMiniMapTiles( const FString& inMapFileName, FInMapRegion RegionInMap )
 {
 	bool bLoadOK = MMOMapImgTiles::GetMapImgTiles(E_MINIMAP_TILES)->LoadUiTile( MapTiles, TEXT("minimap_alpha%d__nopack") );
@@ -505,7 +505,7 @@ void UMMOUIMinimap::InitMiniMapTiles( const FString& pixName, INT regionIdx )
 	INT oneCoordToPixels;
 	strValueKey = pixName + TEXT("_MiniMapPixelSize");
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, oneCoordToPixels, GGameIni );
-	//scale3dTo2d为3d坐标到2d坐标的转换比例，此局域地图坐标Y轴方向与世界3d坐标Y轴相反
+	//scale3dTo2d is the conversion ratio from 3d coordinates to 2d coordinates; this local map's Y axis direction is opposite to the world 3d Y axis
 	INT realCoordStepToPixels = (INT)( MAP_SNAPSHOT_COORDINATE_STEP / oneCoordToPixels );
 	FVector2D map3Dto2D;
 	map3Dto2D.X = (FLOAT)realCoordStepToPixels / MAP_SNAPSHOT_COORDINATE_STEP;
@@ -648,7 +648,7 @@ void UMMOUIMinimap::UpdateMinimap()
 			if( MapName != NULL ){
 				MapName->SetText( CurMapDisplayName );
 				if( CurMapDisplayName.IsEmpty() ){
-					MapName->SetText( TEXT("没有名字") );
+					MapName->SetText( TEXT("No name") );
 				}
 			}
 
@@ -666,7 +666,7 @@ void UMMOUIMinimap::UpdateMinimap()
 
 	//
 	if( IsCurrentMapShowing && IsSmallMinimapMode ){
-		//小地图没显示就不更新了
+		//don't update if the minimap is not shown
 		MMOMapImgTiles* pMapTiles = MMOMapImgTiles::GetMapImgTiles(E_MINIMAP_TILES);
 
 		if( CurMapTexName.IsEmpty() || !pMapTiles->isReady() ){
@@ -1061,7 +1061,7 @@ void UMMOUIMinimap::UpdateMarksNearPlayer( FVector2D centerPos, FLOAT fYawDegCos
 		if( pDynmActor->_IsValid == TRUE ){
 			AMMOActor* nearActor = gameFacade.GetCharacter( pDynmActor->_ActorID );
 			if( nearActor == NULL ){
-				//this become invalid,remove it(应该早被移除了的)
+				//this become invalid,remove it(should have been removed long ago)
 				pMapDataMgr->RemoveMapDymcActorNear( pDynmActor->_ActorID );
 				if( pDynmActor->_UiObjInMiniMap ){
 					pDynmActor->_UiObjInMiniMap->SetVisible( FALSE );
@@ -1071,7 +1071,7 @@ void UMMOUIMinimap::UpdateMarksNearPlayer( FVector2D centerPos, FLOAT fYawDegCos
 				continue;
 			}
 			if( pDynmActor->_UiObjInMiniMap ){
-				//三维地图上点的显示与隐藏
+				//show and hide points on the 3D map
 				//if( IsMultilayerRegion && curRegionBox != NULL ){
 				//	UBOOL isMarkVisible = curRegionBox->IsInside( nearActor->Location );
 				//	pDynmActor->_UiObjInMiniMap->SetVisible( isMarkVisible );
@@ -1161,7 +1161,7 @@ void UMMOUIMinimap::UpdateMarksGlobalPlayer( FVector2D centerPos, FLOAT fYawDegC
 				pUiObj = pDynmActor->_UiObjInMiniMap;
 			}
 
-			//是否在此地图
+			//whether in this map
 			UBOOL canShow = ( pDynmActor->_InMapID == curMapID );
 			pUiObj->SetVisible( canShow );
 			//eventInitMapMark( pUiObj, pDynmActor->_ID, pDynmActor->_Type, pDynmActor->_UiIconIdx );
@@ -1194,7 +1194,7 @@ void UMMOUIMinimap::UpdateMarksGlobalPlayer( FVector2D centerPos, FLOAT fYawDegC
 					AMMOActor* nearActor = gameFacade.GetCharacter( pDynmActor->_ActorID );
 					MMOTeamMember *pTeammate = TeamManager::getSingleton().GetMemberById( pDynmActor->_ActorID );
 					if( pTeammate == NULL ){
-						//this become invalid,remove it(应该早被移除了的)
+						//this become invalid,remove it(should have been removed long ago)
 						pMapDataMgr->RemoveMapDymcActorGlobal( pDynmActor->_ActorID );
 
 						++iter;
@@ -1345,7 +1345,7 @@ void UMMOUIMinimap::UpdateMapPath( FVector2D pivotPos, FLOAT fYawDegCosine, FLOA
 		eventSetMapMarkIcon( dataProvider );
 	}
 
-	//隐藏已经经过的点
+	//hide points already passed
 	INT removePtCnt = 0;
 	if( disBetween <= MAP_PATH_POINT_REMOVE_LENGTH ){
 		removePtCnt = nowAtPosIdx + 1;
@@ -1375,7 +1375,7 @@ void UMMOUIMinimap::UpdatePlayerMarksInMap( FVector2D centerPos, FLOAT fYawDegCo
 
 
 //============================================================================================================================================
-//更新所在地图线
+//update the map line you are on
 void UMMOUIMinimap::UpdateSceneLinesList()
 {
 	MMOMapDataManager *pMapDataManager = &MMOMapDataManager::getSingleton();
@@ -1387,7 +1387,7 @@ void UMMOUIMinimap::UpdateSceneLinesList()
 	if( canChangeLines == FALSE ){
 		return;
 	}
-	//获得当前地图的分线
+	//get the lines of the current map
 	TArray< MapLineInfo > &sceneLines = pMapDataManager->GetCurMapLines();
 	INT curCombinatedSceneID = pMapDataManager->GetCurSceneLineIn();
 
@@ -1397,7 +1397,7 @@ void UMMOUIMinimap::UpdateSceneLinesList()
 	FString listItemStringFormat = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Minimap.SceneLineListString") );
 	INT listItemIdx = -1;
 	for( INT i = 0; i < linesCnt; ++i ){
-		//写入控件数据
+		//write control data
 		UGFxObject* listObj = GFXPlayer->CreateObject( TEXT("UI_Minimap.MinimapAS3.SceneLinesDropDownListData") );
 		if( listObj == NULL ){
 			continue;
@@ -1431,7 +1431,7 @@ void UMMOUIMinimap::PreparingToChangeSceneLine( INT combinatedSceneID )
 	UINT sceneLineID = 0;
 	UINT sceneServerID = 0;
 	MMOMapDataManager::ParseServerMapLine( PrepareSceneLineID, sceneServerID, sceneLineID );
-	//先发消息再走进度
+	//send the message first, then run the progress
 	CMessageHandler::GetInstance().Send_ChangeToSceneLine( sceneLineID );
 
 	//
@@ -1458,7 +1458,7 @@ void UMMOUIMinimap::NativeFinishPreparingToChangeSceneLine()
 		//MMOUI::GetUIManager()->ShowPanelEx(MMOUI::GetUIManager()->Panel_DynamicUI_ProgressBar, FALSE,"");
 	}
 
-	//改为先发消息再走进度//请求跳线
+	//changed to send the message first then run the progress//request line switch
 	//UINT sceneLineID = 0;
 	//UINT sceneServerID = 0;
 	//MMOMapDataManager::ParseServerMapLine( PrepareSceneLineID, sceneServerID, sceneLineID );
@@ -1485,7 +1485,7 @@ void UMMOUIMinimap::TryInterruptChangingSceneLine()
 	//MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( "MMOGame.Minimap.PreparingChangeSceneLineInterrupt") ,MsgInfoType_Table,TEXT("MMOGame.Minimap.PreparingChangeSceneLineInterrupt"));
 	//
 	PrepareSceneLineID = curCombinatedSceneID;
-	//重新刷新一遍列表
+	//refresh the list again
 	UpdateSceneLinesList();
 }
 //===================================================================================================================================
@@ -1654,7 +1654,7 @@ void UMMOUIMinimap::InitMc()
 		MapViewBound = MapNPCView->GetFloat( TEXT("width") ) * 1.414;
 	}
 
-	PanelWidth = 248;//小地图基准点不再左上角GetInt( TEXT("width") );
+	PanelWidth = 248;//minimap base point is no longer top-left GetInt( TEXT("width") );
 	PanelHeight = 250;//GetInt( TEXT("height") );
 }
 
@@ -1843,7 +1843,7 @@ void UMMOUIMinimap::SwitchMinimapToPathMap()
 //
 void UMMOUIMinimap::ToggleMinimapShowType()
 {
-	//暂时屏蔽此功能
+	//disable this feature for now
 
 	//if( IsSmallMinimapMode ){
 	//	SwitchMinimapToPathMap();
@@ -1927,7 +1927,7 @@ void UMMOUIMinimap::UpdatePingRate(float DeltaTime)
 			eventCallUCupdateSign(object);
 
 			/*
-			 当前游戏窗口是桌面激活窗口是 做游戏内帧率采样 
+			 when the current game window is the active desktop window, sample the in-game frame rate
 			*/
 			extern HWND GGameWindow;
 			if(/*!(::IsIconic(GGameWindow))*/::GetActiveWindow() == GGameWindow)
@@ -2126,7 +2126,7 @@ void UMMOUIMinimap::ASShowMinimapMarkHint( INT type, INT idx )
 	case EACTMUI_NearPlayer:
 		{
 			pMapMark = pMapDataMgr->GetMapDymcActorNearByUiID( idx );
-			//因为当初加入这个玩家时，他的信息还没到
+			//because when this player was added, his info had not arrived yet
 			if( pMapMark != NULL ){
 				AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter(  ((FActorInMapUI*)pMapMark)->_ActorID );
 				if( pPlayer != NULL ){
@@ -2135,7 +2135,7 @@ void UMMOUIMinimap::ASShowMinimapMarkHint( INT type, INT idx )
 				tipsText = pMapMark->_DisplayName;
 			}
 
-			////因为当初加入这个玩家时，他的信息还没到
+			////because when this player was added, his info had not arrived yet
 			//if( pMapMark != NULL ){
 			//	AMMOActor *pPlayer = MMOFacade::getSingleton().GetCharacter(  ((FActorInMapUI*)pMapMark)->_ActorID );
 			//	if( pPlayer != NULL ){

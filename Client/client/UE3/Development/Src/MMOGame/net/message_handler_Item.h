@@ -11,20 +11,20 @@ public:
 	void Send_SplitItem( UINT16 srcConSlot , UINT16 srcItemSlot, UINT16 dstConSlot , UINT16 dstItemSlot, INT32 count);
 	void Send_SortBag(UINT16 containerID);
 
-	//鉴定
+	//Identify
 	void Send_IdentifyItem( INT ConSlot, INT ItemSlot );
-	//签名
+	//Signature
 	void Send_SignatureItem( INT ConSlot, INT ItemSlot );
 
-	//铭文
+	//Inscription
 	void Send_TryGetWeaponRune( INT weaponConSlot, INT weaponItemSlot, INT itemConsumeID );
 	void Send_TryReplaceWeaponRune( INT weaponConSlot, INT weaponItemSlot, INT itemConsumeID );
 	void Send_ConfirmReplaceWeaponRune( INT weaponConSlot, INT weaponItemSlot );
-	//强化
+	//Enhancement
 	//void Send_Refine( UINT16 wItemCon, UINT16 wItemSlot );
 	//void Send_Unrefine( UINT16 wItemSlot, UINT8 bAll );
 
-	//武器升级
+	//Weapon upgrade
 	//void Send_EquipLevelUp( const struct FOperationItemBagPos &equipPos, 
 	//						const struct FOperationItemBagPos (&materialPos)[MAX_EQUIP_LEVEL_UP_MATERIAL_COUNT], 
 	//						const struct FOperationItemBagPos (&helpItemPos)[MAX_EQUIP_LEVEL_UP_LUCK_JEWELRY_COUNT] );
@@ -32,10 +32,10 @@ public:
 	void Send_EquipLevelUpShortcut_TakeOut();
 	void Send_EquipLevelUpRightNow_TakeOut();
 
-	//扩充
+	//Expand
 	void Send_BuyContainerSlot( INT ConSlot , INT Count );
 
-	//一键卖出
+	//One-click sell
 	void Send_SellAllItemInBagResource();
 
 M_DECL_PARSE_FUN(g2c_sync_item_bag);

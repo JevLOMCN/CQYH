@@ -59,7 +59,7 @@ void UMMOUIReputationPanel::PostOnShow(UBOOL v)
 		}
 
 		MMOUI::GetUIManager()->delegateUpdateReputationData();
-		// CQ版本临时屏蔽
+		// Temporarily disabled for CQ version
 		//MMOUI::GetUIManager()->delegateUpdateMenuEffect(2,EMenuType_Repute,TRUE,FALSE);
 		
 		//INT TraceForceID = MMOUI::GetUIManager()->GetTraceRelationForceID();
@@ -361,7 +361,7 @@ void UMMOUIReputationPanel::UpdateReputationData()
 			BOOL	activeState = MMOFacade::getSingleton().GetPlayerActiveState(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
 			BOOL    awardState  = MMOFacade::getSingleton().GetPlayerAwardState(MMOFacade::getSingleton().GetMainPlayer(), ReputationList(i).ForceID);
 
-			//如果配置了不可见，就不让显示		
+			//if configured as invisible, do not display
 			activeState = activeState && ReputationList(i).Visible;
 
 			if(awardState==false && pReputationTemp && reputation>=pReputationTemp->MaxValue ){
@@ -457,7 +457,7 @@ void UMMOUIReputationPanel::AwardClick(INT ForceID)
 {
 	if (MMOFacade::getSingleton().GetBagEmptySlotCount() < MMOJourneyData::getSingleton().GetReputationAwardsCount(ForceID))
 	{
-		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("背包空间不足，无法领取奖励"),
+		MMOUI::GetUIManager()->delegateAddScreenMessage(TEXT("Not enough bag space to claim the reward"),
 			MsgInfoType_Table,
 			TEXT("MMOErrorInfo.ERROR_CODE_DEF.errAchievementRewardBagFull"));
 	}

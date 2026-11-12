@@ -1,6 +1,6 @@
 //MMOServerPoint
 //song@snda
-//用于服务器坐标标记对象扩展
+//Used for server coordinate marker object extension
 
 class MMOServerPoint extends PathNode implements(IUniqueID)
 	placeable
@@ -9,7 +9,7 @@ class MMOServerPoint extends PathNode implements(IUniqueID)
 	ClassGroup(__Server__);
 
 
-var() string		DisplayName;	//限制8个字符
+var() string		DisplayName;	//limited to 8 characters
 var (MMOServer)editinline int ServerUniqueID;
 var (MMOServer)editinline int Range;
 

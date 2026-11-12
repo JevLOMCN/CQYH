@@ -164,7 +164,7 @@ void UMMOGFXPlayer_Skillbar::ASOnClickNewSkillLearnedBtn()
 	//Skillbar->OnClickNewSkillLearnedBtn();
 }
 //===================================================================
-//技能设置
+//Ability settings
 void UMMOGFXPlayer_Skillbar::ASShowTips_SkillSettingActive( UGFxObject *mc )
 {
 	if( mc == NULL ){
@@ -258,7 +258,7 @@ void UMMOGFXPlayer_Skillbar::ASMenuChildClick( INT menuId,INT menuType,INT child
 }
 */
 //=================================================================================
-// 菜单栏
+// menu bar
 void UMMOGFXPlayer_Skillbar::ASActivateNewSystem(INT systemType)
 {
 	if( _Menubar == NULL ){

@@ -106,14 +106,14 @@ void UMMOUIRemakeFactory::HandleRemakeMedicineResult( INT isSuccess, INT remaked
 			iconName = pGainedItem->GetIconName();
 		}
 
-		////聊天提示
+		////Chat hint
 		//FString hintStringName = TEXT("MMOGame.RemakeFacotry.MedicineResultSuccessChatHint");
 		//FString hintString = MMOUI::ParseLocalizedPropertyPath( hintStringName );
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( hintString, MsgInfoType_Table, hintStringName );
 		//MMOChatManager::getSingleton().AddSystemMessage(  FString::Printf( *chatHintFormat, *itemName ) );
 	}
 	else{
-		////聊天提示
+		////Chat hint
 		//FString hintStringName = TEXT("MMOGame.RemakeFacotry.MedicineResultFailedChatHint");
 		//FString hintString = MMOUI::ParseLocalizedPropertyPath( hintStringName );
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( hintString, MsgInfoType_Table, hintStringName );
@@ -154,14 +154,14 @@ void UMMOUIRemakeFactory::HandleRemakeBookResult( INT isSuccess, INT remakedItem
 			iconName = pGainedItem->GetIconName();
 		}
 
-		////聊天提示
+		////Chat hint
 		//FString hintStringName = TEXT("MMOGame.RemakeFactory.BookResultSuccessChatHint");
 		//FString hintString = MMOUI::ParseLocalizedPropertyPath( hintStringName );
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( hintString, MsgInfoType_Table, hintStringName );
 		//MMOChatManager::getSingleton().AddSystemMessage(  FString::Printf( *chatHintFormat, *itemName ) );
 	}
 	else{
-		////聊天提示
+		////Chat hint
 		//FString hintStringName = TEXT("MMOGame.RemakeFactory.BookResultFailedChatHint");
 		//FString hintString = MMOUI::ParseLocalizedPropertyPath( hintStringName );
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( hintString, MsgInfoType_Table, hintStringName );

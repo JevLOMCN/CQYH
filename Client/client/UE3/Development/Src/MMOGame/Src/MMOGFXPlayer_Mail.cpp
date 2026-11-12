@@ -35,7 +35,7 @@ void UMMOGFXPlayer_Mail::UnInit()
 void UMMOGFXPlayer_Mail::ASReadMail(INT mailID)
 {
 	MailManager::getSingleton().SetMailWndOpen(TRUE);
-	// 先看本地是否有缓存的，有的话就不用发协议了
+	// first check whether it is cached locally, if so no need to send the protocol
 	if(!MailManager::getSingleton().TryReadCachedMail(mailID))
 	{
 		CMessageHandler::GetInstance().Send_ReadMail(mailID);
@@ -268,7 +268,7 @@ void UMMOGFXPlayer_Mail::ASSelectMailType(INT nType)
 //	 const FString& sender,const FString& subject,const FString& content)
 // {
 //	 _CurrentMailID = mailID; 
-//	 //物品表里绑金的ID=0
+//	 //bound gold ID in the item table = 0
 //	 if(mailAttachmentItemID >= 0)
 //	 {
 //		 UGFxObject* itemSlot = GetObject( TEXT("mail_item_0") );
@@ -289,7 +289,7 @@ void UMMOGFXPlayer_Mail::ASSelectMailType(INT nType)
 //			 }
 //			 else
 //			 {
-//				  FString strHint = FString::Printf(TEXT("该邮件含无效的物品id:%d"),mailAttachmentItemID);
+//				  FString strHint = FString::Printf(TEXT("This mail contains invalid item id:%d"),mailAttachmentItemID);
 //				  MMOUI::GetUIManager()->delegateAddScreenMessage(strHint); 
 //			 }
 //		 }
@@ -501,7 +501,7 @@ void UMMOGFXPlayer_Mail::ASSelectMailType(INT nType)
 //
 //void UMMOUIMailPanel::TurnSendMail(const FString& playerName)
 //{
-//	//切换到send页
+//	//switch to send page
 //	eventCallShowTabPage(1);
 //
 //	FString contentName = playerName;
@@ -536,7 +536,7 @@ void UMMOGFXPlayer_Mail::ASSelectMailType(INT nType)
 //		 CMessageHandler::GetInstance().Send_RecvMailList(); // TODO: optimize
 //		 UpdateRecentPlayers();
 //
-//		 // 新手引导
+//		 // new player tutorial
 //		 MMOGameEvent_Guide evtGuide(EGUET_ShowMailPanel);
 //		 MMOUI::PostGameEvent(&evtGuide);
 //	 }

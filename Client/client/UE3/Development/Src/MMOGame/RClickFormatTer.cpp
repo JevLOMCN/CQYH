@@ -75,7 +75,7 @@ void RClickFormatter::FormatRClick(ERClickMenuType RClickType, class UMMOUIRClic
 }
 
 
-//检查自己
+//check self
 UBOOL RClick_CheckSelf(class UMMOUIRClickMenu* RClickMenu , FScriptDelegate &func)
 {
 	if(RClickMenu==NULL)return TRUE;
@@ -83,16 +83,16 @@ UBOOL RClick_CheckSelf(class UMMOUIRClickMenu* RClickMenu , FScriptDelegate &fun
 	if(Player==NULL)return TRUE;
 
 
-	//点的就是我
+	//clicked on myself
 	if( RClickMenu->OwnerRoleId == Player->ServerID  )
 	{
-		//自己离开队伍
+		//self leaves team
 		if( TeamManager::getSingleton().HasTeam() )
 		{
 			func.FunctionName = "ClickLeaveTeam";
 			RClickMenu->AddMenuItem( func , TEXT("LeaveTeam") );
 		}
-		//查看自己资料
+		//view own profile
 		func.FunctionName = "ClickViewProfile";
 		RClickMenu->AddMenuItem( func , TEXT("ViewProfile") );
 		return TRUE;
@@ -100,27 +100,27 @@ UBOOL RClick_CheckSelf(class UMMOUIRClickMenu* RClickMenu , FScriptDelegate &fun
 	return FALSE;
 }
 
-//联系大类
+//contact category
 void RClick_Contant(class UMMOUIRClickMenu* RClickMenu , FScriptDelegate &func)
 {
 	LOG_PROCESS_ERROR(RClickMenu);
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	LOG_PROCESS_ERROR(Player);
 
-	//联系大类
-	//弹框聊天
+	//contact category
+	//popup chat
 	if( FriendManager::getSingleton().IsMyFriend( RClickMenu->OwnerRoleId )  )
 	{
 		func.FunctionName = "ClickOpenContactDialog";
 		RClickMenu->AddMenuItem( func , TEXT("EnterChat") );
 	}	
-	//私聊
+	//private chat
 	func.FunctionName = "ClickEnterPrivateChat"; 
 	RClickMenu->AddMenuItem( func , TEXT("PrivateChat") );	
-	//邮件
+	//mail
 	func.FunctionName = "ClickSendMail";
 	RClickMenu->AddMenuItem( func , TEXT("SendMail") );
-	//师徒
+	//master/apprentice
 	if (E_MASTER_NONE == MasterStudentManager::getSingleton().GetMasterStudentState())
 	{
 		int PlayerLv = Player->ActorAttributes->LevelAttributes.Level;
@@ -162,34 +162,34 @@ Exit0:
 }
 
 
-//联系大类
+//contact category
 UBOOL RClick_Cooperate(class UMMOUIRClickMenu* RClickMenu , FScriptDelegate &func)
 {
 	LOG_PROCESS_ERROR(RClickMenu);
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	LOG_PROCESS_ERROR(Player);
-	//合作大类
+	//cooperation category
 	RClickMenu->AddLine();
-	//组队类
+	//team category
 	{
-		//点的就是我
+		//clicked on myself
 		if( RClickMenu->OwnerRoleId == Player->ServerID && TeamManager::getSingleton().HasTeam() )
 		{
-			//自己离开队伍
+			//self leaves team
 			func.FunctionName = "ClickLeaveTeam";
 			RClickMenu->AddMenuItem( func , TEXT("LeaveTeam") );
 			return TRUE;
 		}
 
-		if( RClickMenu->OwnerActor /*&& OwnerActor->TeamID > 0*/ && !TeamManager::getSingleton().HasTeam() ) //我无队
+		if( RClickMenu->OwnerActor /*&& OwnerActor->TeamID > 0*/ && !TeamManager::getSingleton().HasTeam() ) //I have no team
 		{
-			//申请入队
+			//apply to join team
 			func.FunctionName = "ClickInvitePlayerIntoTeam";
 			RClickMenu->AddMenuItem(  func , TEXT("ApplyTeam") );
 		}
 		else if( RClickMenu->OwnerActor /*&& OwnerActor->TeamID <= 0*/ && TeamManager::getSingleton().HasTeam() /*&& TeamManager::getSingleton().IsTeamLeader()*/ )
 		{
-			//邀请入队
+			//invite to team
 			func.FunctionName = "ClickInvitePlayerIntoTeam";
 			RClickMenu->AddMenuItem( func , TEXT("InviteTeam") );
 		}
@@ -207,12 +207,12 @@ UBOOL RClick_Cooperate(class UMMOUIRClickMenu* RClickMenu , FScriptDelegate &fun
 
 		if( TeamManager::getSingleton().HasTeam() && TeamManager::getSingleton().IsTeamLeader() )
 		{
-			if(TeamManager::getSingleton().GetMemberById(RClickMenu->OwnerRoleId))//如果在队伍中
+			if(TeamManager::getSingleton().GetMemberById(RClickMenu->OwnerRoleId))//if in team
 			{
-				//踢出队伍
+				//kick from team
 				func.FunctionName = "ClickLeaveTeam";
 				RClickMenu->AddMenuItem( func , TEXT("KickOutTeam") );
-				//移交队长
+				//transfer leader
 				func.FunctionName = "ClickMoveLeader";
 				RClickMenu->AddMenuItem( func , TEXT("MoveLeader") );
 			}
@@ -223,7 +223,7 @@ Exit0:
 	return FALSE;
 }
 
-//公会大类
+//guild category
 UBOOL RClick_Guild(class UMMOUIRClickMenu* RClickMenu, FScriptDelegate &func)
 {
 	if (RClickMenu)
@@ -240,23 +240,23 @@ void RClickFormatter_TargetInfo::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	//查看资料
+	//view profile
 
 	func.FunctionName = "ClickViewProfile";
 	RClickMenu->AddMenuItem( func , TEXT("ViewProfile") );
 
-	//点击跟随/取消跟随
+	//click follow/unfollow
 	if(1){
 		func.FunctionName = "ClickFollow";
 		RClickMenu->AddMenuItem( func , TEXT("Follow") );
@@ -268,16 +268,16 @@ void RClickFormatter_TargetInfo::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 	}
 	
 
-	//加为好友
+	//add as friend
 
 		if( FriendManager::getSingleton().IsMyFriend(RClickMenu->OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(RClickMenu->OwnerRoleId) )
-		{   //取消关注
+		{   //unfollow
 			func.FunctionName = "ClickDeleteFriend";
 			RClickMenu->AddMenuItem( func , TEXT("DelAttention") );	
 		}
 		else
 		{
-			//加为关注
+			//add to follow
 			func.FunctionName = "ClickAddFriend";
 			RClickMenu->AddMenuItem( func , TEXT("AddAttention") );	
 		}
@@ -293,19 +293,19 @@ void RClickFormatter_TargetInfo::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 		}
 
 	
-	//申请交易
+	//request trade
 
 		func.FunctionName = "ClickApplyDoTrade";
 		RClickMenu->AddMenuItem( func, TEXT("ApplyDoTrade") );
 	
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//公会类
+	//guild category
 	RClick_Guild(RClickMenu, func);
 
-	//常规类设置
+	//general settings
 
 	RClickMenu->AddLine();
 }
@@ -316,21 +316,21 @@ void RClickFormatter_TeamMember::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -340,18 +340,18 @@ void RClickFormatter_TeamMate::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -363,28 +363,28 @@ void RClickFormatter_ChatPlayer::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	//查看资料
+	//view profile
 
-	//加为好友
+	//add as friend
 
 	if( FriendManager::getSingleton().IsMyFriend(RClickMenu->OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(RClickMenu->OwnerRoleId) )
-	{   //取消关注
+	{   //unfollow
 		func.FunctionName = "ClickDeleteFriend";
 		RClickMenu->AddMenuItem( func , TEXT("DelAttention") );	
 	}
 	else
 	{
-		//加为关注
+		//add to follow
 		func.FunctionName = "ClickAddFriend";
 		RClickMenu->AddMenuItem( func , TEXT("AddAttention") );	
 	}
@@ -399,26 +399,26 @@ void RClickFormatter_ChatPlayer::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 		RClickMenu->AddMenuItem( func , TEXT("AddEnemy") );	
 	}
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//公会类
+	//guild category
 	RClick_Guild(RClickMenu, func);
 	
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 
 
 	if( FriendManager::getSingleton().InMyBlackList(RClickMenu->OwnerRoleId) )
 	{
-		//取消屏蔽
+		//unblock
 		func.FunctionName = "ClickRemoveFromBlackList";
 		RClickMenu->AddMenuItem( func , TEXT("RemoveBlack") );
 	}
 	else
 	{
-		//屏蔽聊天
+		//block chat
 		func.FunctionName = "ClickMoveToBlackList";
 		RClickMenu->AddMenuItem( func , TEXT("MoveToBlack") );
 	}
@@ -433,28 +433,28 @@ void RClickFormatter_TeamNearby::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	//查看资料
-	//加为好友
-	//申请交易
+	//view profile
+	//add as friend
+	//request trade
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//公会类
+	//guild category
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -466,28 +466,28 @@ void RClickFormatter_Friend::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
 
-	//加为好友
+	//add as friend
 
 	if( FriendManager::getSingleton().IsMyFriend(RClickMenu->OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(RClickMenu->OwnerRoleId) )
-	{   //取消关注
+	{   //unfollow
 		func.FunctionName = "ClickDeleteFriend";
 		RClickMenu->AddMenuItem( func , TEXT("DelAttention") );	
 	}
 	else
 	{
-		//加为关注
+		//add to follow
 		func.FunctionName = "ClickAddFriend";
 		RClickMenu->AddMenuItem( func , TEXT("AddAttention") );	
 	}
@@ -507,24 +507,24 @@ void RClickFormatter_Friend::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 		
 	
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//公会类
+	//guild category
 	RClick_Guild(RClickMenu, func);
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 	if( FriendManager::getSingleton().InMyBlackList(RClickMenu->OwnerRoleId) )
 	{
-		//取消屏蔽
+		//unblock
 		func.FunctionName = "ClickRemoveFromBlackList";
 		RClickMenu->AddMenuItem( func , TEXT("RemoveBlack") );
 	}
 	else
 	{
-		//屏蔽聊天
+		//block chat
 		func.FunctionName = "ClickMoveToBlackList";
 		RClickMenu->AddMenuItem( func , TEXT("MoveToBlack") );
 	}
@@ -537,26 +537,26 @@ void RClickFormatter_BattleMember::FormatRClick(class UMMOUIRClickMenu* RClickMe
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	//查看资料
+	//view profile
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//公会类
+	//guild category
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 
 }
@@ -567,22 +567,22 @@ void RClickFormatter_FriendGroup::FormatRClick(class UMMOUIRClickMenu* RClickMen
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -592,26 +592,26 @@ void RClickFormatter_Attention::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	//加为好友
+	//add as friend
 
 	if( FriendManager::getSingleton().IsMyFriend(RClickMenu->OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(RClickMenu->OwnerRoleId) )
-	{   //取消关注
+	{   //unfollow
 		func.FunctionName = "ClickDeleteFriend";
 		RClickMenu->AddMenuItem( func , TEXT("DelAttention") );	
 	}
 	else
 	{
-		//加为关注
+		//add to follow
 		func.FunctionName = "ClickAddFriend";
 		RClickMenu->AddMenuItem( func , TEXT("AddAttention") );	
 	}
@@ -625,12 +625,12 @@ void RClickFormatter_Attention::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 		func.FunctionName = "ClickAddEnemy";
 		RClickMenu->AddMenuItem( func , TEXT("AddEnemy") );	
 	}
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
 
-	//常规类设置
+	//general settings
 
 	RClickMenu->AddLine();
 }
@@ -640,23 +640,23 @@ void RClickFormatter_Black::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -667,25 +667,25 @@ void RClickFormatter_GuildMember::FormatRClick(class UMMOUIRClickMenu* RClickMen
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	//公会类
+	//guild category
 	RClick_Guild(RClickMenu, func);
 
-	//常规类设置
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -694,22 +694,22 @@ void RClickFormatter_Dungeon::FormatRClick(class UMMOUIRClickMenu* RClickMenu)
 	FScriptDelegate func( EC_EventParm);
 	func.Object = RClickMenu;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
 
-	//常规类设
+	//general settings
 	RClickMenu->AddLine();
 }
 
@@ -721,26 +721,26 @@ void RClickFormatter_RankListPlayer::FormatRClick(class UMMOUIRClickMenu* RClick
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
 
 	if( FriendManager::getSingleton().IsMyFriend(RClickMenu->OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(RClickMenu->OwnerRoleId) )
-	{   //取消关注
+	{   //unfollow
 		func.FunctionName = "ClickDeleteFriend";
 		RClickMenu->AddMenuItem( func , TEXT("DelAttention") );	
 	}
 	else
 	{
-		//加为关注
+		//add to follow
 		func.FunctionName = "ClickAddFriend";
 		RClickMenu->AddMenuItem( func , TEXT("AddAttention") );	
 	}
@@ -754,11 +754,11 @@ void RClickFormatter_RankListPlayer::FormatRClick(class UMMOUIRClickMenu* RClick
 		func.FunctionName = "ClickAddEnemy";
 		RClickMenu->AddMenuItem( func , TEXT("AddEnemy") );	
 	}
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	// 公会类
+	// guild category
 	RClick_Guild(RClickMenu, func);
 	
 	RClickMenu->AddLine();
@@ -771,23 +771,23 @@ void RClickFormatter_RankListGuild::FormatRClick(class UMMOUIRClickMenu* RClickM
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//联系大类
+	//contact category
 	RClick_Contant(RClickMenu , func);
 
-	//合作大类
+	//cooperation category
 	RClick_Cooperate(RClickMenu , func);
 
 
-	// Achievement成就比较
+	// Achievement comparison
 	func.FunctionName = "ClickAchievementCompare";
 	RClickMenu->AddMenuItem( func, TEXT("CompareAchievement") );
 
-	// 公会类
+	// guild category
 	RClick_Guild(RClickMenu, func);
 
 	RClickMenu->AddLine();
@@ -800,11 +800,11 @@ void RClickFormatter_GuildAlliance::FormatRClick(class UMMOUIRClickMenu* RClickM
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//取消联盟
+	//cancel alliance
 	func.FunctionName = "ClickCancelAlliance";
 	RClickMenu->AddMenuItem(func , TEXT("CancelAlliance"));
 
-	//复制公会名
+	//copy guild name
 	func.FunctionName = "ClickCopyGuildNameByPanel";
 	RClickMenu->AddMenuItem(func, TEXT("CopyGuildName"));
 
@@ -818,7 +818,7 @@ void RClickFormatter_GuildEnemy::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if (Player == NULL)return;
 
-	//宣战
+	//declare war
 	UINT32 clientOption = CMessageHandler::GetInstance().GetClientOption();
 	if (clientOption & CLIENT_OPTION_BIT_GUILD_WAR)
 	{
@@ -826,7 +826,7 @@ void RClickFormatter_GuildEnemy::FormatRClick(class UMMOUIRClickMenu* RClickMenu
 		RClickMenu->AddMenuItem(func, TEXT("GuildWar"));
 	}
 
-	//复制公会名
+	//copy guild name
 	func.FunctionName = "ClickCopyGuildNameByPanel";
 	RClickMenu->AddMenuItem(func, TEXT("CopyGuildName"));
 
@@ -840,34 +840,34 @@ void RClickFormatter_AuctionPlayer::FormatRClick(class UMMOUIRClickMenu* RClickM
 	class AMMOPlayer* Player = MMOFacade::getSingleton().GetMainPlayer();
 	if(Player==NULL)return;
 
-	//检查自己
+	//check self
 	UBOOL res = RClick_CheckSelf(RClickMenu , func);
 	if(res)return;
 
 
-	//私聊
+	//private chat
 	func.FunctionName = "ClickEnterPrivateChat"; 
 	RClickMenu->AddMenuItem( func , TEXT("PrivateChat") );	
 
 
 	if( FriendManager::getSingleton().IsMyFriend(RClickMenu->OwnerRoleId) || FriendManager::getSingleton().IsMyAttention(RClickMenu->OwnerRoleId) )
-	{   //取消关注
+	{   //unfollow
 		func.FunctionName = "ClickDeleteFriend";
 		RClickMenu->AddMenuItem( func , TEXT("DelAttention") );	
 	}
 	else
 	{
-		//加为关注
+		//add to follow
 		func.FunctionName = "ClickAddFriend";
 		RClickMenu->AddMenuItem( func , TEXT("AddAttention") );	
 	}
 
-	//复制名字
+	//copy name
 	func.FunctionName = "ClickCopyName";
 	RClickMenu->AddMenuItem( func , TEXT("CopyName") );
 
-	// 公会类
-	// 复制公会名字
+	// guild category
+	// copy guild name
 	func.FunctionName = "ClickCopyGuildName";
 	RClickMenu->AddMenuItem(func, TEXT("CopyGuildName"));
 

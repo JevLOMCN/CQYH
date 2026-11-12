@@ -1,11 +1,11 @@
 //
-// 场景交互运动物体
+// Scene interactive moving objects
 //
 class MMOKActor extends KActorSpawnable  implements(IAbilityDamageable)
 	native;
 
 
-// 取得阵营标识，以计算伤害
+// Get faction ID to calculate damage
 event int GetFriendlyMask()
 {
 	return 0;

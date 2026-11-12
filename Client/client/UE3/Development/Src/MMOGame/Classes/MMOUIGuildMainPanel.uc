@@ -184,45 +184,45 @@ event CallEnableGuildWar(bool enableGuildWar)
 	ActionScriptVoid("UCUpdateGuildWarButtonState");
 }
 
-// 公会查看
+// guild view
 native final function ASViewGuild();
-// 更新申请列表
+// Update application list
 native final function ASUpdateGuildPendingMemberList();
-// 同意加入公会
+// Agree to join guild
 native final function ASAgreeToJoin(int id);
-// 拒绝加入公会
+// Refuse to join guild
 native final function ASRefuseToJoin(int id);
-// 资源捐献
+// Resource donation
 native final function ASContribute(int type, int count);
-// 更改通告
+// Change announcement
 native final function ASChangeNotice(String notice);
-// 更改宣言
+// Change declaration
 native final function ASChangeAnnounce(String announce);
-// 查看更多公会事件
+// View more guild events
 native final function ASViewMoreEvents();
-// 招募成员
+// Recruit members
 native final function ASInviteMember(String roleName);
 native final function ASSortMember(int type, bool isUp);
-// 驱逐成员退出公会
+// Expel member from guild
 native final function ASExpelMember(int id);
-// 更改职位
+// Change position
 native final function ASChangePost(int roleId, int post);
-// 是否显示在线成员
+// Whether to show online members
 native final function ASShowOnlineMember(bool isShow);
-// 上线成员通知
+// Member online notification
 native final function ASOnlineMemberNotify(bool notify);
-// 族长禅位
+// Guild leader abdication
 native final function ASLeaderDemise(String roleName);
-// 公会解散
+// Guild disband
 native final function ASDisbandGuild(String text);
-// 退出公会
+// Leave guild
 native final function ASQuitGuild();
-// 更新公会权限显示
+// Update guild permission display
 native final function ASUpdateGuildRights(int post);
-// 更新仓库权限显示
+// Update warehouse permission display
 native final function ASModifyGuildStorageRights(int post, GFXObject rights);
 native final function ASUpdateGuildStorageRights(int post);
-// 俸禄分配
+// Salary distribution
 native final function ASDistributeSalary(GFXObject percent);
 native final function ASApplyAlly(String guildName, int timeType);
 native final function ASApplyEnemy(String guildName, int timeType);
@@ -232,11 +232,11 @@ native final function ASFullMemberRightClick(int posX, int posY, int roleId);
 native final function ASForeignApplyDayType(int foreignType, int dayType);
 native final function ASAllianceRightClick(int posX, int posY, int guildId);
 native final function ASGuildEnemyRightClick(int posX, int posY, int guildId);
-// 公会战
+// guild war
 native final function ASChallenge(String guildName);
 native final function ASSearchGuild();
 native final function ASSetShowPage(int page, int subPage);
-// 公会活动
+// guild activity
 native final function ASGuildActivityClickOpen(int activityId);
 native final function ASGuildActivitySumitOpen(int activityId);
 

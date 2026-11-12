@@ -92,7 +92,7 @@ public:
 
 	virtual bool Run()
 	{
-		// 先HACK一个不安全的对象进行测试
+		// HACK an unsafe object first for testing
 		BYTE buf[4096] = {0};
 		UItem* item = (UItem*)buf;
 		UGFxObject* testObj = (UGFxObject*)(buf);//MMOUI::GetUIManager()->GetCommonUIComponentMoviePlayer()->CreateArray();
@@ -108,7 +108,7 @@ public:
 
 	virtual bool Run()
 	{
-		// 旧的保存下，免得DEBUG下万一的情况出BUG
+		// keep the old one, to avoid bugs in the unlikely case in DEBUG
 		StringMapVal oldVal;
 		StringMapVal* value = g_StringMap.Find(TEXT("8888"));
 		if( value )
@@ -148,7 +148,7 @@ public:
 
 	virtual bool Run()
 	{
-		// 旧的保存下，免得DEBUG下万一的情况出BUG
+		// keep the old one, to avoid bugs in the unlikely case in DEBUG
 		StringMapVal oldVal;
 		StringMapVal* value = g_StringMap.Find(TEXT("8888"));
 		if( value )

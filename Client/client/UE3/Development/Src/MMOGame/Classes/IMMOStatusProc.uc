@@ -1,5 +1,5 @@
 //
-// 状态表现处理接口
+// State presentation handling interface
 //
 interface IMMOStatusProc
 	native;

@@ -85,9 +85,9 @@ void UMMOUIArenaEntrance::UpdateArenaData()
 	case EAnaSta_EndWithAwarded:
 	case EAnaSta_EndNoAward:
 		{
-			//"您的最高连胜"
+			//"Your highest win streak"
 			eventCallASSetPanelTopTitleText( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.PanelTopArenaScoreTitle") ) );
-			//战绩
+			//Battle record
 			FString scoreText;
 			if( myArenaData._AllTimeHightScore > 0 ){
 				FString chnNumStr = UITextParser::CvtNumToChnNum( myArenaData._AllTimeHightScore );
@@ -115,16 +115,16 @@ void UMMOUIArenaEntrance::UpdateArenaData()
 	//
 
 
-	//现在竞技场的投入
+	//Current arena stake
 	UINT64 curArenaMny = arenaMgr.GetCurArenaMoney();
 	eventCallASUpdateArenaTotalMoney( UITextParser::HTMLMoneyIconString( MONEYTYPE_02, curArenaMny ) );
 
-	//自己在竞技场的总花费
+	//Own total spending in the arena
 	eventCallASSetPlayerName( Player->GetActorName() );
 
 	eventCallASUpdateMyArenaCost( UITextParser::HTMLMoneyIconString( MONEYTYPE_02, myArenaData._SpendMoney ) );
 
-	//竞技场的参赛奖励
+	//Arena participation reward
 	INT curLevel = 0;
 	FLOAT percent = 0;
 	UINT32 curMnyCvt = (UINT32)( curArenaMny / AREANA_AWARD_MONEY_FACTOR );
@@ -148,13 +148,13 @@ void UMMOUIArenaEntrance::UpdateArenaData()
 
 	eventCallASSetArenaAwardLevel( curLevel, percent );
 
-	//竞技场胜负奖励
+	//arena win/loss reward
 	UpdateArenaMnyReward();
 
 	//
 	UpdatePanelBaseInfo();
 
-	//竞技场胜负
+	//arena win/loss
 	UpdateArenaWinResult();
 }
 //=======================================================================================
@@ -185,27 +185,27 @@ void UMMOUIArenaEntrance::UpdatePanelBaseInfo()
 	{
 	case EAnaSta_Applied:
 		{
-			//"报名已成功"
+			//"Registration successful"
 			eventCallASSetPanelBottomText( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.EnterSuccessPanelText") ) );
-			//"取消参赛"
+			//"Cancel participation"
 			eventCallASSetArenaEnterBtn( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.CanelEnterBtnText") ), TRUE );
-			//参赛费
+			//Entry fee
 			eventCallASSetArenaEntryFee( TEXT(""), FALSE );
 		}
 		break;
 	case EAnaSta_ToGetAward:
 		{
-			//"领取奖励"
+			//"Claim reward"
 			eventCallASSetArenaEnterBtn( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.GetAwardBtnText") ), TRUE );
-			//参赛费
+			//Entry fee
 			eventCallASSetArenaEntryFee( TEXT(""), FALSE );
 		}
 		break;
 	case EAnaSta_EndWithAwarded:
 		{
-			//"已领取"
+			//"Claimed"
 			eventCallASSetPanelBottomText( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.AwardedPanelText") ) );
-			//参赛费
+			//Entry fee
 			eventCallASSetArenaEntryFee( TEXT(""), FALSE );
 			//
 			eventCallASSetArenaEnterBtn( TEXT(""), FALSE );
@@ -213,13 +213,13 @@ void UMMOUIArenaEntrance::UpdatePanelBaseInfo()
 		break;
 	case EAnaSta_WaitApply:
 		{
-			//"参赛报名需花费"
+			//"Registration costs"
 			eventCallASSetPanelBottomText( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.EnterFeeTitle") ) );
-			//参赛费
+			//Entry fee
 			UINT32 entryFee = arenaMgr.GetArenaEntryFee();
 			FString strEntryFee = UITextParser::HTMLMoneyIconString( MONEYTYPE_02, entryFee );
 			eventCallASSetArenaEntryFee( strEntryFee, TRUE );
-			//"报名参赛"
+			//"Register"
 			eventCallASSetArenaEnterBtn( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.EnterBtnText") ), TRUE );
 		}
 		break;
@@ -244,11 +244,11 @@ void UMMOUIArenaEntrance::UpdateArenaWinResult()
 		warnf( NAME_Error, TEXT("UMMOUIArenaEntrance::UpdateArenaWinResult create UI_PVP_Bonus.AS3.BattleResultData FAILED") );
 		return;
 	}
-	//现在最高连胜
+	//Current highest win streak
 	INT hightestScore = arenaMgr.GetArenaHighestScore();
 	arenaResult->SetString( TEXT("topStreak"), appItoa( hightestScore ) );
 
-	//自己的战绩
+	//Own record
 	const PlayerArenaData &myArenaData = arenaMgr.GetMyCurArenaData();
 	arenaResult->SetString( TEXT("myStreak"), appItoa( myArenaData._AllTimeHightScore ) );
 
@@ -276,11 +276,11 @@ void UMMOUIArenaEntrance::UpdateArenaWinResult()
 		break;
 	default:
 		{
-			//自己的奖励
+			//Own reward
 			if( winLevel >= EArean_WinPrizeRank1 && winLevel < EArean_RankMax ){
 				panelRewardType = 3;
 				isShowAward = TRUE;
-				//名次奖励
+				//Rank reward
 				FString toWinRankLookUp = TEXT("MMOGame.Arena.WinRank");
 				toWinRankLookUp += appItoa( winLevel );
 				FString winRankStr = MMOUI::ParseLocalizedPropertyPath( toWinRankLookUp );
@@ -289,7 +289,7 @@ void UMMOUIArenaEntrance::UpdateArenaWinResult()
 			else{
 				panelRewardType = 2;
 				isShowAward = TRUE;
-				//没有名次奖励
+				//No rank reward
 				arenaResult->SetString( TEXT("rewardInfo"), MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.NoWin") ) );
 			}
 		}
@@ -302,11 +302,11 @@ void UMMOUIArenaEntrance::UpdateArenaWinResult()
 		//arenaResult->SetObject( TEXT("battleReward"), NULL );
 	}
 	else{
-		//具体奖励
+		//Specific reward
 		UGFxObject* arrayData = GFXPlayer->CreateArray();
 		INT rewardCnt = 0;
 		if( arrayData != NULL ){
-			//名次奖励，钱
+			//Rank reward, money
 			FString winMoneyStr;
 			if( winLevel >= EArean_WinPrizeRank1 && winLevel < EArean_RankMax ){
 				//const ArenaWinPrize &winPrize = arenaMgr.GetArenaWinPrizeData( winLevel );
@@ -325,7 +325,7 @@ void UMMOUIArenaEntrance::UpdateArenaWinResult()
 				}
 			}
 
-			//报名奖励，物品
+			//Registration reward, item
 			INT curdefaultPrizeRank = arenaMgr.GetArenaCurPrizeRank();
 			if( curdefaultPrizeRank >= EArean_Rank1 ){
 				//const ArenaRankPrize &defalutPrize = arenaMgr.GetArenaDefaultPrize( curdefaultPrizeRank );
@@ -491,9 +491,9 @@ void UMMOUIArenaEntrance::ASOnActionButtonClick()
 void UMMOUIArenaEntrance::ASToggleShowBonusPanel( UBOOL isToShow )
 {
 	if( isToShow == TRUE ){
-		//竞技场胜负奖励
+		//arena win/loss reward
 		UpdateArenaMnyReward();
-		//竞技场胜负
+		//arena win/loss
 		UpdateArenaWinResult();
 	}
 

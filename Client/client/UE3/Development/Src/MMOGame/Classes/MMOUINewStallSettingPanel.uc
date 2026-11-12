@@ -10,10 +10,10 @@ native function bool OnLeftMouseClick(GFxObject mc, ESlotPanelType SlotType, ECO
 native function bool OnRightMouseClick(GFxObject mc, ESlotPanelType SlotType, ECONTAINER_SLOT ContainerID, int SlotID,bool bDefault);
 native function bool OnDragDrop(GFxObject SrcSlotMC, GFxObject DestSlotMC, ESlotPanelType SrcSlotType, ECONTAINER_SLOT SrcContainerID, int SrcSlotID, ESlotPanelType DestSlotType, ECONTAINER_SLOT DestContainerID, int DestSlotID);
 
-// 添加物品到摊位
+// Add item to stall
 native final function AddItem(int srcConId, int srcSlotId, int dstSlotId);
 
-// 刷新Slot  上架、下架、售出
+// Refresh Slot  list, delist, sold
 native final function UpdateItemSlot(int stallSlot, int srcConId, int srcSlotId, int count, int price);
 
 event UpdateStallSettingWidget(GFxObject obj)

@@ -57,7 +57,7 @@ void UMMOUIAuctionView::Init()
 
 	//g_layoutList.push_back(new UILayoutLeftRight(this, MMOUI::GetUIManager()->Panel_Bag));
 
-	// 调用以便初始化Sell Slot
+	// call to initialize Sell Slot
 	Reset();
 
 	UGFxObject* pageSell = GetObject( TEXT("page_sell") );
@@ -364,7 +364,7 @@ void UMMOUIAuctionView::OnNativeGameEvent(struct MMOGameEvent* evt)
 
 void UMMOUIAuctionView::ResetSellItemInfo()
 {
-	//把锁得东东解开
+	//unlock the locked stuff
 	MMOFacade::getSingleton().LockItem( CurrentSellingItemContainerID, CurrentSellingItemSlotID, -1 );
 
 	CurrentSellingItemContainerID = -1;
@@ -491,7 +491,7 @@ void UMMOUIAuctionView::SetupSellItem(INT srcContainerID, INT srcSlotID)
 
 			if(!item)
 			{
-				warnf(TEXT("拍卖准备上架时没找到道具:%d"), info->m_nTemplateID);
+				warnf(TEXT("Item not found when preparing to list on the auction: %d"), info->m_nTemplateID);
 				return;
 			}
 
@@ -504,7 +504,7 @@ void UMMOUIAuctionView::SetupSellItem(INT srcContainerID, INT srcSlotID)
 				return;
 			}
 
-			//上架费
+			//listing fee
 			TArray<INT> config = MMOAuctionManager::getSingleton().GetAuctionSellConfig();
 			INT64 money = MMOFacade::getSingleton().GetPlayerMoney64(E_MONEYTYPE_02);
 
@@ -570,13 +570,13 @@ void UMMOUIAuctionView::SetupSellItem(INT srcContainerID, INT srcSlotID)
 
 			eventUCSetSellingPage_SellInfo(dat);
 
-			//先解锁上一个物品
+			//first unlock the previous item
 			MMOFacade::getSingleton().LockItem( CurrentSellingItemContainerID, CurrentSellingItemSlotID,-1);
 
 			CurrentSellingItemContainerID = srcContainerID;
 			CurrentSellingItemSlotID = srcSlotID;
 			
-			//把东东锁起来
+			//lock the stuff
 			MMOFacade::getSingleton().LockItem( srcContainerID, srcSlotID,ESPType_AuctionSell);
 		}
 	}
@@ -871,14 +871,14 @@ void UMMOUIAuctionView::ASClickTabPage(INT idx)
 {
 	if ((EAuctionTabId)idx != MMOAuctionManager::getSingleton().GetCurrentTabPage())
 	{
-		//关闭messagebox
+		//close messagebox
 		HideAuction_Msg();
 	}
 	
 	MMOAuctionManager::getSingleton().SetCurrentTabPage((EAuctionTabId)idx);
 }
 
-// 购买
+// buy
 void UMMOUIAuctionView::ASBuyPage_AuctionClick(INT dwAuctionID, INT price, INT msgType)
 {
 	//MMOAuctionManager::getSingleton().BuyFromBuyingList(dwAuctionID, price);
@@ -918,7 +918,7 @@ void UMMOUIAuctionView::ASBuyPage_AuctionFailedFixedPriceClick(INT dwAuctionID, 
 	Show_Auction_Msg(dwAuctionID,price,Auction_MsgType_BuyPage_Failed_FixedPrice_OK,Auction_MsgTextType_Fixed,itemId);
 }
 
-// 出售
+// sell
 void UMMOUIAuctionView::ASSellPage_CancelSellClick(INT dwAuctionID)
 {
 	Show_Auction_Msg(dwAuctionID,0,Auction_MsgType_CancelSell,(Auction_MsgTextType)0,0);
@@ -1018,7 +1018,7 @@ void UMMOUIAuctionView::OnSellPage_SellItem(UGFxObject* mc)
 	sellInfo->llPrice = info.llPrice;
 	CMessageHandler::GetInstance().Send_AuctionSell(sellInfo);
 }
-// 浏览
+// browse
 void UMMOUIAuctionView::ASSearch(class UGFxObject* dt)
 {
 	MMOAuctionManager::getSingleton().UpdateSearchPageNumb(0);
@@ -1059,7 +1059,7 @@ void UMMOUIAuctionView::ASViewPage_AuctionFixedPriceClick(INT dwAuctionID, int p
 	Show_Auction_Msg(dwAuctionID,price,Auction_MsgType_ViewPage_FixedPrice_OK,Auction_MsgTextType_Fixed,itemId);
 }
 
-// 翻页
+// Turn page
 void UMMOUIAuctionView::ASViewPage_PrevPageClick(INT pgNum)
 {
 	MMOAuctionManager::getSingleton().LastActionIsNextPage(false);

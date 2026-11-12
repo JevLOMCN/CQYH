@@ -21,21 +21,21 @@ var GFxObject MyAwardHintTf[3];
 var GFxObject MemberInfoMc;
 var GFxObject MemFBAwards[4];
 
-//是否可以免费抽取第三个奖品（VIP玩家）
+//Whether the third prize can be drawn for free (VIP player)
 var bool bCanFreeGet3;
-//是否可以免费抽取第二个奖品（评分S或以上）
+//Whether the second prize can be drawn for free (rating S or above)
 var bool bCanFreeGet2;
-//此副本中是否未抽过奖
+//Whether no draw has been made in this dungeon
 var bool bPlayed;
 //
 var array<int> MyClickAwardIdx;
-//更新
+//Update
 native function UpdateMemberAward();
 native function UpdateMyAward();
 //
 native function InitFBAwardMode();
 native function ResetUI();
-//开始抽奖（抽奖？）
+//Start the draw (draw?)
 native function OpenToPlay( int iTime );
 //
 native function ResetData();
@@ -44,11 +44,11 @@ event CallASStartPlayCountDown( int CloseTime)
 {
 	ActionScriptVoid( "StartPlayCountDown" );
 }
-//抽奖按钮被点击
+//Draw button was clicked
 native function ClickAward( int iIdx );
-//向服务器索取奖品
+//Request prize from server
 native function GetAward( int iIdx );
-//时间到，打开所有可以打开的奖励
+//Time is up, open all rewards that can be opened
 native function TimeUpToShowAll();
 
 //===============================================================================================================

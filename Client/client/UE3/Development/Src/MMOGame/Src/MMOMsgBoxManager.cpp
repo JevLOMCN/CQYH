@@ -141,7 +141,7 @@ void UMMOUIMessageBoxZone::AutoAdjustSystemSettingOk(class UGFxObject* mc)
 
 		INT nLevel = GSystemSettings.CompatLevelComposite;
 
-		//在这里 系统设置自动调节
+		//system settings auto-adjust here
 		AutoLowScaleLevel(true);//GSystemSettings.AutoAdjustCompatLevel();
 
 		if(bRes != GSystemSettings.bHintBeforeAutoAdjust)
@@ -445,7 +445,7 @@ UGFxObject* MMOMsgBoxManager::AddInputMessageBox( FString titleText , INT infoId
 //	return mc;
 //}
 //-------------------------------------------------------------------------------
-//遮挡住全屏的弹出窗MessageBox
+//pop-up MessageBox covering the full screen
 UGFxObject* MMOMsgBoxManager::AddModalMessageBox( const FString& Text, INT InfoId, FScriptDelegate OnClickOK, FScriptDelegate OnClickNO ,UBOOL twoButton)
 {
 	_AddMsgInfoDelegateList( OnClickOK , OnClickNO, EMsgboxType_Modal );

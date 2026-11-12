@@ -58,7 +58,7 @@ void CMessageHandler::Send_Chat( INT ChannelId ,  UINT32 TypeId  ,const FString&
 	msg->wMsg = c2m_chat_message;
 	msg->dwTargetID = TypeId;
 
-	if(ChannelId == otRole) // 私聊，特殊
+	if(ChannelId == otRole) // Private chat, special
 	{
 		int beginPos = Content.InStr( TEXT("/"));
 
@@ -70,7 +70,7 @@ void CMessageHandler::Send_Chat( INT ChannelId ,  UINT32 TypeId  ,const FString&
 			if( Pos < 0)
 			{
 				MMOChatManager::getSingleton().AddScreenMessage();
-				return;//格式错误
+				return;//Format error
 			}
 			FString leftContentString = Content.Left(beginPos);
 			FString contentString = leftContentString + contentTemp.RightChop(Pos+1);
@@ -78,10 +78,10 @@ void CMessageHandler::Send_Chat( INT ChannelId ,  UINT32 TypeId  ,const FString&
 			if( /*contentString.IsEmpty() || */targetName.IsEmpty())
 			{
 				MMOChatManager::getSingleton().AddScreenMessage();
-				return;//格式错误
+				return;//Format error
 			}
 
-			//获取id
+			//Get id
 			msg->dwTargetID = MMOFacade::getSingleton().GetPlayerBaseInfoByName(targetName);
 
 			if (msg->dwTargetID == MMOFacade::getSingleton().GetMainPlayer()->ServerID)
@@ -105,7 +105,7 @@ void CMessageHandler::Send_Chat( INT ChannelId ,  UINT32 TypeId  ,const FString&
 			//MMOChatManager::getSingleton().AddChatMessage( ECC_Private , contentString , targetName , -1 , TRUE );
 
 		}
-		else //格式错误
+		else //Format error
 		{
 			MMOChatManager::getSingleton().AddScreenMessage();
 			return;

@@ -1,5 +1,5 @@
 //
-// 提示信息
+// Tip info
 //
 class MMOStatusProc_AddMessage extends Object implements(IMMOStatusProc)
 	native

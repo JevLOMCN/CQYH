@@ -70,7 +70,7 @@ void CMessageHandler::Parse_g2c_sync_role_equip_data(const char* buf, UINT32 siz
 	INT crc = crc32(0, (const Bytef*)msg, sizeof(G2C_SYNC_ROLE_EQUIP_DATA));
 
 	MMOPlayerInfoManager::getSingleton().showInfoByRankList(msg->dwRoleID);
-	//体格强化信息在先，因为装备信息后才会消息去刷新界面
+	//Body strengthening info first, because the UI is refreshed by message only after equipment info
 	MMOPlayerInfoManager::getSingleton().UpdatePlayerRefineInfo( msg->dwRoleID , msg->awRefineLevels );
 	MMOPlayerInfoManager::getSingleton().UpdatePlayerEquipInfo( msg->dwRoleID , msg->byItemCount , msg->acItems , crc );
 	

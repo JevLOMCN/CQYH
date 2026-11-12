@@ -1085,11 +1085,11 @@ namespace EditorLevelUtils
 				if(actorBox.Min.Z < -GWorld->GetWorldInfo()->LevelGridSize)
 				{
 					//appDebugBreak();
-					GWarn->MapCheck_Add(MCTYPE_ERROR, actor, TEXT("貌似这货碰撞模型在负的Z空间！并且超过了一个关卡格子距离。"), NULL);
+					GWarn->MapCheck_Add(MCTYPE_ERROR, actor, TEXT("This collision mesh appears to be in negative Z space and more than one level grid cell away."), NULL);
 				}
 				else
 				{
-					GWarn->MapCheck_Add(MCTYPE_WARNING, actor, TEXT("貌似这货碰撞模型在负的Z空间！如果问题不大可以不用管它。"), NULL, MCGROUP_KISMET);
+					GWarn->MapCheck_Add(MCTYPE_WARNING, actor, TEXT("This collision mesh appears to be in negative Z space. If it is not a big problem it can be ignored."), NULL, MCGROUP_KISMET);
 				}
 
 				actorBox.Min.Z = Max(0.0f, actorBox.Min.Z);
@@ -1130,7 +1130,7 @@ namespace EditorLevelUtils
 			ULevelStreaming* lvs = FLevelUtils::FindStreamingLevel( level );
 			if ( lvs && lvs->DisableAutoSplit)
 			{
-				// 跳过不需要分割的关卡
+				// Skip levels that do not need splitting
 				continue;
 			}
 
@@ -1258,7 +1258,7 @@ namespace EditorLevelUtils
 		}
 		else
 		{
-			appMsgf(AMT_OK, TEXT("不是正确的按距离动态加载子关卡类型：%s"), *lvName);
+			appMsgf(AMT_OK, TEXT("Not a valid distance-based dynamic loading sublevel type: %s"), *lvName);
 		}
 
 		return lv;
@@ -1831,7 +1831,7 @@ namespace EditorLevelUtils
 				}
 			}
 		}
-		//GWarn->StatusUpdatef(-1, -1, TEXT("正在收集静态模型和地形列表..."));
+		//GWarn->StatusUpdatef(-1, -1, TEXT("Collecting static mesh and terrain list..."));
 		warnf(TEXT("=============Merge LandScape==== Begin Merge ===================="));
 		int i = 0; 
 		int num = pInfo->XYtoComponentMap.Num();
@@ -1863,7 +1863,7 @@ namespace EditorLevelUtils
 				{
 					FString lvName = LevelStreamingObject->LoadedLevel ? LevelStreamingObject->LoadedLevel->GetName() : TEXT("");
 					GWarn->MapCheck_Add(MCTYPE_ERROR, LevelStreamingObject,
-						*FString::Printf(TEXT("错误的格子关卡坐标：%s - %s %d,%d,%d"), *LevelStreamingObject->GetName(), *lvName,
+						*FString::Printf(TEXT("Invalid grid level coordinates: %s - %s %d,%d,%d"), *LevelStreamingObject->GetName(), *lvName,
 						LevelStreamingObject->GridPosition[0], 
 						LevelStreamingObject->GridPosition[1],
 						LevelStreamingObject->GridPosition[2]), NULL);
@@ -1891,7 +1891,7 @@ namespace EditorLevelUtils
 
 	void AutoSplitLevels( INT tileSize )
 	{
-		//GWarn->BeginSlowTask(TEXT("自动分割场景"), TRUE);
+		//GWarn->BeginSlowTask(TEXT("Auto split scene"), TRUE);
 
 		// oscar@snda
 		FLevelUtils::g_enableSelectWarn = false;
@@ -1908,12 +1908,12 @@ namespace EditorLevelUtils
 		GEditor->SelectNone(TRUE, TRUE, FALSE);
 		//GEditor->BeginTransaction(TEXT("Tile"));
 
-		GWarn->StatusUpdatef(-1, -1, TEXT("正在收集静态模型和地形列表..."));
+		GWarn->StatusUpdatef(-1, -1, TEXT("Collecting static mesh and terrain lists..."));
 		FindActorsToSplit(actorsToSplitTmp, landscapes, &actorsToSplitArr);
 
 		//INT startActorsCount = actorsToSplit.Num();
 
-		GWarn->StatusUpdatef(-1, -1, TEXT("正在计算边界..."));
+		GWarn->StatusUpdatef(-1, -1, TEXT("Calculating bounds..."));
 
 		FBox worldBox = CalcAABB(actorsToSplitArr, landscapes);
 
@@ -2029,7 +2029,7 @@ namespace EditorLevelUtils
 					}
 					else
 					{
-						warnf(NAME_Error, TEXT("在为Landscape:%s 的第 %d 个区块查找格子时没有成功找到对应的关卡！"),
+						warnf(NAME_Error, TEXT("No matching level found while searching grid cells for Landscape:%s block #%d!"),
 							*landscape->GetPathName(), compIdx);
 					}
 				}
@@ -2069,7 +2069,7 @@ namespace EditorLevelUtils
 				for (INT i = 0; i < actorsToSplit.Num(); ++i)
 				{
 					GWarn->EnableUpdateUI = true;
-					GWarn->StatusUpdatef(i, actorsToSplit.Num(), TEXT("[%d/%d] 正在划分静态模型区块(%d/%d)..."), ii, actorsToSplitArr.Num(), i + 1, actorsToSplit.Num());
+					GWarn->StatusUpdatef(i, actorsToSplit.Num(), TEXT("[%d/%d] Splitting static mesh blocks (%d/%d)..."), ii, actorsToSplitArr.Num(), i + 1, actorsToSplit.Num());
 					GWarn->EnableUpdateUI = false;
 					AActor* actor = actorsToSplit(i);
 					//actor->AddToRoot();
@@ -2081,7 +2081,7 @@ namespace EditorLevelUtils
 					itla != g_levelActors.end(); ++itla)
 				{
 					GWarn->EnableUpdateUI = true;
-					GWarn->StatusUpdatef(step, g_levelActors.size(), TEXT("[%d/%d] 正在移动静态模型(%d/%d)..."), ii, actorsToSplitArr.Num(), step + 1, g_levelActors.size());
+					GWarn->StatusUpdatef(step, g_levelActors.size(), TEXT("[%d/%d] Moving static meshes (%d/%d)..."), ii, actorsToSplitArr.Num(), step + 1, g_levelActors.size());
 					GWarn->EnableUpdateUI = false;
 
 					INT movedActors = 0;
@@ -2121,7 +2121,7 @@ namespace EditorLevelUtils
 				{
 					FString lvName = LevelStreamingObject->LoadedLevel ? LevelStreamingObject->LoadedLevel->GetName() : TEXT("");
 					GWarn->MapCheck_Add(MCTYPE_ERROR, LevelStreamingObject,
-						*FString::Printf(TEXT("错误的格子关卡坐标：%s - %s %d,%d,%d"), *LevelStreamingObject->GetName(), *lvName,
+						*FString::Printf(TEXT("Invalid grid level coordinates: %s - %s %d,%d,%d"), *LevelStreamingObject->GetName(), *lvName,
 						LevelStreamingObject->GridPosition[0], 
 						LevelStreamingObject->GridPosition[1],
 						LevelStreamingObject->GridPosition[2]), NULL);
@@ -2179,7 +2179,7 @@ namespace EditorLevelUtils
 		GCallbackEvent->Send( CALLBACK_NewCurrentLevel );		
 		GEditor->SelectNone(TRUE, TRUE, FALSE);
 
- 		GWarn->StatusUpdatef(-1, -1, TEXT("正在收集静态模型和地形列表..."));
+ 		GWarn->StatusUpdatef(-1, -1, TEXT("Collecting static mesh and terrain lists..."));
 		for (INT i = 0; i < GWorld->Levels.Num(); ++i)
 		{
 			ULevel* level = GWorld->Levels(i);
@@ -2203,7 +2203,7 @@ namespace EditorLevelUtils
 			}
 
 			GWarn->EnableUpdateUI = true;
-			GWarn->StatusUpdatef(i + 1, GWorld->Levels.Num(), TEXT("[%d/%d] 正在移动静态模型:%s..."), i + 1, GWorld->Levels.Num(),  *level->GetPathName());
+			GWarn->StatusUpdatef(i + 1, GWorld->Levels.Num(), TEXT("[%d/%d] Moving static mesh: %s..."), i + 1, GWorld->Levels.Num(),  *level->GetPathName());
 			GWarn->EnableUpdateUI = false;
 
 

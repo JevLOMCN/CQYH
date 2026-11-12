@@ -1,5 +1,5 @@
 //
-// …Ë÷√RadialBlur«ø∂»
+// set RadialBlur intensity
 //
 class SeqAct_RadialBlurScale extends SequenceAction;
 

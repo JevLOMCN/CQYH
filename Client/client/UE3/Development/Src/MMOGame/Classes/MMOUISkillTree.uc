@@ -43,7 +43,7 @@ var const int ActiveSkillsListItemWidth;
 var const int ListArrowOffsetX;
 var const int ListArrowOffsetY;
 //-----------------------------------------------------------------------------------------
-//境界相关
+//Realm related
 var MMOUIHeavenPanel  _MainHeaven;
 var MMOUIHeavenGasMainPanel _GasPractiseMain;
 var MMOUIHeavenBloodPanel _BloodPanel;
@@ -147,7 +147,7 @@ final native function ASHideActiveDetailSkillsListPanel();
 
 final native function ASSetSkill( INT skillSetIdx, INT uniqueSkillID );
 
-//境界相关
+//Realm related
 function RegisterHeavenMain( MMOUIHeavenPanel mc )
 {
 	_MainHeaven = mc;

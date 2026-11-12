@@ -1912,7 +1912,7 @@ void FEditorAbilityViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
 	PosX = BaseX + PixelsPerSecond * AbilityViewer->GetAbilitySpellTime();
 	DrawLine2D(Canvas, FVector2D(PosX, 0), FVector2D(PosX, SizeY), FLinearColor(0.6, 0.8, 0.01));
 
-	if (ability->SpellCommonAttribute.PrepareType == ES_PT_Type1)	// 引导
+	if (ability->SpellCommonAttribute.PrepareType == ES_PT_Type1)	// channeling
 	{
 		FLOAT CastTime = 0.f;
 		INT CastCount = 0;
@@ -5714,7 +5714,7 @@ void WxAbilityViewer::OnHitPoint(UAbilityComponent* InHitPointComponent)
 		//dep = Facade::getSingleton().GetDamgeTemplateData(ResultType, 0, 0, 0);
 		dep1 = GamePlayData->GetDamageEffectListIndex(ResultType, 0, 0, 0);
 	}
-	else if (ResultType == DRT_Result6)	// 普通攻击
+	else if (ResultType == DRT_Result6)	// Normal attack
 	{
 		if (HitGroup.WeaponHitType == EWHT_HitType1
 			|| HitGroup.WeaponHitType == EWHT_HitType2
@@ -5730,7 +5730,7 @@ void WxAbilityViewer::OnHitPoint(UAbilityComponent* InHitPointComponent)
 
 		dep2 = GamePlayData->GetDamageEffectListIndex(ResultType, 0, 0, AbilityObject->SpellCommonAttribute.ElementaryType);
 	}
-	else if (ResultType == DRT_Result7)	 // 爆机
+	else if (ResultType == DRT_Result7)	 // Explosive crit
 	{
 		dep1 = GamePlayData->GetDamageEffectListIndex(ResultType, HitGroup.WeaponHitType, 0, 0);
 		dep2 = GamePlayData->GetDamageEffectListIndex(ResultType, 0, 0, AbilityObject->SpellCommonAttribute.ElementaryType);
@@ -6127,7 +6127,7 @@ void WxAbilityViewer::OnAbilityCast()
 			FVector Pos1, Pos2;
 
 
-			if (AbilityObject->SpellCommonAttribute.RangeType == E_sprt_Single)	// 目标对象
+			if (AbilityObject->SpellCommonAttribute.RangeType == E_sprt_Single)	// target object
 			{
 
 			}

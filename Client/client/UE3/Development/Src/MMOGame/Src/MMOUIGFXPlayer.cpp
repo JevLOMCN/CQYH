@@ -168,7 +168,7 @@ void UMMOUIGFXPlayer::TickHud( UCanvas* cvs ,float fDeltaTime )
 		//eventInitSceneUI();
 		NeedReInitSceneUI = false;
 	}
-	//不显示时没必要Update
+	//No need to Update when not shown
 	if( !MPVisible )
 		return;
 
@@ -204,7 +204,7 @@ void UMMOUIGFXPlayer::TickHud( UCanvas* cvs ,float fDeltaTime )
 //------------------------------------------------------------------------------
 void UMMOUIGFXPlayer::MoveByKey( BYTE MoveType,UBOOL MoveFlag)
 {
-	////只能按钮操作系统
+	////Only the button operating system
 	//int nIndex=0;
 	//for(int i=4;i>=0;i--)
 	//{
@@ -273,7 +273,7 @@ void UMMOUIGFXPlayer::ASSetPkMode(int PkMode)
 	//}
 }
 
-//添加拾取物品提示
+//Add pickup item hint
 void UMMOUIGFXPlayer::AddPickItemInfo( int ItemId )
 {
 	if( PickItemInfoList.Num() <= 0 )
@@ -283,7 +283,7 @@ void UMMOUIGFXPlayer::AddPickItemInfo( int ItemId )
 	PickItemInfoList.AddItem( ItemId );
 }
 
-//播放拾取物品提示
+//Play pickup item hint
 void UMMOUIGFXPlayer::PlayGetItemInfo( int ItemId )
 {
 	const UItem* tItem = MMOFacade::getSingleton().FindItemTemplate( ItemId );
@@ -317,7 +317,7 @@ void UMMOUIGFXPlayer::PlayGetItemInfo( int ItemId )
 		ASGetItemEnded();
 }
 
-//拾取物品提示播放完毕通知 
+//Pickup item hint playback finished notification
 void UMMOUIGFXPlayer::ASGetItemEnded()
 {
 	return;
@@ -358,7 +358,7 @@ void UMMOUIGFXPlayer::MouseRightClickItem(class UGFxObject* mc)
 				MoveItem( _Bag->GetBagEnum() , idx ,  E_CONSLOT_BANK , DesSlotID);	
 			}
 		}
-		else //直接装备
+		else //equip directly
 		{
 			switch( _Bag->GetBagEnum() )
 			{
@@ -449,7 +449,7 @@ void UMMOUIGFXPlayer::MouseRightClickItem(class UGFxObject* mc)
 			}
 		}
 		break;
-		//强化
+		//Enhancement
 	case ESPType_Enhance:
 		{
 			UMMOGFXPlayer_EquipEnhance *pEquipEnhancPly;

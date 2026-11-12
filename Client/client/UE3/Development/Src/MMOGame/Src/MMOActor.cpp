@@ -58,7 +58,7 @@ FLOAT AMMOActor::GetHealthPercent()
 		return 0.001f;
 
 	if( ActorAttributes->GetMaxHp() == 0 )
-		return 0.001f;//如果对flash的宽度设0有点问题
+		return 0.001f;//setting flash width to 0 may cause problems
 
 	return float(ActorAttributes->GetCurHp()) / float(ActorAttributes->GetMaxHp());
 }
@@ -622,7 +622,7 @@ void AMMOActor::TryPlaceActorToGround()
 	}
 	else
 	{
-		// 找不到地面的时候先格子数据用下
+		// when the ground cannot be found, use grid data first
 		INT64 llSrcX = 0;
 		INT64 llSrcY = 0;
 		INT64 llSrcZ = 0;
@@ -657,7 +657,7 @@ void AMMOActor::TickSpecial( FLOAT DeltaSeconds )
 	//	}
 	//}
 
-	//移动位置残影时间刷新
+	//refresh movement position afterimage time
 	if(ResetLastLocationTime>0.0f)
 	{
 		ResetLastLocationTime-=DeltaSeconds;
@@ -674,7 +674,7 @@ void AMMOActor::TickSpecial( FLOAT DeltaSeconds )
 
 	Super::TickSpecial(DeltaSeconds);
 
-	// 过场动画中不要强制拉
+	// do not force pull during cutscenes
 	if(PlaceToGoundTickCount > 0 && (Physics != PHYS_Interpolating))
 	{
 		PlaceToGoundTickTime += DeltaSeconds;
@@ -836,7 +836,7 @@ void AMMOActor::TickSpecial( FLOAT DeltaSeconds )
 		}
 	}
 
-	// 由服务器来控制对象删除
+	// object deletion is controlled by the server
 	//// to do : check whick npc id is -1
 	//if (!IsPendingKill() && ServerID != -1)
 	//{
@@ -911,14 +911,14 @@ void AMMOActor::RefreshAnimSet()
 {
 	EWeaponType WeaponType;
 
-	if( AttitudeType >= EWT_Riding_1 )//坐骑姿态
+	if( AttitudeType >= EWT_Riding_1 )//mount posture
 	{
 		WeaponType = (EWeaponType)AttitudeType;
 	}
 	else
 	{
 		if( (ItemManager != NULL)
-			&& bHoldWeapon==TRUE	//可以拿武器
+			&& bHoldWeapon==TRUE	//can hold weapon
 			&& (ItemManager->EquippedItemList_Normal(E_NES_MAIN_HAND) != NULL)
 			&& (ItemManager->EquippedItemList_Normal(E_NES_MAIN_HAND)->GetEquipAppearenceTemplate() != NULL))
 		{
@@ -926,7 +926,7 @@ void AMMOActor::RefreshAnimSet()
 		}
 		else
 		{
-			WeaponType = EWT_Weapon_0; //空手
+			WeaponType = EWT_Weapon_0; //bare-handed
 		}
 	}
 
@@ -985,7 +985,7 @@ void AMMOActor::RefreshMovementSpeed()
 
 BYTE AMMOActor::GetWeaponType()
 {
-	EWeaponType type = EWT_Weapon_0;    // 空手
+	EWeaponType type = EWT_Weapon_0;    // bare-handed
 	if( AttitudeType >= EWT_Riding_1 )
 	{
 		type = (EWeaponType)AttitudeType;
@@ -1000,7 +1000,7 @@ BYTE AMMOActor::GetWeaponType()
 
 BYTE AMMOActor::GetWeaponAppearenceType()
 {
-	EWeaponAppearenceType type = EWAT_Type0;    // 空手
+	EWeaponAppearenceType type = EWAT_Type0;    // bare-handed
 	if( ItemManager && ItemManager->EquippedItemList_Normal(E_NES_MAIN_HAND)
 		&& (ItemManager->EquippedItemList_Normal(E_NES_MAIN_HAND)->GetEquipAppearenceTemplate() != NULL))
 	{
@@ -2180,7 +2180,7 @@ void AMMOActor::NativeSetMesh(BYTE ClassType, BYTE GenderType)
 		{
 			if(GpDataManager->PlayerList(i).AvatarDataLink != NULL && GpDataManager->PlayerList(i).AvatarDataLink->SkeletalMesh != NULL)
 			{
-				//用一个avatar变量
+				//use an avatar variable
 				UseingAvatar = GpDataManager->PlayerList(i).AvatarDataLink;
 				bMainSkelChanged = true;
 
@@ -2502,7 +2502,7 @@ UBOOL AMMOActor::CanMove()
 }
 
 //=====================================================================================
-//Slot位置上装配技能
+//equip ability at Slot position
 void AMMOActor::EquipSpell( int hotKeySlotId, UMMOAbility* newAbility )
 {
 	if( newAbility == NULL ){
@@ -2529,17 +2529,17 @@ void AMMOActor::EquipSpell( int hotKeySlotId, UMMOAbility* newAbility )
 		if ( newAbilityMainID == tAbility->SpellCommonAttribute.Id ){
 			tAbility->SlotHotKeyID = -1;
 
-			////如果是主技能，设置当前符文(0为自己)
+			////if it is a main ability, set the current rune (0 is itself)
 			//if( tAbility->MainSkill != NULL ){
 			//	//tAbility->MainSkill->SetRuneSlot( newRuneSlotID );
-			//	maxFoundAbilityCnt = tAbility->MainSkill->SubRuneList.Num() + 1;//主技能算一个
+			//	maxFoundAbilityCnt = tAbility->MainSkill->SubRuneList.Num() + 1;//main ability counts as one
 			//}
 
-			//如果找到这个符文技能
+			//if this rune ability is found
 			if( newRuneSlotID == curAbilityRuneSlotID ){
 				INT curAbilityLevel = tAbility->SpellCommonAttribute.Level;
 				if( newAbilityLevel != curAbilityLevel ){
-					//不是同一个技能(等级不同)，替换
+					//not the same ability (different level), replace
 					Abilities(j) = newAbility;
 					tAbility = newAbility;
 				}
@@ -2550,7 +2550,7 @@ void AMMOActor::EquipSpell( int hotKeySlotId, UMMOAbility* newAbility )
 				bEquippedOK = TRUE;
 			}
 
-			//技能包括主技能一共那么多个
+			//total number of abilities including the main ability
 			++foundAbilityCnt;
 			if( foundAbilityCnt >= maxFoundAbilityCnt ){
 				break;
@@ -2558,7 +2558,7 @@ void AMMOActor::EquipSpell( int hotKeySlotId, UMMOAbility* newAbility )
 		}
 	}
 
-	//子技能可能没加入，尝试载入
+	//sub-ability may not be added yet, try loading
 	if( bEquippedOK == FALSE && ( newRuneSlotID > 0 && foundAbilityCnt > 0 ) ){
 		//UINT key = MMOSkillManager::CombinateAbilityID( newAbilityMainID, newAbilityLevel, newRuneSlotID );
 		//UMMOAbility* loadedAbility = MMOSkillManager::getSingleton().FindAbilityTemplate(key);
@@ -2641,10 +2641,10 @@ void AMMOActor::DelAbility( INT mainAbilityID, INT runeSlotID )
 				isDelNormalAttcAbility = TRUE;
 			}
 
-			//清理技能动态数据
+			//clean up ability dynamic data
 			tAbility->SlotHotKeyID = -1;
 
-			//删除
+			//delete
 			Abilities.Remove( i );
 			break;
 		}
@@ -2727,9 +2727,9 @@ void AMMOActor::UpdateAbility( INT mainAbilityID, INT abilityRuneID, INT level )
 			UMMOAbility* newAbility = MMOSkillManager::getSingleton().FindAbilityTemplate( Key );
 
 			if( NULL != newAbility && ( tAbility != newAbility ) ){
-				//传递是否装备此技能
+				//pass whether this ability is equipped
 				newAbility->SlotHotKeyID = tAbility->SlotHotKeyID;
-				//据说技能升级CD不消
+				//supposedly ability upgrade does not clear CD
 				FCoolDown &newAbilityCD = newAbility->CoolDownInfo;
 				FCoolDown &oldAbilityCD = tAbility->CoolDownInfo;
 
@@ -2744,7 +2744,7 @@ void AMMOActor::UpdateAbility( INT mainAbilityID, INT abilityRuneID, INT level )
 				//clear old
 				tAbility->SlotHotKeyID = -1;
 
-				//不会又装配低级技能吧，那这里就不对了
+				//it won't equip a lower-level ability again, will it? otherwise this is wrong
 				tAbility->bCoolDown = FALSE;
 				oldAbilityCD.GroupTimeLeft = 0;
 				oldAbilityCD.GroupTimeMax = 0;
@@ -3090,7 +3090,7 @@ UBOOL AMMOActor::PlayCommonDying(BYTE InStyle, BYTE InElementaryType, FLOAT Dela
 	}
 	else if (IsA(ANPC::StaticClass()))
 	{
-		// 整体效果等级在3级以下自动关闭物理动画，0是自定义
+		// when overall effect level is below 3, automatically turn off physics animation, 0 is custom
 		if (GSystemSettings.AutoFPSLevel <= M_SCALE_DOWN_ABILITY_POINT_LIGHT)
 		{
 			if (InStyle == DS_Ragdoll)
@@ -3207,7 +3207,7 @@ void AMMOActor::TouchNative(class AActor* Other,class UPrimitiveComponent* Other
 					v1.Normalize();
 					v2.Normalize();
 					FLOAT buf = v1.X*v2.X + v1.Y*v2.Y + v1.Z*v2.Z;
-					if(buf > MainController->fPlayerColisionRatio)//阻挡范围之内
+					if(buf > MainController->fPlayerColisionRatio)//within blocking range
 					{
 						MainController->StopMove(true);
 						onTouchActor.AddItem((AMMOActor *)Other);
@@ -3503,7 +3503,7 @@ void AMMOActor::MoveTo(FVector Des,FLOAT Speed,UBOOL rotationToDes,FLOAT inMoveR
 	if (fValueOffset <= 1.f)
 	{
 		Velocity = FVector::ZeroVector;
-		Location.X = Des.X; // oscar@snda 停下来的话要确保是在正确的点
+		Location.X = Des.X; // oscar@snda when stopping, make sure it is at the correct point
 		Location.Y = Des.Y;
 		return;
 	}
@@ -3579,7 +3579,7 @@ void AMMOActor::MoveTo(FVector Des,FLOAT Speed,UBOOL rotationToDes,FLOAT inMoveR
 
 	FLOAT MoveTime = (Des - Location).Size2D() / Velocity.Size2D();
 	//debugf(L"#char move time:%f", MoveTime);
-	////用于防震荡，当目标点和出发点处于同一点的时候，需要一个震荡量
+	////used to prevent oscillation; when the target point and start point are the same, an oscillation amount is needed
 	//if(Velocity.IsNearlyZero() && MainController->Pawn == this  )
 	//{
 	//	Velocity = FVector(0.1,0.1,0.0);
@@ -3737,10 +3737,10 @@ void AMMOActor::moveDelta(FVector Delta)
 
 	FLOAT MaxGridSize = FLOAT(GRID_WIDTH) / FLOAT(POINT_PER_CM);
 
-	// 成功地移动了delta
+	// successfully moved delta
 	NewLocation.Z -= GetCollisionHeight();
-	FVector StartPoint = NewLocation + FVector(0, 0, MaxGridSize * 1.5f); // 用1.5格子高去检查
-	FVector EndPoint = NewLocation - FVector(0, 0, 768.0f); // 超过768就不可以走、不可飞
+	FVector StartPoint = NewLocation + FVector(0, 0, MaxGridSize * 1.5f); // check using 1.5 grid heights
+	FVector EndPoint = NewLocation - FVector(0, 0, 768.0f); // beyond 768 cannot walk or fly
 	//FCheckResult Hit(1.f);
 	//GWorld->SingleLineCheck(Hit, this, EndPoint, StartPoint, TRACE_Blocking | TRACE_LevelGeometry | TRACE_Level | TRACE_Terrain, FVector(10, 10, 0));
 
@@ -3819,19 +3819,19 @@ void AMMOActor::moveDelta(FVector Delta)
 
 #if 1
 
-	// 只有自己才判定，其它的由服务器控制
+	// only determined for self, others are controlled by the server
 	if(IsMainPlayer() && (g_EanbleSlopeCheck || g_EnableMoveStepHeightCheck))
 	{
-		//if(Hit.Normal.Z > 0.0f) // 只限定往上走时的NORMAL
+		//if(Hit.Normal.Z > 0.0f) // only restrict NORMAL when walking up
 		{
 			if(g_EanbleSlopeCheck)
 			{
-				// 判定斜率, 超过45度的不能上了
+				// determine slope, cannot climb beyond 45 degrees
 				FVector GravDir = FVector(0,0,-1);
 
 				FLOAT slope = -1.f * (HitNormal | GravDir);
 
-				if(slope < WalkableFloorZ) // 0.7 ~= 45度
+				if(slope < WalkableFloorZ) // 0.7 ~= 45 degrees
 				{
 #if !SHIPPING_PC_GAME
 					if(g_DebugMove)
@@ -3850,12 +3850,12 @@ void AMMOActor::moveDelta(FVector Delta)
 
 		if(g_EnableMoveStepHeightCheck)
 		{
-			// 超过格子高度也不能走,用脚底坐标算,只管往上走，往下不管
+			// cannot walk beyond grid height either, computed with foot coordinates, only cares about going up, not down
 			FLOAT zDiff = (HitLocation.Z - NewLocation.Z);
 
 			//debugf(TEXT("---------zDiff:%f Hit.Normal.Z:%f"), zDiff, Hit.Normal.Z);
 
-			//if((zDiff - 64.0f) > 0.005f)  // 有误差
+			//if((zDiff - 64.0f) > 0.005f)  // has error
 			//if(gridDelta > 128.0f)
 			if(pDestGrid && pDestGrid->bOutOfPoly)
 			{
@@ -3879,7 +3879,7 @@ void AMMOActor::moveDelta(FVector Delta)
 				Velocity = FVector::ZeroVector;
 				eventStopped();
 
-				// TODO:检查是不是正确的同步服务器的格子坐标方式
+				// TODO: check whether this correctly syncs the server's grid coordinate method
 				// SetServerLocation(Location);
 				return;
 			}
@@ -3907,7 +3907,7 @@ void AMMOActor::moveDelta(FVector Delta)
 		NewLocation = HitLocation + FVector(0, 0, GetCollisionHeight());
 		SetLocation(NewLocation);
 
-		// 暂时不需要这个功能
+		// this feature is not needed for now
 //  		if (Hit.Actor != Base && Physics == PHYS_Walking)
 //  		{
 //  			SetBase(Hit.Actor, Hit.Normal);
@@ -3927,7 +3927,7 @@ void AMMOActor::moveDelta(FVector Delta)
 	//gServerGridWorld.ConvertPosClient2Server(Location, llSrcX, llSrcY, llSrcZ);
 	//gServerGridWorld.GetZoneAndGrid(llSrcX, llSrcY, llSrcZ, pDestZone, pDestGrid);
 	//if(pDestGrid)
-	//{																									   代码无效(需要使用SetLocation)
+	//{																									   code ineffective (need to use SetLocation)
 	//Location.Z = pDestGrid->uHighLayer * GRID_LAYER_HEIGHT/POINT_PER_CM + GetCollisionHeight();
 	//}
 #endif
@@ -3954,7 +3954,7 @@ void AMMOActor::physWalking(FLOAT deltaTime, INT Iterations)
 		return;
 	}
 
-	// 如果基本没有速度就不要移动了
+	// if there is basically no speed, do not move
 	if(Velocity.IsNearlyZero())
 	{
 		isMoving = false;
@@ -3991,7 +3991,7 @@ void AMMOActor::physWalking(FLOAT deltaTime, INT Iterations)
 		//if(Delta.SizeSquared2D() >= Des.SizeSquared2D() )
 		//{
 		//	if(IsMainPlayer()){
-		//		warnf(TEXT("-----------------------------移动到达终点 physWalking Delta=%f Step=%f"),Des.Size2D(), Delta.Size2D());
+		//		warnf(TEXT("-----------------------------reached destination physWalking Delta=%f Step=%f"),Des.Size2D(), Delta.Size2D());
 		//	}
 
 		//	Delta.X = Des.X;
@@ -4151,7 +4151,7 @@ void AMMOActor::OnZoneOrGridChanged(void* pOldZonePter, void* pOldGridPter, void
 	////	if(pOldGrid==NULL || pNewGrid->uPkType!=pOldGrid->uPkType)
 	////	{
 	////		AMMOPlayer* mainPlayer = (AMMOPlayer*)this;
-	////		//判定进入
+	////		//determine enter
 	////		{
 	////			if(EPKType(pNewGrid->uPkType)==EPKT_Safe){
 	////				mainPlayer->IsInSafeZone = TRUE;
@@ -4171,7 +4171,7 @@ void AMMOActor::OnZoneOrGridChanged(void* pOldZonePter, void* pOldGridPter, void
 	////	if(pNewGrid==NULL || pNewGrid->uPkType!=pOldGrid->uPkType)
 	////	{
 	////		AMMOPlayer* mainPlayer = (AMMOPlayer*)this;
-	////		//判定离开
+	////		//determine leave
 	////		{
 	////			if(EPKType(pOldGrid->uPkType)==EPKT_Safe){
 	////				mainPlayer->IsInSafeZone = FALSE;
@@ -4192,7 +4192,7 @@ void AMMOActor::OnZoneOrGridChanged(void* pOldZonePter, void* pOldGridPter, void
 	//	if(pNewGrid->uPkType!=pOldGrid->uPkType)
 	//	{
 	//		AMMOPlayer* mainPlayer = (AMMOPlayer*)this;
-	//		//判定进入
+	//		//determine enter
 	//		{
 	//			if(EPKType(pNewGrid->uPkType)==EPKT_Safe){
 	//				mainPlayer->IsInSafeZone = TRUE;
@@ -4204,7 +4204,7 @@ void AMMOActor::OnZoneOrGridChanged(void* pOldZonePter, void* pOldGridPter, void
 	//				MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.PkMode.PkMessage1")) ,MsgInfoType_Table,TEXT("MMOGame.PkMode.PkMessage1"));
 	//			}
 	//		}
-	//		//判定离开
+	//		//determine leave
 	//		{
 	//			if(EPKType(pOldGrid->uPkType)==EPKT_Safe){
 	//				mainPlayer->IsInSafeZone = FALSE;
@@ -4271,7 +4271,7 @@ void AMMOActor::SetMoveType(BYTE InType)
 	{
 		FLOAT MoveAnimP = GetMoveAnimPosition();
 		SetMoveAnim(PawnAnimInfo.WalkAnim);
-		SetMoveAnimPosition(MoveAnimP);//在快跑和慢跑切换的时候，保持相位的延续性
+		SetMoveAnimPosition(MoveAnimP);//keep phase continuity when switching between fast run and slow run
 	}
 	else if (MoveType == EMT_Run)
 	{
@@ -4463,7 +4463,7 @@ void AMMOActor::NativeProcessDamage(struct FDamageData InDamage)
 			bNeedShowDamageText = TRUE;
 		}
 
-		//新增召唤物的战斗飘字
+		//add combat floating text for summons
 		AMMOPlayer* pMainPlayer = Cast<AMMOPlayer>(MainController->Pawn);
 		INT MainServerID = pMainPlayer ? pMainPlayer->ServerID:-1 ;
 		if(this->dwHostID==MainServerID)
@@ -4662,7 +4662,7 @@ void AMMOActor::NativeProcessDamage(struct FDamageData InDamage)
 //
 //	//debugf(L"HitTime=%f", fHit.Time);
 //
-//	// 成功地移动了delta
+//	// successfully moved delta
 //	NewLocation.Z -= GetCollisionHeight();
 //	FVector StartPoint = NewLocation + FVector(0, 0, g_moveModGridSize);
 //	FVector EndPoint = NewLocation - FVector(0, 0, g_moveModGridSize * 10);
@@ -5034,7 +5034,7 @@ void AMMOActor::FearTo(FVector Des,FLOAT InLastTime)
 
 void AMMOActor::SetAttitudeType(BYTE type)
 {
-	//状态的改变
+	//state change
 	EWeaponType t = (EWeaponType)GetWeaponType();
 	if(t<EWT_Riding_1)
 	{
@@ -5073,7 +5073,7 @@ void AMMOActor::EquipMount(INT MountID)
 			AttachComponent( MountInfo->SkelMeshComponent );
 			MountInfo->SkelMeshComponent->AttachComponentToSocket( Mesh, FName(TEXT("FX_Waist")));
 
-			//状态的改变
+			//state change
 			SetAttitudeType(EWT_Riding_1);
 
 
@@ -5083,7 +5083,7 @@ void AMMOActor::EquipMount(INT MountID)
 
 			if (IsMainPlayer())
 			{
-				// 引导任务
+				// Guide quest
 				MMOQuestManager::getSingleton().UpdateClientVariable(ECVT_Quest, GQT_Mount);
 
 				MMOFacade::getSingleton().GetMMOBuffManager()->AddOrChangeBuff(MountID, ServerID, SERVERID_MOUNT, BUFFID_MOUNT, 0, 0.0,10000.0,0);//  pData->dwRemainDuration, pData->dwMaxDuration, pData->byStackCount);
@@ -5741,7 +5741,7 @@ void AMMOActor::RefreshVisible()
 
 	SetEmitterAttachedVisible(bVisible);
 
-	// Kismet下关闭升级，复活，等特效
+	// close level-up, revive, and other effects under Kismet
 	if (WorldInfo && WorldInfo->MyEmitterPool)
 	{
 		WorldInfo->MyEmitterPool->SetHidden(!bVisibleByKismet);

@@ -158,7 +158,7 @@ void ATeleportOrig::HandleTeleportDisapart()
 void ATeleportOrig::HandleTeleport()
 {
 	if (GIsEditor)
-		return;			// added by zhaojun@snda; ±‹√‚±‡º≠∆˜÷–play ±±¿¿£
+		return;			// added by zhaojun@snda; avoid crash when playing in the editor
 
 	if (bInTeleportOrig==FALSE)
 	{

@@ -6,7 +6,7 @@ class MaterialInterface extends Surface
 	forcescriptorder(true)
 	native(Material);
 
-var(MMO) bool IsBloodyContent < DisplayName="ÊÇÑªÐÈÄÚÈÝ" >;
+var(MMO) bool IsBloodyContent < DisplayName="Is Bloody Content" >;
 
 enum EMaterialUsage
 {

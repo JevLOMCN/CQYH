@@ -2,8 +2,8 @@
 	Created:	2012
 	Filename: 	UIKeyMapManager
 	file ext:	uc
-	Purpose:	控制键盘的输入
-				物理按键->Slot槽位->实际Cmd 
+	Purpose:	control keyboard input
+				physical key->Slot->actual Cmd
 				hemu@snda
 *********************************************************************/
 
@@ -15,7 +15,7 @@ var UICommandFactory CmdFactory;
 var MMOGame CurMMOGame;
 var MMOPlayerController PC;
 
-//Slot对应的Cmd及Lock状态 
+//Cmd and Lock state corresponding to Slot
 struct native  SSlotCmd
 {
 	var bool        IsLocked;
@@ -116,7 +116,7 @@ function init( )
 	UICmdList.Add( ECK_Count );
 }
 
-//默认初始化一遍
+//initialize once by default
 event DefaultKeyMap( MMOPlayerController inPC )
 {
 	local int j;

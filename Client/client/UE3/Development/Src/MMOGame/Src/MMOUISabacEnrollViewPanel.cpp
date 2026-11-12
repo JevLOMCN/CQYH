@@ -29,8 +29,8 @@ void UMMOUISabacEnrollViewPanel::PostOnShow(UBOOL v)
 		UINT32 curSabacOccupyGuildId = MMOGuildData::getSingleton().GetSabacOccupyGuildId();
 		if (curSabacOccupyGuildId > 0)
 		{
-			FString guildName = TEXT("未知公会");
-			FString leaderName = TEXT("未知公会成员");
+			FString guildName = TEXT("Unknown guild");
+			FString leaderName = TEXT("Unknown guild member");
 
 			GuildQueryInfo info;
 			if (MMOGuildData::getSingleton().GetGuildInfoById(curSabacOccupyGuildId, info))
@@ -148,7 +148,7 @@ void UMMOUISabacEnrollViewPanel::UpdateSabacEnrollList()
 		}
 		object->SetString(TEXT("guild_create_time"), date);
 
-		// 攻城时间 = 报名时间 + 3天
+		// Siege time = registration time + 3 days
 		localTime = iter->dwEnrollTime + (3 * 24 * 3600);
 		time = _localtime32(&localTime); 
 		date = info.CreateTime != 0 ? FString::Printf(TEXT("%d.%d.%d"), time->tm_year + 1900, time->tm_mon + 1, time->tm_mday) : TEXT("");
@@ -163,7 +163,7 @@ void UMMOUISabacEnrollViewPanel::UpdateSabacEnrollList()
 
 //////////////////////////////////////////////////////////////////////////
 
-// 翻页
+// Turn page
 void UMMOUISabacEnrollViewPanel::ASEnrollPageUp()
 {
 //	PageUp();

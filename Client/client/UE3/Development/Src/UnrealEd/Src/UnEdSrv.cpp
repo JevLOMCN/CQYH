@@ -2858,7 +2858,7 @@ void UEditorEngine::DoMoveSelectedActorsToCurrentLevel( const UBOOL bUseCurrentL
 			{
 				// oscar@snda
 				GWarn->EnableUpdateUI = true;
-				GWarn->StatusUpdatef(idx, CopyJobs.Num(), TEXT("正在移动对象(%d/%d)..."), idx + 1, CopyJobs.Num());
+				GWarn->StatusUpdatef(idx, CopyJobs.Num(), TEXT("Moving objects (%d/%d)..."), idx + 1, CopyJobs.Num());
 				++idx;
 				GWarn->EnableUpdateUI = false;
 				// oscar@snda

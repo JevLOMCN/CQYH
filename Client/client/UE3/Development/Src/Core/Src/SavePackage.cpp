@@ -2511,7 +2511,7 @@ UBOOL UObject::SavePackage( UPackage* InOuter, UObject* Base, EObjectFlags TopLe
 			Linker->SetEncode(0); // oscar@snda
 
 
-			// fangruyi. 对于文件包,强制设置包GUID为某一固定值. 便于基于包二进制比较,便于制作补丁包.  因这个修改,引擎的另一自有联网功能里识别包功能失效.
+			// fangruyi. For file packages, force the package GUID to a fixed value. Makes binary comparison of packages and patch creation easier.  Because of this change, the engine's other built-in networking feature for identifying packages no longer works.
 			Linker->Summary.Guid = FGuid(1, 2, 3, 4);
 
 			if (GIsExportingResources)
@@ -2522,7 +2522,7 @@ UBOOL UObject::SavePackage( UPackage* InOuter, UObject* Base, EObjectFlags TopLe
 
 
 			*Linker << Linker->Summary;
-			//加密标志
+			//Encryption flag
 			// oscar@snda Linker->Saver->SetEncode(Linker->IsEncode());
 			INT OffsetAfterPackageFileSummary = Linker->Tell();
 		
@@ -3063,7 +3063,7 @@ UBOOL UObject::SavePackage( UPackage* InOuter, UObject* Base, EObjectFlags TopLe
 			Linker->Saver->SetEncode(0);  // oscar@snda
 			Linker->SetEncode(0);  // oscar@snda
 			*Linker << Linker->Summary;
-			//加密标志
+			//Encryption flag
 			//Linker->Saver->SetEncode(Linker->IsEncode());
 
 			//*Linker << Linker->Summary;
@@ -3211,7 +3211,7 @@ UBOOL UObject::SavePackage( UPackage* InOuter, UObject* Base, EObjectFlags TopLe
 						BaseFilename = BaseFilename.LeftChop( 8 );
 					}
 
-					// fangruyi  传奇永恒基本不会发布主机版本,这个提示功能禁用.
+					// fangruyi  Legend Eternal will basically never release a console version; this prompt feature is disabled.
 					//if( BaseFilename.Len() > MaxFilenameLength )
 					//{
 					//	// If we're currently cooking for Windows, then we won't fail due to long file name length

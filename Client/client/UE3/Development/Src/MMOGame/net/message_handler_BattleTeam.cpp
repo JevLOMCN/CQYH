@@ -39,13 +39,13 @@ void CMessageHandler::Parse_m2c_join_arena_team(const char* buf, UINT32 size)
 
 	//AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 
-	////新人加入
+	////New member joined
 	//if( player && BattleTeamManager::getSingleton().HasTeam() && player->ServerID != msg->stJoinMember.dwRoleID )
 	//{		
 	//	Send_RequestBattleTeamInfo( msg->dwArenaTeamID );
 	//}
 	//
-	////自己加入
+	////Self joined
 	//else if( player && !BattleTeamManager::getSingleton().HasTeam() && player->ServerID == msg->stJoinMember.dwRoleID )
 	//{
 	//	
@@ -171,7 +171,7 @@ void CMessageHandler::Send_JoinBattleTeam(INT roleID)
 	//}
 	//
 }
-//答复入队邀请
+//Reply to team invitation
 //----------------------------------------------------------------------------------------------
 void CMessageHandler::Send_JoinBattleTeamAnswer(INT roleID)
 {

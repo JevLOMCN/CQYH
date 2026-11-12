@@ -100,7 +100,7 @@ void UMMOUITeamMate::OnNativeGameEvent(struct MMOGameEvent* evt)
 
 			TeamManager& teamMgr = TeamManager::getSingleton();
 
-			if( teamMgr.GetTeamMemberCount() > NormalTeamNum ) //大组
+			if( teamMgr.GetTeamMemberCount() > NormalTeamNum ) //large group
 			{
 				if (LargeTeamMatePanel)
 				{
@@ -249,9 +249,9 @@ void UMMOUITeamMate::UpdateAllTeamMate(  )
 
 	if(  teamMgr.HasTeam() )
 	{
-		if( teamMgr.GetTeamMemberCount() > NormalTeamNum ) //大组
+		if( teamMgr.GetTeamMemberCount() > NormalTeamNum ) //large group
 		{
-			//隐藏小组 显示大组
+			//Hide small group, show large group
 			if( NormalTeamMatePanel )
 			{
 				NormalTeamMatePanel->SetVisible( FALSE );
@@ -263,7 +263,7 @@ void UMMOUITeamMate::UpdateAllTeamMate(  )
 			LargeTeamMatePanel->SetVisible(IsShow);
 
 		}
-		else //小组
+		else //small group
 		{
 			if( !NormalTeamMatePanel )
 			{
@@ -307,7 +307,7 @@ void UMMOUITeamMate::UpdateTeamMate()
 
 	INT idx = 0;
 
-	//队长
+	//Team leader
 	MMOTeamMember* leader = teamMgr.GetTeamLeader();
 	if(UpdateTeamMateData(leader))
 	{
@@ -490,11 +490,11 @@ void UMMOUITeamMate::ASShowTeammateHint( UGFxObject *mc, INT index )
 
 	//
 	FString hintString;
-	//职业
+	//class
 	hintString = MMOUI::ParseLocalizedPropertyPath( FString("MMOGame.School.SchoolName") + FString::Printf( TEXT("%d"), teammate->ClassId ) );
 	hintString += TEXT("<br>");
 
-	//所在地
+	//location
 	if( teammate->Online ){
 		FExportMap teammateMapInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo( teammate->MapID );
 		INT idx =  MMOMapDataManager::getSingleton().CheckRegionIn( teammate->MapID, teammate->WorldPos );

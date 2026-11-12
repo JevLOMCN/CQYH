@@ -50,7 +50,7 @@ void MMOBossBloodManager::OnNativeGameEvent( struct MMOGameEvent* evt )
 							eBossEvent.nCurHp = npc->ActorAttributes->HP;
 							eBossEvent.nLevel = npc->ActorAttributes->LevelAttributes.Level;
 							AMMOActor* aActor = Cast<AMMOActor>( actorEvt->Actor );
-							//由于服务器刚开始没有同步npc属性，所以会有初始值为0，
+							//Since the server did not sync npc attributes at the start, the initial value is 0,
 							if(aActor&&eBossEvent.nCurHp == 0 && aActor->eventIsDead()==FALSE)
 								eBossEvent.nCurHp = npc->ActorAttributes->MaxHP;
 						}

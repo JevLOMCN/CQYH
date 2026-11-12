@@ -210,7 +210,7 @@ UBOOL UMMOUIBackDecorated::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObj
 	}
 
 	UBOOL rtn = FALSE;
-	//从背包到融灵
+	//from bag to spirit fusion
 	if( srcSlotType == ESPType_Bag ){
 		switch( destSlotType )
 		{
@@ -234,7 +234,7 @@ UBOOL UMMOUIBackDecorated::OnDragDrop( class UGFxObject* srcSlotMC,class UGFxObj
 		return rtn;
 	}
 	else if( destSlotType == ESPType_Bag ){
-		//拖回包裹，因为本来就没有真正的移动，所以不提供拖放到原始位置
+		//drag back to bag; since nothing was actually moved, dropping onto the original position is not supported
 		switch( srcSlotType )
 		{
 		case ESPType_BackDecoratedMakeUp:
@@ -373,7 +373,7 @@ void UMMOUIBackDecorated::UpdateMakeUpDetails()
 		return;
 	}
 
-	//制作的背饰
+	//crafted back ornament
 	UItem *pResultItem = mmoFacade.FindItemTemplate( pMakeUpCfg->_MakedItemID );
 	if( pResultItem != NULL ){
 		FString iconName = pResultItem->GetIconName();
@@ -382,7 +382,7 @@ void UMMOUIBackDecorated::UpdateMakeUpDetails()
 		eventCallAsSetMakeUpResultItem( iconName, itemID, itemColor );
 	}
 
-	//需要的钱
+	//required money
 	FString mnyStr = UITextParser::HTMLMoneyIconString( MONEYTYPE_02, pMakeUpCfg->_MakeUpMnyCosts );
 	eventCallAsSetMakeUpMoney( mnyStr );
 }
@@ -407,7 +407,7 @@ void UMMOUIBackDecorated::UpdateMakeUpFee()
 		return;
 	}
 
-	//需要的钱
+	//required money
 	UINT64 curMoney = mmoFacade.GetPlayerMoney64(  E_MONEYTYPE_02 );
 	FString colorStr;
 	if( pMakeUpCfg->_MakeUpMnyCosts <= curMoney ){
@@ -529,7 +529,7 @@ void UMMOUIBackDecorated::GrayAllInBagNoNeedForMakeUp( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -554,7 +554,7 @@ UBOOL UMMOUIBackDecorated::IsNeedToGrayForMakeUp( UItem *pItemInBag, const FClie
 
 	//
 	UBOOL noNeedToGray = FALSE;
-	//是否是背饰制作材料
+	//whether it is a back ornament crafting material
 	const BackDecoratedMakeUpCfg *pMakeUpCfg = MMOUIBackDecoratedMgr::getSingleton().FindBackDecoratedMakeUpCfg( pItemInfo->m_nTemplateID );
 	noNeedToGray = ( pMakeUpCfg != NULL );
 
@@ -619,13 +619,13 @@ UBOOL UMMOUIBackDecorated::OnDragDropMakeUp( class UGFxObject* srcSlotMC,class U
 	}
 
 	if( srcSlotType == ESPType_Bag && destSlotType == ESPType_BackDecoratedMakeUp ){
-		//从背包到融灵
+		//from bag to spirit fusion
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
 			return TRUE;
 		}
 
-		//检查是否在界面中(本界面或是其他操作界面)
+		//check whether in a UI (this UI or another operation UI)
 		//
 		ClientActionCondition_BackDecoratedMakeUp checker;
 
@@ -708,7 +708,7 @@ void UMMOUIBackDecorated::UpdateUpgradeDetails()
 		return;
 	}
 
-	//需要的材料
+	//required materials
 	UItem *pConsumptionItem = mmoFacade.FindItemTemplate( pUpgradeCfg->_ConsumptionItemID );
 	if( pConsumptionItem != NULL ){
 		FString iconName = pConsumptionItem->GetIconName();
@@ -718,7 +718,7 @@ void UMMOUIBackDecorated::UpdateUpgradeDetails()
 		eventCallAsSetUpgradeConsumptionItem( iconName, itemID, itemColor, inBagTotalCnt, pUpgradeCfg->_ConsumptionItemCnt );
 	}
 
-	//升级后的背饰
+	//upgraded back ornament
 	UItem *pResultItem = mmoFacade.FindItemTemplate( pUpgradeCfg->_UpgradedItemID );
 	if( pResultItem != NULL ){
 		FString iconName = pResultItem->GetIconName();
@@ -727,11 +727,11 @@ void UMMOUIBackDecorated::UpdateUpgradeDetails()
 		eventCallAsSetUpgradedResultItem( iconName, itemID, itemColor );
 	}
 
-	//需要的钱
+	//required money
 	FString mnyStr = UITextParser::HTMLMoneyIconString( MONEYTYPE_02, pUpgradeCfg->_UpgradeMnyCosts );
 	eventCallAsSetUpgradeMoney( mnyStr );
 
-	//成功率
+	//success rate
 	eventCallAsSetUpgradeSuccessRate( pUpgradeCfg->_SuccessRate );
 }
 //========================================================================================================================================
@@ -756,7 +756,7 @@ void UMMOUIBackDecorated::UpdateUpgradeFee()
 		return;
 	}
 
-	//需要的钱
+	//required money
 	UINT64 curMoney = mmoFacade.GetPlayerMoney64(  E_MONEYTYPE_02 );
 	FString colorStr;
 	if( pUpgradeCfg->_UpgradeMnyCosts <= curMoney ){
@@ -836,13 +836,13 @@ UBOOL UMMOUIBackDecorated::SetToUpgradeItem( INT containerID, INT slotID )
 		_ItemForUpgrade._ConID = -1;
 		_ItemForUpgrade._SlotID = -1;
 
-		//刷新相关显示
+		//refresh related display
 		UpdateUpgradeDetails();
 
 		return TRUE;
 	}
 
-	//设置装备
+	//set equipment
 	FClientItemInfo *pInfo = mmoFacade.FindItem( containerID, slotID );
 	if( pInfo == NULL ){
 		MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND") ), MsgInfoType_Table, TEXT("MMOGame.WeaponSkill.ERROR_ITEM_NOT_FOUND") );
@@ -850,7 +850,7 @@ UBOOL UMMOUIBackDecorated::SetToUpgradeItem( INT containerID, INT slotID )
 	}
 	UItem *pItem = mmoFacade.FindItemTemplate( pInfo->m_nTemplateID );
 
-	//是否是可升级背饰
+	//whether it is an upgradable back ornament
 	INT lv = 1;
 	const BackDecoratedUpgradeCfg *upgradeCfg = MMOUIBackDecoratedMgr::getSingleton().FindUpgradeCfg( pInfo->m_nTemplateID, lv );
 	if( upgradeCfg == NULL || pItem == NULL ){
@@ -859,7 +859,7 @@ UBOOL UMMOUIBackDecorated::SetToUpgradeItem( INT containerID, INT slotID )
 		return FALSE;
 	}
 
-	//解锁背包内原先放入界面中的装备
+	//unlock the equipment previously placed in the UI from the bag
 	if( _ItemForUpgrade._ConID >= 0 && _ItemForUpgrade._SlotID >= 0 ){
 		MMOFacade::getSingleton().LockItem( _ItemForUpgrade._ConID, _ItemForUpgrade._SlotID, -1 );
 	}
@@ -867,14 +867,14 @@ UBOOL UMMOUIBackDecorated::SetToUpgradeItem( INT containerID, INT slotID )
 	_ItemForUpgrade._ConID = containerID;
 	_ItemForUpgrade._SlotID = slotID;
 
-	//设置界面ItemSlot
+	//set UI ItemSlot
 	GFXPlayer->eventCallSetItemData( _ItemForUpgradeSlot, 1, mmoFacade.GetItemIconNamePersonalized( pItem, pInfo ), pItem->ItemId, 
 		ESPType_BackDecoratedUpgrade, TEXT(""), pItem->ItemColor+1, _ItemForUpgrade._ConID, _ItemForUpgrade._SlotID );
 
-	//锁住
+	//lock
 	MMOFacade::getSingleton().LockItem( _ItemForUpgrade._ConID, _ItemForUpgrade._SlotID, ESPType_BackDecoratedUpgrade );
 
-	//刷新相关显示
+	//refresh related display
 	UpdateUpgradeDetails();
 
 	return TRUE;
@@ -895,7 +895,7 @@ void UMMOUIBackDecorated::GrayAllInBagNoNeedForUpgrade( UBOOL isToGray )
 			continue;
 		}
 
-		//需要打灰
+		//needs graying out
 		const FClientItemInfo *pItemInfo = mmoFacade.FindItem( E_CONSLOT_DEFAULT, j );
 		if( pItemInfo == NULL ){
 			continue;
@@ -919,7 +919,7 @@ UBOOL UMMOUIBackDecorated::IsNeedToGrayForUpgrade( UItem *pItemInBag, const FCli
 
 	//
 	UBOOL noNeedToGray = FALSE;
-	//是否是背饰制作材料
+	//whether it is a back ornament crafting material
 	const BackDecoratedMakeUpCfg *pMakeUpCfg = MMOUIBackDecoratedMgr::getSingleton().FindBackDecoratedMakeUpCfg( pItemInfo->m_nTemplateID );
 	noNeedToGray = ( pMakeUpCfg != NULL );
 
@@ -985,7 +985,7 @@ UBOOL UMMOUIBackDecorated::OnDragDropUpgrade( class UGFxObject* srcSlotMC,class 
 	}
 
 	if( srcSlotType == ESPType_Bag && destSlotType == ESPType_BackDecoratedUpgrade ){
-		//从背包到融灵
+		//from bag to spirit fusion
 		FClientItemInfo *pItemInfo = mmoFacade.FindItem( srcContainerID, srcSlotID );
 		if( pItemInfo == NULL ){
 			return TRUE;

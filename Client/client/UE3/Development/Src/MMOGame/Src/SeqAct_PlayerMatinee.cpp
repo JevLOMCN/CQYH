@@ -116,7 +116,7 @@ void USeqAct_PlayerMatineeBegin::Activated()
 							if ( pMaterial )
 							{
 								UAvatarData* pAvatar = player->GetAvatarData();
-								// todo: 换肤色
+								// todo: change skin color
 								//if( pAvatar)
 								//{
 								//	pMaterial->SetVectorParameterValue( TEXT("SkinColor"), pAvatar->SkinColorSet( player->ItemManager->CurrentSkinColorIdx ) );
@@ -190,7 +190,7 @@ void USeqAct_PlayerMatineeBegin::Activated()
 						{
 							USkeletalMeshComponent* usmc = (USkeletalMeshComponent*)(o);
 
-							// 这里拿usmc做模板会导致parent actor不对，detach的时候会挂 -ming
+							// Using usmc as the template here makes the parent actor wrong, and it crashes on detach -ming
 							USkeletalMeshComponent* NewComponent = ConstructObject<USkeletalMeshComponent>(USkeletalMeshComponent::StaticClass(), matineeActor, NAME_None, 0);
 							NewComponent->SetSkeletalMesh( usmc->SkeletalMesh );
 							matineeActor->AttachComponent(NewComponent);
@@ -475,7 +475,7 @@ void USeqAct_PlayBik::Activated()
 
 	RealBinkMovieName = BikName.ToString();
 
-#if BETA_7_7 && SHIPPING_PC_GAME // 大推前再打开
+#if BETA_7_7 && SHIPPING_PC_GAME // enable again before the big push
 	if(RealBinkMovieName == TEXT("FirstLogin.bik"))
 	{
 		if(GFileManager->FileSize(*GetBinkMoviePath("open_ok")) <= 0)
@@ -519,7 +519,7 @@ void USeqAct_PlayBik::Activated()
 				if(rd != sz)
 				{
 					warnf(NAME_Error, TEXT("[BINK]### Error Read :%d Write:%d \n"), rd, sz);
-					appMsgf(AMT_OK, TEXT("磁盘空间不足，无法创建最新版开场动画播放缓存文件，请预留500M空余空间，即将播放旧版开场动画。"));
+					appMsgf(AMT_OK, TEXT("Not enough disk space to create the cache file for the latest intro animation. Please leave 500 MB free. The old intro animation will play instead."));
 					fclose(oldFile);
 					fclose(newFile);
 					GFileManager->Delete(*GetBinkMoviePath("open_ok"));

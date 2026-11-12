@@ -29,7 +29,7 @@ void UMMOUITradeP2P::PreOnShow(UBOOL show)
 		//UMMOGFXPlayer_MessageBox *mMsgBoxPlayer = (UMMOGFXPlayer_MessageBox*)MMOUI::FindMoviePlayer( MMOUI::GetUIManager()->MoviePlayer_MessageBox );
 		if (ctrl != NULL && ctrl->TradeTargetID != 0){
 			if (ConfirmTradeBox != NULL){
-				//确认框关闭
+				//Confirm box closed
 				//mMsgBoxPlayer->_MsgBoxMgr->GetMessageAck( false, ConfirmTradeBox );
 				MMOMsgBoxManager::getSingleton().DispatchMsgBoxButtonNo(ConfirmTradeBox);
 			}
@@ -38,12 +38,12 @@ void UMMOUITradeP2P::PreOnShow(UBOOL show)
 			}
 		}
 
-		//解锁确认框
+		//Unlock confirm box
 		if (ConfirmUnlockBox != NULL){
 			MMOMsgBoxManager::getSingleton().DispatchMsgBoxButtonOk(ConfirmUnlockBox);
 		}
 
-		//还有金钱输入框未关闭
+		//A money input box is still open
 		if (InputMnyBox != NULL && IsInputingMny){
 			//mMsgBoxPlayer->_MsgBoxMgr->GetMessageAck( false, InputMnyBox );
 			MMOMsgBoxManager::getSingleton().DispatchMsgBoxButtonNo(InputMnyBox);
@@ -122,7 +122,7 @@ UBOOL UMMOUITradeP2P::OnRightMouseClick(class UGFxObject* mc, BYTE SlotType, BYT
 
 			if (item)
 			{
-				//是否特殊物品
+				//Whether special item
 				if (item->TradeNeedIntimacy)
 				{
 					if (FriendManager::getSingleton().CheckIntimacy(ctrl->TradeTargetID) == FALSE)
@@ -181,7 +181,7 @@ UBOOL UMMOUITradeP2P::OnDragDrop(class UGFxObject* SrcSlotMC, class UGFxObject* 
 		//	//not allow put in other's container
 		//	MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( "MMOGame.TradeP2P.ERROR23") ,MsgInfoType_Table,TEXT("MMOGame.TradeP2P.ERROR23"));
 		//}
-		//无法拖动交易物品
+		//Cannot drag trade items
 		if (MMOFacade::getSingleton().FindItem(SrcContainerID, SrcSlotID)){
 			FString errMsg = TEXT("MMOGame.TradeP2P.ERROR31");
 			MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(errMsg), MsgInfoType_Table, errMsg);
@@ -363,7 +363,7 @@ UBOOL UMMOUITradeP2P::RealDelTradeItem(UBOOL isMy, INT putOutSlotID)
 void UMMOUITradeP2P::InputP2PTradeMoney()
 {
 	if (MyTradeMny > 0){
-		//限制，只能一次输入
+		//Restriction, can only input once
 		FString errMsg = TEXT("MMOGame.TradeP2P.ERROR29");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(errMsg), MsgInfoType_Table, errMsg);
 		return;
@@ -493,7 +493,7 @@ void UMMOUITradeP2P::NotifyTradeMoneyChanged(UBOOL isMy, INT newMoney)
 		TgInputMnyBtn->SetString(TEXT("label"), moneyStr);
 	}
 }
-//isFailed为0时表示成功
+//isFailed of 0 means success
 void UMMOUITradeP2P::NotifyTradeResult(UBOOL isFailed)
 {
 	FString hintStr;
@@ -531,14 +531,14 @@ void UMMOUITradeP2P::NotifyTradeResult(UBOOL isFailed)
 		if (MyTradeState == etsAsking){
 		}
 		else if (MyTradeState == etsBeingAsked){
-			//去除提示按钮
+			//Remove prompt button
 			if (TradeNotificationMsgButtonIdx >= 0){
 				//MMOMsgButtonManager::getSingleton().RemoveButton( TradeNotificationMsgButtonIdx );
 				MMOMsgButtonManager::getSingleton().RemoveOneTypeButtons(E_MsgBtnShow_Trade);
 				TradeNotificationMsgButtonIdx = -1;
 			}
 
-			//如果正在确认接受交易
+			//If currently confirming to accept the trade
 			AlreadyCanceled = TRUE;
 		}
 
@@ -566,7 +566,7 @@ void UMMOUITradeP2P::NotifyTradeResult(UBOOL isFailed)
 //
 void UMMOUITradeP2P::ConfirmP2PTrade()
 {
-	//重新确认交易物品
+	//Re-confirm trade items
 	//send message
 	CMessageHandler::GetInstance().Send_TradeConfirm();
 	//forbiden Unlock
@@ -613,13 +613,13 @@ void UMMOUITradeP2P::NotifyLockP2PTrade(UBOOL isMy, UBOOL isLocked)
 		FString hint;
 		FString strString;
 		if (IsMyLocked){
-			//自己锁定交易
+			//Self locks trade
 			btnStr = MMOUI::ParseLocalizedPropertyPath("MMOGame.TradeP2P.TradeUnlockBtnStr");
 			hint = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.TradeP2P.TradeMsgStateMyLock"));
 			strString = TEXT("MMOGame.TradeP2P.TradeMsgStateMyLock");
 		}
 		else{
-			//自己解锁交易
+			//Self unlocks trade
 			btnStr = MMOUI::ParseLocalizedPropertyPath("MMOGame.TradeP2P.TradeLockBtnStr");
 			hint = MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.TradeP2P.TradeMsgStateAllUnLock"));
 			strString = TEXT("MMOGame.TradeP2P.TradeMsgStateAllUnLock");
@@ -639,12 +639,12 @@ void UMMOUITradeP2P::NotifyLockP2PTrade(UBOOL isMy, UBOOL isLocked)
 		FString hint;
 		FString strString;
 		if (IsTgLocked){
-			//对方锁定交易
+			//Other party locks trade
 			strString = TEXT("MMOGame.TradeP2P.TradeMsgStateOtherLock");
 			hint = MMOUI::ParseLocalizedPropertyPath(strString);
 		}
 		else{
-			//对方解锁交易
+			//Other party unlocks trade
 			strString = TEXT("MMOGame.TradeP2P.TradeMsgStateOtherUnLock");
 			hint = MMOUI::ParseLocalizedPropertyPath(strString);
 		}
@@ -733,7 +733,7 @@ UBOOL UMMOUITradeP2P::CheckError(INT roleID, UBOOL needDisplayError)
 		isOK = FALSE;
 	}
 
-	//给服务器判，客户端不知道对方等级
+	//Left to the server to judge, client does not know the other party's level
 	//actorLevel = pTarget->GetActorLevel();
 	//if( isOK && actorLevel < s_ActorLvAllowGameSystem ){
 	//	strString = TEXT("MMOGame.TradeP2P.errTargetLowLevel");
@@ -783,7 +783,7 @@ UBOOL UMMOUITradeP2P::CheckError(INT roleID, UBOOL needDisplayError)
 	return isOK;
 }
 //
-//是否 此物品正在被交易
+//Whether this item is being traded
 //MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( "MMOGame.TradeP2P.ERROR21") );
 UBOOL UMMOUITradeP2P::CheckInTrade(INT containID, INT slotID)
 {
@@ -902,7 +902,7 @@ void UMMOUITradeP2P::ApplyDoTrade(INT roleID)
 		return;
 	}
 
-	//取消上一个交易对象
+	//Cancel previous trade partner
 	if (ctrl->TradeTargetID != 0 /*&& ctrl->TradeTargetID != roleID*/){
 		CMessageHandler::GetInstance().Send_TradeCancel();
 	}
@@ -972,7 +972,7 @@ void UMMOUITradeP2P::ReplyAgreeTrade(UGFxObject *mc)
 
 	//
 	roleID = mc->GetInt("iteminfoid");
-	//交易取消了
+	//Trade canceled
 	if (AlreadyCanceled){
 		FString strName = TEXT("MMOGame.TradeP2P.ERROR7");
 		MMOUI::GetUIManager()->delegateAddScreenMessage(MMOUI::ParseLocalizedPropertyPath(strName), MsgInfoType_Table, strName);
@@ -1019,7 +1019,7 @@ void UMMOUITradeP2P::ReplyRefuseTrade(UGFxObject *mc)
 
 	//
 	roleID = mc->GetInt("iteminfoid");
-	//交易取消了
+	//Trade canceled
 	if (AlreadyCanceled){
 		//FString strName = TEXT("MMOGame.TradeP2P.ERROR7");
 		//MMOUI::GetUIManager()->delegateAddScreenMessage( MMOUI::ParseLocalizedPropertyPath( strName ), MsgInfoType_Table, strName );
@@ -1133,7 +1133,7 @@ void UMMOUITradeP2P::OnNativeGameEvent(struct MMOGameEvent* evt)
 			AMMOPlayer *pChara = (AMMOPlayer*)MMOFacade::getSingleton().GetCharacter(errorEvt->Param1);
 			FString errorKeyName;
 			if (pChara != NULL && pChara->IsMainPlayer()){
-				////自己背包满了,重新开启确认交易
+				////Own bag is full, re-enable confirm trade
 				//ConfirmTradeBtn->SetBool( TEXT("enabled"), TRUE );
 				errorKeyName = TEXT("MMOGame.TradeP2P.errMybagIsFull");
 				CancelP2PTrade();

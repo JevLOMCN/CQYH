@@ -48,7 +48,7 @@ void UMMOUIProgressBarQTEWidget::UpdateQTE(UCanvas* cvs)
 		resultVec.Z = 0.0f;
 	}
 	FVector ScreenPos = resultVec;
-	SetPosition( ScreenPos.X,ScreenPos.Y );//Í¼ÖÐÐÄ
+	SetPosition( ScreenPos.X,ScreenPos.Y );//image center
 
 }
 
