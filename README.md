@@ -64,6 +64,19 @@ work with.
 > Follow the [client asset instructions](#client-assets) carefully: the archive contains
 > older copies of some files, so extracting with overwrite enabled can undo the modernised source.
 
+## Project goals: changes from the original source
+
+This repository started as the unmodified 2016 release. These are the changes made to it, and the ones planned.
+
+**Policy: no custom content.** The aim is to bring this source up to the **latest retail client and server behaviour** (currently v1.05), not to add our own features, classes, balance changes or content. A faithful, up-to-date base gives everyone the same starting point: fork it and make your own changes there, whether that is a custom private server, new content or a different ruleset. Contributions that bring the code or data closer to retail are welcome; custom additions belong in your fork.
+
+| Status | Goal | Details |
+|---|---|---|
+| ✅ Done | **Modern build environment** | Client moved from Visual Studio 2010 to Visual Studio 2022 (Win32/Win64, Debug/Release). Server rebuilt with CMake and C++23. See [Modernised development environment](#modernised-development-environment). |
+| ✅ Done | **Backport the 1.05 client assets** | The 2016 source client was brought up to the latest retail client (v1.05) content: all 7 classes (adding Lancer and Sorcerer) at character select and in game, the 1.05 maps (106 new scenes), gear, skill and item data tables, mounts, and the encoded 1.05 asset packages (decoded and installed). Merged from the `1.05-backport` branch. |
+| 🔲 Planned | **Port the client from Unreal Engine 3 to Unreal Engine 5** | Move the game client off UE3 to UE5, keeping the existing server and protocol. |
+| 🔲 In progress | **1.05 gameplay systems** | 1.05 ships data and UI for systems the 2016 code does not implement (Legend Power, Couture, Dragon Soul, Physique, Mingwu/Wushuang, equipment v2, consign and others). Their tables and assets are in place; the client and server code is still to be written. Progress and order of work are tracked in [`ROADMAP.md`](ROADMAP.md). |
+
 ## Start here
 
 1. **Clone this repository.**
@@ -85,6 +98,7 @@ archive is only required for a working client build and runtime.
 - [About this repository](#about-this-repository)
 - [What's included](#whats-included)
 - [Modernised development environment](#modernised-development-environment)
+- [Project goals: changes from the original source](#project-goals-changes-from-the-original-source)
 - [Start here](#start-here)
 - [Client assets](#client-assets)
 - [Repository layout](#repository-layout)
