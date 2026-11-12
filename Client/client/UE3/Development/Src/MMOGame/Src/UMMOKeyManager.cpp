@@ -227,6 +227,24 @@ UBOOL UMMOKeyManager::InputKey(INT ControllerId,FName Key,EInputEvent Event,FLOA
 				UMMOUIChat* Chat = Cast<UMMOUIChat>(MMOUI::FindUIPanel(TEXT("Chat")));
 
 				// 游戏中才能切换聊天
+				// Login screen: Enter presses the Login button
+				if (MMO::GetCurrentGameState() == EGameState_Login)
+				{
+					UMMOUILoginPanel* LoginPanel = Cast<UMMOUILoginPanel>(MMOUI::FindUIPanel(MMOUI::GetUIManager()->Panel_Login_User));
+					if (LoginPanel && LoginPanel->GetVisible() && MMOMsgBoxManager::getSingleton().GetMsgNumByType(EMsgboxType_Modal) == 0)
+					{
+						UGFxObject* LoginField = LoginPanel->GetObject(TEXT("LoginField_mc"));
+						if (LoginField && LoginField->GetBool(TEXT("visible")))
+						{
+							FASValue NullArg(EC_EventParm);
+							NullArg.Type = AS_Null;
+							TArray<FASValue> asArgs;
+							asArgs.AddItem(NullArg);
+							LoginField->Invoke(TEXT("PushEnter"), asArgs);
+						}
+					}
+					return TRUE;
+				}
 				if(!in_game || !Chat)
 					return TRUE;
 
