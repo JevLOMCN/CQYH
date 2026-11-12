@@ -76,12 +76,12 @@ void UMMOUILoginPanel::ShowFreePkDlg()
 		FScriptDelegate funCancel(EC_EventParm);
 		funCancel.FunctionName = TEXT("funCancel");
 		funCancel.Object = this;
-		UGFxObject* obj = MMOMsgBoxManager::getSingleton().AddModalMessageBox(TEXT("本游戏区是自由对战模式,遵守游戏规则,可获得畅快游戏体验,是否同意自由对战"),0,funOk,funCancel);
+		UGFxObject* obj = MMOMsgBoxManager::getSingleton().AddModalMessageBox(TEXT("This game zone is free PvP mode. Follow the game rules to enjoy a smooth experience. Do you agree to free PvP?"),0,funOk,funCancel);
 		
 		TArray<struct FASValue> asFunArgs;
 		FASValue asTitleName(EC_EventParm);
 		asTitleName.Type = AS_String;
-		asTitleName.S = TEXT("提示");
+		asTitleName.S = TEXT("Notice");
 		asFunArgs.AddItem( asTitleName );
 		if(obj) obj->Invoke( TEXT("SetWindowTitle"), asFunArgs );
 
