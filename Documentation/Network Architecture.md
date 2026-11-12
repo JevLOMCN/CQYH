@@ -32,8 +32,8 @@ flowchart LR
     GT -- "authenticate" --> LS
     GT <-- "scene lookup,<br/>session routing" --> MS
     GT <-- "gameplay packets" --> GS
+    GT <-- "role list, create /<br/>delete role (t2d / d2t)" --> DB
     GS <--> DB
-    GT <--> DB
     LS <--> MS
     DB --> SQL
     GS <--> MS
@@ -76,6 +76,105 @@ sequenceDiagram
 ```
 
 Details and the function names behind each step are in `Documentation/Chuan Yongzhen Duan Doc/3-游戏功能流程` (`1-登录游戏.txt`, `3-进入游戏.txt`). The original Visio sequence diagrams for login, server hop and exit are `登录流程-V0.1.0.0.vsd`, `跳服流程-V0.1.0.0.vsd` and `退出流程-V0.1.0.0.vsd`.
+
+## Gate ↔ DB relationship
+
+The Gate talks to the DB Server for everything that concerns the **character list**: listing, creating, deleting and restoring roles. It does not load or save in-game role data; that is the Game Server's job (`g2d_load_lock_role_data`, `g2d_save_role_data`).
+
+**Connection.** The Gate is the connecting side. When the Gate registers with the Manage Server, the Manage Server replies with the addresses of the DB and Login servers (`M2A_SERVER_INFO`, handled in `OnMSServerInfo`). The Gate then dials the DB Server (`gt_session_mgr.cpp`, "try to connect to DB"; it retries until connected and drops the link on ping timeout). On connect it sends `t2d_register` with its Gate session id and waits for `d2t_register_ack` before the Gate counts the DB as ready.
+
+**Messages** (`Server/Common/message`, handlers in `gateserver/internal_message_handler.cpp` and `dbserver/db_message_handler.cpp`):
+
+| Direction | Message | Purpose |
+|---|---|---|
+| GT → DB | `t2d_register` | Gate announces itself (Gate session id) |
+| DB → GT | `d2t_register_ack` | Registration accepted |
+| GT → DB | `t2d_query_role_list` | Ask for the roles of a user (server group + user name + client session id) |
+| DB → GT | `d2t_sync_role_list` | Role count and the `ROLE_DB_BASE_DATA` of each role; the Gate forwards the list to the client and stores a copy in its client session |
+| GT → DB | `t2d_create_role` | Create a role (id, name, sex, class, hair, face, skin) |
+| DB → GT | `d2t_create_role_ack` | Result and the new role's base data |
+| GT → DB | `t2d_delete_role` / `t2d_undelete_role` / `t2d_forever_delete_role` | Delete, restore, permanently delete |
+| DB → GT | `d2t_delete_role_ack` / `d2t_undelete_role_ack` / `d2t_forever_delete_role_ack` | Results |
+| DB → GT | `d2t_close_client_session` | DB asks the Gate to drop a client (the Gate marks the shutdown as DB-initiated) |
+
+Messages carry the **client session id**, and the DB routes replies to the right Gate by taking the Gate index out of that id (`GET_GT_INDEX_FROM_SESSION_ID`). That is how several Gates can share one DB Server.
+
+**When it happens in the login flow:**
+1. After the Manage Server accepts the Gate's login (`OnMSEnterGateAck`), the Gate sends `t2d_query_role_list` and at the same time sends the client its login ack. The client session moves to `cssAuthed`.
+2. `d2t_sync_role_list` arrives and the session moves to `cssRoleOperating`, where the client can create, delete or select a role. Create goes through the Name Server first (`t2m_check_new_name`) and only then `t2d_create_role`.
+3. Selecting a role does **not** go to the DB: the Gate asks the Manage Server which scene and Game Server hold the role (`t2m_query_scene`) and then tells that Game Server to let the role in.
+4. Returning to the role list from the game (Manage Server `m2t_return_select_role`) sends another `t2d_query_role_list`.
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant GT as GateServer
+    participant MS as ManageServer
+    participant NS as NameServer
+    participant DB as DBServer
+    participant SQL as MySQL
+
+    GT->>MS: connect, register
+    MS-->>GT: M2A_SERVER_INFO (DB and LS addresses)
+    GT->>DB: connect
+    GT->>DB: t2d_register
+    DB-->>GT: d2t_register_ack
+
+    Note over C,GT: a client logs in (see sequence above)
+    MS-->>GT: login accepted (OnMSEnterGateAck)
+    GT->>DB: t2d_query_role_list (user name, server group)
+    GT-->>C: t2c_login_ack
+    DB->>SQL: load the user's roles
+    DB-->>GT: d2t_sync_role_list
+    GT-->>C: role list
+
+    C->>GT: create role
+    GT->>MS: t2m_check_new_name
+    MS->>NS: check name
+    MS-->>GT: name result
+    GT->>DB: t2d_create_role
+    DB->>SQL: insert role
+    DB-->>GT: d2t_create_role_ack
+    GT-->>C: create result and new role
+```
+
+(The Name Server step is shown as it is handled in the Gate; the exact Manage Server to Name Server hop was not traced.)
+
+## Ports
+
+Defaults from `Server/NewServer/bin/globalconfig/*.lua`. Change them there. "Listens" means the process accepts connections on that port.
+
+| Port | Server | Config | Who connects |
+|---|---|---|---|
+| 8701 | BalanceServer, external | `bsconfig.lua` `dwExternalPort` | Game client (first connection, to find a gate) |
+| 8301 | BalanceServer, internal | `bsconfig.lua` `dwInternalPort` | Gate servers (load reports) |
+| 8701+ | GateServer, external (start port) | `gtconfig.lua` `dwStartExternalPort` | Game client |
+| 8401+ | GateServer, internal (start port) | `gtconfig.lua` `dwStartInternalPort` | Game servers |
+| 8201 | LoginServer | `lsconfig.lua` `dwPort` | Gate servers |
+| 8501 | DBServer | `dbconfig.lua` `dwPort` | Gate and Game servers |
+| 3306 | MySQL | `dbconfig.lua` `dwDBPort` (also `nsconfig.lua`, `dlconfig.lua`) | DBServer, NameServer, DataLog |
+| 8909 | NameServer | `nsconfig.lua` `dwPort` | ManageServer |
+| 8801 | DataLogServer | `dlconfig.lua` `dwPort` | ManageServer and others |
+| 8111 | CertServer | `commonconfig.lua` `dwCSPort` | Servers (license / certificate check) |
+| 8810 | GuardServer | `commonconfig.lua` `dwGuardPort` | Servers (process supervision) |
+| 8904 | ManageServer ← Gate | `msconfig.lua` `dwGTPort` | Gate servers |
+| 8905 | ManageServer ← Game | `msconfig.lua` `dwGSPort` | Game servers |
+| 8902 | ManageServer ← DB | `msconfig.lua` `dwDBPort` | DBServer |
+| 8903 | ManageServer ← Login | `msconfig.lua` `dwLSPort` | LoginServer |
+| 8906 | ManageServer ← Balance | `msconfig.lua` `dwBSPort` | BalanceServer |
+| 8908 | ManageServer ← DataLog | `msconfig.lua` `dwDLPort` | DataLogServer |
+| 8910 | ManageServer ← mobile/other | `msconfig.lua` `dwMMPort` | (comment in config: name server takes 8909) |
+| 9010 | ManageServer ← GM | `msconfig.lua` `dwGMPort` | GM server |
+| 9701 / 9702 | ManageServer ← LC / Gpk | `msconfig.lua` `dwLCPort`, `dwGpkPort` | Auxiliary servers |
+| 8991 | ManageServer, online role count | `msconfig.lua` `dwOnlineRoleNumPort` | Monitoring |
+
+Notes:
+- The port numbers come straight from the config files. The "Who connects" column is inferred from the config and server names, except for Gate to DB, Gate to Login, Gate to Manage (verified in `gt_session_mgr.cpp`) and the client to Balance/Gate path.
+- The Manage Server has one listening port per peer type (the `ManageServer ←` rows).
+- The Balance Server and the first Gate share 8701 in the default config. Run them on different machines or change one port. With several Gates the start port is used as the first and later Gates take the following ports.
+- `asimovconfig.lua` also sets 8904, which is the same as the Manage Server's Gate port; the Asimov tool is not covered here.
+- The client does not choose these ports: the launch command carries the balance server address (`-ip=1,1,<ip>,<port>,<ip>,<port>,Legend`), and the Gate address is returned in `b2c_query_gate_ack`.
+- Dedicated tools (`gmserver`, `mobileserver`, `mgateserver`) have their own settings. `mgconfig.lua` uses the same start ports as `gtconfig.lua`.
 
 ## Gate network threading
 
