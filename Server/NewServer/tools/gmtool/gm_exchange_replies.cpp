@@ -97,7 +97,7 @@ void CMessageHandler::OnGMAddSystemOrderAck(PACKET_BUFFER* bytes,UINT32 size,ISo
     receive<GM2TL_ADD_SYSTEM_ORDER_ACK>(bytes,size,socket,gm2tl_add_system_order_ack,
         [](auto,const auto& header,auto)
         {
-            gm::exchange_reply_log(std::format("增加订单{}. 单价 {}, 数量 {}",header.nResult==errSuccess ? "成功" : "失败",
+            gm::exchange_reply_log(std::format("Add order {}. Price {}, Count {}",header.nResult==errSuccess ? "succeeded" : "failed",
                 gm::exchange_price(header.nPrice),header.nCount));
         });
 }
@@ -106,7 +106,7 @@ void CMessageHandler::OnGMDelSystemOrderAck(PACKET_BUFFER* bytes,UINT32 size,ISo
     receive<GM2TL_DEL_SYSTEM_ORDER_ACK>(bytes,size,socket,gm2tl_del_system_order_ack,
         [](auto view,const auto& header,auto)
         {
-            const auto message=std::format("取消订单{}. 单价 {}, 数量 {}",header.nResult==errSuccess ? "成功" : "失败",
+            const auto message=std::format("Cancel order {}. Price {}, Count {}",header.nResult==errSuccess ? "succeeded" : "failed",
                 gm::exchange_price(header.nPrice),header.nCount);
             if (header.nResult==errSuccess) view->OrderDeleted(header.qwOrderID);
             gm::exchange_reply_log(message);
@@ -126,7 +126,7 @@ void CMessageHandler::OnGMQuerySysExchangeInfoAck(PACKET_BUFFER* bytes,UINT32 si
                 if (!gm::exchange_window(h.dwBeginTime,h.dwEndTime)) return;
                 const auto written=view->OutputStatToFile(h.dwBeginTime,h.dwEndTime,h.byGroupID,h.llSysTotalMoney,h.llTotalMoney,
                     h.llSysTotalExchangeMoney,h.llTotalExchangeMoney,h.llSysExchangeRMB,h.llExchangeRMB,h.nAveragePriceToday,h.nAveragePriceLastHour);
-                gm::exchange_reply_log(written ? "导出数据成功" : "导出数据失败");
+                gm::exchange_reply_log(written ? "Export succeeded" : "Export failed");
             }
         });
 }
@@ -141,6 +141,6 @@ void CMessageHandler::OnGMSetExchangeLimitAck(PACKET_BUFFER* bytes,UINT32 size,I
         [](auto view,const auto& h,auto)
         {
             view->ShowExchangeLimit(h.nPriceHigh,h.nPriceLow,h.nSingleOrderLimit,h.nDailyOrderLimit);
-            gm::exchange_reply_log("修改订单限制成功");
+            gm::exchange_reply_log("Order limits modified successfully");
         });
 }

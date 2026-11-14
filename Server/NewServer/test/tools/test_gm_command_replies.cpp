@@ -173,13 +173,13 @@ int main(int argc,char** argv)
         deliver(*socket,deleted);check(manager.GetCurrentCmd()->nSvrNum==1 && !CDataMgr::GetInstance().GetAnnounceList().empty(),"wrong deletion serial ignored");
         deleted.dwAnnounceSerial=4294967295;deliver(*socket,deleted);check(CDataMgr::GetInstance().GetAnnounceList().empty() && announcements_tree->topLevelItemCount()==0,"matching deletion updates owned list and actual Qt tree");manager.MainLoop();
         check(manager.QueryAnnounceList(1),"empty announcement query starts");raw(*socket,announcements(1,true));
-        check(manager.GetCurrentCmd()->nSvrNum==0 && window.statusBar()->currentMessage()==QStringLiteral("当前没有公告"),"empty result completes inline without modal dialog");manager.MainLoop();
+        check(manager.GetCurrentCmd()->nSvrNum==0 && window.statusBar()->currentMessage()==QStringLiteral("Current announcement list is empty"),"empty result completes inline without modal dialog");manager.MainLoop();
         auto query=std::static_pointer_cast<QUERY_ROLE_DATA>(manager.NewCmd(CMD_QUERY_ROLE_DATA));query->dwRoleID=4294967295;
         check(manager.QueryRoleData(query),"role-data query starts");const auto document=role<GM2TL_QUERY_ROLE_DATA_ACK>(gm2tl_query_role_data_ack);raw(*socket,document);
         check(query->nSvrNum==0 && CDataMgr::GetInstance().FindRole(4294967295),"matching owned role document publishes and completes");manager.MainLoop();
         auto* role_tree=window.findChild<QTreeWidget*>("treeWidget");
         check(role_tree->topLevelItemCount()==1 && role_tree->topLevelItem(0)->text(2)==QStringLiteral("4294967295") &&
-            role_tree->topLevelItem(0)->text(5)==QStringLiteral("离线") && role_tree->topLevelItem(0)->text(7)==QStringLiteral("男"),
+            role_tree->topLevelItem(0)->text(5)==QStringLiteral("Offline") && role_tree->topLevelItem(0)->text(7)==QStringLiteral("Male"),
             "role display retains unsigned ID and explicit Chinese text encoding");
         window.ClearLog();window.resize(1200,760);window.show();window.findChild<QPushButton*>("loginButton")->setFocus();application.processEvents();
         check(window.grab().save(QString::fromUtf8(argv[1])),"actual result window screenshot written");window.hide();

@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>踢人封号</string>
+   <string>Kick / Ban</string>
   </property>
   <widget class="QRadioButton" name="radioButton">
    <property name="geometry">
@@ -35,7 +35,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>踢人(强制下线)</string>
+    <string>Kick (Force Offline)</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="radioButton_2">
@@ -48,7 +48,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>封号(禁止登陆)</string>
+    <string>Ban (Block Login)</string>
    </property>
   </widget>
   <widget class="QComboBox" name="comboBox">
@@ -71,7 +71,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>封禁时间</string>
+    <string>Ban Duration</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exitButton">
@@ -84,7 +84,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>退出</string>
+    <string>Exit</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exeButton">
@@ -97,7 +97,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>执行</string>
+    <string>Execute</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="radioButton_3">
@@ -110,7 +110,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>解除封禁</string>
+    <string>Unban</string>
    </property>
   </widget>
  </widget>

@@ -30,7 +30,7 @@ function escort_car_lose_notify(owner)
 	local nX, nY = ConvertCoordN2O(owner:GetX()/POINT_PER_CM, owner:GetY()/POINT_PER_CM, owner:GetZ()/POINT_PER_CM)
 	nX = math.ceil(nX / 100);
 	nY = math.ceil(nY / 100);
-	owner:GetScene():Say(owner:GetHostID(), cltNormal, "您的货箱位于" .. owner:GetScene():GetSceneData().szMapDisplayName .. "（" .. nX .. "," .. nY .. "），已经超出您的警戒范围，请尽快返回寻找！");
+	owner:GetScene():Say(owner:GetHostID(), cltNormal, "Your cargo crate is located at " .. owner:GetScene():GetSceneData().szMapDisplayName .. "（" .. nX .. "," .. nY .. "), which is beyond your warning range. Please return to find it as soon as possible!");
 
 	return brvSuccess;
 end
@@ -75,7 +75,7 @@ function escort_live_timeout_notify(owner)
 	
 	local role = g_GameWorld:FindValidRole(owner:GetHostID());
 	if role ~= nil then
-		role:GetScene():Say(role:GetObjID(), cltNormal, "您未在规定时间内到达送货地点，任务失败！");
+		role:GetScene():Say(role:GetObjID(), cltNormal, "You did not reach the delivery location in time. Quest failed!");
 	end
 
 	return brvSuccess;
@@ -98,7 +98,7 @@ function escort_on_die(owner)
 	local role = g_GameWorld:FindValidRole(escortCar:GetHostID());
 	if role ~= nil then
 		role:ErrorCodeNotify(errGuildEscortCarBeenKilled, 0, 0);
-		role:GetScene():Say(role:GetObjID(), cltNormal, "您的货箱已被击毁，任务失败！");
+		role:GetScene():Say(role:GetObjID(), cltNormal, "Your cargo crate has been destroyed. Quest failed!");
 	end
 	
     local guildBusinessLevel = escortCar:GetAIProcessor():GetVariable(VAR_AI_ESCORT_BUSINESS_LEVEL);

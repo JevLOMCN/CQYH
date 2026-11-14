@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>交易管理</string>
+   <string>Exchange Management</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -63,7 +63,7 @@
             </font>
            </property>
            <property name="text">
-            <string>当前组号：</string>
+            <string>Current Group:</string>
            </property>
           </widget>
          </item>
@@ -129,7 +129,7 @@
             </font>
            </property>
            <property name="text">
-            <string>组号选择：（1-31组）</string>
+            <string>Select Group (1-31):</string>
            </property>
           </widget>
          </item>
@@ -149,7 +149,7 @@
             </font>
            </property>
            <property name="text">
-            <string>选择组</string>
+            <string>Select Group</string>
            </property>
           </widget>
          </item>
@@ -223,17 +223,17 @@
            </attribute>
            <column>
             <property name="text">
-             <string>类型</string>
+             <string>Type</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>价格</string>
+             <string>Price</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>数量</string>
+             <string>Count</string>
             </property>
            </column>
           </widget>
@@ -266,17 +266,17 @@
            </attribute>
            <column>
             <property name="text">
-             <string>类型</string>
+             <string>Type</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>价格</string>
+             <string>Price</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>数量</string>
+             <string>Count</string>
             </property>
            </column>
           </widget>
@@ -284,7 +284,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>交易盘口</string>
+            <string>Order Book</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -368,7 +368,7 @@
            </property>
            <widget class="QWidget" name="tab">
             <attribute name="title">
-             <string>全部</string>
+             <string>All</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_5">
              <item row="0" column="0">
@@ -399,22 +399,22 @@
                </attribute>
                <column>
                 <property name="text">
-                 <string>时间</string>
+                 <string>Time</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>价格</string>
+                 <string>Price</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>数量</string>
+                 <string>Count</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>类型</string>
+                 <string>Type</string>
                 </property>
                </column>
               </widget>
@@ -423,7 +423,7 @@
            </widget>
            <widget class="QWidget" name="tab_2">
             <attribute name="title">
-             <string>系统</string>
+             <string>System</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_6">
              <item row="0" column="0">
@@ -451,22 +451,22 @@
                </attribute>
                <column>
                 <property name="text">
-                 <string>时间</string>
+                 <string>Time</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>价格</string>
+                 <string>Price</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>数量</string>
+                 <string>Count</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>类型</string>
+                 <string>Type</string>
                 </property>
                </column>
               </widget>
@@ -475,7 +475,7 @@
            </widget>
            <widget class="QWidget" name="tab_3">
             <attribute name="title">
-             <string>玩家</string>
+             <string>Player</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_7">
              <item row="0" column="0">
@@ -503,22 +503,22 @@
                </attribute>
                <column>
                 <property name="text">
-                 <string>时间</string>
+                 <string>Time</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>价格</string>
+                 <string>Price</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>数量</string>
+                 <string>Count</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>类型</string>
+                 <string>Type</string>
                 </property>
                </column>
               </widget>
@@ -577,7 +577,7 @@
             </font>
            </property>
            <property name="text">
-            <string>导出数据</string>
+            <string>Export Data</string>
            </property>
           </widget>
          </item>
@@ -645,7 +645,7 @@
          </font>
         </property>
         <property name="text">
-         <string>订单限制</string>
+         <string>Order Limits</string>
         </property>
        </widget>
       </item>
@@ -678,7 +678,7 @@
          </font>
         </property>
         <property name="text">
-         <string>单价</string>
+         <string>Unit Price</string>
         </property>
        </widget>
       </item>
@@ -724,7 +724,7 @@
          </font>
         </property>
         <property name="text">
-         <string>数量</string>
+         <string>Count</string>
         </property>
        </widget>
       </item>
@@ -761,7 +761,7 @@
          </font>
         </property>
         <property name="text">
-         <string>加单</string>
+         <string>Add Order</string>
         </property>
        </widget>
       </item>
@@ -794,7 +794,7 @@
          </font>
         </property>
         <property name="text">
-         <string>更多</string>
+         <string>More</string>
         </property>
        </widget>
       </item>

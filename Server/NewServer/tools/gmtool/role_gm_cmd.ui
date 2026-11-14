@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GM命令</string>
+   <string>GM Command</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">
@@ -37,7 +37,7 @@
       </size>
      </property>
      <property name="title">
-      <string>指令</string>
+      <string>Command</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
@@ -55,7 +55,7 @@
       </size>
      </property>
      <property name="title">
-      <string>原因</string>
+      <string>Reason</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">

@@ -39,25 +39,25 @@ STRING_ENUM_TABLE =
 	{ enum = "essBroadCastTitle3", str = "MMOGame.DLG.TITLE.3"},
 	{ enum = "essBroadCastTitle4", str = "MMOGame.DLG.TITLE.4"},
 
-	-- { enum = "essDeclaredGuildWarToAll", str = "[<#GN:%s>]公会已对[<#GN:%s>]公会宣战" },
+	-- { enum = "essDeclaredGuildWarToAll", str = "Guild [<#GN:%s>] has declared war on Guild [<#GN:%s>]" },
 
-	-- { enum = "essBeginGuildWarToAll", str = "[<#GN:%s>]公会已对[<#GN:%s>]公会的公会战已开始" },
-	-- { enum = "essBeginGuildWarToAttack", str = "我方公会已对[%s]公会开始进攻，通过公会属地[公会战传送员]传送至对方属地参战" },
-	-- { enum = "essBeginGuildWarToDefence", str = "[%s]公会已对我方公会开始进攻，请尽快到公会属地进行防守" },
+	-- { enum = "essBeginGuildWarToAll", str = "The guild war between Guild [<#GN:%s>] and Guild [<#GN:%s>] has begun" },
+	-- { enum = "essBeginGuildWarToAttack", str = "Our guild has begun attacking Guild [%s]. Use the [Guild War Teleporter] in the guild territory to teleport to their territory and join the battle" },
+	-- { enum = "essBeginGuildWarToDefence", str = "Guild [%s] has begun attacking our guild. Please hurry to the guild territory to defend!" },
 
-	-- { enum = "essGuildWarEndAttackSuccessToAll", str = "[<#GN:%s>]公会在公会战中成功攻下[<#GN:%s>]公会" },
-	-- { enum = "essGuildWarEndAttackSuccessToAttack", str = "我方公会在公会战中成功攻下了[%s]公会" },
-	-- { enum = "essGuildWarEndAttackSuccessToDefence", str = "[%s]公会在公会战中成功攻下了我方公会" },
+	-- { enum = "essGuildWarEndAttackSuccessToAll", str = "Guild [<#GN:%s>] successfully conquered Guild [<#GN:%s>] in the guild war" },
+	-- { enum = "essGuildWarEndAttackSuccessToAttack", str = "Our guild successfully conquered Guild [%s] in the guild war" },
+	-- { enum = "essGuildWarEndAttackSuccessToDefence", str = "Guild [%s] successfully conquered our guild in the guild war" },
   
-	-- { enum = "essGuildWarEndAttackDefeatToAll", str = "[<#GN:%s>]公会在公会战中没能攻下了[<#GN:%s>]公会，损失惨重" },
-	-- { enum = "essGuildWarEndAttackDefeatToAttack", str = "我方公会在公会战中没能攻下对方公会" },
-	-- { enum = "essGuildWarEndAttackDefeatToDefence", str = "[%s]公会在公会战中被我方成功防守" },  
-	-- { enum = "essGuildWarWonderDieToAttack", str = "地方公会图腾已被摧毁" },  
-	-- { enum = "essGuildWarWonderDieToDefence", str = "我方公会图腾已被摧毁"},
-	-- { enum = "essGuildAllianceTV", str = "[<#GN:%s>]公会和[<#GN:%s>]公会结盟" }, 
-	-- { enum = "essGuildEnemyTV", str = "[<#GN:%s>]公会和[<#GN:%s>]公会敌对" }, 
-	{ enum = "essAwardOpenDialog", str = "<#D>请选择：<#D/><#QURL:1>1. 参与调查问卷<#QURL/><#SO:2>2. 领取调查问卷礼物<#SO/>"},
-	{ enum = "essSceneLineRecycleWarning", str = "此分线即将回收，请跳往其他分线" },
+	-- { enum = "essGuildWarEndAttackDefeatToAll", str = "Guild [<#GN:%s>] failed to conquer Guild [<#GN:%s>] in the guild war and suffered heavy losses" },
+	-- { enum = "essGuildWarEndAttackDefeatToAttack", str = "Our guild failed to conquer the enemy guild in the guild war" },
+	-- { enum = "essGuildWarEndAttackDefeatToDefence", str = "Guild [%s] was successfully defended against by our guild in the guild war" },  
+	-- { enum = "essGuildWarWonderDieToAttack", str = "The enemy guild totem has been destroyed" },  
+	-- { enum = "essGuildWarWonderDieToDefence", str = "Our guild totem has been destroyed"},
+	-- { enum = "essGuildAllianceTV", str = "Guild [<#GN:%s>] and Guild [<#GN:%s>] have formed an alliance" }, 
+	-- { enum = "essGuildEnemyTV", str = "Guild [<#GN:%s>] and Guild [<#GN:%s>] are now hostile" }, 
+	{ enum = "essAwardOpenDialog", str = "<#D>Please choose:<#D/><#QURL:1>1. Take the Survey<#QURL/><#SO:2>2. Claim Survey Gift<#SO/>"},
+	{ enum = "essSceneLineRecycleWarning", str = "This channel is about to be closed. Please jump to another channel" },
 
 -- string in Lua
 
@@ -105,40 +105,40 @@ STRING_ENUM_TABLE =
 	{ enum = "strSpellOnEncounterText", str = "strSpellOnEncounterText"},		
 	{ enum = "strSpellOnChaseText", str = "strSpellOnChaseText"},
 	
-	{ enum = "strBF1MinNotification", str = "战斗将在60秒后开始！"},	
-	{ enum = "strBF30SecNotification", str = "战斗将在30秒后开始！"},	
-	{ enum = "strBF10SecNotification", str = "战斗将在10秒后开始！"},	
+	{ enum = "strBF1MinNotification", str = "The battle will begin in 60 seconds!"},	
+	{ enum = "strBF30SecNotification", str = "The battle will begin in 30 seconds!"},	
+	{ enum = "strBF10SecNotification", str = "The battle will begin in 10 seconds!"},	
 	
-	{ enum = "str2021newyearBOSS", str = "年兽BOSS已经死亡，请前往沙巴克407，476处争夺海量积分！"},
-	{ enum = "str2021newyearNianShou", str = "小年兽死亡，年兽BOSS扣除百分之十的血量，请大家再接再厉！"},
+	{ enum = "str2021newyearBOSS", str = "The New Year Beast BOSS has died. Please go to Sabuk 407, 476 to compete for a huge amount of points!"},
+	{ enum = "str2021newyearNianShou", str = "A Little New Year Beast has died, and the New Year Beast BOSS loses ten percent of its HP. Keep up the good work, everyone!"},
 
-	{ enum = "strBFBeginNotification", str = "战斗开始！"},
-	{ enum = "strBFEndNotification", str = "战斗时间到！"},
+	{ enum = "strBFBeginNotification", str = "The battle begins!"},
+	{ enum = "strBFEndNotification", str = "Time is up!"},
 	
-	{ enum = "strBFFlagSpawned", str = "魔盘已放置在两队的基地中！"},
+	{ enum = "strBFFlagSpawned", str = "The Magic Discs have been placed in the bases of both teams!"},
 
-	{ enum = "strBFRedFlagCarried", str = "红队魔盘被夺走！"},
-	{ enum = "strBFBlueFlagCarried", str = "蓝队魔盘被夺走！"},
-    { enum = "strBFRedFlagDropped", str = "红队魔盘掉在了地上！"},
-	{ enum = "strBFBlueFlagDropped", str = "蓝队魔盘掉在了地上了！"},
+	{ enum = "strBFRedFlagCarried", str = "The Red Team's Magic Disc has been taken!"},
+	{ enum = "strBFBlueFlagCarried", str = "The Blue Team's Magic Disc has been taken!"},
+    { enum = "strBFRedFlagDropped", str = "The Red Team's Magic Disc has dropped on the ground!"},
+	{ enum = "strBFBlueFlagDropped", str = "The Blue Team's Magic Disc has dropped on the ground!"},
 	
-	{ enum = "strBFRedCaptureFlag", str = "红队夺得了蓝队魔盘，红队总分+100！"},
-	{ enum = "strBFBlueCaptureFlag", str = "蓝队夺得了红队魔盘，蓝队总分+100！"},
+	{ enum = "strBFRedCaptureFlag", str = "The Red Team captured the Blue Team's Magic Disc. Red Team total score +100!"},
+	{ enum = "strBFBlueCaptureFlag", str = "The Blue Team captured the Red Team's Magic Disc. Blue Team total score +100!"},
 	
-	{ enum = "strBFRedFlagReturned", str = "红队魔盘被送回了基地中！"},
-	{ enum = "strBFBlueFlagReturned", str = "蓝队魔盘被送回了基地中！"},
+	{ enum = "strBFRedFlagReturned", str = "The Red Team's Magic Disc has been returned to its base!"},
+	{ enum = "strBFBlueFlagReturned", str = "The Blue Team's Magic Disc has been returned to its base!"},
 	
-	{ enum = "strBFRedVictory", str = "红队胜利！"},
-	{ enum = "strBFBlueVictory", str = "蓝队胜利！"},	
-	{ enum = "strBFDraw", str = "两队平局！"},	
+	{ enum = "strBFRedVictory", str = "Red Team wins!"},
+	{ enum = "strBFBlueVictory", str = "Blue Team wins!"},	
+	{ enum = "strBFDraw", str = "The two teams are tied!"},	
 	
-	{ enum = "strGuildWarJumpMap_1", str = "<#SO:1>进入公会战<#SO/>"},
-	{ enum = "strGuildWarJumpMap_2", str = "<#SO:2>确认<#SO/>"},	
-	{ enum = "strGuildWarJumpMap_3", str = "请确认公会战是否开启后再尝试进入。"},
+	{ enum = "strGuildWarJumpMap_1", str = "<#SO:1>Enter Guild War<#SO/>"},
+	{ enum = "strGuildWarJumpMap_2", str = "<#SO:2>Confirm<#SO/>"},	
+	{ enum = "strGuildWarJumpMap_3", str = "Please confirm that the guild war has started before trying to enter."},
 
-    { enum = "strAITestAward", str = "谢谢答题！"},
+    { enum = "strAITestAward", str = "Thank you for answering!"},
 	
-	{ enum = "strCommonDungeonTimeOut", str = "你没有在规定的时间内完成,副本失败"},	
+	{ enum = "strCommonDungeonTimeOut", str = "You did not finish within the time limit. Dungeon failed"},	
 	
 	{ enum = "strAdventure1", str = "strAdventure1"},	
 	{ enum = "strAdventure2", str = "strAdventure2"},	
@@ -155,135 +155,135 @@ STRING_ENUM_TABLE =
 	{ enum = "strAdventure13", str = "strAdventure13"},	
 	{ enum = "strAdventure14", str = "strAdventure14"},	
 	
-	{ enum = "strTempSabac", str = "沙巴克攻城战暂未开放，敬请期待" },
+	{ enum = "strTempSabac", str = "The Sabuk siege is not yet open. Please stay tuned" },
 	
-	{ enum = "strAI645801", str = "您已经领取过本次测试调查问卷奖励，谢谢您的参与！" },
-	{ enum = "strAI645802", str = "恭喜您达到本次测试领取调查问卷奖励的资格！您可以点击下方选项进行领取，请确保背包有足够的空间！<#SO:1>领取问卷奖励<#SO/>" },
-	{ enum = "strAI645803", str = "您已经成功领取本次测试调查问卷奖励，请注意查收，谢谢您的参与！" },
-	{ enum = "strAI645804", str = "完成本次测试调查问卷，可以获得奖励。目前您的等级尚未到达15级，不符合领取调查问卷奖励的条件！" },
+	{ enum = "strAI645801", str = "You have already claimed the survey reward for this test. Thank you for your participation!" },
+	{ enum = "strAI645802", str = "Congratulations, you qualify to claim the survey reward for this test! Click the option below to claim it, and make sure your Bag has enough space! <#SO:1>Claim Survey Reward<#SO/>" },
+	{ enum = "strAI645803", str = "You have successfully claimed the survey reward for this test. Please check your Bag. Thank you for your participation!" },
+	{ enum = "strAI645804", str = "Completing the survey for this test earns you a reward. Your Level has not yet reached 15, so you do not meet the requirements to claim the survey reward!" },
 
-	{ enum = "strAI4792_1", str = "只要给老夫5000金币就送你去监狱探探监！那里关押的都是穷凶极恶之徒，亦没什么自由，你可要当心了！<#SO:1>我要进入监狱探监<#SO/>" },	
-	{ enum = "strAI4792_2", str = "你确认给老夫5000金币进入监狱吗？<#SO:1>确认交付5000金币<#SO/>" },
-	{ enum = "strAI4792_3", str = "年轻人，虽然老夫老眼昏花，但……你没有足够的金币啊！！" },
-	{ enum = "strAI4792_4", str = "恭喜你获得了“活跃礼包”，你今日还可以领取3次。" },
-	{ enum = "strAI4792_5", str = "恭喜你获得了“活跃礼包”，你今日还可以领取2次。" },
-	{ enum = "strAI4792_6", str = "恭喜你获得了“活跃礼包”，你今日还可以领取1次。" },
-	{ enum = "strAI4792_7", str = "恭喜你获得了“活跃礼包”，今日的礼包领取完毕。" },
+	{ enum = "strAI4792_1", str = "Give this old man 5000 Gold and I will send you to visit the prison! Those held there are vicious criminals with no freedom at all, so be careful! <#SO:1>I want to visit the prison<#SO/>" },	
+	{ enum = "strAI4792_2", str = "Are you sure you want to give this old man 5000 Gold to enter the prison? <#SO:1>Confirm paying 5000 Gold<#SO/>" },
+	{ enum = "strAI4792_3", str = "Young one, my old eyes may be failing, but... you do not have enough Gold!!" },
+	{ enum = "strAI4792_4", str = "Congratulations, you received the 'Activity Pack'. You can claim it 3 more times today." },
+	{ enum = "strAI4792_5", str = "Congratulations, you received the 'Activity Pack'. You can claim it 2 more times today." },
+	{ enum = "strAI4792_6", str = "Congratulations, you received the 'Activity Pack'. You can claim it 1 more time today." },
+	{ enum = "strAI4792_7", str = "Congratulations, you have received the 'Activity Gift Pack'. Today's gift packs have all been claimed." },
 
 
 	-- strAI6147
-	{ enum = "strAI6147_1", str = "我知道一条通往[死亡峡谷六层]的秘密通道，想去吗？不过大家有财一起发，给我金币我立刻送你过去，如何？<#SO:1>传送自己去[死亡峡谷六层]<#SO/><#SO:2>传送队伍去[死亡峡谷六层]<#SO/>" },
-	{ enum = "strAI6147_2", str = "[死亡峡谷六层]魔怪众多，没两把刷子可不要去送死，你真的想给我1万金币让我送你过去吗？<#SO:1>确认花费1万金币单人传送<#SO/>" },
-	{ enum = "strAI6147_3", str = "没钱可不行，1万金币一个子儿也不能少！" },
-	{ enum = "strAI6147_4", str = "[死亡峡谷六层]魔怪众多，没两把刷子可不要去送死，我会把当前场景里你队伍里的所有成员都传送过去。你真的想给我10万金币让我传送吗？<#SO:1>确认花费10万金币队伍传送<#SO/>" },
-	{ enum = "strAI6147_5", str = "大爷别逗我，你不是队长啊！" },
-	{ enum = "strAI6147_6", str = "没钱可不行，10万金币一个子儿也不能少！" },
+	{ enum = "strAI6147_1", str = "I know a secret passage to [Death Valley Level Six]. Want to go? Let's all get rich together: give me Gold and I will send you over right away. How about it?<#SO:1>Teleport myself to [Death Valley Level Six]<#SO/><#SO:2>Teleport party to [Death Valley Level Six]<#SO/>" },
+	{ enum = "strAI6147_2", str = "[Death Valley Level Six] is full of monsters. Do not go to your death without some real skill. Do you really want to give me 10,000 Gold to send you over?<#SO:1>Confirm: pay 10,000 Gold for solo teleport<#SO/>" },
+	{ enum = "strAI6147_3", str = "No money, no deal. Not a single coin of the 10,000 Gold can be missing!" },
+	{ enum = "strAI6147_4", str = "[Death Valley Level Six] is full of monsters. Do not go to your death without some real skill. I will teleport every member of your party in the current scene. Do you really want to give me 100,000 Gold to teleport?<#SO:1>Confirm: pay 100,000 Gold for party teleport<#SO/>" },
+	{ enum = "strAI6147_5", str = "Don't joke with me, you are not the party leader!" },
+	{ enum = "strAI6147_6", str = "No money, no deal. Not a single coin of the 100,000 Gold can be missing!" },
 
 
 	-- strAI6148
-	{ enum = "strAI6148_1", str = "我知道一条通往[沃玛寺庙三层]的秘密通道，想去吗？只要给我沃玛令牌我就立刻送你过去，如何？<#SO:1>传送自己去[沃玛寺庙三层]<#SO/><#SO:2>传送队伍去[沃玛寺庙三层]<#SO/>" },
-	{ enum = "strAI6148_2", str = "[沃玛寺庙三层]魔怪众多，没两把刷子可不要去送死，你真的想给我[沃玛令牌（小）]让我送你过去吗？<#SO:1>提交[沃玛令牌（小）]传送自己<#SO/>" },
-	{ enum = "strAI6148_3", str = "不行，没有[沃玛令牌（小）]可不行！" },
-	{ enum = "strAI6148_4", str = "[沃玛寺庙三层]魔怪众多，没两把刷子可不要去送死，我会把当前场景里你队伍里的所有成员都传送过去。你真的想给我[沃玛令牌（大）]让我传送吗？<#SO:1>提交[沃玛令牌（大）]传送队伍<#SO/>" },
-	{ enum = "strAI6148_5", str = "大爷别逗我，你不是队长啊！" },
-	{ enum = "strAI6148_6", str = "不行，没有[沃玛令牌（大）]可不行！" },
+	{ enum = "strAI6148_1", str = "I know a secret passage to [Woma Temple Level Three]. Want to go? Just give me a Woma Token and I will send you over right away. How about it?<#SO:1>Teleport myself to [Woma Temple Level Three]<#SO/><#SO:2>Teleport party to [Woma Temple Level Three]<#SO/>" },
+	{ enum = "strAI6148_2", str = "[Woma Temple Level Three] is full of monsters. Do not go to your death without some real skill. Do you really want to give me a [Woma Token (Small)] to send you over?<#SO:1>Submit [Woma Token (Small)] to teleport myself<#SO/>" },
+	{ enum = "strAI6148_3", str = "No way, you can't go without a [Woma Token (Small)]!" },
+	{ enum = "strAI6148_4", str = "[Woma Temple Level Three] is full of monsters. Do not go to your death without some real skill. I will teleport every member of your party in the current scene. Do you really want to give me a [Woma Token (Large)] to teleport?<#SO:1>Submit [Woma Token (Large)] to teleport party<#SO/>" },
+	{ enum = "strAI6148_5", str = "Don't joke with me, you are not the party leader!" },
+	{ enum = "strAI6148_6", str = "No way, you can't go without a [Woma Token (Large)]!" },
 
 
 	-- strAI6149
-	{ enum = "strAI6149_1", str = "我知道一条通往[虹魔教坛]的秘密通道，想去吗？不过大家有财一起发，给我1万金币我立刻送你过去，如何？<#SO:1>送我去[虹魔教坛]<#SO/>" },
-	{ enum = "strAI6149_2", str = "[虹魔教坛]魔怪众多，没两把刷子可不要去送死，你真的想给我1万金币让我送你过去吗？<#SO:1>确认花费1万金币<#SO/>" },
-	{ enum = "strAI6149_3", str = "没钱可不行，1万金币一个子儿也不能少！" },
+	{ enum = "strAI6149_1", str = "I know a secret passage to [Rainbow Demon Altar]. Want to go? Let's all get rich together: give me 10,000 Gold and I will send you over right away. How about it?<#SO:1>Send me to [Rainbow Demon Altar]<#SO/>" },
+	{ enum = "strAI6149_2", str = "[Rainbow Demon Altar] is full of monsters. Do not go to your death without some real skill. Do you really want to give me 10,000 Gold to send you over?<#SO:1>Confirm: pay 10,000 Gold<#SO/>" },
+	{ enum = "strAI6149_3", str = "No money, no deal. Not a single coin of the 10,000 Gold can be missing!" },
 
 
 	-- strAI6150
-	{ enum = "strAI6150_1", str = "我知道一条通往[祖玛大厅]的秘密通道，想去吗？只要给我祖玛令牌我就立刻送你过去，如何？<#SO:1>传送自己去[祖玛大厅]<#SO/><#SO:2>传送队伍去[祖玛大厅]<#SO/>" },
-	{ enum = "strAI6150_2", str = "[祖玛大厅]魔怪众多，没两把刷子可不要去送死，你真的想给我[祖玛令牌（小）]让我送你过去吗？<#SO:1>提交[祖玛令牌（小）]传送自己<#SO/>" },
-	{ enum = "strAI6150_3", str = "不行，没有[祖玛令牌（小）]可不行！" },
-	{ enum = "strAI6150_4", str = "[祖玛大厅]魔怪众多，没两把刷子可不要去送死，我会把当前场景里你队伍里的所有成员都传送过去。你真的想给我[祖玛令牌（大）]让我传送吗？<#SO:1>提交[祖玛令牌（大）]传送队伍<#SO/>" },
-	{ enum = "strAI6150_5", str = "大爷别逗我，你不是队长啊！" },
-	{ enum = "strAI6150_6", str = "不行，没有[祖玛令牌（大）]可不行！" },
+	{ enum = "strAI6150_1", str = "I know a secret passage to [Zuma Hall]. Want to go? Just give me a Zuma Token and I will send you over right away. How about it?<#SO:1>Teleport myself to [Zuma Hall]<#SO/><#SO:2>Teleport party to [Zuma Hall]<#SO/>" },
+	{ enum = "strAI6150_2", str = "[Zuma Hall] is full of monsters. Do not go to your death without some real skill. Do you really want to give me a [Zuma Token (Small)] to send you over?<#SO:1>Submit [Zuma Token (Small)] to teleport myself<#SO/>" },
+	{ enum = "strAI6150_3", str = "No way, you can't go without a [Zuma Token (Small)]!" },
+	{ enum = "strAI6150_4", str = "[Zuma Hall] is full of monsters. Do not go to your death without some real skill. I will teleport every member of your party in the current scene. Do you really want to give me a [Zuma Token (Large)] to teleport?<#SO:1>Submit [Zuma Token (Large)] to teleport party<#SO/>" },
+	{ enum = "strAI6150_5", str = "Don't joke with me, you are not the party leader!" },
+	{ enum = "strAI6150_6", str = "No way, you can't go without a [Zuma Token (Large)]!" },
 	
 	
 	-- strAI6151
-	{ enum = "strAI6151_1", str = "我知道一条通往[幽冥海三层]的秘密通道，不过只有等级达到35级的勇士才能通过，想不想去？<#SO:1>送我去[幽冥海三层]<#SO/><#SO:2>取消<#SO/>" },
-	{ enum = "strAI6151_2", str = "你还太嫩了，你的等级未满35级，暂时无法进入。<#SO:1>确定<#SO/>"  },
+	{ enum = "strAI6151_1", str = "I know a secret passage to [Netherworld Sea Floor Three], but only warriors who have reached Level 35 can pass. Do you want to go?<#SO:1>Send me to [Netherworld Sea Floor Three]<#SO/><#SO:2>Cancel<#SO/>" },
+	{ enum = "strAI6151_2", str = "You are still too green. You are below Level 35 and cannot enter for now.<#SO:1>OK<#SO/>"  },
 
 
 	-- strAI6671
-	{ enum = "strAI6671_1", str = "<#D>目前我能捆的有卷书和各种药水。你要捆吗？要捆东西得给我金币。<#D/><#SO:1>捆普通药水<#SO/><#SO:2>捆高级药水<#SO/><#SO:3>捆卷书<#SO/>"},
-	{ enum = "strAI6671_2", str = "<#D>请选择你要捆的高级药水类型。<#D/><#SO:1>捆太阳水（200金币）<#SO/><#SO:2>捆强效太阳水（500金币）<#SO/><#SO:3>捆疗伤药（1000金币）<#SO/><#SO:4>返回<#SO/>"},
-	{ enum = "strAI6671_4", str = "<#D>请选择你要捆的卷书类型。每种都需要100金币。<#D/><#SO:1>捆比奇回城卷<#SO/><#SO:2>捆盟重回城卷<#SO/><#SO:3>捆随机传送卷<#SO/><#SO:4>返回<#SO/>"},
-	{ enum = "strAI6671_5", str = "您今日的捆绑次数已经到达上限，请明日再来！"},
-	{ enum = "strAI6671_6", str = "您的等级不足15级，无法捆绑药水或者卷书！"},
+	{ enum = "strAI6671_1", str = "<#D>At the moment I can bundle scrolls and all kinds of potions. Want to bundle? Bundling costs Gold.<#D/><#SO:1>Bundle Regular Potions<#SO/><#SO:2>Bundle Advanced Potions<#SO/><#SO:3>Bundle Scrolls<#SO/>"},
+	{ enum = "strAI6671_2", str = "<#D>Please choose the type of advanced potion you want to bundle.<#D/><#SO:1>Bundle Sun Water (200 Gold)<#SO/><#SO:2>Bundle Potent Sun Water (500 Gold)<#SO/><#SO:3>Bundle Healing Potion (1000 Gold)<#SO/><#SO:4>Back<#SO/>"},
+	{ enum = "strAI6671_4", str = "<#D>Please choose the type of scroll you want to bundle. Each costs 100 Gold.<#D/><#SO:1>Bundle Bichon Return Scroll<#SO/><#SO:2>Bundle Mongchon Return Scroll<#SO/><#SO:3>Bundle Random Teleport Scroll<#SO/><#SO:4>Back<#SO/>"},
+	{ enum = "strAI6671_5", str = "You have reached today's bundling limit. Please come back tomorrow!"},
+	{ enum = "strAI6671_6", str = "You are below Level 15 and cannot bundle potions or scrolls!"},
 
 
 	-- strAI6163
-	{ enum = "strAI6163_6_1", str = "公会据点战结束后两小时可以在我这里领取奖励。"},
-	{ enum = "strAI6163_6_2", str = "成功占领据点的公会所有成员可以领取状态奖励，该状态提高经验倍率。长老以上职位玩家可以领取限时称号（最多6个）。<#D/><#SO:1>我要领取状态<#SO/><#SO:2>我要领取称号<#SO/>"},
-	{ enum = "strAI6163_6_3", str = "非占领公会会员不能领取奖励。"},
+	{ enum = "strAI6163_6_1", str = "Rewards can be claimed from me two hours after the Guild Stronghold War ends."},
+	{ enum = "strAI6163_6_2", str = "All members of the guild that successfully captured the stronghold can claim a status reward that raises the EXP rate. Players of Elder rank or above can claim a limited-time title (up to 6).<#D/><#SO:1>Claim Status<#SO/><#SO:2>Claim Title<#SO/>"},
+	{ enum = "strAI6163_6_3", str = "Members of guilds that did not capture the stronghold cannot claim rewards."},
 
 
 	-- strAI_6112
-	{ enum = "strAI_6112_1", str = "任何达到20级的勇士均可进入九层妖塔进行试炼，你准备好了吗，年轻人？<#SO:1>确定进入<#SO/><#INS:S25>关于九层妖塔<#INS/><#SO:2>取消<#SO/>"},
+	{ enum = "strAI_6112_1", str = "Any warrior who has reached Level 20 may enter the Nine-Layer Demon Tower for trials. Are you ready, young one?<#SO:1>Confirm Entry<#SO/><#INS:S25>About the Nine-Layer Demon Tower<#INS/><#SO:2>Cancel<#SO/>"},
 	
 	
 	-- strAI_4795
-	{ enum = "strAI_4795_1", str = "每周一、三、五的21点，等级达到22级的勇士，都可进入武斗场1小时，每次进入需要花费10000金币。<#SO:1>确认进入（花费10000金币）<#SO/><#SO:2>取消<#SO/>"},
+	{ enum = "strAI_4795_1", str = "Every Monday, Wednesday and Friday at 21 o'clock, warriors who have reached Level 22 may enter the Arena for 1 hour. Each entry costs 10000 Gold.<#SO:1>Confirm Entry (costs 10000 Gold)<#SO/><#SO:2>Cancel<#SO/>"},
 	
 	-- strAI_6101
-	{ enum = "strAI_6101_1", str = "每天的20点，等级达到22级的勇士，都可进入宝库1小时，每次进入都需花费20000金币。<#SO:1>确定进入（花费20000金币）<#SO/><#SO:2>取消<#SO/>"},
+	{ enum = "strAI_6101_1", str = "Every day at 20 o'clock, warriors who have reached Level 22 may enter the Treasury for 1 hour. Each entry costs 20000 Gold.<#SO:1>Confirm Entry (costs 20000 Gold)<#SO/><#SO:2>Cancel<#SO/>"},
 
 	-- strAI6152
-	{ enum = "strAI6152_1", str = "很抱歉勇士，现在演武场暂未开放，更多信息敬请期待官方公告！"},
+	{ enum = "strAI6152_1", str = "My apologies, warrior. The Training Ground is not open yet. Please look forward to the official announcement for more information!"},
 	
 	-- strAI6114
-	{ enum = "strAI6114_1", str = "您的等级不足20级，无法进入幽冥海！"},
+	{ enum = "strAI6114_1", str = "You are below Level 20 and cannot enter the Netherworld Sea!"},
 
 	-- strAI6170
-	{ enum = "strAI6170_1", str = "普天同庆，人人有礼！成功达到15级可以在此领取“传永礼包”，到达20级可以领取本职业技能书。（请确保背包空位充足）<#SO:1>领取传永礼包<#SO/><#SO:2>领取技能书<#SO/>"},
-	{ enum = "strAI6170_2", str = "等级不足，无法领取奖励，请提升等级后再来。"},
-	{ enum = "strAI6170_3", str = "您已领取过奖励，切莫贪心。"},
-	{ enum = "strAI6170_4", str = "您已成功领取，请查看背包进行确认。"},
-	{ enum = "strAI6170_5", str = "普天同庆，人人有礼！成功达到15级的玩家可以在此领取“传永礼包”。（请确保背包空位充足）<#SO:1>领取传永礼包<#SO/>"},
+	{ enum = "strAI6170_1", str = "Celebrations for all, gifts for everyone! Upon reaching Level 15 you can claim the 'Eternal Gift Pack' here, and upon reaching Level 20 you can claim your class Skill Book. (Please make sure you have enough free Bag slots.)<#SO:1>Claim Eternal Gift Pack<#SO/><#SO:2>Claim Skill Book<#SO/>"},
+	{ enum = "strAI6170_2", str = "Your Level is too low to claim the reward. Please level up and come back."},
+	{ enum = "strAI6170_3", str = "You have already claimed the reward. Don't be greedy."},
+	{ enum = "strAI6170_4", str = "Claimed successfully. Please check your Bag to confirm."},
+	{ enum = "strAI6170_5", str = "Celebrations for all, gifts for everyone! Players who reach Level 15 can claim the 'Eternal Gift Pack' here. (Please make sure you have enough free Bag slots.)<#SO:1>Claim Eternal Gift Pack<#SO/>"},
 
 	-- strAI6171
-	{ enum = "strAI6171_1", str = "达到35级的玩家每日在线满三个小时均可领取材料一个。另外，可用师徒道义值兑换腰带、靴子的配方卷轴，与材料合成相应装备。<#SO:1>领取棉线或者兽皮<#SO/>"},
-	{ enum = "strAI6171_2", str = "等级不足35级，无法领取材料，请提升以后再来。"},
-	{ enum = "strAI6171_3", str = "您今天已领取过材料，请明天再来。"},
-	{ enum = "strAI6171_4", str = "请选择你要领取的材料,且确保背包有足够空间。<#SO:1>我要领取棉线<#SO/><#SO:2>我要领取兽皮<#SO/>"},
-	{ enum = "strAI6171_5", str = "领取成功。"},
-	{ enum = "strAI6171_6", str = "您在线还不满3小时，请达到后再来领取。"},
+	{ enum = "strAI6171_1", str = "Players who reach Level 35 can claim one material for every three hours spent online each day. You can also exchange Mentor Righteousness for Belt and Boots recipe scrolls and combine them with materials to craft the matching equipment.<#SO:1>Claim Cotton Thread or Beast Hide<#SO/>"},
+	{ enum = "strAI6171_2", str = "You are below Level 35 and cannot claim materials. Please level up and come back."},
+	{ enum = "strAI6171_3", str = "You have already claimed materials today. Please come back tomorrow."},
+	{ enum = "strAI6171_4", str = "Please choose the material you want to claim and make sure your Bag has enough space.<#SO:1>Claim Cotton Thread<#SO/><#SO:2>Claim Beast Hide<#SO/>"},
+	{ enum = "strAI6171_5", str = "Claimed successfully."},
+	{ enum = "strAI6171_6", str = "You have not been online for 3 hours yet. Please come back after reaching that."},
 
 	-- strAI6172
-	{ enum = "strAI6172_1", str = "我知道一条通往[山谷密道]的秘密通道，想去吗？只要给我赤月令牌我就立刻送你过去，如何？<#SO:1>传送自己去[山谷密道]<#SO/><#SO:2>传送队伍去[山谷密道]<#SO/>" },
-	{ enum = "strAI6172_2", str = "[山谷密道]魔怪众多，没两把刷子可不要去送死，你真的想给我[赤月令牌（小）]让我送你过去吗？<#SO:1>提交[赤月令牌（小）]传送自己<#SO/>" },
-	{ enum = "strAI6172_3", str = "不行，没有[赤月令牌（小）]可不行！" },
-	{ enum = "strAI6172_4", str = "[山谷密道]魔怪众多，没两把刷子可不要去送死，我会把当前场景里你队伍里的所有成员都传送过去。你真的想给我[赤月令牌（大）]让我传送吗？<#SO:1>提交[赤月令牌（大）]传送队伍<#SO/>" },
-	{ enum = "strAI6172_5", str = "大爷别逗我，你不是队长啊！" },
-	{ enum = "strAI6172_6", str = "不行，没有[赤月令牌（大）]可不行！" },
+	{ enum = "strAI6172_1", str = "I know a secret passage to [Valley Secret Passage]. Want to go? Just give me a Red Moon Token and I will send you over right away. How about it?<#SO:1>Teleport myself to [Valley Secret Passage]<#SO/><#SO:2>Teleport party to [Valley Secret Passage]<#SO/>" },
+	{ enum = "strAI6172_2", str = "[Valley Secret Passage] is full of monsters. Do not go to your death without some real skill. Do you really want to give me a [Red Moon Token (Small)] to send you over?<#SO:1>Submit [Red Moon Token (Small)] to teleport myself<#SO/>" },
+	{ enum = "strAI6172_3", str = "No way, you can't go without a [Red Moon Token (Small)]!" },
+	{ enum = "strAI6172_4", str = "[Valley Secret Passage] is full of monsters. Do not go to your death without some real skill. I will teleport every member of your party in the current scene. Do you really want to give me a [Red Moon Token (Large)] to teleport?<#SO:1>Submit [Red Moon Token (Large)] to teleport party<#SO/>" },
+	{ enum = "strAI6172_5", str = "Don't joke with me, you are not the party leader!" },
+	{ enum = "strAI6172_6", str = "No way, you can't go without a [Red Moon Token (Large)]!" },
 	
 	-- strAI6129
-	{ enum = "strAI6129_1", str = "若不是有神功护体，我恐怕早就成了这些怪物的下酒菜了。"},
+	{ enum = "strAI6129_1", str = "If it weren't for my divine protection, I would surely have become a snack for these monsters long ago."},
 	
 	
 	-- 6528 - Mafa courier station 05
-	{ enum = "strAI6528_1", str = "我可以把你传送到指定地图！<#SO:1>城市传送<#SO/><#SO:2>初级野外<#SO/><#SO:3>高级野外<#SO/>"},
-	{ enum = "strAI6528_2", str = "城市传送！<#SO:21>边界村<#SO/><#SO:22>盟重省<#SO/><#SO:23>比奇省<#SO/>"},
-	{ enum = "strAI6528_3", str = "初级野外！<#SO:31>沃玛森林(8级)-1000金币<#SO/><#SO:32>矿区一层(10级)-1500金币<#SO/><#SO:33>沃玛寺庙(17级)-2000金币<#SO/><#SO:34>死亡峡谷(22级)-2000金币<#SO/><#SO:35>石墓一层(25级)-2500金币<#SO/>"},
-	{ enum = "strAI6528_4", str = "高级野外！<#SO:41>祖玛寺庙(30级)-3000金币<#SO/><#SO:45>丛林迷宫(35级)-5000金币<#SO/>"},
-	{ enum = "strAI6528_99", str = "人物等级或金币不足！"},
+	{ enum = "strAI6528_1", str = "I can teleport you to a designated map!<#SO:1>City Teleport<#SO/><#SO:2>Beginner Wilderness<#SO/><#SO:3>Advanced Wilderness<#SO/>"},
+	{ enum = "strAI6528_2", str = "City Teleport!<#SO:21>Border Village<#SO/><#SO:22>Mongchon Province<#SO/><#SO:23>Bichon Province<#SO/>"},
+	{ enum = "strAI6528_3", str = "Beginner Wilderness!<#SO:31>Woma Forest (Level 8) - 1000 Gold<#SO/><#SO:32>Mining Area Floor One (Level 10) - 1500 Gold<#SO/><#SO:33>Woma Temple (Level 17) - 2000 Gold<#SO/><#SO:34>Death Valley (Level 22) - 2000 Gold<#SO/><#SO:35>Stone Tomb Floor One (Level 25) - 2500 Gold<#SO/>"},
+	{ enum = "strAI6528_4", str = "Advanced Wilderness!<#SO:41>Zuma Temple (Level 30) - 3000 Gold<#SO/><#SO:45>Jungle Maze (Level 35) - 5000 Gold<#SO/>"},
+	{ enum = "strAI6528_99", str = "Your Level or Gold is insufficient!"},
 	
 	
 	-- 6192 - Bicheng, gem color engraving NPC
-	{ enum = "strAI6192_1", str = "我这里可以[打孔]和[雕色]。<#SO:1>装备打孔<#SO/><#SO:2>雕色 - 第一孔位<#SO/><#SO:3>雕色 - 第二孔位<#SO/><#SO:4>兑换物品<#SO/><#SO:10>查询节点信息<#SO/>"},
-	{ enum = "strAI6192_11", str = "你要对哪个装备[打孔]？<br>注意：只有部分装备可以操作，请先查询[打孔雕色]表！<#SO:11>头盔<#SO/><#SO:12>衣服<#SO/><#SO:13>腰带<#SO/><#SO:14>鞋子<#SO/><#SO:15>护肩<#SO/><#SO:16>护腕<#SO/><#SO:17>披风<#SO/>"},
-	{ enum = "strAI6192_12", str = "你确定要对装备的[第一个孔位]雕色吗？<br>注意：请先查询[打孔雕色]表！<#SO:21>头盔<#SO/><#SO:22>衣服<#SO/><#SO:23>腰带<#SO/><#SO:24>鞋子<#SO/><#SO:25>护肩<#SO/><#SO:26>护腕<#SO/><#SO:27>披风<#SO/>"},
-	{ enum = "strAI6192_13", str = "你确定要对装备的[第二个孔位]雕色吗？<br>注意：请先查询[打孔雕色]表！<#SO:31>头盔<#SO/><#SO:32>衣服<#SO/><#SO:33>腰带<#SO/><#SO:34>鞋子<#SO/><#SO:35>护肩<#SO/><#SO:36>护腕<#SO/><#SO:37>披风<#SO/>"},
-	{ enum = "strAI6192_14", str = "你想雕刻什么颜色？<#SO:41>红色<#SO/><#SO:42>黄色<#SO/><#SO:43>蓝色<#SO/><#SO:44>绿色<#SO/><#SO:45>紫色<#SO/>"},
-	{ enum = "strAI6192_15", str = "你想兑换什么？<#SO:51>命运武器礼盒-100幸运币<#SO/><#SO:52>赤月护肩<#SO/><#SO:53>赤月护腕<#SO/><#SO:54>三级披风<#SO/>"},
-	{ enum = "strAI6192_16", str = "想兑换哪个护肩？<#SO:61>战士赤月护肩-100苍月锦<#SO/><#SO:62>法师赤月护肩-100苍月锦<#SO/><#SO:63>道士赤月护肩-100苍月锦<#SO/>"},
-	{ enum = "strAI6192_17", str = "想兑换哪个护腕？<#SO:71>战士赤月护腕-100苍月锦<#SO/><#SO:72>法师赤月护腕-100苍月锦<#SO/><#SO:73>道士赤月护腕-100苍月锦<#SO/>"},
-	{ enum = "strAI6192_18", str = "想兑换哪个披风？<#SO:81>战士三级披风-100苍月锦<#SO/><#SO:82>法师三级披风-100苍月锦<#SO/><#SO:83>道士三级披风-100苍月锦<#SO/>"},
+	{ enum = "strAI6192_1", str = "I can do [Socketing] and [Color Carving] here.<#SO:1>Equipment Socketing<#SO/><#SO:2>Color Carving - First Socket<#SO/><#SO:3>Color Carving - Second Socket<#SO/><#SO:4>Exchange Items<#SO/><#SO:10>Query Node Info<#SO/>"},
+	{ enum = "strAI6192_11", str = "Which equipment do you want to [Socket]?<br>Note: only some equipment can be processed. Please check the [Socketing and Color Carving] table first!<#SO:11>Helmet<#SO/><#SO:12>Armor<#SO/><#SO:13>Belt<#SO/><#SO:14>Boots<#SO/><#SO:15>Shoulders<#SO/><#SO:16>Bracers<#SO/><#SO:17>Cape<#SO/>"},
+	{ enum = "strAI6192_12", str = "Are you sure you want to carve color into the [First Socket] of the equipment?<br>Note: please check the [Socketing and Color Carving] table first!<#SO:21>Helmet<#SO/><#SO:22>Armor<#SO/><#SO:23>Belt<#SO/><#SO:24>Boots<#SO/><#SO:25>Shoulders<#SO/><#SO:26>Bracers<#SO/><#SO:27>Cape<#SO/>"},
+	{ enum = "strAI6192_13", str = "Are you sure you want to carve color into the [Second Socket] of the equipment?<br>Note: please check the [Socketing and Color Carving] table first!<#SO:31>Helmet<#SO/><#SO:32>Armor<#SO/><#SO:33>Belt<#SO/><#SO:34>Boots<#SO/><#SO:35>Shoulders<#SO/><#SO:36>Bracers<#SO/><#SO:37>Cape<#SO/>"},
+	{ enum = "strAI6192_14", str = "What color do you want to carve?<#SO:41>Red<#SO/><#SO:42>Yellow<#SO/><#SO:43>Blue<#SO/><#SO:44>Green<#SO/><#SO:45>Purple<#SO/>"},
+	{ enum = "strAI6192_15", str = "What would you like to exchange?<#SO:51>Fate Weapon Gift Box - 100 Lucky Coins<#SO/><#SO:52>Red Moon Shoulders<#SO/><#SO:53>Red Moon Bracers<#SO/><#SO:54>Tier Three Cape<#SO/>"},
+	{ enum = "strAI6192_16", str = "Which shoulders do you want to exchange for?<#SO:61>Warrior Red Moon Shoulders - 100 Azure Moon Brocade<#SO/><#SO:62>Mage Red Moon Shoulders - 100 Azure Moon Brocade<#SO/><#SO:63>Taoist Red Moon Shoulders - 100 Azure Moon Brocade<#SO/>"},
+	{ enum = "strAI6192_17", str = "Which bracers do you want to exchange for?<#SO:71>Warrior Red Moon Bracers - 100 Azure Moon Brocade<#SO/><#SO:72>Mage Red Moon Bracers - 100 Azure Moon Brocade<#SO/><#SO:73>Taoist Red Moon Bracers - 100 Azure Moon Brocade<#SO/>"},
+	{ enum = "strAI6192_18", str = "Which cape do you want to exchange for?<#SO:81>Warrior Tier Three Cape - 100 Azure Moon Brocade<#SO/><#SO:82>Mage Tier Three Cape - 100 Azure Moon Brocade<#SO/><#SO:83>Taoist Tier Three Cape - 100 Azure Moon Brocade<#SO/>"},
 
 
 	

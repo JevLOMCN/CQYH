@@ -61,15 +61,15 @@ int main(int argc,char** argv)
             check(gm::exchange_price(value)==expected,"exact signed full-width hundredths");
         gm::ExchangeStatistics s{123456,987654,55555,77777,12345,-6789,1234,5678};
         char legacy[4096];
-        std::snprintf(legacy,sizeof(legacy),"系统投放量\t%.2f 万\n系统成交量\t%.2f 万\n系统成交元宝\t%.2f\n\n玩家投放量\t%.2f 万\n玩家成交量\t%.2f 万\n玩家成交元宝\t%.2f\n\n当日平均价\t%.2f\n前1小时平均价\t%.2f\n\n",
+        std::snprintf(legacy,sizeof(legacy),"System Listed\t%.2f x10k\nSystem Traded\t%.2f x10k\nSystem Traded Gems\t%.2f\n\nPlayer Listed\t%.2f x10k\nPlayer Traded\t%.2f x10k\nPlayer Traded Gems\t%.2f\n\nAverage Price Today\t%.2f\nAverage Price Last Hour\t%.2f\n\n",
             static_cast<double>(s.system_money/10000),static_cast<double>(s.system_traded/10000),s.system_gems/100.0,
             static_cast<double>(s.player_money/10000),static_cast<double>(s.player_traded/10000),s.player_gems/100.0,s.average/100.0,s.previous_average/100.0);
         check(gm::exchange_summary(s)==legacy,"summary matches legacy labels, units, order and spacing");
         const auto comparison=gm::exchange_comparison(s,s);
-        check(comparison.find("昨日系统投放量\t12.00 万")!=std::string::npos && comparison.ends_with("昨日平均价\t1234\n\n"),"comparison retains legacy yesterday average units");
+        check(comparison.find("Yesterday System Listed\t12.00 x10k")!=std::string::npos && comparison.ends_with("Yesterday Average Price\t1234\n\n"),"comparison retains legacy yesterday average units");
         const auto report=gm::exchange_export(timestamp(2,3,4),timestamp(3,5,6),s);
         check(report && report->filename=="1-2_1-3.txt","local date filename");
-        check(report->bytes=="开始时间\t结束时间\t系统投放量\t系统成交量\t系统成交元宝\t玩家投放量\t玩家成交量\t玩家成交元宝\t平均价\r\n2026-1-2 3:4\t2026-1-3 5:6\t12.00\t5.00\t123.45\t98.00\t7.00\t-67.89\t1234\r\n","legacy export columns, encoding, conversions and CRLF bytes");
+        check(report->bytes=="Start Time\tEnd Time\tSystem Listed\tSystem Traded\tSystem Traded Gems\tPlayer Listed\tPlayer Traded\tPlayer Traded Gems\tAverage Price\r\n2026-1-2 3:4\t2026-1-3 5:6\t12.00\t5.00\t123.45\t98.00\t7.00\t-67.89\t1234\r\n","legacy export columns, encoding, conversions and CRLF bytes");
         check(gm::exchange_export(UINT32_MAX,UINT32_MAX,s).has_value(),"timestamps beyond 2038 remain representable");
         const auto root=std::filesystem::path(argv[1])/std::filesystem::path(u8"\u7EDF\u8BA1");std::filesystem::create_directories(root);
         const auto path=root/report->filename;

@@ -51,7 +51,7 @@ inline bool message_dialog(QWidget& parent,const QString& text,QDialogButtonBox:
     DialogScope scope(new QDialog(&parent));
     const auto dialog=scope.Get();
     dialog->setObjectName(QString::fromLatin1(object_name));
-    dialog->setWindowTitle(QStringLiteral("注意"));
+    dialog->setWindowTitle(QStringLiteral("Notice"));
     auto* layout=new QVBoxLayout(dialog);
     auto* label=new QLabel(text,dialog);
     label->setTextFormat(Qt::PlainText);label->setWordWrap(true);
@@ -76,8 +76,8 @@ inline std::expected<std::string,QString> text_field(const QString& text, std::s
     if (static_cast<std::size_t>(bytes.size())<minimum || static_cast<std::size_t>(bytes.size())>=capacity || bytes.contains('\0'))
     {
         if (capacity==std::numeric_limits<std::size_t>::max())
-            return std::unexpected(label+QStringLiteral("不能为空或含空字符"));
-        return std::unexpected(label+QStringLiteral("需为 %1 至 %2 个 UTF-8 字节，且不能含空字符")
+            return std::unexpected(label+QStringLiteral(" cannot be empty or contain NUL characters"));
+        return std::unexpected(label+QStringLiteral(" must be %1 to %2 UTF-8 bytes and cannot contain NUL characters")
             .arg(static_cast<qulonglong>(minimum)).arg(static_cast<qulonglong>(capacity-1)));
     }
     return std::string(bytes.constData(),static_cast<std::size_t>(bytes.size()));
@@ -91,7 +91,7 @@ template<std::integral T> std::expected<T,QString> numeric_field(const QString& 
 {
     const auto bytes=text.toUtf8();
     const auto value=parse_decimal<T>({bytes.constData(),static_cast<std::size_t>(bytes.size())},empty_zero);
-    if (!value) return std::unexpected(label+QStringLiteral("格式或范围无效"));
+    if (!value) return std::unexpected(label+QStringLiteral(" has an invalid format or range"));
     return *value;
 }
 
@@ -108,17 +108,17 @@ inline std::expected<std::vector<SelectedPeer>,QString> selected_peers(bool sing
     auto& selection=CServerMgr::GetInstance();
     auto& sessions=CSessionMgr::GetInstance();
     if (!CGMManager::GetInstance().IsRunning() || !selection.UpdateSelectServer())
-        return std::unexpected(QStringLiteral("服务器未连接，请稍后重试"));
+        return std::unexpected(QStringLiteral("Server is not connected. Please try again later"));
     const auto count=selection.GetSelectedNum();
     if (count<=0 || count>MAX_GM_SESSION_COUNT || (single && count!=1))
-        return std::unexpected(single ? QStringLiteral("请选择一个执行区服") : QStringLiteral("请选择执行区服"));
+        return std::unexpected(single ? QStringLiteral("Please select one server to run on") : QStringLiteral("Please select a server to run on"));
     std::vector<SelectedPeer> peers;peers.reserve(count);
     for (INT32 index=0;index<count;++index)
     {
         const auto id=selection.GetSessionIDByIndex(index);
         const auto* session=sessions.GetGMSession(id);
         if (!session || !session->pSocketSession || !session->connection_lifetime || session->nConnectState!=SESSION_CONNECTED || session->eState!=GM_SVR_STATE_LOGIN)
-            return std::unexpected(QStringLiteral("服务器状态已变化，请重试"));
+            return std::unexpected(QStringLiteral("Server status has changed. Please try again"));
         peers.push_back({id,session->pSocketSession,sessions.Generation(),session->connection_lifetime});
     }
     return peers;

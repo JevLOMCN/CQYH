@@ -80,13 +80,13 @@ gm::ExchangeDue gm::ExchangePoll::take(Clock::time_point now)
 }
 std::string gm::exchange_summary(const ExchangeStatistics& s)
 {
-    return std::format("系统投放量\t{} 万\n系统成交量\t{} 万\n系统成交元宝\t{}\n\n玩家投放量\t{} 万\n玩家成交量\t{} 万\n玩家成交元宝\t{}\n\n当日平均价\t{}\n前1小时平均价\t{}\n\n",
+    return std::format("System Listed\t{} x10k\nSystem Traded\t{} x10k\nSystem Traded Gems\t{}\n\nPlayer Listed\t{} x10k\nPlayer Traded\t{} x10k\nPlayer Traded Gems\t{}\n\nAverage Price Today\t{}\nAverage Price Last Hour\t{}\n\n",
         units(s.system_money),units(s.system_traded),exchange_price(s.system_gems),
         units(s.player_money),units(s.player_traded),exchange_price(s.player_gems),exchange_price(s.average),exchange_price(s.previous_average));
 }
 std::string gm::exchange_comparison(const ExchangeStatistics& s,const ExchangeStatistics& y)
 {
-    return std::format("系统投放量\t{} 万\n系统成交量\t{} 万\n系统成交元宝\t{}\n\n玩家投放量\t{} 万\n玩家成交量\t{} 万\n玩家成交元宝\t{}\n\n当日平均价\t{}\n\n前1小时平均价\t{}\n\n\n\n昨日系统投放量\t{} 万\n昨日系统成交量\t{} 万\n昨日系统成交元宝\t{}\n\n昨日玩家投放量\t{} 万\n昨日玩家成交量\t{} 万\n昨日玩家成交元宝\t{}\n\n昨日平均价\t{}\n\n",
+    return std::format("System Listed\t{} x10k\nSystem Traded\t{} x10k\nSystem Traded Gems\t{}\n\nPlayer Listed\t{} x10k\nPlayer Traded\t{} x10k\nPlayer Traded Gems\t{}\n\nAverage Price Today\t{}\n\nAverage Price Last Hour\t{}\n\n\n\nYesterday System Listed\t{} x10k\nYesterday System Traded\t{} x10k\nYesterday System Traded Gems\t{}\n\nYesterday Player Listed\t{} x10k\nYesterday Player Traded\t{} x10k\nYesterday Player Traded Gems\t{}\n\nYesterday Average Price\t{}\n\n",
         units(s.system_money),units(s.system_traded),exchange_price(s.system_gems),
         units(s.player_money),units(s.player_traded),exchange_price(s.player_gems),exchange_price(s.average),exchange_price(s.previous_average),
         units(y.system_money),units(y.system_traded),exchange_price(y.system_gems),units(y.player_money),units(y.player_traded),exchange_price(y.player_gems),y.average);
@@ -97,7 +97,7 @@ std::expected<gm::ExchangeExport,std::string> gm::exchange_export(std::uint32_t 
     if (!first || !last) return std::unexpected("exchange report time is outside the local calendar range");
     ExchangeExport result;
     result.filename=std::format("{}-{}_{}-{}.txt",first->tm_mon+1,first->tm_mday,last->tm_mon+1,last->tm_mday);
-    result.bytes=std::format("开始时间\t结束时间\t系统投放量\t系统成交量\t系统成交元宝\t玩家投放量\t玩家成交量\t玩家成交元宝\t平均价\r\n{}-{}-{} {}:{}\t{}-{}-{} {}:{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\r\n",
+    result.bytes=std::format("Start Time\tEnd Time\tSystem Listed\tSystem Traded\tSystem Traded Gems\tPlayer Listed\tPlayer Traded\tPlayer Traded Gems\tAverage Price\r\n{}-{}-{} {}:{}\t{}-{}-{} {}:{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\r\n",
         first->tm_year+1900,first->tm_mon+1,first->tm_mday,first->tm_hour,first->tm_min,
         last->tm_year+1900,last->tm_mon+1,last->tm_mday,last->tm_hour,last->tm_min,
         units(s.system_money),units(s.system_traded),exchange_price(s.system_gems),units(s.player_money),units(s.player_traded),exchange_price(s.player_gems),s.average);

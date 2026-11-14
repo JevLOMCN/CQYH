@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>道具信息</string>
+   <string>Item Info</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -36,7 +36,7 @@
    <item row="1" column="0">
     <widget class="QPushButton" name="exitButton">
      <property name="text">
-      <string>退出</string>
+      <string>Exit</string>
      </property>
     </widget>
    </item>

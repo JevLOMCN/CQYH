@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>添加道具</string>
+   <string>Add Item</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>最高价格</string>
+      <string>Max Price</string>
      </property>
     </widget>
    </item>
@@ -41,7 +41,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>最低价格</string>
+      <string>Min Price</string>
      </property>
     </widget>
    </item>
@@ -62,7 +62,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>单次挂单限制</string>
+      <string>Single Order Limit</string>
      </property>
     </widget>
    </item>
@@ -83,7 +83,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>每次挂单限制</string>
+      <string>Daily Order Limit</string>
      </property>
     </widget>
    </item>
@@ -104,14 +104,14 @@
    <item row="4" column="1" colspan="2">
     <widget class="QPushButton" name="pushButton">
      <property name="text">
-      <string>修改</string>
+      <string>Modify</string>
      </property>
     </widget>
    </item>
    <item row="4" column="3">
     <widget class="QPushButton" name="pushButton_2">
      <property name="text">
-      <string>取消</string>
+      <string>Cancel</string>
      </property>
     </widget>
    </item>

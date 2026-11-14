@@ -70,6 +70,13 @@ This repository started as the unmodified 2016 release. These are the changes ma
 
 **Policy: no custom content.** The aim is to bring this source up to the **latest retail client and server behaviour** (currently v1.05), not to add our own features, classes, balance changes or content. A faithful, up-to-date base gives everyone the same starting point: fork it and make your own changes there, whether that is a custom private server, new content or a different ruleset. Contributions that bring the code or data closer to retail are welcome; custom additions belong in your fork.
 
+**English localisation.** The code, comments and player-visible text are being translated from Chinese to English. Translation is data-only: no gameplay or protocol values change.
+
+- **Done:** client and server C++ strings and comments; UnrealScript strings; item, armour, rune and scene tables (client and server copies, kept in sync); Lua script messages; the login screen and in-game UI text baked into the Scaleform movies.
+- **Left in Chinese on purpose:** GM and chat command names (they are parsed by the game), the censored-word lists (data), and test fixtures.
+- **Still to do:** the GM tool UI (`tools/gmtool`), and any text that is an image rather than a string (for example the login screen buttons and the announcement banner).
+- **UI patches live in the asset archive, not in git.** The Scaleform text patches are applied in place to the `.upk` packages under `MMOGame/Content`, which are not tracked here. Names in the tables must stay unique (the server rejects duplicate item names), and the client and server copies of each table must match.
+
 | Status | Goal | Details |
 |---|---|---|
 | ✅ Done | **Modern build environment** | Client moved from Visual Studio 2010 to Visual Studio 2022 (Win32/Win64, Debug/Release). Server rebuilt with CMake and C++23. Database moved from MySQL 5 to MySQL 8 (modern schema and matching data in [`Database/mysql-modern`](Database/mysql-modern/README.md)). See [Modernised development environment](#modernised-development-environment). |

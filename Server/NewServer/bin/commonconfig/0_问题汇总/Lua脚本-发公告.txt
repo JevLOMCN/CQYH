@@ -1,7 +1,7 @@
 
 
 -- Send a message to a single character
-local msg = "今日[命运武器礼盒]开启次数已满! ";
+local msg = "The [Fate Weapon Gift Box] opening limit for today has been reached! ";
 pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
 
 -- Send the player a pink private message

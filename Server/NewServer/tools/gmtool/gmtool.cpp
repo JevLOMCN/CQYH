@@ -301,7 +301,7 @@ void gmtool::SecondInit(int nIndex)
         }
         if (MAX_GM_SESSION_COUNT == dwSessionID)
         {
-            //QMessageBox::critical(this, "critical", QStringLiteral("请选择执行区服"), QMessageBox::Yes);
+            //QMessageBox::critical(this, "critical", QStringLiteral("Please select a server to run on"), QMessageBox::Yes);
             return;
         }
 
@@ -656,7 +656,7 @@ void gmtool::BulkAction(INT32 kind,bool revoke)
     {
         const auto typed=std::static_pointer_cast<T>(command);
         const auto name=std::string(typed->roleList.front().szRoleName);
-        question+=QStringLiteral("（%1 characters）").arg(static_cast<qulonglong>(typed->roleList.size()));
+        question+=QStringLiteral(" (%1 characters)").arg(static_cast<qulonglong>(typed->roleList.size()));
         if (!gm::confirm_action(*this,question) || !alive) return;
         if (manager.IsCmdExecuting() || !gm::selection_matches(*peers,true))
         { ui.statusBar->showMessage(QStringLiteral("Execution status has changed, please try again"));return; }

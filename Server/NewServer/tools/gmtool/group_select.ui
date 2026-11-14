@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>区服选择</string>
+   <string>Server Selection</string>
   </property>
   <widget class="QPushButton" name="exeButton">
    <property name="geometry">
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>确认</string>
+    <string>Confirm</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exitButton">
@@ -36,7 +36,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>取消</string>
+    <string>Cancel</string>
    </property>
   </widget>
   <widget class="QGroupBox" name="groupBox">
@@ -55,7 +55,7 @@
     <item row="0" column="0">
      <widget class="QCheckBox" name="checkBox">
       <property name="text">
-       <string>全区全服</string>
+       <string>All Regions / Servers</string>
       </property>
      </widget>
     </item>

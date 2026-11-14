@@ -149,7 +149,7 @@ int main(int argc,char** argv)
             command_text->setPlainText(QStringLiteral("fixture"));QTimer::singleShot(0,&window,[&]{saw=confirm(window,true,[&]{select(window,1);});});window.SendGMStrCmd();
             check(saw && sent(tl2gm_exe_gm_str)==original_count+1 && !manager.GetCurrentCmd(),"changed peer invalidates raw command confirmation");select(window);
             current->accept=false;QTimer::singleShot(0,&window,[&]{saw=confirm(window,true);});window.SendGMStrCmd();
-            check(saw && !manager.GetCurrentCmd() && window.statusBar()->currentMessage()==QStringLiteral("发送命令失败"),"failed raw send leaves UI retryable");current->accept=true;
+            check(saw && !manager.GetCurrentCmd() && window.statusBar()->currentMessage()==QStringLiteral("Failed to send command, please try again"),"failed raw send leaves UI retryable");current->accept=true;
             const auto name_path=directory/L"窗口角色名单.txt";
             {std::ofstream output(name_path,std::ios::binary);output<<"one\r\ntwo\r\n";}
             auto* file=widget<QLineEdit>(window,"queryfile_lineEdit");

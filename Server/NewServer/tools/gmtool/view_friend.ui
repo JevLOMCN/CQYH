@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>查看好友</string>
+   <string>View Friends</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -29,14 +29,14 @@
          </size>
         </property>
         <property name="text">
-         <string>角色名</string>
+         <string>Role Name</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>我叫MT</string>
+         <string>Sample Name</string>
         </property>
        </widget>
       </item>
@@ -47,12 +47,12 @@
         </attribute>
         <column>
          <property name="text">
-          <string>好友类型</string>
+          <string>Friend Type</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>角色名</string>
+          <string>Role Name</string>
          </property>
         </column>
        </widget>

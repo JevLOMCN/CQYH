@@ -48,7 +48,7 @@ inline bool confirm_exchange(QWidget& parent,const QString& message)
     // Heap ownership permits the parent to be destroyed during the nested event loop.
     QPointer<QDialog> dialog=new QDialog(&parent);
     dialog->setObjectName("exchangeConfirmation");
-    dialog->setWindowTitle(QStringLiteral("确认"));
+    dialog->setWindowTitle(QStringLiteral("Confirm"));
     auto* layout=new QVBoxLayout(dialog);
     auto* label=new QLabel(message,dialog);
     label->setWordWrap(true);

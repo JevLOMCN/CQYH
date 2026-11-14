@@ -13,54 +13,54 @@
 
 
 #define MAX_SEARCH_ROLE_NUM (32)
-#define USER_SEARCH_TYPE_STRING_1 "角色名"
+#define USER_SEARCH_TYPE_STRING_1 "Role Name"
 
-const char cszUserSearchTypeName[]    = "角色名";
-const char cszUserSearchTypeID[] = "角色ID";
-const char cszUserSearchTypeAccount[] = "账号";
+const char cszUserSearchTypeName[]    = "Role Name";
+const char cszUserSearchTypeID[] = "Role ID";
+const char cszUserSearchTypeAccount[] = "Account";
 
-const char cszItemSearchTypeGuid[] = "道具流水号";
-const char cszItemSearchTypeTemplateID[] = "道具类型ID";
+const char cszItemSearchTypeGuid[] = "Item Serial No.";
+const char cszItemSearchTypeTemplateID[] = "Item Type ID";
 
-const char  cszAllSvr[]   = "全区全服";
+const char  cszAllSvr[]   = "All Regions / Servers";
 
 const INT32 MIN_TIME = 1356969600;
 
 
 const char cszMoneyTypeName[15][32] = {
-    "绑金", 
-    "金币", 
+    "Bound Gold", 
+    "Gold", 
     "unused", 
     "unused", 
-    "疲劳度", 
-    "魂", 
-    "名师值", 
-    "万法之气", 
-    "战场点数", 
-    "家族贡献", 
-    "修炼点", 
-    "道义值", 
-    "竞技场点数", 
-    "成就点数",
+    "Fatigue", 
+    "Soul", 
+    "Mentor Points", 
+    "Myriad Qi", 
+    "Battlefield Points", 
+    "Family Contribution", 
+    "Training Points", 
+    "Virtue", 
+    "Arena Points", 
+    "Achievement Points",
     ""};
 
 const char cszItemBagName[6][32] = {
-    "装备",
-    "背包一",
-    "背包二",
-    "背包三",
-    "背包四",
-    "仓库二"
+    "Equipment",
+    "Bag 1",
+    "Bag 2",
+    "Bag 3",
+    "Bag 4",
+    "Storage 2"
     };
 
 const char cszMailTypeName[2][32] = {
-    "玩家邮件",
-    "系统邮件",
+    "Player Mail",
+    "System Mail",
 };
 
 const char cszMailIsNewName[2][32] = {
-    "已领取",
-    "未领取",
+    "Claimed",
+    "Unclaimed",
 };
 
 enum SESSION_CONNECT_STATE

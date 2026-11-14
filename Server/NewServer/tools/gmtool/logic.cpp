@@ -14,80 +14,80 @@ const char *GetBaseDataName(INT32 nBaseType)
     switch (nBaseType)
     {
     case GM_RBD_ID:
-        return "角色ID";
+        return "Role ID";
     case GM_RBD_NAME:
-        return "角色名";
+        return "Role Name";
     case GM_RBD_GROUPID:
-        return "区组";
+        return "Group";
     case GM_RBD_DELETETIME:
-        return "删号时间";
+        return "Delete Time";
     case GM_RBD_CLASS:
-        return "职业";
+        return "Class";
     case GM_RBD_SEX:
-        return "性别";
+        return "Gender";
     case GM_RBD_LEVEL:
-        return "等级";
+        return "Level";
     case GM_RBD_EXP:
-        return "经验";
+        return "EXP";
     case GM_RBD_PKVALUE:
-        return "PK值";
+        return "PK Value";
     case GM_RBD_GMLEVEL:
-        return "GM等级";
+        return "GM Level";
     case GM_RBD_MAP_ID:
-        return "地图类型";
+        return "Map Type";
     case GM_RBD_MAP_SERIAL_ID:
-        return "地图流水号";
+        return "Map Serial No.";
     case GM_RBD_X:
-        return "坐标X";
+        return "Pos X";
     case GM_RBD_Y:
-        return "坐标Y";
+        return "Pos Y";
     case GM_RBD_Z:
-        return "坐标Z";
+        return "Pos Z";
     case GM_RBD_LAST_LOGIN_TIME:
-        return "上次登录时间";
+        return "Last Login Time";
     case GM_RBD_LAST_LOGOUT_TIME:
-        return "上次数据保存时间";
+        return "Last Save Time";
     case GM_RBD_FORBIDDEND_CHAT_TIME:
-        return "禁言时间";
+        return "Mute Time";
     case GM_RBD_FREEZE_ROLE_TIME:
-        return "GM人工禁止登陆时间";
+        return "GM Login Ban Time";
     case GM_RBD_FREEZE_CHEAT_ROLE:
-        return "系统禁止登陆时间";
+        return "System Login Ban Time";
     case GM_RBD_GUILD_ID:
-        return "公会ID";
+        return "Guild ID";
     case GM_RBD_MONEY_1:
-        return "绑金";
+        return "Bound Gold";
     case GM_RBD_MONEY_2:
-        return "金币";
+        return "Gold";
     case GM_RBD_MONEY_3:
-        return "未使用";
+        return "Unused";
     case GM_RBD_MONEY_4:
-        return "未使用";
+        return "Unused";
     case GM_RBD_MONEY_5:
-        return "疲劳度";
+        return "Fatigue";
     case GM_RBD_MONEY_6:
-        return "魂";
+        return "Soul";
     case GM_RBD_MONEY_7:
-        return "名师值";
+        return "Mentor Points";
     case GM_RBD_MONEY_8:
-        return "万法之气";
+        return "Myriad Qi";
     case GM_RBD_MONEY_9:
-        return "战场点数";
+        return "Battlefield Points";
     case GM_RBD_MONEY_10:
-        return "家族贡献";
+        return "Family Contribution";
     case GM_RBD_MONEY_11:
-        return "修炼点";
+        return "Training Points";
     case GM_RBD_MONEY_12:
-        return "道义值";
+        return "Virtue";
     case GM_RBD_MONEY_13:
-        return "竞技场点数";
+        return "Arena Points";
     case GM_RBD_MONEY_14:
-        return "成就点数";
+        return "Achievement Points";
     default:
         break;
     }
 
-    return "未知";
+    return "Unknown";
 }
 
 const char *GetSexString(INT32 nSexType)
@@ -95,17 +95,17 @@ const char *GetSexString(INT32 nSexType)
     switch (nSexType)
     {
     case cstMale:
-        return "男";
+        return "Male";
     case cstFemale:
-        return "女";
+        return "Female";
     case cstAsexual:
-        return "妖";
+        return "Demon";
         break;
     default:
-        return "空";
+        return "None";
     }
 
-    return "空";
+    return "None";
 }
 
 const char *GetClassString(INT32 nClassType)
@@ -113,24 +113,24 @@ const char *GetClassString(INT32 nClassType)
     switch (nClassType)
     {
     case clsWarrior:
-        return "战士";
+        return "Warrior";
     case clsMage:
-        return "法师";
+        return "Mage";
     case clsRogue:
-        return "刺客";
+        return "Assassin";
     case clsArcher:
-        return "弓手";
+        return "Archer";
     case clsTaoist:
-        return "道士";
+        return "Taoist";
     case clsSpear:
-        return "龙枪";
+        return "Lancer";
     case clsSorcerer:
-        return "妖师";
+        return "Demon";
     default:
-        return "空";
+        return "None";
     }
 
-    return "空";
+    return "None";
 }
 
 const char *GetItemContainerString(INT32 nConSlot)
@@ -138,22 +138,22 @@ const char *GetItemContainerString(INT32 nConSlot)
     switch (nConSlot)
     {
     case CONSLOT_EQUIPPED:
-        return "已装备";
+        return "Equipped";
     case CONSLOT_DEFAULT:
-        return "背包";
+        return "Bag";
     case CONSLOT_BANK:
-        return "银行";
+        return "Bank";
     case CONSLOT_HERO_EQUIPPED:
-        return "英雄装备";
+        return "Hero Equipment";
     case CONSLOT_HERO_EQUIPMENT:
-        return "英雄包裹";
+        return "Hero Bag";
     case CONSLOT_DEPOSIT:
-        return "储值栏";
+        return "Top-up Slot";
     default:
-        return "空";
+        return "None";
     }
 
-    return "空";
+    return "None";
 }
 
 const char *GetItemTypeString(INT32 nType)
@@ -161,36 +161,36 @@ const char *GetItemTypeString(INT32 nType)
     switch (nType)
     {
     case ITEMTYPE_INVALID:
-        return "空";
+        return "None";
     case ITEMTYPE_USABLE:
-        return "消耗品";
+        return "Consumable";
     case ITEMTYPE_EQUIP:
-        return "装备";
+        return "Equipment";
     case ITEMTYPE_MATERIAL:
-        return "材料";
+        return "Material";
     case ITEMTYPE_FORMULA:
-        return "配方";
+        return "Recipe";
     case ITEMTYPE_SPELLBOOK:
-        return "技能书";
+        return "Skill Book";
     case ITEMTYPE_RUNE:
-        return "符文";
+        return "Rune";
     case ITEMTYPE_DAN:
-        return "丹药";
+        return "Elixir";
     case ITEMTYPE_SOUL:
-        return "灵魂";
+        return "Spirit";
     case ITEMTYPE_MISC:
-        return "其他";
+        return "Other";
     case ITEMTYPE_QUEST:
-        return "任务";
+        return "Quest";
     case ITEMTYPE_DEPOSIT:
-        return "储值";
+        return "Top-up";
     case ITEMTYPE_RMB:
-        return "商城";
+        return "Mall";
     default:
-        return "空";
+        return "None";
     }
 
-    return "空";
+    return "None";
 }
 
 const char *GetMailAttachType(INT32 nAttachType)
@@ -198,15 +198,15 @@ const char *GetMailAttachType(INT32 nAttachType)
     switch (nAttachType)
     {
     case ATTACHTYPE_NONE:
-        return "无附件";
+        return "No Attachment";
     case ATTACHTYPE_SIMPLE:
     case ATTACHTYPE_BUFFER:
-        return "有附件";
+        return "Has Attachment";
     default:
-        return "空";
+        return "None";
     }
 
-    return "空";
+    return "None";
 }
 
 const char * gm_itoa(INT32 i, char *pBuffer)
@@ -252,61 +252,61 @@ const char *ParseResult(INT32 nResult)
     switch (nResult)
     {
     case errSuccess:
-        return "成功";
+        return "Success";
     case errGMUnknownError:
-        return "未知错误";
+        return "Unknown error";
     case errGMVersionError:
-        return "GM工具版本错误，请更新版本";
+        return "GM tool version mismatch, please update";
     case errGMConnectERROR:
-        return "连接错误";
+        return "Connection error";
     case errGMPwdError:
-        return "账号or密码错";
+        return "Wrong account or password";
     case errGMRelogin:
-        return "账号重复登陆";
+        return "Account already logged in";
     case errGMCannotExecuteNewCmd:
-        return "内存分配失败";
+        return "Memory allocation failed";
     case errGMNotExecutePermission:
-        return "没有执行该命令的权限";
+        return "No permission to run this command";
     case errGMGetPermissionError:
-        return "获取权限失败";
+        return "Failed to get permissions";
     case errGMUserNotFind:
-        return "从ms返回后，未找到GM账号";
+        return "GM account not found after ms reply";
     case errGMDBError:
-        return "数据库错误";
+        return "Database error";
     case errGMTimeout:
-        return "指令执行超时";
+        return "Command timed out";
     case errGMSendMsgToMSError:
-        return "向ms发送消息失败";
+        return "Failed to send message to ms";
     case errGMLostTLUser:
-        return "丢失gm账号";
+        return "GM account lost";
     case errGMCannotFindRole:
-        return "找不到游戏角色";
+        return "Game role not found";
     case errGMLostCmd:
-        return "从ms返回后丢失指令";
+        return "Command lost after ms reply";
     case errGMMSNotOnline:
-        return "ms不在线";
+        return "ms is offline";
     case errGMMSExecuteCmdFailed:
-        return "ms执行gm指令失败";
+        return "ms failed to run GM command";
     case errGMSaveRoleDataFailed:
-        return "保存游戏角色数据失败";
+        return "Failed to save role data";
     case errGMModifyRoleTypeError:
-        return "更改角色的数据的命令类型错误";
+        return "Invalid command type for changing role data";
     case errGMRoleOnline:
-        return "游戏角色在线";
+        return "Game role is online";
     case errGMQueryZeroRoleData:
-        return "未查询到游戏角色数据";
+        return "No role data found";
     case errGMRoleNotFreeze:
-        return "角色未被冻结";
+        return "Role is not frozen";
     case errGMRoleFreezeLessOneHour:
-        return "角色冻结时间小于1小时";
+        return "Role frozen for less than 1 hour";
     case errGMAnnounceNotExist:
-        return "公告不存在了";
+        return "Announcement no longer exists";
     case errGMRoleBeOp:
-        return "该角色被操作";
+        return "Role is being operated on";
     case errGMRoleLockedByOther:
-        return "其他账号正在操作";
+        return "Another account is operating on it";
     default:
-        return "未统计的错误码，请联系程序";
+        return "Unlisted error code, contact the developers";
     }
 }
 

@@ -150,14 +150,14 @@ void exchange_replies(const std::filesystem::path& screenshots)
     auto invalid_detail=detail;gm_test::put(invalid_detail,offsetof(GM2TL_QUERY_ORDER_DETAIL_ACK,byOrderType),UINT8{7});deliver(invalid_detail);check(dialog,"invalid order type preserves detail dialog");
     auto deletion=reply<GM2TL_DEL_SYSTEM_ORDER_ACK>(gm2tl_del_system_order_ack);
     gm_test::put(deletion,offsetof(GM2TL_DEL_SYSTEM_ORDER_ACK,nResult),INT32{errUnknownError});gm_test::put(deletion,offsetof(GM2TL_DEL_SYSTEM_ORDER_ACK,qwOrderID),UINT64_MAX);deliver(deletion);flush();
-    check(dialog && reply_logs.back().find("失败")!=std::string::npos,"failed deletion preserves retry dialog and logs failure");
+    check(dialog && reply_logs.back().find("failed")!=std::string::npos,"failed deletion preserves retry dialog and logs failure");
     gm_test::put(deletion,offsetof(GM2TL_DEL_SYSTEM_ORDER_ACK,nResult),INT32{errSuccess});gm_test::put(deletion,offsetof(GM2TL_DEL_SYSTEM_ORDER_ACK,qwOrderID),UINT64{42});deliver(deletion);flush();
     check(dialog,"unrelated deletion cannot close current detail");
     gm_test::put(deletion,offsetof(GM2TL_DEL_SYSTEM_ORDER_ACK,qwOrderID),UINT64_MAX);deliver(deletion);flush();check(!dialog,"matching successful deletion retires current detail");
     auto addition=reply<GM2TL_ADD_SYSTEM_ORDER_ACK>(gm2tl_add_system_order_ack);gm_test::put(addition,offsetof(GM2TL_ADD_SYSTEM_ORDER_ACK,nPrice),INT32_MAX);
     gm_test::put(addition,offsetof(GM2TL_ADD_SYSTEM_ORDER_ACK,nResult),INT32{errSuccess});
     gm_test::put(addition,offsetof(GM2TL_ADD_SYSTEM_ORDER_ACK,nCount),INT32{7});deliver(addition);
-    check(reply_logs.back().find("21474836.47")!=std::string::npos && reply_logs.back().find("成功")!=std::string::npos,"successful add reply logs complete price and outcome");
+    check(reply_logs.back().find("21474836.47")!=std::string::npos && reply_logs.back().find("succeeded")!=std::string::npos,"successful add reply logs complete price and outcome");
     const auto prior_logs=reply_logs.size();gm_test::put(addition,offsetof(GM2TL_ADD_SYSTEM_ORDER_ACK,byGroupID),UINT8{2});deliver(addition);check(reply_logs.size()==prior_logs,"wrong-group action reply cannot report success");
     auto limits=reply<GM2TL_GET_EXCHANGE_LIMIT_ACK>(gm2tl_get_exchange_limit_ack);gm_test::put(limits,offsetof(GM2TL_GET_EXCHANGE_LIMIT_ACK,nPriceHigh),INT32_MAX);deliver(limits);
     auto* limit=view.findChild<CExchangeLimit*>();check(limit && limit->findChild<QLabel*>("label_5")->text()=="21474836.47","actual get-limit reply renders exact price");
@@ -176,10 +176,10 @@ void exchange_replies(const std::filesystem::path& screenshots)
         const auto first=static_cast<UINT32>(QDateTime(QDate(2026,1,2),QTime(0,0),Qt::UTC).toSecsSinceEpoch());
         gm_test::put(stats,offsetof(GM2TL_QUERY_SYS_EXCHANGE_INFO_ACK,byFlag),UINT8{3});gm_test::put(stats,offsetof(GM2TL_QUERY_SYS_EXCHANGE_INFO_ACK,dwBeginTime),first);
         gm_test::put(stats,offsetof(GM2TL_QUERY_SYS_EXCHANGE_INFO_ACK,dwEndTime),first+86400);deliver(stats);
-        check(reply_logs.back()=="导出数据成功" && std::filesystem::is_regular_file(root/"1-2_1-3.txt"),"export success follows actual staged report publication");
+        check(reply_logs.back()=="Export succeeded" && std::filesystem::is_regular_file(root/"1-2_1-3.txt"),"export success follows actual staged report publication");
         const auto block=root/"1-4_1-5.txt";std::filesystem::create_directories(block);
         gm_test::put(stats,offsetof(GM2TL_QUERY_SYS_EXCHANGE_INFO_ACK,dwBeginTime),first+2*86400);gm_test::put(stats,offsetof(GM2TL_QUERY_SYS_EXCHANGE_INFO_ACK,dwEndTime),first+3*86400);deliver(stats);
-        check(reply_logs.back()=="导出数据失败" && std::filesystem::is_directory(block),"export publication failure never logs success");
+        check(reply_logs.back()=="Export failed" && std::filesystem::is_directory(block),"export publication failure never logs success");
     }
     auto bad=price;bad.pop_back();const auto closes=socket.closes;deliver(bad);check(socket.closes==closes+1,"truncated frame rejected by actual dispatcher");
     auto* deleted=new CLDWidget;deleted->SetGroupID(1);reply_view=deleted;
@@ -585,7 +585,7 @@ int main(int argc,char** argv)
         check(!widget.SetGroupID(-1) && !widget.SetGroupID(MAX_SERVER_GROUP_COUNT),"group bounds");
         auto* summary=widget.findChild<QLabel*>("label");check(summary,"statistics label");
         check(widget.ShowTodayStat(1,123456,987654,55555,77777,12345,-6789,1234,5678),"today statistics");
-        check(summary->text().contains(QString::fromUtf8("\xE7\xB3\xBB\xE7\xBB\x9F\xE6\x8A\x95\xE6\x94\xBE\xE9\x87\x8F")) && summary->text().contains("123.45"),"GBK labels decode correctly on desktop and amounts display");
+        check(summary->text().contains(QStringLiteral("System Listed")) && summary->text().contains("123.45"),"labels and amounts display");
         const auto original=summary->text();check(!widget.ShowTodayStat(2,1,2,3,4,5,6,7,8) && summary->text()==original,"wrong-group statistics preserve current view");
         for (auto* edit : widget.findChildren<QDateTimeEdit*>()) edit->setDateTime(QDateTime(QDate(2026,1,2),QTime(3,4)));
         widget.show();flush();if(auto* focus=app.focusWidget())focus->clearFocus();flush();

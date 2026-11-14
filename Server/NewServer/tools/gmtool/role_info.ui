@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>角色信息</string>
+   <string>Role Info</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
@@ -47,7 +47,7 @@
          </size>
         </property>
         <property name="text">
-         <string>确认</string>
+         <string>Confirm</string>
         </property>
        </widget>
       </item>
@@ -77,7 +77,7 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>原因</string>
+         <string>Reason</string>
         </property>
        </widget>
       </item>
@@ -97,7 +97,7 @@
       <item row="1" column="6">
        <widget class="QPushButton" name="cancelButton">
         <property name="text">
-         <string>取消</string>
+         <string>Cancel</string>
         </property>
        </widget>
       </item>
@@ -117,7 +117,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>属性</string>
+       <string>Attributes</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
        <item row="0" column="0">
@@ -135,7 +135,7 @@
           </size>
          </property>
          <property name="title">
-          <string>基础属性</string>
+          <string>Base Attributes</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
@@ -145,12 +145,12 @@
             </attribute>
             <column>
              <property name="text">
-              <string>键</string>
+              <string>Key</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>值</string>
+              <string>Value</string>
              </property>
             </column>
            </widget>
@@ -158,7 +158,7 @@
           <item row="1" column="0">
            <widget class="QPushButton" name="pushButton">
             <property name="text">
-             <string>返回出生点</string>
+             <string>Return to Spawn</string>
             </property>
            </widget>
           </item>
@@ -180,7 +180,7 @@
           </size>
          </property>
          <property name="title">
-          <string>任务</string>
+          <string>Quests</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
@@ -190,12 +190,12 @@
             </attribute>
             <column>
              <property name="text">
-              <string>任务ID</string>
+              <string>Quest ID</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>任务名</string>
+              <string>Quest Name</string>
              </property>
             </column>
            </widget>
@@ -203,7 +203,7 @@
           <item row="1" column="0">
            <widget class="QPushButton" name="delQuestButton">
             <property name="text">
-             <string>删除任务</string>
+             <string>Delete Quest</string>
             </property>
            </widget>
           </item>
@@ -219,7 +219,7 @@
           </size>
          </property>
          <property name="title">
-          <string>技能</string>
+          <string>Skills</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_12">
           <item row="0" column="0">
@@ -229,12 +229,12 @@
             </attribute>
             <column>
              <property name="text">
-              <string>技能名</string>
+              <string>Skill Name</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>技能栏位置</string>
+              <string>Skill Slot</string>
              </property>
             </column>
            </widget>
@@ -257,7 +257,7 @@
           </size>
          </property>
          <property name="title">
-          <string>称号</string>
+          <string>Titles</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_11">
           <item row="0" column="0">
@@ -267,12 +267,12 @@
             </attribute>
             <column>
              <property name="text">
-              <string>称号名</string>
+              <string>Title Name</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>到期时间</string>
+              <string>Expiry Time</string>
              </property>
             </column>
            </widget>
@@ -284,7 +284,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>道具</string>
+       <string>Items</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="1" column="0" colspan="5">
@@ -300,32 +300,32 @@
          </attribute>
          <column>
           <property name="text">
-           <string>道具ID</string>
+           <string>Item ID</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>道具唯一ID</string>
+           <string>Item Unique ID</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>道具名</string>
+           <string>Item Name</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>位置</string>
+           <string>Position</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>类型</string>
+           <string>Type</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>数量</string>
+           <string>Count</string>
           </property>
          </column>
         </widget>
@@ -333,14 +333,14 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>道具转移目标角色</string>
+          <string>Item Transfer Target Role</string>
          </property>
         </widget>
        </item>
        <item row="2" column="4">
         <widget class="QPushButton" name="delItemButton">
          <property name="text">
-          <string>删除道具</string>
+          <string>Delete Item</string>
          </property>
         </widget>
        </item>
@@ -353,7 +353,7 @@
           </size>
          </property>
          <property name="text">
-          <string>向目标背包转移</string>
+          <string>Transfer to Target Bag</string>
          </property>
         </widget>
        </item>
@@ -370,7 +370,7 @@
        <item row="0" column="3" colspan="2">
         <widget class="QPushButton" name="pushButton_3">
          <property name="text">
-          <string>确认目标角色</string>
+          <string>Confirm Target Role</string>
          </property>
         </widget>
        </item>
@@ -378,7 +378,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>邮件</string>
+       <string>Mail</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
@@ -390,7 +390,7 @@
           </size>
          </property>
          <property name="title">
-          <string>邮件</string>
+          <string>Mail</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="0">
@@ -403,32 +403,32 @@
             </attribute>
             <column>
              <property name="text">
-              <string>主题</string>
+              <string>Subject</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>邮件类型</string>
+              <string>Mail Type</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>是否领取</string>
+              <string>Claimed</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>是否有附件</string>
+              <string>Has Attachment</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>物品类型ID</string>
+              <string>Item Type ID</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>物品数量</string>
+              <string>Item Count</string>
              </property>
             </column>
            </widget>
@@ -436,7 +436,7 @@
           <item row="1" column="0">
            <widget class="QPushButton" name="delMailButton">
             <property name="text">
-             <string>删除邮件</string>
+             <string>Delete Mail</string>
             </property>
            </widget>
           </item>
@@ -447,7 +447,7 @@
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
-       <string>技能</string>
+       <string>Skills</string>
       </attribute>
      </widget>
     </widget>

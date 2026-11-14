@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>详细信息</string>
+   <string>Details</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
@@ -30,17 +30,17 @@
         </attribute>
         <column>
          <property name="text">
-          <string>订单ID</string>
+          <string>Order ID</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>角色</string>
+          <string>Role</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>数量</string>
+          <string>Count</string>
          </property>
         </column>
        </widget>
@@ -94,7 +94,7 @@
          </size>
         </property>
         <property name="text">
-         <string>取消订单</string>
+         <string>Cancel Order</string>
         </property>
        </widget>
       </item>
@@ -126,7 +126,7 @@
          </size>
         </property>
         <property name="text">
-         <string>确定</string>
+         <string>OK</string>
         </property>
        </widget>
       </item>

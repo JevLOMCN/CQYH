@@ -140,7 +140,7 @@ void CRoleInfo::ReturnPos()
         return;
     gm::UiAction action(*this,m_submitting);
     const QPointer<CRoleInfo> alive(this);
-    if (!gm::confirm_action(*this,QStringLiteral("Confirm Data Changes？"),"roleEditConfirmation") || !alive)
+    if (!gm::confirm_action(*this,QStringLiteral("Confirm Data Changes?"),"roleEditConfirmation") || !alive)
         return;
     if (!_ModelCurrent()) { _AcceptEdit(std::unexpected("The cached role changed. Reopen the editor."));return; }
     if (_AcceptEdit(m_edits.return_position()) && alive)

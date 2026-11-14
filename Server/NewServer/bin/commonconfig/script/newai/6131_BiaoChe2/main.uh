@@ -27,7 +27,7 @@ function escort_car_lose_notify(owner)
 	local nX, nY = ConvertCoordN2O(owner:GetX()/POINT_PER_CM, owner:GetY()/POINT_PER_CM, owner:GetZ()/POINT_PER_CM)
 	nX = math.ceil(nX / 100);
 	nY = math.ceil(nY / 100);
-	role:GetScene():Say(role:GetObjID(), cltNormal, "镖车当前位置: "..role:GetScene():GetSceneData().szMapDisplayName.."("..nX..","..nY..")");
+	role:GetScene():Say(role:GetObjID(), cltNormal, "Escort Cart Current Location: "..role:GetScene():GetSceneData().szMapDisplayName.."("..nX..","..nY..")");
 
 	return brvSuccess;
 end
@@ -46,7 +46,7 @@ function escort_sucicide_notify(owner)
 	
 	local role = g_GameWorld:FindValidRole(owner:GetHostID());
 	if role ~= nil then
-		role:GetScene():Say(role:GetObjID(), cltNormal, "你太慢了（镖车的存在时间仅为30分钟）！");
+		role:GetScene():Say(role:GetObjID(), cltNormal, "You are too slow (the escort cart only exists for 30 minutes)!");
 	end
 
 	return brvSuccess;

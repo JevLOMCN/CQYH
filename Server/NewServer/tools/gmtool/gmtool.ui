@@ -30,20 +30,20 @@
        </size>
       </property>
       <property name="title">
-       <string>服务器选择</string>
+       <string>Server Selection</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="1" column="1">
         <widget class="QPushButton" name="loginButton">
          <property name="text">
-          <string>登陆服务器</string>
+          <string>Log In to Server</string>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
         <widget class="QPushButton" name="logoutButton">
          <property name="text">
-          <string>登出服务器</string>
+          <string>Log Out of Server</string>
          </property>
         </widget>
        </item>
@@ -76,7 +76,7 @@
          </attribute>
          <column>
           <property name="text">
-           <string>服务器列表</string>
+           <string>Server List</string>
           </property>
          </column>
         </widget>
@@ -108,7 +108,7 @@
        <item row="1" column="1">
         <widget class="QPushButton" name="clearLogButton">
          <property name="text">
-          <string>清空log</string>
+          <string>Clear Log</string>
          </property>
         </widget>
        </item>
@@ -127,7 +127,7 @@
           </size>
          </property>
          <property name="text">
-          <string>退出</string>
+          <string>Exit</string>
          </property>
         </widget>
        </item>
@@ -154,7 +154,7 @@
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>角色操作</string>
+        <string>Role Operations</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
@@ -172,42 +172,42 @@
            <item row="0" column="5" rowspan="2">
             <widget class="QPushButton" name="queryRoleID">
              <property name="text">
-              <string>查询角色ID</string>
+              <string>Query Role ID</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_14">
              <property name="text">
-              <string>角色ID</string>
+              <string>Role ID</string>
              </property>
             </widget>
            </item>
            <item row="0" column="0">
             <widget class="QRadioButton" name="radioButton_query_1">
              <property name="text">
-              <string>角色名</string>
+              <string>Role Name</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
             <widget class="QRadioButton" name="radioButton_query_2">
              <property name="text">
-              <string>账号名</string>
+              <string>Account</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
             <widget class="QLineEdit" name="lineEdit_query_1">
              <property name="toolTip">
-              <string>支持部分模糊查询</string>
+              <string>Partial fuzzy match supported</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="lineEdit_query_2">
              <property name="toolTip">
-              <string>暂不支持模糊查询</string>
+              <string>Fuzzy match not supported</string>
              </property>
             </widget>
            </item>
@@ -218,22 +218,22 @@
              </attribute>
              <column>
               <property name="text">
-               <string>大区ID</string>
+               <string>Region ID</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>角色ID</string>
+               <string>Role ID</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>角色名</string>
+               <string>Role Name</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>账号名</string>
+               <string>Account</string>
               </property>
              </column>
             </widget>
@@ -256,7 +256,7 @@
               </size>
              </property>
              <property name="text">
-              <string>角色名</string>
+              <string>Role Name</string>
              </property>
             </widget>
            </item>
@@ -272,14 +272,14 @@
               </size>
              </property>
              <property name="text">
-              <string>文件输入</string>
+              <string>File Input</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1" colspan="4">
             <widget class="QLineEdit" name="lineEdit_queryByid">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;不超过10个角色ID,空格分隔&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Up to 10 role IDs, separated by spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -336,52 +336,52 @@
              </attribute>
              <column>
               <property name="text">
-               <string>大区</string>
+               <string>Region</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>区组</string>
+               <string>Group</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>角色ID</string>
+               <string>Role ID</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>角色名</string>
+               <string>Role Name</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>是否被删除</string>
+               <string>Deleted</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>是否在线</string>
+               <string>Online</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>最后回写数据时间</string>
+               <string>Last Data Write-back</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>性别</string>
+               <string>Gender</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>职业</string>
+               <string>Class</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>等级</string>
+               <string>Level</string>
               </property>
              </column>
             </widget>
@@ -389,7 +389,7 @@
            <item row="8" column="4">
             <widget class="QPushButton" name="viewButton">
              <property name="text">
-              <string>查看角色数据</string>
+              <string>View Role Data</string>
              </property>
             </widget>
            </item>
@@ -412,17 +412,17 @@
               <bool>false</bool>
              </property>
              <property name="toolTip">
-              <string>txt格式文件,空格分隔角色ID</string>
+              <string>TXT file, role IDs separated by spaces</string>
              </property>
             </widget>
            </item>
            <item row="3" column="2">
             <widget class="QPushButton" name="roleGMCmdhButton">
              <property name="toolTip">
-              <string comment="对角色自身执行的gm指令"/>
+              <string comment="GM command run on the role itself"/>
              </property>
              <property name="text">
-              <string>对角色执行gm指令</string>
+              <string>Run GM Command on Role</string>
              </property>
             </widget>
            </item>
@@ -441,7 +441,7 @@
               </size>
              </property>
              <property name="text">
-              <string>查询</string>
+              <string>Query</string>
              </property>
             </widget>
            </item>
@@ -453,7 +453,7 @@
               </font>
              </property>
              <property name="text">
-              <string>修改角色数据</string>
+              <string>Modify Role Data</string>
              </property>
             </widget>
            </item>
@@ -464,7 +464,7 @@
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
-        <string>封号、禁言、邮件</string>
+        <string>Ban, Mute, Mail</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
@@ -476,21 +476,21 @@
            <item row="1" column="0">
             <widget class="QRadioButton" name="radioButton_5">
              <property name="text">
-              <string>从文件输入</string>
+              <string>Input from File</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="lineEdit">
              <property name="toolTip">
-              <string>txt格式文件,空格分隔角色ID</string>
+              <string>TXT file, role IDs separated by spaces</string>
              </property>
             </widget>
            </item>
            <item row="0" column="0">
             <widget class="QRadioButton" name="radioButton_6">
              <property name="text">
-              <string>角色名</string>
+              <string>Role Name</string>
              </property>
             </widget>
            </item>
@@ -510,7 +510,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>不超过10个角色ID,空格分隔</string>
+              <string>Up to 10 role IDs, separated by spaces</string>
              </property>
             </widget>
            </item>
@@ -529,21 +529,21 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_17">
                 <property name="text">
-                 <string>邮件标题</string>
+                 <string>Mail Title</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_18">
                 <property name="text">
-                 <string>邮件内容</string>
+                 <string>Mail Content</string>
                 </property>
                </widget>
               </item>
               <item row="5" column="0">
                <widget class="QLabel" name="label_19">
                 <property name="text">
-                 <string>附件道具ID</string>
+                 <string>Attachment Item ID</string>
                 </property>
                </widget>
               </item>
@@ -553,7 +553,7 @@
               <item row="5" column="2">
                <widget class="QLabel" name="label_20">
                 <property name="text">
-                 <string>附件道具数量</string>
+                 <string>Attachment Item Count</string>
                 </property>
                </widget>
               </item>
@@ -563,7 +563,7 @@
               <item row="5" column="4">
                <widget class="QPushButton" name="mailButton">
                 <property name="text">
-                 <string>发邮件</string>
+                 <string>Send Mail</string>
                 </property>
                </widget>
               </item>
@@ -589,7 +589,7 @@
               <item row="2" column="0">
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>原因</string>
+                 <string>Reason</string>
                 </property>
                </widget>
               </item>
@@ -630,7 +630,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>禁言</string>
+               <string>Mute</string>
               </property>
              </widget>
              <widget class="QPushButton" name="unForbiddenChatButton">
@@ -643,7 +643,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>解除禁言</string>
+               <string>Unmute</string>
               </property>
              </widget>
              <widget class="QLabel" name="label_4">
@@ -656,7 +656,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>持续时间：分钟</string>
+               <string>Duration (minutes)</string>
               </property>
              </widget>
              <widget class="QPushButton" name="freezeRoleButton">
@@ -669,7 +669,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>封号</string>
+               <string>Ban</string>
               </property>
              </widget>
              <widget class="QPushButton" name="unfreezeRoleButton">
@@ -682,7 +682,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>解除封号</string>
+               <string>Unban</string>
               </property>
              </widget>
              <widget class="QPushButton" name="kickRoleButton">
@@ -695,7 +695,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>强制下线</string>
+               <string>Force Offline</string>
               </property>
              </widget>
              <widget class="QRadioButton" name="fc1_radioButton">
@@ -744,7 +744,7 @@
                </rect>
               </property>
               <property name="text">
-               <string>  -1是永久封号</string>
+               <string>  -1 = permanent ban</string>
               </property>
              </widget>
             </widget>
@@ -756,12 +756,12 @@
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>公会操作</string>
+        <string>Guild Operations</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_5">
        <attribute name="title">
-        <string>活动相关,公告</string>
+        <string>Events, Announcements</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_12">
         <item row="3" column="0">
@@ -792,20 +792,20 @@
            </size>
           </property>
           <property name="title">
-           <string>公告</string>
+           <string>Announcement</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_13">
            <item row="1" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>公告内容</string>
+              <string>Announcement Text</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>开始时间</string>
+              <string>Start Time</string>
              </property>
             </widget>
            </item>
@@ -815,7 +815,7 @@
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
-              <string>循环间隔：秒</string>
+              <string>Repeat Interval (sec)</string>
              </property>
             </widget>
            </item>
@@ -825,7 +825,7 @@
            <item row="3" column="2">
             <widget class="QLabel" name="label_16">
              <property name="text">
-              <string>循环次数</string>
+              <string>Repeat Count</string>
              </property>
             </widget>
            </item>
@@ -835,7 +835,7 @@
            <item row="4" column="3">
             <widget class="QPushButton" name="annouceButton">
              <property name="text">
-              <string>发公告</string>
+              <string>Send Announcement</string>
              </property>
             </widget>
            </item>
@@ -852,14 +852,14 @@
            <item row="4" column="0">
             <widget class="QPushButton" name="delAnnounceButton">
              <property name="text">
-              <string>删除公告</string>
+              <string>Delete Announcement</string>
              </property>
             </widget>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>组：</string>
+              <string>Group:</string>
              </property>
             </widget>
            </item>
@@ -883,22 +883,22 @@
           </attribute>
           <column>
            <property name="text">
-            <string>组</string>
+            <string>Group</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>间隔时间</string>
+            <string>Interval</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>剩余重复次数</string>
+            <string>Repeats Left</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>内容</string>
+            <string>Content</string>
            </property>
           </column>
          </widget>
@@ -906,7 +906,7 @@
         <item row="1" column="0">
          <widget class="QPushButton" name="getAnnounceButton">
           <property name="text">
-           <string>获取已发送公告</string>
+           <string>Get Sent Announcements</string>
           </property>
          </widget>
         </item>
@@ -914,7 +914,7 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>日志查询</string>
+        <string>Log Query</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
         <item row="0" column="0">
@@ -971,7 +971,7 @@
               <item row="2" column="0" colspan="2">
                <widget class="QPushButton" name="searchButton_log">
                 <property name="text">
-                 <string>查询</string>
+                 <string>Query</string>
                 </property>
                </widget>
               </item>
@@ -990,7 +990,7 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>结束时间</string>
+                    <string>End Time</string>
                    </property>
                   </widget>
                  </item>
@@ -1003,7 +1003,7 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>开始时间</string>
+                    <string>Start Time</string>
                    </property>
                   </widget>
                  </item>
@@ -1038,7 +1038,7 @@
                     <item row="1" column="0">
                      <widget class="QLabel" name="label_log_1">
                       <property name="text">
-                       <string>原角色ID</string>
+                       <string>Source Role ID</string>
                       </property>
                      </widget>
                     </item>
@@ -1051,14 +1051,14 @@
                     <item row="3" column="0">
                      <widget class="QLabel" name="label_log_3">
                       <property name="text">
-                       <string>道具流水号</string>
+                       <string>Item Serial No.</string>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="label_log_2">
                       <property name="text">
-                       <string>道具类型</string>
+                       <string>Item Type</string>
                       </property>
                      </widget>
                     </item>
@@ -1077,28 +1077,28 @@
                     <item row="6" column="0">
                      <widget class="QLabel" name="label_log_6">
                       <property name="text">
-                       <string>任务ID</string>
+                       <string>Quest ID</string>
                       </property>
                      </widget>
                     </item>
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_log_4">
                       <property name="text">
-                       <string>目标角色</string>
+                       <string>Target Role</string>
                       </property>
                      </widget>
                     </item>
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_log_5">
                       <property name="text">
-                       <string>货币类型</string>
+                       <string>Currency Type</string>
                       </property>
                      </widget>
                     </item>
                     <item row="0" column="0">
                      <widget class="QLabel" name="label_log_0">
                       <property name="text">
-                       <string>盛大通行证</string>
+                       <string>Shanda Passport</string>
                       </property>
                      </widget>
                     </item>
@@ -1120,7 +1120,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_10">
                 <property name="text">
-                 <string>输出文件名</string>
+                 <string>Output File Name</string>
                 </property>
                </widget>
               </item>
@@ -1144,7 +1144,7 @@
       </widget>
       <widget class="QWidget" name="tab_7">
        <attribute name="title">
-        <string>批量查询角色ID</string>
+        <string>Batch Query Role ID</string>
        </attribute>
        <widget class="QPushButton" name="queryfileButton">
         <property name="geometry">
@@ -1156,7 +1156,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>查询</string>
+         <string>Query</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="queryfile_lineEdit">
@@ -1179,13 +1179,13 @@
          </rect>
         </property>
         <property name="text">
-         <string>输出文件名为： nameTOid.txt文件</string>
+         <string>Output file: nameTOid.txt</string>
         </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_6">
        <attribute name="title">
-        <string>其他</string>
+        <string>Other</string>
        </attribute>
        <widget class="QLabel" name="label_2">
         <property name="geometry">
@@ -1197,7 +1197,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>系统指令</string>
+         <string>System Command</string>
         </property>
        </widget>
        <widget class="QTextEdit" name="textEdit_gmStrCmd">
@@ -1220,7 +1220,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>执行指令</string>
+         <string>Run Command</string>
         </property>
        </widget>
       </widget>

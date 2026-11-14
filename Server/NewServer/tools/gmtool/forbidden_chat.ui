@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>禁言</string>
+   <string>Mute</string>
   </property>
   <widget class="QRadioButton" name="radioButton">
    <property name="geometry">
@@ -35,7 +35,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>禁言</string>
+    <string>Mute</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="radioButton_2">
@@ -48,7 +48,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>解除禁言</string>
+    <string>Unmute</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -61,7 +61,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>禁言时间</string>
+    <string>Mute Duration</string>
    </property>
   </widget>
   <widget class="QComboBox" name="comboBox">
@@ -84,7 +84,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>执行</string>
+    <string>Execute</string>
    </property>
   </widget>
   <widget class="QPushButton" name="exitButton">
@@ -97,7 +97,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>退出</string>
+    <string>Exit</string>
    </property>
   </widget>
  </widget>
