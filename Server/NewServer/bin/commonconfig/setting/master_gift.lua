@@ -1,6 +1,6 @@
 
 master_gift_define = {
-	owner='梅丽颖',
+	owner='Mei Liying',
 	ID = {
 		type = 'number',
 		default = 0,

@@ -29,7 +29,7 @@ PACKAGE_TABLE = {
 --		{ questid = 1, varid = 0, varvalue = 1 },
 --		{ doodadid = 3283}, --doodad id
 --		{ pkvalue = 100, chance = 50 },
---		{ announce = '{role_name}使用了一个火炬！'}, --Announcement text; "{*}" denotes replacements. See ANNOUNCE_REPL_STRING_FUNC_TABLE for replacement definitions
+--		{ announce = '{role_name} used a torch!'}, --Announcement text; "{*}" denotes replacements. See ANNOUNCE_REPL_STRING_FUNC_TABLE for replacement definitions
 --		{ aura = 1 }, Receive one aura
 --	},
 
@@ -112,7 +112,7 @@ PACKAGE_TABLE = {
 				{ itemid = 1500211, itemcount = 2, weight = 10909 ,bind = true }, --Super magic potion*3	10.90900%
 
 			},
-			--announce_expensive = ' {role_name} 从回归礼包里获得了道具:[item_name]',
+			--announce_expensive = ' {role_name} got an item from the Return Gift Pack: [item_name]',
 		},
 	},
 
@@ -193,7 +193,7 @@ PACKAGE_TABLE = {
 				{ itemid = 2800005, itemcount = 1, weight = 833 },		--Chiyue unlock voucher		3000
 
 			},
-			announce_expensive = ' {role_name} 从三月宝箱里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the March Chest: [item_name]',
 		},
 	},
 ------------------------Weapon chest
@@ -233,7 +233,7 @@ PACKAGE_TABLE = {
 				{ itemid = 99900028, itemcount = 1, weight = 100 }, --Bone Jade
 
 			},
-			announce_expensive = ' {role_name} 从装备宝箱里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the Equipment Chest: [item_name]',
 		},
 	},
 
@@ -248,7 +248,7 @@ PACKAGE_TABLE = {
 				{ itemid = 99900025, itemcount = 1, weight = 1 }, --Staff of Judgment
 				{ itemid = 99900025, itemcount = 1, weight = 1 }, --Staff of Judgment
 			},
-			announce_expensive = ' {role_name} 从装备宝箱里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the Equipment Chest: [item_name]',
 		},
 	},
 --*********************May treasure chest
@@ -285,7 +285,7 @@ PACKAGE_TABLE = {
 				{ itemid = 1800019, itemcount = 1, weight = 833 },		--5,000,000 experience pill
 
 			},
-			announce_expensive = ' {role_name} 从五月宝箱里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the May Chest: [item_name]',
 		},
 	},
 	--*********************Unknown Omen
@@ -1875,7 +1875,7 @@ PACKAGE_TABLE = {
 				{ itemid = 33008, 	itemcount = 1, weight = 23006}, --Summon Divine Beast
 
 			},
-			announce_expensive = ' {role_name} 从端午节粽子礼包里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the Dragon Boat Zongzi Gift Pack: [item_name]',
 		},
 	},
 
@@ -2934,7 +2934,7 @@ PACKAGE_TABLE = {
 
 			},
 
-			announce_expensive = ' {role_name} 从皇室宝箱里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the Royal Chest: [item_name]',
 		},
 		{itemid = 2800166, itemcount = 5},
 	},
@@ -3056,7 +3056,7 @@ PACKAGE_TABLE = {
 		func = 'FireWorksCake',
 		maxitemcount = 0,
 		{ doodadid = 3479},
-		{ announce = '{role_name}豪掷蛋糕烟花为大家送上祝福！'},
+		{ announce = '{role_name} lavishly set off cake fireworks to send everyone blessings!'},
 	},
 
 		{
@@ -3988,7 +3988,7 @@ PACKAGE_TABLE = {
 				{ itemid = 703, itemcount = 1, weight =63818, },------Spirit potion
 				{ itemid = 705, itemcount = 1, weight =63818, },------Stamina potion
 			},
-			announce_expensive = ' {role_name} 从积分抽奖中获得了道具:[item_name]',	
+			announce_expensive = ' {role_name} got an item from the Points Lottery: [item_name]',	
 		},
 		{itemid = 2800161, itemcount = 1},
 	},
@@ -4022,7 +4022,7 @@ PACKAGE_TABLE = {
 				{ itemid = 703, itemcount = 1, weight =63818, },------Spirit potion
 				{ itemid = 705, itemcount = 1, weight =63818, },------Stamina potion
 			},
-			announce_expensive = ' {role_name} 从积分抽奖中获得了道具:[item_name]',	
+			announce_expensive = ' {role_name} got an item from the Points Lottery: [item_name]',	
 		},
 		{itemid = 2800161, itemcount = 1},
 		
@@ -4048,7 +4048,7 @@ PACKAGE_TABLE = {
 				{ itemid = 99900025, itemcount = 1, weight =10, },------Judgment
 				
 			},
-			--announce_expensive = ' {role_name} 从积分抽奖中获得了道具:[item_name]',	
+			--announce_expensive = ' {role_name} got an item from the Points Lottery: [item_name]',	
 		},
 	},]]--
 	--2020-7-18	Luck +1 gift box from check-in
@@ -4099,7 +4099,7 @@ PACKAGE_TABLE = {
 				{ itemid = 1500056, itemcount = 1, weight =100 }, --Woma jewelry box
 				{ itemid = 2800207, itemcount = 1, weight =200 },
 			},
-		announce_expensive = ' {role_name} 从神物行宝箱中获得了道具:[item_name]',		
+		announce_expensive = ' {role_name} got an item from the Divine Artifact Chest: [item_name]',		
 		},	
 	},
 	

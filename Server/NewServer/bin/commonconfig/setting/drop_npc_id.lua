@@ -1,6 +1,6 @@
 ﻿
 dorp_npc_id_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	NpcTemplateID = {
 		type = 'number',
 		default = 0,

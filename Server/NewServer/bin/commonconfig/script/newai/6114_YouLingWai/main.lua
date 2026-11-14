@@ -35,16 +35,16 @@ function Check_Yuanbao(owner)
 	-- role:GetItemBag():ChangeYuanbao(username,0,false,ITEMLOG_SCRIPT,1);
 	-- if title == true then
 	-- 	if level < 20 then 
-	-- 		role:GetScene():Say(role:GetObjID(), cltTvShow, "等级小于20级，进入失败。");
+	-- 		role:GetScene():Say(role:GetObjID(), cltTvShow, "Level below 20, entry failed.");
 	-- 		return brvFail ; 
 	-- 	else	
 	-- 		return brvSuccess ; 
 	-- 	end	
 	-- elseif yuanbao < 800 then 
-	-- 	role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足，进入失败。");	
+	-- 	role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao, entry failed.");	
 	-- 	return brvFail ; 
 	-- elseif level < 20 then 
-	-- 	role:GetScene():Say(role:GetObjID(), cltTvShow, "等级小于20级，进入失败。");	
+	-- 	role:GetScene():Say(role:GetObjID(), cltTvShow, "Level below 20, entry failed.");	
 	-- 	return brvFail ; 
 	-- else
 	-- 	role:GetItemBag():ChangeYuanbao(username,800,false,ITEMLOG_SCRIPT,1);

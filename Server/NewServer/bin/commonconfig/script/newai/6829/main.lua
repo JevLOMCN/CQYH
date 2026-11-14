@@ -42,7 +42,7 @@ function Get_Jinbi(owner) --Get the gold cost of combining
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");	
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -56,10 +56,10 @@ function Get_Jinbi(owner) --Get the gold cost of combining
 	print (itemid_two);
 	
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");
 		return brvFail;
 	elseif dang_one == 1 then  
 		if Type == 1 or Type == 2 or Type == 4 then
@@ -81,7 +81,7 @@ function Get_Yuanbao(owner) --Get the ingot cost of combining
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");	
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -92,10 +92,10 @@ function Get_Yuanbao(owner) --Get the ingot cost of combining
 	local two = itemid_two % 100;
 	local cost = 0;	
 	if one == 10 or two == 10 then
-	--	role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+	--	role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-	--	role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");
+	--	role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");
 		return brvFail;
 	elseif dang_one >= 2  and dang_one <= 5 then
 		if Type == 1 or Type == 2 or Type == 4 then
@@ -189,7 +189,7 @@ function Change_Money(owner)
 		else
 			role:GetItemBag(): AddItem1(itemid_one +1,1,MONEYLOG_SHENGXING,0,false,weapon_one);		
 		end	
-		local msg = "升星成功，恭喜获得"..role:GetItemBag():GetItemName(itemid_one + 1).."!"
+		local msg = "Star upgrade succeeded, congratulations on obtaining "..role:GetItemBag():GetItemName(itemid_one + 1).."!"
 			role:Say(role:GetObjID(), cltTvShow, msg);
 		return brvSuccess;
 	elseif dang_one >= 2  and dang_one <= 5 then
@@ -208,7 +208,7 @@ function Change_Money(owner)
 		else
 			role:GetItemBag(): AddItem1(itemid_one +1,1,MONEYLOG_SHENGXING,0,false,weapon_one);
 		end
-		local msg = "升星成功，恭喜获得"..role:GetItemBag():GetItemName(itemid_one + 1).."!"
+		local msg = "Star upgrade succeeded, congratulations on obtaining "..role:GetItemBag():GetItemName(itemid_one + 1).."!"
 			role:Say(role:GetObjID(), cltTvShow, msg);
 		return brvSuccess;
 	else 
@@ -222,7 +222,7 @@ function Check_Weapon_one(owner)  --Furious Slash weapon	--Check that both items
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -235,16 +235,16 @@ function Check_Weapon_one(owner)  --Furious Slash weapon	--Check that both items
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");	
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 1 or Type_two ~= 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -256,7 +256,7 @@ function Check_Weapon_two(owner)  --Furious Slash hat	--Check that both items ar
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -269,16 +269,16 @@ function Check_Weapon_two(owner)  --Furious Slash hat	--Check that both items ar
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");		
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");		
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 2 or Type_two ~= 2 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -290,7 +290,7 @@ function Check_Weapon_three(owner)  --Furious Slash shoulder armor	--Check that 
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -303,16 +303,16 @@ function Check_Weapon_three(owner)  --Furious Slash shoulder armor	--Check that 
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 3 or Type_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -324,7 +324,7 @@ function Check_Weapon_four(owner)  --Furious Slash chest armor	--Check that both
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -337,16 +337,16 @@ function Check_Weapon_four(owner)  --Furious Slash chest armor	--Check that both
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 4 or Type_two ~= 4 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -358,7 +358,7 @@ function Check_Weapon_five(owner)  --Furious Slash bracers	--Check that both ite
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -371,16 +371,16 @@ function Check_Weapon_five(owner)  --Furious Slash bracers	--Check that both ite
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");		
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");		
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 5 or Type_two ~= 5 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -393,7 +393,7 @@ function Check_Weapon_six(owner)  --Furious Slash belt	--Check that both items a
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -406,16 +406,16 @@ function Check_Weapon_six(owner)  --Furious Slash belt	--Check that both items a
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 6 or Type_two ~= 6 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -428,7 +428,7 @@ function Check_Weapon_seven(owner)  --Furious Slash shoes	--Check that both item
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -441,16 +441,16 @@ function Check_Weapon_seven(owner)  --Furious Slash shoes	--Check that both item
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 7 or Type_two ~= 7 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -463,7 +463,7 @@ function Check_Weapon_eight(owner)  --Furious Slash cloak	--Check that both item
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -476,16 +476,16 @@ function Check_Weapon_eight(owner)  --Furious Slash cloak	--Check that both item
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 8 or Type_two ~= 8 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -498,7 +498,7 @@ function Check_Weapon_nine(owner)  --Furious Slash necklace	--Check that both it
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -511,16 +511,16 @@ function Check_Weapon_nine(owner)  --Furious Slash necklace	--Check that both it
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 9 or Type_two ~= 9 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -533,7 +533,7 @@ function Check_Weapon_ten(owner)  --Furious Slash ring	--Check that both items a
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -546,16 +546,16 @@ function Check_Weapon_ten(owner)  --Furious Slash ring	--Check that both items a
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 10 or Type_two ~= 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 
@@ -568,7 +568,7 @@ function Check_Weapon_elven(owner)  --Furious Slash bracelet	--Check that both i
 	local weapon_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local weapon_two = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	if weapon_one == nil or weapon_two ==nil then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够升星的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place upgradable equipment in the first and second bag slots.");
 		return brvFail;
 	end
 	local itemid_one = weapon_one.m_iteminfo.m_nTemplateID;
@@ -581,16 +581,16 @@ function Check_Weapon_elven(owner)  --Furious Slash bracelet	--Check that both i
 	local one = itemid_one % 100;
 	local two = itemid_two % 100;
 	if one == 10 or two == 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入星级为1~9的装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert equipment with 1-9 stars.");
 		return brvFail;		
 	elseif itemid_one ~= itemid_two or itemid_one > 59990000 or itemid_one < 19920000 or itemid_two > 59990000 or itemid_two < 19920000 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入能够升星的装备。");	
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert upgradable equipment.");	
 		return brvFail;
 	elseif dang_one ~= 3 or  dang_two ~= 3 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请放入怒斩档装备。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Please insert Wrath-tier equipment.");
 		return brvFail;
 	elseif Type_one ~= 11 or Type_two ~= 11 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "装备类型不符合。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Equipment type does not match.");
 		return brvFail;
 	else
 		return brvSuccess; 

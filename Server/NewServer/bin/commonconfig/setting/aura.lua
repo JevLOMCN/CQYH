@@ -1,6 +1,6 @@
 
 aura_define = {
-	owner='张敬轩',
+	owner='Zhang Jingxuan',
 	Index = {
 		type = 'number',
 		default = 0,

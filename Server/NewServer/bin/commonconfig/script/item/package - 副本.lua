@@ -28,7 +28,7 @@ PACKAGE_TABLE = {
 --		{ questid = 1, varid = 0, varvalue = 1 },
 --		{ doodadid = 3283}, --doodad id
 --		{ pkvalue = 100, chance = 50 },
---		{ announce = '{role_name}使用了一个火炬！'}, --Announcement text; "{*}" denotes replacements. See ANNOUNCE_REPL_STRING_FUNC_TABLE for replacement definitions
+--		{ announce = '{role_name} used a torch!'}, --Announcement text; "{*}" denotes replacements. See ANNOUNCE_REPL_STRING_FUNC_TABLE for replacement definitions
 --		{ aura = 1 }, Receive one aura
 --	},
 
@@ -2551,7 +2551,7 @@ PACKAGE_TABLE = {
 
 			},
 
-			announce_expensive = ' {role_name} 从皇室宝箱里获得了道具:[item_name]',
+			announce_expensive = ' {role_name} got an item from the Royal Chest: [item_name]',
 		},
 
 	},
@@ -2672,7 +2672,7 @@ PACKAGE_TABLE = {
 		func = 'FireWorksCake',
 		maxitemcount = 0,
 		{ doodadid = 3479},
-		{ announce = '{role_name}豪掷蛋糕烟花为大家送上祝福！'},
+		{ announce = '{role_name} lavishly set off cake fireworks to send everyone blessings!'},
 	},
 
 		{

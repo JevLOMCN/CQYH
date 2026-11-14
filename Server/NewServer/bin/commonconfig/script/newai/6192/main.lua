@@ -27,47 +27,47 @@ function AddSocket(slot)
 	
 	-- Check the return value
 	if nResult == 1802 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "物品不存在");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Item does not exist");
 		return brvFail;
 	end
 	if nResult == 1816 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "当前正在摆摊中");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Currently running a stall");
 		return brvFail;
 	end
 	if nResult == 1817 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "当前正在交易中");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Currently trading");
 		return brvFail;
 	end
 	if nResult == 1836 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "死亡状态无法操作");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Cannot operate while dead");
 		return brvFail;
 	end
 	if nResult == 10001 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "装备不存在");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Equipment does not exist");
 		return brvFail;
 	end
 	if nResult == 10002 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "该装备不能打孔");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "This equipment cannot be socketed");
 		return brvFail;
 	end
 	if nResult == 10003 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "该装备无法再继续打孔");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "This equipment cannot be socketed any further");
 		return brvFail;
 	end
 	if nResult == 10004 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "打孔位置未知错误");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Unknown socketing position error");
 		return brvFail;
 	end
 	if nResult == 10005 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "获取打孔材料消耗数量错误");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Error getting socket material cost amount");
 		return brvFail;
 	end
 	if nResult == 10006 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "打孔材料数量不够");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Not enough socketing materials");
 		return brvFail;
 	end
 	if nResult == 20000 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "打孔成功");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Socketing successful");
 		return brvFail;
 	end
 	
@@ -117,48 +117,48 @@ function SetSocketColor(slot, color)
 
 	-- Check the return value
 	if nResult == 1802 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "物品不存在");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Item does not exist");
 		return brvFail;
 	end
 	if nResult == 1816 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "当前正在摆摊中");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Currently running a stall");
 		return brvFail;
 	end
 	if nResult == 1817 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "当前正在交易中");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Currently trading");
 		return brvFail;
 	end
 	if nResult == 1836 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "死亡状态无法操作");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Cannot operate while dead");
 		return brvFail;
 	end
 	
 	--if nResult == 10001 then
-	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "装备不存在");
+	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Equipment does not exist");
 	--	return brvFail;
 	--end
 	--if nResult == 10002 then
-	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "该装备不能打孔");
+	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "This equipment cannot be socketed");
 	--	return brvFail;
 	--end
 	--if nResult == 10003 then
-	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "该装备无法再继续打孔");
+	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "This equipment cannot be socketed any further");
 	--	return brvFail;
 	--end
 	--if nResult == 10004 then
-	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "打孔位置未知错误");
+	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Unknown socketing position error");
 	--	return brvFail;
 	--end
 	--if nResult == 10005 then
-	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "获取打孔材料消耗数量错误");
+	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Error getting socket material cost amount");
 	--	return brvFail;
 	--end
 	--if nResult == 10006 then
-	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "打孔材料数量不够");
+	--	RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Not enough socketing materials");
 	--	return brvFail;
 	--end
 	if nResult == 30000 then
-		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "雕色成功");
+		RoleObj:GetScene():Say(RoleObj:GetObjID(), cltTvShow, "Carving succeeded");
 		return brvFail;
 	end
 	
@@ -488,16 +488,16 @@ end
 function QueryRoleRootCount()
 	local roleObj = g_oGameWorld:FindValidRole(get_ctx_role_id());
 	
-	local msg_Warrior = string.format("战士节点-[普通-%d]-[高级-%d]", roleObj:GetRuneRootCount(rrrNormal,clsWarrior), roleObj:GetRuneRootCount(rrrAdvanced,clsWarrior));
+	local msg_Warrior = string.format("Warrior node-[Normal-%d]-[Advanced-%d]", roleObj:GetRuneRootCount(rrrNormal,clsWarrior), roleObj:GetRuneRootCount(rrrAdvanced,clsWarrior));
 	roleObj:GetScene():Say(roleObj:GetObjID(), cltDialog, msg_Warrior);
 	
-	local msg_Mage = string.format("法师节点-[普通-%d]-[高级-%d]", roleObj:GetRuneRootCount(rrrNormal,clsMage), roleObj:GetRuneRootCount(rrrAdvanced,clsMage));
+	local msg_Mage = string.format("Mage node-[Normal-%d]-[Advanced-%d]", roleObj:GetRuneRootCount(rrrNormal,clsMage), roleObj:GetRuneRootCount(rrrAdvanced,clsMage));
 	roleObj:GetScene():Say(roleObj:GetObjID(), cltDialog, msg_Mage);
 	
-	local msg_Taoist = string.format("道士节点-[普通-%d]-[高级-%d]", roleObj:GetRuneRootCount(rrrNormal,clsTaoist), roleObj:GetRuneRootCount(rrrAdvanced,clsTaoist));
+	local msg_Taoist = string.format("Taoist node-[Normal-%d]-[Advanced-%d]", roleObj:GetRuneRootCount(rrrNormal,clsTaoist), roleObj:GetRuneRootCount(rrrAdvanced,clsTaoist));
 	roleObj:GetScene():Say(roleObj:GetObjID(), cltDialog, msg_Taoist);
 	
-	local msg_Luck = string.format("祝福油节点-[%d]", roleObj:GetLuckRootCount());
+	local msg_Luck = string.format("Blessing Oil node-[%d]", roleObj:GetLuckRootCount());
 	roleObj:GetScene():Say(roleObj:GetObjID(), cltDialog, msg_Luck);
 	
 	return brvSuccess;
@@ -532,7 +532,7 @@ function DiaoSe_PuTong(owner)
 	
 	local rea = false;
 	if item_one == nil  then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格放入能够雕色的宝石。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place a carvable gem in the first bag slot.");
 		return brvFail;
 	end
 	
@@ -549,13 +549,13 @@ function DiaoSe_PuTong(owner)
 	end
 	
 	if rea == false then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格放入能够雕色的宝石。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place a carvable gem in the first bag slot.");
 		return brvFail;
 	elseif woma < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "沃玛精华不足一个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Woma Essence (need one).");
 		return brvFail;
 	elseif yuanbao < 100 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;	
 	end
 	
@@ -576,7 +576,7 @@ function DiaoSe_TeShu(owner)
 	local item_one = role:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local rea = false;
 	if item_one == nil  then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格放入能够雕色的宝石。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place a carvable gem in the first bag slot.");
 		return brvFail;
 	end
 	
@@ -592,13 +592,13 @@ function DiaoSe_TeShu(owner)
 	end
 	
 	if rea == false then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "请在背包第一格放入能够雕色的宝石。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Place a carvable gem in the first bag slot.");
 		return brvFail;
 	elseif woma < 5 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "沃玛精华不足一个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Woma Essence (need one).");
 		return brvFail;
 	elseif yuanbao < 1000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;	
 	end
 	role:GetItemBag():DeleteItemId(2800075,5,ITEMLOG_SCRIPT,false,0);

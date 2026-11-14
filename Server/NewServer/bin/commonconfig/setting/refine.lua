@@ -1,5 +1,5 @@
 refine_define = {
-owner='傅磊',
+owner='Fu Lei',
 
 RefineLevel = {
     type = 'number',

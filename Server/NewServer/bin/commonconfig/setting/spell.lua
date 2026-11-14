@@ -1,7 +1,7 @@
 
 ---Global variables
 spell_define = {
-	owner='张敬轩',
+	owner='Zhang Jingxuan',
 	ID = {	--SPELL_NODE (spell_node.txt) references only SPELL_VAR; SPELL_VAR (spell_var.txt) references only SPELL_ENTRY (spell.txt); SPELL_ENTRY references only RUNE_ENTRY (rune.txt); RUNE_ENTRY references...
 		type = 'rule',
 		rule = [[
@@ -19,7 +19,7 @@ spell_define = {
 					return true;
 				end
 			end
-			CCheckData:GetInstance():PrintWrn("无法在配置表rune中找到id为"..id.."符文栏位为"..runeslot.."的符文");
+			CCheckData:GetInstance():PrintWrn("Cannot find the rune config entry with id "..id.."Rune slots: "..runeslot.."'s Rune");
 			return false]],
 	},
 	PackageFolder = {

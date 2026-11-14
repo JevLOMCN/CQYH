@@ -1,5 +1,5 @@
 quest_define = {
-	owner='梅丽颖',
+	owner='Mei Liying',
 	GroupID= {
 		type = 'number',
 		default = 0,

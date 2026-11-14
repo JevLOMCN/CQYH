@@ -1,5 +1,5 @@
 mount_define = {
-	owner='张敬轩',
+	owner='Zhang Jingxuan',
 	ID	= {
 		type = 'number',
 		default = 0,

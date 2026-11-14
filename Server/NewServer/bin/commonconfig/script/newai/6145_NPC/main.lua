@@ -88,8 +88,8 @@ function Buy_One(owner)
 		elseif cls == clsTaoist then
 			role:GetItemBag():AddItem(99950034, 1, ITEMLOG_SCRIPT, 0, true);
 		end
-		local msg = "恭喜"..role:GetName().."玩家获得一番赏的三级披风！"
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的三级披风！");
+		local msg = "Congratulations "..role:GetName().."Player won a Tier-Three Cloak in Ichiban Kuji!"
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji Tier Three Cloak!");
 		role:Say(cctServer, cltLighting, msg);
 	elseif arr[n] <= B then
 		local cls = role:GetClass();
@@ -100,13 +100,13 @@ function Buy_One(owner)
 		elseif cls == clsTaoist then
 			role:GetItemBag():AddItem(2800383, 1, ITEMLOG_SCRIPT, 0, true);
 		end
-		local msg = "恭喜"..role:GetName().."玩家获得一番赏的强力技能残页！"
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的强力技能残页！");
+		local msg = "Congratulations "..role:GetName().."Player won a powerful Skill Page in Ichiban Kuji!"
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji powerful Skill Page!");
 		role:Say(cctServer, cltLighting, msg);
 	elseif arr[n] <= C then
 		itemBag:AddItem(2800370, 1, ITEMLOG_SCRIPT, 0, false);
-		local msg = "恭喜"..role:GetName().."玩家获得一番赏的C奖稀有宝石盲盒！"
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的C奖稀有宝石盲盒！");
+		local msg = "Congratulations "..role:GetName().."Player won a Rare Gem Blind Box, Prize C, in Ichiban Kuji!"
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji C Prize Rare Gem Blind Box!");
 		role:Say(cctServer, cltLighting, msg);
 	elseif arr[n] <= D then
 		local cls = role:GetClass();
@@ -132,7 +132,7 @@ function Buy_One(owner)
 		itemBag:AddMoney(1, 100000, MONEYLOG_SCRIPT, 0 ,0);
 	end
 	if #arr == 1 then
-		local msg = "恭喜"..LuckBabbyName.."玩家获得一番赏的最终大奖，请及时领取！"
+		local msg = "Congratulations "..LuckBabbyName.."Player won the Grand Prize in Ichiban Kuji. Please claim it promptly!"
 		role:Say(cctServer, cltLighting, msg);
 	end
 	table.remove(arr,n);
@@ -147,7 +147,7 @@ function Buy_Ten(owner)
 	local itemBag = role:GetItemBag();
 	local loop = 10;
 	if #arr < 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "剩余次数不足10次，请单次购买！");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Fewer than 10 uses remaining, please buy one at a time!");
 		return brvSuccess;
 	end
 	if itemBag:GetMoney(3) < 10000 then
@@ -156,7 +156,7 @@ function Buy_Ten(owner)
 
 	local free_slot_count = itemBag:GetFreeSlots(CONSLOT_DEFAULT);
 	if free_slot_count < 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "背包格子不够10格,请清理好背包后再购买！");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough bag slots (10 needed). Please clear your bag before buying!");
 		return brvFail;
 	end
 	itemBag:ChangeYuanbao(role:GetUserName(),10000,false,0,0);
@@ -179,8 +179,8 @@ function Buy_Ten(owner)
 			elseif cls == clsTaoist then
 				role:GetItemBag():AddItem(99950034, 1, ITEMLOG_SCRIPT, 0, true);
 			end
-			local msg = "恭喜"..role:GetName().."玩家获得一番赏的三级披风！"
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的三级披风！");
+			local msg = "Congratulations "..role:GetName().."Player won a Tier-Three Cloak in Ichiban Kuji!"
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji Tier Three Cloak!");
 			role:Say(cctServer, cltLighting, msg);
 		elseif arr[n] <= B then
 			local cls = role:GetClass();
@@ -191,13 +191,13 @@ function Buy_Ten(owner)
 			elseif cls == clsTaoist then
 				role:GetItemBag():AddItem(2800383, 1, ITEMLOG_SCRIPT, 0, true);
 			end
-			local msg = "恭喜"..role:GetName().."玩家获得一番赏的强力技能残页！"
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的强力技能残页！");
+			local msg = "Congratulations "..role:GetName().."Player won a powerful Skill Page in Ichiban Kuji!"
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji powerful Skill Page!");
 			role:Say(cctServer, cltLighting, msg);
 		elseif arr[n] <= C then
 			itemBag:AddItem(2800370, 1, ITEMLOG_SCRIPT, 0, false);
-			local msg = "恭喜"..role:GetName().."玩家获得一番赏的C奖稀有宝石盲盒！"
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的C奖稀有宝石盲盒！");
+			local msg = "Congratulations "..role:GetName().."Player won a Rare Gem Blind Box, Prize C, in Ichiban Kuji!"
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji C Prize Rare Gem Blind Box!");
 			role:Say(cctServer, cltLighting, msg);
 		elseif arr[n] <= D then
 			local cls = role:GetClass();
@@ -223,7 +223,7 @@ function Buy_Ten(owner)
 			itemBag:AddMoney(1, 100000, MONEYLOG_SCRIPT, 0 ,0);
 		end
 		if #arr == 1 then
-			local msg = "恭喜"..LuckBabbyName.."玩家获得一番赏的最终大奖，请及时领取！"
+			local msg = "Congratulations "..LuckBabbyName.."Player won the Grand Prize in Ichiban Kuji. Please claim it promptly!"
 			role:Say(cctServer, cltLighting, msg);
 		end
 		table.remove(arr,n);
@@ -241,7 +241,7 @@ function Buy_All(owner)
 	local loop = #arr;
 	local free_slot_count = itemBag:GetFreeSlots(CONSLOT_DEFAULT);
 	if #arr > free_slot_count then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "购买次数大于背包格子空余个数，请清理背包或单次购买！");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Purchase count exceeds free bag slots. Please clear your bag or buy fewer at a time!");
 		return brvSuccess;
 	end
 	local yuanbao_cost = 200 * #arr;
@@ -268,8 +268,8 @@ function Buy_All(owner)
 			elseif cls == clsTaoist then
 				role:GetItemBag():AddItem(99950034, 1, ITEMLOG_SCRIPT, 0, true);
 			end
-			local msg = "恭喜"..role:GetName().."玩家获得一番赏的三级披风！"
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的三级披风！");
+			local msg = "Congratulations "..role:GetName().."Player won a Tier-Three Cloak in Ichiban Kuji!"
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji Tier Three Cloak!");
 			role:Say(cctServer, cltLighting, msg);
 		elseif arr[n] <= B then
 			local cls = role:GetClass();
@@ -280,13 +280,13 @@ function Buy_All(owner)
 			elseif cls == clsTaoist then
 				role:GetItemBag():AddItem(2800383, 1, ITEMLOG_SCRIPT, 0, true);
 			end
-			local msg = "恭喜"..role:GetName().."玩家获得一番赏的强力技能残页！"
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的强力技能残页！");
+			local msg = "Congratulations "..role:GetName().."Player won a powerful Skill Page in Ichiban Kuji!"
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji powerful Skill Page!");
 			role:Say(cctServer, cltLighting, msg);
 		elseif arr[n] <= C then
 			itemBag:AddItem(2800370, 1, ITEMLOG_SCRIPT, 0, false);
-			local msg = "恭喜"..role:GetName().."玩家获得一番赏的C奖稀有宝石盲盒！"
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的C奖稀有宝石盲盒！");
+			local msg = "Congratulations "..role:GetName().."Player won a Rare Gem Blind Box, Prize C, in Ichiban Kuji!"
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji C Prize Rare Gem Blind Box!");
 			role:Say(cctServer, cltLighting, msg);
 		elseif arr[n] <= D then
 			local cls = role:GetClass();
@@ -312,7 +312,7 @@ function Buy_All(owner)
 			itemBag:AddMoney(1, 100000, MONEYLOG_SCRIPT, 0, 0);
 		end
 		if #arr == 1 then
-			local msg = "恭喜"..LuckBabbyName.."玩家获得一番赏的最终大奖，请及时领取！"
+			local msg = "Congratulations "..LuckBabbyName.."Player won the Grand Prize in Ichiban Kuji. Please claim it promptly!"
 			role:Say(cctServer, cltLighting, msg);
 		end
 		table.remove(arr,n);
@@ -358,8 +358,8 @@ function Get_Big(owner)
 	elseif cls == clsTaoist then
 		role:GetItemBag():AddItem(99900031, 1, ITEMLOG_SCRIPT, 0, true);
 	end
-	local msg = "恭喜"..role:GetName().."玩家获得一番赏的唯一W奖赤月武器！"
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你获得一番赏的唯一W奖赤月武器！");
+	local msg = "Congratulations "..role:GetName().."Player won the unique Prize W Red Moon Weapon in Ichiban Kuji!"
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you got the Ichiban Kuji unique W Prize Red Moon Weapon!");
 	role:Say(cctServer, cltLighting, msg);
 	LuckBabbyRoleID = 0;
 	return brvSuccess;

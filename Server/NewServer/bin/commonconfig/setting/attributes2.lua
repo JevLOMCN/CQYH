@@ -1,5 +1,5 @@
 attributes2_define = {
-owner='傅磊',
+owner='Fu Lei',
 
 Class = {
     type = 'number',

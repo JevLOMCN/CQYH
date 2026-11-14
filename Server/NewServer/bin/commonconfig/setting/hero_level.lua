@@ -1,6 +1,6 @@
 hero_level_define = {
   
-   owner='傅磊',
+   owner='Fu Lei',
   
 Level = { 
         type = 'number',

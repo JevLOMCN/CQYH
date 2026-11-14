@@ -1,12 +1,12 @@
 item_armor_define = {
-owner='傅磊',
+owner='Fu Lei',
 
 ['*'] = {
     type = 'number',
     default = 0,
 },
 
-['[标题]'] = {
+['[Title]'] = {
     type = 'string',
 
 },

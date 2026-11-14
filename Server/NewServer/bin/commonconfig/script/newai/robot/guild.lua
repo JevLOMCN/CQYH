@@ -332,7 +332,7 @@ function ChangeNotice(owner)
 	end
 
 
-	local notice = "我勒个去，简单的测试用的字符串"
+	local notice = "Holy cow, a simple test string"
 
 	user:ChangeNotice(notice);
 

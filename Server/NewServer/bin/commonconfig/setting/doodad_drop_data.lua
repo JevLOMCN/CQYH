@@ -1,5 +1,5 @@
 Doodad_drop_data_define = {
-	owner='恽玉',
+	owner='Yun Yu',
 	DoodadTemplateID = {
 		type = 'number',
 		default = 0,

@@ -1,5 +1,5 @@
 ﻿shop_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	Index = {
 		type = 'number',
 		default = 0,

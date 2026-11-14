@@ -1,5 +1,5 @@
 guild_welfare_define = {
-	owner='陈凯',
+	owner='Chen Kai',
 	ID = {
 		type = 'number',
 		default = 0,

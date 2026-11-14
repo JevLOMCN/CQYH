@@ -1,6 +1,6 @@
 
 npc_relation_define = {
-	owner='恽玉',
+	owner='Yun Yu',
 	ForceID = {
 		type = 'link',
 		default = 0,

@@ -16,14 +16,14 @@ function enable_exp_drop_rate()
 	SetExpRate(20000);
 	SetDropRate(20000);
 
-	local message = "天降鸿福活动已经开启，活动期间全服开启双倍经验和双倍掉落";
+	local message = "The Heavenly Blessing event has started. Double EXP and double drops are enabled server-wide during the event";
 	for i = 1 , 3 do
 		say(cctServer, cltLighting, message);
 		wait(60);
 	end
 end
 function disable_exp_drop_rate()
-	local message = "天降鸿福活动即将结束";
+	local message = "The Heavenly Blessing event is about to end";
 	for i = 1 , 3 do
 		say(cctServer, cltLighting, message);
 		wait(60);
@@ -38,7 +38,7 @@ end
 --[[
 --Bichon Arena opens
 function enable_bqlt()
-	local msg = "比奇省【龙飞】已设下擂台，激烈的比拼将在20点正式开始，各位勇士赶快前往报名一展身手吧！"
+	local msg = "[Long Fei] of Bichon Province has set up an Arena. The fierce contest begins at 20 o'clock. Warriors, hurry and sign up to show your skills!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -46,7 +46,7 @@ function enable_bqlt()
 end
 --Bichon Arena ends
 function disable_bqlt()
-	local msg = "本期擂台比拼即将于20点40分结束，参赛者可前去比奇省演武场内寻找【吉叔】抽取奖金！"
+	local msg = "This Arena contest ends at 20:40. Contestants can go to the Martial Arena in Bichon Province and find [Uncle Ji] to draw prizes!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -54,14 +54,14 @@ function disable_bqlt()
 end
 -- Bichon Arena rewards
 function enable_bqltlj()
-	local msg = "通往幽冥海的传送阵即将开启，使者【神秘法师】在盟重码头附近等待勇士们前去相助！"
+	local msg = "The portal to the Netherworld Sea is about to open. The envoy [Mysterious Mage] waits near the Mongchon docks for warriors to lend a hand!"
 	for i =1 , 3 do
 		say(cctServer, cltNormal, msg);
 		wait(15)
 	end
 end
 function disable_bqltlj()
-	local msg = "擂台奖金的抽取即将于24点结束，勇士们不要错失良机！"
+	local msg = "The Arena prize draw ends at 24 o'clock. Warriors, do not miss your chance!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -72,14 +72,14 @@ end
 -- Streamer brawl
 --[[
 function zhubo_luandouop()
-	local msg = "主播乱斗活动将于 20：00 开启，请各位参赛的主播在随机长廊做好准备，通过传送员阿贵即可进入活动地图"
+	local msg = "The Streamer Brawl event starts at 20:00. Participating streamers, get ready in the Random Corridor and enter the event map via the teleporter A Gui."
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
 	end
 end
 function zhubo_luandoucl()
-	local msg = "主播乱斗活动将于 21：00 结束，请勇士们做好退出准备"
+	local msg = "The Streamer Brawl event ends at 21:00. Warriors, prepare to exit."
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -92,7 +92,7 @@ end
 --[[
 function enable_dhl()
 	-- say(cctServer, cltLighting, message);
-	local msg = "巧辨真假大灰狼活动将于19点00分正式开启，【大灰狼】将在沙巴克刷新，赶快找到他！"
+	local msg = "The Spot the Real Big Gray Wolf event officially opens at 19:00. The [Big Gray Wolf] will appear in Sabak. Hurry and find him!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -101,7 +101,7 @@ end
 
 function disable_dhl()
 	-- say(cctServer, cltLighting, message);
-	local msg = "巧辨真假大灰狼活动将于19点15分正式关闭，【大灰狼】将停止刷新，赶快找到他！"
+	local msg = "The Spot the Real Big Gray Wolf event officially closes at 19:15. The [Big Gray Wolf] will stop appearing. Hurry and find him!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -110,7 +110,7 @@ end
 
 function spawn_dhl()
 	-- say(cctServer, cltLighting, message);
-	local msg = "巧辨真假大灰狼活动正在进行中，【大灰狼】刚刚空降到沙巴克，赶快找到他！"
+	local msg = "The Spot the Real Big Gray Wolf event is in progress. The [Big Gray Wolf] has just dropped into Sabak. Hurry and find him!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -121,7 +121,7 @@ end
 
 -- Experience Arena opens in 5 minutes
 function enable_exp_arena()
-	local msg = "经验武斗场的大门5分钟后开启，盟重一位【神秘剑客】邀你前往，机不可失！"
+	local msg = "The EXP Arena opens in 5 minutes. A [Mysterious Swordsman] in Mongchon invites you to join. Do not miss it!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -129,7 +129,7 @@ function enable_exp_arena()
 end
 -- Experience Arena closes in 5 minutes
 function disable_exp_arena()
-	local msg = "经验武斗场将在5分钟后关闭，请武斗场内的勇士们做好退出准备！"
+	local msg = "The EXP Arena will close in 5 minutes. Warriors inside, please prepare to leave!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -138,7 +138,7 @@ end
 
 -- Royal Treasury opens in 5 minutes
 function enable_treasure_arena()
-	local msg = "皇室宝库将在5分钟后开启，勇士们可前往盟重安全区寻找【讲古老人】报名参与！"
+	local msg = "The Royal Treasury opens in 5 minutes. Warriors can find [Storyteller Elder] in the Mongchon safe zone to sign up!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -146,7 +146,7 @@ function enable_treasure_arena()
 end
 -- Royal Treasury closes in 5 minutes
 function disable_treasure_arena()
-	local msg = "皇室宝库将在5分钟后关闭，请宝库内的勇士们做好退出准备！"
+	local msg = "The Royal Treasury closes in 5 minutes. Warriors inside, get ready to leave!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -154,7 +154,7 @@ function disable_treasure_arena()
 end
 -- Greed Demon King appears in Royal Treasury
 function spawn_treasure_boss()
-	local msg = "贪婪魔王即将出现在皇室宝库内，勇士们可在盟重安全区寻找【讲古老人】前往讨伐！"
+	local msg = "The Greedy Demon King is about to appear in the Royal Treasury. Warriors, find the [Storyteller] in the Mongchon safe zone to go and slay it!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -162,7 +162,7 @@ function spawn_treasure_boss()
 end
 
 function guild_war()
-	local msg = "行会战活动将在十分钟之后开启，请前往盟重安全区内的工会使者处进入地图！"
+	local msg = "The Guild War starts in ten minutes. Please go to the Guild Envoy in the Mongchon safe zone to enter the map!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -170,7 +170,7 @@ function guild_war()
 end
 
 function new_year()
-	local msg = "牛年活动将于十分钟后开启，请玩家前往沙巴克地图参加活动！"
+	local msg = "The Ox Year event opens in ten minutes. Players, head to the Shabak map to join!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -179,7 +179,7 @@ end
 
 --Guild stronghold battle starts in 5 minutes
 function enable_jdz()
-	local msg = "公会据点争夺战5分钟后开始，各位勇士可以前往沃玛寺庙二层、死亡峡谷虫巢、石墓四层、祖玛四层进行争夺！"
+	local msg = "Guild stronghold battle starts in 5 minutes. Warriors can fight over Woma Temple Floor Two, Death Valley Insect Nest, Stone Tomb Floor Four and Zuma Floor Four!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -187,7 +187,7 @@ function enable_jdz()
 end
 --Guild stronghold battle ends in 5 minutes
 function disable_jdz()
-	local msg = "公会据点争夺战5分钟后结束！"
+	local msg = "Guild stronghold battle ends in 5 minutes!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -200,7 +200,7 @@ end
 
 -- Zhulong God/Hongmo Leader/Woma Leader 30 minutes
 function spawn_cl_hm_wm()
-	local msg = "[触龙神]将于30分钟后出现在[死亡峡谷六层]、[虹魔教主]将于30分钟后出现在[虹魔教坛]、[沃玛教主]将出现在[沃玛寺庙三层]，请勇士们做好讨伐准备！"
+	local msg = "[Chitin Dragon God] will appear in [Death Valley Floor Six] in 30 minutes, [Rainbow Demon Leader] in [Rainbow Demon Altar] in 30 minutes, and [Woma Leader] in [Woma Temple Floor Three]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -208,7 +208,7 @@ function spawn_cl_hm_wm()
 end
 -- Zhulong God/Hongmo Leader/Woma Leader 10 minutes
 function spawn_cl_hm_wm_2()
-	local msg = "[触龙神]将于10分钟后出现在[死亡峡谷六层]、[虹魔教主]将于10分钟后出现在[虹魔教坛]、[沃玛教主]将出现在[沃玛寺庙三层]，请勇士们做好讨伐准备！"
+	local msg = "[Chitin Dragon God] will appear in [Death Valley Floor Six] in 10 minutes, [Rainbow Demon Leader] in [Rainbow Demon Altar] in 10 minutes, and [Woma Leader] in [Woma Temple Floor Three]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -217,7 +217,7 @@ end
 
 -- Zuma Leader 30 minutes
 function spawn_zm()
-	local msg = "30分钟后，[祖玛教主]将出现在[祖玛教主之家]，请勇士们做好讨伐准备！"
+	local msg = "In 30 minutes, [Zuma Leader] will appear at [Zuma Leader's Lair]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -225,7 +225,7 @@ function spawn_zm()
 end
 -- Zuma Leader 10 minutes
 function spawn_zm_2()
-	local msg = "10分钟后，[祖玛教主]将出现在[祖玛教主之家]，请勇士们做好讨伐准备！"
+	local msg = "In 10 minutes, [Zuma Leader] will appear at [Zuma Leader's Lair]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -234,7 +234,7 @@ end
 
 -- Chiyue Demon 30 minutes
 function spawn_cyem()
-	local msg = "[赤月恶魔]将于30分钟后出现在[赤月魔穴]，请勇士们做好讨伐准备！"
+	local msg = "[Red Moon Demon] will appear in [Red Moon Demon Cave] in 30 minutes. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -242,7 +242,7 @@ function spawn_cyem()
 end
 -- Chiyue Demon 10 minutes
 function spawn_cyem_2()
-	local msg = "[赤月恶魔]将于10分钟后出现在[赤月魔穴]，请勇士们做好讨伐准备！"
+	local msg = "[Red Moon Demon] will appear in [Red Moon Demon Cave] in 10 minutes. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -251,7 +251,7 @@ end
 
 -- Flame Demon 30 minutes
 function spawn_lyem()
-	local msg = "[烈焰恶魔]将于30分钟后出现在[赤月魔穴]，请勇士们做好讨伐准备！"
+	local msg = "[Flame Demon] will appear in [Red Moon Demon Cave] in 30 minutes. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -259,7 +259,7 @@ function spawn_lyem()
 end
 -- Flame Demon 10 minutes
 function spawn_lyem_2()
-	local msg = "[烈焰恶魔]将于10分钟后出现在[赤月魔穴]，请勇士们做好讨伐准备！"
+	local msg = "[Flame Demon] will appear in [Red Moon Demon Cave] in 10 minutes. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -269,7 +269,7 @@ end
 
 -- Huangquan Leader/Bull Demon King 30 minutes
 function spawn_hq_nm()
-	local msg = "[黄泉教主]将于30分钟后出现在[骨魔洞五层]、[牛魔王]将于30分钟后出现在[牛魔寺庙大厅]，勇士们前往讨伐！"
+	local msg = "[Huangquan Leader] will appear in [Bone Demon Cave Floor Five] in 30 minutes, and [Minotaur King] in [Minotaur Temple Hall] in 30 minutes. Warriors, go and slay them!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -277,7 +277,7 @@ function spawn_hq_nm()
 end
 -- Huangquan Leader/Bull Demon King 10 minutes
 function spawn_hq_nm_2()
-	local msg = "[黄泉教主]将于10分钟后出现在[骨魔洞五层]、[牛魔王]将于10分钟后出现在[牛魔寺庙大厅]，勇士们前往讨伐！"
+	local msg = "[Huangquan Leader] will appear in [Bone Demon Cave Floor Five] in 10 minutes, and [Minotaur King] in [Minotaur Temple Hall] in 10 minutes. Warriors, go and slay them!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(15)
@@ -286,7 +286,7 @@ end
 
 -- Demon Dragon Leader 30 minutes
 function spawn_mljz()
-	local msg = "[魔龙教主]将于30分钟后出现在[魔龙血域]，请勇士们做好讨伐准备！"
+	local msg = "[Demon Dragon Leader] will appear in [Demon Dragon Blood Domain] in 30 minutes. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -294,7 +294,7 @@ function spawn_mljz()
 end
 -- Demon Dragon Leader 10 minutes
 function spawn_mljz2()
-	local msg = "[魔龙教主]将于10分钟后出现在[魔龙血域]，请勇士们做好讨伐准备！"
+	local msg = "[Demon Dragon Leader] will appear in [Demon Dragon Blood Domain] in 10 minutes. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -303,7 +303,7 @@ end
 
 -- Fortune Golden Pig 30 minutes
 function spawn_zcjz()
-	local msg = "30分钟后，[招财金猪]将出现在[盟重安全区]附近,请勇士们做好讨伐准备！"
+	local msg = "In 30 minutes, [Lucky Golden Pig] will appear near [Mongchon Safe Zone]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -311,7 +311,7 @@ function spawn_zcjz()
 end
 -- Fortune Golden Pig 10 minutes
 function spawn_zcjz2()
-	local msg = "10分钟后，[招财金猪]将出现在[盟重安全区]附近,请勇士们做好讨伐准备！"
+	local msg = "In 10 minutes, [Lucky Golden Pig] will appear near [Mongchon Safe Zone]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -319,7 +319,7 @@ function spawn_zcjz2()
 end
 -- Fortune Golden Pig appears
 function spawn_zcjz3()
-	local msg = "[招财金猪]出现在[盟重安全区]附近,请勇士们做好讨伐准备！"
+	local msg = "[Lucky Golden Pig] has appeared near [Mongchon Safe Zone]. Warriors, prepare for the hunt!"
 	for i =1 , 3 do
 		say(cctServer, cltLighting, msg);
 		wait(20)
@@ -336,7 +336,7 @@ end
 
 --[[
 function enable_sbk_tlmw()
-	local msg = "贪婪魔王将于22点入侵玛法大陆，请诸位勇士前往沙巴克皇宫门前（529，461 附近），迎战魔王！"
+	local msg = "The Greedy Demon King will invade Mafa at 22 o'clock. Warriors, go to the Sabak Palace gate (near 529, 461) and fight the Demon King!"
 	for i =1 , 5 do
 		say(cctServer, cltLighting, msg);
 		wait(100)
@@ -346,7 +346,7 @@ end
 
 
 function spawn_sbk_tlmw()
-	local msg = "贪婪魔王已经现身沙巴克皇宫门前（529，461 附近），请众玛法勇士前往除魔！"
+	local msg = "The Greedy Demon King has appeared at the Sabak Palace gate (near 529, 461). Warriors of Mafa, go and slay it!"
 	for i =1 , 5 do
 		say(cctServer, cltLighting, msg);
 		wait(30)
@@ -355,7 +355,7 @@ function spawn_sbk_tlmw()
 end
 
 function ChunJie_Boss()
-	local message = "2020年春节活动将于十分钟后开始，请前往盟重城寻找携带财宝的金猪，击杀即可获得丰厚奖励哦";
+	local message = "The 2020 Spring Festival event starts in ten minutes. Go to Mongchon City to find the Golden Pig carrying treasure. Kill it for generous rewards!";
 	for i =1 , 5 do
 		say(cctServer, cltLighting, message);
 		wait(30);
@@ -367,7 +367,7 @@ end
 ------------------------------------------------------------------------------------------------------------
 --Divine item drawing
 function open_dice()
-	--local message = "神物行开奖播报";
+	--local message = "Divine Item Shop Draw Broadcast";
 	--say(cctServer, cltLighting, message);
 	-- dice_open();
 end

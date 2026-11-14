@@ -5092,7 +5092,7 @@ function ymh1_teleport(pItem, pRole)
 	local x = p.x / 100;
 	local y = p.y / 100;
 
-	local map_name = "盟重省";
+	local map_name = "Mongchon Province";
 	local map_id = 147;
 
 	local distance = YMH_RANGE * 2;
@@ -5116,12 +5116,12 @@ function ymh1_teleport(pItem, pRole)
 		-- 	return errJumpWrongItem;
 		-- end
 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请与神秘法师对话后进入幽冥海！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Talk to the Mysterious Mage before entering the Netherworld Sea!");
 
 		return errItemNoConsumeUse;
 
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请前往"..map_name.." ("..x..", "..y..")附近寻找神秘法师，进入幽冥海！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Please go to "..map_name.." ("..x..", "..y..") find the Mysterious Mage to enter the Netherworld Sea!");
 
 		return errItemNoConsumeUse;
 	end
@@ -5161,7 +5161,7 @@ function orc_treasure(pItem, pRole)
 			return errSuccess;
 		end
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请前往"..itempos.map_name.." ("..itempos.x..", "..itempos.y..")附近使用“半兽人藏宝图”开启奖励！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Please go to "..itempos.map_name.." ("..itempos.x..", "..itempos.y..") use the 'Half-Orc Treasure Map' to open the reward!");
 		return errItemNoConsumeUse
 	end
 end	
@@ -5196,7 +5196,7 @@ function orc_treasure_niumo(pItem, pRole)
 			return errSuccess;
 		end
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请前往"..itempos.map_name.." ("..itempos.x..", "..itempos.y..")附近使用“牛魔藏宝图”开启奖励！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Please go to "..itempos.map_name.." ("..itempos.x..", "..itempos.y..") use the 'Minotaur Treasure Map' to open the reward!");
 		return errItemNoConsumeUse
 	end
 end	
@@ -5214,7 +5214,7 @@ end
 
 		return errSuccess;
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请前往"..itempos.map_name.." ("..itempos.x..", "..itempos.y..")附近使用“半兽人藏宝图”开启奖励！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Please go to "..itempos.map_name.." ("..itempos.x..", "..itempos.y..") use the 'Half-Orc Treasure Map' to open the reward!");
 
 		return errItemNoConsumeUse;
 	end

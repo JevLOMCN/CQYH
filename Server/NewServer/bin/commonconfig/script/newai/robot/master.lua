@@ -22,7 +22,7 @@ function BeMaster(owner)
 	ret = user:GMCommand("Level 25");
 
 	-- jump to Bichon Province
-	--local ret = user:GMCommand("Jump 比奇省");
+	--local ret = user:GMCommand("Jump Bichon Province");
 
 	--if role:GetLevel() > GRADUATE_LEVEL and role:GetMaster():IsTeacher() == false and role:GetMaster():IsStudent() == false then
 	--	local ret = user:GMCommand("AcceptQuest(30)");

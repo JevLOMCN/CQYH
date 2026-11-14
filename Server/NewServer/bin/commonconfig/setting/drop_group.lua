@@ -1,6 +1,6 @@
 ﻿
 drop_group_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	Enabled = {
 		type = 'number',
 		default = 1,

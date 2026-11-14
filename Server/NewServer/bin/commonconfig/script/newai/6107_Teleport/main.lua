@@ -34,16 +34,16 @@ function buy_libao1(owner)
 	local a = os.time();
 	local b = os.time({year = 2022,month = 9,day = 1, hour = 14, min = 0, sec = 0});
 	if count >= 1 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "冲级礼包只能购买一个，您已拥有此礼包。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The Level-Up Gift Pack can only be bought once. You already own it.");
 		return brvFail;	
 	elseif a - b > 604800 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "开区时间大于7天，无法购买冲级礼包。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The server has been open for more than 7 days, so the Level-Up Gift Pack cannot be bought.");
 		return brvFail;		
 	elseif yuanbao < 10000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif level >= 30 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "等级大于30级，无法购买冲级礼包。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Level above 30, cannot buy the Level-Up Gift Pack.");
 		return brvFail;
 	else 
 		role:GetItemBag():ChangeYuanbao(username,10000,false,2800368,1);
@@ -62,16 +62,16 @@ end
 	local a = os.time();
 	local b = os.time({year = 2021,month = 3,day = 20, hour = 14, min = 0, sec = 0});
 	if count >= 1 or coune >= 1 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "冲级礼包只能购买一个，您已拥有此礼包。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The Level-Up Gift Pack can only be bought once. You already own it.");
 		return brvFail;	
 	elseif a - b > 604800 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "开区时间大于7天，无法购买冲级礼包。。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The server has been open for more than 7 days, so the Level-Up Gift Pack cannot be bought.");
 		return brvFail;
 	elseif yuanbao < 10000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif level >= 30 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "等级大于30级，无法购买冲级礼包。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Level above 30, cannot buy the Level-Up Gift Pack.");
 		return brvFail;
 	else 
 		role:GetItemBag():ChangeYuanbao(username,10000,false,2800274,1);

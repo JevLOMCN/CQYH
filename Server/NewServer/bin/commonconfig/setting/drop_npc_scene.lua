@@ -1,6 +1,6 @@
 ﻿
 dorp_npc_scene_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	SceneTemplateID = {
 		type = 'number',
 		default = 0,

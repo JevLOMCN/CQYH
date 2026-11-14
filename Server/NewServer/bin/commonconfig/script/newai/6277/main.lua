@@ -34,18 +34,18 @@ function Buy_One(owner)
 	local role = CGameWorld:GetInstance():FindValidRole(get_ctx_role_id());
 	local itemBag = role:GetItemBag();
 	if A < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "您所兑换的物品，已经没有兑换次数了，请兑换其他物品。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The item you exchanged has no exchanges left. Please exchange another item.");
 		return brvSuccess;
 	end
 	local count = itemBag:GetItemCount(2800357, false);--Points
 	if count < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "积分不足以兑换此物品，请检查您的积分数量。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough points to exchange this item. Please check your points.");
 		return brvSuccess;
 	end
 	itemBag:DeleteItemId(2800357, 20000, ITEMLOG_SCRIPT,false,0);--Remove points
 	itemBag:AddItem(99900026, 1, ITEMLOG_SCRIPT, 0, false);--Add Dragon Slayer
 	A = A - 1;
-	local msg = "恭喜"..role:GetName().."玩家兑换了牛年最牛逼的礼物------屠龙宝刀！"
+	local msg = "Congratulations "..role:GetName().."Player exchanged the best gift of the Ox Year: the Dragon Slayer Blade!"
 	role:Say(cctServer, cltLighting, msg);
 	return brvSuccess;
 end
@@ -54,18 +54,18 @@ function Buy_Two(owner)
 	local role = CGameWorld:GetInstance():FindValidRole(get_ctx_role_id());
 	local itemBag = role:GetItemBag();
 	if B < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "您所兑换的物品，已经没有兑换次数了，请兑换其他物品。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The item you exchanged has no exchanges left. Please exchange another item.");
 		return brvSuccess;
 	end
 	local count = itemBag:GetItemCount(2800357, false);--Points
 	if count < 5000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "积分不足以兑换此物品，请检查您的积分数量。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough points to exchange this item. Please check your points.");
 		return brvSuccess;
 	end
 	itemBag:DeleteItemId(2800357, 5000, ITEMLOG_SCRIPT,false,0);--Remove points
 	itemBag:AddItem(2800363, 1, ITEMLOG_SCRIPT, 0, false);--Add Zhanyue Swift Step Seal
 	B = B - 1;
-	local msg = "恭喜"..role:GetName().."玩家兑换了斩月疾步印！"
+	local msg = "Congratulations "..role:GetName().."Player exchanged a Moonslash Dash Seal!"
 	role:Say(cctServer, cltLighting, msg);
 	return brvSuccess;
 end
@@ -74,18 +74,18 @@ function Buy_Three(owner)
 	local role = CGameWorld:GetInstance():FindValidRole(get_ctx_role_id());
 	local itemBag = role:GetItemBag();
 	if C < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "您所兑换的物品，已经没有兑换次数了，请兑换其他物品。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The item you exchanged has no exchanges left. Please exchange another item.");
 		return brvSuccess;
 	end
 	local count = itemBag:GetItemCount(2800357, false);--Points
 	if count < 2000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "积分不足以兑换此物品，请检查您的积分数量。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough points to exchange this item. Please check your points.");
 		return brvSuccess;
 	end
 	itemBag:DeleteItemId(2800357, 2000, ITEMLOG_SCRIPT,false,0);--Remove points
 	itemBag:AddItem(2800364, 1, ITEMLOG_SCRIPT, 0, false);--Add attribute transfer scroll
 	C = C - 1;
-	local msg = "恭喜"..role:GetName().."玩家兑换了武器属性转移卷！"
+	local msg = "Congratulations "..role:GetName().."Player exchanged a Weapon Attribute Transfer Scroll!"
 	role:Say(cctServer, cltLighting, msg);
 	return brvSuccess;
 end
@@ -94,18 +94,18 @@ function Buy_Four(owner)
 	local role = CGameWorld:GetInstance():FindValidRole(get_ctx_role_id());
 	local itemBag = role:GetItemBag();
 	if D < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "您所兑换的物品，已经没有兑换次数了，请兑换其他物品。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "The item you exchanged has no exchanges left. Please exchange another item.");
 		return brvSuccess;
 	end
 	local count = itemBag:GetItemCount(2800357, false);--Points
 	if count < 2000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "积分不足以兑换此物品，请检查您的积分数量。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough points to exchange this item. Please check your points.");
 		return brvSuccess;
 	end
 	itemBag:DeleteItemId(2800357, 2000, ITEMLOG_SCRIPT,false,0);--Remove points
 	itemBag:AddItem(2800365, 1, ITEMLOG_SCRIPT, 0, false);--Add luck transfer scroll
 	D = D - 1;
-	local msg = "恭喜"..role:GetName().."玩家兑换了幸运转移卷！"
+	local msg = "Congratulations "..role:GetName().."Player exchanged a Luck Transfer Scroll!"
 	role:Say(cctServer, cltLighting, msg);
 	return brvSuccess;
 end
@@ -116,7 +116,7 @@ function Buy_Five(owner)
 
 	local count = itemBag:GetItemCount(2800357, false);--Points
 	if count < 20 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "积分不足以兑换此物品，请检查您的积分数量。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough points to exchange this item. Please check your points.");
 		return brvSuccess;
 	end
 	itemBag:DeleteItemId(2800357, 20, ITEMLOG_SCRIPT,false,0);--Remove points
@@ -131,7 +131,7 @@ function Buy_Six(owner)
 
 	local count = itemBag:GetItemCount(2800357, false);--Points
 	if count < 30 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "积分不足以兑换此物品，请检查您的积分数量。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough points to exchange this item. Please check your points.");
 		return brvSuccess;
 	end
 	itemBag:DeleteItemId(2800357, 30, ITEMLOG_SCRIPT,false,0);--Remove points

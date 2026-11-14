@@ -1,6 +1,6 @@
 ﻿
 item_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	ID = {
 		type = 'number',
 		default = 0,

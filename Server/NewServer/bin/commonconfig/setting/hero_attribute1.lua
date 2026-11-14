@@ -1,6 +1,6 @@
 hero_attribute1_define = {
   
-   owner='傅磊',
+   owner='Fu Lei',
   
 Class = { 
         type = 'number',

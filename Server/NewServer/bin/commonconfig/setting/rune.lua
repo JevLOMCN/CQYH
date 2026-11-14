@@ -1,6 +1,6 @@
 
 rune_define = {
-	owner='张敬轩',
+	owner='Zhang Jingxuan',
 	RuneID = {
 		type = 'number',
 		default = 0,

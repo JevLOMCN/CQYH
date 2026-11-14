@@ -12,7 +12,7 @@ function send_kill_info(owner)
 	local role =  g_oGameWorld:FindValidRole(get_ctx_role_id());
 	local killer = g_oGameWorld:FindValidRole(role:GetLastCasterID());
 	if role and killer then
-		local message = "您已成功击杀了"..role:GetName().."，获得7000金币奖励";
+		local message = "You have successfully slain "..role:GetName()..", received 7000 Gold reward";
 		local ret = role:Say(killer:GetObjID(), cltNormal, message);
 		if ret then
 			return brvSuccess;

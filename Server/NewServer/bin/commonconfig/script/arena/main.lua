@@ -156,7 +156,7 @@ end
 
 function ArenaReward(groupid, rolename)
 
-	local chat_msg = "恭喜["..rolename.."]抽得擂台奖金！天道酬勤，积极参与擂台赛机会多多，勇士们千万不要错过！"
+	local chat_msg = "Congratulations ["..rolename.."] drew the arena prize! Diligence pays off, so join the arena for more chances. Warriors, do not miss it!"
 
 	CMSChatMgr:GetInstance():Say(0, cctGroup, cltNormal, chat_msg, groupid);
 

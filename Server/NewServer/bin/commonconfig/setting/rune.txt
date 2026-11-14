@@ -1,276 +1,276 @@
 RuneID	SpellID	RuneSlot	Group	Weight	概率	技能名称	RuneName	所属职业	LimitDuration	LimitCount	BossWeight1	BossWeight2	BossWeight3	BossWeight4	WorldWeight	Level	BroadCast	IsRare	Priority	Class	Weight_1	BossWeight1_1	BossWeight2_1	BossWeight3_1	BossWeight4_1	WorldWeight_1	Rarity	主要特性	稀有度	铭文类型	ClearGambleCount
 Both	Both	Both	Server	Server	N/A	N/A	N/A	N/A	Server	Server	Server	Server	Server	Server	Server	Both	Both	Both	Server	Server	Server	Server	Server	Server	Server	Server	Both	N/A	N/A	N/A	Server
 0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-10311	1031	1	1	32900	3.29%	基本剑术	旋风印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	200	1400	0	0	0	0	3	一定几率产生360度打击，被围时，我终于可以火力全开了	3	PVP铭文	0
-10312	1031	2	1	9900	0.99%	基本剑术	主宰印	战士	0	0	250	1500	0	0	2200	25	0	1	0	clsWarrior	0	500	1300	0	0	2500	4	一定几率产生360度打击，被围时，我终于可以火力全开了	4	PVE铭文	0
-10313	1031	3	1	9900	0.99%	基本剑术	幽速印	战士	0	0	0	1500	0	0	2100	25	0	1	0	clsWarrior	0	300	1300	0	0	2500	5	一定几率产生360度打击，被围时，我终于可以火力全开了	4	PVE铭文	0
-10314	1031	4	1	98600	9.86%	基本剑术	压制印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	1750	0	0	0	0	0	1	一定几率产生360度打击，被围时，我终于可以火力全开了	1	PVE铭文	0
-10321	1032	1	1	49300	4.93%	攻杀剑术	暴君印	战士	0	0	1100	0	0	0	0	25	0	0	0	clsWarrior	100	0	0	0	0	0	2	对弱小怪物的攻击变得更精准并有几率将其抓住痛殴，造成重大伤害，甚至一击毙名。管你头目，精英，只要个不大，一律去死	2	PVE铭文	0
-10322	1032	2	1	32900	3.29%	攻杀剑术	银光印	战士	0	0	900	2500	0	0	2450	25	0	0	0	clsWarrior	100	0	0	0	0	2800	3	对弱小怪物的攻击变得更精准并有几率将其抓住痛殴，造成重大伤害，甚至一击毙名。管你头目，精英，只要个不大，一律去死	3	PVE铭文	0
-10323	1032	3	1	97600	9.76%	攻杀剑术	血杀印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	700	0	0	0	0	1	对弱小怪物的攻击变得更精准并有几率将其抓住痛殴，造成重大伤害，甚至一击毙名。管你头目，精英，只要个不大，一律去死	1	PVP铭文	0
-10324	1032	4	1	1000	0.10%	攻杀剑术	煌龙印	战士	24	6	0	350	1500	0	300	25	1	1	0	clsWarrior	0	0	400	1500	3500	200	6	对弱小怪物的攻击变得更精准并有几率将其抓住痛殴，造成重大伤害，甚至一击毙名。管你头目，精英，只要个不大，一律去死	5	PVP铭文	0
-10331	1033	1	1	49300	4.93%	刺杀剑术	破法印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	700	0	0	0	0	3	沸腾的剑气可以瞬间燃尽目标周围的魔法元素，使得魔力凝聚的护盾消失于无形。法师，去死吧	2	PVP铭文	0
-10332	1033	2	1	1500	0.15%	刺杀剑术	耀光印	战士	24	6	0	400	0	0	300	25	1	1	0	clsWarrior	0	0	400	0	3500	200	6	沸腾的剑气可以瞬间燃尽目标周围的魔法元素，使得魔力凝聚的护盾消失于无形。法师，去死吧	5	PVP铭文	0
-10333	1033	3	1	49300	4.93%	刺杀剑术	破山印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	2500	0	0	0	0	0	2	沸腾的剑气可以瞬间燃尽目标周围的魔法元素，使得魔力凝聚的护盾消失于无形。法师，去死吧	2	PVE铭文	0
-10341	1034	1	1	19900	1.99%	半月弯刀	月华印	战士	0	0	1600	0	0	0	2337	25	0	0	0	clsWarrior	0	2000	0	0	0	0	3	有点凶残！有点稀有！扩大半月弯刀的攻击范围，妈妈再也不怕我对着大堆怪干瞪眼了	3	PVE铭文	0
-10342	1034	2	1	32900	3.29%	半月弯刀	观月印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	2500	0	0	0	0	0	2	有点凶残！有点稀有！扩大半月弯刀的攻击范围，妈妈再也不怕我对着大堆怪干瞪眼了	3	PVP铭文	0
-10343	1034	3	1	49300	4.93%	半月弯刀	疾月印	战士	0	0	3100	0	0	0	0	25	0	0	0	clsWarrior	500	0	0	0	0	0	2	有点凶残！有点稀有！扩大半月弯刀的攻击范围，妈妈再也不怕我对着大堆怪干瞪眼了	2	PVE铭文	0
-10351	1035	1	1	49300	4.93%	野蛮冲撞	裂风印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	750	0	0	0	0	3	有点凶残！有点稀有！冲击速度加快，被撞击的目标短时间内无法奔跑	2	PVP铭文	0
-10352	1035	2	1	32900	3.29%	野蛮冲撞	聚火印	战士	0	0	800	0	0	0	0	25	0	0	0	clsWarrior	0	250	0	0	0	0	3	有点凶残！有点稀有！冲击速度加快，被撞击的目标短时间内无法奔跑	3	PVP铭文	0
-10353	1035	3	1	98600	9.86%	野蛮冲撞	疾步印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	50	1600	0	0	0	0	1	有点凶残！有点稀有！冲击速度加快，被撞击的目标短时间内无法奔跑	1	PVP铭文	0
-10354	1035	4	1	22900	2.29%	野蛮冲撞	冲撞印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	150	0	0	0	0	0	2	有点凶残！有点稀有！冲击速度加快，被撞击的目标短时间内无法奔跑	3	PVP铭文	0
-10355	1035	5	1	89600	8.96%	野蛮冲撞	蛮勇印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	2000	0	0	0	0	0	1	有点凶残！有点稀有！冲击速度加快，被撞击的目标短时间内无法奔跑	1	PVP铭文	0
-10361	1036	1	1	0	0.00%	烈火剑法	斩月印	战士	24	2	0	0	2000	10000	3	25	1	1	0	clsWarrior	0	0	0	2000	0	5	7	极度凶残！极度稀有！扩大剑气的威慑范围，你的敌人无所遁形。同时被击中的目标将因为高热的气温而燃烧	6	PVP铭文	1
-10362	1036	2	1	2000	0.20%	烈火剑法	夺火印	战士	24	6	0	350	1500	0	300	25	1	1	0	clsWarrior	0	0	400	1500	3000	200	6	极度凶残！极度稀有！扩大剑气的威慑范围，你的敌人无所遁形。同时被击中的目标将因为高热的气温而燃烧	5	PVP铭文	0
-10363	1036	3	1	32900	3.29%	烈火剑法	燃烧印	战士	0	0	1000	0	0	0	0	25	0	1	0	clsWarrior	0	300	1800	0	0	0	4	极度凶残！极度稀有！扩大剑气的威慑范围，你的敌人无所遁形。同时被击中的目标将因为高热的气温而燃烧	3	PVE铭文	0
-10371	1037	1	1	32900	3.29%	狮子吼	破甲印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	500	0	0	0	0	3	有点凶残！有点稀有！超大范围几率减防，你值得拥有	3	PVP铭文	0
-10372	1037	2	1	9900	0.99%	狮子吼	凌月印	战士	0	0	500	1700	0	0	0	25	0	1	0	clsWarrior	0	400	1300	0	0	1585	4	有点凶残！有点稀有！超大范围几率减防，你值得拥有	4	PVE铭文	0
-10373	1037	3	1	9900	0.99%	狮子吼	毁伤印	战士	0	0	500	0	0	0	0	25	0	0	0	clsWarrior	100	0	0	0	0	0	3	有点凶残！有点稀有！超大范围几率减防，你值得拥有	4	PVE铭文	0
-10374	1037	4	1	32900	3.29%	狮子吼	梦魇印	战士	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	50	0	0	0	0	0	3	有点凶残！有点稀有！超大范围几率减防，你值得拥有	3	PVE铭文	0
-10375	1037	5	1	32900	3.29%	狮子吼	决意印	战士	0	0	0	0	0	0	0	25	0	1	0	clsWarrior	0	300	1300	0	0	0	4	有点凶残！有点稀有！超大范围几率减防，你值得拥有	4	PVP铭文	0
-10381	1038	1	1	9500	0.95%	逐日剑法	开疆印	战士	24	3	0	0	2500	0	5	25	1	1	0	clsWarrior	0	0	0	2500	0	5	7	极度凶残！极度稀有！攻击范围扩大为3x4，你的敌人无所遁形。攻击后地面残留烈火，对进入敌人造成持续伤害。	6	PVP铭文	0
-10382	1038	2	1	500	0.05%	逐日剑法	神躯印	战士	24	3	0	0	2500	0	5	25	1	1	0	clsWarrior	0	0	0	2500	0	5	7	极度凶残！极度稀有！攻击范围扩大为3x4，你的敌人无所遁形。攻击后地面残留烈火，对进入敌人造成持续伤害。	6	PVP铭文	0
-10383	1038	3	1	9900	0.99%	逐日剑法	升龙印	战士	0	0	250	1700	0	0	0	25	0	1	0	clsWarrior	0	300	1800	0	0	0	4	极度凶残！极度稀有！攻击范围扩大为3x4，你的敌人无所遁形。攻击后地面残留烈火，对进入敌人造成持续伤害。	4	PVP铭文	0
-25311	2531	1	1	98600	9.86%	火球术	火锥印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	1500	0	0	0	0	0	1	咻一下，坏人摊开，就是这么犀利	1	PVE铭文	0
-25321	2532	1	1	96600	9.66%	抗拒火环	焰华印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	28	1000	0	0	0	0	2	烫你一下，那么下次再用火烧时，就会变痛了	1	PVE铭文	0
-25411	2541	1	1	49300	4.93%	诱惑之光	军势印	法师	0	0	0	0	0	0	0	25	0	1	0	clsMage	600	0	0	0	0	0	2	同等级的召唤上限增加1	2	PVE铭文	0
-25412	2541	2	1	49300	4.93%	诱惑之光	魔语印	法师	0	0	0	0	0	0	0	25	0	1	0	clsMage	1300	0	0	0	0	0	1	同等级的召唤上限增加1	2	PVE铭文	0
-25413	2541	3	1	49300	4.93%	诱惑之光	魔魇印	法师	0	0	1600	0	0	0	0	25	0	1	0	clsMage	1300	0	0	0	0	0	2	同等级的召唤上限增加1	2	PVE铭文	0
-25414	2541	4	1	32900	3.29%	诱惑之光	血契印	法师	0	0	2100	1500	0	0	2000	25	0	1	0	clsMage	0	500	1000	0	0	2000	3	同等级的召唤上限增加1	3	PVE铭文	0
-25415	2541	5	1	32900	3.29%	诱惑之光	噬魂印	法师	0	0	0	0	0	0	0	25	0	1	0	clsMage	0	1500	0	0	0	0	2	同等级的召唤上限增加1	3	PVE铭文	0
-25416	2541	6	1	32900	3.29%	诱惑之光	邪光印	法师	0	0	0	0	0	0	0	25	0	1	0	clsMage	600	0	0	0	0	0	2	同等级的召唤上限增加1	3	PVE铭文	0
-25417	2541	7	1	49300	4.93%	诱惑之光	邪影印	法师	0	0	0	0	0	0	0	25	0	1	0	clsMage	600	0	0	0	0	0	2	同等级的召唤上限增加1	2	PVE铭文	0
-25441	2544	1	1	9900	0.99%	地狱火	炎龙印	法师	0	0	500	1100	0	0	2000	25	0	1	0	clsMage	0	300	0	0	0	0	5	极度凶残！极度稀有！低等级的家伙们注意了，这一下可会让你们的腿麻上好一会儿的	4	PVE铭文	0
-25331	2533	1	1	1000	0.10%	雷电术	天怒印	法师	24	6	0	300	2000	0	300	25	1	1	0	clsMage	0	0	300	2000	3000	150	6	极度凶残！极度稀有！低等级的家伙们注意了，这一下可会让你们的腿麻上好一会儿的	5	PVP铭文	0
-25332	2533	2	1	9900	0.99%	雷电术	天罚印	法师	0	0	0	100	500	0	1750	25	0	1	0	clsMage	0	300	600	250	0	1800	4	放得更快！	4	PVE铭文	0
-25381	2538	1	1	98600	9.86%	瞬息移动	空行印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	1500	0	0	0	0	0	1	屌丝必备，烧得更久，更省药	1	PVE铭文	0
-25451	2545	1	1	98600	9.86%	爆裂火焰	疾火印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	1500	0	0	0	0	0	2	屌丝必备，烧得更久，更省药	1	PVP铭文	0
-25341	2534	1	1	49300	4.93%	火墙	观火印	法师	0	0	2500	0	0	0	0	25	0	0	0	clsMage	0	500	1000	0	0	1800	3	有点凶残！有点稀有！升级后减伤能力不减	2	PVE铭文	0
-25342	2534	2	1	1000	0.10%	火墙	真红印	法师	24	6	0	500	0	0	350	25	1	1	0	clsMage	0	0	500	0	3500	200	6	有点凶残！有点稀有！升级后减伤能力不减	5	PVP铭文	0
-25361	2536	1	1	9900	0.99%	疾光电影	雷神印	法师	0	0	750	1700	0	0	1285	25	0	0	0	clsMage	0	1500	2500	0	0	2000	3	乖乖隆滴冻，极度稀有！脆皮站桩一招秒	4	PVP铭文	0
-25362	2536	2	1	1500	0.15%	疾光电影	雷诛印	法师	24	6	0	500	0	0	300	25	1	1	0	clsMage	0	0	450	0	3500	200	5	乖乖隆滴冻，极度稀有！脆皮站桩一招秒	5	PVP铭文	0
-25363	2536	3	1	0	0.00%	疾光电影	雷咒印	法师	24	2	0	0	2000	10000	5	25	1	1	0	clsMage	0	0	0	2500	0	5	7	乖乖隆滴冻，极度稀有！脆皮站桩一招秒	6	PVP铭文	1
-25461	2546	1	1	9900	0.99%	地狱雷光	雷龙印	法师	0	0	750	0	0	0	0	25	0	0	0	clsMage	42	1500	0	0	0	0	2	不很凶残，但很稀有！龙出现了，效果自己体验	4	PVE铭文	0
-25351	2535	1	1	32900	3.29%	魔法盾	天守印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	30	0	0	0	0	0	3	比较凶残，颤抖吧法师。圣言术杀死目标带阳炎爆，召唤物被放逐后一段时间内主角无法放技能	3	PVE铭文	0
-25352	2535	2	1	32900	3.29%	魔法盾	霜骨印	法师	0	0	1000	1100	0	0	0	25	0	0	0	clsMage	0	500	800	0	0	0	3	比较凶残，颤抖吧法师。圣言术杀死目标带阳炎爆，召唤物被放逐后一段时间内主角无法放技能	3	PVP铭文	0
-25472	2547	2	1	32900	3.29%	圣言术	圣灵印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	0	1000	0	0	0	0	3	屌丝梦想，快速地发射3个火球，最多可攻击3个不同目标	3	PVP铭文	0
-25473	2547	3	1	32900	3.29%	圣言术	秘咒印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	1000	0	2500	0	0	0	2	吹起一阵寒风	3	PVE铭文	0
-25371	2537	1	1	9900	0.99%	冰咆哮	龙行印	法师	0	0	300	1600	0	0	1000	25	0	1	0	clsMage	0	300	0	0	0	0	5	吹起一阵寒风	4	PVE铭文	0
-25372	2537	2	1	2500	0.25%	冰咆哮	龙魂印	法师	24	3	0	0	4500	0	5	25	1	1	0	clsMage	0	0	0	4500	0	5	6	还是可以追求一下的，过度产品中的战斗机！从虚空中召唤炎龙之魄，扩大伤害范围，摧毁前方敌人	6	PVP铭文	0
-25501	2550	1	1	32900	3.29%	寒冰掌	霜冻印	法师	0	0	500	0	0	0	0	25	0	1	0	clsMage	0	300	0	0	0	1635	4	失败不用怕，跑远点再来一发	3	PVE铭文	0
-25491	2549	1	1	32900	3.29%	大火球	连环印	法师	0	0	0	0	0	0	0	25	0	0	0	clsMage	0	500	0	0	0	0	3	很凶残，很稀有！击退目标后低几率冻结目标，恩…打架时真的很低	3	PVE铭文	0
-25391	2539	1	1	9900	0.99%	灭天火	夺气印	法师	0	0	0	1600	0	0	1000	25	0	0	0	clsMage	0	300	350	0	0	200	3	极度凶残！极度稀有！抽你蓝，让你小子再喝蓝，喝呀！	4	PVP铭文	0
-25401	2540	1	1	500	0.05%	流星火雨	火雨印	法师	24	3	0	0	1000	0	5	25	1	1	0	clsMage	0	0	0	750	0	5	7	pong!pong!pong！砸得你满地爬	6	PVP铭文	0
-30021	3002	1	1	49300	4.93%	治愈术	神佑印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	50	1800	0	0	0	0	2	精神力穿透不定期释放！	2	PVP铭文	0
-30022	3002	2	1	49300	4.93%	治愈术	妙手印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	200	0	0	0	0	0	2	精神力穿透不定期释放！	2	PVE铭文	0
-30011	3001	1	1	98600	9.86%	精神力战法	灵爆印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	2200	0	0	0	0	0	1	精神力穿透不定期释放！	1	PVE铭文	0
-30012	3001	2	1	32900	3.29%	精神力战法	灵击印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	1300	0	0	0	0	0	3	瞬间回复一半，够给力了吧	3	PVP铭文	0
-30013	3001	3	1	9900	0.99%	精神力战法	道法印	道士	0	0	500	2000	0	0	2000	25	0	0	0	clsTaoist	0	1400	1200	0	0	2000	3	瞬间回复一半，够给力了吧	4	PVE铭文	0
-30041	3004	1	1	1000	0.10%	施毒术	凌波印	道士	24	6	0	300	0	0	300	25	1	1	0	clsTaoist	0	0	300	0	3500	200	5	极度凶残！毒液在目标点溅射开，溅射的毒液对已经中毒的玩家产生特殊效果	5	PVP铭文	0
-30042	3004	2	1	49300	4.93%	施毒术	凌锋印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	100	0	3000	0	0	0	2	可伤害目标灵魂,夺取其能量回复自身	2	PVP铭文	0
-30043	3004	3	1	32900	3.29%	施毒术	凌云印	道士	0	0	700	2000	0	0	2000	25	0	1	0	clsTaoist	0	300	0	0	0	2000	4	可伤害目标灵魂,夺取其能量回复自身	3	PVP铭文	0
-30045	3004	5	1	14900	1.49%	施毒术	凌蛊印	道士	0	0	500	0	0	0	0	25	0	1	0	clsTaoist	0	200	350	0	0	0	4	可伤害目标灵魂,夺取其能量回复自身	4	PVP铭文	0
-30051	3005	1	1	1000	0.10%	灵魂火符	符阵印	道士	24	3	0	0	2500	0	5	25	1	1	0	clsTaoist	0	0	0	2500	0	5	7	可伤害目标灵魂,夺取其能量回复自身	6	PVP铭文	0
-30052	3005	2	1	32900	3.29%	灵魂火符	灵控印	道士	0	0	2600	1900	0	0	2100	25	0	0	0	clsTaoist	0	500	600	0	0	2000	3	召唤，骷髅将军！	3	PVP铭文	0
-30053	3005	3	1	32900	3.29%	灵魂火符	火蛇印	道士	0	0	1000	0	0	0	0	25	0	0	0	clsTaoist	0	500	0	0	0	0	3	召唤，骷髅将军！	3	PVP铭文	0
-30054	3005	4	1	32900	3.29%	灵魂火符	弹射印	道士	0	0	1000	0	0	0	0	25	0	0	0	clsTaoist	0	500	0	0	0	0	3	强大的气力有时会使得目标因为内伤而无法奔跑	3	PVE铭文	0
-30031	3003	1	1	9900	1.99%	召唤骷髅	君王印	道士	0	0	600	1000	0	0	987	25	0	1	0	clsTaoist	0	400	800	0	0	1185	5	强大的气力有时会使得目标因为内伤而无法奔跑	4	PVP铭文	0
-30032	3003	2	1	9900	1.99%	召唤骷髅	迦兰印	道士	0	0	500	2000	500	0	2000	25	0	1	0	clsTaoist	50	1800	3000	500	0	2000	4	比较稀有！可驱散中毒效果！比较好用！	4	PVE铭文	0
-30033	3003	3	1	1000	0.10%	召唤骷髅	偷天印	道士	24	6	0	300	0	0	200	25	1	1	0	clsTaoist	0	0	300	0	3500	200	6	比较稀有！可驱散中毒效果！比较好用！	5	PVE铭文	0
-30091	3009	1	1	98600	9.86%	隐身术	空相印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	2200	0	0	0	0	0	1	比较稀有！可驱散中毒效果！比较好用！	1	PVE铭文	0
-30141	3014	1	1	49300	4.93%	集体隐身术	太极印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	200	0	0	0	0	0	2	加得越多，自己的防御也越高，嘿嘿嘿嘿	2	PVP铭文	0
-30063	3006	3	1	49300	4.93%	幽灵盾	灵携印	道士	0	0	2500	0	0	0	0	25	0	0	0	clsTaoist	350	0	0	0	0	0	2	加得越多，自己的防御也越高，嘿嘿嘿嘿	2	PVP铭文	0
-30071	3007	1	1	98600	9.86%	神圣战甲术	凝丹印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	1500	0	0	0	0	0	1	加得越多，自己的防御也越高，嘿嘿嘿嘿	1	PVP铭文	0
-30111	3011	1	1	98600	7.86%	困魔咒	邪咒印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	1800	0	0	0	0	0	1	隐身时，攻速提升，有意义吗？也许吧	1	PVE铭文	0
-30181	3018	1	1	32900	3.29%	气功波	气场印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	50	0	0	0	0	0	2	比较稀有！隐身术消失后10秒内，发动攻击时伤害提升	3	PVE铭文	0
-30182	3018	2	1	32900	3.29%	气功波	浩然印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	0	1500	0	0	0	0	3	中了老子的招，就算脱困，也会无力一段时间的	3	PVP铭文	0
-30121	3012	1	1	5500	0.55%	群体治愈术	瑶光印	道士	24	3	0	50	3000	0	5	25	1	1	0	clsTaoist	0	0	0	3000	0	5	7	极度稀有！治疗范围更大了，老子是超级奶妈了	6	PVP铭文	0
-30081	3008	1	1	0	0.00%	召唤神兽	圣兽印	道士	24	2	0	0	1000	10000	3	25	1	1	0	clsTaoist	0	0	0	1000	0	5	7	极度稀有！大个子，出击！	6	PVP铭文	1
-30082	3008	2	1	1000	0.10%	召唤神兽	血兽印	道士	24	5	0	50	3000	0	100	25	1	1	0	clsTaoist	0	0	75	3000	3000	100	6	极度稀有！大个子，出击！	5	PVP铭文	0
-30083	3008	3	1	4900	0.49%	召唤神兽	灵兽印	道士	0	0	0	400	0	0	300	25	0	1	0	clsTaoist	0	250	375	0	0	300	5	极度稀有！大个子，出击！	4	PVE铭文	0
-30151	3015	1	1	32900	3.29%	无极真气	天罡印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	0	250	0	0	0	0	3	额外提升防御力，老子要逆天！	3	PVP铭文	0
-30101	3010	1	1	32900	3.29%	噬血术	噬心印	道士	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	0	350	0	0	0	0	3	杀死他，让他爆炸	3	PVE铭文	0
-30102	3010	2	1	4900	0.49%	噬血术	夺魂印	道士	0	0	100	0	0	0	0	25	0	0	0	clsTaoist	0	250	0	0	0	0	3	杀死他，让他爆炸	4	PVP铭文	0
-32011	3201	1	1	0	0%	妖术弹	魔染印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32012	3201	2	1	0	0%	妖术弹	暗蚀印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
-32013	3201	3	1	0	0%	妖术弹	炼妖印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	1				0
-32161	3216	1	2	0	0%	邪爪握	血妖印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
-32162	3216	2	1	0	0%	邪爪握	磐守印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
-32163	3216	3	1	0	0%	邪爪握	绝罚印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	1				0
-32021	3202	1	2	0	0%	灵魂冲击	惊心印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32022	3202	2	3	0	0%	灵魂冲击	灭魄印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32023	3202	3	1	0	0%	灵魂冲击	咒术印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
-32024	3202	4	3	0	0%	灵魂冲击	震魂印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
-32031	3203	1	3	0	0%	驭魂咒	聚魂印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32032	3203	2	5	0	0%	驭魂咒	役魂印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
-32033	3203	3	2	0	0%	驭魂咒	爆魂印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32041	3204	1	6	0	0%	妖能化晶	灵簇印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	7				0
-32042	3204	2	3	0	0%	妖能化晶	剥魂印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32043	3204	3	1	0	0%	妖能化晶	筑血印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32051	3205	1	2	0	0%	扰心咒	蚀骨印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32052	3205	2	4	0	0%	扰心咒	咒缚印	妖师	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
-32053	3205	3	2	0	0%	扰心咒	烈咒印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32061	3206	1	4	0	0%	魂冲咒	骁勇印	妖师	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
-32062	3206	2	1	0	0%	魂冲咒	湮灭印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32063	3206	3	3	0	0%	魂冲咒	千钧印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32071	3207	1	6	0	0%	灭魂	万劫印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	8				0
-32072	3207	2	1	0	0%	灭魂	摄魂印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32073	3207	3	3	0	0%	灭魂	灵殇印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32081	3208	1	1	0	0%	离怨咒	腐甲印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
-32082	3208	2	4	0	0%	离怨咒	幻行印	妖师	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
-32083	3208	3	5	0	0%	离怨咒	鬼杀印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
-32091	3209	1	1	0	0%	汲魂咒	冥守印	妖师	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	6				0
-32092	3209	2	6	0	0%	汲魂咒	魔咒印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	7				0
-32093	3209	3	4	0	0%	汲魂咒	咒心印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32101	3210	1	5	0	0%	锁灵咒	嚽锢印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
-32102	3210	2	2	0	0%	锁灵咒	锁伤印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
-32103	3210	3	4	0	0%	锁灵咒	噬灵印	妖师	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
-32111	3211	1	4	0	0%	御冥咒	黄泉印	妖师	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
-32112	3211	2	5	0	0%	御冥咒	魔泽印	妖师	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
-32113	3211	3	3	0	0%	御冥咒	苦海印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
-32121	3212	1	1	0	0%	妖影幻形	魇魔印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32122	3212	2	1	0	0%	妖影幻形	影刹印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32131	3213	1	1	0	0%	妖力灌体	魔谛印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32132	3213	2	1	0	0%	妖力灌体	凝魄印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32133	3213	3	1	0	0%	妖力灌体	幻妖印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32141	3214	1	1	0	0%	御魔咒	绝冥印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32142	3214	2	1	0	0%	御魔咒	魂佑印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32143	3214	3	1	0	0%	御魔咒	威狱印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32151	3215	1	1	0	0%	妖能吞噬	灵佑印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32152	3215	2	1	0	0%	妖能吞噬	黯躯印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-32153	3215	3	1	0	0%	妖能吞噬	灵觉印	妖师	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
-15311	1531	1	1	0	0%	暴击术	斩杀印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
-15312	1531	2	3	0	0%	暴击术	残像印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	4				0
-15313	1531	3	1	0	0%	暴击术	鹰眼印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15314	1531	4	2	0	0%	暴击术	爕猎印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15321	1532	1	1	0	0%	潜行术	隐遁印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	1				0
-15322	1532	2	2	0	0%	潜行术	血隐印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15323	1532	3	4	0	0%	潜行术	无竭印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
-15331	1533	1	1	0	0%	致残毒药	鹰目印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
-15332	1533	2	1	0	0%	致残毒药	心妒印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	1				0
-15333	1533	3	4	0	0%	致残毒药	制约印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
-15334	1533	4	1	0	0%	致残毒药	血煞印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
-15335	1533	5	3	0	0%	致残毒药	星裂印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
-15341	1534	1	1	0	0%	精准术	审判印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	1				0
-15342	1534	2	5	0	0%	精准术	混沌印	刺客	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	6				0
-15343	1534	3	2	0	0%	精准术	续战印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15344	1534	4	5	0	0%	精准术	乱影印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	5				0
-15345	1534	5	1	0	0%	精准术	闪击印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15351	1535	1	3	0	0%	炎龙波	游龙印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
-15352	1535	2	5	0	0%	炎龙波	龙宵印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	6				0
-15353	1535	3	1	0	0%	炎龙波	灼龙印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15354	1535	4	6	0	0%	炎龙波	执着印	刺客	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	7				0
-15361	1536	1	1	0	0%	旋风腿	朔风印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
-15362	1536	2	3	0	0%	旋风腿	龙摆印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	4				0
-15363	1536	3	2	0	0%	旋风腿	缚魂印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15371	1537	1	5	0	0%	鬼灵步	传灾印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	6				0
-15372	1537	2	1	0	0%	鬼灵步	移形印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
-15373	1537	3	4	0	0%	鬼灵步	脱兔印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	4				0
-15374	1537	4	1	0	0%	鬼灵步	火径印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15381	1538	1	6	0	0%	冷酷	灵光印	刺客	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	8				0
-15382	1538	2	6	0	0%	冷酷	致残印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	7				0
-15383	1538	3	5	0	0%	冷酷	逐影印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	5				0
-15391	1539	1	6	0	0%	火镰狂舞	双斩印	刺客	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	7				0
-15392	1539	2	4	0	0%	火镰狂舞	火舞印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
-15411	1541	1	4	0	0%	追魂镖	索魂印	刺客	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	5				0
-15412	1541	2	2	0	0%	追魂镖	延染印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
-15421	1542	1	2	0	0%	霹雳弹	窒息印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
-15422	1542	2	4	0	0%	霹雳弹	腐蚀印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
-15423	1542	3	5	0	0%	霹雳弹	迟滞印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
-15424	1542	4	5	0	0%	霹雳弹	震爆印	刺客	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
-15451	1545	1	1	0	0%	献祭	吮血印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15452	1545	2	1	0	0%	献祭	噬骨印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15453	1545	3	1	0	0%	献祭	噬骨印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15461	1546	1	1	0	0%	暗影守卫	殇影印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15462	1546	2	1	0	0%	暗影守卫	铁卫印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15463	1546	3	1	0	0%	暗影守卫	暗魔印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15471	1547	1	1	0	0%	魔刃天旋	软猬印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15472	1547	2	1	0	0%	魔刃天旋	刃甲印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15473	1547	3	1	0	0%	魔刃天旋	裂伤印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15481	1548	1	1	0	0%	猎命宣告	恶语印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15482	1548	2	1	0	0%	猎命宣告	狂言印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-15483	1548	3	1	0	0%	猎命宣告	追判印	刺客	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
-20411	2041	1	1	0	0%	基础射击	伏虎印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
-20412	2041	2	4	0	0%	基础射击	清心印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20421	2042	1	1	0	0%	精准打击	透骨印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	2				0
-20422	2042	2	2	0	0%	精准打击	射戟印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	2				0
-20423	2042	3	1	0	0%	精准打击	飞蝗印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20431	2043	1	1	0	0%	二连射	冰翚印	弓箭手	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	4				0
-20432	2043	2	1	0	0%	二连射	驱魔印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
-20433	2043	3	1	0	0%	二连射	双刑印	弓箭手	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	2				0
-20441	2044	1	2	0	0%	战术标记	铁索印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	5				0
-20442	2044	2	2	0	0%	战术标记	汲灵印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	6				0
-20443	2044	3	1	0	0%	战术标记	失神印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
-20451	2045	1	4	0	0%	三发散射	四泾印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	4				0
-20452	2045	2	1	0	0%	三发散射	三刻印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20453	2045	3	5	0	0%	三发散射	箭雨印	弓箭手	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	5				0
-20461	2046	1	1	0	0%	击飞射击	怕击印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
-20462	2046	2	4	0	0%	击飞射击	风缚印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	4				0
-20463	2046	3	3	0	0%	击飞射击	穿杨印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20471	2047	1	4	0	0%	连环暗雷	冰霜印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	4				0
-20472	2047	2	5	0	0%	连环暗雷	旋刃印	弓箭手	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	4				0
-20481	2048	1	5	0	0%	强袭	爆裂印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20482	2048	2	5	0	0%	强袭	煞血印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	7				0
-20483	2048	3	1	0	0%	强袭	破灵印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20484	2048	4	1	0	0%	强袭	空灵印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20491	2049	1	5	0	0%	羿神庇佑	御风印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20492	2049	2	5	0	0%	羿神庇佑	神恩印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20493	2049	3	5	0	0%	羿神庇佑	捷风印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20501	2050	1	1	0	0%	穿刺射击	赤火印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
-20502	2050	2	5	0	0%	穿刺射击	震穹印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	5				0
-20511	2051	1	5	0	0%	凝神	爕心印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	7				0
-20512	2051	2	1	0	0%	凝神	凝魂印	弓箭手	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	3				0
-20513	2051	3	4	0	0%	凝神	神启印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	6				0
-20521	2052	1	5	0	0%	守护箭翚	鸿铠印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20522	2052	2	5	0	0%	守护箭翚	震铠印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20561	2056	1	1	0	0%	回避射击	闪灵印	弓箭手	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	3				0
-20562	2056	2	5	0	0%	回避射击	明心印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	5				0
-20563	2056	3	5	0	0%	回避射击	回风印	弓箭手	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	7				0
-20564	2056	4	4	0	0%	回避射击	疾风印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	4				0
-20571	2057	1	5	0	0%	万箭穿心	幻翚印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20572	2057	2	5	0	0%	万箭穿心	积威印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20573	2057	3	5	0	0%	万箭穿心	无隙印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20581	2058	1	5	0	0%	夜幕隐踪	绽昙印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20582	2058	2	5	0	0%	夜幕隐踪	飘蒲印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-20583	2058	3	5	0	0%	夜幕隐踪	荡苇印	弓箭手	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
-12011	1201	1	4	0	0%	中平枪术	霸王印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
-12012	1201	2	1	0	0%	中平枪术	钢握印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
-12013	1201	3	1	0	0%	中平枪术	守中印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
-12021	1202	1	1	0	0%	伏波荡寇	泽国印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
-12022	1202	2	1	0	0%	伏波荡寇	定军印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12031	1203	1	1	0	0%	横扫六合	战痕印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12032	1203	2	2	0	0%	横扫六合	裂甲印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
-12041	1204	1	4	0	0%	狂飙突刺	积雷印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
-12042	1204	2	5	0	0%	狂飙突刺	缠杀印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
-12043	1204	3	1	0	0%	狂飙突刺	白衣印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12051	1205	1	4	0	0%	钩镰枪法	狮牙印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
-12052	1205	2	1	0	0%	钩镰枪法	蛇吻印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
-12053	1205	3	1	0	0%	钩镰枪法	虎爪印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12054	1205	4	5	0	0%	钩镰枪法	血蝠印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
-12061	1206	1	4	0	0%	乾坤斗气	龙鳞印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
-12062	1206	2	1	0	0%	乾坤斗气	龙威印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12071	1207	1	5	0	0%	神威镇域	据守印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
-12072	1207	2	1	0	0%	神威镇域	断喝印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
-12081	1208	1	6	0	0%	枪出如龙	焚城印	龙枪	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	8				0
-12082	1208	2	6	0	0%	枪出如龙	斩将印	龙枪	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	5				0
-12083	1208	3	5	0	0%	枪出如龙	雷殛印	龙枪	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	5				0
-12091	1209	1	1	0	0%	御龙晶甲	长磐印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12092	1209	2	6	0	0%	御龙晶甲	龙胆印	龙枪	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	6				0
-12093	1209	3	5	0	0%	御龙晶甲	吞虎印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
-12101	1210	1	1	0	0%	凌云枪法	撼地印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
-12102	1210	2	4	0	0%	凌云枪法	乱阵印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
-12103	1210	3	6	0	0%	凌云枪法	破虏印	龙枪	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	7				0
-12111	1211	1	4	0	0%	燃血化元	龙元印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
-12112	1211	2	4	0	0%	燃血化元	传薪印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
-12113	1211	3	6	0	0%	燃血化元	无双印	龙枪	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	7				0
-12121	1212	1	1	0	0%	召唤龙驹	破军印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12122	1212	2	1	0	0%	召唤龙驹	救主印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12131	1213	1	1	0	0%	盘龙枪势	金甲印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12132	1213	2	1	0	0%	盘龙枪势	虎痴印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12133	1213	3	1	0	0%	盘龙枪势	辟邪印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12141	1214	1	1	0	0%	百战军魂	鏖战印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12142	1214	2	1	0	0%	百战军魂	血爆印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
-12143	1214	3	1	0	0%	百战军魂	千军印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
-12181	1218	1	1	0	0%	龙啸千里	啸绝印	龙枪	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
-12182	1218	2	1	0	0%	龙啸千里	虬臂印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
-12183	1218	3	1	0	0%	龙啸千里	定坤印	龙枪	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
+10311	1031	1	1	32900	3.29%	Basic Swordsmanship	Whirlwind Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	200	1400	0	0	0	0	3	Has a chance to trigger a 360-degree strike. When surrounded, I can finally go all out.	3	PVP Inscription	0
+10312	1031	2	1	9900	0.99%	Basic Swordsmanship	Sovereign Seal	Warrior	0	0	250	1500	0	0	2200	25	0	1	0	clsWarrior	0	500	1300	0	0	2500	4	Has a chance to trigger a 360-degree strike. When surrounded, I can finally go all out.	4	PVE Inscription	0
+10313	1031	3	1	9900	0.99%	Basic Swordsmanship	Dim Speed Seal	Warrior	0	0	0	1500	0	0	2100	25	0	1	0	clsWarrior	0	300	1300	0	0	2500	5	Has a chance to trigger a 360-degree strike. When surrounded, I can finally go all out.	4	PVE Inscription	0
+10314	1031	4	1	98600	9.86%	Basic Swordsmanship	Suppression Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	1750	0	0	0	0	0	1	Has a chance to trigger a 360-degree strike. When surrounded, I can finally go all out.	1	PVE Inscription	0
+10321	1032	1	1	49300	4.93%	Slaying Sword Skill	Tyrant Seal	Warrior	0	0	1100	0	0	0	0	25	0	0	0	clsWarrior	100	0	0	0	0	0	2	Attacks against weak monsters become more accurate, with a chance to seize and pummel them for heavy damage, even killing in one blow. Chief, elite, whatever, as long as it is small, it dies	2	PVE Inscription	0
+10322	1032	2	1	32900	3.29%	Slaying Sword Skill	Silver Light Seal	Warrior	0	0	900	2500	0	0	2450	25	0	0	0	clsWarrior	100	0	0	0	0	2800	3	Attacks against weak monsters become more accurate, with a chance to seize and pummel them for heavy damage, even killing in one blow. Chief, elite, whatever, as long as it is small, it dies	3	PVE Inscription	0
+10323	1032	3	1	97600	9.76%	Slaying Sword Skill	Blood Slaughter Inscription	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	700	0	0	0	0	1	Attacks against weak monsters become more accurate, with a chance to seize and pummel them for heavy damage, even killing in one blow. Chief, elite, whatever, as long as it is small, it dies	1	PVP Inscription	0
+10324	1032	4	1	1000	0.10%	Slaying Sword Skill	Glorious Dragon Seal	Warrior	24	6	0	350	1500	0	300	25	1	1	0	clsWarrior	0	0	400	1500	3500	200	6	Attacks against weak monsters become more accurate, with a chance to seize and pummel them for heavy damage, even killing in one blow. Chief, elite, whatever, as long as it is small, it dies	5	PVP Inscription	0
+10331	1033	1	1	49300	4.93%	Assassination Swordplay	Magic-Breaker Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	700	0	0	0	0	3	The boiling sword qi can instantly burn away the magic elements around the target, making the shield formed of magical power vanish without a trace. Mages, go die	2	PVP Inscription	0
+10332	1033	2	1	1500	0.15%	Assassination Swordplay	Radiant Light Seal	Warrior	24	6	0	400	0	0	300	25	1	1	0	clsWarrior	0	0	400	0	3500	200	6	The boiling sword qi can instantly burn away the magic elements around the target, making the shield formed of magical power vanish without a trace. Mages, go die	5	PVP Inscription	0
+10333	1033	3	1	49300	4.93%	Assassination Swordplay	Mountain-Breaker Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	2500	0	0	0	0	0	2	The boiling sword qi can instantly burn away the magic elements around the target, making the shield formed of magical power vanish without a trace. Mages, go die	2	PVE Inscription	0
+10341	1034	1	1	19900	1.99%	Crescent Blade	Moon Glory Seal	Warrior	0	0	1600	0	0	0	2337	25	0	0	0	clsWarrior	0	2000	0	0	0	0	3	A bit fierce! A bit rare! Expands the attack range of Crescent Blade. Mom no longer needs to worry about glaring at a crowd of monsters.	3	PVE Inscription	0
+10342	1034	2	1	32900	3.29%	Crescent Blade	Moon Gazing Inscription	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	2500	0	0	0	0	0	2	A bit fierce! A bit rare! Expands the attack range of Crescent Blade. Mom no longer needs to worry about glaring at a crowd of monsters.	3	PVP Inscription	0
+10343	1034	3	1	49300	4.93%	Crescent Blade	Swift Moon Seal	Warrior	0	0	3100	0	0	0	0	25	0	0	0	clsWarrior	500	0	0	0	0	0	2	A bit fierce! A bit rare! Expands the attack range of Crescent Blade. Mom no longer needs to worry about glaring at a crowd of monsters.	2	PVE Inscription	0
+10351	1035	1	1	49300	4.93%	Savage Charge	Wind Split Inscription	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	750	0	0	0	0	3	A bit fierce! A bit rare! Charge speed is increased, and the target hit cannot run for a short time.	2	PVP Inscription	0
+10352	1035	2	1	32900	3.29%	Savage Charge	Fire-Gathering Seal	Warrior	0	0	800	0	0	0	0	25	0	0	0	clsWarrior	0	250	0	0	0	0	3	A bit fierce! A bit rare! Charge speed is increased, and the target hit cannot run for a short time.	3	PVP Inscription	0
+10353	1035	3	1	98600	9.86%	Savage Charge	Swift Step Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	50	1600	0	0	0	0	1	A bit fierce! A bit rare! Charge speed is increased, and the target hit cannot run for a short time.	1	PVP Inscription	0
+10354	1035	4	1	22900	2.29%	Savage Charge	Ramming Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	150	0	0	0	0	0	2	A bit fierce! A bit rare! Charge speed is increased, and the target hit cannot run for a short time.	3	PVP Inscription	0
+10355	1035	5	1	89600	8.96%	Savage Charge	Brute Valor Inscription	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	2000	0	0	0	0	0	1	A bit fierce! A bit rare! Charge speed is increased, and the target hit cannot run for a short time.	1	PVP Inscription	0
+10361	1036	1	1	0	0.00%	Flaming Sword	Moon Slash Seal	Warrior	24	2	0	0	2000	10000	3	25	1	1	0	clsWarrior	0	0	0	2000	0	5	7	Extremely fierce! Extremely rare! Expands the intimidation range of the sword aura so your enemies have nowhere to hide. Targets hit will also burn from the intense heat.	6	PVP Inscription	1
+10362	1036	2	1	2000	0.20%	Flaming Sword	Fire Seizing Seal	Warrior	24	6	0	350	1500	0	300	25	1	1	0	clsWarrior	0	0	400	1500	3000	200	6	Extremely fierce! Extremely rare! Expands the intimidation range of the sword aura so your enemies have nowhere to hide. Targets hit will also burn from the intense heat.	5	PVP Inscription	0
+10363	1036	3	1	32900	3.29%	Flaming Sword	Burning Seal	Warrior	0	0	1000	0	0	0	0	25	0	1	0	clsWarrior	0	300	1800	0	0	0	4	Extremely fierce! Extremely rare! Expands the intimidation range of the sword aura so your enemies have nowhere to hide. Targets hit will also burn from the intense heat.	3	PVE Inscription	0
+10371	1037	1	1	32900	3.29%	Lion's Roar	Armor-Breaker Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	0	500	0	0	0	0	3	A bit fierce! A bit rare! Chance to reduce defense over a huge area. You deserve to have it.	3	PVP Inscription	0
+10372	1037	2	1	9900	0.99%	Lion's Roar	Moon Piercer Seal	Warrior	0	0	500	1700	0	0	0	25	0	1	0	clsWarrior	0	400	1300	0	0	1585	4	A bit fierce! A bit rare! Chance to reduce defense over a huge area. You deserve to have it.	4	PVE Inscription	0
+10373	1037	3	1	9900	0.99%	Lion's Roar	Ruin Seal	Warrior	0	0	500	0	0	0	0	25	0	0	0	clsWarrior	100	0	0	0	0	0	3	A bit fierce! A bit rare! Chance to reduce defense over a huge area. You deserve to have it.	4	PVE Inscription	0
+10374	1037	4	1	32900	3.29%	Lion's Roar	Nightmare Seal	Warrior	0	0	0	0	0	0	0	25	0	0	0	clsWarrior	50	0	0	0	0	0	3	A bit fierce! A bit rare! Chance to reduce defense over a huge area. You deserve to have it.	3	PVE Inscription	0
+10375	1037	5	1	32900	3.29%	Lion's Roar	Resolve Seal	Warrior	0	0	0	0	0	0	0	25	0	1	0	clsWarrior	0	300	1300	0	0	0	4	A bit fierce! A bit rare! Chance to reduce defense over a huge area. You deserve to have it.	4	PVP Inscription	0
+10381	1038	1	1	9500	0.95%	Sun Chasing Sword	Frontier Seal	Warrior	24	3	0	0	2500	0	5	25	1	1	0	clsWarrior	0	0	0	2500	0	5	7	Extremely fierce! Extremely rare! Attack range expanded to 3x4 so your enemies have nowhere to hide. Flames remain on the ground after the attack, dealing continuous damage to enemies who enter.	6	PVP Inscription	0
+10382	1038	2	1	500	0.05%	Sun Chasing Sword	Divine Body Seal	Warrior	24	3	0	0	2500	0	5	25	1	1	0	clsWarrior	0	0	0	2500	0	5	7	Extremely fierce! Extremely rare! Attack range expanded to 3x4 so your enemies have nowhere to hide. Flames remain on the ground after the attack, dealing continuous damage to enemies who enter.	6	PVP Inscription	0
+10383	1038	3	1	9900	0.99%	Sun Chasing Sword	Rising Dragon Seal	Warrior	0	0	250	1700	0	0	0	25	0	1	0	clsWarrior	0	300	1800	0	0	0	4	Extremely fierce! Extremely rare! Attack range expanded to 3x4 so your enemies have nowhere to hide. Flames remain on the ground after the attack, dealing continuous damage to enemies who enter.	4	PVP Inscription	0
+25311	2531	1	1	98600	9.86%	Fireball	Fire Cone Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	1500	0	0	0	0	0	1	Whoosh, and the bad guys are spread out. That's how fierce it is	1	PVE Inscription	0
+25321	2532	1	1	96600	9.66%	Fire Ring Resistance	Flame Glory Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	28	1000	0	0	0	0	2	Burn you once, and next time you use fire it will hurt more	1	PVE Inscription	0
+25411	2541	1	1	49300	4.93%	Seduction Light	Army Might Seal	Mage	0	0	0	0	0	0	0	25	0	1	0	clsMage	600	0	0	0	0	0	2	Increases the summon limit of the same level by 1	2	PVE Inscription	0
+25412	2541	2	1	49300	4.93%	Seduction Light	Demon Speech Seal	Mage	0	0	0	0	0	0	0	25	0	1	0	clsMage	1300	0	0	0	0	0	1	Increases the summon limit of the same level by 1	2	PVE Inscription	0
+25413	2541	3	1	49300	4.93%	Seduction Light	Demon Nightmare Seal	Mage	0	0	1600	0	0	0	0	25	0	1	0	clsMage	1300	0	0	0	0	0	2	Increases the summon limit of the same level by 1	2	PVE Inscription	0
+25414	2541	4	1	32900	3.29%	Seduction Light	Blood Pact Inscription	Mage	0	0	2100	1500	0	0	2000	25	0	1	0	clsMage	0	500	1000	0	0	2000	3	Increases the summon limit of the same level by 1	3	PVE Inscription	0
+25415	2541	5	1	32900	3.29%	Seduction Light	Soul Devouring Seal	Mage	0	0	0	0	0	0	0	25	0	1	0	clsMage	0	1500	0	0	0	0	2	Increases the summon limit of the same level by 1	3	PVE Inscription	0
+25416	2541	6	1	32900	3.29%	Seduction Light	Evil Light Seal	Mage	0	0	0	0	0	0	0	25	0	1	0	clsMage	600	0	0	0	0	0	2	Increases the summon limit of the same level by 1	3	PVE Inscription	0
+25417	2541	7	1	49300	4.93%	Seduction Light	Evil Shadow Seal	Mage	0	0	0	0	0	0	0	25	0	1	0	clsMage	600	0	0	0	0	0	2	Increases the summon limit of the same level by 1	2	PVE Inscription	0
+25441	2544	1	1	9900	0.99%	Hellfire	Flame Dragon Seal	Mage	0	0	500	1100	0	0	2000	25	0	1	0	clsMage	0	300	0	0	0	0	5	Extremely fierce! Extremely rare! Low-level fellows beware, this hit will leave your legs numb for a good while.	4	PVE Inscription	0
+25331	2533	1	1	1000	0.10%	Lightning	Heaven's Wrath Seal	Mage	24	6	0	300	2000	0	300	25	1	1	0	clsMage	0	0	300	2000	3000	150	6	Extremely fierce! Extremely rare! Low-level fellows beware, this hit will leave your legs numb for a good while.	5	PVP Inscription	0
+25332	2533	2	1	9900	0.99%	Lightning	Heaven's Punishment Seal	Mage	0	0	0	100	500	0	1750	25	0	1	0	clsMage	0	300	600	250	0	1800	4	Faster Release!	4	PVE Inscription	0
+25381	2538	1	1	98600	9.86%	Instant Movement	Void Walk Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	1500	0	0	0	0	0	1	A must for the poor: burns longer and saves potions	1	PVE Inscription	0
+25451	2545	1	1	98600	9.86%	Explosive Flame	Swift Fire Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	1500	0	0	0	0	0	2	A must for the poor: burns longer and saves potions	1	PVP Inscription	0
+25341	2534	1	1	49300	4.93%	Fire Wall	Fire Gazing Inscription	Mage	0	0	2500	0	0	0	0	25	0	0	0	clsMage	0	500	1000	0	0	1800	3	A bit fierce! A bit rare! Damage reduction is not lost after leveling up.	2	PVE Inscription	0
+25342	2534	2	1	1000	0.10%	Fire Wall	True Red Seal	Mage	24	6	0	500	0	0	350	25	1	1	0	clsMage	0	0	500	0	3500	200	6	A bit fierce! A bit rare! Damage reduction is not lost after leveling up.	5	PVP Inscription	0
+25361	2536	1	1	9900	0.99%	Swift Light Shadow	Thunder God Seal	Mage	0	0	750	1700	0	0	1285	25	0	0	0	clsMage	0	1500	2500	0	0	2000	3	Wow, incredibly rare! A squishy target dies to a single hit	4	PVP Inscription	0
+25362	2536	2	1	1500	0.15%	Swift Light Shadow	Thunder Smite Seal	Mage	24	6	0	500	0	0	300	25	1	1	0	clsMage	0	0	450	0	3500	200	5	Wow, incredibly rare! A squishy target dies to a single hit	5	PVP Inscription	0
+25363	2536	3	1	0	0.00%	Swift Light Shadow	Thunder Curse Seal	Mage	24	2	0	0	2000	10000	5	25	1	1	0	clsMage	0	0	0	2500	0	5	7	Wow, incredibly rare! A squishy target dies to a single hit	6	PVP Inscription	1
+25461	2546	1	1	9900	0.99%	Hell Thunder Light	Thunder Dragon Seal	Mage	0	0	750	0	0	0	0	25	0	0	0	clsMage	42	1500	0	0	0	0	2	Not very fierce, but very rare! The dragon has appeared, try out the effect yourself	4	PVE Inscription	0
+25351	2535	1	1	32900	3.29%	Magic Shield	Heaven Guard Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	30	0	0	0	0	0	3	Rather fierce. Tremble, mages. Holy Word kills the target with Solar Flame Burst; after a summon is banished, the caster cannot use skills for a while.	3	PVE Inscription	0
+25352	2535	2	1	32900	3.29%	Magic Shield	Frost Bone Seal	Mage	0	0	1000	1100	0	0	0	25	0	0	0	clsMage	0	500	800	0	0	0	3	Rather fierce. Tremble, mages. Holy Word kills the target with Solar Flame Burst; after a summon is banished, the caster cannot use skills for a while.	3	PVP Inscription	0
+25472	2547	2	1	32900	3.29%	Holy Word	Holy Spirit Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	0	1000	0	0	0	0	3	A poor man's dream: quickly fires 3 fireballs, hitting up to 3 different targets	3	PVP Inscription	0
+25473	2547	3	1	32900	3.29%	Holy Word	Secret Spell Seal	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	1000	0	2500	0	0	0	2	Raises a gust of cold wind	3	PVE Inscription	0
+25371	2537	1	1	9900	0.99%	Ice Storm	Dragon Walk Seal	Mage	0	0	300	1600	0	0	1000	25	0	1	0	clsMage	0	300	0	0	0	0	5	Raises a gust of cold wind	4	PVE Inscription	0
+25372	2537	2	1	2500	0.25%	Ice Storm	Dragon Soul Seal	Mage	24	3	0	0	4500	0	5	25	1	1	0	clsMage	0	0	0	4500	0	5	6	Still worth pursuing, a champion among transitional gear! Summons the soul of a flame dragon from the void, widening the damage area and destroying enemies ahead.	6	PVP Inscription	0
+25501	2550	1	1	32900	3.29%	Frost Palm	Frost Seal	Mage	0	0	500	0	0	0	0	25	0	1	0	clsMage	0	300	0	0	0	1635	4	Don't be afraid to fail; run a bit farther and try again	3	PVE Inscription	0
+25491	2549	1	1	32900	3.29%	Great Fireball	Chain Inscription	Mage	0	0	0	0	0	0	0	25	0	0	0	clsMage	0	500	0	0	0	0	3	Very fierce, very rare! Has a low chance to freeze the target after knocking it back. Um... in a fight it really is low	3	PVE Inscription	0
+25391	2539	1	1	9900	0.99%	Heaven-Extinguishing Fire	Qi Seizing Seal	Mage	0	0	0	1600	0	0	1000	25	0	0	0	clsMage	0	300	350	0	0	200	3	Extremely fierce! Extremely rare! Drain your mana, see if you dare drink mana potions again!	4	PVP Inscription	0
+25401	2540	1	1	500	0.05%	Meteor Fire Rain	Fire Rain Seal	Mage	24	3	0	0	1000	0	5	25	1	1	0	clsMage	0	0	0	750	0	5	7	pong!pong!pong! Smash you flat	6	PVP Inscription	0
+30021	3002	1	1	49300	4.93%	Healing	Divine Aid Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	50	1800	0	0	0	0	2	Mental power pierces are released at irregular intervals!	2	PVP Inscription	0
+30022	3002	2	1	49300	4.93%	Healing	Deft Hand Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	200	0	0	0	0	0	2	Mental power pierces are released at irregular intervals!	2	PVE Inscription	0
+30011	3001	1	1	98600	9.86%	Mental Power Tactics	Spirit Burst Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	2200	0	0	0	0	0	1	Mental power pierces are released at irregular intervals!	1	PVE Inscription	0
+30012	3001	2	1	32900	3.29%	Mental Power Tactics	Spirit Strike Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	1300	0	0	0	0	0	3	Instantly restores half. That's powerful enough, right?	3	PVP Inscription	0
+30013	3001	3	1	9900	0.99%	Mental Power Tactics	Taoist Law Seal	Taoist	0	0	500	2000	0	0	2000	25	0	0	0	clsTaoist	0	1400	1200	0	0	2000	3	Instantly restores half. That's powerful enough, right?	4	PVE Inscription	0
+30041	3004	1	1	1000	0.10%	Poisoning	Wave Piercer Seal	Taoist	24	6	0	300	0	0	300	25	1	1	0	clsTaoist	0	0	300	0	3500	200	5	Extremely fierce! Poison splashes at the target point, and the splashed poison has a special effect on already poisoned players.	5	PVP Inscription	0
+30042	3004	2	1	49300	4.93%	Poisoning	Blade Piercer Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	100	0	3000	0	0	0	2	Damages the target's soul and seizes its energy to restore your own	2	PVP Inscription	0
+30043	3004	3	1	32900	3.29%	Poisoning	Cloud Piercer Seal	Taoist	0	0	700	2000	0	0	2000	25	0	1	0	clsTaoist	0	300	0	0	0	2000	4	Damages the target's soul and seizes its energy to restore your own	3	PVP Inscription	0
+30045	3004	5	1	14900	1.49%	Poisoning	Venom Piercer Seal	Taoist	0	0	500	0	0	0	0	25	0	1	0	clsTaoist	0	200	350	0	0	0	4	Damages the target's soul and seizes its energy to restore your own	4	PVP Inscription	0
+30051	3005	1	1	1000	0.10%	Soul Fire Talisman	Talisman Array Seal	Taoist	24	3	0	0	2500	0	5	25	1	1	0	clsTaoist	0	0	0	2500	0	5	7	Damages the target's soul and seizes its energy to restore your own	6	PVP Inscription	0
+30052	3005	2	1	32900	3.29%	Soul Fire Talisman	Spirit Control Seal	Taoist	0	0	2600	1900	0	0	2100	25	0	0	0	clsTaoist	0	500	600	0	0	2000	3	Summon the Skeleton General!	3	PVP Inscription	0
+30053	3005	3	1	32900	3.29%	Soul Fire Talisman	Fire Snake Seal	Taoist	0	0	1000	0	0	0	0	25	0	0	0	clsTaoist	0	500	0	0	0	0	3	Summon the Skeleton General!	3	PVP Inscription	0
+30054	3005	4	1	32900	3.29%	Soul Fire Talisman	Ricochet Seal	Taoist	0	0	1000	0	0	0	0	25	0	0	0	clsTaoist	0	500	0	0	0	0	3	Mighty strength can sometimes leave a target unable to run due to internal injury	3	PVE Inscription	0
+30031	3003	1	1	9900	1.99%	Summon Skeleton	Monarch Seal	Taoist	0	0	600	1000	0	0	987	25	0	1	0	clsTaoist	0	400	800	0	0	1185	5	Mighty strength can sometimes leave a target unable to run due to internal injury	4	PVP Inscription	0
+30032	3003	2	1	9900	1.99%	Summon Skeleton	Jialan Inscription	Taoist	0	0	500	2000	500	0	2000	25	0	1	0	clsTaoist	50	1800	3000	500	0	2000	4	Rather rare! Can dispel poison! Rather useful!	4	PVE Inscription	0
+30033	3003	3	1	1000	0.10%	Summon Skeleton	Heaven Stealing Seal	Taoist	24	6	0	300	0	0	200	25	1	1	0	clsTaoist	0	0	300	0	3500	200	6	Rather rare! Can dispel poison! Rather useful!	5	PVE Inscription	0
+30091	3009	1	1	98600	9.86%	Invisibility	Void Aspect Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	2200	0	0	0	0	0	1	Rather rare! Can dispel poison! Rather useful!	1	PVE Inscription	0
+30141	3014	1	1	49300	4.93%	Group Invisibility	Taiji Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	200	0	0	0	0	0	2	The more you add, the higher your defense gets, heh heh heh heh	2	PVP Inscription	0
+30063	3006	3	1	49300	4.93%	Ghost Shield	Spirit Carry Seal	Taoist	0	0	2500	0	0	0	0	25	0	0	0	clsTaoist	350	0	0	0	0	0	2	The more you add, the higher your defense gets, heh heh heh heh	2	PVP Inscription	0
+30071	3007	1	1	98600	9.86%	Holy Armor Spell	Elixir Condensing Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	1500	0	0	0	0	0	1	The more you add, the higher your defense gets, heh heh heh heh	1	PVP Inscription	0
+30111	3011	1	1	98600	7.86%	Demon Binding Curse	Evil Curse Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	1800	0	0	0	0	0	1	Attack speed increases while invisible. Is there any point? Maybe.	1	PVE Inscription	0
+30181	3018	1	1	32900	3.29%	Qigong Wave	Aura Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	50	0	0	0	0	0	2	Rather rare! For 10 seconds after Invisibility ends, damage is increased when attacking.	3	PVE Inscription	0
+30182	3018	2	1	32900	3.29%	Qigong Wave	Haoran Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	0	1500	0	0	0	0	3	Hit by my trick, even if you break free, you will be weak for a while	3	PVP Inscription	0
+30121	3012	1	1	5500	0.55%	Group Healing	Yaoguang Seal	Taoist	24	3	0	50	3000	0	5	25	1	1	0	clsTaoist	0	0	0	3000	0	5	7	Extremely rare! Healing range is larger. I'm a super healer now.	6	PVP Inscription	0
+30081	3008	1	1	0	0.00%	Summon Divine Beast	Holy Beast Seal	Taoist	24	2	0	0	1000	10000	3	25	1	1	0	clsTaoist	0	0	0	1000	0	5	7	Extremely rare! Big guy, charge!	6	PVP Inscription	1
+30082	3008	2	1	1000	0.10%	Summon Divine Beast	Blood Beast Inscription	Taoist	24	5	0	50	3000	0	100	25	1	1	0	clsTaoist	0	0	75	3000	3000	100	6	Extremely rare! Big guy, charge!	5	PVP Inscription	0
+30083	3008	3	1	4900	0.49%	Summon Divine Beast	Spirit Beast Seal	Taoist	0	0	0	400	0	0	300	25	0	1	0	clsTaoist	0	250	375	0	0	300	5	Extremely rare! Big guy, charge!	4	PVE Inscription	0
+30151	3015	1	1	32900	3.29%	Wuji True Qi	Heavenly Stars Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	0	250	0	0	0	0	3	Extra defense boost. I will defy the heavens!	3	PVP Inscription	0
+30101	3010	1	1	32900	3.29%	Blood Devouring Art	Heart Devouring Seal	Taoist	0	0	0	0	0	0	0	25	0	0	0	clsTaoist	0	350	0	0	0	0	3	Kill him, make him explode	3	PVE Inscription	0
+30102	3010	2	1	4900	0.49%	Blood Devouring Art	Soul Seizing Seal	Taoist	0	0	100	0	0	0	0	25	0	0	0	clsTaoist	0	250	0	0	0	0	3	Kill him, make him explode	4	PVP Inscription	0
+32011	3201	1	1	0	0%	Demonic Art Bolt	Demon Dye Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32012	3201	2	1	0	0%	Demonic Art Bolt	Dark Erosion Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
+32013	3201	3	1	0	0%	Demonic Art Bolt	Demon Refining Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	1				0
+32161	3216	1	2	0	0%	Evil Claw Grip	Blood Fiend Inscription	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
+32162	3216	2	1	0	0%	Evil Claw Grip	Rock Guardian Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
+32163	3216	3	1	0	0%	Evil Claw Grip	Absolute Punishment Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	1				0
+32021	3202	1	2	0	0%	Soul Strike	Heart-Stir Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32022	3202	2	3	0	0%	Soul Strike	Spirit Extinction Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32023	3202	3	1	0	0%	Soul Strike	Curse Art Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
+32024	3202	4	3	0	0%	Soul Strike	Shock Soul Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
+32031	3203	1	3	0	0%	Soul Control Curse	Soul-Gathering Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32032	3203	2	5	0	0%	Soul Control Curse	Soul Servitude Seal	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
+32033	3203	3	2	0	0%	Soul Control Curse	Soul Burst Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32041	3204	1	6	0	0%	Demonic Energy Crystallization	Spirit Cluster Seal	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	7				0
+32042	3204	2	3	0	0%	Demonic Energy Crystallization	Soul Stripping Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32043	3204	3	1	0	0%	Demonic Energy Crystallization	Blood-Forging Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32051	3205	1	2	0	0%	Mind Disturbing Curse	Bone Erosion Inscription	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32052	3205	2	4	0	0%	Mind Disturbing Curse	Curse Bind Seal	Demon	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
+32053	3205	3	2	0	0%	Mind Disturbing Curse	Fierce Curse Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32061	3206	1	4	0	0%	Soul Rush Curse	Valor Seal	Demon	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
+32062	3206	2	1	0	0%	Soul Rush Curse	Annihilation Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32063	3206	3	3	0	0%	Soul Rush Curse	Thousand Jin Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32071	3207	1	6	0	0%	Soul Extinction	Seal of Ten Thousand Tribulations	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	8				0
+32072	3207	2	1	0	0%	Soul Extinction	Soul Snatch Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32073	3207	3	3	0	0%	Soul Extinction	Spirit Mourning Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32081	3208	1	1	0	0%	Resentment-Parting Curse	Armor-Rotting Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	2				0
+32082	3208	2	4	0	0%	Resentment-Parting Curse	Phantom Step Seal	Demon	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
+32083	3208	3	5	0	0%	Resentment-Parting Curse	Ghost Slayer Seal	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
+32091	3209	1	1	0	0%	Soul Absorb Curse	Netherworld Guard Seal	Demon	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	6				0
+32092	3209	2	6	0	0%	Soul Absorb Curse	Demon Curse Seal	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	7				0
+32093	3209	3	4	0	0%	Soul Absorb Curse	Curse Heart Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32101	3210	1	5	0	0%	Spirit Lock Curse	Confinement Seal	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
+32102	3210	2	2	0	0%	Spirit Lock Curse	Wound Lock Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	3				0
+32103	3210	3	4	0	0%	Spirit Lock Curse	Spirit Devouring Seal	Demon	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
+32111	3211	1	4	0	0%	Netherworld Guard Curse	Netherworld Seal	Demon	0	0	0	0	0	0	0	10	0	1	0	clsSorcerer	0	0	0	0	0	0	5				0
+32112	3211	2	5	0	0%	Netherworld Guard Curse	Demon Marsh Seal	Demon	0	0	0	0	0	0	0	10	1	1	0	clsSorcerer	0	0	0	0	0	0	6				0
+32113	3211	3	3	0	0%	Netherworld Guard Curse	Sea of Bitterness Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	4				0
+32121	3212	1	1	0	0%	Demon Shadow Transformation	Nightmare Demon Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32122	3212	2	1	0	0%	Demon Shadow Transformation	Shadow Stop Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32131	3213	1	1	0	0%	Demonic Power Infusion	Demon Truth Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32132	3213	2	1	0	0%	Demonic Power Infusion	Spirit Condensing Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32133	3213	3	1	0	0%	Demonic Power Infusion	Phantom Demon Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32141	3214	1	1	0	0%	Demon Guard Curse	Extinct Darkness Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32142	3214	2	1	0	0%	Demon Guard Curse	Soul Blessing Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32143	3214	3	1	0	0%	Demon Guard Curse	Imposing Prison Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32151	3215	1	1	0	0%	Demonic Energy Devouring	Spirit Guard Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32152	3215	2	1	0	0%	Demonic Energy Devouring	Dark Body Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+32153	3215	3	1	0	0%	Demonic Energy Devouring	Spirit Perception Seal	Demon	0	0	0	0	0	0	0	10	0	0	0	clsSorcerer	0	0	0	0	0	0	0				0
+15311	1531	1	1	0	0%	Critical Strike	Slaughter Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
+15312	1531	2	3	0	0%	Critical Strike	Afterimage Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	4				0
+15313	1531	3	1	0	0%	Critical Strike	Hawk Eye Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15314	1531	4	2	0	0%	Critical Strike	Xie Hunt Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15321	1532	1	1	0	0%	Stealth	Hidden Escape Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	1				0
+15322	1532	2	2	0	0%	Stealth	Blood Hide Inscription	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15323	1532	3	4	0	0%	Stealth	Inexhaustible Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
+15331	1533	1	1	0	0%	Crippling Poison	Eagle Eye Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
+15332	1533	2	1	0	0%	Crippling Poison	Heart Envy Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	1				0
+15333	1533	3	4	0	0%	Crippling Poison	Restraint Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
+15334	1533	4	1	0	0%	Crippling Poison	Blood Fury Inscription	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
+15335	1533	5	3	0	0%	Crippling Poison	Star Rift Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
+15341	1534	1	1	0	0%	Precision Art	Judgment Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	1				0
+15342	1534	2	5	0	0%	Precision Art	Chaos Seal	Assassin	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	6				0
+15343	1534	3	2	0	0%	Precision Art	Battle Continuation Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15344	1534	4	5	0	0%	Precision Art	Chaos Shadow Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	5				0
+15345	1534	5	1	0	0%	Precision Art	Flash Strike Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15351	1535	1	3	0	0%	Flame Dragon Wave	Roaming Dragon Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
+15352	1535	2	5	0	0%	Flame Dragon Wave	Dragon Night Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	6				0
+15353	1535	3	1	0	0%	Flame Dragon Wave	Scorching Dragon Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15354	1535	4	6	0	0%	Flame Dragon Wave	Tenacity Seal	Assassin	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	7				0
+15361	1536	1	1	0	0%	Whirlwind Kick	Northwind Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
+15362	1536	2	3	0	0%	Whirlwind Kick	Dragon Sway Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	4				0
+15363	1536	3	2	0	0%	Whirlwind Kick	Soul-Binding Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15371	1537	1	5	0	0%	Ghost Spirit Step	Calamity Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	6				0
+15372	1537	2	1	0	0%	Ghost Spirit Step	Shapeshift Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
+15373	1537	3	4	0	0%	Ghost Spirit Step	Fleeing Rabbit Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	4				0
+15374	1537	4	1	0	0%	Ghost Spirit Step	Fire Path Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15381	1538	1	6	0	0%	Coldblood	Spirit Light Seal	Assassin	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	8				0
+15382	1538	2	6	0	0%	Coldblood	Crippling Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	7				0
+15383	1538	3	5	0	0%	Coldblood	Shadow Chasing Inscription	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	5				0
+15391	1539	1	6	0	0%	Fire Scythe Frenzy	Double Slash Seal	Assassin	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	7				0
+15392	1539	2	4	0	0%	Fire Scythe Frenzy	Fire Dance Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
+15411	1541	1	4	0	0%	Soul Chasing Dart	Soul-Seizing Seal	Assassin	0	0	0	0	0	0	0	10	1	1	0	clsRogue	0	0	0	0	0	0	5				0
+15412	1541	2	2	0	0%	Soul Chasing Dart	Spread Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	2				0
+15421	1542	1	2	0	0%	Thunderbolt Bomb	Suffocation Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	3				0
+15422	1542	2	4	0	0%	Thunderbolt Bomb	Corrosion Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
+15423	1542	3	5	0	0%	Thunderbolt Bomb	Sluggish Inscription	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	5				0
+15424	1542	4	5	0	0%	Thunderbolt Bomb	Shock Blast Seal	Assassin	0	0	0	0	0	0	0	10	0	1	0	clsRogue	0	0	0	0	0	0	4				0
+15451	1545	1	1	0	0%	Sacrifice	Blood Sucking Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15452	1545	2	1	0	0%	Sacrifice	Bone Devouring Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15453	1545	3	1	0	0%	Sacrifice	Bone Devouring Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15461	1546	1	1	0	0%	Shadow Guard	Mourning Shadow Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15462	1546	2	1	0	0%	Shadow Guard	Iron Guard Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15463	1546	3	1	0	0%	Shadow Guard	Dark Demon Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15471	1547	1	1	0	0%	Demon Blade Heaven Spin	Soft Hedgehog Inscription	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15472	1547	2	1	0	0%	Demon Blade Heaven Spin	Blade Armor Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15473	1547	3	1	0	0%	Demon Blade Heaven Spin	Laceration Inscription	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15481	1548	1	1	0	0%	Hunt for Life Declaration	Malice Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15482	1548	2	1	0	0%	Hunt for Life Declaration	Wild Words Seal	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+15483	1548	3	1	0	0%	Hunt for Life Declaration	Pursuit Judgment Inscription	Assassin	0	0	0	0	0	0	0	10	0	0	0	clsRogue	0	0	0	0	0	0	0				0
+20411	2041	1	1	0	0%	Basic Shooting	Tiger Tamer Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
+20412	2041	2	4	0	0%	Basic Shooting	Clear Heart Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20421	2042	1	1	0	0%	Precision Strike	Bone Piercing Inscription	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	2				0
+20422	2042	2	2	0	0%	Precision Strike	Halberd Shot Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	2				0
+20423	2042	3	1	0	0%	Precision Strike	Locust Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20431	2043	1	1	0	0%	Double Shot	Ice Plume Seal	Archer	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	4				0
+20432	2043	2	1	0	0%	Double Shot	Exorcism Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
+20433	2043	3	1	0	0%	Double Shot	Double Punishment Seal	Archer	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	2				0
+20441	2044	1	2	0	0%	Tactical Marker	Iron Chain Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	5				0
+20442	2044	2	2	0	0%	Tactical Marker	Spirit Absorb Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	6				0
+20443	2044	3	1	0	0%	Tactical Marker	Spirit Loss Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
+20451	2045	1	4	0	0%	Triple Scatter Shot	Four Streams Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	4				0
+20452	2045	2	1	0	0%	Triple Scatter Shot	Three Marks	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20453	2045	3	5	0	0%	Triple Scatter Shot	Arrow Rain Seal	Archer	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	5				0
+20461	2046	1	1	0	0%	Knockback Shot	Dread Strike Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	1				0
+20462	2046	2	4	0	0%	Knockback Shot	Wind Bind Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	4				0
+20463	2046	3	3	0	0%	Knockback Shot	Willow-Piercing Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20471	2047	1	4	0	0%	Chain Mines	Frost Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	4				0
+20472	2047	2	5	0	0%	Chain Mines	Whirling Blade Seal	Archer	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	4				0
+20481	2048	1	5	0	0%	Assault	Burst Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20482	2048	2	5	0	0%	Assault	Blood Fiend Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	7				0
+20483	2048	3	1	0	0%	Assault	Spirit-Breaker Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20484	2048	4	1	0	0%	Assault	Ethereal Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20491	2049	1	5	0	0%	Yi's Divine Protection	Wind Guard Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20492	2049	2	5	0	0%	Yi's Divine Protection	Divine Grace Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20493	2049	3	5	0	0%	Yi's Divine Protection	Swiftwind Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20501	2050	1	1	0	0%	Piercing Shot	Red Fire Inscription	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	3				0
+20502	2050	2	5	0	0%	Piercing Shot	Shock Sky Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	5				0
+20511	2051	1	5	0	0%	Focus	Xie Heart Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	7				0
+20512	2051	2	1	0	0%	Focus	Soul Condensing Seal	Archer	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	3				0
+20513	2051	3	4	0	0%	Focus	Divine Revelation Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	6				0
+20521	2052	1	5	0	0%	Guardian Arrow Feather	Grand Armor Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20522	2052	2	5	0	0%	Guardian Arrow Feather	Shock Armor Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20561	2056	1	1	0	0%	Evasive Shot	Flash Spirit Seal	Archer	0	0	0	0	0	0	0	10	0	1	0	clsArcher	0	0	0	0	0	0	3				0
+20562	2056	2	5	0	0%	Evasive Shot	Clear Mind Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	5				0
+20563	2056	3	5	0	0%	Evasive Shot	Returning Wind Seal	Archer	0	0	0	0	0	0	0	10	1	1	0	clsArcher	0	0	0	0	0	0	7				0
+20564	2056	4	4	0	0%	Evasive Shot	Gale Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	4				0
+20571	2057	1	5	0	0%	Ten Thousand Arrows Through the Heart	Phantom Plume Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20572	2057	2	5	0	0%	Ten Thousand Arrows Through the Heart	Might-Accumulating Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20573	2057	3	5	0	0%	Ten Thousand Arrows Through the Heart	Seamless Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20581	2058	1	5	0	0%	Night Veil Stealth	Blooming Epiphyllum Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20582	2058	2	5	0	0%	Night Veil Stealth	Drifting Reed Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+20583	2058	3	5	0	0%	Night Veil Stealth	Reed-Swaying Seal	Archer	0	0	0	0	0	0	0	10	0	0	0	clsArcher	0	0	0	0	0	0	-				0
+12011	1201	1	4	0	0%	Intermediate Spear Technique	Overlord Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
+12012	1201	2	1	0	0%	Intermediate Spear Technique	Steel Grip Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
+12013	1201	3	1	0	0%	Intermediate Spear Technique	Central Guard Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
+12021	1202	1	1	0	0%	Subdue Waves and Quell Bandits	Zeguo Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
+12022	1202	2	1	0	0%	Subdue Waves and Quell Bandits	Army Stabilizing Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12031	1203	1	1	0	0%	Sweep the Six Realms	War Scar Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12032	1203	2	2	0	0%	Sweep the Six Realms	Armor Rend Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
+12041	1204	1	4	0	0%	Raging Thrust	Thunder-Accumulating Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
+12042	1204	2	5	0	0%	Raging Thrust	Strangling Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
+12043	1204	3	1	0	0%	Raging Thrust	White Robe Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12051	1205	1	4	0	0%	Hooked Sickle Spear Technique	Lion Fang Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
+12052	1205	2	1	0	0%	Hooked Sickle Spear Technique	Serpent Kiss Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
+12053	1205	3	1	0	0%	Hooked Sickle Spear Technique	Tiger Claw Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12054	1205	4	5	0	0%	Hooked Sickle Spear Technique	Blood Bat Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
+12061	1206	1	4	0	0%	Qiankun Fighting Spirit	Dragon Scale Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
+12062	1206	2	1	0	0%	Qiankun Fighting Spirit	Dragon Might Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12071	1207	1	5	0	0%	Divine Might Guards the Realm	Holdfast Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
+12072	1207	2	1	0	0%	Divine Might Guards the Realm	Roar Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	2				0
+12081	1208	1	6	0	0%	Spear Emerges Like a Dragon	City Burning Seal	Dragon Spear	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	8				0
+12082	1208	2	6	0	0%	Spear Emerges Like a Dragon	General Slayer Seal	Dragon Spear	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	5				0
+12083	1208	3	5	0	0%	Spear Emerges Like a Dragon	Thunder Strike Seal	Dragon Spear	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	5				0
+12091	1209	1	1	0	0%	Dragon Guard Crystal Armor	Long Rock Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12092	1209	2	6	0	0%	Dragon Guard Crystal Armor	Dragon Gall Seal	Dragon Spear	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	6				0
+12093	1209	3	5	0	0%	Dragon Guard Crystal Armor	Tiger Devourer Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	5				0
+12101	1210	1	1	0	0%	Cloud Piercer Spear Technique	Earthshaker Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	3				0
+12102	1210	2	4	0	0%	Cloud Piercer Spear Technique	Chaos Formation Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	4				0
+12103	1210	3	6	0	0%	Cloud Piercer Spear Technique	Invader-Breaker Seal	Dragon Spear	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	7				0
+12111	1211	1	4	0	0%	Burning Blood Transformation	Dragon Origin Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
+12112	1211	2	4	0	0%	Burning Blood Transformation	Torchbearer Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	4				0
+12113	1211	3	6	0	0%	Burning Blood Transformation	Peerless Seal	Dragon Spear	0	0	0	0	0	0	0	10	1	1	0	clsSpear	0	0	0	0	0	0	7				0
+12121	1212	1	1	0	0%	Summon Dragon Steed	Army-Breaker Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12122	1212	2	1	0	0%	Summon Dragon Steed	Savior Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12131	1213	1	1	0	0%	Coiled Dragon Spear Stance	Gold Armor Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12132	1213	2	1	0	0%	Coiled Dragon Spear Stance	Tiger Madness Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12133	1213	3	1	0	0%	Coiled Dragon Spear Stance	Evil Ward Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12141	1214	1	1	0	0%	Hundred Battles Army Soul	Fierce Battle Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12142	1214	2	1	0	0%	Hundred Battles Army Soul	Blood Burst Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
+12143	1214	3	1	0	0%	Hundred Battles Army Soul	Thousand Troops Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
+12181	1218	1	1	0	0%	Dragon Roar Across a Thousand Li	Roaring Void Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	0	0	clsSpear	0	0	0	0	0	0	0				0
+12182	1218	2	1	0	0%	Dragon Roar Across a Thousand Li	Coiled Arm Inscription	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0
+12183	1218	3	1	0	0%	Dragon Roar Across a Thousand Li	Earth Stabilizing Seal	Dragon Spear	0	0	0	0	0	0	0	10	0	1	0	clsSpear	0	0	0	0	0	0	0				0

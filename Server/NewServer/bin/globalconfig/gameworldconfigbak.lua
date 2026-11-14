@@ -589,29 +589,29 @@
 	    [0] = {
 		    Sex =
 		    {
-			    [1] = { szName = '男战士' },
-			    [2] = { szName = '女战士' },
+			    [1] = { szName = 'Male Warrior' },
+			    [2] = { szName = 'Female Warrior' },
 		    },
 	    },
 	    [1] = {
 		    Sex =
 		    {
-			    [1] = { szName = '男法师' },
-			    [2] = { szName = '女法师' },
+			    [1] = { szName = 'Male Mage' },
+			    [2] = { szName = 'Female Mage' },
 		    },
 	    },
 	    [2] = {
 		    Sex =
 		    {
-			    [1] = { szName = '男刺客' },
-			    [2] = { szName = '女刺客' },
+			    [1] = { szName = 'Male Assassin' },
+			    [2] = { szName = 'Female Assassin' },
 		    },
 	    },
 	    [3] = {
 		    Sex =
 		    {
-			    [1] = { szName = '男弓箭手' },
-			    [2] = { szName = '女弓箭手' },
+			    [1] = { szName = 'Male Archer' },
+			    [2] = { szName = 'Female Archer' },
 		    },
 	    },
 
@@ -818,7 +818,7 @@
     nDefaultReviveSceneTempID = 142 ,
 	DefaultRevivePos = {x=25990, y=56905, z=4750},
 
-    TeamDefaultName = '的队伍',
+    TeamDefaultName = ' Team',
 
 	--- VIP benefit configuration
     VIPData = {
@@ -1286,7 +1286,7 @@
 	nTeleportRingCDTime = 10000,
 	nProbeNecklaceCDTime = 10000,
 	nMemoSuitCDTime = 180000,
-	szRecallFailMessage = "无法对%s使用天地合一功能",
+	szRecallFailMessage = "Cannot use Heaven and Earth Unity on %s",
 
 	nMineInterval = 1438,
 	nMineMaxValue = 500000,

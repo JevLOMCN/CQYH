@@ -1,5 +1,5 @@
 spirit_define = {
-	owner='张敬轩',
+	owner='Zhang Jingxuan',
 	Level = {
 		type = 'number',
 		default = 0,

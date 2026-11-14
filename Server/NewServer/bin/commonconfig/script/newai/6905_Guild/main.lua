@@ -23,7 +23,7 @@ function RoleExp(owner)
 	if r > 20 then  -- 80%
 		local p = math.random(50,80);
 		final_exp = exp_a * p / 500;	
-		--npc:Say(cctScene, cltTvShow, ""..role:GetName().."的祈祷获得了大量的经验。");
+		--npc:Say(cctScene, cltTvShow, ""..role:GetName().." prayed and gained a large amount of EXP.");
 	elseif r > 5 then  -- 15%
 		local p = math.random(80,200);
 		final_exp = exp_a * p / 500;
@@ -33,7 +33,7 @@ function RoleExp(owner)
 	else	-- 1%
 		local p = math.random(500,2000);
 		final_exp = exp_a * p / 500;		
-		npc:Say(cctScene, cltTvShow, ""..role:GetName().."的祈祷获得了大量的经验。");
+		npc:Say(cctScene, cltTvShow, ""..role:GetName().." prayed and gained a large amount of EXP.");
 	end
 	
 	role:AddExp(final_exp, false, true);
@@ -85,7 +85,7 @@ function Check_title(owner)
 	if d == true then
 		return brvSuccess;
 	else
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "您没有众志成城称号，无法进入专属奖励地图");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "You do not have the United Will title and cannot enter the exclusive reward map");
 		return brvFail;
 	end	
 
@@ -95,7 +95,7 @@ function CheckDay(owner)
 	local a =  os.date("%w",os.time());
 	local role = g_oGameWorld:FindValidRole(get_ctx_role_id());
 	if tonumber(a) == 6 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "周六无法进入专属奖励地图");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Cannot enter the exclusive reward map on Saturday");
 		return brvFail;
 	else
 		return brvSuccess;

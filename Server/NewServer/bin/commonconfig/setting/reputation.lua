@@ -1,6 +1,6 @@
 
 reputation_define = {
-	owner='恽玉',
+	owner='Yun Yu',
 	ForceID = {
 		type = 'number',
 		default = 0,

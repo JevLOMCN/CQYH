@@ -12,7 +12,7 @@ function send_kill_info(owner)
 	local role =  g_oGameWorld:FindValidRole(get_ctx_role_id());
 	local killer = g_oGameWorld:FindValidRole(role:GetLastCasterID());
 	if role and killer then
-		local message = killer:GetName().."成功击杀了"..role:GetName().."，获得击杀凭证* 1";
+		local message = killer:GetName().."successfully slew "..role:GetName()..", received Kill Voucher * 1";
 		local ret = role:GetScene():Say(cctScene, cltTvShow, message);
 		killer:GetItemBag():AddItem(2800170, 1, ITEMLOG_REAL_MONEY_SHOP, 0, true);
 		if ret then

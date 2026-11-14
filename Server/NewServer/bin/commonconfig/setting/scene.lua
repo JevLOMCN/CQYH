@@ -1,5 +1,5 @@
 scene_define = {
-	owner='恽玉',
+	owner='Yun Yu',
 	SceneID = {
 		type = 'number',
 		default = 0,

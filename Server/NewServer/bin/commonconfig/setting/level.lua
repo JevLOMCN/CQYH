@@ -1,6 +1,6 @@
 ﻿
 level_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	Level = {
 		type = 'number',
 		default = 0,

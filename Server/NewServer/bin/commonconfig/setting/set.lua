@@ -1,5 +1,5 @@
 set_define = {
-owner='傅磊',
+owner='Fu Lei',
 
 SetID = {
     type = 'number',

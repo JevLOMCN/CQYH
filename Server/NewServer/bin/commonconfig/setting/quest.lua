@@ -1,5 +1,5 @@
 ﻿quest_define = {
-	owner='恽玉',
+	owner='Yun Yu',
 	Index = {				--Index
 		type = 'number',
 		default = 0,

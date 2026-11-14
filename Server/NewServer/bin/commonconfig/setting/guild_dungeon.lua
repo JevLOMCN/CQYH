@@ -1,5 +1,5 @@
 guild_dungeon_define = {
-	owner='陈凯',
+	owner='Chen Kai',
 	SceneTemplateID = {
 		type = 'link',
 		default = 0,

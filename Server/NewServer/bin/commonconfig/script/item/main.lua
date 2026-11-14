@@ -130,7 +130,7 @@ end
 -- Red bean mooncake (100,000 experience)
 function yb_dousha(pItem, pRole)
 	pRole:AddExp(81500, false,false);
-	local msg = "玩家"..pRole:GetName() .. "使用豆沙月饼获得100000经验值！"
+	local msg = "Player "..pRole:GetName() .. "Used Red Bean Mooncake and got 100000 EXP!"
 	local index = math.random(1,3);
 	if index == 1 then
 		pRole:AddExp(100000, false,false);
@@ -142,7 +142,7 @@ end
 -- Mixed-fruit mooncake (81,500 gold)
 function yb_baiguo(pItem, pRole)
 	pRole:AddExp(81500, false,false);
-	local msg = "玩家"..pRole:GetName() .. "使用百果月饼获得81500金币！"
+	local msg = "Player "..pRole:GetName() .. "Used Hundred Fruit Mooncake and got 81500 Gold!"
 	local index = math.random(1,5);
 	if index <= 2 then
 		pRole:GetItemBag():AddMoney(1, 81500, MONEYLOG_PACKAGE, 0,0);
@@ -154,7 +154,7 @@ end
 -- Lotus paste mooncake (100 ingots)
 function yb_lianrong(pItem, pRole)
 	pRole:AddExp(81500, false,false);
-	local msg = "玩家"..pRole:GetName() .. "使用莲蓉月饼获得[元宝]*100！"
+	local msg = "Player "..pRole:GetName() .. "Used Lotus Paste Mooncake and got [Yuanbao]*100!"
 	local username = pRole:GetUserName();
 	local index = math.random(1,20);
 	if index <= 7 then
@@ -167,8 +167,8 @@ end
 -- Meat mooncake (1,000 ingots)
 function yb_xianrou(pItem, pRole)
 	pRole:AddExp(81500, false,false);
-	local msg = "玩家"..pRole:GetName() .. "使用鲜肉获得1000元宝！"
-	local msg1 = "玩家"..pRole:GetName() .. "使用鲜肉获得稀有物品猩红之月！"
+	local msg = "Player "..pRole:GetName() .. "Used Fresh Meat and got 1000 Yuanbao!"
+	local msg1 = "Player "..pRole:GetName() .. "Used Fresh Meat and got the rare item Scarlet Moon!"
 	local username = pRole:GetUserName();
 	local index = math.random(1,10);
 	if index == 1 then
@@ -282,7 +282,7 @@ function OnUseIncreaseLuck(pItem, pRole)
 		-- Send a screen announcement
 		local new_luck = weapon.m_iteminfo.m_byLuck;
 		if new_luck >= 5 then
-			local msg_luck = string.format("玩家[%s]的武器获得[幸运+%d]", pRole:GetName(), weapon.m_iteminfo.m_byLuck);
+			local msg_luck = string.format("Player [%s] weapon gained [Luck+%d]", pRole:GetName(), weapon.m_iteminfo.m_byLuck);
 			-- print("msg_luck: "..msg_luck);
 			pRole:Say(cctServer, cltTvShow, msg_luck);
 		end
@@ -325,7 +325,7 @@ function OnUseIncreaseLuckAdvanced(pItem, pRole)
 	-- Send a screen announcement
 	local new_luck = weapon.m_iteminfo.m_byLuck;
 	if new_luck >= 5 then
-		local msg_luck = string.format("玩家[%s]的武器获得[幸运+%d]", pRole:GetName(), weapon.m_iteminfo.m_byLuck);
+		local msg_luck = string.format("Player [%s] weapon gained [Luck+%d]", pRole:GetName(), weapon.m_iteminfo.m_byLuck);
 		-- print("msg_luck: "..msg_luck);
 		pRole:Say(cctServer, cltTvShow, msg_luck);
 	end
@@ -358,17 +358,17 @@ function WeaponLevelUp(pItem, pRole)
 	local bag = pRole:GetItemBag();
 	local FreeSolts = bag:GetFreeSlots(CONSLOT_DEFAULT);
 	if FreeSolts == 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "背包已满，使用失败.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Bag is full, use failed.");
 		return errItemBagFull;	
 	end
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴武器在使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a weapon before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local cur_attr =  weapon.m_iteminfo.m_byLevelupPhyPoint + weapon.m_iteminfo.m_byLevelupMagPoint + weapon.m_iteminfo.m_byLevelupTaoPoint;
 	if cur_attr > 6 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您的武器已经强化到了目前的最高等级，无法再次强化！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Your weapon has reached the current maximum enhancement level and cannot be enhanced again!");
 		return errItemNoConsumeUse;
 	end
 	local count = bag:GetItemCount(2800064, false);--Enhancement oil
@@ -399,12 +399,12 @@ function WeaponLevelUp1(pItem, pRole)--Guaranteed upgrade from 5 to 6
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴武器在使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a weapon before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local cur_attr =  weapon.m_iteminfo.m_byLevelupPhyPoint + weapon.m_iteminfo.m_byLevelupMagPoint + weapon.m_iteminfo.m_byLevelupTaoPoint;
 	if cur_attr ~= 5 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您必须带有+5的武器才能使用此物品，不然会武器承受不了强大的神龙之血！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You must wield a +5 weapon to use this item, or the weapon cannot withstand the power of the Divine Dragon Blood!");
 		return errItemNoConsumeUse;
 	end
 	result = bag:WeaponLevelUp(200);
@@ -414,12 +414,12 @@ function WeaponLevelUp2(pItem, pRole)--Guaranteed upgrade from 6 to 7
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴武器在使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a weapon before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local cur_attr =  weapon.m_iteminfo.m_byLevelupPhyPoint + weapon.m_iteminfo.m_byLevelupMagPoint + weapon.m_iteminfo.m_byLevelupTaoPoint;
 	if cur_attr ~= 6 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您必须带有+6的武器才能使用此物品，不然会武器承受不了强大的圣龙之血！");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You must wield a +6 weapon to use this item, or the weapon cannot withstand the power of the Holy Dragon Blood!");
 		return errItemNoConsumeUse;
 	end
 	result = bag:WeaponLevelUp(200);
@@ -443,7 +443,7 @@ function TeXiuLi(pItem, pRole)
 	
 	if weapon ~= nil then
 		if weapon.m_iteminfo.m_nTemplateID == 199900018 or  weapon.m_iteminfo.m_nTemplateID == 199900019 or weapon.m_iteminfo.m_nTemplateID == 199900021 then
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "特殊装备不允许修理。");
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Special equipment cannot be repaired.");
 			return	errItemNoConsumeUse
 		end
 		if weapon.m_iteminfo.m_nMaxDur > 32000 then
@@ -619,7 +619,7 @@ function yuanbao1000(pItem, pRole)--Ingots 1000
 end
 function ZhiShenDan_40(pItem, pRole)--Instant level 40 pill
 	--if pRole:GetLevel() > 39 then
-	--	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "必须小于40级才能使用此物品");
+	--	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Must be below level 40 to use this item");
 	--	return errItemNoConsumeUse;
 	--end
 	pRole:SetLevel(50);
@@ -706,11 +706,11 @@ function gongju4(pItem, pRole)
 	local bag = pRole:GetItemBag();
 	local item = bag:GetItem(CONSLOT_DEFAULT,0);
 	if item == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包栏第一个放置装备才可使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place equipment in the first bag slot to use this item.");
 		return errItemNotFound;
 	end
 	if item.m_pTemplate.m_byType ~= ITEMTYPE_EQUIP then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "背包第一格必须是装备才能使用此物品。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The first bag slot must hold equipment to use this item.");	
 		return errItemNotFound;
 	end
 	bag:EquipRebirth();
@@ -718,7 +718,7 @@ function gongju4(pItem, pRole)
 end
 --vip
 function OnUseVip1(pItem, pRole)
-	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成为白银会员，你拥有以下特权：聚灵珠60%效率，每日食用上限：6个，召唤物存活时间+1小时，宠物下线保护5分钟，商店折扣-1%，个人爆率+5%，额外经验获取+5%，魔虫窟次数+1。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you became a Silver member. Your privileges: Spirit Gathering Pearl 60% efficiency, daily limit: 6, summon duration +1 hour, pet offline protection 5 minutes, shop discount -1%, personal drop rate +5%, extra EXP +5%, Demon Worm Cave attempts +1.");
 	return pRole:SubscribeVIP(1,31);--Changed VIP duration limit to one month by xxp
 end
 
@@ -736,7 +736,7 @@ function OnUseVip2(pItem, pRole)
 		pRole:GetItemBag():ChangeYuanbao(username, 25000,true,2102,1);
 		return errSuccess;
 	end]]--
-	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成为黄金会员，你拥有以下特权：聚灵珠70%效率，每日食用上限：7个，召唤物存活时间+1.5小时，宠物下线保护30分钟，商店折扣-2.5%，聚宝盆双倍金币产出概率+20%，个人爆率+10%，额外经验获取+8%，魔虫窟次数+2。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you became a Gold member. Your privileges: Spirit Gathering Pearl 70% efficiency, daily limit: 7, summon duration +1.5 hours, pet offline protection 30 minutes, shop discount -2.5%, Treasure Bowl double Gold chance +20%, personal drop rate +10%, extra EXP +8%, Demon Worm Cave attempts +2.");
     return pRole:SubscribeVIP(2,31);
 end
 function OnUseVip3(pItem, pRole)
@@ -754,7 +754,7 @@ function OnUseVip3(pItem, pRole)
 		local days = (expirytime - cDateTodayTime) / 86400;
 		pRole:GetItemBag():ChangeYuanbao(username,days * 900,true,2103,1);
 	end]]--
-	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成为钻石会员，你拥有以下特权：聚灵珠80%效率，每日食用上限：8个，召唤物存活时间+2小时，宠物下线保护60分钟，商店折扣-5%，个人爆率+15%，聚宝盆双倍金币产出概率+40%，个额外经验获取+10%，魔虫窟次数+3。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you became a Diamond member. Your privileges: Spirit Gathering Pearl 80% efficiency, daily limit: 8, summon duration +2 hours, pet offline protection 60 minutes, shop discount -5%, personal drop rate +15%, Treasure Bowl double Gold chance +40%, extra EXP +10%, Demon Worm Cave attempts +3.");
     return pRole:SubscribeVIP(3,31);
 end
 
@@ -788,12 +788,12 @@ function ShengDanHeZi(pItem, pRole)
 end
 function ZhiShenDan(pItem, pRole)
 	--[[if pRole:GetVIPLevel() < 1 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请使用白银VIP药水之后再使用次物品");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use a Silver VIP Potion before using this item");
 		return errItemNoConsumeUse;
 	end]]--
 	
 	if pRole:GetLevel() > 34 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "必须小于35级才能使用此物品");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Must be below level 35 to use this item");
 		return errItemNoConsumeUse;
 	end
 	pRole:SetLevel(35);
@@ -804,7 +804,7 @@ end
 function DoubleJinYan10(pItem, pRole)
 	local level = pRole:GetLevel()
 	if level < 35 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "该物品必须高于35级有效。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "This item requires level 35 or above.");
 		return errItemNoConsumeUse;
 	end
 
@@ -813,18 +813,18 @@ function DoubleJinYan10(pItem, pRole)
 	local MaxExp = nLevel.m_nMaxExp;
 	pRole:AddExtraExp(MaxExp / 10);
 
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "你已获得当前等级百分之十的双倍经验,赶快去升级吧!");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You got double EXP worth ten percent of your current level. Hurry and level up!");
 	return	errSuccess;
 end
 function DoubleJinYan500(pItem, pRole)
 	pRole:AddExtraExp(5000000)
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "你已获得500万的双倍经验,赶快去升级吧!");	
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You got 5 million double EXP. Hurry and level up!");	
 	return	errSuccess;
 end
 
 function DoubleJinYan100(pItem, pRole)
 	pRole:AddExtraExp(1000000)
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "你已获得100万的双倍经验,赶快去升级吧!");	
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You got 1 million double EXP. Hurry and level up!");	
 	return	errSuccess;
 end
 
@@ -832,35 +832,35 @@ function woma_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 		
@@ -871,7 +871,7 @@ function woma_boss(pItem, pRole)
 		return errItemNoConsumeUse;
 	end
 	
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一只沃玛教主！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Woma Leader!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -879,35 +879,35 @@ function woma_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -924,35 +924,35 @@ function zuma_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -962,7 +962,7 @@ function zuma_boss(pItem, pRole)
 	if oNpc == nil then
 		return errItemNoConsumeUse;
 	end
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一只祖玛教主！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Zuma Leader!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -971,35 +971,35 @@ function zuma_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 	nTemplateID = 5301
@@ -1016,35 +1016,35 @@ function hongmo_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -1054,7 +1054,7 @@ function hongmo_boss(pItem, pRole)
 	if oNpc == nil then
 		return errItemNoConsumeUse;
 	end
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一只虹魔教主！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Rainbow Demon Leader!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -1063,35 +1063,35 @@ function hongmo_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -1109,35 +1109,35 @@ function chulongshen_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -1147,7 +1147,7 @@ function chulongshen_boss(pItem, pRole)
 	if oNpc == nil then
 		return errItemNoConsumeUse;
 	end
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一只触龙神！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Chitin Dragon God!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -1156,35 +1156,35 @@ function chulongshen_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 	nTemplateID = 5287
@@ -1201,35 +1201,35 @@ function lieyan_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -1239,7 +1239,7 @@ function lieyan_boss(pItem, pRole)
 	if oNpc == nil then
 		return errItemNoConsumeUse;
 	end
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一只烈焰恶魔！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Flame Demon!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -1248,35 +1248,35 @@ function lieyan_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 	nTemplateID = 5500
@@ -1293,35 +1293,35 @@ function chiyue_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -1331,7 +1331,7 @@ function chiyue_boss(pItem, pRole)
 	if oNpc == nil then
 		return errItemNoConsumeUse;
 	end
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一赤月恶魔！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Red Moon Demon!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -1340,35 +1340,35 @@ function chiyue_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 	nTemplateID = 5306
@@ -1385,35 +1385,35 @@ function molong_boss(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 
@@ -1423,7 +1423,7 @@ function molong_boss(pItem, pRole)
 	if oNpc == nil then
 		return errItemNoConsumeUse;
 	end
-	local msg = "玩家"..pRole:GetName() .. "在"..mapname.."召唤了一魔龙教主！"
+	local msg = "Player "..pRole:GetName() .. "In "..mapname.."Summoned a Demon Dragon Leader!"
 	pRole:Say(cctServer, cltLighting, msg);
 	return	errSuccess;
 end
@@ -1432,35 +1432,35 @@ function molong_boss1(pItem, pRole)
 	local map = pRole:GetSceneTempID()
 	local mapname;
 		if map == 153 then 
-			mapname = "矿区二层"
+			mapname = "Mine Level Two"
 		elseif map == 154 then
-			mapname = "矿区三层"
+			mapname = "Mine Level Three"
 		elseif map == 148 then
-			mapname = "死亡峡谷一层"
+			mapname = "Death Valley Level One"
 		elseif map == 201 then
-			mapname = "死亡峡谷二层"
+			mapname = "Death Valley Level Two"
 		elseif map == 157 then
-			mapname = "死亡峡谷三层"
+			mapname = "Death Valley Level Three"
 		elseif map == 159 then
-			mapname = "石墓二层"
+			mapname = "Stone Tomb Level Two"
 		elseif map == 160 then
-			mapname = "石墓三层"
+			mapname = "Stone Tomb Level Three"
 		elseif map == 161 then
-			mapname = "石墓四层"
+			mapname = "Stone Tomb Level Four"
 		elseif map == 146 then
-			mapname = "沃玛寺庙一层"
+			mapname = "Woma Temple Level One"
 		elseif map == 155 then
-			mapname = "沃玛寺庙二层"
+			mapname = "Woma Temple Level Two"
 		elseif map == 180 then
-			mapname = "祖玛寺庙一层"
+			mapname = "Zuma Temple Level One"
 		elseif map == 167 then
-			mapname = "祖玛寺庙二层"
+			mapname = "Zuma Temple Level Two"
 		elseif map == 168 then
-			mapname = "祖玛寺庙三层"
+			mapname = "Zuma Temple Level Three"
 		elseif map == 169 then
-			mapname = "祖玛寺庙四层"
+			mapname = "Zuma Temple Level Four"
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请到规定的地图使用此物品.");	
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Use this item in the designated map.");	
 			return errItemNoConsumeUse;
 		end
 	nTemplateID = 5283
@@ -1487,7 +1487,7 @@ function zhuanyong3 (pItem, pRole)
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴武器在使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a weapon before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local cur_attr =  weapon.m_iteminfo.m_byLevelupPhyPoint + weapon.m_iteminfo.m_byLevelupMagPoint + weapon.m_iteminfo.m_byLevelupTaoPoint;
@@ -1498,9 +1498,9 @@ end
 function zhuanyong4(pItem, pRole)			--Query binding status of equipped items
 	local var = pRole:GetVariable(1016);	
 	if var == 1024 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltNormal,"已帮定");
+		pRole:GetScene():Say(pRole:GetObjID(), cltNormal,"Already bound");
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltNormal,"未帮定");
+		pRole:GetScene():Say(pRole:GetObjID(), cltNormal,"Unbound");
 	end
 	return  errItemNoConsumeUse;	
 end
@@ -1510,21 +1510,21 @@ function xingyun_boli(pItem, pRole)			--Extract luck from the current weapon
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴需要剥离的武器再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip the weapon to be stripped before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local luck = weapon.m_iteminfo.m_byLuck;
 	if luck <= 0 or luck > 7 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "要剥离的武器的幸运值不合法");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Invalid Luck value on the weapon to strip");
 		return errItemNoConsumeUse;
 	end
 	if pRole:GetVariable(1021) ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已经剥离过武器的幸运值，请先传承后再使用。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have already stripped the weapon Luck. Please inherit it first before using this.");
 		return errItemNoConsumeUse;
 	end
 	pRole:SetVariable(1021,luck);
 	bag:Refreshitem(NES_MAIN_HAND,1);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器的幸运值剥离成功，请注意背包发放的武器幸运传承卷，带上新的武器后使用即可。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon Luck stripped successfully. Check your bag for the Weapon Luck Inheritance Scroll and use it after equipping a new weapon.");
 	pRole:GetItemBag():AddItem(2800088, 1, ITEMLOG_SCRIPT, 0, false);
 	return errSuccess;
 end
@@ -1533,23 +1533,23 @@ function xingyun_chuancheng(pItem, pRole)	--Transfer extracted luck to the curre
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴需要传承的武器再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip the weapon to receive the inheritance before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local luck = pRole:GetVariable(1021);
 	if luck <= 0 or luck > 7 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "没有进行过武器幸运剥离，请先使用武器幸运剥离卷后再使用本物品");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have not performed a weapon Luck strip. Please use a Weapon Luck Strip Scroll first before using this item");
 		return errItemNoConsumeUse;
 	end
 	local current_luck = weapon.m_iteminfo.m_byLuck;
 	if current_luck >= luck then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "当前佩戴武器的幸运值比传承的幸运值高，如果使用此物品将会覆盖掉原有幸运值。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The equipped weapon has a higher Luck value than the inherited one. Using this item will overwrite the existing Luck value.");
 		return errItemNoConsumeUse;
 	end
 	weapon.m_iteminfo.m_byLuck = luck;
 	bag:Refreshitem(NES_MAIN_HAND);
 	pRole:SetVariable(1021,0);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器幸运传承成功。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon Luck inheritance successful.");
 	return errSuccess;
 end
 
@@ -1557,14 +1557,14 @@ function qianghua_boli(pItem, pRole)		--Extract enhancement level from the curre
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴需要剥离的武器再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip the weapon to be stripped before using this item.");
 		return errItemNoConsumeUse;
 	end
 	
 	if weapon.m_iteminfo.m_nTemplateID < 99900018 or 
 	   weapon.m_iteminfo.m_nTemplateID > 99900033 or 
 	   weapon.m_iteminfo.m_nTemplateID == 99900020 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "该物品只能剥离沃玛级别以上的武器。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "This item can only strip weapons of Woma grade or above.");
 		return errItemNoConsumeUse;
 	end
 	
@@ -1572,16 +1572,16 @@ function qianghua_boli(pItem, pRole)		--Extract enhancement level from the curre
 	                weapon.m_iteminfo.m_byLevelupMagPoint + 
 	                weapon.m_iteminfo.m_byLevelupTaoPoint;
 	if qianghua < 7 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "当前佩戴的武器并没有强化满，无法剥离强化值。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The equipped weapon is not fully enhanced, so the enhancement value cannot be stripped.");
 		return errItemNoConsumeUse;
 	end
 	if pRole:GetVariable(1020) ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已经剥离过武器的强化值，请先传承后再使用。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have already stripped the weapon enhancement. Please inherit it first before using this.");
 		return errItemNoConsumeUse;
 	end
 	pRole:SetVariable(1020,qianghua);
 	bag:Refreshitem(NES_MAIN_HAND,2);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器的强化值剥离成功，请注意背包发放的武器强化传承卷，带上新的武器后使用即可。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon enhancement stripped successfully. Check your bag for the Weapon Enhancement Inheritance Scroll and use it after equipping a new weapon.");
 	pRole:GetItemBag():AddItem(2800090, 1, ITEMLOG_SCRIPT, 0, false);
 	return errSuccess;
 end
@@ -1589,17 +1589,17 @@ function qianghua_chuancheng(pItem, pRole)	--Transfer extracted enhancement leve
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴需要传承的武器再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip the weapon to receive the inheritance before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local qianghua = pRole:GetVariable(1020);
 	if qianghua <= 0 or qianghua > 10 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "没有进行过武器传承剥离，请先使用武器强化剥离卷后再使用本物品");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have not performed a weapon inheritance strip. Please use a Weapon Enhancement Strip Scroll first before using this item");
 		return errItemNoConsumeUse;
 	end
 	bag:WeaponLevelUp1(qianghua);
 	pRole:SetVariable(1020,0);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器强化传承成功。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon enhancement inheritance successful.");
 	return errSuccess;
 end
 
@@ -1607,27 +1607,27 @@ function mingwen_boli(pItem, pRole)			--Extract inscription from the current wea
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴需要剥离的武器再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip the weapon to be stripped before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local mingwen1 = weapon.m_iteminfo.m_wRune[0];
 	local mingwen2 = weapon.m_iteminfo.m_wRune[1];
 	if mingwen1 == 0 and mingwen2 == 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "当前武器并没有铭文，避免造成不必要浪费，请剥离带铭文的武器。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The current weapon has no Inscription. To avoid unnecessary waste, please strip a weapon with an Inscription.");
 		return errItemNoConsumeUse;
 	end
 	if pRole:GetVariable(1019) ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已经剥离过武器的铭文，请先传承后再使用。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have already stripped the weapon Inscription. Please inherit it first before using this.");
 		return errItemNoConsumeUse;
 	end
 	if pRole:GetVariable(1018) ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已经剥离过武器的铭文，请先传承后再使用。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have already stripped the weapon Inscription. Please inherit it first before using this.");
 		return errItemNoConsumeUse;
 	end
 	pRole:SetVariable(1019,mingwen1);
 	pRole:SetVariable(1018,mingwen2);
 	bag:Refreshitem(NES_MAIN_HAND,3);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器的铭文剥离成功，请注意背包发放的武器铭文传承卷，带上新的武器后使用即可。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon Inscription stripped successfully. Check your bag for the Weapon Inscription Inheritance Scroll and use it after equipping a new weapon.");
 	pRole:GetItemBag():AddItem(2800092, 1, ITEMLOG_SCRIPT, 0, false);
 	return errSuccess;
 	
@@ -1636,13 +1636,13 @@ function mingwen_chuancheng(pItem, pRole)	--Transfer extracted inscription to th
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴需要剥离的武器再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip the weapon to be stripped before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local mingwen1 = pRole:GetVariable(1019);
 	local mingwen2 = pRole:GetVariable(1018);
 	if mingwen1 == 0 and mingwen2 == 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "没有进行过武器铭文剥离，请先使用铭文剥离卷后再使用本物品");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have not performed a weapon Inscription strip. Please use an Inscription Strip Scroll first before using this item");
 		return errItemNoConsumeUse;
 	end
 	weapon.m_iteminfo.m_wRune[0] = mingwen1;
@@ -1650,7 +1650,7 @@ function mingwen_chuancheng(pItem, pRole)	--Transfer extracted inscription to th
 	bag:Refreshitem(NES_MAIN_HAND);
 	pRole:SetVariable(1019,0);
 	pRole:SetVariable(1018,0);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器铭文传承成功。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon Inscription inheritance successful.");
 	return errSuccess;
 end
 
@@ -1658,16 +1658,16 @@ function xingyun_boli1(pItem, pRole)--Extract luck from the current necklace
 	local bag = pRole:GetItemBag();
 	local neck = bag:GetItem(CONSLOT_EQUIPPED, NES_NECK);
 	if neck == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴项链再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a necklace before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local luck = neck.m_iteminfo.m_wRandomAttrID[0];
 	if luck ~= 32080 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "幸运数值有问题，请联系客服。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Luck value is invalid, please contact customer service.");
 		return errItemNoConsumeUse;
 	end
 	if pRole:GetVariable(1017) ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已经剥离过项链的属性，请先传承后再使用。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have already stripped the necklace attributes. Please inherit them first before using this.");
 		return errItemNoConsumeUse;
 	end
 
@@ -1681,7 +1681,7 @@ function xingyun_boli1(pItem, pRole)--Extract luck from the current necklace
 		pRole:SetVariable(1017,1);
 	end
 	bag:Refreshitem(NES_NECK,4);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "项链的幸运值剥离成功，请注意背包发放的幸运传承卷，带上新的项链后使用传承卷即可，请谨慎操作。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Necklace Luck stripped successfully. Check your bag for the Luck Inheritance Scroll. Use it after equipping the new necklace. Handle with care.");
 	pRole:GetItemBag():AddItem(2800098, 1, ITEMLOG_SCRIPT, 0, false);
 	return errSuccess;
 end
@@ -1690,19 +1690,19 @@ function xingyun_chuancheng1(pItem, pRole)	--Transfer extracted luck to the curr
 	local bag = pRole:GetItemBag();
 	local neck = bag:GetItem(CONSLOT_EQUIPPED, NES_NECK);
 	if neck == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴项链再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a necklace before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local neckid = neck.m_iteminfo.m_nTemplateID;
 	if neckid == 99920027 or neckid == 99920028 or neckid == 99920029 or neckid == 299920027 or neckid == 299920028 or neckid == 299920029 or neckid ==  99920032 or neckid ==  99920033 or neckid ==  99920034 or neckid == 99920030 then
 		local luck = neck.m_iteminfo.m_wRandomAttrID[0];
 		if luck == 32080 then
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "当前项链已经有运2属性，传承失败。");
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The current necklace already has the Luck 2 attribute, inheritance failed.");
 			return errItemNoConsumeUse;
 		end
 		local necktype = pRole:GetVariable(1017);
 		if necktype == 0 then
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请先进行剥离后再传承");
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Strip first, then inherit");
 			return errItemNoConsumeUse;
 		elseif necktype == 1 then
 			bag:Refreshitem(NES_NECK,5);
@@ -1710,43 +1710,43 @@ function xingyun_chuancheng1(pItem, pRole)	--Transfer extracted luck to the curr
 			if neckid == 99920027 or neckid == 299920027 or neckid ==  99920032 or neckid == 99920030 then
 				bag:Refreshitem(NES_NECK,6);
 			else
-				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "剥离下来的是攻击属性，避免属性损失，请使用战士的赤月级以上项链传承。");
+				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The stripped attribute is Attack. To avoid losing attributes, use a Warrior's Red Moon grade or higher necklace for inheritance.");
 				return errItemNoConsumeUse;	
 			end
 		elseif necktype == 3 then
 			if neckid == 99920028 or neckid == 299920028 or neckid == 99920033 or neckid == 99920030 then
 				bag:Refreshitem(NES_NECK,7);
 			else
-				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "剥离下来的是魔法属性，避免属性损失，请使用法师的赤月级以上项链传承。");
+				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The stripped attribute is Magic. To avoid losing attributes, use a Mage's Red Moon grade or higher necklace for inheritance.");
 				return errItemNoConsumeUse;	
 			end
 		elseif necktype == 4 then
 			if neckid == 99920029 or neckid == 299920029  or neckid == 99920034 or neckid == 99920030 then
 				bag:Refreshitem(NES_NECK,8);
 			else
-				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "剥离下来的是道术属性，避免属性损失，请使用道士的赤月级以上项链传承。");
+				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The stripped attribute is Taoism. To avoid losing attributes, use a Taoist's Red Moon grade or higher necklace for inheritance.");
 				return errItemNoConsumeUse;	
 			end
 		end
 		pRole:SetVariable(1017,0);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "项链幸运传承成功。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Necklace Luck inheritance succeeded.");
 		return errSuccess;
 	else
 		print(neck.m_iteminfo.m_nTemplateID);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "只能传承到赤月级别以上的项链。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Can only inherit to a necklace of Red Moon grade or higher.");
 		return errItemNoConsumeUse;
 	end
 end
 
 
 function qifu(pItem, pRole)					--Wish charm logic: right-click to wish and notify the player of the current node
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "活动已结束。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The event has ended.");
 		return errItemNoConsumeUse;
 
 	--[[local bag = pRole:GetItemBag();
 	bag:GambleItem();
 	local jiedian = bag:GetJieDian();
-	local msg = "当前祈愿符节点为"..jiedian;
+	local msg = "Current Prayer Talisman node: "..jiedian;
 	pRole:GetScene():Say(pRole:GetObjID(), cltNormal,msg );
 	return errItemNoConsumeUse;]]--
 end
@@ -1760,40 +1760,40 @@ function zhuangbei_xilian(pItem, pRole)    --Equipment refinement
 	local bind = weapon.m_iteminfo.m_byBindType;
 	local dur = weapon.m_iteminfo.m_nMaxDur;
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请将需要洗练的装备放在物品栏第一格再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the equipment to refine in the first item slot before using this item.");
 		return errItemNoConsumeUse;
 	end
 	if itemid == 999903261 or itemid == 999904261 or itemid == 999904361 or itemid == 999904461 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "护手过于强大，不允许洗练");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "The Gauntlet is too powerful and cannot be refined");
 		return errItemNoConsumeUse;
 	end
 	local yuanbao = pRole:GetItemBag():GetMoney(3);--Ingots
 	local count1 = bag:GetItemCount(2800075, false);--Woma essence
 	if itemid == 199900018 or itemid == 199900019 or itemid == 199900021 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "此物品不能洗练回归系列装备。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "This item cannot refine Return series equipment.");
 		return errItemNoConsumeUse;
 	end
 	if itemid < 59900001 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "此物品只能洗炼武器和装备。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "This item can only refine weapons and equipment.");
 		return errItemNoConsumeUse;
 	elseif bind == 10 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "绑定装备无法洗炼。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Bound equipment cannot be refined.");
 		return errItemNoConsumeUse;
 	elseif dur - weapon.m_iteminfo.m_nCurDur > 1000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "未修理的装备无法洗炼。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Unrepaired equipment cannot be refined.");
 		return errItemNoConsumeUse;	
 	elseif yuanbao < 300 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	elseif count1 < 3  then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "沃玛精华不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Woma Essence.");
 		return errItemNoConsumeUse;
 	end
 	bag:DeleteItemPos(CONSLOT_DEFAULT,0,1,ITEMLOG_SCRIPT,0);
 	bag:ChangeYuanbao(username,300,false,2800075,1);
 	bag:DeleteItemId(2800075, 3, ITEMLOG_EQUIP_LEVELUP,false,0);
 	bag:AddItem(itemid,1,ITEMLOG_SCRIPT,0,false);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "洗炼成功。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Refining successful.");
 	return errSuccess;
 end
 
@@ -1804,7 +1804,7 @@ function dakongshi(pItem, pRole)    --Socket stone
 	local weapon = bag:GetItem(CONSLOT_DEFAULT, 0);
 	local equip_data = CDataManager_EQUIP_DATA_:GetInstance():GetData(weapon.m_iteminfo.m_nTemplateID);
 	if weapon == nil or equip_data == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请将需要打孔的装备放在物品栏第一格再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the equipment to socket in the first item slot before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local itemid = weapon.m_iteminfo.m_nTemplateID;
@@ -1813,26 +1813,26 @@ function dakongshi(pItem, pRole)    --Socket stone
 --	local yuanbao = pRole:GetItemBag():GetMoney(3);--Ingots
 
 	if weapon.m_iteminfo.m_nSoulID[0] ~= 0 or  weapon.m_iteminfo.m_nSoulID[1] ~= 0 or  weapon.m_iteminfo.m_nSoulID[2] ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请把宝石拆除后再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Remove the gems before using this item.");
 		return errItemNoConsumeUse;
 	end
 
 	if bind == 10 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "绑定装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Bound equipment cannot be socketed.");
 		return errItemNoConsumeUse;
 	elseif dur - weapon.m_iteminfo.m_nCurDur > 1000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "未修理的装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Unrepaired equipment cannot be socketed.");
 		return errItemNoConsumeUse;	
 --	elseif yuanbao < 1000 then
---		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+--		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 --		return errItemNoConsumeUse;
 	end
 	local ret = bag:GenerateSocket(false,1);
 	if ret == 1 then 
 --		bag:ChangeYuanbao(username,1000,false,91115,1);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "打孔成功。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing successful.");
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "该装备打孔失败，物品和元宝不消耗。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing failed. The item and Ingots are not consumed.");
 		return errItemNoConsumeUse;
 	end
 	return errSuccess;
@@ -1845,7 +1845,7 @@ function dakongshi_gonghui(pItem, pRole)    --Guild socket stone
 	local weapon = bag:GetItem(CONSLOT_DEFAULT, 0);
 	local equip_data = CDataManager_EQUIP_DATA_:GetInstance():GetData(weapon.m_iteminfo.m_nTemplateID);
 	if weapon == nil or equip_data == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请将需要打孔的装备放在物品栏第一格再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the equipment to socket in the first item slot before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local itemid = weapon.m_iteminfo.m_nTemplateID;
@@ -1854,26 +1854,26 @@ function dakongshi_gonghui(pItem, pRole)    --Guild socket stone
 --	local yuanbao = pRole:GetItemBag():GetMoney(3);--Ingots
 
 	if weapon.m_iteminfo.m_nSoulID[0] ~= 0 or  weapon.m_iteminfo.m_nSoulID[1] ~= 0 or  weapon.m_iteminfo.m_nSoulID[2] ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请把宝石拆除后再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Remove the gems before using this item.");
 		return errItemNoConsumeUse;
 	end
 
 	if bind == 10 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "绑定装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Bound equipment cannot be socketed.");
 		return errItemNoConsumeUse;
 	elseif dur - weapon.m_iteminfo.m_nCurDur > 1000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "未修理的装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Unrepaired equipment cannot be socketed.");
 		return errItemNoConsumeUse;	
 --	elseif yuanbao < 1000 then
---		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+--		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 --		return errItemNoConsumeUse;
 	end
 	local ret = bag:GenerateSocket(false,2);
 	if ret == 1 then 
 	--	bag:ChangeYuanbao(username,1000,false,91115,1);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "打孔成功。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing successful.");
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "该装备打孔失败，物品和元宝不消耗。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing failed. The item and Ingots are not consumed.");
 		return errItemNoConsumeUse;
 	end
 	return errSuccess;
@@ -1887,7 +1887,7 @@ function dakongshi_gaoji(pItem, pRole)    --Advanced socket stone
 	local weapon = bag:GetItem(CONSLOT_DEFAULT, 0);
 	local equip_data = CDataManager_EQUIP_DATA_:GetInstance():GetData(weapon.m_iteminfo.m_nTemplateID);
 	if weapon == nil or equip_data == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请将需要打孔的装备放在物品栏第一格再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the equipment to socket in the first item slot before using this item.");
 		return errItemNoConsumeUse;
 	end
 
@@ -1898,32 +1898,32 @@ function dakongshi_gaoji(pItem, pRole)    --Advanced socket stone
 	local socketcount = weapon.m_iteminfo.m_dwSocketCombination;
 
 	if weapon.m_iteminfo.m_nSoulID[0] ~= 0 or  weapon.m_iteminfo.m_nSoulID[1] ~= 0 or  weapon.m_iteminfo.m_nSoulID[2] ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请把宝石拆除后再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Remove the gems before using this item.");
 		return errItemNoConsumeUse;
 	end
 
 	if socketcount < 10 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "必须拥有双孔才能进行高级打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Must have two sockets to perform advanced socketing.");
 		return errItemNoConsumeUse;
 	end
 
 	if bind == 10 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "绑定装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Bound equipment cannot be socketed.");
 		return errItemNoConsumeUse;
 	elseif dur - weapon.m_iteminfo.m_nCurDur > 1000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "未修理的装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Unrepaired equipment cannot be socketed.");
 		return errItemNoConsumeUse;	
 --	elseif yuanbao < 10000 then
---		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+--		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 --		return errItemNoConsumeUse;
 	end
 
 	local ret = bag:GenerateSocket(true,1);
 	if ret == 1 then 
 --		bag:ChangeYuanbao(username,10000,false,91225,1);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "打孔成功。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing successful.");
 	else
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "该装备打孔失败，物品和元宝不消耗。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing failed. The item and Ingots are not consumed.");
 		return errItemNoConsumeUse;
 	end
 	return errSuccess;
@@ -1936,22 +1936,22 @@ function zhuangbei_xilian2(pItem, pRole)    --Equipment refinement 2
 	local weapon = bag:GetItem(CONSLOT_DEFAULT, 0);
 	local itemid = weapon.m_iteminfo.m_nTemplateID;
 	if itemid == 99900031 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "洗练暂不支持逍遥扇。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Refining does not support the Xiaoyao Fan yet.");
 		return errItemNoConsumeUse;
 	end
 
 	if itemid == 999903261 or itemid == 999904261 or itemid == 999904361 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "只允许洗练最高级护手");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Only the highest grade Gauntlets can be refined");
 		return errItemNoConsumeUse;
 	end
 	local yuanbao = pRole:GetItemBag():GetMoney(3);--Ingots
 	local count1 = bag:GetItemCount(2800065, false);--Woma essence
 	
 	if yuanbao < 1000 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	elseif count1 < 1  then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "祖玛精华不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Zuma Essence.");
 		return errItemNoConsumeUse;
 	end
 	--[[if itemid == 999904461 then
@@ -1981,22 +1981,22 @@ function zhuangbei_xilian2(pItem, pRole)    --Equipment refinement 2
 				weapon.m_iteminfo.m_wRandomAttrID[3] = 6021;
 			end
 		else
-			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "属性不正确，洗炼失败。");
+			pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Incorrect attributes, refining failed.");
 			return errItemNoConsumeUse;
 		end
 		bag:ChangeYuanbao(username,1000,false,2800065,1);
 		bag:DeleteItemId(2800065, 1, ITEMLOG_EQUIP_LEVELUP,false,0);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "洗炼成功，请小退后刷新物品属性。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Refining successful. Relog to refresh item attributes.");
 		return errSuccess;
 	end]]--
 	local ret = bag:GenerateRandomAttributes1();
 	if ret == 1 then
 		bag:ChangeYuanbao(username,1000,false,2800065,1);
 		bag:DeleteItemId(2800065, 1, ITEMLOG_EQUIP_LEVELUP,false,0);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "洗炼成功。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Refining successful.");
 		return errSuccess;
 	end;
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "只能洗练装备！");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Only equipment can be refined!");
 	return errItemNoConsumeUse;
 end
 
@@ -2008,7 +2008,7 @@ function xinshou_zhulibao(pItem, pRole)
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 600 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,600,false,3800001,1)
@@ -2025,7 +2025,7 @@ function tanshe_jiasubao(pItem, pRole)
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 1800 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,1800,false,3800002,1)
@@ -2042,7 +2042,7 @@ function qianghua_gongjubao(pItem, pRole)
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 6800 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,6800,false,3800003,1)
@@ -2067,7 +2067,7 @@ function zunxiang_libao(pItem, pRole)
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 18800 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,18800,false,3800004,1)
@@ -2081,7 +2081,7 @@ end
 function shengjidan_35(pItem, pRole)--Level-up pill 1
 	local a = pRole:GetLevel()
 	if a > 34 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "必须小于35级才能使用此物品");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Must be below level 35 to use this item");
 		return errItemNoConsumeUse;
 	end
 	a = a + 1;
@@ -2097,12 +2097,12 @@ end
 function VIP_summonnpc(pItem, pRole)--VIP monster spawning
 	local map = pRole:GetSceneTempID()
 	if map ~= 72 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请移步魔虫窟再使用此物品.");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Go to the Insect Cave before using this item.");	
 		return errItemNoConsumeUse;
 	end
 	local VIP = pRole:GetVIPLevel();
 	if VIP == 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "只有尊贵的VIP才能使用此物品哦。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Only noble VIPs can use this item.");
 		return errItemNoConsumeUse;
 	end
 	if VIP == 1 then
@@ -2132,7 +2132,7 @@ local username = pRole:GetUserName();
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 3500 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,3500,false,2800139,1);
@@ -2145,7 +2145,7 @@ local username = pRole:GetUserName();
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 9000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,9000,false,2800140,1);
@@ -2158,7 +2158,7 @@ local username = pRole:GetUserName();
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 16000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,16000,false,2800141,1);
@@ -2171,7 +2171,7 @@ local username = pRole:GetUserName();
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 30000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,30000,false,2800142,1);
@@ -2184,7 +2184,7 @@ function YaoQing_LiBao(pItem, pRole)
 	pRole:GetItemBag():ChangeYuanbao(username,0,false,0,0);
 	local yuanbao = pRole:GetItemBag():GetMoney(3);
 	if yuanbao < 3800 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "元宝不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return errItemNoConsumeUse;
 	end
 	pRole:GetItemBag():ChangeYuanbao(username,3800,false,2800144,1);
@@ -2211,7 +2211,7 @@ function huigui_mingwen(pItem, pRole)
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if (weapon == nil) then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴回归系列装备再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip Return series equipment before using this item.");
 		return errItemNoConsumeUse;
 	end
 	if weapon.m_iteminfo.m_nTemplateID == 199900018 then
@@ -2232,7 +2232,7 @@ function huigui_mingwen(pItem, pRole)
 		bag:Refreshitem(NES_MAIN_HAND,1);
 		return errSuccess;
 	end
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴回归系列装备再使用此物品。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip Return series equipment before using this item.");
 	return errItemNoConsumeUse;
 end
 
@@ -2394,7 +2394,7 @@ function wuxian_qianghua(pItem,pRole)
 	local bag = pRole:GetItemBag();
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 	if (weapon == nil) then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴乱斗系列武器再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a Brawl series weapon before using this item.");
 		return errItemNoConsumeUse;
 	end
 	if weapon.m_iteminfo.m_nTemplateID == 599900001 then
@@ -2419,7 +2419,7 @@ function wuxian_qianghua(pItem,pRole)
 		bag:WeaponLevelUp1(7);
 	return errSuccess;
 	end
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴乱斗系列武器再使用此物品。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a Brawl series weapon before using this item.");
 	return errItemNoConsumeUse;
 end
 
@@ -2455,21 +2455,21 @@ function feixing(pItem, pRole)--Flying Star
 	
 	if first == second and second == third then
 		pRole:GetItemBag():ChangeYuanbao(username,1000,true,2800224,1000);--Three-of-a-kind payout
-		local msg = first.." "..second.." "..third.."，三位一体，恭喜您获得1000元宝！";
+		local msg = first.." "..second.." "..third..", Triple Match, congratulations on winning 1000 Ingots!";
 		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
-		local message = "恭喜玩家"..pRole:GetName().."喜中三位一体，获得大量元宝！";
+		local message = "Congratulations to player "..pRole:GetName().."Lucky win of Trinity, got a large amount of Yuanbao!";
 		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
 		pRole:Say(cctGroup, cltTvShow, message);
 	elseif sum == 123 or sum == 132 or sum == 213 or sum == 231 or sum == 312 or sum == 321 or sum == 456 or sum == 465 or sum == 546 or sum == 564 or sum == 645 or sum == 654 then
 		pRole:GetItemBag():ChangeYuanbao(username,400,true,2800224,400);--Straight payout
-		local msg = first.." "..second.." "..third.."，三星连珠，恭喜您获得400元宝！";
+		local msg = first.." "..second.." "..third..", Three Stars, congratulations on winning 400 Ingots!";
 		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
 	elseif first == second or first == third or second == third then
 		pRole:GetItemBag():ChangeYuanbao(username,110,true,2800224,110);--Pair payout
-		local msg = first.." "..second.." "..third.."，双星吉祥，恭喜您获得110元宝！";
+		local msg = first.." "..second.." "..third..", Double Stars, congratulations on winning 110 Ingots!";
 		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
 	else
-		local msg = first.." "..second.." "..third.."，飞星落地，再接再厉！";
+		local msg = first.." "..second.." "..third..", the star falls short, keep trying!";
 		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
 	end
 	return errSuccess;
@@ -2483,7 +2483,7 @@ function chongji1_libao(pItem, pRole)
 	if b == nil then
 		return errItemNoConsumeUse;
 	elseif level < 40 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "等级不足，无法使用。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Level too low to use.");	
 		return errItemNoConsumeUse;
 	elseif b + 266400 >= a then 
 		pRole:GetItemBag():ChangeYuanbao(username,5000,true,2800273,1);
@@ -2506,7 +2506,7 @@ function chongji2_libao(pItem, pRole)
 	if b == nil then
 		return errItemNoConsumeUse;
 	elseif level < 43 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "等级不足，无法使用。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Level too low to use.");	
 		return errItemNoConsumeUse;
 	elseif b + 439200 >= a then 
 		pRole:GetItemBag():ChangeYuanbao(username,10000,true,2800274,1);
@@ -2534,14 +2534,14 @@ function yueka1_libao(pItem, pRole)
 	local yue1 = pRole:GetTitle():FindTitle(91);
 	local yue2 = pRole:GetTitle():FindTitle(92);
 	if yue1 == true or yue2 == true then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已拥有月卡，无法再开启礼包。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You already have a Monthly Card and cannot open this Gift Pack.");	
 		return errItemNoConsumeUse;
 	else
 		pRole:GetItemBag():AddItem(2800075, 10, ITEMLOG_SCRIPT, 0, true); --Woma essence
 		pRole:GetItemBag():AddItem(2800044, 20, ITEMLOG_SCRIPT, 0, true);--Experience card
 		pRole:GetItemBag():AddMoney(1, 100000, MONEYLOG_PACKAGE, 0,0); --Gold
 		pRole:GetTitle():AddTitle(91);
-		pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成打开88元月卡礼包，你拥有以下特权：金币交易税降低至5%，土城商店通用卖货，土城商店购买物品9.5折，签到奖励*2， 药品体力恢复加成10%");
+		pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you opened the 88 Monthly Card Gift Pack. Your privileges: Gold trade tax reduced to 5%, general selling at Tucheng shops, Tucheng shop purchases at 9.5 discount rate, Sign-in rewards x2, +10% potion HP recovery");
 		return errSuccess;
 	end
 end
@@ -2550,14 +2550,14 @@ function yueka2_libao(pItem, pRole)
 	local yue1 = pRole:GetTitle():FindTitle(91);
 	local yue2 = pRole:GetTitle():FindTitle(92);
 	if yue1 == true or yue2 == true then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "您已拥有月卡，无法再开启礼包。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You already have a Monthly Card and cannot open this Gift Pack.");	
 		return errItemNoConsumeUse;
 	else
 		pRole:GetItemBag():AddItem(2800075, 30, ITEMLOG_SCRIPT, 0, true); --Woma essence
 		pRole:GetItemBag():AddItem(2800044, 50, ITEMLOG_SCRIPT, 0, true);--Experience card
 		pRole:GetItemBag():AddMoney(1, 500000, MONEYLOG_PACKAGE, 0,0); --Gold
 		pRole:GetTitle():AddTitle(92);
-		pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成打开188元月卡礼包，你拥有以下特权：金币交易税降低至3%，土城商店通用卖货，土城商店购买物品8.5折，签到奖励*2，药品体力恢复加成10%，攻速+1， 经验加成3%");
+		pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you opened the 188 Monthly Card Gift Pack. Your privileges: Gold trade tax reduced to 3%, general selling at Tucheng shops, Tucheng shop purchases at 8.5 discount rate, Sign-in rewards x2, +10% potion HP recovery, Attack Speed +1, +3% EXP");
 		return errSuccess;
 	end
 end
@@ -2566,7 +2566,7 @@ function gupiao(pItem, pRole)
 	local username = pRole:GetUserName();
 	local level = pRole:GetLevel();
 	if level < 35 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "30级以下使用是获取不到返利的哦。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Using this below level 30 gives no rebate.");	
 		return errItemNoConsumeUse;
 	elseif level == 35 then
 		pRole:GetItemBag():ChangeYuanbao(username,10000,true,2800283,1);
@@ -2621,7 +2621,7 @@ function gupiao(pItem, pRole)
 	else
 		pRole:GetItemBag():ChangeYuanbao(username,25000,true,2800283,1);
 	end
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "你已领取股票中的返利，谢谢您的参与。");	
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You have claimed the rebate from your stocks. Thank you for participating.");	
 	return errSuccess;
 end
 
@@ -2636,7 +2636,7 @@ function juanbang(pItem, pRole)--Donation ranking
 	pRole:SetVariable(194, new_count);
 	--pRole:SetVariable(1003, os.time());
 	pRole:UpdateRankListNode(rlActivity01, 0, new_count);
-	local msg = "您总共捐献 "..new_count .. " 个英雄帖！";
+	local msg = "You have donated a total of "..new_count .. " Hero Posts!";
 	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, msg);
 	return errSuccess;
 end
@@ -2646,7 +2646,7 @@ function baoshi_hecheng(pItem, pRole)
 	local baoshi_two = pRole:GetItemBag():GetItem(CONSLOT_DEFAULT, 1);
 	local rea = false;
 	if baoshi_one == nil or baoshi_two ==nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格与第二格放入能够合成的宝石。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place combinable gems in the first and second bag slots.");
 		return errItemNoConsumeUse;
 	end
 	local itemid_one = baoshi_one.m_iteminfo.m_nTemplateID;
@@ -2665,14 +2665,14 @@ function baoshi_hecheng(pItem, pRole)
 	
 	
 	if itemid_one ~= itemid_two or itemid_one > 11100 or itemid_one < 10110 or itemid_two > 11100 or itemid_two < 10110 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格与第二格相同的宝石。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place identical gems in the first and second bag slots.");
 		return errItemNoConsumeUse;
 		
 	elseif dengji_one ~= 0 or dengji_two ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格与第二格放入相同的一级宝石。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place identical first-tier gems in the first and second bag slots.");
 		return errItemNoConsumeUse;
 	elseif rea == false then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "此类宝石无法进行合成。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "This type of gem cannot be synthesized.");
 		return errItemNoConsumeUse;
 		
 	end
@@ -2683,12 +2683,12 @@ function baoshi_hecheng(pItem, pRole)
 		pRole:GetItemBag():DeleteItemPos(CONSLOT_DEFAULT, 0, 1, MONEYLOG_SHENGXING, 0);
 		pRole:GetItemBag():DeleteItemPos(CONSLOT_DEFAULT, 1, 1, MONEYLOG_SHENGXING, 0);	
 		pRole:GetItemBag():AddItem(itemid_one+1, 1, ITEMLOG_SCRIPT, 0, true);--Gem crafting
-		local msg = "合成成功，恭喜获得"..pRole:GetItemBag():GetItemName(itemid_one + 1).."!"
+		local msg = "Synthesis successful, congratulations on obtaining "..pRole:GetItemBag():GetItemName(itemid_one + 1).."!"
 			pRole:Say(pRole:GetObjID(), cltTvShow, msg);
 		return errSuccess;
 	else
 		pRole:GetItemBag():DeleteItemPos(CONSLOT_DEFAULT, 1, 1, MONEYLOG_SHENGXING, 0);	
-		local msg = "合成失败，返还"..pRole:GetItemBag():GetItemName(itemid_one).."!"
+		local msg = "Synthesis failed, returned "..pRole:GetItemBag():GetItemName(itemid_one).."!"
 			pRole:Say(pRole:GetObjID(), cltTvShow, msg);
 		return errSuccess;
 	end	
@@ -2698,7 +2698,7 @@ function baoshi_hecheng_1(pItem, pRole)
 	local baoshi_one = pRole:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	local rea = false;
 	if baoshi_one == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格放入能够合成的宝石。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place a combinable gem in the first bag slot.");
 		return errItemNoConsumeUse;
 	end
 	local itemid_one = baoshi_one.m_iteminfo.m_nTemplateID;
@@ -2717,10 +2717,10 @@ function baoshi_hecheng_1(pItem, pRole)
 	local count = pRole:GetItemBag():GetItemCount(itemid_one, false);--Gem
 	local count1 = pRole:GetItemBag():GetItemCount(2800372, false);--Guarantee voucher
 	if rea == false then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格放入能够合成宝石。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place a combinable gem in the first bag slot.");
 		return errItemNoConsumeUse;
 	elseif count < 100 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "宝石数量不足。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Not enough gems.");
 		return errItemNoConsumeUse;
 	end
 	
@@ -2730,17 +2730,17 @@ function baoshi_hecheng_1(pItem, pRole)
 	if index <= 2 then			
 		pRole:GetItemBag():DeleteItemId(itemid_one, 100, MONEYLOG_SHENGXING,false,0);
 		pRole:GetItemBag():AddItem(itemid_one+1, 1, ITEMLOG_SCRIPT, 0, true);--Gem crafting
-		local msg = "合成成功，恭喜获得"..pRole:GetItemBag():GetItemName(itemid_one + 1).."!"
+		local msg = "Synthesis successful, congratulations on obtaining "..pRole:GetItemBag():GetItemName(itemid_one + 1).."!"
 			pRole:Say(pRole:GetObjID(), cltTvShow, msg);
 		return errSuccess;
 	elseif count1 > 0 then
 		pRole:GetItemBag():DeleteItemId(2800372, 1, MONEYLOG_SHENGXING,false,0);
-		local msg = "合成失败，返还"..pRole:GetItemBag():GetItemName(itemid_one).."*100!"
+		local msg = "Synthesis failed, returned "..pRole:GetItemBag():GetItemName(itemid_one).."*100!"
 			pRole:Say(pRole:GetObjID(), cltTvShow, msg);
 		return errSuccess;
 	else		
 		pRole:GetItemBag():DeleteItemId(itemid_one, 100, MONEYLOG_SHENGXING,false,0);
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "合成失败，宝石消失。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Synthesis failed, the gem vanished.");
 		return errSuccess;
 	end	
 
@@ -2751,7 +2751,7 @@ function tianshan_xuelian(pItem, pRole)
 end
 
 function OnUseVip1Day(pItem, pRole)
-	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成为白银会员，你拥有以下特权：聚灵珠60%效率，每日食用上限：6个，召唤物存活时间+1小时，宠物下线保护5分钟，商店折扣-1%，个人爆率+5%，额外经验获取+5%，魔虫窟次数+1。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you became a Silver member. Your privileges: Spirit Gathering Pearl 60% efficiency, daily limit: 6, summon duration +1 hour, pet offline protection 5 minutes, shop discount -1%, personal drop rate +5%, extra EXP +5%, Demon Worm Cave attempts +1.");
    	return pRole:SubscribeVIP(1,1);
 end
 
@@ -2760,13 +2760,13 @@ function zhanyue_jibu(pItem, pRole)
 	local weapon = bag:GetItem(CONSLOT_EQUIPPED, NES_MAIN_HAND);
 --	local zhuangbei = pRole:GetItemBag():GetItem(CONSLOT_DEFAULT, 0);
 	if weapon == nil  then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴武器再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a weapon before using this item.");
 		return errItemNoConsumeUse;
 	end
 	weapon.m_iteminfo.m_wRune[0] = 10361;
 	weapon.m_iteminfo.m_wRune[1] = 10353;
 	bag:Refreshitem(NES_MAIN_HAND);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器铭文洗炼成功。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon Inscription refined successfully.");
 	return errSuccess;
 end 
 
@@ -2784,23 +2784,23 @@ function wuqi_zhuanyi(pItem, pRole)
 	
 
 	if zhuangbei == nil  then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请佩戴没有铭文、幸运、强化属性的武器再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Equip a weapon without Inscription, Luck or Enhancement attributes before using this item.");
 		return errItemNoConsumeUse;
 	end	
 	if weapon == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格放入被转移的武器再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the weapon to be transferred in the first bag slot before using this item.");
 		return errItemNoConsumeUse;
 	end
 	local Type = weapon.m_pTemplate.m_bySubType;
 	
 	if Type ~= 1 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请在背包第一格放入被转移的武器再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the weapon to be transferred in the first bag slot before using this item.");
 		return errItemNoConsumeUse;
 	end	
 	bag:DeleteItemPos(CONSLOT_EQUIPPED, NES_MAIN_HAND, 1, 2800364, 0);
 	bag:DeleteItemPos(CONSLOT_DEFAULT, 0, 1, MONEYLOG_SHENGXING, 0);
 	bag:AddItem1(id,1,MONEYLOG_SHENGXING,0,false,weapon);
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "武器属性转移成功。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Weapon attribute transfer successful.");
 	return errSuccess;
 
 end 
@@ -2820,7 +2820,7 @@ function OnUseVip188(pItem, pRole)
 		local days = (expirytime - cDateTodayTime) / 86400;
 		pRole:GetItemBag():ChangeYuanbao(username,days * 900,true,2103,1);
 	end]]--
-	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "恭喜您成为钻石会员，你拥有以下特权：召唤物存活时间+2小时，宠物下线保护60分钟，商店折扣-5%，个人爆率+15%，个额外经验获取+10%，魔虫窟次数+3。");
+	pRole:GetScene():Say(pRole:GetObjID(), cltLighting, "Congratulations, you became a Diamond member. Your privileges: summon duration +2 hours, pet offline protection 60 minutes, shop discount -5%, personal drop rate +15%, extra EXP +10%, Demon Worm Cave attempts +3.");
     return pRole:SubscribeVIP(3,31);
 end
 
@@ -2833,7 +2833,7 @@ function libao_chongji(pItem, pRole)
 	if b == nil then
 		return errItemNoConsumeUse;
 	elseif level < 40 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "等级不足，无法使用。");	
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Level too low to use.");	
 		return errItemNoConsumeUse;
 	
 	elseif b + 1296000 >= a then   
@@ -3019,7 +3019,7 @@ function BlackIron_Normal(pItem, pRole)
     -- Add item
     if selected_item then
         pRole:GetItemBag():AddItem(selected_item.item_id, selected_item.item_count, ITEMLOG_PACKAGE, selected_item.item_id, false);
-        -- print(string.format("选中物品: ID=%d, 数量=%d", selected_item.item_id, selected_item.item_count));
+        -- print(string.format("Selected item: ID=%d, Count=%d", selected_item.item_id, selected_item.item_count));
     end
 	
 	return errSuccess;
@@ -3104,12 +3104,12 @@ function BlackIron_Advance(pItem, pRole)
 				pRole:GetItemBag():AddItem(bao_di_item_id, bao_di_item_count, ITEMLOG_PACKAGE, bao_di_item_id, false);
 				pRole:SetVariable(bao_di_checkvariable, 0);  -- Reset guarantee count
 				
-				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "黑铁盲盒，保底成功！");	
+				pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Black Iron Blind Box, guaranteed reward!");	
 			else
 				print("debug: bao_di Fail");
 				
 				pRole:GetItemBag():AddItem(selected_item.item_id, selected_item.item_count, ITEMLOG_PACKAGE, selected_item.item_id, false);
-				-- print(string.format("选中物品: ID=%d, 数量=%d", selected_item.item_id, selected_item.item_count));
+				-- print(string.format("Selected item: ID=%d, Count=%d", selected_item.item_id, selected_item.item_count));
 				
 				-- Guarantee not triggered
 				check_var = check_var + 1;
@@ -3119,7 +3119,7 @@ function BlackIron_Advance(pItem, pRole)
 		else
 			-- No guarantee
 			pRole:GetItemBag():AddItem(selected_item.item_id, selected_item.item_count, ITEMLOG_PACKAGE, selected_item.item_id, false);
-			-- print(string.format("选中物品: ID=%d, 数量=%d", selected_item.item_id, selected_item.item_count));
+			-- print(string.format("Selected item: ID=%d, Count=%d", selected_item.item_id, selected_item.item_count));
 		end
     end
 	
@@ -3298,13 +3298,13 @@ end
 -- 2000039 - double-experience pill (500,000)
 function DoubleJinYan50(pItem, pRole)
 	pRole:AddExtraExp(500000)
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "你已获得50万的双倍经验,赶快去升级吧!");	
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You got 500 thousand double EXP. Hurry and level up!");	
 	return	errSuccess;
 end
 -- 2000040 - double-experience pill (1,000,000)
 function DoubleJinYan100(pItem, pRole)
 	pRole:AddExtraExp(1000000)
-	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "你已获得100万的双倍经验,赶快去升级吧!");	
+	pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "You got 1 million double EXP. Hurry and level up!");	
 	return	errSuccess;
 end
 

@@ -1,6 +1,6 @@
 
 npc_define = {
-	owner='恽玉',
+	owner='Yun Yu',
 	TemplateID = {
 		type = 'number',
 		default = 0,

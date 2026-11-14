@@ -27,22 +27,22 @@ function Option_one(owner)--shiguwucun
 	local suipian = role:GetItemBag():GetItemCount(2800216,false);
 	local yinji = role:GetItemBag():GetItemCount(2800217,false);
 	if yuanbao < 40000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif jinbi < 5000000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "金币不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Gold.");
 		return brvFail;
 	elseif zuma < 5 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "祖玛精华不足 5 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Zuma Essence (need 5).");
 		return brvFail;
 	elseif  bigu < 30 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "骷髅臂骨不足 30 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Fewer than 30 Skeleton Arm Bones.");
 		return brvFail;
 	elseif suipian < 100 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "骷髅碎片不足 100 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Fewer than 100 Skeleton Fragments.");
 		return brvFail;		
 	elseif yinji < 30 then 	
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "恶灵印记不足 30 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Evil Spirit Marks (need 30).");
 		return brvFail;		
 	end
 	role:GetItemBag():ChangeYuanbao(username,40000,false,599900025,1);
@@ -52,7 +52,7 @@ function Option_one(owner)--shiguwucun
 	role:GetItemBag():DeleteItemId(2800217,30,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():SubMoney(1,5000000,MONEYLOG_PACKAGE,0,0);
 	role:GetItemBag():AddItem(599900025, 1, ITEMLOG_SCRIPT, 0, false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "合成成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Synthesis successful!");
 	return brvSuccess;
 	
 end
@@ -68,22 +68,22 @@ function Option_two(owner)--shishanxuehai
 	local suipian1 = role:GetItemBag():GetItemCount(2800220,false);
 	local xuerou = role:GetItemBag():GetItemCount(2800221,false);
 	if yuanbao < 60000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif jinbi < 5000000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "金币不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Gold.");
 		return brvFail;
 	elseif zuma < 5 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "祖玛精华不足 5 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Zuma Essence (need 5).");
 		return brvFail;
 	--elseif  haojiao < 1 then 
-	--	role:GetScene():Say(role:GetObjID(), cltTvShow, "牛魔号角不足 1 个。");
+	--	role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Ox Demon Horns (need 1).");
 	--	return brvFail;
 	elseif suipian1 < 40 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "牛魔碎片不足 40 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Ox Demon Fragments (need 40).");
 		return brvFail;		
 	elseif xuerou < 150 then 	
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "牛魔血肉不足 150 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Ox Demon Flesh (need 150).");
 		return brvFail;		
 	end
 	role:GetItemBag():ChangeYuanbao(username,60000,false,599900024,1);
@@ -93,7 +93,7 @@ function Option_two(owner)--shishanxuehai
 	role:GetItemBag():DeleteItemId(2800221,150,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():SubMoney(1,5000000,MONEYLOG_PACKAGE,0,0);
 	role:GetItemBag():AddItem(599900024, 1, ITEMLOG_SCRIPT, 0, false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "合成成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Synthesis successful!");
 	return brvSuccess;
 	
 end
@@ -109,19 +109,19 @@ function Option_three(owner)
 	local niumo = role:GetItemBag():GetItemCount(2800222,false);
 	local wuqi = role:GetItemBag():GetItemCount(599900025,false);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif jinbi < 10000000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "金币不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Gold.");
 		return brvFail;
 	elseif zuma < 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "祖玛精华不足 10 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Zuma Essence (need 10).");
 		return brvFail;
 	elseif  niumo < 2 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "牛魔角不足 2 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Ox Demon Antlers (need 2).");
 		return brvFail;
 	elseif  wuqi < 1 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "你当前背包没有 尸骨无存 · 残 。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "You do not have No Trace of Bones - Fragment in your bag.");
 		return brvFail;
 	end
 	role:GetItemBag():ChangeYuanbao(username,50000,false,599900027,1);
@@ -130,7 +130,7 @@ function Option_three(owner)
 	role:GetItemBag():DeleteItemId(599900025,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():SubMoney(1,10000000,MONEYLOG_PACKAGE,0,0);
 	role:GetItemBag():AddItem(599900027, 1, ITEMLOG_SCRIPT, 0, false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 	
 end
@@ -145,19 +145,19 @@ function Option_four(owner)
 	local huangquan = role:GetItemBag():GetItemCount(2800218,false);
 	local wuqi = role:GetItemBag():GetItemCount(599900024,false);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif jinbi < 10000000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "金币不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Gold.");
 		return brvFail;
 	elseif zuma < 10 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "祖玛精华不足 10 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Zuma Essence (need 10).");
 		return brvFail;
 	elseif  huangquan < 2 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "黄泉泪不足 2 个。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Fewer than 2 Yellow Spring Tears.");
 		return brvFail;
 	elseif  wuqi < 1 then 
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "你当前背包没有 尸山血海 · 残 。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "You do not have Sea of Corpses and Blood - Fragment in your bag.");
 		return brvFail;
 	end
 	role:GetItemBag():ChangeYuanbao(username,50000,false,599900026,1);
@@ -166,7 +166,7 @@ function Option_four(owner)
 	role:GetItemBag():DeleteItemId(599900025,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():SubMoney(1,10000000,MONEYLOG_PACKAGE,0,0);
 	role:GetItemBag():AddItem(599900026, 1, ITEMLOG_SCRIPT, 0, false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 	
 end

@@ -88,7 +88,7 @@ function OnMSGMCommand(command, self_id, self_name)
 					f();
 					return true;
 				elseif msg then
-					echo(self_id, '错误的GM指令 '..msg);
+					echo(self_id, 'Invalid GM command '..msg);
 				end
 			end
 		elseif gm[func][1] == GS_GM_COMMAND then
@@ -117,7 +117,7 @@ function OnMSGMCommand(command, self_id, self_name)
 				f();
 				return true;
 			elseif msg then
-				echo(self_id, '错误的GM指令 '..msg);
+				echo(self_id, 'Invalid GM command '..msg);
 			end
 		end
 		return true;

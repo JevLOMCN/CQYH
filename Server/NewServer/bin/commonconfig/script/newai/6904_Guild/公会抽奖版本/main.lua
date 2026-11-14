@@ -90,7 +90,7 @@ function DaKong(owner)
 	local weapon = bag:GetItem(CONSLOT_DEFAULT, 0);
 	local equip_data = CDataManager_EQUIP_DATA_:GetInstance():GetData(weapon.m_iteminfo.m_nTemplateID);
 	if weapon == nil or equip_data == nil then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请将需要打孔的装备放在物品栏第一格再使用此物品.");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Place the equipment to socket in the first item slot before using this item.");
 		return brvFail;
 	end
 
@@ -100,27 +100,27 @@ function DaKong(owner)
 	local socketcount = weapon.m_iteminfo.m_dwSocketCombination;
 
 	if weapon.m_iteminfo.m_nSoulID[0] ~= 0 or  weapon.m_iteminfo.m_nSoulID[1] ~= 0 or  weapon.m_iteminfo.m_nSoulID[2] ~= 0 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "请把宝石拆除后再使用此物品。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Remove the gems before using this item.");
 		return errItemNoConsumeUse;
 	end
 
 	if socketcount < 10 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "必须拥有双孔才能进行高级打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Must have two sockets to perform advanced socketing.");
 		return brvFail;
 	end
 
 	if bind == 10 then
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "绑定装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Bound equipment cannot be socketed.");
 		return brvFail;
 	end
 	if dur - weapon.m_iteminfo.m_nCurDur > 1000 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "未修理的装备无法打孔。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Unrepaired equipment cannot be socketed.");
 		return brvFail;	
 	end
 
 	local ret = bag:GenerateSocket(true,1);
 	if ret == 1 then 
-		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "打孔成功。");
+		pRole:GetScene():Say(pRole:GetObjID(), cltTvShow, "Socketing successful.");
 	end
 	return brvSuccess;
 end

@@ -1,6 +1,6 @@
 
 affix_define = {
-	owner='高华翔',
+	owner='Gao Huaxiang',
 	Index = {
 		type = 'number',
 		default = 0,

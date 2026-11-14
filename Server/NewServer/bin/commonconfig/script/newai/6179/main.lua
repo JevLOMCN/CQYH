@@ -42,8 +42,8 @@ function Occupied_Top(owner)
 		local role_power = role:GetPow();
 		if Warrior_RoleID ==  get_ctx_role_id() then
 			role:SetVariable(1009, 1009);
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你成为天下第一，获得最终伤害加成百分之二十状态。");
-			local msg = "恭喜"..role:GetName().."成为天下第一，获得最终伤害加成百分之二十状态。";
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you became Number One Under Heaven and gained a twenty percent Final Damage bonus status.");
+			local msg = "Congratulations "..role:GetName().."Become the best in the world and gain a twenty percent Final Damage bonus status.";
 			role:Say(cctServer, cltLighting, msg);
 			return brvSuccess;
 		end
@@ -51,13 +51,13 @@ function Occupied_Top(owner)
 			local Last_Top_role = CGameWorld:GetInstance():FindValidRole(Warrior_RoleID);
 			if Last_Top_role ~= nil then
 				Last_Top_role:SetVariable(1009, 0);
-				Last_Top_role:GetScene():Say(Last_Top_role:GetObjID(), cltTvShow, "你天下第一的荣誉被别人抢夺了，快提高战力抢回去。");
+				Last_Top_role:GetScene():Say(Last_Top_role:GetObjID(), cltTvShow, "Your title of Number One Under Heaven was taken by someone else. Raise your power and take it back.");
 			end
 			Warrior_Top = role_power;
 			Warrior_RoleID = get_ctx_role_id();
 			role:SetVariable(1009, 1009);
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你成为天下第一，获得最终伤害加成百分之二十状态。");
-			local msg = "恭喜"..role:GetName().."成为天下第一，获得最终伤害加成百分之二十状态。";
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you became Number One Under Heaven and gained a twenty percent Final Damage bonus status.");
+			local msg = "Congratulations "..role:GetName().."Become the best in the world and gain a twenty percent Final Damage bonus status.";
 			role:Say(cctServer, cltLighting, msg);
 			return brvSuccess;	
 		end
@@ -65,8 +65,8 @@ function Occupied_Top(owner)
 		local role_power = role:GetPow();
 		if Mage_RoleID ==  get_ctx_role_id() then
 			role:SetVariable(1009, 1009);
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你成为天下第一，获得最终伤害加成百分之二十状态。");
-			local msg = "恭喜"..role:GetName().."成为天下第一，获得最终伤害加成百分之二十状态。";
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you became Number One Under Heaven and gained a twenty percent Final Damage bonus status.");
+			local msg = "Congratulations "..role:GetName().."Become the best in the world and gain a twenty percent Final Damage bonus status.";
 			role:Say(cctServer, cltLighting, msg);
 			return brvSuccess;
 		end
@@ -74,13 +74,13 @@ function Occupied_Top(owner)
 			local Last_Top_role = CGameWorld:GetInstance():FindValidRole(Mage_RoleID);
 			if Last_Top_role ~= nil then
 				Last_Top_role:SetVariable(1009, 0);
-				Last_Top_role:GetScene():Say(Last_Top_role:GetObjID(), cltTvShow, "你天下第一的荣誉被别人抢夺了，快提高战力抢回去。");
+				Last_Top_role:GetScene():Say(Last_Top_role:GetObjID(), cltTvShow, "Your title of Number One Under Heaven was taken by someone else. Raise your power and take it back.");
 			end
 			Mage_Top = role_power;
 			Mage_RoleID = get_ctx_role_id();
 			role:SetVariable(1009, 1009);
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你成为天下第一，获得最终伤害加成百分之二十状态。");
-			local msg = "恭喜"..role:GetName().."成为天下第一，获得最终伤害加成百分之二十状态。";
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you became Number One Under Heaven and gained a twenty percent Final Damage bonus status.");
+			local msg = "Congratulations "..role:GetName().."Become the best in the world and gain a twenty percent Final Damage bonus status.";
 			role:Say(cctServer, cltLighting, msg);
 			return brvSuccess;	
 		end
@@ -88,8 +88,8 @@ function Occupied_Top(owner)
 		local role_power = role:GetPow();
 		if Taoist_RoleID ==  get_ctx_role_id() then
 			role:SetVariable(1009, 1009);
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你成为天下第一，获得最终伤害加成百分之二十状态。");
-			local msg = "恭喜"..role:GetName().."成为天下第一，获得最终伤害加成百分之二十状态。";
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you became Number One Under Heaven and gained a twenty percent Final Damage bonus status.");
+			local msg = "Congratulations "..role:GetName().."Become the best in the world and gain a twenty percent Final Damage bonus status.";
 			role:Say(cctServer, cltLighting, msg);
 			return brvSuccess;
 		end
@@ -97,13 +97,13 @@ function Occupied_Top(owner)
 			local Last_Top_role = CGameWorld:GetInstance():FindValidRole(Taoist_RoleID);
 			if Last_Top_role ~= nil then
 				Last_Top_role:SetVariable(1009, 0);
-				Last_Top_role:GetScene():Say(Last_Top_role:GetObjID(), cltTvShow, "你天下第一的荣誉被别人抢夺了，快提高战力抢回去。");
+				Last_Top_role:GetScene():Say(Last_Top_role:GetObjID(), cltTvShow, "Your title of Number One Under Heaven was taken by someone else. Raise your power and take it back.");
 			end
 			Taoist_Top = role_power;
 			Taoist_RoleID = get_ctx_role_id();
 			role:SetVariable(1009, 1009);
-			role:GetScene():Say(role:GetObjID(), cltTvShow, "恭喜你成为天下第一，获得最终伤害加成百分之二十状态。");
-			local msg = "恭喜"..role:GetName().."成为天下第一，获得最终伤害加成百分之二十状态。";
+			role:GetScene():Say(role:GetObjID(), cltTvShow, "Congratulations, you became Number One Under Heaven and gained a twenty percent Final Damage bonus status.");
+			local msg = "Congratulations "..role:GetName().."Become the best in the world and gain a twenty percent Final Damage bonus status.";
 			role:Say(cctServer, cltLighting, msg);
 			return brvSuccess;
 		end

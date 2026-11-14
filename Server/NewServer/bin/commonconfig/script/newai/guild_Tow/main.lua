@@ -26,7 +26,7 @@ function building_say(owner)
 	local x1 = math.floor(x/100);
 	local y1 = math.floor(y/100);
 
-	npc:Say(cctScene, cltTvShow, npc:GetNpcData().szDisplayName.."("..x1..","..y1..")正在遭遇战斗");
+	npc:Say(cctScene, cltTvShow, npc:GetNpcData().szDisplayName.."("..x1..","..y1..") is in battle");
 	return brvSuccess;
 end
 

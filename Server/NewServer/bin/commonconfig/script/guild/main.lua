@@ -62,8 +62,8 @@ end
 
 	pWarData = g_MSGuildMgr:FindBattle(AttackGuildID, DefenceGuildID);
 	if pWarData.nStage ~= GUILD_WAR_STAGE_END then
-		say(0, AttackGuildID, ccstLighting, "本次公会战半小时后结束");
-		say(0, DefenceGuildID, ccstLighting, "本次公会战半小时后结束");
+		say(0, AttackGuildID, ccstLighting, "This Guild War ends in half an hour");
+		say(0, DefenceGuildID, ccstLighting, "This Guild War ends in half an hour");
 	end
 
 
@@ -71,8 +71,8 @@ end
 
 	pWarData = g_MSGuildMgr:FindBattle(AttackGuildID, DefenceGuildID);
 	if pWarData.nStage ~= GUILD_WAR_STAGE_END then
-		say(0, AttackGuildID, ccstLighting, "本次公会战10分钟后结束");
-		say(0, DefenceGuildID, ccstLighting, "本次公会战10分钟后结束");
+		say(0, AttackGuildID, ccstLighting, "This Guild War ends in 10 minutes");
+		say(0, DefenceGuildID, ccstLighting, "This Guild War ends in 10 minutes");
 	end
 
 
@@ -80,8 +80,8 @@ end
 
 	pWarData = g_MSGuildMgr:FindBattle(AttackGuildID, DefenceGuildID);
 	if pWarData.nStage ~= GUILD_WAR_STAGE_END then
-		say(0, AttackGuildID, ccstLighting, "本次公会战1分钟后结束");
-		say(0, DefenceGuildID, ccstLighting, "本次公会战1分钟后结束");
+		say(0, AttackGuildID, ccstLighting, "This Guild War ends in 1 minute");
+		say(0, DefenceGuildID, ccstLighting, "This Guild War ends in 1 minute");
 	end
 
 
@@ -251,8 +251,8 @@ function GuildWarReady()
 						local poDefender = g_MSGuildMgr:FindGuildByID(pData.dwDefenderID);
 
 						if poIntruder ~= nil and poDefender ~= nil then
-							CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "公会战将在10分钟后开始，攻方["..poIntruder:GetName().."],守方["..poDefender:GetName().."]", poIntruder:GetSvrGroup());
-							CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "公会战将在10分钟后开始，攻方["..poIntruder:GetName().."],守方["..poDefender:GetName().."]", poDefender:GetSvrGroup());
+							CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "Guild war starts in 10 minutes. Attacker: ["..poIntruder:GetName().."], Defender: ["..poDefender:GetName().."]", poIntruder:GetSvrGroup());
+							CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "Guild war starts in 10 minutes. Attacker: ["..poIntruder:GetName().."], Defender: ["..poDefender:GetName().."]", poDefender:GetSvrGroup());
 
 							print("guild war: fight! intruder "..poIntruder:GetID().." defender "..poDefender:GetID());
 						end
@@ -309,8 +309,8 @@ function GuildWarBegin()
 							poDefender:SetVariable(GUILD_V_WAR_CRYSTAL, poDefender:GetCryStal() * nReducePercent / 100 * g_GuildConfig.nGuildWarResPlunderPercent / 10000);
 							poDefender:SetVariable(GUILD_V_WAR_SILVER, poDefender:GetSilver() * nReducePercent / 100 * g_GuildConfig.nGuildWarResPlunderPercent / 10000);
 
-							CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "公会战已经开始，攻方["..poIntruder:GetName().."],守方["..poDefender:GetName().."]", poIntruder:GetSvrGroup());
-							CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "公会战已经开始，攻方["..poIntruder:GetName().."],守方["..poDefender:GetName().."]", poDefender:GetSvrGroup());
+							CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "Guild war has started. Attacker: ["..poIntruder:GetName().."], Defender: ["..poDefender:GetName().."]", poIntruder:GetSvrGroup());
+							CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "Guild war has started. Attacker: ["..poIntruder:GetName().."], Defender: ["..poDefender:GetName().."]", poDefender:GetSvrGroup());
 						end
 					end
 
@@ -342,8 +342,8 @@ function GuildWar10Tps()
 						local poDefender = g_MSGuildMgr:FindGuildByID(pData.dwDefenderID);
 
 						if poIntruder ~= nil and poDefender ~= nil then
-							CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "公会战将在10分钟后结束", poIntruder:GetSvrGroup());
-							CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "公会战将在10分钟后结束", poDefender:GetSvrGroup());
+							CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "Guild war ends in 10 minutes", poIntruder:GetSvrGroup());
+							CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "Guild war ends in 10 minutes", poDefender:GetSvrGroup());
 						end
 					end
 
@@ -458,10 +458,10 @@ function GuildWarScore(defenderID, warDefenderResult)
         poDefender:SubSilver(nLostSilver);
 
         -- send mail
-        poDefender:BroadcastMail("防守方失败", "我方公会防守失败! 失去公会资金 "..nLostMoney.."，粮食 "..nLostHerb.."，木材 "..nLostWood.."，石料 "..nLostCrystal.."，铁矿 "..nLostSilver);
+        poDefender:BroadcastMail("Defenders lost", "Our guild failed the defense! Lost guild funds: "..nLostMoney..", Grain "..nLostHerb..", Wood "..nLostWood..", Stone "..nLostCrystal..", Iron Ore "..nLostSilver);
 
     elseif (warDefenderResult == GUILD_WAR_DEFENDER_WIN) then
-        poDefender:BroadcastMail("防守方胜利", "我方公会在本次公会战防守中取得了胜利");
+        poDefender:BroadcastMail("Defenders won", "Our guild won the defense in this Guild War");
     end
 
 	poDefender:ClearWarCharacter(GUILD_WAR_DEFENDER);
@@ -484,14 +484,14 @@ function GuildWarScore(defenderID, warDefenderResult)
 			poIntruder:AddGuildEvent(GUILD_HE_TYPE_ATTACK_SUCC, poDefender:GetID(), 0, 0, 0);
 
 			-- send mail
-			poIntruder:BroadcastMail("进攻方胜利", "我方公会攻击"..poDefender:GetName().."公会成功！ 获得：公会资金 "..nMoney.."，粮食 "..nHerb.."，木材 "..nWood.."，石料 "..nCrystal.."，铁矿 "..nSilver);
+			poIntruder:BroadcastMail("Attackers won", "Our guild attacks "..poDefender:GetName().."Guild success! Obtained: Guild Funds "..nMoney..", Grain "..nHerb..", Wood "..nWood..", Stone "..nCrystal..", Iron Ore "..nSilver);
 		elseif (warDefenderResult == GUILD_WAR_DEFENDER_WIN) then
 
 			poIntruder:AddGuildEvent(GUILD_HE_TYPE_ATTACK_FAILED, poDefender:GetID(), 0, 0, 0);
 			poDefender:AddGuildEvent(GUILD_HE_TYPE_DEFEND_SUCC, intruder_id, 0, 0, 0);
 
 			-- send mail
-			poIntruder:BroadcastMail("进攻方失败", "我方公会在本次公会战进攻["..poDefender:GetName().."]公会没能取得胜利");
+			poIntruder:BroadcastMail("Attackers lost", "Our guild is attacking ["..poDefender:GetName().."] Guild failed to win");
 		end
 
 		poIntruder:ClearWarCharacter(GUILD_WAR_INTRUDER);
@@ -553,8 +553,8 @@ function GuildWarFinish(defenderID, warDefenderResult)
 
 			print("guild war: Attack Success, intruder "..poIntruder:GetID().." defender "..poDefender:GetID());
 
-			CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "公会战结束，进攻方["..poIntruder:GetName().."]胜利", poIntruder:GetSvrGroup());
-			CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "公会战结束，进攻方["..poIntruder:GetName().."]胜利", poDefender:GetSvrGroup());
+			CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "Guild war ended. Attacker: ["..poIntruder:GetName().."] wins", poIntruder:GetSvrGroup());
+			CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "Guild war ended. Attacker: ["..poIntruder:GetName().."] wins", poDefender:GetSvrGroup());
 		elseif (warDefenderResult == GUILD_WAR_DEFENDER_WIN) then
 
 			poIntruder:AddGuildEvent(GUILD_HE_TYPE_ATTACK_FAILED, poDefender:GetID(), 0, 0, 0);
@@ -571,8 +571,8 @@ function GuildWarFinish(defenderID, warDefenderResult)
 
 			print("guild war: Attack Failed, intruder "..poIntruder:GetID().." defender "..poDefender:GetID());
 
-			CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "公会战结束，防守方["..poDefender:GetName().."]胜利", poIntruder:GetSvrGroup());
-			CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "公会战结束，防守方["..poDefender:GetName().."]胜利", poDefender:GetSvrGroup());
+			CMSChatMgr:GetInstance():Say(0, poIntruder:GetID(), cltLighting, "Guild war ended. Defender: ["..poDefender:GetName().."] wins", poIntruder:GetSvrGroup());
+			CMSChatMgr:GetInstance():Say(0, poDefender:GetID(), cltLighting, "Guild war ended. Defender: ["..poDefender:GetName().."] wins", poDefender:GetSvrGroup());
 		end
 
 		GuildSyncWarRelation(GUILD_WAR_STAGE_END, poIntruder:GetID(), poDefender:GetID());

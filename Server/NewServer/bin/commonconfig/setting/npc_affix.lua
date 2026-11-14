@@ -1,6 +1,6 @@
 
 npc_affix_define = {
-	owner='高华翔',
+	owner='Gao Huaxiang',
 	ID = {
 		type = 'number',
 		default = 0,

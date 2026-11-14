@@ -50,12 +50,12 @@ function show_current_time(scene)
 	local passedTime = g_oGameWorld:GetGameTime() - startTime;
 	local min = math.floor(passedTime / 60);
 	local sec = math.floor(passedTime % 60);
-	local message = "你当前花费的总时间是";
+	local message = "Your total time spent so far is ";
 	if min > 0 then
-		message = message..min.."分钟";
+		message = message..min.."minutes";
 	end
 	if sec > 0 then
-		message = message..sec.."秒";
+		message = message..sec.."s";
 	end
 	scene:Say(cctScene, cltTvShow, message);
 
@@ -83,7 +83,7 @@ function add_exp(scene, wave_id)
 		role:AddExp(exp, false, true);
 		-- role:AddActivityPts(apt,aprYaoTa)    -- Default code adds activity points; temporarily disabled because the function is missing
 
-		message = "恭喜你获得第["..wave_id.."]波经验：共计["..exp.."]经验值。"
+		message = "Congratulations, you got No. ["..wave_id.."] waves of EXP: total ["..exp.."] EXP."
 		scene:Say(cctScene, cltTvShow, message);
 		return brvSuccess;
 	end
@@ -112,10 +112,10 @@ function check_record(scene, wave_id)
 		local sec = math.floor( (passedTime - 2 ) % 60);
 		local message = "";
 		if min > 0 then
-			message = message..min.."分钟";
+			message = message..min.."minutes";
 		end
 		if sec > 0 then
-			message = message..sec.."秒";
+			message = message..sec.."s";
 		end
 
 		if wave_id > best_wave_id then
@@ -130,7 +130,7 @@ function check_record(scene, wave_id)
 				role:UpdateRankListNode(rlActivity04, wave_id, MAX_PASS_TIME - passedTime);
 			end
 			-------------------------test--------------
-			logmsg = "首次通过["..wave_id.."]波，刷新自己最快记录为："..message
+			logmsg = "First clear ["..wave_id.."] waves, new personal best: "..message
 			scene:Say(cctScene, cltTvShow, logmsg);
 			-----------------------------------------------
 		elseif wave_id == best_wave_id and passedTime < best_time then
@@ -144,7 +144,7 @@ function check_record(scene, wave_id)
 				role:UpdateRankListNode(rlActivity04, wave_id, MAX_PASS_TIME - passedTime);
 			end
 			-------------------------test--------------
-			logmsg = "当前已通过["..wave_id.."]波，刷新自己最快记录为："..message
+			logmsg = "Currently passed ["..wave_id.."] waves, new personal best: "..message
 			scene:Say(cctScene, cltTvShow, logmsg);
 			-----------------------------------------------			
 		end

@@ -118,7 +118,7 @@ function send_kill_info(owner)
 	if role and killer then
 		local exp = EXP_TABLE[role:GetLevel()];
 		killer:AddExp(exp, false, true);
-		local message = "您已成功击杀了"..role:GetName().."，获得"..exp.."经验奖励";
+		local message = "You have successfully slain "..role:GetName()..", received "..exp.."EXP Reward";
 		local ret = role:Say(killer:GetObjID(), cltNormal, message);
 		if ret then
 			return brvSuccess;

@@ -30,31 +30,31 @@ function Option_one1(owner)--Thunder armor (male)
 	local suipian8 = role:GetItemBag():GetItemCount(113008,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian5 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian6 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian7 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian8 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;		
 	end
 	role:GetItemBag():DeleteItemId(113001,1,ITEMLOG_SCRIPT,false,0);
@@ -67,7 +67,7 @@ function Option_one1(owner)--Thunder armor (male)
 	role:GetItemBag():DeleteItemId(113008,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,50000,false,99980713,1);
 	role:GetItemBag():AddItem(99980713,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end
 
@@ -84,31 +84,31 @@ function Option_one2(owner)--Thunder armor (female)
 	local suipian8 = role:GetItemBag():GetItemCount(113016,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian5 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian6 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian7 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian8 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;		
 	end
 	role:GetItemBag():DeleteItemId(113009,1,ITEMLOG_SCRIPT,false,0);
@@ -121,7 +121,7 @@ function Option_one2(owner)--Thunder armor (female)
 	role:GetItemBag():DeleteItemId(113016,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,50000,false,99990713,1);
 	role:GetItemBag():AddItem(99990713,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end
 
@@ -138,31 +138,31 @@ function Option_two1(owner)--Flame armor (male)
 	local suipian8 = role:GetItemBag():GetItemCount(113024,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian5 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian6 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian7 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian8 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;		
 	end
 	role:GetItemBag():DeleteItemId(113017,1,ITEMLOG_SCRIPT,false,0);
@@ -175,7 +175,7 @@ function Option_two1(owner)--Flame armor (male)
 	role:GetItemBag():DeleteItemId(113024,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,50000,false,99980723,1);
 	role:GetItemBag():AddItem(99980723,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -192,31 +192,31 @@ function Option_two2(owner)--Flame armor (female)
 	local suipian8 = role:GetItemBag():GetItemCount(113032,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian5 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian6 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian7 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian8 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;		
 	end
 	role:GetItemBag():DeleteItemId(113025,1,ITEMLOG_SCRIPT,false,0);
@@ -229,7 +229,7 @@ function Option_two2(owner)--Flame armor (female)
 	role:GetItemBag():DeleteItemId(113032,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,50000,false,99990723,1);
 	role:GetItemBag():AddItem(99990723,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 function Option_three1(owner)--Radiance armor (male)
@@ -245,31 +245,31 @@ function Option_three1(owner)--Radiance armor (male)
 	local suipian8 = role:GetItemBag():GetItemCount(113040,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian5 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian6 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian7 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian8 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;		
 	end
 	role:GetItemBag():DeleteItemId(113033,1,ITEMLOG_SCRIPT,false,0);
@@ -282,7 +282,7 @@ function Option_three1(owner)--Radiance armor (male)
 	role:GetItemBag():DeleteItemId(113040,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,50000,false,99980733,1);
 	role:GetItemBag():AddItem(99980733,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -299,31 +299,31 @@ function Option_three2(owner)--Radiance armor (female)
 	local suipian8 = role:GetItemBag():GetItemCount(113048,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 50000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian5 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian6 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian7 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian8 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;		
 	end
 	role:GetItemBag():DeleteItemId(113041,1,ITEMLOG_SCRIPT,false,0);
@@ -336,7 +336,7 @@ function Option_three2(owner)--Radiance armor (female)
 	role:GetItemBag():DeleteItemId(113048,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,50000,false,99990733,1);
 	role:GetItemBag():AddItem(99990733,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -349,19 +349,19 @@ function Option_one3(owner)--Thunder necklace
 	local suipian4 = role:GetItemBag():GetItemCount(113052,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113049,1,ITEMLOG_SCRIPT,false,0);
@@ -370,7 +370,7 @@ function Option_one3(owner)--Thunder necklace
 	role:GetItemBag():DeleteItemId(113052,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99920032,1);
 	role:GetItemBag():AddItem(99920032,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -383,19 +383,19 @@ function Option_two3(owner)--Flame necklace
 	local suipian4 = role:GetItemBag():GetItemCount(113056,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113053,1,ITEMLOG_SCRIPT,false,0);
@@ -404,7 +404,7 @@ function Option_two3(owner)--Flame necklace
 	role:GetItemBag():DeleteItemId(113056,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99920033,1);
 	role:GetItemBag():AddItem(99920033,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -417,19 +417,19 @@ function Option_three3(owner)--Radiance necklace
 	local suipian4 = role:GetItemBag():GetItemCount(113060,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113057,1,ITEMLOG_SCRIPT,false,0);
@@ -438,7 +438,7 @@ function Option_three3(owner)--Radiance necklace
 	role:GetItemBag():DeleteItemId(113060,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99920034,1);
 	role:GetItemBag():AddItem(99920034,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -451,19 +451,19 @@ function Option_one4(owner)--Thunder ring
 	local suipian4 = role:GetItemBag():GetItemCount(113064,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113061,1,ITEMLOG_SCRIPT,false,0);
@@ -472,7 +472,7 @@ function Option_one4(owner)--Thunder ring
 	role:GetItemBag():DeleteItemId(113064,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99930038,1);
 	role:GetItemBag():AddItem(99930038,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -485,19 +485,19 @@ function Option_two4(owner)--Flame ring
 	local suipian4 = role:GetItemBag():GetItemCount(113068,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113065,1,ITEMLOG_SCRIPT,false,0);
@@ -506,7 +506,7 @@ function Option_two4(owner)--Flame ring
 	role:GetItemBag():DeleteItemId(113068,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99930039,1);
 	role:GetItemBag():AddItem(99930039,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -519,19 +519,19 @@ function Option_three4(owner)--Radiance ring
 	local suipian4 = role:GetItemBag():GetItemCount(113072,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113069,1,ITEMLOG_SCRIPT,false,0);
@@ -540,7 +540,7 @@ function Option_three4(owner)--Radiance ring
 	role:GetItemBag():DeleteItemId(113072,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99930040,1);
 	role:GetItemBag():AddItem(99930040,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -553,19 +553,19 @@ function Option_one5(owner)--Thunder bracers
 	local suipian4 = role:GetItemBag():GetItemCount(113076,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113073,1,ITEMLOG_SCRIPT,false,0);
@@ -574,7 +574,7 @@ function Option_one5(owner)--Thunder bracers
 	role:GetItemBag():DeleteItemId(113076,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99940030,1);
 	role:GetItemBag():AddItem(99940030,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -587,19 +587,19 @@ function Option_two5(owner)--Flame bracers
 	local suipian4 = role:GetItemBag():GetItemCount(113080,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113077,1,ITEMLOG_SCRIPT,false,0);
@@ -608,7 +608,7 @@ function Option_two5(owner)--Flame bracers
 	role:GetItemBag():DeleteItemId(113080,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99940031,1);
 	role:GetItemBag():AddItem(99940031,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -621,19 +621,19 @@ function Option_three5(owner)--Radiance bracers
 	local suipian4 = role:GetItemBag():GetItemCount(113084,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113081,1,ITEMLOG_SCRIPT,false,0);
@@ -642,7 +642,7 @@ function Option_three5(owner)--Radiance bracers
 	role:GetItemBag():DeleteItemId(113084,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99940032,1);
 	role:GetItemBag():AddItem(99940032,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -655,19 +655,19 @@ function Option_one6(owner)--Thunder belt
 	local suipian4 = role:GetItemBag():GetItemCount(113088,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113085,1,ITEMLOG_SCRIPT,false,0);
@@ -676,7 +676,7 @@ function Option_one6(owner)--Thunder belt
 	role:GetItemBag():DeleteItemId(113088,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99990715,1);
 	role:GetItemBag():AddItem(99990715,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -689,19 +689,19 @@ function Option_two6(owner)--Flame belt
 	local suipian4 = role:GetItemBag():GetItemCount(113092,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113089,1,ITEMLOG_SCRIPT,false,0);
@@ -710,7 +710,7 @@ function Option_two6(owner)--Flame belt
 	role:GetItemBag():DeleteItemId(113092,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99990725,1);
 	role:GetItemBag():AddItem(99990725,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -723,19 +723,19 @@ function Option_three6(owner)--Radiance belt
 	local suipian4 = role:GetItemBag():GetItemCount(113096,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113093,1,ITEMLOG_SCRIPT,false,0);
@@ -744,7 +744,7 @@ function Option_three6(owner)--Radiance belt
 	role:GetItemBag():DeleteItemId(113096,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99990735,1);
 	role:GetItemBag():AddItem(99990735,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -757,19 +757,19 @@ function Option_one7(owner)--Thunder shoes
 	local suipian4 = role:GetItemBag():GetItemCount(113100,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113097,1,ITEMLOG_SCRIPT,false,0);
@@ -778,7 +778,7 @@ function Option_one7(owner)--Thunder shoes
 	role:GetItemBag():DeleteItemId(113100,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99990717,1);
 	role:GetItemBag():AddItem(99990717,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -791,19 +791,19 @@ function Option_two7(owner)--Flame shoes
 	local suipian4 = role:GetItemBag():GetItemCount(113104,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113101,1,ITEMLOG_SCRIPT,false,0);
@@ -812,7 +812,7 @@ function Option_two7(owner)--Flame shoes
 	role:GetItemBag():DeleteItemId(113104,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99990727,1);
 	role:GetItemBag():AddItem(99990727,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 
@@ -825,19 +825,19 @@ function Option_three7(owner)--Radiance shoes
 	local suipian4 = role:GetItemBag():GetItemCount(113108,false);
 	local yuanbao = role:GetItemBag():GetMoney(3);
 	if yuanbao < 20000 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "元宝不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough Yuanbao.");
 		return brvFail;
 	elseif suipian1 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian2 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian3 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	elseif suipian4 < 1 then
-		role:GetScene():Say(role:GetObjID(), cltTvShow, "碎片不足。");
+		role:GetScene():Say(role:GetObjID(), cltTvShow, "Not enough fragments.");
 		return brvFail;
 	end
 	role:GetItemBag():DeleteItemId(113105,1,ITEMLOG_SCRIPT,false,0);
@@ -846,7 +846,7 @@ function Option_three7(owner)--Radiance shoes
 	role:GetItemBag():DeleteItemId(113108,1,ITEMLOG_SCRIPT,false,0);
 	role:GetItemBag():ChangeYuanbao(username,20000,false,99990737,1);
 	role:GetItemBag():AddItem(99990737,1,ITEMLOG_SCRIPT,0,false);
-	role:GetScene():Say(role:GetObjID(), cltTvShow, "兑换成功！");
+	role:GetScene():Say(role:GetObjID(), cltTvShow, "Exchange successful!");
 	return brvSuccess;
 end	
 Include("script/newai/6236_duihuan/main.uh");

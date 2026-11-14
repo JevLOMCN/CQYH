@@ -1,6 +1,6 @@
 ﻿
 dorp_npc_level_define = {
-	owner='谭勇',
+	owner='Tan Yong',
 	NpcLevel = {
 		type = 'number',
 		default = 0,
