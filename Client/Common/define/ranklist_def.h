@@ -43,10 +43,10 @@ enum RANK_LIST
 	rlActivity07,
 	rlActivity08,
 
-	rlReserved01,
-	rlReserved02,
-	rlReserved03,
-	rlReserved04,
+	rlLevelSpear,		// 1.05 class level ranking
+	rlLevelSorcerer,		// 1.05 class level ranking
+	rlPowerSpear,		// 1.05 class combat power ranking
+	rlPowerSorcerer,		// 1.05 class combat power ranking
 	rlReserved05,
 	rlReserved06,
 	rlReserved07,

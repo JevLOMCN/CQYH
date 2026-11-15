@@ -181,6 +181,8 @@ void RankListManager::SetType(RANK_LIST type)
 	case	rlLevelRogue:
 	case	rlLevelArcher:
 	case	rlLevelTaoist:
+	case	rlLevelSpear:
+	case	rlLevelSorcerer:
 		{
 			eRankList = rlLevel;
 			break;
@@ -191,6 +193,8 @@ void RankListManager::SetType(RANK_LIST type)
 	case	rlPowerRogue:
 	case	rlPowerArcher:
 	case	rlPowerTaoist:
+	case	rlPowerSpear:
+	case	rlPowerSorcerer:
 		{
 			eRankList = rlPower;
 			break;

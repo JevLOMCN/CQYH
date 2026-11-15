@@ -16,6 +16,70 @@ IMPLEMENT_CLASS(UMMOUIRankListPanel)
 #define MAX_ACTIVITY 86400
 #define SHOW_RANK_TIME 180
 
+// Class tabs on the level / combat power ranking pages: index 0 is the overall list, the rest are
+// the per-class lists. The first six are consecutive in RANK_LIST (base + index); the 1.05 classes
+// (Lancer, Demon) live in the formerly reserved slots, so they need an explicit mapping.
+static RANK_LIST GetRankCategoryType(RANK_LIST base, INT index)
+{
+	if(index < 0 || index > 7)
+	{
+		return base;
+	}
+	if(index <= 5)
+	{
+		return (RANK_LIST)(base + index);
+	}
+	if(base == rlLevel)
+	{
+		return index == 6 ? rlLevelSpear : rlLevelSorcerer;
+	}
+	if(base == rlPower)
+	{
+		return index == 6 ? rlPowerSpear : rlPowerSorcerer;
+	}
+	return base;
+}
+
+// The ranking SWF only has 5 category tab slots (4 shown). The script wires up category0..7_btn_mc,
+// and the page sprites hold buttons for all 8, so label/position them here.
+static void SetupRankClassTabs(UMMOUIRankListPanel* panel)
+{
+	static const TCHAR* tabNames[8] = { TEXT("All"), TEXT("Warrior"), TEXT("Mage"), TEXT("Taoist"), TEXT("Assassin"), TEXT("Archer"), TEXT("Lancer"), TEXT("Demon") };
+	UGFxObject* person = panel->GetObject(TEXT("person_mc"));
+	UGFxObject* power = panel->GetObject(TEXT("power_mc"));
+	UGFxObject* pages[3] = { NULL, NULL, NULL };
+	if(person)
+	{
+		pages[0] = person->GetObject(TEXT("PersonPageLevel_mc"));
+		pages[1] = person->GetObject(TEXT("PersonPagePower_mc"));
+	}
+	if(power)
+	{
+		pages[2] = power->GetObject(TEXT("PowerPagePower_mc"));
+	}
+	for(INT p = 0; p < 3; p++)
+	{
+		if(!pages[p])
+		{
+			continue;
+		}
+		for(INT k = 0; k < 8; k++)
+		{
+			UGFxObject* btn = pages[p]->GetObject(*FString::Printf(TEXT("category%d_btn_mc"), k));
+			if(!btn)
+			{
+				continue;
+			}
+			btn->SetString(TEXT("groupName"), TEXT("category"));
+			btn->SetString(TEXT("label"), tabNames[k]);
+			btn->SetInt(TEXT("itemid"), k);
+			btn->SetFloat(TEXT("scaleX"), 0.85f);
+			btn->SetFloat(TEXT("x"), 30.0f + 74.0f * k);
+			btn->SetBool(TEXT("visible"), TRUE);
+		}
+	}
+}
+
 //==================================================Total()====================================================== 
 void UMMOUIRankListPanel::NativeInitLoad()
 {
@@ -41,6 +105,7 @@ void UMMOUIRankListPanel::NativeInitOnce()
 	LoadTournamentMenuData();
 	LoadPowerMenuData();
 	LoadActivityMenuData();
+	SetupRankClassTabs(this);
 
 	if( GFXPlayer ){
 		GFXPlayer->AddBeforeViewUpdateDelegate( FScriptDelegate(this, TEXT("BeforeViewUpdate")) );
@@ -59,6 +124,7 @@ void UMMOUIRankListPanel::PostOnShow(UBOOL v)
 	UMMOUIBase::PostOnShow(v);
 	if (v)
 	{
+		SetupRankClassTabs(this);
 		if (RankListManager::getSingleton().IsShowRank())
 		{
 			eventCallUCShowRank(TRUE);
@@ -89,6 +155,7 @@ void UMMOUIRankListPanel::OnNativeGameEvent(struct MMOGameEvent* evt)
 			break;
 		case GameEvent_RankList_UpdateCategoryButton:
 			{
+				SetupRankClassTabs(this);
 				eventCallUpdateCategoryButton();
 			}
 			break;
@@ -795,8 +862,9 @@ void UMMOUIRankListPanel::OnRangeClick(INT index)
 void UMMOUIRankListPanel::OnCategoryClick(INT index)
 {
 	INT32 Type = RankListManager::getSingleton().GetType();
-	CMessageHandler::GetInstance().Send_QueryRanklist((INT32)Type + index, 0);
-	RankListManager::getSingleton().SetPageIndex(RANK_LIST(Type + index), 0);
+	RANK_LIST categoryType = GetRankCategoryType((RANK_LIST)Type, index);
+	CMessageHandler::GetInstance().Send_QueryRanklist((INT32)categoryType, 0);
+	RankListManager::getSingleton().SetPageIndex(categoryType, 0);
 	//SetSelectRadioButton(0);
 
 }
@@ -2321,6 +2389,12 @@ void UMMOUIRankListPanel::SetSelectCategoryButton(INT index)
 	{
 		if (pCategoryButton4)
 			pCategoryButton4->SetBool(TEXT("selected"), true);
+	}
+	else if (index >= 5 && index <= 7)
+	{
+		UGFxObject* pCategoryButtonN = pPage->GetObject(*FString::Printf(TEXT("category%d_btn_mc"), index));
+		if (pCategoryButtonN)
+			pCategoryButtonN->SetBool(TEXT("selected"), true);
 	}
 }
 

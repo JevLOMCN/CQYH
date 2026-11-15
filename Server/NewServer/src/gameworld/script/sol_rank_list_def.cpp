@@ -37,10 +37,10 @@ int sol_rank_list_def_open(lua_State* L)
     globals["rlActivity06"] = static_cast<lua_Number>(rlActivity06);
     globals["rlActivity07"] = static_cast<lua_Number>(rlActivity07);
     globals["rlActivity08"] = static_cast<lua_Number>(rlActivity08);
-    globals["rlReserved01"] = static_cast<lua_Number>(rlReserved01);
-    globals["rlReserved02"] = static_cast<lua_Number>(rlReserved02);
-    globals["rlReserved03"] = static_cast<lua_Number>(rlReserved03);
-    globals["rlReserved04"] = static_cast<lua_Number>(rlReserved04);
+    globals["rlLevelSpear"] = static_cast<lua_Number>(rlLevelSpear);
+    globals["rlLevelSorcerer"] = static_cast<lua_Number>(rlLevelSorcerer);
+    globals["rlPowerSpear"] = static_cast<lua_Number>(rlPowerSpear);
+    globals["rlPowerSorcerer"] = static_cast<lua_Number>(rlPowerSorcerer);
     globals["rlReserved05"] = static_cast<lua_Number>(rlReserved05);
     globals["rlReserved06"] = static_cast<lua_Number>(rlReserved06);
     globals["rlReserved07"] = static_cast<lua_Number>(rlReserved07);
