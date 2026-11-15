@@ -260,8 +260,19 @@ INT32 CRankListMgr::UpdateRoleRank(UINT32 dwClientSessionID, UINT32 dwRoleID, IN
 		nRetCode = UpdateRankNode(nServerGroupID, rlPowerTaoist, dwRoleID, nTotalPower);
 		LOG_PROCESS_ERROR(nRetCode);
 		break;
-	case clsSpear:		// No per-class rank lists for the 1.05 classes (only the overall level/power lists above)
+	case clsSpear:
+		nRetCode = UpdateRankNode(nServerGroupID, rlLevelSpear, dwRoleID, nLevel);
+		LOG_PROCESS_ERROR(nRetCode);
+
+		nRetCode = UpdateRankNode(nServerGroupID, rlPowerSpear, dwRoleID, nTotalPower);
+		LOG_PROCESS_ERROR(nRetCode);
+		break;
 	case clsSorcerer:
+		nRetCode = UpdateRankNode(nServerGroupID, rlLevelSorcerer, dwRoleID, nLevel);
+		LOG_PROCESS_ERROR(nRetCode);
+
+		nRetCode = UpdateRankNode(nServerGroupID, rlPowerSorcerer, dwRoleID, nTotalPower);
+		LOG_PROCESS_ERROR(nRetCode);
 		break;
 	default:
 		LOG_CHECK_ERROR(FALSE);
