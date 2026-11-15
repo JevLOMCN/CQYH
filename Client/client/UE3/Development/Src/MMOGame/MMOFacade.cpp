@@ -3546,6 +3546,182 @@ void MMOFacade::Teleport( INT sceneID, const FVector& initPos, INT yaw )
 }
 //------------------------------------------------------------------------
 //Map click movement
+// Keeps the player walking to a position picked on the map or minimap.
+// A single move command only advances a couple of grid cells (the client moves in Mir2-style
+// steps), so the next step is issued as soon as the previous one has been acknowledged. Steps are
+// aimed along the pathfinder's waypoints (not straight at the destination), normally at the farthest
+// waypoint that can be reached in a straight line, so the route goes around obstacles.
+// If no progress is made along the route for a while (e.g. oscillating at a corner) the route is
+// regenerated from the current position and the walker switches to plain waypoint-by-waypoint
+// steering; after a few failed recoveries it gives up.
+// It is cancelled when navigation stops (manual movement, attacking, new route).
+class FMapWalkTicker : public FTickableObject
+{
+public:
+	FMapWalkTicker() : Active(FALSE), Total(0.f), SinceIssue(0.f), NoProgress(0.f), BestRemain(0.f), Recoveries(0), Careful(FALSE), Next(0), Dest(0,0,0) {}
+
+	void Begin(const FVector& InDest)
+	{
+		Dest = InDest;
+		// the navigation manager has just generated the route: use it as is
+		CaptureRoute();
+		Active = TRUE;
+		Total = 0.f;
+		SinceIssue = 10.f;
+		NoProgress = 0.f;
+		BestRemain = -1.f;
+		Recoveries = 0;
+		Careful = FALSE;
+	}
+
+	virtual void Tick(FLOAT DeltaTime)
+	{
+		if(!Active)
+		{
+			return;
+		}
+		AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
+		AMMOActor* actor = ctrl ? Cast<AMMOActor>(ctrl->Pawn) : NULL;
+		Total += DeltaTime;
+		SinceIssue += DeltaTime;
+		if(!actor || !MMONavigationManager::getSingleton().IsNavigating() || Total > 180.f)
+		{
+			Active = FALSE;
+			return;
+		}
+
+		const FVector loc = actor->Location;
+		if((Dest - loc).Size2D() < 96.f)
+		{
+			Active = FALSE;
+			MMONavigationManager::getSingleton().StopNavigate(FALSE);
+			return;
+		}
+
+		// skip waypoints that have been reached
+		while(Next < Way.Num() - 1 && (Way(Next) - loc).Size2D() < 128.f)
+		{
+			Next++;
+		}
+
+		// progress = remaining length of the route from here; it must keep getting smaller
+		FLOAT remain = (Way(Next) - loc).Size2D();
+		for(INT k = Next; k < Way.Num() - 1; k++)
+		{
+			remain += (Way(k + 1) - Way(k)).Size2D();
+		}
+		if(BestRemain < 0.f || remain < BestRemain - 64.f)
+		{
+			BestRemain = remain;
+			NoProgress = 0.f;
+		}
+		else
+		{
+			NoProgress += DeltaTime;
+		}
+		if(NoProgress > 2.5f)
+		{
+			if(++Recoveries > 3)
+			{
+				Active = FALSE;
+				MMONavigationManager::getSingleton().StopNavigate(FALSE);
+				return;
+			}
+			Careful = TRUE;
+			CaptureRoute(&loc);
+			NoProgress = 0.f;
+			BestRemain = -1.f;
+			return;
+		}
+
+		// next step only once the previous one is under way / finished
+		if(actor->isMoving || !actor->CanMove())
+		{
+			return;
+		}
+		if(FSMIO::getSingleton().Trigger.GetWaitingSendMove() && SinceIssue < 1.5f)
+		{
+			return;
+		}
+
+		// aim at the farthest of the next few waypoints that is straight-line reachable
+		// (only the next waypoint when recovering from a stall)
+		INT pick = Next;
+		if(!Careful)
+		{
+			for(INT j = Min(Next + 8, Way.Num() - 1); j > Next; j--)
+			{
+				FVector wp = Way(j);
+				if(j < Way.Num() - 1)
+				{
+					wp.Z = loc.Z;
+				}
+				if(gServerGridWorld.IsStraight(loc, wp, FALSE))
+				{
+					pick = j;
+					break;
+				}
+			}
+		}
+		FVector target = Way(pick);
+		if(pick < Way.Num() - 1)
+		{
+			target.Z = loc.Z;
+		}
+		SinceIssue = 0.f;
+
+		ctrl->eventClearAllCmd();
+		ctrl->eventAddCmdMoveToPoint(target, TRUE, FALSE);
+	}
+
+	virtual UBOOL IsTickable() const { return Active; }
+	virtual UBOOL IsTickableWhenPaused() const { return FALSE; }
+
+private:
+	// Copies the waypoints of the pathfinder's current route into Way. With a start position the route
+	// is regenerated from there first (the same way the navigation manager does it).
+	void CaptureRoute(const FVector* From = NULL)
+	{
+		if(From)
+		{
+			const FVector off[9] = { FVector(0,0,0), FVector(64,0,0), FVector(0,64,0), FVector(-64,0,0), FVector(0,-64,0),
+				FVector(128,0,0), FVector(0,128,0), FVector(-128,0,0), FVector(0,-128,0) };
+			for(INT i = 0; i < 9; i++)
+			{
+				if(gServerGridWorld.GeneratePath(*From, Dest + off[i]))
+				{
+					break;
+				}
+			}
+		}
+		Way.Empty();
+		INT32 pathLen = 0;
+		gServerGridWorld.GetPath(pathLen);
+		for(INT32 i = 0; i < pathLen; i++)
+		{
+			FVector wp;
+			if(gServerGridWorld.FetchPath(wp, i))
+			{
+				Way.AddItem(wp);
+			}
+		}
+		Way.AddItem(Dest);
+		Next = 0;
+	}
+
+	UBOOL Active;
+	FLOAT Total;
+	FLOAT SinceIssue;
+	FLOAT NoProgress;
+	FLOAT BestRemain;
+	INT Recoveries;
+	UBOOL Careful;
+	INT Next;
+	FVector Dest;
+	TArray<FVector> Way;
+};
+static FMapWalkTicker* GMapWalkTicker = NULL;
+
 UBOOL MMOFacade::PlayerMoveToScenePos( FExportMap &toMoveSceneInfo, FVector world3DPos )
 {
 	MMOMapDataManager *pMapDataMgr = &MMOMapDataManager::getSingleton();
@@ -3597,7 +3773,14 @@ UBOOL MMOFacade::PlayerMoveToScenePos( FExportMap &toMoveSceneInfo, FVector worl
 		}
 	}
 
-	UBOOL isSuccess = MMONavigationManager::getSingleton().Navigate( toMoveSceneInfo.ServerID, world3DPos, FALSE );
+	// Walk to the clicked position (needMove = TRUE) instead of only drawing the route.
+	UBOOL isSuccess = MMONavigationManager::getSingleton().Navigate( toMoveSceneInfo.ServerID, world3DPos, TRUE );
+	if( isSuccess ){
+		if( !GMapWalkTicker ){
+			GMapWalkTicker = new FMapWalkTicker();
+		}
+		GMapWalkTicker->Begin( world3DPos );
+	}
 	//
 	if( isSuccess ){
 		UINT interval = pMapDataMgr->GetCurSceneWorldMapPathInterval();

@@ -566,6 +566,8 @@ void FSMCtrl_MoveToPoint::Action()
 	UBOOL bWaitingSendMove = FSMIO::getSingleton().Trigger.GetWaitingSendMove();
 	if(bWaitingSendMove==FALSE)
 	{
+		// manual movement cancels any map auto-walk in progress
+		MMONavigationManager::getSingleton().StopNavigate(FALSE);
 		
 		//FSM::Char.Controller->SetTargetLocationMarker(FSM::Target.CurOptimizeTargetPos, FSM::Target.CurTargetMMOActor);
 		//if(FSM::Ctrl.KeyType == KT_PRIMARY && FSM::CDTime.WalkDelayTime<=0.0f)
