@@ -17,6 +17,52 @@ IMPLEMENT_CLASS(USeqAct_ShowSDOLogin);
 extern bool g_isSDOLogin;
 bool g_isFirstLogin = true; 
 
+// Re-applies the login form focus a few moments after a dialog closes. The dialog's own close
+// handling runs after our callback and takes focus away again, so a one-shot call is too early.
+class FLoginFocusTicker : public FTickableObject
+{
+public:
+	FLoginFocusTicker() : Panel(NULL), Shots(0), Elapsed(0.f) {}
+
+	void Schedule(UMMOUILoginPanel* InPanel)
+	{
+		Panel = InPanel;
+		Shots = 3;
+		Elapsed = 0.f;
+	}
+
+	virtual void Tick(FLOAT DeltaTime)
+	{
+		if(Shots <= 0 || !Panel)
+		{
+			return;
+		}
+		Elapsed += DeltaTime;
+		if(Elapsed >= 0.25f)
+		{
+			Elapsed = 0.f;
+			Shots--;
+			if(MMO::GetCurrentGameState()==EGameState_Login && MMOMsgBoxManager::getSingleton().GetMsgNumByType(EMsgboxType_Modal)==0)
+			{
+				Panel->eventCallResetFocus();
+			}
+			else
+			{
+				Shots = 0;
+			}
+		}
+	}
+
+	virtual UBOOL IsTickable() const { return Shots > 0; }
+	virtual UBOOL IsTickableWhenPaused() const { return TRUE; }
+
+private:
+	UMMOUILoginPanel* Panel;
+	INT Shots;
+	FLOAT Elapsed;
+};
+static FLoginFocusTicker* GLoginFocusTicker = NULL;
+
 void UMMOUILoginPanel::Init()
 {
 	Super::Init();
@@ -274,6 +320,20 @@ void UMMOUILoginPanel::OnNativeGameEvent(struct MMOGameEvent* evt)
 				{
 					//extern void ShowSDOLoginDialogWnd(bool bForce);
 					ShowSDOLoginDialogWnd(true);
+				}
+			}
+			else if(!g_isSDOLogin && MMO::GetCurrentGameState()==EGameState_Login)
+			{
+				// Dialog dismissed (e.g. the free PvP notice): put the cursor back in the login form.
+				// The script focuses the password box when a saved account name was filled in,
+				// otherwise the account name box.
+				if(MMOMsgBoxManager::getSingleton().GetMsgNumByType(EMsgboxType_Modal)==0)
+				{
+					if(!GLoginFocusTicker)
+					{
+						GLoginFocusTicker = new FLoginFocusTicker();
+					}
+					GLoginFocusTicker->Schedule(this);
 				}
 			}
 		}
