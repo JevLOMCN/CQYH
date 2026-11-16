@@ -315,6 +315,63 @@ void MMOMsgBoxManager::GetMessageAck( UBOOL ok , UGFxObject *mc /*int InfoId,int
 
 }
 //-------------------------------------------------------------------------------
+// Something in-game hides both OK / Cancel buttons shortly after a message box is created (they are visible when it is created,
+// invisible half a second later, so they neither draw nor take clicks). Until that is understood, keep them visible for the first
+// seconds of a two-button box.
+class FMsgBoxButtonKeeper : public FTickableObject
+{
+public:
+	FMsgBoxButtonKeeper() : Count(0) {}
+	void Watch( UGFxObject* InBox, UBOOL bTwoButton )
+	{
+		if( !InBox ) return;
+		if( Count >= MAX_BOXES )
+		{
+			Release( 0 );
+			for( INT i = 1; i < Count; ++i ) Entries[i-1] = Entries[i];
+			Count--;
+		}
+		InBox->AddToRoot();
+		FEntry& e = Entries[Count++];
+		e.Box = InBox; e.TwoButton = bTwoButton; e.Age = 0.f;
+	}
+	virtual void Tick( FLOAT DeltaTime )
+	{
+		for( INT i = Count - 1; i >= 0; --i )
+		{
+			FEntry& e = Entries[i];
+			e.Age += DeltaTime;
+			if( e.Age > LIFETIME )
+			{
+				Release( i );
+				for( INT j = i + 1; j < Count; ++j ) Entries[j-1] = Entries[j];
+				Count--;
+				continue;
+			}
+			UGFxObject* yb = e.Box->GetObject( TEXT("yesButton_mc") );
+			UGFxObject* nb = e.Box->GetObject( TEXT("noButton_mc") );
+			if( yb && !yb->GetBool( TEXT("visible") ) )
+			{
+				yb->SetBool( TEXT("visible"), TRUE );
+			}
+			if( e.TwoButton && nb && !nb->GetBool( TEXT("visible") ) )
+			{
+				nb->SetBool( TEXT("visible"), TRUE );
+			}
+		}
+	}
+	virtual UBOOL IsTickable() const { return Count > 0; }
+	virtual UBOOL IsTickableWhenPaused() const { return TRUE; }
+private:
+	enum { MAX_BOXES = 8 };
+	struct FEntry { UGFxObject* Box; UBOOL TwoButton; FLOAT Age; };
+	void Release( INT i ){ if( Entries[i].Box ) Entries[i].Box->RemoveFromRoot(); }
+	static const FLOAT LIFETIME;
+	FEntry Entries[MAX_BOXES];
+	INT Count;
+};
+const FLOAT FMsgBoxButtonKeeper::LIFETIME = 10.f;
+static FMsgBoxButtonKeeper GMsgBoxButtonKeeper;
 UGFxObject* MMOMsgBoxManager::AddMessageBox(const FString& text,INT InfoId,FScriptDelegate OnClickOK,FScriptDelegate OnClickNO , UBOOL twoButton  )
 {
 
@@ -325,6 +382,8 @@ UGFxObject* MMOMsgBoxManager::AddMessageBox(const FString& text,INT InfoId,FScri
 	_AddMsgBoxContent( mc , TEXT("") , text , InfoId , CurMsgId );
 
 	_RandomMsgPos(mc);
+
+	GMsgBoxButtonKeeper.Watch( mc, twoButton );
 
 	return mc;
 }
@@ -458,6 +517,8 @@ UGFxObject* MMOMsgBoxManager::AddModalMessageBox( const FString& Text, INT InfoI
 	}
 
 	_AddMsgBoxContent( mc , TEXT("") , Text , InfoId , CurMsgId );
+
+	GMsgBoxButtonKeeper.Watch( mc, twoButton );
 	
 	return mc;
 }
