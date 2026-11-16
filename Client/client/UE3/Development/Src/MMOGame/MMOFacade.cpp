@@ -5697,14 +5697,19 @@ UINT StringToNumber(FString str, UINT transfer)
 
 void MMOFacade::EmptyMountList()
 {
+	_OwnedMountIDs.Empty();
 	if(GetMainPlayer())
 	{
 		GetMainPlayer()->ActorAttributes->MountList.Empty();
-	}	
+	}
 }
 
 void MMOFacade::AddMountList(INT MountID)
 {
+	if(MountID > 0 && _OwnedMountIDs.FindItemIndex(MountID) == INDEX_NONE)
+	{
+		_OwnedMountIDs.AddItem(MountID);
+	}
 	if(GetMainPlayer())
 	{
 		GetMainPlayer()->ActorAttributes->MountList.Push(MountID);
@@ -5715,11 +5720,19 @@ void MMOFacade::AddMountList(INT MountID)
 
 		MMOGameEvent_Achievement evtAch2(adSetCount, GetMainPlayer()->ActorAttributes->MountList.Num(), 0, 0);
 		MMOUI::PostGameEvent(&evtAch2);
-	}	
+	}
 }
 
 void MMOFacade::RemoveMountList(INT MountID)
 {
+	if(MountID <= 0)
+	{
+		_OwnedMountIDs.Empty();
+	}
+	else
+	{
+		_OwnedMountIDs.RemoveItem(MountID);
+	}
 	if(GetMainPlayer() )
 	{
 		UActorAttribute* p = GetMainPlayer()->ActorAttributes;
@@ -5740,7 +5753,7 @@ void MMOFacade::RemoveMountList(INT MountID)
 				}
 			}
 		}
-	}	
+	}
 }
 
 void MMOFacade::EquipMount(UINT CharID,INT MountID)
@@ -8730,6 +8743,10 @@ UBOOL MMOFacade::ReadMountData()
 	INT _ItemCount3				= tabFile->GetKeyColIdx( TEXT("ItemCount3"));
 	INT _IconName				= tabFile->GetKeyColIdx( TEXT("Icon"));
 	INT _Script					= tabFile->GetKeyColIdx( TEXT("Script"));
+	INT _MountPower				= tabFile->GetKeyColIdx( TEXT("MountPower"));
+	INT _SoulAuraID				= tabFile->GetKeyColIdx( TEXT("SoulAuraID"));
+	INT _InUiSpeed				= tabFile->GetKeyColIdx( TEXT("InUiSpeed"));
+	INT _DataVisible			= tabFile->GetKeyColIdx( TEXT("DataVisible"));
 
 	_MountDataMap.clear();
 	//Remove the header row
@@ -8754,6 +8771,10 @@ UBOOL MMOFacade::ReadMountData()
 		T.IconName				=tabFile->GetData( _IconName,i);
 		T.Script				=tabFile->GetData( _Script,i);
 		T.Have					=0;
+		T.MountPower				= (_MountPower >= 0) ? appAtoi(tabFile->GetData( _MountPower,i)) : 0;
+		T.SoulAuraID				= (_SoulAuraID >= 0) ? appAtoi(tabFile->GetData( _SoulAuraID,i)) : 0;
+		T.InUiSpeed				= (_InUiSpeed >= 0) ? appAtoi(tabFile->GetData( _InUiSpeed,i)) : 0;
+		T.DataVisible				= (_DataVisible >= 0) ? appAtoi(tabFile->GetData( _DataVisible,i)) : 1;
 
 		_MountDataMap.insert(std::make_pair(T.ID, T));
 
@@ -8827,31 +8848,31 @@ UBOOL MMOFacade::ReadWingData()
 	return TRUE;
 }
 
+extern void MMOUIVehicleBook_Refresh();	// MMOUIVehicleBook.cpp
+
 UBOOL MMOFacade::RefreshMountData()
 {
-	if(GetMainPlayer() )
+	//First clear all obtained flags
+	for(MountDataMap::iterator iter=_MountDataMap.begin();iter!=_MountDataMap.end();iter++ )
 	{
-		UActorAttribute* p = GetMainPlayer()->ActorAttributes;
-		if(p)
-		{
-			//First clear all obtained flags
-			for(MountDataMap::iterator iter=_MountDataMap.begin();iter!=_MountDataMap.end();iter++ )
-			{
-				iter->second.Have = FALSE;
-			}	
+		iter->second.Have = FALSE;
+	}
 
-			//Set the obtained flag
-			for(int i=0; i < p->MountList.Num(); ++i )
-			{
-				MountData* pMountData =  MMOFacade::getSingleton().GetMountData(p->MountList(i));
-				if(pMountData)
-				{
-					pMountData->Have = TRUE;
-				}
-			}
+	//Set the obtained flag
+	for(int i=0; i < _OwnedMountIDs.Num(); ++i )
+	{
+		MountData* pMountData =  MMOFacade::getSingleton().GetMountData(_OwnedMountIDs(i));
+		if(pMountData)
+		{
+			pMountData->Have = TRUE;
 		}
-		MMOUI::GetUIManager()->delegateRefreshMount();
-	}	
+	}
+	UMMOUIManager* UM = MMOUI::GetUIManager();
+	if(UM)
+	{
+		UM->delegateRefreshMount();
+	}
+	MMOUIVehicleBook_Refresh();
 	return TRUE;
 }
 

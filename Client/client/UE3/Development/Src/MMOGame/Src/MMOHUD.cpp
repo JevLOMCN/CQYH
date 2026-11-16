@@ -12,6 +12,7 @@ CanvasRenderableList g_canvasRenderable;
 TArray<IIMMOActorHUD*> g_ActorHUDList;
 
 extern void MMOUIWingPanel_DrawPreview(UCanvas* Canvas);	// MMOUIWingPanel.cpp
+extern void MMOUIVehicleBook_DrawPreview(UCanvas* Canvas);	// MMOUIVehicleBook.cpp
 
 void AMMOHud::RegisterCanvasRenderable( class ICanvasRenderable* obj )
 {
@@ -67,6 +68,7 @@ void AMMOHud::DrawHUD()
 	}
 
 	MMOUIWingPanel_DrawPreview(Canvas);
+	MMOUIVehicleBook_DrawPreview(Canvas);
 
 	//AMMOPlayerController* pc = Cast<AMMOPlayerController>( PlayerOwner );
 }

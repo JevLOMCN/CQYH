@@ -4785,6 +4785,8 @@ void CMessageHandler::Parse_g2c_clear_spell_cache(const char* buf, UINT32 size)
 	FSMIO::getSingleton().Trigger.SetWaitingSendMove(FALSE);
 }
 
+extern void MMOUIVehicleBook_Refresh();	// MMOUIVehicleBook.cpp
+
 void CMessageHandler::Parse_g2c_sync_mount_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_MOUNT_LIST* msg =  (G2C_SYNC_MOUNT_LIST*)buf;
@@ -4814,6 +4816,7 @@ void CMessageHandler::Parse_g2c_char_on_mount(const char* buf, UINT32 size)
 	G2C_CHAR_ON_MOUNT* msg =  (G2C_CHAR_ON_MOUNT*)buf;
 	MMOFacade::getSingleton().EquipMount(msg->dwCharID,msg->byMountID);
 	MMOUI::GetUIManager()->delegateRefreshEquipedMount();
+	MMOUIVehicleBook_Refresh();
 }
 
 void CMessageHandler::Parse_g2c_char_off_mount(const char* buf, UINT32 size)
@@ -4821,6 +4824,7 @@ void CMessageHandler::Parse_g2c_char_off_mount(const char* buf, UINT32 size)
 	G2C_CHAR_OFF_MOUNT* msg =  (G2C_CHAR_OFF_MOUNT*)buf;
 	MMOFacade::getSingleton().EquipMount(msg->dwCharID,0);
 	MMOUI::GetUIManager()->delegateRefreshEquipedMount();
+	MMOUIVehicleBook_Refresh();
 }
 
 void CMessageHandler::Parse_g2c_char_wing(const char* buf, UINT32 size)

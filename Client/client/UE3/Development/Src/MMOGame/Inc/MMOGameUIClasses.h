@@ -18272,6 +18272,218 @@ public:
     #include "UMMOUITradeP2P.h"
 };
 
+struct MMOUIVehicleBook_eventCallUpdateMountSoul_Parms
+{
+    class UGFxObject* data;
+    MMOUIVehicleBook_eventCallUpdateMountSoul_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallUpdateMountPowerAttrTotal_Parms
+{
+    class UGFxObject* data;
+    MMOUIVehicleBook_eventCallUpdateMountPowerAttrTotal_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallUpdateMountPowerData_Parms
+{
+    class UGFxObject* data;
+    MMOUIVehicleBook_eventCallUpdateMountPowerData_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallSetMountedVehicle_Parms
+{
+    INT MountID;
+    MMOUIVehicleBook_eventCallSetMountedVehicle_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventClonePlayer_Parms
+{
+    class AMMOPlayer* Base;
+    class AMMOPlayer* ReturnValue;
+    MMOUIVehicleBook_eventClonePlayer_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallSetRideSkillLearned_Parms
+{
+    UBOOL Learned;
+    MMOUIVehicleBook_eventCallSetRideSkillLearned_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallSetCurSelectedVehicle_Parms
+{
+    INT MountID;
+    MMOUIVehicleBook_eventCallSetCurSelectedVehicle_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallSetVehicleInfoShowMode_Parms
+{
+    INT Mode;
+    MMOUIVehicleBook_eventCallSetVehicleInfoShowMode_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallUpdateVehicleList_Parms
+{
+    class UGFxObject* data;
+    MMOUIVehicleBook_eventCallUpdateVehicleList_Parms(EEventParm)
+    {
+    }
+};
+struct MMOUIVehicleBook_eventCallSetLocalizationData_Parms
+{
+    class UGFxObject* data;
+    MMOUIVehicleBook_eventCallSetLocalizationData_Parms(EEventParm)
+    {
+    }
+};
+class UMMOUIVehicleBook : public UMMOUIBaseSlotContainer
+{
+public:
+    //## BEGIN PROPS MMOUIVehicleBook
+    //## END PROPS MMOUIVehicleBook
+
+    virtual INT GetSlotType();
+    virtual UBOOL OnLeftMousePress(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault);
+    virtual UBOOL OnLeftMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault);
+    virtual UBOOL OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault);
+    virtual UBOOL OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSlotMC,BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID,BYTE DestSlotType,BYTE DestContainerID,INT DestSlotID);
+    virtual void RefreshVehicleBook();
+    virtual void ASClickMountSlot(INT MountID);
+    virtual void ASSetInfoShowMode(INT Mode);
+    virtual void ASMountVehicle(INT MountID);
+    virtual void ASUnMountVehicle();
+    virtual void ASModelRotate(INT Direction);
+    virtual void ASReleaseModelRotate();
+    virtual void ASShowMountGuide();
+    virtual void AsUseRideSkill();
+    virtual void ASRideSkillGetPath();
+    DECLARE_FUNCTION(execRefreshVehicleBook)
+    {
+        P_FINISH;
+        this->RefreshVehicleBook();
+    }
+    DECLARE_FUNCTION(execASClickMountSlot)
+    {
+        P_GET_INT(MountID);
+        P_FINISH;
+        this->ASClickMountSlot(MountID);
+    }
+    DECLARE_FUNCTION(execASSetInfoShowMode)
+    {
+        P_GET_INT(Mode);
+        P_FINISH;
+        this->ASSetInfoShowMode(Mode);
+    }
+    DECLARE_FUNCTION(execASMountVehicle)
+    {
+        P_GET_INT(MountID);
+        P_FINISH;
+        this->ASMountVehicle(MountID);
+    }
+    DECLARE_FUNCTION(execASUnMountVehicle)
+    {
+        P_FINISH;
+        this->ASUnMountVehicle();
+    }
+    DECLARE_FUNCTION(execASModelRotate)
+    {
+        P_GET_INT(Direction);
+        P_FINISH;
+        this->ASModelRotate(Direction);
+    }
+    DECLARE_FUNCTION(execASReleaseModelRotate)
+    {
+        P_FINISH;
+        this->ASReleaseModelRotate();
+    }
+    DECLARE_FUNCTION(execASShowMountGuide)
+    {
+        P_FINISH;
+        this->ASShowMountGuide();
+    }
+    DECLARE_FUNCTION(execAsUseRideSkill)
+    {
+        P_FINISH;
+        this->AsUseRideSkill();
+    }
+    DECLARE_FUNCTION(execASRideSkillGetPath)
+    {
+        P_FINISH;
+        this->ASRideSkillGetPath();
+    }
+    void eventCallUpdateMountSoul(class UGFxObject* data)
+    {
+        MMOUIVehicleBook_eventCallUpdateMountSoul_Parms Parms(EC_EventParm);
+        Parms.data=data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateMountSoul),&Parms);
+    }
+    void eventCallUpdateMountPowerAttrTotal(class UGFxObject* data)
+    {
+        MMOUIVehicleBook_eventCallUpdateMountPowerAttrTotal_Parms Parms(EC_EventParm);
+        Parms.data=data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateMountPowerAttrTotal),&Parms);
+    }
+    void eventCallUpdateMountPowerData(class UGFxObject* data)
+    {
+        MMOUIVehicleBook_eventCallUpdateMountPowerData_Parms Parms(EC_EventParm);
+        Parms.data=data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateMountPowerData),&Parms);
+    }
+    void eventCallSetMountedVehicle(INT MountID)
+    {
+        MMOUIVehicleBook_eventCallSetMountedVehicle_Parms Parms(EC_EventParm);
+        Parms.MountID=MountID;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetMountedVehicle),&Parms);
+    }
+    class AMMOPlayer* eventClonePlayer(class AMMOPlayer* Base)
+    {
+        MMOUIVehicleBook_eventClonePlayer_Parms Parms(EC_EventParm);
+        Parms.ReturnValue=NULL;
+        Parms.Base=Base;
+        ProcessEvent(FindFunctionChecked(MMOGAME_ClonePlayer),&Parms);
+        return Parms.ReturnValue;
+    }
+    void eventCallSetRideSkillLearned(UBOOL Learned)
+    {
+        MMOUIVehicleBook_eventCallSetRideSkillLearned_Parms Parms(EC_EventParm);
+        Parms.Learned=Learned ? FIRST_BITFIELD : FALSE;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetRideSkillLearned),&Parms);
+    }
+    void eventCallSetCurSelectedVehicle(INT MountID)
+    {
+        MMOUIVehicleBook_eventCallSetCurSelectedVehicle_Parms Parms(EC_EventParm);
+        Parms.MountID=MountID;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetCurSelectedVehicle),&Parms);
+    }
+    void eventCallSetVehicleInfoShowMode(INT Mode)
+    {
+        MMOUIVehicleBook_eventCallSetVehicleInfoShowMode_Parms Parms(EC_EventParm);
+        Parms.Mode=Mode;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetVehicleInfoShowMode),&Parms);
+    }
+    void eventCallUpdateVehicleList(class UGFxObject* data)
+    {
+        MMOUIVehicleBook_eventCallUpdateVehicleList_Parms Parms(EC_EventParm);
+        Parms.data=data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallUpdateVehicleList),&Parms);
+    }
+    void eventCallSetLocalizationData(class UGFxObject* data)
+    {
+        MMOUIVehicleBook_eventCallSetLocalizationData_Parms Parms(EC_EventParm);
+        Parms.data=data;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetLocalizationData),&Parms);
+    }
+    DECLARE_CLASS(UMMOUIVehicleBook,UMMOUIBaseSlotContainer,0|CLASS_Config,MMOGame)
+    #include "UMMOUIVehicleBook.h"
+};
+
 #define UCONST_OriWarehouseCap 16
 #define UCONST_MaxWarehouseSlotCount 72
 
@@ -42930,6 +43142,21 @@ AUTOGENERATE_FUNCTION(UMMOUITradeP2P,-1,execNotifyApplyDoTrade);
 AUTOGENERATE_FUNCTION(UMMOUITradeP2P,-1,execApplyDoTrade);
 AUTOGENERATE_FUNCTION(UMMOUITradeP2P,-1,execUpdateCondition);
 AUTOGENERATE_FUNCTION(UMMOUITradeP2P,-1,execNativeInitLoad);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASRideSkillGetPath);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execAsUseRideSkill);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASShowMountGuide);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASReleaseModelRotate);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASModelRotate);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASUnMountVehicle);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASMountVehicle);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASSetInfoShowMode);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execASClickMountSlot);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execRefreshVehicleBook);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execOnDragDrop);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execOnRightMouseClick);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execOnLeftMouseClick);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execOnLeftMousePress);
+AUTOGENERATE_FUNCTION(UMMOUIVehicleBook,-1,execGetSlotType);
 AUTOGENERATE_FUNCTION(UMMOUIWarehouse,-1,execASWareHouseTabChange);
 AUTOGENERATE_FUNCTION(UMMOUIWarehouse,-1,execSetItemSlotData);
 AUTOGENERATE_FUNCTION(UMMOUIWarehouse,-1,execASSortWarehouse);
@@ -44775,6 +45002,8 @@ AUTOGENERATE_FUNCTION(UUIKeyMapManager,-1,execOnSlotKey);
 	GNativeLookupFuncs.Set(FName("MMOUISoulLevelUp"), GMMOGameUMMOUISoulLevelUpNatives); \
 	UMMOUITradeP2P::StaticClass(); \
 	GNativeLookupFuncs.Set(FName("MMOUITradeP2P"), GMMOGameUMMOUITradeP2PNatives); \
+	UMMOUIVehicleBook::StaticClass(); \
+	GNativeLookupFuncs.Set(FName("MMOUIVehicleBook"), GMMOGameUMMOUIVehicleBookNatives); \
 	UMMOUIWarehouse::StaticClass(); \
 	GNativeLookupFuncs.Set(FName("MMOUIWarehouse"), GMMOGameUMMOUIWarehouseNatives); \
 	UMMOUIWeaponExpPanel::StaticClass(); \
@@ -47421,6 +47650,26 @@ FNativeFunctionLookup GMMOGameUMMOUITradeP2PNatives[] =
 	MAP_NATIVE(UMMOUITradeP2P, execApplyDoTrade)
 	MAP_NATIVE(UMMOUITradeP2P, execUpdateCondition)
 	MAP_NATIVE(UMMOUITradeP2P, execNativeInitLoad)
+	{NULL, NULL}
+};
+
+FNativeFunctionLookup GMMOGameUMMOUIVehicleBookNatives[] = 
+{ 
+	MAP_NATIVE(UMMOUIVehicleBook, execASRideSkillGetPath)
+	MAP_NATIVE(UMMOUIVehicleBook, execAsUseRideSkill)
+	MAP_NATIVE(UMMOUIVehicleBook, execASShowMountGuide)
+	MAP_NATIVE(UMMOUIVehicleBook, execASReleaseModelRotate)
+	MAP_NATIVE(UMMOUIVehicleBook, execASModelRotate)
+	MAP_NATIVE(UMMOUIVehicleBook, execASUnMountVehicle)
+	MAP_NATIVE(UMMOUIVehicleBook, execASMountVehicle)
+	MAP_NATIVE(UMMOUIVehicleBook, execASSetInfoShowMode)
+	MAP_NATIVE(UMMOUIVehicleBook, execASClickMountSlot)
+	MAP_NATIVE(UMMOUIVehicleBook, execRefreshVehicleBook)
+	MAP_NATIVE(UMMOUIVehicleBook, execOnDragDrop)
+	MAP_NATIVE(UMMOUIVehicleBook, execOnRightMouseClick)
+	MAP_NATIVE(UMMOUIVehicleBook, execOnLeftMouseClick)
+	MAP_NATIVE(UMMOUIVehicleBook, execOnLeftMousePress)
+	MAP_NATIVE(UMMOUIVehicleBook, execGetSlotType)
 	{NULL, NULL}
 };
 
@@ -50096,6 +50345,7 @@ VERIFY_CLASS_SIZE_NODIE(UMMOUISoulLevelUp)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUITradeP2P,MMOUITradeP2P,TradeP2PPanelmc)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUITradeP2P,MMOUITradeP2P,TgTradeItems)
 VERIFY_CLASS_SIZE_NODIE(UMMOUITradeP2P)
+VERIFY_CLASS_SIZE_NODIE(UMMOUIVehicleBook)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUIWarehouse,MMOUIWarehouse,BagGroup)
 VERIFY_CLASS_OFFSET_NODIE(UMMOUIWarehouse,MMOUIWarehouse,ConfirmMsgBox)
 VERIFY_CLASS_SIZE_NODIE(UMMOUIWarehouse)

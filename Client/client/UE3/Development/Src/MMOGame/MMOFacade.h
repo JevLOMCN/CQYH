@@ -877,6 +877,12 @@ struct MountData
 	FString IconName;
 	FString Script;
 	INT Have;
+
+	// 1.05 mount book
+	INT MountPower;		// beast power points this mount adds once owned
+	INT SoulAuraID;
+	INT InUiSpeed;		// speed boost shown in the UI (1000 = 10%)
+	INT DataVisible;
 };
 
 //wings.txt (1.05)
@@ -1449,6 +1455,9 @@ public:
 	STLInt2IntMap* GetPlayerMap(){  return &PlayerMap;}
 	STLInt2IntMap* GetCharacterMap(){  return &CharacterMap;}
 	MountDataMap*  GetMountDataMap(){ return &_MountDataMap;}
+	// ids of the mounts the character owns. Kept here as well as in the main player's ActorAttributes: the list is synced
+	// at login, possibly before the main player exists, and would be lost.
+	UBOOL IsMountOwned(INT MountID){ return _OwnedMountIDs.FindItemIndex(MountID) != INDEX_NONE; }
 	ReputationTemp*  GetReputationTemp(INT index);
 	ReputationTemp*  GetReputationTempBySceneID(INT SceneID);
 	ReputationTemp*  GetReputationTempByForceID(INT ForceID);
@@ -1842,6 +1851,7 @@ protected:
 
 	TweenDataMap	_TweenDataMap;
 	MountDataMap	_MountDataMap;
+	TArray<INT>		_OwnedMountIDs;
 	WingDataMap		_WingDataMap;
 
 	ShowPanelAdvancedDataMap _ShowPanelAdvancedDataMap;
