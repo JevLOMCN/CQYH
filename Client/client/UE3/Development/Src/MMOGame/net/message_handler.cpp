@@ -962,6 +962,7 @@ BOOL CMessageHandler::Init(void)
 	MREG_PARSE_FUN(g2c_char_off_mount);
 	MREG_PARSE_FUN(g2c_char_wing);
 	MREG_PARSE_FUN(g2c_wing_info);
+MREG_PARSE_FUN(g2c_mount_soul_info);
 
 	//hero
 	MREG_PARSE_FUN(g2c_sync_hero_data);
@@ -4181,6 +4182,16 @@ void CMessageHandler::Send_EquipMount(INT MountID)
 	}
 }
 
+void CMessageHandler::Send_MountSoulOp(INT Op, INT Param1, INT Param2)
+{
+	C2G_MOUNT_SOUL_OP msg;
+	msg.wMsg = c2g_mount_soul_op;
+	msg.nOp = Op;
+	msg.nParam1 = Param1;
+	msg.nParam2 = Param2;
+	_Send( &msg, sizeof(msg) );
+}
+
 void CMessageHandler::Send_WingOp(INT Op, INT Param)
 {
 	C2G_WING_OP msg;
@@ -4834,6 +4845,14 @@ void CMessageHandler::Parse_g2c_char_wing(const char* buf, UINT32 size)
 }
 
 extern void MMOUIWingPanel_OnWingInfo(INT Level, UINT Mask, INT CurrentWing, UBOOL bUpgraded);	// MMOUIWingPanel.cpp
+extern void MMOUIVehicleBook_OnSoulInfo(const UINT8* abySlot);	// MMOUIVehicleBook.cpp
+
+void CMessageHandler::Parse_g2c_mount_soul_info(const char* buf, UINT32 size)
+{
+	G2C_MOUNT_SOUL_INFO* msg =  (G2C_MOUNT_SOUL_INFO*)buf;
+	MMOUIVehicleBook_OnSoulInfo(msg->abySlot);
+}
+
 void CMessageHandler::Parse_g2c_wing_info(const char* buf, UINT32 size)
 {
 	G2C_WING_INFO* msg =  (G2C_WING_INFO*)buf;

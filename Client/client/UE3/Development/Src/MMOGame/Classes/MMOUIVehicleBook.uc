@@ -63,6 +63,11 @@ event MMOPlayer ClonePlayer( MMOPlayer Base )
 	return P;
 }
 
+event CallSetRideSkillData(int SlotType, int ItemIndex, string IconName)
+{
+	ActionScriptVoid("UCSetRideSkillData");
+}
+
 event CallSetMountedVehicle(int MountID)
 {
 	ActionScriptVoid("UCSetMountedVehicle");

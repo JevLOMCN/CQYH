@@ -2,6 +2,7 @@
 #include "MMOGameUIClasses.h"
 #include "MMOFacade.h"
 #include "attribute_def.h"
+#include "MMOSkillManager.h"
 
 // Mount book (1.05, UI_VehicleBook.upk).
 //
@@ -29,6 +30,12 @@ struct FVBPowerRow
 static TArray<FVBPowerRow>	g_VBRows;
 static UBOOL				g_VBLoaded = FALSE;
 static INT					g_VBMaxSoulSlots = 0;
+
+// beast soul slots: the mount id in each slot (0 = empty), as last reported by the server (g2c_mount_soul_info).
+// In the swf the soul slots have slot ids 100 + slot, the mounts of the list have their mount id.
+#define VB_SOUL_ID_BASE		100
+static INT g_VBSoul[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static INT g_VBSoulSlots = 0;				// unlocked slots (from mount_power.txt for the owned mounts)
 
 static INT g_VBMode = 0;				// 0 = all mounts, 1 = owned only
 static INT g_VBSelected = -1;			// mount id selected in the list
@@ -117,6 +124,42 @@ static FString VB_AttrLabel(const FString& Cat)
 static UBOOL VB_Owned(INT MountID)
 {
 	return MMOFacade::getSingleton().IsMountOwned(MountID);
+}
+
+static INT VB_SoulSlotOf(INT MountID)
+{
+	for(INT i = 0; i < 8; ++i)
+	{
+		if(g_VBSoul[i] == MountID)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+// put the soul of a mount into the first free unlocked slot, or take it out when it is in a slot already
+static void VB_ToggleSoul(INT MountID)
+{
+	MountData* pMount = MMOFacade::getSingleton().GetMountData(MountID);
+	if(pMount == NULL || pMount->SoulAuraID <= 0 || !MMOFacade::getSingleton().IsMountOwned(MountID))
+	{
+		return;
+	}
+	const INT Slot = VB_SoulSlotOf(MountID);
+	if(Slot >= 0)
+	{
+		CMessageHandler::GetInstance().Send_MountSoulOp(2, Slot, 0);
+		return;
+	}
+	for(INT i = 0; i < g_VBSoulSlots && i < 8; ++i)
+	{
+		if(g_VBSoul[i] == 0)
+		{
+			CMessageHandler::GetInstance().Send_MountSoulOp(1, i, MountID);
+			return;
+		}
+	}
 }
 
 // beast power points = sum of MountPower of the owned mounts
@@ -562,6 +605,14 @@ static void VB_UpdateUseButton(UMMOUIVehicleBook* Panel)
 	MountData* pMount = (g_VBSelected > 0) ? MMOFacade::getSingleton().GetMountData(g_VBSelected) : NULL;
 	const UBOOL bOwned = pMount != NULL && VB_Owned(pMount->ID);
 	Panel->eventCallSetRideSkillLearned(bOwned);
+
+	// the ride skill slot shows the mount skill (SoulAuraID spell) of the selected mount
+	{
+		const INT SpellID = (pMount != NULL) ? pMount->SoulAuraID : 0;
+		UMMOAbility* Ability = (SpellID > 0) ? MMOSkillManager::getSingleton().FindAbilityTemplate(SpellID) : NULL;
+		Panel->eventCallSetRideSkillData(ESPType_Mount, Ability ? SpellID : 0,
+			Ability ? FString::Printf(TEXT("img://%s"), *Ability->GetAbilityIconName()) : FString());
+	}
 	if(UGFxObject* Av = Panel->GetObject(TEXT("mw_vehicleAvatar")))
 	{
 		if(UGFxObject* Btn = Av->GetObject(TEXT("btn_useRideSkill")))
@@ -777,6 +828,7 @@ static void VB_FeedPower(UMMOUIVehicleBook* Panel)
 	}
 
 	// beast (soul) slots that are unlocked at this level
+	g_VBSoulSlots = Min(Row->SoulSlots, g_VBMaxSoulSlots);
 	UGFxObject* Slots = Panel->GFXPlayer->CreateArray();
 	if(Slots)
 	{
@@ -785,12 +837,14 @@ static void VB_FeedPower(UMMOUIVehicleBook* Panel)
 			UGFxObject* S = Panel->GFXPlayer->CreateObject(TEXT("Object"));
 			if(S)
 			{
+				// the soul of a mount shows the icon of that mount
+				MountData* pSoul = (g_VBSoul[i] > 0) ? MMOFacade::getSingleton().GetMountData(g_VBSoul[i]) : NULL;
 				S->SetBool(TEXT("isOpened"), i < Row->SoulSlots);
 				S->SetBool(TEXT("visible"), TRUE);
-				S->SetString(TEXT("iconName"), TEXT(""));
+				S->SetString(TEXT("iconName"), pSoul ? FString::Printf(TEXT("img://%s"), *pSoul->IconName) : FString());
 				S->SetInt(TEXT("slotType"), ESPType_Mount);
-				S->SetInt(TEXT("itemIndex"), 0);
-				S->SetInt(TEXT("slotID"), i);
+				S->SetInt(TEXT("itemIndex"), pSoul ? pSoul->ID : 0);
+				S->SetInt(TEXT("slotID"), VB_SOUL_ID_BASE + i);
 				Slots->SetElementObject(i, S);
 			}
 		}
@@ -903,6 +957,7 @@ void UMMOUIVehicleBook::PostOnShow(UBOOL v)
 		g_VBDirty = TRUE;
 		VB_StartShow(this);
 		g_VBTitlePending = TRUE;
+		CMessageHandler::GetInstance().Send_MountSoulOp(0, 0, 0);
 
 		if(VB_EnsureConfigured(this))
 		{
@@ -933,11 +988,52 @@ UBOOL UMMOUIVehicleBook::OnLeftMouseClick(class UGFxObject* mc,BYTE SlotType,BYT
 
 UBOOL UMMOUIVehicleBook::OnRightMouseClick(class UGFxObject* mc,BYTE SlotType,BYTE ContainerID,INT SlotID,UBOOL bDefault)
 {
+	if(bDefault)
+	{
+		return FALSE;
+	}
+	if(SlotID >= VB_SOUL_ID_BASE)
+	{
+		// right click on a filled soul slot takes the soul out
+		const INT Slot = SlotID - VB_SOUL_ID_BASE;
+		if(Slot >= 0 && Slot < 8 && g_VBSoul[Slot] > 0)
+		{
+			CMessageHandler::GetInstance().Send_MountSoulOp(2, Slot, 0);
+		}
+		return TRUE;
+	}
+	if(SlotID > 0)
+	{
+		// right click on a mount of the list puts its soul into a free slot / takes it out
+		VB_ToggleSoul(SlotID);
+		return TRUE;
+	}
 	return FALSE;
 }
 
 UBOOL UMMOUIVehicleBook::OnDragDrop(class UGFxObject* SrcSlotMC,class UGFxObject* DestSlotMC, BYTE SrcSlotType,BYTE SrcContainerID,INT SrcSlotID,BYTE DestSlotType,BYTE DestContainerID,INT DestSlotID)
 {
+	if(SrcSlotID > 0 && SrcSlotID < VB_SOUL_ID_BASE && DestSlotID >= VB_SOUL_ID_BASE)
+	{
+		// a mount dragged onto a soul slot
+		MountData* pMount = MMOFacade::getSingleton().GetMountData(SrcSlotID);
+		const INT Slot = DestSlotID - VB_SOUL_ID_BASE;
+		if(pMount && pMount->SoulAuraID > 0 && Slot >= 0 && Slot < 8 && MMOFacade::getSingleton().IsMountOwned(SrcSlotID))
+		{
+			CMessageHandler::GetInstance().Send_MountSoulOp(1, Slot, SrcSlotID);
+		}
+		return TRUE;
+	}
+	if(SrcSlotID >= VB_SOUL_ID_BASE && DestSlotID < VB_SOUL_ID_BASE)
+	{
+		// a soul dragged out of its slot
+		const INT Slot = SrcSlotID - VB_SOUL_ID_BASE;
+		if(Slot >= 0 && Slot < 8 && g_VBSoul[Slot] > 0)
+		{
+			CMessageHandler::GetInstance().Send_MountSoulOp(2, Slot, 0);
+		}
+		return TRUE;
+	}
 	return FALSE;
 }
 
@@ -1014,6 +1110,20 @@ void UMMOUIVehicleBook::ASRideSkillGetPath()
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
+// g2c_mount_soul_info: the mount id in each beast soul slot
+void MMOUIVehicleBook_OnSoulInfo(const UINT8* abySlot)
+{
+	for(INT i = 0; i < 8; ++i)
+	{
+		g_VBSoul[i] = abySlot[i];
+	}
+	UMMOUIVehicleBook* Panel = VB_FindPanel();
+	if(Panel && Panel->GetVisible() && Panel->GetBool(TEXT("initialized")))
+	{
+		Panel->RefreshVehicleBook();
+	}
+}
+
 // network / facade: ownership or the mounted mount changed
 void MMOUIVehicleBook_Refresh()
 {

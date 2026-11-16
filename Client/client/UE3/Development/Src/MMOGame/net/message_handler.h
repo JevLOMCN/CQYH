@@ -282,6 +282,7 @@ public:
 
 	void Send_ActiveMount(INT MountID);
 	void Send_EquipMount(INT MountID);
+	void Send_MountSoulOp(INT Op, INT Param1, INT Param2);	// c2g_mount_soul_op: 0 query, 1 put the soul of mount Param2 into slot Param1, 2 empty slot Param1
 	void Send_WingOp(INT Op, INT Param);	// c2g_wing_op: 0 query, 1 wear, 2 take off, 3 upgrade
 	void Send_Clear_Spell_Cache();
 
@@ -434,6 +435,7 @@ private:
 	M_DECL_PARSE_FUN(g2c_char_off_mount);
 	M_DECL_PARSE_FUN(g2c_char_wing);
 	M_DECL_PARSE_FUN(g2c_wing_info);
+M_DECL_PARSE_FUN(g2c_mount_soul_info);
 
 	//hero
 	M_DECL_PARSE_FUN(g2c_sync_hero_data);

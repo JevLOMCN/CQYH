@@ -317,6 +317,7 @@ BOOL CCliMessageHandler::Init(IMessageNotifier* poNotifier, IPacketAllocator* po
 	REGISTER_MESSAGE(c2g_dice_bet,                      &CCliMessageHandler::OnDiceBet, TRUE);
 	REGISTER_MESSAGE(c2g_lovers_teleprot,               &CCliMessageHandler::OnLoversTeleprot, TRUE);
 	REGISTER_MESSAGE(c2g_wing_op,                       &CCliMessageHandler::OnWingOp, TRUE);
+	REGISTER_MESSAGE(c2g_mount_soul_op,	&CCliMessageHandler::OnMountSoulOp,	TRUE);
 
 
 

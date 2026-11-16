@@ -250,6 +250,18 @@ public:
     inline void ClearActivity();
 
 	INT32 ActivateMount(INT32 nMountID);
+	// mount book (1.05): beast power = attributes of mount_power.txt for the sum of MountPower of the owned mounts
+	INT32 GetMountPowerPoints(void);
+	const struct MOUNT_POWER_ENTRY* GetMountPowerRow(void);
+	void ApplyMountPower(void);
+	// mount book (1.05): beast soul slots. The mount skill (spell) of an owned mount is learned while its soul is in a slot.
+	INT32 GetMountSoulSlotCount(void);
+	INT32 GetMountSoul(INT32 nSlot);
+	void SetMountSoul(INT32 nSlot, INT32 nMountID);
+	BOOL EquipMountSoul(INT32 nSlot, INT32 nMountID);
+	void UnequipMountSoul(INT32 nSlot);
+	void MountSoulOperate(INT32 nOp, INT32 nParam1, INT32 nParam2);
+	void SyncMountSoulInfo(void);
 	INT32 OnMount(INT32 nMountID);
 	void OffMount(void);
 	INT32 EquipWing(INT32 nWingID);
@@ -748,6 +760,7 @@ private:
 
 	typedef std::set<INT32> TActivatedMountList;
 	TActivatedMountList m_ActivedMountList;
+	INT32 m_nMountPowerRow;		// mount_power.txt row whose attributes are applied now (-1 none)
 	TActivatedMountList::iterator m_MountItr;
 
     BTCustomCtx     m_InteractCtx;

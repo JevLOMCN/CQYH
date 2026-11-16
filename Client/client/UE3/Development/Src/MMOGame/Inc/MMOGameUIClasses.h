@@ -18300,6 +18300,15 @@ struct MMOUIVehicleBook_eventCallSetMountedVehicle_Parms
     {
     }
 };
+struct MMOUIVehicleBook_eventCallSetRideSkillData_Parms
+{
+    INT SlotType;
+    INT ItemIndex;
+    FString IconName;
+    MMOUIVehicleBook_eventCallSetRideSkillData_Parms(EEventParm)
+    {
+    }
+};
 struct MMOUIVehicleBook_eventClonePlayer_Parms
 {
     class AMMOPlayer* Base;
@@ -18441,6 +18450,14 @@ public:
         MMOUIVehicleBook_eventCallSetMountedVehicle_Parms Parms(EC_EventParm);
         Parms.MountID=MountID;
         ProcessEvent(FindFunctionChecked(MMOGAME_CallSetMountedVehicle),&Parms);
+    }
+    void eventCallSetRideSkillData(INT SlotType,INT ItemIndex,const FString& IconName)
+    {
+        MMOUIVehicleBook_eventCallSetRideSkillData_Parms Parms(EC_EventParm);
+        Parms.SlotType=SlotType;
+        Parms.ItemIndex=ItemIndex;
+        Parms.IconName=IconName;
+        ProcessEvent(FindFunctionChecked(MMOGAME_CallSetRideSkillData),&Parms);
     }
     class AMMOPlayer* eventClonePlayer(class AMMOPlayer* Base)
     {

@@ -311,7 +311,7 @@ INT32 g_nS2CMessageSize[] = {
        -1,    // 291 G2C_SELL_RESOURCE_ITEM
         8,    // 292 G2C_CHAR_WING
        13,    // 293 G2C_WING_INFO
-        0,
+        10,    // 294 G2C_MOUNT_SOUL_INFO
         0,
         0,
         0,
@@ -1243,7 +1243,7 @@ INT32 g_nC2SMessageSize[] = {
         6,    // 196 C2G_DICE_BET
         2,    // 197 C2G_LOVERS_TELEPROT
        10,    // 198 C2G_WING_OP
-        0,
+        14,    // 199 C2G_MOUNT_SOUL_OP
         0,
         0,
         0,
@@ -2366,7 +2366,7 @@ const char* g_szS2CMessageName[] = {
     "g2c_sell_resource_item",
     "g2c_char_wing",
     "g2c_wing_info",
-    "undefined s2c message",
+    "g2c_mount_soul_info",
     "undefined s2c message",
     "undefined s2c message",
     "undefined s2c message",
@@ -3298,7 +3298,7 @@ const char* g_szC2SMessageName[] = {
     "c2g_dice_bet",
     "c2g_lovers_teleprot",
     "c2g_wing_op",
-    "undefined c2s message",
+    "c2g_mount_soul_op",
     "undefined c2s message",
     "undefined c2s message",
     "undefined c2s message",

@@ -298,6 +298,8 @@ namespace ExternalMessage
 		c2g_lovers_teleprot,    // Spouse teleport?
 
 		c2g_wing_op,            // wing panel request (1.05 UnrealWing)
+		
+		c2g_mount_soul_op,       // mount book beast soul slots (1.05 VehicleBook)
 
 		c2g_message_end = 512,
 	};
@@ -1402,6 +1404,14 @@ namespace ExternalMessage
 	{
 		INT32			nOp;		// 0: query (reply g2c_wing_info)  1: wear wing nParam  2: take the wing off  3: upgrade the wing level
 		INT32			nParam;
+	};
+
+	// mount book (1.05 VehicleBook): beast soul slots
+	struct C2G_MOUNT_SOUL_OP : MESSAGE_HEADER
+	{
+		INT32			nOp;		// 0: query (reply g2c_mount_soul_info)  1: put the soul of mount nParam2 into slot nParam1  2: empty slot nParam1
+		INT32			nParam1;
+		INT32			nParam2;
 	};
 };
 #pragma pack(pop)

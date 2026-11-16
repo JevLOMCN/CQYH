@@ -280,6 +280,7 @@ BOOL CRole::Init(UINT32 dwObjID, UINT32 dwSessionID)
 
     ClearSpellCache();
     m_ActivedMountList.clear();
+    m_nMountPowerRow = -1;
 
     m_SpellBook.SetRole(this);
 
@@ -3691,6 +3692,7 @@ INT32 CRole::ActivateMount(INT32 nMountID)
     PROCESS_ERROR_RET_CODE(itr == m_ActivedMountList.end(), errMountAlreadyExists);
 
     m_ActivedMountList.insert(nMountID);
+    ApplyMountPower();
 
 #ifndef _ROBOT
     CCliMessageHandler::GetInstance().DoActivateMount(this, nMountID);
@@ -3821,6 +3823,194 @@ void CRole::UnequipWing(void)
 Exit0:
     return;
 }
+// ---- mount book (1.05): beast power ------------------------------------------------------------------------------
+INT32 CRole::GetMountPowerPoints(void)
+{
+    INT32 nPoints = 0;
+
+    for (TActivatedMountList::iterator itr = m_ActivedMountList.begin(); itr != m_ActivedMountList.end(); ++itr)
+    {
+        const MOUNT_ENTRY* pInfo = CDataManager<MOUNT_ENTRY>::GetInstance().GetData(*itr);
+        if (pInfo)
+            nPoints += pInfo->m_nMountPower;
+    }
+    return nPoints;
+}
+
+// the row with the biggest ID that is not above the collected points
+const MOUNT_POWER_ENTRY* CRole::GetMountPowerRow(void)
+{
+    for (INT32 nRow = GetMountPowerPoints(); nRow >= 0; --nRow)
+    {
+        const MOUNT_POWER_ENTRY* pRow = CDataManager<MOUNT_POWER_ENTRY>::GetInstance().GetData(nRow);
+        if (pRow)
+            return pRow;
+    }
+    return NULL;
+}
+
+// the rows hold the total bonus at that point, so the bonus of the row that applied before is taken back first
+void CRole::ApplyMountPower(void)
+{
+    const MOUNT_POWER_ENTRY* pOld = (m_nMountPowerRow >= 0) ? CDataManager<MOUNT_POWER_ENTRY>::GetInstance().GetData(m_nMountPowerRow) : NULL;
+    const MOUNT_POWER_ENTRY* pNew = GetMountPowerRow();
+
+    if (pOld == pNew)
+        return;
+
+    if (pOld)
+    {
+        for (INT32 i = 0; i < MOUNT_POWER_ATTR_COUNT; ++i)
+        {
+            if (pOld->m_nAttributeID[i] > 0 && pOld->m_nAttributeValue[i] != 0)
+                m_AttrList.AddAttrB(this, pOld->m_nAttributeID[i], -pOld->m_nAttributeValue[i]);
+        }
+    }
+    if (pNew)
+    {
+        for (INT32 i = 0; i < MOUNT_POWER_ATTR_COUNT; ++i)
+        {
+            if (pNew->m_nAttributeID[i] > 0 && pNew->m_nAttributeValue[i] != 0)
+                m_AttrList.AddAttrB(this, pNew->m_nAttributeID[i], pNew->m_nAttributeValue[i]);
+        }
+    }
+    m_nMountPowerRow = pNew ? pNew->m_nID : -1;
+}
+// ----------------------------------------------------------------------------------------------------------------
+
+// ---- mount book (1.05): beast soul slots --------------------------------------------------------------------------
+// The equipped souls (mount ids, 6 bits per slot) are kept in two role variables. Putting the soul of an owned mount into an
+// unlocked slot learns its mount skill (SoulAuraID of mount.txt, a spell); taking it out forgets the spell again.
+INT32 CRole::GetMountSoulSlotCount(void)
+{
+    const MOUNT_POWER_ENTRY* pRow = GetMountPowerRow();
+
+    if (!pRow)
+        return 0;
+
+    return pRow->m_nMaxSoulSlotCount < MOUNT_SOUL_MAX_SLOTS ? pRow->m_nMaxSoulSlotCount : MOUNT_SOUL_MAX_SLOTS;
+}
+
+INT32 CRole::GetMountSoul(INT32 nSlot)
+{
+    if (nSlot < 0 || nSlot >= MOUNT_SOUL_MAX_SLOTS)
+        return 0;
+
+    INT32 nVar = (nSlot < 5) ? ROLE_VAR_MOUNT_SOUL_A : ROLE_VAR_MOUNT_SOUL_B;
+    INT32 nShift = (nSlot % 5) * 6;
+
+    return (GetVariable(nVar) >> nShift) & 63;
+}
+
+void CRole::SetMountSoul(INT32 nSlot, INT32 nMountID)
+{
+    if (nSlot < 0 || nSlot >= MOUNT_SOUL_MAX_SLOTS)
+        return;
+
+    INT32 nVar = (nSlot < 5) ? ROLE_VAR_MOUNT_SOUL_A : ROLE_VAR_MOUNT_SOUL_B;
+    INT32 nShift = (nSlot % 5) * 6;
+    INT32 nValue = GetVariable(nVar);
+
+    nValue = (nValue & ~(63 << nShift)) | ((nMountID & 63) << nShift);
+    SetVariable(nVar, nValue);
+}
+
+BOOL CRole::EquipMountSoul(INT32 nSlot, INT32 nMountID)
+{
+    INT32 nRetCode = 0;
+    const MOUNT_ENTRY* pInfo = CDataManager<MOUNT_ENTRY>::GetInstance().GetData(nMountID);
+
+    PROCESS_ERROR(pInfo);
+
+    if (nSlot < 0 || nSlot >= GetMountSoulSlotCount())
+    {
+        Say(GetObjID(), cltNormal, "This beast slot is not unlocked yet.");
+        goto Exit0;
+    }
+    if (m_ActivedMountList.find(nMountID) == m_ActivedMountList.end())
+    {
+        Say(GetObjID(), cltNormal, "You do not own this mount yet.");
+        goto Exit0;
+    }
+    if (pInfo->m_nSoulSpellID <= 0 || nMountID > 63)
+    {
+        Say(GetObjID(), cltNormal, "This mount has no mount skill.");
+        goto Exit0;
+    }
+
+    for (INT32 i = 0; i < MOUNT_SOUL_MAX_SLOTS; ++i)
+    {
+        if (GetMountSoul(i) == nMountID)
+        {
+            if (i != nSlot)
+                Say(GetObjID(), cltNormal, "The soul of this mount is already in another slot.");
+            goto Exit0;
+        }
+    }
+
+    // a different soul in the slot is taken out first
+    if (GetMountSoul(nSlot) != 0)
+        UnequipMountSoul(nSlot);
+
+    nRetCode = LearnSpell(pInfo->m_nSoulSpellID, 1, TRUE);
+    if (nRetCode != errSuccess)
+    {
+        Say(GetObjID(), cltNormal, "The mount skill cannot be learned.");
+        goto Exit0;
+    }
+
+    SetMountSoul(nSlot, nMountID);
+    return TRUE;
+Exit0:
+    return FALSE;
+}
+
+void CRole::UnequipMountSoul(INT32 nSlot)
+{
+    INT32 nMountID = GetMountSoul(nSlot);
+    const MOUNT_ENTRY* pInfo = NULL;
+
+    PROCESS_ERROR(nMountID > 0);
+
+    pInfo = CDataManager<MOUNT_ENTRY>::GetInstance().GetData(nMountID);
+
+    SetMountSoul(nSlot, 0);
+
+    if (pInfo && pInfo->m_nSoulSpellID > 0)
+        RemoveSpell(pInfo->m_nSoulSpellID);
+
+Exit0:
+    return;
+}
+
+// c2g_mount_soul_op: 0 query, 1 put the soul of mount nParam2 into slot nParam1, 2 empty slot nParam1
+void CRole::MountSoulOperate(INT32 nOp, INT32 nParam1, INT32 nParam2)
+{
+    switch (nOp)
+    {
+    case 0:
+        break;
+    case 1:
+        EquipMountSoul(nParam1, nParam2);
+        break;
+    case 2:
+        UnequipMountSoul(nParam1);
+        break;
+    default:
+        break;
+    }
+
+    SyncMountSoulInfo();
+}
+
+void CRole::SyncMountSoulInfo(void)
+{
+#ifndef _ROBOT
+    CCliMessageHandler::GetInstance().DoMountSoulInfo(this);
+#endif
+}
+// ----------------------------------------------------------------------------------------------------------------
+
 // ---- wing panel (1.05 UnrealWing) -------------------------------------------------------------------------------
 INT32 CRole::GetWingLevel(void)
 {

@@ -413,6 +413,8 @@ namespace ExternalMessage
         g2c_char_wing,                  // wing (back ornament) equipped / removed, broadcast like g2c_char_on_mount
 
         g2c_wing_info,                  // wing panel data (level / owned wings / worn wing), reply of c2g_wing_op
+        
+        g2c_mount_soul_info,           // equipped beast souls (mount ids per slot), reply of c2g_mount_soul_op
 
         g2c_message_end = 512,
     };
@@ -1509,6 +1511,12 @@ namespace ExternalMessage
         UINT32			dwOwnedMask;    // bit N: wing id (39501 + N) is owned
         UINT16			wCurrentWing;   // worn wing id, 0: none
         UINT8			byUpgraded;     // 1: the level has just been raised (play the level up effect)
+    };
+
+    // mount book (1.05 VehicleBook): beast soul slots
+    struct G2C_MOUNT_SOUL_INFO : MESSAGE_HEADER
+    {
+    	UINT8			abySlot[8];	// mount id equipped in each slot, 0: empty
     };
 
     struct G2C_SYNC_DOOR_STATE : MESSAGE_HEADER

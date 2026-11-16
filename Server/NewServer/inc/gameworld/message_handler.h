@@ -514,6 +514,7 @@ public:
 	BOOL DoCharOffMount(CCharacter* poChar);
 	BOOL DoCharWing(CCharacter* poChar, INT32 nWingID);
 	BOOL DoWingInfo(CRole* poRole, BOOL bUpgraded);
+	BOOL DoMountSoulInfo(CRole* poRole);
 
 	BOOL DoShieldAck(CRole *poRole, UINT32 dwTargetRoleID, char *pTargetRoleName);
 	BOOL DoUnShieldAck(CRole *poRole, UINT32 dwTargetRoleID);
@@ -825,6 +826,7 @@ private:
 	// mount
 	void OnOnMount(CRole* poRole, const char* pData);
 	void OnWingOp(CRole* poRole, const char* pData);
+	void OnMountSoulOp(CRole* poRole, const char* pData);
 	void OnOffMount(CRole* poRole, const char* pData);
 
 	// hero

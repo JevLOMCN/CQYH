@@ -1672,6 +1672,9 @@ BOOL _InitWorldData()
 	nRetCode = CDataManager<MOUNT_ENTRY>::GetInstance().Init(MOUNT_FILE_NAME, szFilePath, NULL);
 	LOG_PROCESS_ERROR(nRetCode);
 
+	nRetCode = CDataManager<MOUNT_POWER_ENTRY>::GetInstance().Init(MOUNT_POWER_FILE_NAME, szFilePath, NULL);
+	LOG_PROCESS_ERROR(nRetCode);
+
 	nRetCode = CDataManager<WINGS_ENTRY>::GetInstance().Init(WINGS_FILE_NAME, szFilePath, NULL);
 	LOG_PROCESS_ERROR(nRetCode);
 
@@ -1903,6 +1906,9 @@ BOOL _UnInitWorldData(void)
 	LOG_CHECK_ERROR(nRetCode);
 	
 	nRetCode = CDataManager<MOUNT_ENTRY>::GetInstance().UnInit();
+	LOG_CHECK_ERROR(nRetCode);
+
+	nRetCode = CDataManager<MOUNT_POWER_ENTRY>::GetInstance().UnInit();
 	LOG_CHECK_ERROR(nRetCode);
 
 	nRetCode = CDataManager<WINGS_ENTRY>::GetInstance().UnInit();

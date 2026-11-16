@@ -2318,6 +2318,37 @@ Exit0:
 	return FALSE;
 }
 
+void CCliMessageHandler::OnMountSoulOp(CRole* poRole, const char* pData)
+{
+	C2G_MOUNT_SOUL_OP* pMsg = (C2G_MOUNT_SOUL_OP*)pData;
+
+	poRole->MountSoulOperate(pMsg->nOp, pMsg->nParam1, pMsg->nParam2);
+}
+
+BOOL CCliMessageHandler::DoMountSoulInfo(CRole* poRole)
+{
+	INT32 nRetCode = 0;
+	G2C_MOUNT_SOUL_INFO* pMsg = NULL;
+
+	LOG_PROCESS_ERROR(poRole);
+
+	pMsg = (G2C_MOUNT_SOUL_INFO*)m_poPacketAllocator->Alloc(sizeof(G2C_MOUNT_SOUL_INFO));
+	LOG_PROCESS_ERROR(pMsg);
+
+	pMsg->wMsg = g2c_mount_soul_info;
+	for (INT32 i = 0; i < 8; ++i)
+		pMsg->abySlot[i] = (UINT8)poRole->GetMountSoul(i);
+
+	nRetCode = m_poNotifier->SendToUser(poRole->GetSessionID(), (PACKET_BUFFER*)pMsg, sizeof(G2C_MOUNT_SOUL_INFO));
+	LOG_PROCESS_ERROR(nRetCode);
+
+	return TRUE;
+Exit0:
+	if (pMsg)
+		m_poPacketAllocator->Free((PACKET_BUFFER*)pMsg);
+	return FALSE;
+}
+
 BOOL CCliMessageHandler::DoCharWing(CCharacter* poChar, INT32 nWingID)
 {
 	INT32 nRetCode = 0;

@@ -59,6 +59,9 @@ BOOL CRole::Load(const char* pcData, UINT32 dwSize)
 	// wing panel: the level bonuses are not part of the saved attributes
 	ApplyWingLevelAttr(0, GetWingLevel());
 
+	// mount book: the beast power bonuses are not part of the saved attributes either
+	ApplyMountPower();
+
 	if (m_nCurrentHp > m_AttrList.GetAttr(catMaxHp))
 		m_nCurrentHp = m_AttrList.GetAttr(catMaxHp);
 	if (m_nCurrentMp > m_AttrList.GetAttr(catMaxMp))

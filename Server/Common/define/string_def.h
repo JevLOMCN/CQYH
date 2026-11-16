@@ -115,6 +115,7 @@
 #define CHECKIN_FILE_NAME				"checkin"
 #define	HANDBOOK_FILE_NAME				"handbook"
 #define MOUNT_FILE_NAME					"mount"
+#define MOUNT_POWER_FILE_NAME			"mount_power"
 #define WINGS_FILE_NAME					"wings"
 #define WINGS_LEVEL_FILE_NAME			"wings_level"
 #define	SPIRIT_FILE_NAME				"spirit"
