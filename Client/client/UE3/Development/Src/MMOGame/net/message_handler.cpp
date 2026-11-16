@@ -312,14 +312,12 @@ void CMessageHandler::OnConnected(ISocketSession* pSocketSession)
 			msg.dwCRC = g_nMessageVersion;
 			memset(msg.szMac, 0, MAC_ADDRESS_LEN);
 			FString MacAddress = appGetMacAddress();
-			char* AnsiMac = new char[MacAddress.Len()];
-			memset(AnsiMac, 0, MacAddress.Len());
-			for (INT i = 0; i < MacAddress.Len(); ++i)
+			// Copy at most MAC_ADDRESS_LEN characters; the old code allocated only MacAddress.Len() bytes and then
+			// copied MAC_ADDRESS_LEN bytes out of it, reading past the end of the buffer.
+			for (INT i = 0; i < MacAddress.Len() && i < MAC_ADDRESS_LEN; ++i)
 			{
-				AnsiMac[i] = MacAddress[i];
+				msg.szMac[i] = (char)MacAddress[i];
 			}
-			memcpy(msg.szMac, AnsiMac, MAC_ADDRESS_LEN);
-			delete []AnsiMac;
 
 			//msg->wInfoLen = 0;
 			strxcpy(msg.szUserName, _UserName, USER_NAME_LEN);

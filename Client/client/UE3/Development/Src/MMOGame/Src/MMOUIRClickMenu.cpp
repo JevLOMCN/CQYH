@@ -586,7 +586,7 @@ void UMMOUIRClickMenu::_MenuFormat(INT nType)
 	//6 General settings
 	{
 		bAddLine = false;
-		if( nType == ERCMType_Friend || ERCMType_ChatPlayer )
+		if( nType == ERCMType_Friend || nType == ERCMType_ChatPlayer )
 		{
 			if( FriendManager::getSingleton().InMyBlackList(OwnerRoleId) )
 			{

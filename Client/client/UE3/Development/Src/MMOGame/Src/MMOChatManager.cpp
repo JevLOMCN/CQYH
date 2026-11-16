@@ -441,7 +441,7 @@ void MMOChatManager::AddChatMessage( INT typeId , const FString& messageContent 
 	if (player == NULL)
 		return;
 
-    if ( ( typeId != ECC_System || typeId != ECC_Hint ) && MMOUI::GetUIManager()->DeclineStrangeChat && senderID != -1 )
+    if ( ( typeId != ECC_System && typeId != ECC_Hint ) && MMOUI::GetUIManager()->DeclineStrangeChat && senderID != -1 )
     {
 		//if reject-strangers state is on, and the sender is neither self nor a friend, reject receiving
         if ( !FriendManager::getSingleton().IsMyFriend(senderID) && player && player->ServerID != senderID )

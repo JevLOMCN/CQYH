@@ -288,7 +288,8 @@ void ShopManager::LoadShopData()
 		pArchive->Serialize( shopData, sizeof(NPC_SHOP_DATA)*count );
 
 		AddShopItem( count , shopData );
-		SAFE_DELETE(shopData);
+		delete [] shopData;	// allocated with new[]
+		shopData = NULL;
 	}
 
 	_hasLoadShop = TRUE;

@@ -493,6 +493,8 @@ extern INT UpdateDisplayResolution(INT curResW, INT curResH)
 	g_vecDisplay.clear();
 
 	DEVMODE DisplayMode;
+	appMemzero( &DisplayMode, sizeof(DisplayMode) );
+	DisplayMode.dmSize = sizeof(DisplayMode);	// EnumDisplaySettings needs dmSize set
 	UINT ModeIndex = 0;
 	INT selIdx = 0;
 	while (EnumDisplaySettings(NULL, ModeIndex++, &DisplayMode))

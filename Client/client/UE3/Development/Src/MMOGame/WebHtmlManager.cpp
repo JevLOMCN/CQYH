@@ -149,13 +149,24 @@ BOOL WebHTMLContent::HtmlReadFile(const FString& fileName, FString& content) con
 	if ( hFile != INVALID_HANDLE_VALUE )
 	{
 		DWORD fileSize = GetFileSize(hFile,NULL);
-		char* buffer= new char[fileSize +1];;
-		if(buffer == NULL)
+		if( fileSize == INVALID_FILE_SIZE )
+		{
+			CloseHandle( hFile );
 			return FALSE;
+		}
+		char* buffer= new char[fileSize +1];
+		if(buffer == NULL)
+		{
+			CloseHandle( hFile );
+			return FALSE;
+		}
 
-		DWORD readSize;
-		ReadFile(hFile,buffer,fileSize,&readSize,NULL);
-		buffer[fileSize] = 0;
+		DWORD readSize = 0;
+		if( !ReadFile(hFile,buffer,fileSize,&readSize,NULL) )
+		{
+			readSize = 0;
+		}
+		buffer[readSize] = 0;
 
 		content = UTF8_TO_TCHAR(buffer);
 
