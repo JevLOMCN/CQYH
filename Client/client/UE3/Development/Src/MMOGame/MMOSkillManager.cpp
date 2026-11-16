@@ -1513,6 +1513,12 @@ UBOOL MMOSkillManager::InitAbility( UMMOAbility* ability )
 	if(ability->bHasSpellProgressData)
 	{
 		const SpellProgessData* progDat = SpellProgessDataManager::getSingleton().FindData(key);
+		// The 1.05 spell_progress.txt only has rows up to the ability's own maximum level (often just level 0), but abilities are
+		// requested at higher levels (e.g. level 1 from gamble.txt). Use the closest lower level row instead of failing.
+		for( INT lowerLv = ability->SpellCommonAttribute.Level - 1; !progDat && lowerLv >= 0; --lowerLv )
+		{
+			progDat = SpellProgessDataManager::getSingleton().FindData( CombinateAbilityID(ID, lowerLv, ability->GetRuneSlot()) );
+		}
 		if(progDat)
 		{
 			ability->LvUpRequirePoints = progDat->ConsumePts;
@@ -1525,14 +1531,20 @@ UBOOL MMOSkillManager::InitAbility( UMMOAbility* ability )
 		}
 		else
 		{
-			// TODO: put in config
+			// No upgrade row at any level (some abilities, such as the summons 3023 and 3026, have none in the 1.05 tables).
+			// Keep the ability usable with default upgrade values rather than refusing to load it.
 			warnf(NAME_Warning, TEXT("Ability upgrade data not found, %s ID:%d Lv:%d Rune:%d"), *ability->GetFullName(),
 				ID, ability->SpellCommonAttribute.Level, ability->GetRuneSlot());
-			return FALSE;
 		}
 	}
 
 	const SpellVarData* spellDat = SpellVarManager::getSingleton().FindData(key);
+	for( INT lowerLv = ability->SpellCommonAttribute.Level - 1; !spellDat && lowerLv >= 0; --lowerLv )
+	{
+		// Single-level abilities only have a level 0 row in spell_var.txt (the 1.05 tables have no higher rows for them), but they are
+		// requested at level 1 or more (e.g. by gamble.txt). Fall back to the closest lower level row instead of failing the ability.
+		spellDat = SpellVarManager::getSingleton().FindData( CombinateAbilityID(ID, lowerLv, ability->GetRuneSlot()) );
+	}
 	if(spellDat)
 	{
 		SetSpellVar(ability, *spellDat->Variable1, *spellDat->Value1);
