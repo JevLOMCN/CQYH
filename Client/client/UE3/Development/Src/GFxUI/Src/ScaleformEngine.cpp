@@ -637,6 +637,14 @@ class FGFxExternalInterface : public GFx::ExternalInterface
 
 						if(!pfunc)
 						{
+							// Older SWFs (e.g. UI_Mall) still call RegisterXxxPanel on the root player. Panels are now registered
+							// through WidgetInitialized, so these legacy callbacks have nothing left to do.
+							const FString methodStr = umethodName.ToString();
+							if( methodStr.StartsWith(TEXT("Register")) && methodStr.EndsWith(TEXT("Panel")) )
+							{
+								return;
+							}
+
 							warnf(NAME_Error, TEXT("------- Function called back from ActionScript not found: fun[%s] obj[%s]"),
 								*umethodName.ToString(), *pextern->GetFullName());
 							return;
