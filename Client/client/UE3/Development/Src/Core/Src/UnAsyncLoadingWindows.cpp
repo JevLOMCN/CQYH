@@ -181,6 +181,23 @@ FAsyncIOHandle FAsyncIOSystemMPQ::PlatformCreateHandle( const TCHAR* Filename )
 
 	// 1. same as GFileManager
 	FString AbsPath = (*(GFileManager->ConvertToAbsolutePath(Filename)));
+
+	// A loose file with a "<name>.pre-104" backup beside it was deliberately edited (e.g. translated):
+	// read it instead of the pak copy. Every other file keeps the pak-first behaviour.
+	{
+		const FString EditedMarker = AbsPath + TEXT(".pre-104");
+		if( GetFileAttributesW( *AbsPath ) != INVALID_FILE_ATTRIBUTES && GetFileAttributesW( *EditedMarker ) != INVALID_FILE_ATTRIBUTES )
+		{
+			FileHandle.IsMPQHandle = FALSE;
+			FileHandle.Handle = CreateFileW( *AbsPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+			if( FileHandle.Handle != INVALID_HANDLE_VALUE && FileHandle.Handle != NULL )
+			{
+				debugf( TEXT("[LooseFirst async] %s"), *AbsPath );
+				return FileHandle;
+			}
+			FileHandle.IsMPQHandle = TRUE;
+		}
+	}
 	FileHandle.Handle = GFileManager->GetFileHandleByName(*AbsPath, 0, NULL, hArchive);
 
 	if (FileHandle.Handle != INVALID_HANDLE_VALUE && FileHandle.Handle != NULL)

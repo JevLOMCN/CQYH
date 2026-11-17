@@ -1040,7 +1040,16 @@ FArchive* FFileManagerMPQ::InternalCreateFileReader( const TCHAR* FilenameSrc, D
 		FString LooseName( Filename );
 		LooseName = LooseName.ToUpper();
 		const UBOOL bConfigFile = LooseName.InStr( TEXT("\\CONFIG\\") ) != INDEX_NONE || LooseName.InStr( TEXT("/CONFIG/") ) != INDEX_NONE;
-		if( !bConfigFile || GetFileAttributesW( Filename ) == INVALID_FILE_ATTRIBUTES )
+		UBOOL bPreferLoose = bConfigFile;
+		if( !bPreferLoose && GetFileAttributesW( Filename ) != INVALID_FILE_ATTRIBUTES )
+		{
+			// A loose file with a "<name>.pre-104" backup beside it was deliberately edited (e.g. translated):
+			// prefer it over the pak copy. Every other file keeps the pak-first behaviour.
+			const FString EditedMarker = FString( Filename ) + TEXT(".pre-104");
+			bPreferLoose = GetFileAttributesW( *EditedMarker ) != INVALID_FILE_ATTRIBUTES;
+			if( bPreferLoose ) { debugf( TEXT("[LooseFirst] %s"), Filename ); }
+		}
+		if( !bPreferLoose || GetFileAttributesW( Filename ) == INVALID_FILE_ATTRIBUTES )
 		{
 			hFile = GetFileHandleByName(Filename, Flags, Error, hArchive);
 		}
@@ -1174,7 +1183,16 @@ INT FFileManagerMPQ::InternalFileSize( const TCHAR* FilenameSrc )
 #endif // oscar@snda
 
 	HANDLE hArchive = NULL;
-	HANDLE hFile = GetFileHandleByName(Filename, 0, NULL, hArchive);
+	HANDLE hFile = NULL;
+	{
+		// edited loose files (marked by a "<name>.pre-104" backup) are sized from the loose file, not the pak copy
+		const FString EditedMarker = FString( Filename ) + TEXT(".pre-104");
+		const UBOOL bEditedLoose = GetFileAttributesW( Filename ) != INVALID_FILE_ATTRIBUTES && GetFileAttributesW( *EditedMarker ) != INVALID_FILE_ATTRIBUTES;
+		if( !bEditedLoose )
+		{
+			hFile = GetFileHandleByName(Filename, 0, NULL, hArchive);
+		}
+	}
 
 	if (hFile != NULL)
 	{
