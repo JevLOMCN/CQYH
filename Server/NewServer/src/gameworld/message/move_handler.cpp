@@ -1535,6 +1535,7 @@ void CCliMessageHandler::OnTeleport(CRole* poRole, const char* pData)
 			pTeleport->SrcSceneX, pTeleport->SrcSceneY);
 		INT64 llTeleportRange = pTeleport->SrcRadius;
 		llTeleportRange *= llTeleportRange;
+		if (llDistance2D > llTeleportRange) WRN("[TeleportDbg] role %s teleport id %d scene %d: role pos (%d,%d,%d) cm, point (%d,%d,%d) cm radius %d cm, dist %d cm", poRole->GetName(), (int)pMsg->dwTeleportID, (int)pTeleport->SrcSceneID, (int)(poRole->GetX()/POINT_PER_CM), (int)(poRole->GetY()/POINT_PER_CM), (int)(poRole->GetZ()/POINT_PER_CM), (int)(pTeleport->SrcSceneX/POINT_PER_CM), (int)(pTeleport->SrcSceneY/POINT_PER_CM), (int)(pTeleport->SrcSceneZ/POINT_PER_CM), (int)(pTeleport->SrcRadius/POINT_PER_CM), (int)(sqrt((double)llDistance2D)/POINT_PER_CM));
 		LOG_PROCESS_ERROR_RET_CODE(llDistance2D <= llTeleportRange, errSceneTooFarFromTeleport);
 	}
 
