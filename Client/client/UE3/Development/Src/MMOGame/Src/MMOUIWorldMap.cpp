@@ -818,9 +818,8 @@ void UMMOUIWorldMap::UpdateMapStaticMarks( FVector centerPos3D, float fYawDeg )
 			UBOOL canShow = TRUE;
 			//
 			if( isFuncNpc || isTaskNpc){
-				canShow = FALSE;
-				canShow |= CanFuncNpcShow;
-				canShow |= CanTaskNpcShow;
+				// each mark follows its own toggle (a mark that is both shows if either toggle is on)
+				canShow = ( isFuncNpc && CanFuncNpcShow ) || ( isTaskNpc && CanTaskNpcShow );
 			}
 
 			pUiObj->SetVisible( canShow );
@@ -838,6 +837,7 @@ void UMMOUIWorldMap::UpdateMapStaticMarks( FVector centerPos3D, float fYawDeg )
 					if( itemSingleObj == NULL ){
 						// The world map SWF has no MapIconUpdateData class: init the mark directly instead of crashing
 						eventInitMapMark( pUiObj, pStaticMark->_ID, pStaticMark->_Type, pStaticMark->_UiIconIdx );
+						pUiObj->GotoAndStop( pStaticMark->_UiIconIdx );
 					}
 					else{
 						itemSingleObj->SetObject( TEXT("newMarkObj"), pUiObj );
@@ -2486,6 +2486,8 @@ UBOOL UMMOUIWorldMap::CreateMapMarkUIObject( FObjInMapUI *pMapMarkData )
 	//pMapMarkData->_UiObjInWorldMap->SetInt( TEXT("Type"), pMapMarkData->_Type );
 	//pMapMarkData->_UiObjInWorldMap->SetInt( TEXT("ID"), pMapMarkData->_ID );
 	eventInitMapMark( pMapMarkData->_UiObjInWorldMap, pMapMarkData->_ID, pMapMarkData->_Type, pMapMarkData->_UiIconIdx );
+	// the 1.05 mark clip is not moved to its icon frame by UCInitMapMark: do it here
+	pMapMarkData->_UiObjInWorldMap->GotoAndStop( pMapMarkData->_UiIconIdx );
 	eventAddMapMarkEventListerner( pMapMarkData->_UiObjInWorldMap );
 
 	return TRUE;

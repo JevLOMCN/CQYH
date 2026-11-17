@@ -2426,6 +2426,8 @@ void UGFxObject::SetVisible ( UBOOL visible )
 	{
 		ginfo.SetVisible ( visible ? 1 : 0 );
 		v->SetDisplayInfo ( ginfo );
+		// AS3 clips can ignore DisplayInfo: also set the DisplayObject.visible member
+		if ( v->IsObject() ) { v->SetMember ( "visible", GFx::Value ( visible ? true : false ) ); }
 	}
 }
 
