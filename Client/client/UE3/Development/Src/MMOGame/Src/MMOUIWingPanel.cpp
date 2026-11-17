@@ -285,6 +285,9 @@ static UBOOL g_UWFlagUpgrade = FALSE;
 static AMMOPlayer*				g_UnrealWingShowPlayer = NULL;
 static ULevelStreamingUIShow*	g_UnrealWingShowLevel = NULL;
 static UWorld*					g_UnrealWingShowWorld = NULL;
+static UBOOL g_UWPlaced = FALSE;	// the clone stands where the scene capture looks (retried from the tick, the show level streams in late)
+static INT g_UWPlaceTries = 0;
+static UBOOL g_UWBound = FALSE;	// alpha texture bound to the swf image "UnrealWingAvatar" (declared early: DrawPreview uses it)
 
 static void UW_LogShowPlayer(const TCHAR* Why)
 {
@@ -325,12 +328,12 @@ static void UW_CopyEquipment(AMMOPlayer* Show, AMMOPlayer* Main)
 
 // Place the clone where the scene capture that owns our render target looks: log every actor of the show-level band, find the
 // ASceneCapture2DActor whose TextureTarget is the bound render target and the PlayerStart of the same level instance.
-static void UW_FixPreviewPlacement(UBOOL bLogAll, UBOOL bSetYaw)
+static UBOOL UW_FixPreviewPlacement(UBOOL bLogAll, UBOOL bSetYaw)
 {
 	AMMOPlayer* D = g_UnrealWingShowPlayer;
 	if(D == NULL || g_UnrealWingShowLevel == NULL || g_UnrealWingShowWorld != GWorld || GWorld == NULL)
 	{
-		return;
+		return FALSE;
 	}
 	UObject* RT = (UObject*)g_UnrealWingShowLevel->RenderTarget;
 	ASceneCapture2DActor* Owner = NULL;
@@ -366,7 +369,7 @@ static void UW_FixPreviewPlacement(UBOOL bLogAll, UBOOL bSetYaw)
 	if(Owner == NULL)
 	{
 		warnf(NAME_Log, TEXT("[UnrealWing] no scene capture owns the render target"));
-		return;
+		return FALSE;
 	}
 	APlayerStart* Spot = NULL;
 	FLOAT Best = 1e9f;
@@ -386,10 +389,12 @@ static void UW_FixPreviewPlacement(UBOOL bLogAll, UBOOL bSetYaw)
 	if(Spot == NULL)
 	{
 		warnf(NAME_Log, TEXT("[UnrealWing] no PlayerStart near the owning capture"));
-		return;
+		return FALSE;
 	}
-	const FVector Want(Spot->Location.X, Spot->Location.Y, Owner->Location.Z);
-	if((D->Location - Want).Size() > 300.f)
+	FVector Want(Spot->Location.X, Spot->Location.Y, Owner->Location.Z);
+	// further away from the camera than the Mount Book: the wings are wider than the square capture at the mount distance
+	Want += Owner->Rotation.Vector() * 90.f;
+	if((D->Location - Want).Size() > 30.f)
 	{
 		D->SetLocation(Want);
 	}
@@ -402,6 +407,7 @@ static void UW_FixPreviewPlacement(UBOOL bLogAll, UBOOL bSetYaw)
 	warnf(NAME_Log, TEXT("[UnrealWing] preview placement: capture=(%.0f,%.0f,%.0f) rot(p%d y%d) spot=(%.0f,%.0f,%.0f) clone=(%.0f,%.0f,%.0f) yaw=%d cameraDist=%.0f"),
 		Owner->Location.X, Owner->Location.Y, Owner->Location.Z, Owner->Rotation.Pitch, Owner->Rotation.Yaw,
 		Spot->Location.X, Spot->Location.Y, Spot->Location.Z, D->Location.X, D->Location.Y, D->Location.Z, D->Rotation.Yaw, (D->Location - Owner->Location).Size());
+	return TRUE;
 }
 
 static void UW_DumpParts(AMMOActor* A, const TCHAR* Label)
@@ -429,6 +435,10 @@ static void UW_DumpParts(AMMOActor* A, const TCHAR* Label)
 void MMOUIWingPanel_DrawPreview(UCanvas* Canvas)
 {
 	if(Canvas == NULL || !g_UnrealWingOpen || g_UnrealWingShowLevel == NULL || g_UnrealWingShowLevel->RenderTarget == NULL || g_UnrealWingShowWorld != GWorld)
+	{
+		return;
+	}
+	if(g_UWBound)
 	{
 		return;
 	}
@@ -567,6 +577,7 @@ static void UW_DumpRenderTarget(const TCHAR* Why)
 	INT H = (INT)RTex->GetSurfaceHeight();
 	if(W <= 0 || H <= 0 || W * H != Pix.Num())
 	{
+		warnf(NAME_Log, TEXT("[UnrealWing] alpha tex: size mismatch %dx%d vs %d"), W, H, Pix.Num());
 		W = H = (INT)appSqrt((FLOAT)Pix.Num());
 	}
 	DOUBLE SumR = 0, SumG = 0, SumB = 0, SumA = 0;
@@ -647,9 +658,139 @@ static void UW_DumpRenderTarget(const TCHAR* Why)
 	warnf(NAME_Log, TEXT("[UnrealWing] RT dump saved=%d path=%s"), bSaved, *Path);
 }
 
+// ---- preview image: same approach as the Mount Book (MMOUIVehicleBook.cpp). The scene capture leaves alpha 0 on every pixel, so
+// the swf (which blends the image by alpha) would draw the render target invisible. The preview is copied to a plain UTexture2D whose
+// alpha is made from the colour (the capture background is black) and that texture is bound to the swf image "UnrealWingAvatar".
+static UTexture2D*	g_UWAlphaTex = NULL;
+static INT			g_UWBindDelay = 0;		// frames until the texture is bound (one frame after the show level is enabled)
+
+struct FUWTexUpdate
+{
+	FTexture2DResource*	Resource;
+	INT					W;
+	INT					H;
+	TArray<BYTE>		Data;
+};
+
+#define UW_TEX_SIZE		1024
+// Layout of the swf image "UnrealWingAvatar" (UI_UnrealWing.swf): a 512x512 sub image of a 1024 atlas, drawn at 1.4 px/texel in sprite mc_avater and cropped by a
+// mask to the centre hole of the window (texel columns 12..501, rows 268..469 of a 1024 texture). The preview (square) is drawn 190 texels (266 px) high,
+// centred in the hole; the top/bottom ~20 px are partly covered by the window frame art.
+#define UW_DEST_X		115
+#define UW_DEST_Y		269
+#define UW_DEST_W		283
+#define UW_DEST_H		200
+// part of the 512x512 capture that is shown (the character stands 90 uu further away than the Mount Book preview so the wings fit): same scale in x and y
+#define UW_SRC_X0		26
+#define UW_SRC_Y0		55
+#define UW_SRC_W		460
+#define UW_SRC_H		325
+
+static UBOOL UW_UpdateAlphaTex()
+{
+	if(g_UnrealWingShowLevel == NULL || g_UnrealWingShowLevel->RenderTarget == NULL)
+	{
+		return FALSE;
+	}
+	UTextureRenderTarget2D* RTex = g_UnrealWingShowLevel->RenderTarget;
+	FTextureRenderTargetResource* Res = RTex->GameThread_GetRenderTargetResource();
+	TArray<FColor> Pix;
+	if(Res == NULL || !Res->ReadPixels(Pix) || Pix.Num() <= 0)
+	{
+		static INT s_Fail = 0;
+		if(s_Fail++ % 50 == 0) { warnf(NAME_Log, TEXT("[UnrealWing] alpha tex: ReadPixels failed (res=%d)"), Res != NULL); }
+		return FALSE;
+	}
+	const INT W = (INT)RTex->GetSurfaceWidth();
+	const INT H = (INT)RTex->GetSurfaceHeight();
+	if(W <= 0 || H <= 0 || W * H != Pix.Num())
+	{
+		return FALSE;
+	}
+	if(g_UWAlphaTex == NULL)
+	{
+		g_UWAlphaTex = ConstructObject<UTexture2D>(UTexture2D::StaticClass(), UObject::GetTransientPackage());
+		if(g_UWAlphaTex == NULL)
+		{
+			return FALSE;
+		}
+		g_UWAlphaTex->AddToRoot();
+		g_UWAlphaTex->SRGB = FALSE;
+		g_UWAlphaTex->NeverStream = TRUE;
+		g_UWAlphaTex->CompressionNone = TRUE;
+		g_UWAlphaTex->Init(UW_TEX_SIZE, UW_TEX_SIZE, PF_A8R8G8B8);
+		g_UWAlphaTex->UpdateResource();
+		g_UWBound = FALSE;		// bind the new texture
+	}
+	if(g_UWAlphaTex->Resource == NULL)
+	{
+		return FALSE;
+	}
+	TArray<BYTE> Data;
+	Data.AddZeroed(UW_TEX_SIZE * UW_TEX_SIZE * 4);
+	for(INT y = 0; y < UW_TEX_SIZE; ++y)
+	{
+		for(INT x = 0; x < UW_TEX_SIZE; ++x)
+		{
+			BYTE* Dst = &Data((y * UW_TEX_SIZE + x) * 4);
+			// the preview square only (the rest stays transparent); alpha from the colour: the capture background is black
+			if(x < UW_DEST_X || x >= UW_DEST_X + UW_DEST_W || y < UW_DEST_Y || y >= UW_DEST_Y + UW_DEST_H)
+			{
+				continue;
+			}
+			const FLOAT sx = ((FLOAT)(x - UW_DEST_X) + 0.5f) * (FLOAT)UW_SRC_W / (FLOAT)UW_DEST_W * (FLOAT)W / 512.f + (FLOAT)UW_SRC_X0 * (FLOAT)W / 512.f - 0.5f;
+			const FLOAT sy = ((FLOAT)(y - UW_DEST_Y) + 0.5f) * (FLOAT)UW_SRC_H / (FLOAT)UW_DEST_H * (FLOAT)H / 512.f + (FLOAT)UW_SRC_Y0 * (FLOAT)H / 512.f - 0.5f;
+			const INT x0 = Clamp((INT)appFloor(sx), 0, W - 1);
+			const INT y0 = Clamp((INT)appFloor(sy), 0, H - 1);
+			const INT x1 = Min(x0 + 1, W - 1);
+			const INT y1 = Min(y0 + 1, H - 1);
+			const FLOAT fx = Clamp(sx - (FLOAT)x0, 0.f, 1.f);
+			const FLOAT fy = Clamp(sy - (FLOAT)y0, 0.f, 1.f);
+			const FColor& C00 = Pix(y0 * W + x0);
+			const FColor& C10 = Pix(y0 * W + x1);
+			const FColor& C01 = Pix(y1 * W + x0);
+			const FColor& C11 = Pix(y1 * W + x1);
+			const FLOAT w00 = (1.f - fx) * (1.f - fy), w10 = fx * (1.f - fy), w01 = (1.f - fx) * fy, w11 = fx * fy;
+			const FLOAT R = C00.R * w00 + C10.R * w10 + C01.R * w01 + C11.R * w11;
+			const FLOAT G = C00.G * w00 + C10.G * w10 + C01.G * w01 + C11.G * w11;
+			const FLOAT B = C00.B * w00 + C10.B * w10 + C01.B * w01 + C11.B * w11;
+			const FLOAT M = Max(Max(R, G), B);
+			Dst[0] = (BYTE)Clamp(appTrunc(B + 0.5f), 0, 255);
+			Dst[1] = (BYTE)Clamp(appTrunc(G + 0.5f), 0, 255);
+			Dst[2] = (BYTE)Clamp(appTrunc(R + 0.5f), 0, 255);
+			Dst[3] = (BYTE)Clamp(appTrunc(M * 6.f), 0, 255);
+		}
+	}
+	FUWTexUpdate* Upd = new FUWTexUpdate();
+	Upd->Resource = (FTexture2DResource*)g_UWAlphaTex->Resource;
+	Upd->W = UW_TEX_SIZE;
+	Upd->H = UW_TEX_SIZE;
+	Upd->Data = Data;
+	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
+		FUWUpdateTex,
+		FUWTexUpdate*, Upd, Upd,
+		{
+			UINT Pitch = 0;
+			void* Locked = RHILockTexture2D(Upd->Resource->GetTexture2DRHI(), 0, TRUE, Pitch, FALSE);
+			if(Locked != NULL)
+			{
+				const INT RowBytes = Upd->W * 4;
+				for(INT y = 0; y < Upd->H; ++y)
+				{
+					appMemcpy((BYTE*)Locked + y * (INT)Pitch, &Upd->Data(y * RowBytes), RowBytes);
+				}
+				RHIUnlockTexture2D(Upd->Resource->GetTexture2DRHI(), 0, FALSE);
+			}
+			delete Upd;
+		});
+	return TRUE;
+}
+
 // window closed
 static void UW_StopShow()
 {
+	g_UWBound = FALSE;
+	g_UWBindDelay = 0;
 	g_UnrealWingTurn = 0;
 	g_UnrealWingPreviewID = 0;
 	g_UnrealWingShadowPasses = 0;
@@ -698,9 +839,11 @@ static void UW_StartShow(UMMOUIWingPanel* Panel)
 	// SetExternalTexture('UnrealWingAvatar') is not used any more: the swf showed the render target as a dark rectangle at the stage
 	// origin. The texture is drawn by MMOUIWingPanel_DrawPreview instead.
 	const UBOOL bBound = FALSE;
+	g_UWBound = FALSE;
+	g_UWBindDelay = 3;
 	if(UGFxObject* Av = Panel->GetObject(TEXT("mc_avater")))
 	{
-		Av->SetVisible(FALSE);
+		Av->SetVisible(TRUE);
 	}
 
 	if(g_UnrealWingShowPlayer == NULL)
@@ -720,11 +863,7 @@ static void UW_StartShow(UMMOUIWingPanel* Panel)
 	Show->NativeSetMesh(Main->GetClassId(), Main->GetSex());
 	Show->UnEquipMount();
 	UW_CopyEquipment(Show, Main);
-	FLOAT Scale = 1.2f;
-	if(Main->ActorAttributes->GenderType == EGenderType::EGT_Female)
-	{
-		Scale = 1.4f;
-	}
+	FLOAT Scale = 0.8f;		// same as the Mount Book preview
 	Show->DrawScale = Scale;
 
 	FName tag(TEXT("C_01"), FNAME_Find);
@@ -749,7 +888,8 @@ static void UW_StartShow(UMMOUIWingPanel* Panel)
 	FRotator Flip = Show->Rotation;
 	Flip.Yaw += 32768;
 	Show->SetRotation(Flip);
-	UW_FixPreviewPlacement(FALSE, TRUE);
+	g_UWPlaced = FALSE;
+	g_UWPlaceTries = 0;
 	g_UnrealWingPreviewID = -1;
 }
 
@@ -863,9 +1003,86 @@ static void UW_NoShadow(AActor* A, INT& Changed, INT Depth = 0)
 	}
 }
 
+// drag with the left mouse button inside the preview area to turn the preview actor (the area is panel-local x 46..729, y 71..353)
+static void UW_HandleDrag()
+{
+	static UBOOL s_Dragging = FALSE;
+	static FLOAT s_LastX = 0.f;
+	ULocalPlayer* LP = (GEngine && GEngine->GamePlayers.Num() > 0) ? GEngine->GamePlayers(0) : NULL;
+	UMMOUIManager* UM = MMOUI::GetUIManager();
+	UMMOUIWingPanel* P = UM ? Cast<UMMOUIWingPanel>(UM->FindUIPanel(FName(TEXT("UnrealWing")))) : NULL;
+	if(LP == NULL || LP->ViewportClient == NULL || g_UnrealWingShowPlayer == NULL || P == NULL || !P->GetBool(TEXT("visible")))
+	{
+		s_Dragging = FALSE;
+		return;
+	}
+	const FVector2D Mouse = LP->ViewportClient->GetMousePosition();
+	const UBOOL bDown = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
+	const FLOAT HoleX = P->GetFloat(TEXT("x")) + 46.f, HoleY = P->GetFloat(TEXT("y")) + 71.f;
+	if(!bDown)
+	{
+		s_Dragging = FALSE;
+	}
+	else if(!s_Dragging)
+	{
+		s_Dragging = Mouse.X >= HoleX && Mouse.X <= HoleX + 683.f && Mouse.Y >= HoleY && Mouse.Y <= HoleY + 282.f;
+	}
+	else
+	{
+		FRotator R = g_UnrealWingShowPlayer->Rotation;
+		R.Yaw -= appTrunc((Mouse.X - s_LastX) * 60.f);
+		g_UnrealWingShowPlayer->SetRotation(R);
+	}
+	s_LastX = Mouse.X;
+}
+
 // called every frame from UMMOGFXPlayer_RootBase::PostAdvance
 void MMOUIWingPanel_Tick()
 {
+	if(g_UnrealWingOpen && g_UnrealWingShowWorld == GWorld)
+	{
+		UW_HandleDrag();
+	}
+	{
+		static INT s_Frame = 0;
+		++s_Frame;
+		if(g_UnrealWingOpen && g_UnrealWingShowLevel && g_UnrealWingShowLevel->RenderTarget && g_UnrealWingShowWorld == GWorld && g_UWBindDelay <= 0)
+		{
+			// keep the image fresh and (re)bound: the swf can rebuild its image when the panel refreshes
+			if(g_UWAlphaTex == NULL || s_Frame % 3 == 0)
+			{
+				UW_UpdateAlphaTex();
+			}
+			if(!g_UWBound && g_UWAlphaTex != NULL)
+			{
+				UMMOUIManager* UMB = MMOUI::GetUIManager();
+				UMMOUIWingPanel* BindPanel = UMB ? Cast<UMMOUIWingPanel>(UMB->FindUIPanel(FName(TEXT("UnrealWing")))) : NULL;
+				if(BindPanel && BindPanel->GFXPlayer)
+				{
+					g_UWBound = BindPanel->GFXPlayer->SetExternalTexture(TEXT("UnrealWingAvatar"), g_UWAlphaTex);
+					warnf(NAME_Log, TEXT("[UnrealWing] preview: SetExternalTexture('UnrealWingAvatar', alpha copy)=%d"), g_UWBound);
+				}
+			}
+		}
+		else if(g_UnrealWingOpen && g_UWBindDelay > 0)
+		{
+			--g_UWBindDelay;
+		}
+	}
+	if(g_UnrealWingOpen && g_UnrealWingShowPlayer != NULL && g_UnrealWingShowWorld == GWorld && !g_UWPlaced && g_UWPlaceTries < 900)
+	{
+		if(++g_UWPlaceTries % 10 == 1)
+		{
+			if(UW_FixPreviewPlacement(g_UWPlaceTries % 100 == 1, TRUE))
+			{
+				g_UWPlaced = TRUE;
+				FRotator Rot = g_UnrealWingShowPlayer->Rotation;
+				Rot.Yaw -= 10000;		// three quarter view of the back (wings)
+				g_UnrealWingShowPlayer->SetRotation(Rot);
+				warnf(NAME_Log, TEXT("[UnrealWing] preview placed after %d frames"), g_UWPlaceTries);
+			}
+		}
+	}
 	if(g_UnrealWingOpen && g_UnrealWingShowPlayer != NULL && g_UnrealWingShowWorld == GWorld)
 	{
 		static INT s_ShadowCounter = 0;
@@ -1513,7 +1730,7 @@ void UMMOUIWingPanel::UpdateWing()
 		if(Av)
 		{
 			// the preview is drawn by MMOUIWingPanel_DrawPreview; the swf placeholder only shows as a dark rectangle at the stage origin
-			Av->SetVisible(FALSE);
+			Av->SetVisible(TRUE);
 		}
 		// The CLIK children (ItemSlot) run configUI lazily on a RENDER event that does not reach them here; until it runs their
 		// design-time overlays (trade lock) stay visible. Force it for the wing slots and ask the stage for a RENDER pass.

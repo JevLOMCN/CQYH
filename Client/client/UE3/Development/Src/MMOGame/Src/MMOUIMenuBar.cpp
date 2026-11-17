@@ -116,6 +116,12 @@ void UMMOUIMenuBar::ClickMenuChild( INT menuId,INT menuType,INT childMenuId,INT 
 				/*
 				Calling out non-UI windows such as web pages
 				*/
+				// 1.05 Phantom Wings entry: no PanelName in the menu data, the panel id is in TabName
+				if( childMenuInfo->TabName == TEXT("UnrealWing") )
+				{
+					MMOUI::GetUIManager()->ToggleShowPanelEx( FName(TEXT("UnrealWing")), TEXT("") );
+					return;
+				}
 				// Unlock level already restricted
 				switch( childMenuType )
 				{
