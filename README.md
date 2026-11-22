@@ -574,7 +574,7 @@ The original release notes and design documents are in [`Documentation`](Documen
     </td>
     <td>
       <b>Mir 5</b> •
-      <a href="https://github.com/JevLOMCN/mir5-private">Project</a> •
+      <a href="https://github.com/JevLOMCN/DarkSteel">Project</a> •
       <a href="https://mirfiles.co.uk/resources/mir2/users/Jev/Mir%205/Leaks/">Leaked Files</a> •
       <a href="https://mirfiles.co.uk/resources/mir2/users/Jev/Mir%205/Leaks/Mir5%20Alpha%202.mkv">Gameplay Video (24m)</a><br>
       Remake of Wemade Entertainment's unreleased <i>Mir 5</i>
