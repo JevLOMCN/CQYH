@@ -546,9 +546,7 @@ The original release notes and design documents are in [`Documentation`](Documen
     </td>
     <td>
       <b>Mir 3D</b> •
-      <a href="https://github.com/mir-ethernity/mir-eternal">Moon Spirit</a> •
-      <a href="https://github.com/JevLOMCN/Eternal-Legend">Holy Cow</a> •
-      <a href="https://github.com/JevLOMCN/CQYH">Official</a><br>
+      <a href="https://github.com/JevLOMCN/CQYH">Project</a><br> •
       Remake of Shanda Games' 2016 <i>Legend Eternal</i>
     </td>
   </tr>
