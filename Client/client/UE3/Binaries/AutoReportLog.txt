@@ -1,6 +1,0 @@
-Log opened: AutoReportLog.txt
-
-Current Time = 2019/4/1 14:39:39
-
-Arguments:
-Expected 4 arguments: AutoReport Dump file name, Log file name, Ini dump file name and Mini dump file name

@@ -364,6 +364,12 @@ _UpgradeReport_Files/
 # Local UE3 diagnostic output and temporary preview executable configs
 /client/UE3/Binaries/Win32/UsedTabHeader.txt
 /client/UE3/Binaries/Win64/UsedTabHeader.txt
+/client/UE3/Binaries/AutoReportLog.txt
+/client/UE3/Binaries/StatsViewerUserSettings.xml
+/client/UE3/Binaries/UnrealFrontend.UISettings.xml
+/client/UE3/BinariesRelease/StatsViewerUserSettings.xml
+/client/UE3/BinariesRelease/SwarmAgent.Options.xml
+/client/UE3/BinariesRelease/UnrealFrontend.UISettings.xml
 /client/UE3/Binaries/Win64/MMOGame-DayStatePreview.exe.config
 /client/UE3/Binaries/Win64/MMOGame-HDRFast.exe.config
 /client/UE3/Binaries/Win64/MMOGame-HDRTrace.exe.config
