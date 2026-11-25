@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <noInheritable></noInheritable>
+    <assemblyIdentity type="win32" name="Microsoft.VC90.MFCLOC" version="9.0.30729.1" processorArchitecture="x86"></assemblyIdentity>
+<file name="MFC90CHS.dll"></file>
+<file name="MFC90CHT.dll"></file>
+<file name="MFC90DEU.dll"></file>
+<file name="MFC90ENU.dll"></file>
+<file name="MFC90ESN.dll"></file>
+<file name="MFC90ESP.dll"></file>
+<file name="MFC90FRA.dll"></file>
+<file name="MFC90ITA.dll"></file>
+<file name="MFC90JPN.dll"></file>
+<file name="MFC90KOR.dll"></file>
+</assembly>
