@@ -504,7 +504,10 @@ namespace UnrealBuildTool
 					// Pipe all environment variables to a file where we can read them in
 					EnvReaderBatchFileContent.Add( String.Format( "set >\"{0}\"", EnvOutputFileName ) );
 
-					ResponseFile.Create( EnvReaderBatchFileName, EnvReaderBatchFileContent );
+					// cmd.exe interprets a UTF-8 BOM as part of the first command on non-UTF-8
+					// code pages. Compiler response files need that BOM, but batch files must not
+					// use ResponseFile.Create or the call to vcvarsall.bat can silently fail.
+					File.WriteAllLines( EnvReaderBatchFileName, EnvReaderBatchFileContent.ToArray(), new System.Text.UTF8Encoding( false ) );
 				}
 
 				if( BuildConfiguration.bPrintDebugInfo )
