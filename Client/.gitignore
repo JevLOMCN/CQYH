@@ -430,3 +430,6 @@ __pycache__/
 /client/UE3/BinariesRelease/SwarmAgent.application
 /client/UE3/BinariesRelease/SwarmCoordinator.exe.manifest
 /client/UE3/BinariesRelease/SwarmCoordinator.application
+
+# AjaxControlToolkit test failure reports
+/client/UE3/Development/External/AjaxControlToolkit/Client/UnitTests/logs/*.err
