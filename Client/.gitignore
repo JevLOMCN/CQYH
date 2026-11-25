@@ -354,6 +354,26 @@ _UpgradeReport_Files/
 /client/UE3/Development/Tools/**/obj/
 /client/UE3/Development/External/AjaxControlToolkit/**/obj/
 
+# Generated UE3 linker response files and Windows export objects
+/client/UE3/Binaries/Win64/*.exe.response
+/client/UE3/BinariesRelease/Win32/*.exe.response
+/client/UE3/BinariesRelease/Win64/*.exe.response
+/client/UE3/BinariesRelease/Win32/*.exp
+/client/UE3/BinariesRelease/Win64/*.exp
+
+# Local UE3 diagnostic output and temporary preview executable configs
+/client/UE3/Binaries/Win32/UsedTabHeader.txt
+/client/UE3/Binaries/Win64/UsedTabHeader.txt
+/client/UE3/Binaries/Win64/MMOGame-DayStatePreview.exe.config
+/client/UE3/Binaries/Win64/MMOGame-HDRFast.exe.config
+/client/UE3/Binaries/Win64/MMOGame-HDRTrace.exe.config
+/client/UE3/Binaries/Win64/MMOGame-LightAudit.exe.config
+/client/UE3/Binaries/Win64/MMOGame-ShadowRepair.exe.config
+
+# Standalone Recast demos. UE3 uses the sibling navigation libraries.
+/client/UE3/Development/External/Recast/RecastDemo/
+/client/UE3/Development/External/Recast7.1/RecastDemo/
+
 # Visual Studio
 *.vshost.exe.manifest
 *.aps
@@ -371,9 +391,6 @@ __pycache__/
 
 # JetBrains IDE settings
 .idea/
-
-# Windows
-Thumbs.db
 
 # Generated runtime diagnostics and engine-native captures
 /client/UE3/Binaries/SwarmAgent.Options.xml
