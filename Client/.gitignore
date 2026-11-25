@@ -433,3 +433,6 @@ __pycache__/
 
 # AjaxControlToolkit test failure reports
 /client/UE3/Development/External/AjaxControlToolkit/Client/UnitTests/logs/*.err
+
+# Generated FaceFX Studio log
+/client/UE3/Engine/EditorResources/FaceFX/Logs/FaceFxStudioLog.html
