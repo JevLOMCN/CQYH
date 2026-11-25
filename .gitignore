@@ -5,9 +5,14 @@ Client/client/UE3/MMOGame/Logs/
 Client/client/UE3/Intermediate/MMOGameScript/
 
 # Per-user Visual Studio files
+.vs/
 *.vcxproj.user
 *.suo
 *.user
+Thumbs.db
+
+# Visual Studio build reports
+BuildLog.htm
 
 # wxWidgets build output: objects/tlogs/pdbs in build\msw, and everything generated under lib\
 # (import libs, .exp/.pdb/.idb, generated setup.h/rcdefs.h). The few tracked placeholders in lib\ stay tracked.
