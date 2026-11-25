@@ -330,8 +330,6 @@ class DeviceInfoHelper
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    AdapterRAM:%u")), vtProp.uintVal);
 				Info.stvideoinfo.AdapterRAM = vtProp.uintVal;
-				extern UINT g_videoRam;
-				g_videoRam = vtProp.uintVal;
 			}
 			VariantClear(&vtProp);
 

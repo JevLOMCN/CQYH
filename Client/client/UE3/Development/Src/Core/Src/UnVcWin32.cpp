@@ -40,6 +40,8 @@
 #include <tlhelp32.h>		   // 	 fangruyi
 
 #include <wincrypt.h>
+#include <d3d9.h>
+#include <dxgi.h>
 #pragma pack(pop)
 
 // Resource includes.
@@ -1919,7 +1921,119 @@ void DumpAllProcess()
 
 extern FString _detectCpuIdentifier(void); 	// oscar@snda
 extern void DumpHardwareInfo();
-UINT g_videoRam = 1024*1024*1024*1;
+
+namespace
+{
+	// The APIs are optional. Keep the DLL loaded until its COM objects are released.
+	struct FVideoQueryDll
+	{
+		HMODULE Handle;
+		explicit FVideoQueryDll(const TCHAR* Name) : Handle(LoadLibraryW(Name)) {}
+		~FVideoQueryDll() { if (Handle) FreeLibrary(Handle); }
+	};
+
+	static UBOOL GetD3D9AdapterLuid(LUID& AdapterLuid)
+	{
+		FVideoQueryDll Module(TEXT("d3d9.dll"));
+		typedef HRESULT (WINAPI *FCreateD3D9Ex)(UINT, IDirect3D9Ex**);
+		FCreateD3D9Ex CreateD3D9Ex = Module.Handle
+			? reinterpret_cast<FCreateD3D9Ex>(GetProcAddress(Module.Handle, "Direct3DCreate9Ex")) : NULL;
+		TRefCountPtr<IDirect3D9Ex> D3D9;
+		if (!CreateD3D9Ex || FAILED(CreateD3D9Ex(D3D_SDK_VERSION, D3D9.GetInitReference())))
+		{
+			return FALSE;
+		}
+
+		UINT Index = D3DADAPTER_DEFAULT;
+#if !SHIPPING_PC_GAME
+		// Profiling builds can select PerfHUD instead of the default adapter.
+		for (UINT Candidate = 0; Candidate < D3D9->GetAdapterCount(); ++Candidate)
+		{
+			D3DADAPTER_IDENTIFIER9 Info;
+			if (SUCCEEDED(D3D9->GetAdapterIdentifier(Candidate, 0, &Info)) && strstr(Info.Description, "PerfHUD"))
+			{
+				Index = Candidate;
+				break;
+			}
+		}
+#endif
+		return SUCCEEDED(D3D9->GetAdapterLUID(Index, &AdapterLuid));
+	}
+
+	static UBOOL GetRenderingAdapterDescription(UBOOL bUseD3D11, DXGI_ADAPTER_DESC& Description)
+	{
+		LUID AdapterLuid = {};
+		if (!bUseD3D11 && !GetD3D9AdapterLuid(AdapterLuid))
+		{
+			return FALSE;
+		}
+
+		FVideoQueryDll Module(TEXT("dxgi.dll"));
+		typedef HRESULT (WINAPI *FCreateFactory)(REFIID, void**);
+		FCreateFactory CreateFactory = Module.Handle
+			? reinterpret_cast<FCreateFactory>(GetProcAddress(Module.Handle, "CreateDXGIFactory")) : NULL;
+		TRefCountPtr<IDXGIFactory> Factory;
+		if (!CreateFactory || FAILED(CreateFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(Factory.GetInitReference()))))
+		{
+			return FALSE;
+		}
+
+		UBOOL bFound = FALSE;
+		TRefCountPtr<IDXGIAdapter> Adapter;
+		for (UINT Index = 0; ; ++Index)
+		{
+			const HRESULT Result = Factory->EnumAdapters(Index, Adapter.GetInitReference());
+			if (FAILED(Result))
+			{
+				return Result == DXGI_ERROR_NOT_FOUND && bFound;
+			}
+			DXGI_ADAPTER_DESC Info;
+			if (FAILED(Adapter->GetDesc(&Info)))
+			{
+				continue;
+			}
+			if (!bUseD3D11 && Info.AdapterLuid.HighPart == AdapterLuid.HighPart && Info.AdapterLuid.LowPart == AdapterLuid.LowPart)
+			{
+				Description = Info;
+				return TRUE;
+			}
+			if (bUseD3D11 && (Index == 0 || (!UDK && !appStricmp(Info.Description, TEXT("NVIDIA PerfHUD")))))
+			{
+				Description = Info;
+				bFound = TRUE;
+			}
+		}
+	}
+}
+
+/** Resolve the startup warning against the rendering adapter, not the first WMI GPU. */
+static UBOOL appNeedsVideoMemoryWarning()
+{
+	const TCHAR* CommandLine = appCmdLine();
+	if (ParseParam(CommandLine, TEXT("nullrhi")) || ParseParam(CommandLine, TEXT("opengl")) ||
+		ParseParam(CommandLine, TEXT("PIXO")) || ParseParam(CommandLine, TEXT("es2")) ||
+		ParseParam(CommandLine, TEXT("simmobile")) || GIsUCC)
+	{
+		return FALSE;
+	}
+
+	const UBOOL bForceD3D9 = ParseParam(CommandLine, TEXT("d3d9")) || ParseParam(CommandLine, TEXT("sm3")) || ParseParam(CommandLine, TEXT("dx9"));
+	const UBOOL bForceD3D11 = ParseParam(CommandLine, TEXT("d3d11")) || ParseParam(CommandLine, TEXT("sm5")) || ParseParam(CommandLine, TEXT("dx11"));
+	INT ConfiguredRenderMode = RENDER_MODE_DX9;
+	GConfig->GetInt(TEXT("Startup"), TEXT("RenderMode"), ConfiguredRenderMode, GEditorUserSettingsIni);
+	const UBOOL bUseD3D11 = bForceD3D11 || (!bForceD3D9 && ConfiguredRenderMode == RENDER_MODE_DX11);
+
+	DXGI_ADAPTER_DESC Adapter;
+	if (!GetRenderingAdapterDescription(bUseD3D11, Adapter))
+	{
+		warnf(NAME_Init, TEXT("Rendering adapter video memory could not be identified; skipping the low-VRAM warning."));
+		return FALSE;
+	}
+	const QWORD DedicatedBytes = Adapter.DedicatedVideoMemory;
+	warnf(NAME_Init, TEXT("Rendering adapter memory check: %s, dedicated video memory=%I64u MB (%s)."),
+		Adapter.Description, DedicatedBytes / (1024ULL * 1024ULL), bUseD3D11 ? TEXT("D3D11") : TEXT("D3D9"));
+	return DedicatedBytes > 0 && DedicatedBytes < 1024ULL * 1024ULL * 1024ULL;
+}
 
 void appPlatformInit()
 {
@@ -1960,7 +2074,7 @@ void appPlatformInit()
 	DumpAllProcess();
 	DumpHardwareInfo();
 
-	if(M_MMO_HD && (g_videoRam < 1024*1024*1024))
+	if(M_MMO_HD && appNeedsVideoMemoryWarning() && !GIsUnattended)
 	{
 		if(IDYES == ::MessageBox(NULL, 
 			TEXT("Less than 1 GB of video memory detected. The game will be very unstable (often a white screen).\n\nStart the game in low quality mode for more stable play?"),
