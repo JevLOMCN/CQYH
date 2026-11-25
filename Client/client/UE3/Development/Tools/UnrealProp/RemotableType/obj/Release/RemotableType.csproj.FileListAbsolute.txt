@@ -1,5 +1,0 @@
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\RemotableType\bin\Release\RemotableType.dll
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\RemotableType\bin\Release\RemotableType.pdb
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\RemotableType\obj\Release\ResolveAssemblyReference.cache
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\RemotableType\obj\Release\RemotableType.dll
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\RemotableType\obj\Release\RemotableType.pdb

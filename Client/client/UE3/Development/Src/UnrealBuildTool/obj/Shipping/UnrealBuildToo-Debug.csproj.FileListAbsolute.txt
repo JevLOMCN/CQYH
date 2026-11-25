@@ -1,2 +1,0 @@
-E:\传奇永恒\cqyh0717\Src\UnrealBuildTool\obj\Shipping\UnrealBuildToo-Debug.csprojAssemblyReference.cache
-E:\传奇永恒\cqyh0717\Src\UnrealBuildTool\obj\Shipping\UnrealBuildToo-Debug.csproj.CoreCompileInputs.cache

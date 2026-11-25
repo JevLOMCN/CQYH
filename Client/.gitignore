@@ -349,6 +349,11 @@ UpgradeLog*.htm
 UpgradeLog*.XML
 _UpgradeReport_Files/
 
+# MSBuild intermediates. Scope obj/ to projects that use MSBuild output.
+/client/UE3/Development/Src/**/obj/
+/client/UE3/Development/Tools/**/obj/
+/client/UE3/Development/External/AjaxControlToolkit/**/obj/
+
 # Visual Studio
 *.vshost.exe.manifest
 *.aps
@@ -387,3 +392,17 @@ Thumbs.db
 /client/UE3/Development/External/IntelTBB-3.0/build/vsproject/version_string.tmp
 /client/UE3/Development/External/nvtesslib/src/nvtess.sdf
 /client/UE3/Development/External/wxWidgets/src/jpeg/jpeg.opt
+
+# ClickOnce publish outputs supplied by Client Assets. Keep each manifest with its .application file.
+/client/UE3/Binaries/RPCUtility.exe.manifest
+/client/UE3/Binaries/RPCUtility.application
+/client/UE3/Binaries/SwarmAgent.exe.manifest
+/client/UE3/Binaries/SwarmAgent.application
+/client/UE3/Binaries/SwarmCoordinator.exe.manifest
+/client/UE3/Binaries/SwarmCoordinator.application
+/client/UE3/BinariesRelease/RPCUtility.exe.manifest
+/client/UE3/BinariesRelease/RPCUtility.application
+/client/UE3/BinariesRelease/SwarmAgent.exe.manifest
+/client/UE3/BinariesRelease/SwarmAgent.application
+/client/UE3/BinariesRelease/SwarmCoordinator.exe.manifest
+/client/UE3/BinariesRelease/SwarmCoordinator.application

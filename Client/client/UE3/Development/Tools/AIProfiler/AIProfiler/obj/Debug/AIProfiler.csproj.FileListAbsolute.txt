@@ -1,8 +1,0 @@
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Binaries\AIProfiler.exe
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Binaries\AIProfiler.pdb
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\AIProfiler\AIProfiler\obj\Debug\ResolveAssemblyReference.cache
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\AIProfiler\AIProfiler\obj\Debug\AIProfiler.MainWindow.resources
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\AIProfiler\AIProfiler\obj\Debug\AIProfiler.Properties.Resources.resources
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\AIProfiler\AIProfiler\obj\Debug\AIProfiler.csproj.GenerateResource.Cache
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\AIProfiler\AIProfiler\obj\Debug\AIProfiler.exe
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\AIProfiler\AIProfiler\obj\Debug\AIProfiler.pdb

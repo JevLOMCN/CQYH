@@ -1,5 +1,0 @@
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\bin\Release\UPDS_Service.exe.config
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\obj\Release\UPDS_Service.csproj.ResolveComReference.cache
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\obj\Release\ResolveAssemblyReference.cache
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\obj\Release\UnrealProp.UPDS_Service.resources
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\obj\Release\UPDS_Service.csproj.GenerateResource.Cache

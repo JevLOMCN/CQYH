@@ -1,2 +1,0 @@
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\bin\Debug\UPDS_Service.exe.config
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPDS_Service\obj\Debug\UPDS_Service.csproj.ResolveComReference.cache

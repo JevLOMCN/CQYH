@@ -173,3 +173,7 @@
 /NewServer/bin/_GUARD/Debug/
 /NewServer/bin/_GUARD/guardserver64_d.exe
 /NewServer/bin/certserver/
+
+# CMake outputs for the server message generator
+/NewServer/bin/gen_msg/*.exe
+/NewServer/bin/gen_msg/*.pdb

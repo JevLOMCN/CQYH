@@ -1,9 +1,0 @@
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\bin\Release\app.config
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\bin\Release\UPMS_Service.exe.config
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\bin\Release\UPMS_Service.exe
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\bin\Release\UPMS_Service.pdb
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\bin\Release\RemotableType.dll
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\bin\Release\RemotableType.pdb
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\obj\Release\ResolveAssemblyReference.cache
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\obj\Release\UPMS_Service.exe
-F:\p4_workspace\chenwang.oscarken_sh-chenwang01-d_1\Dev\08.Prog\Client\UE3\Development\Tools\UnrealProp\UPMS_Service\obj\Release\UPMS_Service.pdb
