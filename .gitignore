@@ -36,6 +36,8 @@ Client/client/UE3/Development/Src/Intermediate/
 Client/client/UE3/Development/Src/UnrealBuildTool/obj/Debug/
 # written by the script compiler (make); regenerated, and only when the compile has zero warnings
 Client/client/UE3/MMOGame/Script/Manifest.txt
+# Generated DirectX 9 cache for the uncooked client
+/Client/client/UE3/MMOGame/Script/GlobalShaderCache-PC-D3D-SM3.bin
 /Server/NewServer/tools/account_logout/account_logout/.vs
 /Client/client/UE3/Development/Src/Launch/.vs
 
