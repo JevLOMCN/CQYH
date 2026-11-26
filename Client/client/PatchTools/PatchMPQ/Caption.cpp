@@ -23,6 +23,7 @@ Caption::Caption()
 : _iIconSize(0)
 , _pBgImg(0)
 {
+	_rcOnBgImg.SetRectEmpty();
 	SAFE;
 
 	m_hIcon				= NULL;

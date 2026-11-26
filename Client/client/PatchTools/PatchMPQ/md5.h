@@ -64,6 +64,7 @@ public:
 	MD5              (FILE *file);            // digest file, close, finalize
 	MD5              (std::ifstream& stream);      // digest stream, close, finalize
 	
+	// Result arrays belong to the caller (delete[]). Before finalization they are zero-filled.
 	// methods to acquire finalized result
 	unsigned char    *raw_digest ();  // digest as a 16-byte binary array
 	char *            hex_digest ();  // digest as a 33-byte ascii-hex string

@@ -29,6 +29,7 @@ struct PakFileIndex
 	unsigned int iFileIndex;
 
 	PakFileIndex()
+		: iPakIndex(-1), iFileIndex(0)
 	{
 	}
 

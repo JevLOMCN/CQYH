@@ -75,7 +75,8 @@ public:
 	{
 		char szTemp[1024];
 
-		WideCharToMultiByte(CP_ACP,0,p,(DWORD)(wcslen(p))+1,szTemp,sizeof(szTemp),NULL,NULL);
+		if (!p || !WideCharToMultiByte(CP_ACP, 0, p, -1, szTemp, sizeof(szTemp), NULL, NULL))
+			return;
 
 		assign(szTemp);
 	}
@@ -127,27 +128,32 @@ public:
 };
 
 
-void ExtractString(PathString& str, const char*& p, unsigned int len)
+bool ExtractString(PathString& str, const char*& p, size_t& remaining, size_t len)
 {
+	if (len > remaining)
+		return false;
 	str.assign(p, len);
-
 	p += len;
+	remaining -= len;
+	return true;
 }
 
-void ExtractInt(int& n, const char*& p)
+bool ExtractInt(int& n, const char*& p, size_t& remaining)
 {
-	const int* pn = (const int*)(p);
-
-	n = *pn;
-
-	p += sizeof(int);
+	if (remaining < sizeof(n))
+		return false;
+	memcpy(&n, p, sizeof(n));
+	p += sizeof(n);
+	remaining -= sizeof(n);
+	return true;
 }
 
-void ExtractString(PathString& str, const char*& p)
+bool ExtractString(PathString& str, const char*& p, size_t& remaining)
 {
-	int n;
-	ExtractInt(n, p);
-	ExtractString(str, p, n);
+	int length = 0;
+	if (!ExtractInt(length, p, remaining) || length < 0)
+		return false;
+	return ExtractString(str, p, remaining, (size_t)length);
 }
 
 void GetConfigDirs(std::vector<PathString>& VersionSubDirs, const char* pConfigFileName)
@@ -160,7 +166,7 @@ void GetConfigDirs(std::vector<PathString>& VersionSubDirs, const char* pConfigF
 	{
 		char szBuff[1024];
 
-		while(fscanf_s(hFile, "%s", szBuff) != EOF )
+		while (fscanf_s(hFile, "%s", szBuff, (unsigned)sizeof(szBuff)) == 1)
 		{
 			VersionSubDirs.push_back(szBuff);
 		}
@@ -206,41 +212,39 @@ public:
 		}
 	}
 
-	void FromString(const PathString& data)
+	bool FromString(const PathString& data)
 	{
 		const char* p = data.c_str();
-
+		size_t remaining = data.size();
 		PathString temp;
+		DeleteFileMap parsed;
+		if (!ExtractString(temp, p, remaining, strlen(PATCH_DEL_TABLE_FILE_MAGIC)) ||
+			temp != PATCH_DEL_TABLE_FILE_MAGIC ||
+			!ExtractString(temp, p, remaining, strlen(PATCH_DEL_TABLE_FILE_VER)) ||
+			temp != PATCH_DEL_TABLE_FILE_VER)
+			return false;
 
-		ExtractString(temp, p, strlen(PATCH_DEL_TABLE_FILE_MAGIC));
-
-		check(temp == PATCH_DEL_TABLE_FILE_MAGIC);
-
-		ExtractString(temp, p, strlen(PATCH_DEL_TABLE_FILE_VER));
-
-		check(temp == PATCH_DEL_TABLE_FILE_VER);
-
-		int count;
-
-		ExtractInt(count, p);
-
+		int count = 0;
+		if (!ExtractInt(count, p, remaining) || count < 0 || (size_t)count > remaining / (2 * sizeof(int)))
+			return false;
 		for (int i = 0; i < count; ++i)
 		{
-			ExtractString(temp, p);
-
-			int nDelCount = 0;
-
-			ExtractInt(nDelCount, p);
-
-			std::vector<PathString>& DelFiles = operator[](temp);
-
-			for (int f = 0; f < nDelCount; ++f)
+			int fileCount = 0;
+			if (!ExtractString(temp, p, remaining) || !ExtractInt(fileCount, p, remaining) ||
+				fileCount < 0 || (size_t)fileCount > remaining / (sizeof(int)))
+				return false;
+			std::vector<PathString>& files = parsed[temp];
+			for (int f = 0; f < fileCount; ++f)
 			{
-				ExtractString(temp, p);
-
-				DelFiles.push_back(temp);
+				if (!ExtractString(temp, p, remaining))
+					return false;
+				files.push_back(temp);
 			}
 		}
+		if (remaining != 0)
+			return false;
+		swap(parsed);
+		return true;
 	}
 };
 
@@ -283,43 +287,39 @@ public:
 		}
 	}
 
-	void FromString(PathString& data)
+	bool FromString(const PathString& data)
 	{
 		const char* p = data.c_str();
+		size_t remaining = data.size();
+		PathString temp, temp2;
+		RenameFileMap parsed;
+		if (!ExtractString(temp, p, remaining, strlen(PATCH_RENAME_TABLE_FILE_MAGIC)) ||
+			temp != PATCH_RENAME_TABLE_FILE_MAGIC ||
+			!ExtractString(temp, p, remaining, strlen(PATCH_RENAME_TABLE_FILE_VER)) ||
+			temp != PATCH_RENAME_TABLE_FILE_VER)
+			return false;
 
-		PathString temp;
-		PathString temp2;
-
-		ExtractString(temp, p, strlen(PATCH_RENAME_TABLE_FILE_MAGIC));
-
-		check(temp == PATCH_RENAME_TABLE_FILE_MAGIC);
-
-		ExtractString(temp, p, strlen(PATCH_RENAME_TABLE_FILE_VER));
-
-		check(temp == PATCH_RENAME_TABLE_FILE_VER);
-
-		int count;
-
-		ExtractInt(count, p);
-
+		int count = 0;
+		if (!ExtractInt(count, p, remaining) || count < 0 || (size_t)count > remaining / (2 * sizeof(int)))
+			return false;
 		for (int i = 0; i < count; ++i)
 		{
-			ExtractString(temp, p);
-
-			int nDelCount = 0;
-
-			ExtractInt(nDelCount, p);
-
-			std::vector<std::pair<PathString, PathString>>& RenameFiles = operator[](temp);
-
-			for (int f = 0; f < nDelCount; ++f)
+			int fileCount = 0;
+			if (!ExtractString(temp, p, remaining) || !ExtractInt(fileCount, p, remaining) ||
+				fileCount < 0 || (size_t)fileCount > remaining / (2 * sizeof(int)))
+				return false;
+			std::vector<std::pair<PathString, PathString> >& files = parsed[temp];
+			for (int f = 0; f < fileCount; ++f)
 			{
-				ExtractString(temp, p);
-				ExtractString(temp2, p);
-
-				RenameFiles.push_back(std::pair<PathString, PathString>(temp, temp2));
+				if (!ExtractString(temp, p, remaining) || !ExtractString(temp2, p, remaining))
+					return false;
+				files.push_back(std::make_pair(temp, temp2));
 			}
 		}
+		if (remaining != 0)
+			return false;
+		swap(parsed);
+		return true;
 	}
 };
 
@@ -328,7 +328,8 @@ public:
 bool IsDirExist(const LPCSTR dir)
 {
 	WCHAR szDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, dir, -1, szDir, sizeof(szDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, dir, -1, szDir, (int)(sizeof(szDir) / sizeof(szDir[0]))))
+		return false;
 
 	DWORD attr;
 	attr = GetFileAttributes((LPCWSTR)szDir);
@@ -339,7 +340,8 @@ bool IsDirExist(const LPCSTR dir)
 bool IsFileExist(const LPCSTR f)
 {
 	WCHAR szDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, f, -1, szDir, sizeof(szDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, f, -1, szDir, (int)(sizeof(szDir) / sizeof(szDir[0]))))
+		return false;
 
 	DWORD attr;
 	attr = GetFileAttributes((LPCWSTR)szDir);
@@ -378,7 +380,8 @@ bool mkDir(std::string filePath, bool bRecurse, bool bIncludeLastLayer = false)
 	if(!bRecurse)
 	{
 		WCHAR szDir[1024];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, filePath.c_str(), -1, szDir, sizeof(szDir));
+		if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, filePath.c_str(), -1, szDir, (int)(sizeof(szDir) / sizeof(szDir[0]))))
+			return false;
 
 		return CreateDirectory(szDir, NULL) == TRUE;
 	}
@@ -410,14 +413,16 @@ bool mkDir(std::string filePath, bool bRecurse, bool bIncludeLastLayer = false)
 
 		//不存在
 		WCHAR szTopDir[1024];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, topDir.c_str(), -1, szTopDir, sizeof(szTopDir));
+		if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, topDir.c_str(), -1, szTopDir, (int)(sizeof(szTopDir) / sizeof(szTopDir[0]))))
+			return false;
 		CreateDirectory(szTopDir, NULL);
 	}
 
 	if (bIncludeLastLayer)
 	{
 		WCHAR szDir[1024];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, filePath.c_str(), -1, szDir, sizeof(szDir));
+		if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, filePath.c_str(), -1, szDir, (int)(sizeof(szDir) / sizeof(szDir[0]))))
+			return false;
 		return CreateDirectory(szDir, NULL) == TRUE;
 	}
 
@@ -435,9 +440,10 @@ bool CompareFileWithMD5(const PathString& FileName, const PathString& md5)
 	if (pSrcFile)
 	{
 		MD5 SrcMD5(pSrcFile);
-		fclose(pSrcFile);
 
-		PathString strSrcMD5 = SrcMD5.hex_digest();
+		char* digest = SrcMD5.hex_digest();
+		PathString strSrcMD5(digest);
+		delete[] digest;
 		PathString strDstMD5 = md5;
 
 		std::transform(strSrcMD5.begin(), strSrcMD5.end(), strSrcMD5.begin(), ::tolower);
@@ -451,54 +457,16 @@ bool CompareFileWithMD5(const PathString& FileName, const PathString& md5)
 
 INT CreateDirectoryHierarchy(const char* Path, bool bIncludeLastLayer = false)
 {
+	if (!Path)
+		return 0;
 	return (INT)mkDir(Path, true, bIncludeLastLayer);
-
-	INT CreateCount=0;
-
-	char Full[1024]=("");
-
-	for(char* Ptr=Full; ; *Ptr++=*Path++)
-	{
-		if( (*Path)=='\\' || (*Path)=='/' || (bIncludeLastLayer && *Path==0) )
-		{
-			*Ptr = 0;
-
-			if( Ptr != Full)
-			{
-				WCHAR szDir[1024];
-				MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, Full, -1, szDir, sizeof(szDir));
-
-				if (!CreateDirectory(szDir, 0))
-				{
-					int err = GetLastError();
-
-					if (err != ERROR_ALREADY_EXISTS)
-					{
-						return 0;
-					}
-					else
-					{
-						printf("Create failed: %x %s\n", err, Full);
-					}
-				}
-
-				++CreateCount;
-			}
-		}
-
-		if( *Path==0 )
-		{
-			break;
-		}
-	}
-
-	return CreateCount!=0;
 }
 
 DWORD GetFileSize(const char* FileName)
 {
 	WCHAR szDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, FileName, -1, szDir, sizeof(szDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, FileName, -1, szDir, (int)(sizeof(szDir) / sizeof(szDir[0]))))
+		return (DWORD)-1;
 
 	HANDLE Handle = CreateFile(szDir, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -517,6 +485,8 @@ void EnumFilesInDirectory(std::vector<PathString>& files,
 	const char* FolderName, const char* ExtNameWithPoint = NULL, 
 	bool bRecursive = true, const std::set<PathString>* ExcludeFiles = NULL)
 {
+	if (!FolderName || !*FolderName)
+		return;
 	HANDLE Handle=NULL;
 
 	WIN32_FIND_DATA fd;
@@ -529,7 +499,8 @@ void EnumFilesInDirectory(std::vector<PathString>& files,
 	strPath += "\\*.*";
 
 	WCHAR szPath[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, sizeof(szPath));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, (int)(sizeof(szPath) / sizeof(szPath[0]))))
+		return;
 	Handle = FindFirstFile(szPath, &fd);
 
 	if( Handle!=INVALID_HANDLE_VALUE )
@@ -568,6 +539,8 @@ void EnumFilesInDirectory(std::vector<PathString>& files,
 
 void DeleteFilesInDirectory(const char* FolderName, bool bRecursive)
 {
+	if (!FolderName || !*FolderName)
+		return;
 	/*
 	char szCmd[1024];
 	sprintf_s(szCmd, sizeof(szCmd), "del /s/q %s", FolderName);
@@ -587,7 +560,8 @@ void DeleteFilesInDirectory(const char* FolderName, bool bRecursive)
 	strPath += "\\*.*";
 
 	WCHAR szPath[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, sizeof(szPath));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, (int)(sizeof(szPath) / sizeof(szPath[0]))))
+		return;
 
 	Handle = FindFirstFile(szPath, &fd);
 	if (Handle != INVALID_HANDLE_VALUE)
@@ -606,7 +580,8 @@ void DeleteFilesInDirectory(const char* FolderName, bool bRecursive)
 
 						DeleteFilesInDirectory(strPath.c_str(), bRecursive);
 
-						MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, sizeof(szPath));
+						if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, (int)(sizeof(szPath) / sizeof(szPath[0]))))
+							continue;
 						::RemoveDirectory(szPath);
 					}
 				}
@@ -616,7 +591,8 @@ void DeleteFilesInDirectory(const char* FolderName, bool bRecursive)
 					strPath += PathString("\\");
 					strPath += PathString(fd.cFileName);
 
-					MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, sizeof(szPath));
+					if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strPath.c_str(), -1, szPath, (int)(sizeof(szPath) / sizeof(szPath[0]))))
+						continue;
 
 					if (IsFileExist(strPath))
 					{// 去除文件的只读属性， 否则会删除失败
@@ -807,16 +783,20 @@ bool ParseDirectFileSection(LPCTSTR lpszDirectFile, LPCTSTR lpszSectionName, std
 					while(markup.FindElem())
 					{
 						WCHAR szKey[MAX_PATH];
-						MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)STR_DIRECT_FILE_SUB_ITEM_KEY_ATTRIB, -1, szKey, MAX_PATH);
+						if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)STR_DIRECT_FILE_SUB_ITEM_KEY_ATTRIB, -1, szKey, MAX_PATH))
+							return false;
 
 						WCHAR szValue[MAX_PATH];
-						MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)STR_DIRECT_FILE_SUB_ITEM_VALUE_ATTRIB, -1, szValue, MAX_PATH);
+						if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)STR_DIRECT_FILE_SUB_ITEM_VALUE_ATTRIB, -1, szValue, MAX_PATH))
+							return false;
 
 						char szKeyAttr[MAX_PATH];
-						WideCharToMultiByte(CP_ACP, 0, markup.GetAttrib(szKey), (DWORD)(wcslen(markup.GetAttrib(szKey))) + 1, szKeyAttr, sizeof(szKeyAttr), NULL, NULL);
+						if (!WideCharToMultiByte(CP_ACP, 0, markup.GetAttrib(szKey), -1, szKeyAttr, sizeof(szKeyAttr), NULL, NULL))
+							return false;
 
 						char szValueAttr[MAX_PATH];
-						WideCharToMultiByte(CP_ACP, 0, markup.GetAttrib(szValue), (DWORD)(wcslen(markup.GetAttrib(szValue))) + 1, szValueAttr, sizeof(szValueAttr), NULL, NULL);
+						if (!WideCharToMultiByte(CP_ACP, 0, markup.GetAttrib(szValue), -1, szValueAttr, sizeof(szValueAttr), NULL, NULL))
+							return false;
 
 						mapKeyValue[std::string(szKeyAttr)] = std::string(szValueAttr);
 					}

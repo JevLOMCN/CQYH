@@ -4,6 +4,8 @@
 	Specification :  
 ====================================================================*/
 #include "stdafx.h"
+#include "../ReadFileBuffer.h"
+#include "../PatchPath.h"
 #include "PatchMPQ.h"
 #include "PatchMPQdlg.h"
 #include "Controls.h"
@@ -13,6 +15,7 @@
 #include "Task.h"
 #include "ThreadPool.h"
 #include <assert.h>
+#include <sstream>
 #include <algorithm>
 #include "PatchMPQUtil.h"
 #include <DbgHelp.h>
@@ -136,6 +139,8 @@ CPatchMPQDlg::CPatchMPQDlg(CWnd* pParent /*=NULL*/)
     , _statusCurrent(_T("N/A"))
 	, _isPatchSuccess(TRUE)
 	, _countDownTime(0)
+	, _progressTotal(0)
+	, _progressCount(0)
 {
 	_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -186,11 +191,23 @@ CRect GetControlRect(const CString& name)
 	// 	CurrentProg=l,t,w,h
 	
 	CString str = cfg.GetStringValue(_T("UI"), name, _T("0,0,50,50"));
-	CRect rc;
-	_stscanf_s((LPCTSTR)str, _T("%d,%d,%d,%d"), &rc.left, &rc.top, &rc.right, &rc.bottom);
+	CRect rc(0, 0, 50, 50);
+	TCHAR comma1 = 0, comma2 = 0, comma3 = 0;
+	std::basic_istringstream<TCHAR> input((LPCTSTR)str);
+	if (!(input >> rc.left >> comma1 >> rc.top >> comma2 >> rc.right >> comma3 >> rc.bottom) ||
+		comma1 != _T(',') || comma2 != _T(',') || comma3 != _T(','))
+	{
+		return CRect(0, 0, 50, 50);
+	}
 
-	rc.right += rc.left;
-	rc.bottom += rc.top;
+	const LONGLONG right = (LONGLONG)rc.left + rc.right;
+	const LONGLONG bottom = (LONGLONG)rc.top + rc.bottom;
+	if (right < -MAXLONG - 1 || right > MAXLONG || bottom < -MAXLONG - 1 || bottom > MAXLONG)
+	{
+		return CRect(0, 0, 50, 50);
+	}
+	rc.right = (LONG)right;
+	rc.bottom = (LONG)bottom;
 
 	return rc;
 }
@@ -262,7 +279,8 @@ BOOL CPatchMPQDlg::OnInitDialog()
 	//MoveControlToRect(_htmlADBar, _T("HtmlAD"));
 
 	TCHAR strBuffer[MAX_PATH];
-	::GetModuleFileName(NULL, strBuffer, MAX_PATH);
+	if (!ClientPatch::ReadModulePath(strBuffer))
+		return FALSE;
 	CString strTmp = strBuffer;
 	_strPatchConfigFile = strTmp.Left( strTmp.ReverseFind('\\') + 1 );
 	_strVersionLocalConfigFile = _strPatchConfigFile;
@@ -307,7 +325,8 @@ BOOL CPatchMPQDlg::OnInitDialog()
 	_strTmpDir = strBuffer;
 
 	// Install Dir
-	::GetModuleFileName(NULL, strBuffer, MAX_PATH);
+	if (!ClientPatch::ReadModulePath(strBuffer))
+		return FALSE;
 	strTmp = strBuffer;
 	_strInstallDir = strTmp.Left( strTmp.ReverseFind('\\') + 1 );
 
@@ -587,7 +606,8 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 	{
 		const PathString& strPackPath = vecPackFiles[i];
 		WCHAR szPackPath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+		if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+			return false;
 
 		FilePathList::iterator iterDelete = _deleteFileList.begin();
 		for (; iterDelete != _deleteFileList.end();)
@@ -606,7 +626,8 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 				const char* pszFileName = filename.c_str() + nSubDirLen;
 
 				WCHAR szFilePath[MAX_PATH];
-				MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)pszFileName, -1, szFilePath, MAX_PATH);
+				if (!ClientPatch::ToWide(pszFileName, szFilePath))
+					return false;
 
 				bSucc = (*g_pfDeletePackFile)(szPackPath, szFilePath);
 				if (bSucc)
@@ -639,11 +660,10 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 
 	CreateDirectoryHierarchy(strSrcTempDir.c_str(), true);
 
-	WCHAR szCurDir[1024];
-	::GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+	ClientPatch::ScopedCurrentDirectory<WCHAR> currentDirectory;
 	WCHAR szSrcDirTemp[MAX_PATH];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcTempDir.c_str(), -1, szSrcDirTemp, MAX_PATH);
-	::SetCurrentDirectory(szSrcDirTemp);
+	if (!ClientPatch::ToWide(strSrcTempDir.c_str(), szSrcDirTemp) || !currentDirectory.Change(szSrcDirTemp))
+		return false;
 
 	_progressCount = 0;
 	_progressCurrent.SetRange(0, (short)(vecDeltaFiles.size()));
@@ -679,24 +699,30 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 		}
 
 		WCHAR szSrcPath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcDir.c_str(), -1, szSrcPath, MAX_PATH);
+		if (!ClientPatch::ToWide(strSrcDir.c_str(), szSrcPath))
+			return false;
 
 		WCHAR szTempPath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcTempDir.c_str(), -1, szTempPath, MAX_PATH);
+		if (!ClientPatch::ToWide(strSrcTempDir.c_str(), szTempPath))
+			return false;
 
 		WCHAR szDeltaFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strDeltaFilePath.c_str(), -1, szDeltaFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strDeltaFilePath.c_str(), szDeltaFilePath))
+			return false;
 
 		WCHAR szFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strFilePath.c_str(), -1, szFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strFilePath.c_str(), szFilePath))
+			return false;
 
 		WCHAR szTempFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strTempFilePath.c_str(), -1, szTempFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strTempFilePath.c_str(), szTempFilePath))
+			return false;
 
 		PathString strSubDir(pSubDir);
 		strSubDir += PathString("\\");
 		WCHAR szSubDir[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSubDir.c_str(), -1, szSubDir, MAX_PATH);
+		if (!ClientPatch::ToWide(strSubDir.c_str(), szSubDir))
+			return false;
 
 		int iPakIndex = -1;
 
@@ -807,7 +833,8 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 		PathString strPackPath;
 		WCHAR szPackPath[MAX_PATH];
 		WCHAR szFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strFilePath.c_str(), -1, szFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strFilePath.c_str(), szFilePath))
+			return false;
 
 		PathString strPakDir = strSrcDir + PathString("\\");
 
@@ -827,14 +854,16 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 					vecPackFiles.push_back(strPakDir);
 
 					strPackPath = strPakDir;
-					MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+					if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+						return false;
 
 					bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, true, dwNewFileCount);
 				}
 				else
 				{
 					strPackPath = vecPackFiles.back();
-					MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+					if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+						return false;
 
 					bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, false, dwNewFileCount);
 				}
@@ -848,7 +877,8 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 				vecPackFiles.push_back(strPakDir);
 
 				strPackPath = strPakDir;
-				MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+				if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+					return false;
 
 				bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, true, dwNewFileCount);
 			}
@@ -856,7 +886,8 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 		else
 		{
 			strPackPath = vecPackFiles[iPakIndex];
-			MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+			if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+				return false;
 
 			bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, false, 0);
 		}
@@ -887,7 +918,7 @@ bool CPatchMPQDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const c
 	//DeleteFileTree(strSrcDirTemp);
 	DeleteFilesInDirectory(strSrcTempDir.c_str(), true);
 
-	::SetCurrentDirectory(szCurDir);
+	currentDirectory.Restore();
 
 	return true;
 }
@@ -925,13 +956,16 @@ bool CPatchMPQDlg::PatchFile(const char* pSrcFile, const char* pDeltaFile, const
 	}
 
 	WCHAR szSrcDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, sizeof(szSrcDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, (int)(sizeof(szSrcDir) / sizeof(szSrcDir[0]))))
+		return false;
 
 	WCHAR szDeltaDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strDeltaFile.c_str(), -1, szDeltaDir, sizeof(szDeltaDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strDeltaFile.c_str(), -1, szDeltaDir, (int)(sizeof(szDeltaDir) / sizeof(szDeltaDir[0]))))
+		return false;
 
 	WCHAR szSubDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSubDir.c_str(), -1, szSubDir, sizeof(szSubDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSubDir.c_str(), -1, szSubDir, (int)(sizeof(szSubDir) / sizeof(szSubDir[0]))))
+		return false;
 	
 	MSG msg;
 	while (::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
@@ -945,7 +979,8 @@ bool CPatchMPQDlg::PatchFile(const char* pSrcFile, const char* pDeltaFile, const
 	if (index != -1)
 	{// 合并差异文件
 		strSrcFile = strSrcFile.substr(0, index);
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, sizeof(szSrcDir));
+		if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, (int)(sizeof(szSrcDir) / sizeof(szSrcDir[0]))))
+			return false;
 
 		ResultMD5List;
 		std::map<std::string, std::string>::iterator iterRes;
@@ -1141,9 +1176,11 @@ bool CPatchMPQDlg::Patch(const char* pszSrcPath, const char* pszDeltaPath, const
 LRESULT CPatchMPQDlg::OnBeginPatch(WPARAM wParam, LPARAM lParam)
 {
 	char szGameFilePath[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, _strPath.GetBuffer(), (DWORD)(wcslen(_strPath.GetBuffer())) + 1,
-		szGameFilePath, sizeof(szGameFilePath), NULL, NULL);
-	_strPath.ReleaseBuffer();
+	if (!ClientPatch::ToAnsi(_strPath, szGameFilePath))
+	{
+		_isPatchSuccess = FALSE;
+		return 0;
+	}
 
 	PathString strDeleteDir(szGameFilePath);
 	FilePathList::iterator iterDelete = _deleteFileList.begin();
@@ -1152,7 +1189,11 @@ LRESULT CPatchMPQDlg::OnBeginPatch(WPARAM wParam, LPARAM lParam)
 		const PathString& strDeleteFilePath = strDeleteDir + PathString("\\") + iterDelete->first;
 
 		WCHAR szDeleteFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strDeleteFilePath.c_str(), -1, szDeleteFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strDeleteFilePath.c_str(), szDeleteFilePath))
+		{
+			_isPatchSuccess = FALSE;
+			return 0;
+		}
 
 		if (IsFileExist(strDeleteFilePath))
 		{
@@ -1168,9 +1209,11 @@ LRESULT CPatchMPQDlg::OnBeginPatch(WPARAM wParam, LPARAM lParam)
 	}
 
 	char szDeltaFilePath[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, _strDeltaFilePath.GetBuffer(), (DWORD)(wcslen(_strDeltaFilePath.GetBuffer())) + 1,
-		szDeltaFilePath, sizeof(szDeltaFilePath), NULL, NULL);
-	_strDeltaFilePath.ReleaseBuffer();
+	if (!ClientPatch::ToAnsi(_strDeltaFilePath, szDeltaFilePath))
+	{
+		_isPatchSuccess = FALSE;
+		return 0;
+	}
 
 	_progressCount = 0;
 	if (Patch(szGameFilePath, szDeltaFilePath, "\0"))
@@ -1179,9 +1222,11 @@ LRESULT CPatchMPQDlg::OnBeginPatch(WPARAM wParam, LPARAM lParam)
 		CString strSrcLVPath = App::GetAppPath() + _T("LocalVersion.xml");
 
 		char szLocalVersionPath[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, strSrcLVPath.GetBuffer(), (DWORD)(wcslen(strSrcLVPath.GetBuffer())) + 1,
-			szLocalVersionPath, sizeof(szLocalVersionPath), NULL, NULL);
-		strSrcLVPath.ReleaseBuffer();
+		if (!ClientPatch::ToAnsi(strSrcLVPath, szLocalVersionPath))
+		{
+			_isPatchSuccess = FALSE;
+			return 0;
+		}
 
 		if (IsFileExist(szLocalVersionPath))
 		{// 去除文件的只读属性， 否则会拷贝失败
@@ -1235,7 +1280,11 @@ LRESULT CPatchMPQDlg::OnBeginPatch(WPARAM wParam, LPARAM lParam)
 void CPatchMPQDlg::OnBnClickedInstall()
 {
 	char szGamePath[1024];
-	WideCharToMultiByte(CP_ACP, 0, _strPath.GetBuffer(), (DWORD)(wcslen(_strPath.GetBuffer())) + 1, szGamePath, sizeof(szGamePath), NULL, NULL);
+	if (!ClientPatch::ToAnsi(_strPath, szGamePath))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 	if (!IsDirExist(szGamePath))
 	{
 		AfxMessageBox(_T("无效目录，无法找到游戏文件，请重新选择"));
@@ -1281,15 +1330,8 @@ void CPatchMPQDlg::OnBnClickedInstall()
 			return;
 		}
 
-		bool bUnicode = false;
-		byte head[2];
 		verFile.SeekToBegin();
-		verFile.Read(&head, 2);
-		if ((head[0] == 0xfe && head[1] == 0xff) ||
-			(head[0] == 0xff && head[1] == 0xfe))
-		{
-			bUnicode = true;
-		}
+		const bool bUnicode = ClientPatch::HasUnicodeBom(verFile);
 
 		verFile.Close();
 
@@ -1331,12 +1373,18 @@ void CPatchMPQDlg::OnBnClickedInstall()
 	_strVersionEnd = strCmdLine.Mid(strCmdLine.Find(_T(" ")), strCmdLine.GetLength() - strCmdLine.Find(_T(" ")));
 
 	char szClientVersion[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, _curClientVer.GetBuffer(), (DWORD)(wcslen(_curClientVer.GetBuffer())) + 1,
-		szClientVersion, sizeof(szClientVersion), NULL, NULL);
+	if (!ClientPatch::ToAnsi(_curClientVer, szClientVersion))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 
 	char szCurVersion[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, _strVersionBegin.GetBuffer(), (DWORD)(wcslen(_strVersionBegin.GetBuffer())) + 1,
-		szCurVersion, sizeof(szCurVersion), NULL, NULL);
+	if (!ClientPatch::ToAnsi(_strVersionBegin, szCurVersion))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 
 	if (strcmp(szClientVersion, szCurVersion) != 0)
 	{
@@ -1349,9 +1397,11 @@ void CPatchMPQDlg::OnBnClickedInstall()
 	// 加载差异文件列表
 	CString strDeltaInfoPath = App::GetAppPath() + _T("patch_delta_direct.dat");
 	char szDeltaInfoPath[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, strDeltaInfoPath.GetBuffer(), (DWORD)(wcslen(strDeltaInfoPath.GetBuffer())) + 1, 
-		szDeltaInfoPath, sizeof(szDeltaInfoPath), NULL, NULL);
-	strDeltaInfoPath.ReleaseBuffer();
+	if (!ClientPatch::ToAnsi(strDeltaInfoPath, szDeltaInfoPath))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 
 	_statusCurrent = _T("加载差异文件列表");
 	UpdateData(FALSE);
@@ -1380,9 +1430,11 @@ void CPatchMPQDlg::OnBnClickedInstall()
 	// 开始打补丁
 	_strDeltaFilePath = App::GetAppPath() + _T("Pkg");
 	char szDeltaFilePath[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, _strDeltaFilePath.GetBuffer(), (DWORD)(wcslen(_strDeltaFilePath.GetBuffer())) + 1, 
-		szDeltaFilePath, sizeof(szDeltaFilePath), NULL, NULL);
-	_strDeltaFilePath.ReleaseBuffer();
+	if (!ClientPatch::ToAnsi(_strDeltaFilePath, szDeltaFilePath))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 
 	if (!IsDirExist(szDeltaFilePath))
 	{

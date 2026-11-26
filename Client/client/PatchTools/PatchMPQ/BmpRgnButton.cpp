@@ -21,14 +21,17 @@ static char THIS_FILE[] = __FILE__;
 void BmpRgnButton::AdjustSize()
 {
 	SAFE;
+	_uBmpItemWidth = 0;
+	_uBmpItemHeight = 0;
 
 	if(!_pBmp)
 	{
 		return;
 	}
 
-	BITMAP bit;   
-	_pBmp->GetBitmap (&bit);
+	BITMAP bit = {0};
+	if (!_pBmp->GetBitmap(&bit) || bit.bmWidth < 4 || bit.bmHeight <= 0)
+		return;
 	_uBmpItemWidth	= bit.bmWidth / 4;
 	_uBmpItemHeight	= bit.bmHeight;
 
@@ -82,6 +85,10 @@ BmpRgnButton::BmpRgnButton()
 	_bMouseHover		= FALSE;
 	_pBmp				= 0;
 	_uBmpItemWidth		= 0;
+	_uBmpItemHeight		= 0;
+	_refTrans			= RGB(255, 0, 255);
+	_refDrawTrans		= RGB(255, 0, 255);
+	_bIsVerticalCaption = false;
 	_bRgnCreated		= FALSE;
 	_bDrawTrans			= FALSE;
 
@@ -165,7 +172,7 @@ void BmpRgnButton::OnMouseMove(UINT nFlags, CPoint point)
 		//::sndPlaySound(_strSoundFile.c_str(), SND_ASYNC | SND_FILENAME | SND_NODEFAULT);
 	}
 
-	TRACKMOUSEEVENT		csTME;
+	TRACKMOUSEEVENT		csTME = {0};
 
 	HRGN hRgn = CreateRectRgn(0, 0, 0, 0);
 	GetWindowRgn(hRgn);
@@ -192,7 +199,7 @@ void BmpRgnButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
 	SAFE;
 
-	if(!_pBmp)
+	if (!_pBmp || !_uBmpItemWidth || !_uBmpItemHeight)
 		return;
 
 	CRect rt;

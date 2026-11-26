@@ -6,6 +6,8 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
 #include <process.h>
+#include <memory>
+#include <new>
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -32,12 +34,12 @@ UINT __stdcall CThreadPool::_ThreadProc(LPVOID pParam)
 #ifdef _DEBUG
 	HANDLE					hThread = GetCurrentThread();
 #endif
-	LPTHREAD_START_ROUTINE  proc;
-	LPVOID					data;
+	LPTHREAD_START_ROUTINE  proc = NULL;
+	LPVOID					data = NULL;
 	DWORD					dwThreadId = GetCurrentThreadId();
 	HANDLE					hWaits[2];
-	IRunObject*				runObject;
-	bool					bAutoDelete;
+	IRunObject*				runObject = NULL;
+	bool					bAutoDelete = false;
 
 	ASSERT(pParam != NULL);
 	if(NULL == pParam)
@@ -45,9 +47,11 @@ UINT __stdcall CThreadPool::_ThreadProc(LPVOID pParam)
 		return (UINT)-1;
 	}
 
-	pool = static_cast<CThreadPool*>(pParam);
-	hWaits[0] = pool->GetWaitHandle(dwThreadId);
-	hWaits[1] = pool->GetShutdownHandle();
+	WorkerStart* startup = static_cast<WorkerStart*>(pParam);
+	pool = startup->pool;
+	hWaits[0] = startup->task;
+	hWaits[1] = startup->shutdown;
+	delete startup;
 	
 	loop_here:
 
@@ -78,7 +82,7 @@ UINT __stdcall CThreadPool::_ThreadProc(LPVOID pParam)
 				{
 					#ifdef _DEBUG
 					TCHAR szMessage[256];
-					_stprintf_s(szMessage, 256, _T("Deleting Run Object of thread , handle = %d, id = %d\n"), 
+					_stprintf_s(szMessage, 256, _T("Deleting Run Object of thread , handle = %p, id = %d\n"),
 					 hThread, dwThreadId);
 					TRACE(szMessage);
 					#endif
@@ -87,9 +91,10 @@ UINT __stdcall CThreadPool::_ThreadProc(LPVOID pParam)
 				}
 				else
 				{
+					runObject->pThreadPool = NULL;
 					#ifdef _DEBUG
 					TCHAR szMessage[256];
-					_stprintf_s(szMessage, 256, _T("Not Deleted Run Object of thread , handle = %d, id = %d\n"), 
+					_stprintf_s(szMessage, 256, _T("Not Deleted Run Object of thread , handle = %p, id = %d\n"),
 					 hThread, dwThreadId);
 					TRACE(szMessage);
 					#endif
@@ -122,10 +127,13 @@ UINT __stdcall CThreadPool::_ThreadProc(LPVOID pParam)
 CThreadPool::CThreadPool(int nPoolSize, bool bCreateNow, int nWaitTimeForThreadsToComplete)
 {
 	m_state = Destroyed;
+	m_hNotifyShutdown = NULL;
+	ZeroMemory(m_szPoolName, sizeof(m_szPoolName));
 	m_nPoolSize = nPoolSize;
 	m_nWaitForThreadsToDieMS = nWaitTimeForThreadsToComplete;
 
 	// this is used to protect the shared data like the list and map
+	InitializeCriticalSection(&m_csLifetime);
 	InitializeCriticalSection(&m_csFuncList); 
 	InitializeCriticalSection(&m_csThreads); 
 
@@ -133,6 +141,9 @@ CThreadPool::CThreadPool(int nPoolSize, bool bCreateNow, int nWaitTimeForThreads
 	{
 		if(!Create())
 		{
+			DeleteCriticalSection(&m_csThreads);
+			DeleteCriticalSection(&m_csFuncList);
+			DeleteCriticalSection(&m_csLifetime);
 			throw 1;
 		}
 	}
@@ -148,82 +159,77 @@ CThreadPool::CThreadPool(int nPoolSize, bool bCreateNow, int nWaitTimeForThreads
   *****************************************************************************/
 bool CThreadPool::Create()
 {
-	if(m_state != Destroyed)
+	Guard lifetime(m_csLifetime);
+	int poolSize = 0;
 	{
-		// To create a new pool, destory the existing one first
-		return false;
+		Guard functions(m_csFuncList);
+		poolSize = m_nPoolSize;
 	}
-
-	InterlockedIncrement(&CThreadPool::m_lInstance);
-
-	_stprintf_s(m_szPoolName, 256, _T("Pool%d"), m_lInstance);
-
-	HANDLE		hThread;
-	DWORD		dwThreadId;
-	_ThreadData ThreadData;
-	TCHAR		szEvtName[30];
-	UINT		uThreadId;	
-
-	// create the event which will signal the threads to stop
+	if (m_state != Destroyed || poolSize <= 0)
+		return false;
+	const LONG instance = InterlockedIncrement(&CThreadPool::m_lInstance);
+	_stprintf_s(m_szPoolName, sizeof(m_szPoolName) / sizeof(m_szPoolName[0]), _T("Pool%ld"), instance);
 	m_hNotifyShutdown = CreateEvent(NULL, TRUE, FALSE, NULL);
-	ASSERT(m_hNotifyShutdown != NULL);
-	if(!m_hNotifyShutdown)
+	if (!m_hNotifyShutdown)
+		return false;
+
+	for (int index = 0; index < poolSize; ++index)
 	{
+		TCHAR eventName[64];
+		_stprintf_s(eventName, sizeof(eventName) / sizeof(eventName[0]),
+			_T("PID:%lu IID:%ld TDX:%d"), GetCurrentProcessId(), instance, index);
+		_ThreadData thread;
+		thread.WaitHandle = CreateEvent(NULL, TRUE, FALSE, eventName);
+		if (!thread.WaitHandle)
+			break;
+		WorkerStart* startup = new (std::nothrow) WorkerStart(this, thread.WaitHandle, m_hNotifyShutdown);
+		if (!startup)
+		{
+			CloseHandle(thread.WaitHandle);
+			break;
+		}
+#ifdef USE_WIN32API_THREAD
+		thread.hThread = CreateThread(NULL, 0, CThreadPool::_ThreadProc, startup, 0, &thread.dwThreadId);
+#else
+		UINT id = 0;
+		thread.hThread = (HANDLE)_beginthreadex(NULL, 0, CThreadPool::_ThreadProc, startup, 0, &id);
+		thread.dwThreadId = id;
+#endif
+		if (!thread.hThread || thread.hThread == INVALID_HANDLE_VALUE)
+		{
+			delete startup;
+			CloseHandle(thread.WaitHandle);
+			break;
+		}
+		thread.bFree = true;
+		bool inserted = false;
+		try
+		{
+			Guard threads(m_csThreads);
+			inserted = m_threads.insert(ThreadMap::value_type(thread.dwThreadId, thread)).second;
+		}
+		catch (...)
+		{
+		}
+		if (!inserted)
+		{
+			m_state = Destroying;
+			SetEvent(m_hNotifyShutdown);
+			WaitForSingleObject(thread.hThread, INFINITE);
+			CloseHandle(thread.WaitHandle);
+			CloseHandle(thread.hThread);
+			ReleaseWorkers();
+			m_state = Destroyed;
+			return false;
+		}
+	}
+	if ((int)m_threads.size() != poolSize)
+	{
+		m_state = Destroying;
+		ReleaseWorkers();
+		m_state = Destroyed;
 		return false;
 	}
-
-	// create the threads
-	for(int nIndex = 0; nIndex < m_nPoolSize; nIndex++)
-	{
-		_stprintf_s(szEvtName, 30, _T("PID:%d IID:%d TDX:%d"), GetCurrentProcessId(), CThreadPool::m_lInstance, nIndex /* thread index*/);
-				
-		#ifdef USE_WIN32API_THREAD
-		hThread = CreateThread(NULL, 0, CThreadPool::_ThreadProc, 
-							   this, CREATE_SUSPENDED, &dwThreadId);
-		ASSERT(NULL != hThread);
-
-		if(NULL == hThread)
-		{
-			return false;
-		}
-		#else
-		hThread = (HANDLE)_beginthreadex(NULL, 0, CThreadPool::_ThreadProc, this,  
-								 CREATE_SUSPENDED, (UINT*)&uThreadId);
-		ASSERT(INVALID_HANDLE_VALUE != hThread);
-
-		if(INVALID_HANDLE_VALUE == hThread)
-		{
-			return false;
-		}
-
-		dwThreadId = uThreadId;
-		#endif
-		
-		if(hThread)
-		{
-			// add the entry to the map of threads
-			ThreadData.bFree		= true;
-			ThreadData.WaitHandle	= CreateEvent(NULL, TRUE, FALSE, szEvtName);
-			ThreadData.hThread		= hThread;
-			ThreadData.dwThreadId	= dwThreadId;
-		
-			m_threads.insert(ThreadMap::value_type(dwThreadId, ThreadData));		
-
-			ResumeThread(hThread); 
-		
-			#ifdef _DEBUG
-			TCHAR szMessage[256];
-			_stprintf_s(szMessage, 256, _T("Thread created, handle = %d, id = %d\n"), 
-					  hThread, dwThreadId);
-			TRACE(szMessage);
-			#endif
-		}
-		else
-		{
-			return false;
-		}
-	}
-
 	m_state = Ready;
 	return true;
 }
@@ -235,31 +241,30 @@ CThreadPool::~CThreadPool()
 	ReleaseMemory();	
 	DeleteCriticalSection(&m_csFuncList);
 	DeleteCriticalSection(&m_csThreads);
+	DeleteCriticalSection(&m_csLifetime);
 }
 //------------------------------------------------------------------------------
 
 void CThreadPool::ReleaseMemory()
 {
-	FunctionList::iterator funcIter;
-	
-	for(funcIter = m_functionList.begin(); funcIter != m_functionList.end(); funcIter++) 
+	FunctionList pending;
 	{
-		if(funcIter->pData != NULL) 
+		Guard functions(m_csFuncList);
+		pending.swap(m_functionList);
+	}
+	for (FunctionList::iterator iter = pending.begin(); iter != pending.end(); ++iter)
+	{
+		if (iter->lpStartAddress)
+			delete static_cast<UserPoolData*>(iter->pData);
+		else if (iter->pData)
 		{
-			_FunctionData functionData = (*funcIter);
-			UserPoolData* pUserPoolData = static_cast<UserPoolData*>(functionData.pData);
-
-			if(pUserPoolData != NULL)
-			{
-				delete pUserPoolData;
-				pUserPoolData = NULL;
-			}
+			IRunObject* object = static_cast<IRunObject*>(iter->pData);
+			if (object->AutoDelete())
+				delete object;
+			else
+				object->pThreadPool = NULL;
 		}
 	}
-
-	// empty all collections
-	m_functionList.clear();
-	m_threads.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -272,50 +277,41 @@ void CThreadPool::ReleaseMemory()
   *****************************************************************************/
 void CThreadPool::Destroy()
 {
-	if(m_state == Destroying || m_state == Destroyed)
-		return;
-	
-	// Set the state to 'destroying'. Pooled functions might be checking this 
-	// state to see if they need to stop.
-	m_state = Destroying;
-		
-	// tell all threads to shutdown.
-	ASSERT(NULL != m_hNotifyShutdown);
-	SetEvent(m_hNotifyShutdown);
-
-	Sleep(100); // give the threads a chance to complete
-
-	if(GetWorkingThreadCount() > 0)
+	Guard lifetime(m_csLifetime);
 	{
-		// There are still threads in processing mode..
-		// lets give the thread one last chance to finish based on configured setting
-		Sleep(m_nWaitForThreadsToDieMS);
+		Guard functions(m_csFuncList);
+		if (m_state == Destroyed || m_state == Destroying)
+			return;
+		m_state = Destroying;
 	}
-	
-	ThreadMap::iterator iter;
-	//_ThreadData ThreadData;
-	
-	// walk through the events and threads and close them all
-	for(iter = m_threads.begin(); iter != m_threads.end(); iter++)
+	ReleaseWorkers();
+	ReleaseMemory();
+	m_state = Destroyed;
+}
+
+void CThreadPool::ReleaseWorkers()
+{
+	if (m_hNotifyShutdown)
+		SetEvent(m_hNotifyShutdown);
+	// Closing a handle does not stop its thread. Keep all pool data alive until every worker exits.
+	for (ThreadMap::iterator iter = m_threads.begin(); iter != m_threads.end(); ++iter)
+		WaitForSingleObject(iter->second.hThread, INFINITE);
+	Guard threads(m_csThreads);
+	for (ThreadMap::iterator iter = m_threads.begin(); iter != m_threads.end(); ++iter)
 	{
 		CloseHandle(iter->second.WaitHandle);
 		CloseHandle(iter->second.hThread);
 	}
-
-	// close the shutdown event
-	CloseHandle(m_hNotifyShutdown);
+	m_threads.clear();
+	if (m_hNotifyShutdown)
+		CloseHandle(m_hNotifyShutdown);
 	m_hNotifyShutdown = NULL;
-
-	ReleaseMemory(); // free any remaining UserPoolData objects 
-
-	InterlockedDecrement(&CThreadPool::m_lInstance);
-
-	m_state = Destroyed;
 }
 //------------------------------------------------------------------------------
 
 int CThreadPool::GetPoolSize()
 {
+	Guard functions(m_csFuncList);
 	return m_nPoolSize;
 }
 //------------------------------------------------------------------------------
@@ -324,6 +320,7 @@ int CThreadPool::GetPoolSize()
    ****************************************************************************/
 void CThreadPool::SetPoolSize(int nSize)
 {
+	Guard functions(m_csFuncList);
 	ASSERT(nSize > 0);
 	if(nSize <= 0)
 	{
@@ -345,45 +342,40 @@ HANDLE CThreadPool::GetShutdownHandle()
 			      executed by the actual calling thread.
 				  NULL is returned if no functions list is empty.
 																			  */
-bool CThreadPool::GetThreadProc(DWORD /*dwThreadId*/, LPTHREAD_START_ROUTINE& Proc, 
-								LPVOID* Data, IRunObject** runObject)
+bool CThreadPool::GetThreadProc(DWORD dwThreadId, LPTHREAD_START_ROUTINE& Proc,
+	LPVOID* Data, IRunObject** runObject)
 {
-//	LPTHREAD_START_ROUTINE  lpResult = NULL;
-	_FunctionData			FunctionData;
-	FunctionList::iterator	iter;
-
-	// get the first function info in the function list	
-	EnterCriticalSection(&m_csFuncList);
-	
-	iter = m_functionList.begin();
-
-	if(iter != m_functionList.end())
+	Proc = NULL;
+	if (Data) *Data = NULL;
+	if (runObject) *runObject = NULL;
+	if (!Data || !runObject)
+		return false;
+	Guard functions(m_csFuncList);
+	if (m_state != Ready || m_functionList.empty())
 	{
-		FunctionData = (*iter);
-
-		Proc = FunctionData.lpStartAddress;
-		
-		if(NULL == Proc) // is NULL for function objects
-		{		
-			*runObject = static_cast<IRunObject*>(FunctionData.pData);
-		}
-		else		
+		Guard threads(m_csThreads);
+		ThreadMap::iterator thread = m_threads.find(dwThreadId);
+		if (thread != m_threads.end())
 		{
-			// this is a function pointer
-			*Data		= FunctionData.pData;
-			runObject	= NULL;
-		}		
-
-		m_functionList.pop_front(); // remove the function from the list
-	
-		LeaveCriticalSection(&m_csFuncList);
-		return true;	
-	}
-	else
-	{
-		LeaveCriticalSection(&m_csFuncList);
+			thread->second.bFree = true;
+			ResetEvent(thread->second.WaitHandle);
+		}
 		return false;
 	}
+	const _FunctionData& function = m_functionList.front();
+	Proc = function.lpStartAddress;
+	if (Proc)
+		*Data = function.pData;
+	else
+		*runObject = static_cast<IRunObject*>(function.pData);
+	{
+		Guard threads(m_csThreads);
+		ThreadMap::iterator thread = m_threads.find(dwThreadId);
+		if (thread != m_threads.end())
+			thread->second.bFree = false;
+	}
+	m_functionList.pop_front();
+	return true;
 }
 //------------------------------------------------------------------------------
 
@@ -393,49 +385,14 @@ bool CThreadPool::GetThreadProc(DWORD /*dwThreadId*/, LPTHREAD_START_ROUTINE& Pr
 																			  */
 void CThreadPool::FinishNotify(DWORD dwThreadId)
 {
-	ThreadMap::iterator iter;
-	
-	EnterCriticalSection(&m_csThreads);
-
-	iter = m_threads.find(dwThreadId);
-
-	if(iter == m_threads.end())	// if search found no elements
-	{			
-		LeaveCriticalSection(&m_csThreads);
-		TRACE(_T("No matching thread found."));
+	Guard functions(m_csFuncList);
+	Guard threads(m_csThreads);
+	ThreadMap::iterator thread = m_threads.find(dwThreadId);
+	if (thread == m_threads.end())
 		return;
-	}
-	else
-	{	
-#if defined(_DEBUG)
-		CString str;
-		str.Format(_T("%d bFree = true FinishNtf\n"), dwThreadId);
-		_debugString += str;
-#endif
-
-		m_threads[dwThreadId].bFree = true;
-
-		#ifdef _DEBUG
-		TCHAR szMessage[256];
-		_stprintf_s(szMessage, 256, _T("Thread free, thread id = %d\n"), dwThreadId);
-		TRACE(szMessage);
-		#endif
-
-		if(!m_functionList.empty())
-		{
-			// there are some more functions that need servicing, lets do that.
-			// By not doing anything here we are letting the thread go back and
-			// check the function list and pick up a function and execute it.
-			LeaveCriticalSection(&m_csThreads);
-			return;
-		}		
-		else
-		{
-			// back to sleep, there is nothing that needs servicing.
-			LeaveCriticalSection(&m_csThreads);
-			ResetEvent(m_threads[dwThreadId].WaitHandle);
-		}
-	}	
+	thread->second.bFree = true;
+	if (m_functionList.empty())
+		ResetEvent(thread->second.WaitHandle);
 }
 //------------------------------------------------------------------------------
 
@@ -482,60 +439,25 @@ void CThreadPool::BusyNotify(DWORD dwThreadId)
    Decription	: This function is to be called by clients which want to make 
 				  use of the thread pool.
   *****************************************************************************/
-bool CThreadPool::Run(LPTHREAD_START_ROUTINE pFunc, LPVOID pData, 
-					  ThreadPriority priority)
+bool CThreadPool::Run(LPTHREAD_START_ROUTINE pFunc, LPVOID pData, ThreadPriority priority)
 {
-	if(m_state == Destroying || m_state == Destroyed)
+	if (!pFunc)
 		return false;
-	
-	_FunctionData funcdata;
-
-	UserPoolData* pPoolData = new UserPoolData;
-	
-	pPoolData->pData = pData;
-	pPoolData->pThreadPool = this;
-
-	funcdata.lpStartAddress = pFunc;
-	funcdata.pData			= pPoolData;
-
-	// add it to the list
-	EnterCriticalSection(&m_csFuncList);
-	if(priority == Low)
-	{
-		m_functionList.push_back(funcdata);
-	}
+	Guard functions(m_csFuncList);
+	if (m_state != Ready)
+		return false;
+	std::unique_ptr<UserPoolData> wrapper(new UserPoolData);
+	wrapper->pData = pData;
+	wrapper->pThreadPool = this;
+	_FunctionData function;
+	function.lpStartAddress = pFunc;
+	function.pData = wrapper.get();
+	if (priority == Low)
+		m_functionList.push_back(function);
 	else
-	{
-		m_functionList.push_front(funcdata);
-	}
-	LeaveCriticalSection(&m_csFuncList);
-
-	// See if any threads are free
-	ThreadMap::iterator iter;
-	_ThreadData ThreadData;
-
-	EnterCriticalSection(&m_csThreads);
-	for(iter = m_threads.begin(); iter != m_threads.end(); iter++)
-	{
-		ThreadData = (*iter).second;
-		
-		if(ThreadData.bFree)
-		{
-			// here is a free thread, put it to work
-#if defined(_DEBUG)
-			CString str;
-			str.Format(_T("%d bFree = false Run Fun\n"), ThreadData.dwThreadId);
-			_debugString += str;
-#endif
-			m_threads[ThreadData.dwThreadId].bFree = false;			
-			SetEvent(ThreadData.WaitHandle); 
-			// this thread will now call GetThreadProc() and pick up the next
-			// function in the list.
-			break;
-		}
-	}
-
-	LeaveCriticalSection(&m_csThreads);
+		m_functionList.push_front(function);
+	wrapper.release();
+	WakeWorker();
 	return true;
 }
 //------------------------------------------------------------------------------
@@ -550,62 +472,36 @@ bool CThreadPool::Run(LPTHREAD_START_ROUTINE pFunc, LPVOID pData,
    Decription	: This function is to be called by clients which want to make 
 				  use of the thread pool.
   *****************************************************************************/
-bool CThreadPool::Run(IRunObject* runObject, ThreadPriority priority)
+bool CThreadPool::Run(IRunObject* object, ThreadPriority priority)
 {
-	if(m_state == Destroying || m_state == Destroyed)
+	if (!object)
 		return false;
-
-	ASSERT(runObject != NULL);
-		
-	runObject->pThreadPool = this; 
-
-	_FunctionData funcdata;
-
-	funcdata.lpStartAddress = NULL; // NULL indicates a function object is being
-									// used instead.
-	funcdata.pData			= runObject; // the function object
-
-	// add it to the list
-	EnterCriticalSection(&m_csFuncList);
-	if(priority == Low)
-	{
-		m_functionList.push_back(funcdata);
-	}
+	Guard functions(m_csFuncList);
+	if (m_state != Ready)
+		return false;
+	_FunctionData function;
+	function.pData = object;
+	if (priority == Low)
+		m_functionList.push_back(function);
 	else
-	{
-		m_functionList.push_front(funcdata);
-	}
-	LeaveCriticalSection(&m_csFuncList);
+		m_functionList.push_front(function);
+	object->pThreadPool = this;
+	WakeWorker();
+	return true;
+}
 
-	// See if any threads are free
-	ThreadMap::iterator iter;
-	_ThreadData ThreadData;
-
-	EnterCriticalSection(&m_csThreads);
-	for(iter = m_threads.begin(); iter != m_threads.end(); iter++)
+void CThreadPool::WakeWorker()
+{
+	Guard threads(m_csThreads);
+	for (ThreadMap::iterator thread = m_threads.begin(); thread != m_threads.end(); ++thread)
 	{
-		ThreadData = (*iter).second;
-		
-		if(ThreadData.bFree)
+		if (thread->second.bFree)
 		{
-			// here is a free thread, put it to work
-#if defined(_DEBUG)
-			CString str;
-			str.Format(_T("%d bFree = false Run\n"), ThreadData.dwThreadId);
-			_debugString += str;
-#endif
-
-			m_threads[ThreadData.dwThreadId].bFree = false;			
-			SetEvent(ThreadData.WaitHandle); 
-			// this thread will now call GetThreadProc() and pick up the next
-			// function in the list.
+			thread->second.bFree = false;
+			SetEvent(thread->second.WaitHandle);
 			break;
 		}
 	}
-
-
-	LeaveCriticalSection(&m_csThreads);
-	return true;
 }
 //------------------------------------------------------------------------------
 
@@ -649,22 +545,12 @@ bool CThreadPool::CheckThreadStop()
  
 int CThreadPool::GetWorkingThreadCount()
 {
-	// Returns true is 
-	ThreadMap::iterator iter;
-	_ThreadData ThreadData;
-	int nCount = 0;
-
-    for(iter = m_threads.begin(); iter != m_threads.end(); iter++) 
-	{
-		ThreadData = (*iter).second;
-
-        if(!ThreadData.bFree) 
-		{
-			nCount++;
-		}
-	}
-
-    return nCount;
+	Guard threads(m_csThreads);
+	int count = 0;
+	for (ThreadMap::iterator thread = m_threads.begin(); thread != m_threads.end(); ++thread)
+		if (!thread->second.bFree)
+			++count;
+	return count;
 }
 //------------------------------------------------------------------------------
 
@@ -675,23 +561,14 @@ PoolState CThreadPool::GetState()
 
 bool CThreadPool::IsAllTaskCompleted()
 {
-	ThreadMap::iterator iter;
-	bool isCompleted = true;
-	
-	EnterCriticalSection(&m_csThreads);
-	
-	for(iter = m_threads.begin(); iter != m_threads.end(); iter++)
-	{
-		if(!(*iter).second.bFree)
-		{
-			isCompleted = false;
-			break;
-		}
-	}
-
-	LeaveCriticalSection(&m_csThreads);
-
-	return isCompleted;
+	Guard functions(m_csFuncList);
+	Guard threads(m_csThreads);
+	if (!m_functionList.empty())
+		return false;
+	for (ThreadMap::iterator thread = m_threads.begin(); thread != m_threads.end(); ++thread)
+		if (!thread->second.bFree)
+			return false;
+	return true;
 }
 
 //------------------------------------------------------------------------------

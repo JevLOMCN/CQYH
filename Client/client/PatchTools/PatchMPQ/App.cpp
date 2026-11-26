@@ -8,6 +8,7 @@
 
 #include "StdAfx.h"
 #include "App.h"
+#include "../PatchPath.h"
 #include <shlwapi.h>
 
 #pragma comment(lib, "shlwapi.lib")
@@ -21,9 +22,8 @@ static App g_AppInst;
 App::App()
 {
 	TCHAR buf[MAX_PATH];
-	memset(buf, 0, sizeof(MAX_PATH));
-
-	GetModuleFileName(NULL, buf, MAX_PATH - 1);
+	if (!ClientPatch::ReadModulePath(buf))
+		return;
 	::PathRemoveFileSpec(buf);
 	CString strT(buf);
 	strT += _T("\\");

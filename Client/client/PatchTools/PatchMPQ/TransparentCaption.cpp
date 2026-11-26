@@ -13,6 +13,7 @@ IMPLEMENT_DYNAMIC(TransparentCaption, CStatic)
 
 TransparentCaption::TransparentCaption()
 {
+	_rcOnBgImg.SetRectEmpty();
 	_textAlign = DT_CENTER | DT_VCENTER | DT_SINGLELINE;
 	_font.CreatePointFont(9, _T("ËÎÌו"));
 	_txtColor = RGB(0, 0, 0);
