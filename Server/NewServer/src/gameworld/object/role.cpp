@@ -3563,6 +3563,8 @@ INT32 CRole::CastSpell(CSpell* poSpell, CCharacter* poTarget, INT64 nTargetX, IN
     switch (m_poCastingSpell->GetAttr(satAttackType))
     {
         case spatPhy:
+        case spatStab:
+        case spatArchery:
             m_nHpTap += g_GWConfig.nHpTapPhyAtk;
             m_nMpTap += g_GWConfig.nMpTapPhyAtk;
             break;

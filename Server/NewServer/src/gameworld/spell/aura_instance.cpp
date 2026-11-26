@@ -99,13 +99,12 @@ BOOL CAuraInstance::Init(CAura* pInfo, ExtraParam* pExParam, CCharacter* poCaste
 	{
 		CAttrList& AttrList = poCaster->GetAttrList();
 		INT32 eSpellAtkType = GetAttr(aatAttackType);
+		LOG_PROCESS_ERROR(eSpellAtkType > spatInvalid && eSpellAtkType < spatTotal);
 
 		INT64 llAtkHi = AttrList.GetAttr(s_MaxAtkTable[eSpellAtkType]);
 		INT64 llAtkLo = AttrList.GetAttr(s_AtkTable[eSpellAtkType]);
 
 		LOG_PROCESS_ERROR(llAtkLo <= llAtkHi);
-
-		LOG_PROCESS_ERROR(eSpellAtkType > spatInvalid && eSpellAtkType < spatTotal);
 
 		INT32 nWeaponType = poCaster->GetWeaponType();
 		LOG_PROCESS_ERROR(nWeaponType > WEAPONTYPE_INVALID && nWeaponType < WEAPONTYPE_TOTAL);

@@ -30493,6 +30493,10 @@ TOLUA_API int tolua_global_config_open (lua_State* tolua_S)
   tolua_constant(tolua_S,"catMaxMagAtk",catMaxMagAtk);
   tolua_constant(tolua_S,"catTaoAtk",catTaoAtk);
   tolua_constant(tolua_S,"catMaxTaoAtk",catMaxTaoAtk);
+  tolua_constant(tolua_S,"catStabAtk",catStabAtk);
+  tolua_constant(tolua_S,"catMaxStabAtk",catMaxStabAtk);
+  tolua_constant(tolua_S,"catArcheryAtk",catArcheryAtk);
+  tolua_constant(tolua_S,"catMaxArcheryAtk",catMaxArcheryAtk);
   tolua_constant(tolua_S,"catMaxHp",catMaxHp);
   tolua_constant(tolua_S,"catMaxMp",catMaxMp);
   tolua_constant(tolua_S,"catWalkSpeed",catWalkSpeed);
@@ -31140,6 +31144,8 @@ TOLUA_API int tolua_global_config_open (lua_State* tolua_S)
   tolua_constant(tolua_S,"spatPhy",spatPhy);
   tolua_constant(tolua_S,"spatMag",spatMag);
   tolua_constant(tolua_S,"spatTao",spatTao);
+  tolua_constant(tolua_S,"spatStab",spatStab);
+  tolua_constant(tolua_S,"spatArchery",spatArchery);
   tolua_constant(tolua_S,"spatTotal",spatTotal);
   tolua_constant(tolua_S,"spdtInvalid",spdtInvalid);
   tolua_constant(tolua_S,"spdtNone",spdtNone);

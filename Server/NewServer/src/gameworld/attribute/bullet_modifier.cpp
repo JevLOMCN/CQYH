@@ -811,14 +811,6 @@ INT32 ModifierBullet_027(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     INT32 nAtkHi = 0;
     INT32 eSpellAtkType = 0;
 
-    static INT32 s_AtkTableHi[] =
-    {
-        catDefault,		// 1  none
-        catMaxPhyAtk,	// 7  melee
-        catMaxMagAtk,	// 9  magic
-        catMaxTaoAtk,	// 11 magic
-    };
-
     CBullet* poBullet = static_cast<CBullet*>(poTarget);
     LOG_PROCESS_ERROR(poBullet);
 
@@ -830,7 +822,7 @@ INT32 ModifierBullet_027(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     caster = CGameWorld::GetInstance().FindValidCharacter(poBullet->GetCasterID());
     PROCESS_SUCCESS(caster == NULL);
 
-    nAtkHi = caster->GetAttr(s_AtkTableHi[eSpellAtkType]);
+    nAtkHi = caster->GetAttr(s_MaxAtkTable[eSpellAtkType]);
 
     nResult = nAtkHi * caster->GetMp() * nParam2 / nParam1 / RATE_MAX + nParam3;
 
@@ -1219,14 +1211,6 @@ INT32 ModifierBullet_040(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     INT32 nAtkHi = 0;
     INT32 eSpellAtkType = 0;
 
-    static INT32 s_AtkTableHi[] =
-    {
-        catDefault,		// none
-        catMaxPhyAtk,	// melee
-        catMaxMagAtk,	// magic
-        catMaxTaoAtk,
-    };
-
     CBullet* poBullet = static_cast<CBullet*>(poTarget);
     LOG_PROCESS_ERROR(poBullet);
 
@@ -1241,7 +1225,7 @@ INT32 ModifierBullet_040(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     caster = CGameWorld::GetInstance().FindValidCharacter(poBullet->GetCasterID());
     PROCESS_SUCCESS(caster == NULL);
 
-    nAtkHi = caster->GetAttr(s_AtkTableHi[eSpellAtkType]);
+    nAtkHi = caster->GetAttr(s_MaxAtkTable[eSpellAtkType]);
 
     nResult = nAtkHi * (caster->GetAttr(catMaxMp) - caster->GetMp()) * nParam2 / nParam1 + nParam3 * RATE_MAX;
 
@@ -4250,14 +4234,6 @@ INT32 ModifierBullet_132(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     INT32 v17 = 0;
     INT64 v18 = 0;
 
-    static INT32 s_AtkTableHi[] =
-    {
-        catDefault,      // 1  none
-        catMaxPhyAtk,    // 7  melee
-        catMaxMagAtk,    // 9  magic
-        catMaxTaoAtk,    // 11 magic
-    };
-
     CBullet* poBullet = static_cast<CBullet*>(poTarget);
     LOG_PROCESS_ERROR(poBullet);
 
@@ -4269,7 +4245,7 @@ INT32 ModifierBullet_132(void* poTarget, BOOL bIsRollingBack, INT32 nParam1, INT
     caster = CGameWorld::GetInstance().FindValidCharacter(poBullet->GetCasterID());
     PROCESS_SUCCESS(caster == NULL);
 
-    nAtkHi = caster->GetAttr(s_AtkTableHi[eSpellAtkType]);
+    nAtkHi = caster->GetAttr(s_MaxAtkTable[eSpellAtkType]);
 
     v14 = poBullet->GetSpellAttr(satEffectValue);
     v17 = (int)((poBullet->GetSpellLevel() + 1) * v14) / 4 + nAtkHi;

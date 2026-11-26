@@ -33,66 +33,70 @@ enum CHAR_ATTR_TYPE
 	catMaxMagAtk,				   // 9	 Maximum magic attack
 	catTaoAtk,					   // 10 Tao attack
 	catMaxTaoAtk,				   // 11 Maximum Tao attack
-	catMaxHp,					   // 12 Maximum HP
-	catMaxMp,					   // 13 Maximum MP
-	catWalkSpeed,				   // 14 Walking speed
-	catRunSpeed,				   // 15 Running speed
+	catStabAtk,				// 12 Minimum stabbing attack
+	catMaxStabAtk,				// 13 Maximum stabbing attack
+	catArcheryAtk,				// 14 Minimum archery attack
+	catMaxArcheryAtk,				// 15 Maximum archery attack
+	catMaxHp,					   // 16 Maximum HP
+	catMaxMp,					   // 17 Maximum MP
+	catWalkSpeed,				   // 18 Walking speed
+	catRunSpeed,				   // 19 Running speed
 
-	catAccurate,				   // 16 Accuracy / hit chance
-	catAgility,					   // 17 Agility
-	catMagDodge,				   // 18 Magic evasion
-	catCrit,					   // 19 Critical hit rate
-	catCritDmg,					   // 20 Critical damage
-	catCritResist,				   // 21 Critical hit resistance
-	catCritDmgResist,			   // 22 Critical damage resistance
-	catAntiPhyDef,				   // 23 Physical penetration
-	catAntiMagDef,				   // 24 Magic penetration
-	catDrugHpRecovery,			   // 25 Potion HP recovery
-	catDrugMpRecovery,			   // 26 Potion MP recovery
-	catLuck,					   // 27 Luck
-	catHolyDmg,					   // 28 Holy damage
+	catAccurate,				   // 20 Accuracy / hit chance
+	catAgility,					   // 21 Agility
+	catMagDodge,				   // 22 Magic evasion
+	catCrit,					   // 23 Critical hit rate
+	catCritDmg,					   // 24 Critical damage
+	catCritResist,				   // 25 Critical hit resistance
+	catCritDmgResist,			   // 26 Critical damage resistance
+	catAntiPhyDef,				   // 27 Physical penetration
+	catAntiMagDef,				   // 28 Magic penetration
+	catDrugHpRecovery,			   // 29 Potion HP recovery
+	catDrugMpRecovery,			   // 30 Potion MP recovery
+	catLuck,					   // 31 Luck
+	catHolyDmg,					   // 32 Holy damage
 
-	catHurtEnhanced,			   // 29 Damage bonus when hit (increases the next attack’s damage)
-	catDmgResist,				   // 30 Damage resistance
-	catDmgEnhance,				   // 31 Damage bonus
-	catAtkSpeed,				   // 32 Attack speed
+	catHurtEnhanced,			   // 33 Damage bonus when hit (increases the next attack’s damage)
+	catDmgResist,				   // 34 Damage resistance
+	catDmgEnhance,				   // 35 Damage bonus
+	catAtkSpeed,				   // 36 Attack speed
 
-	catHpRecovery,				   // 33 HP recovery
-	catMpRecovery,				   // 34 MP recovery
-	catHpRecoveryTap,			   // 35 HP recovery coefficient
-	catMpRecoveryTap,			   // 36 MP recovery coefficient
-	catTapIncrease,				   // 37 Coefficient increase?
-	catAtkSpeedRate,			   // 38 Attack speed bonus rate
+	catHpRecovery,				   // 37 HP recovery
+	catMpRecovery,				   // 38 MP recovery
+	catHpRecoveryTap,			   // 39 HP recovery coefficient
+	catMpRecoveryTap,			   // 40 MP recovery coefficient
+	catTapIncrease,				   // 41 Coefficient increase?
+	catAtkSpeedRate,			   // 42 Attack speed bonus rate
 
-	catPoisonDef,				   // 39 Poison defense
-	catPoisonRecovery,			   // 40 Poison recovery
+	catPoisonDef,				   // 43 Poison defense
+	catPoisonRecovery,			   // 44 Poison recovery
 
-	catPoisonResist,			   // 41 Poison resistance
-	catStunResist,				   // 42 Stun resistance
-	catRepelResist,				   // 43 Knockback resistance
-	catHurtResist,				   // 44 Hit-stun resistance
-	catBurnResist,				   // 45 Burn resistance
+	catPoisonResist,			   // 45 Poison resistance
+	catStunResist,				   // 46 Stun resistance
+	catRepelResist,				   // 47 Knockback resistance
+	catHurtResist,				   // 48 Hit-stun resistance
+	catBurnResist,				   // 49 Burn resistance
 
-	catWeaponWeightLmt,			   // 46 Weapon weight limit
-	catArmorWeightLmt,			   // 47 Armor weight limit
-	catBagWeightLmt,			   // 48 Bag weight limit
+	catWeaponWeightLmt,			   // 50 Weapon weight limit
+	catArmorWeightLmt,			   // 51 Armor weight limit
+	catBagWeightLmt,			   // 52 Bag weight limit
 
-	catEndExAttr,				   // 49 
+	catEndExAttr,				   // 53
 
 	// ====================
 
-	catDmgAbsorb = catEndExAttr,   // 49 Damage absorption
-	catExtraDmg,				   // 50 Additional flat damage - in use
-	catExtraHardTime,			   // 51 Extended stun duration - in use
-	catPHitCountDown,			   // 52 Physical combo interval - in use
-	catPHitNum,					   // 53 Physical combo count - in use
-	catSpellPtsIncr,			   // 54 Skill point bonus - in use
-	catLeech,					   // 55 Life-steal coefficient - in use
-	catMpToHp,					   // 56 Convert MP to HP - in use
-	catMpToHpRemain,			   // 57 Convert remaining MP to HP - in use
-	catExtraThunderDmg,			   // 58 Additional lightning damage
-	catDrugHpSlowRecovery,		   // 59 Potion recovery over time - in use
-	catExpRate,					   // 60 Experience gain rate
+	catDmgAbsorb = catEndExAttr,   // 53 Damage absorption
+	catExtraDmg,				   // 54 Additional flat damage - in use
+	catExtraHardTime,			   // 55 Extended stun duration - in use
+	catPHitCountDown,			   // 56 Physical combo interval - in use
+	catPHitNum,					   // 57 Physical combo count - in use
+	catSpellPtsIncr,			   // 58 Skill point bonus - in use
+	catLeech,					   // 59 Life-steal coefficient - in use
+	catMpToHp,					   // 60 Convert MP to HP - in use
+	catMpToHpRemain,			   // 61 Convert remaining MP to HP - in use
+	catExtraThunderDmg,			   // 62 Additional lightning damage
+	catDrugHpSlowRecovery,		   // 63 Potion recovery over time - in use
+	catExpRate,					   // 64 Experience gain rate
 
 	catTotal,					///< @line
 };

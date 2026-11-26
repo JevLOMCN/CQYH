@@ -104,6 +104,8 @@ enum SPELL_ATTACK_TYPE
 	spatPhy,
 	spatMag,
 	spatTao,
+	spatStab,
+	spatArchery,
 
 	spatTotal
 };
@@ -470,12 +472,19 @@ enum SPELL_EVENT_SOURCE
 	sesTotal
 };
 
+inline bool IsPhysicalSpellAttack(INT32 attackType)
+{
+	return attackType == spatPhy || attackType == spatStab || attackType == spatArchery;
+}
+
 static INT32 s_MaxAtkTable[spatTotal] =
 {
 	catDefault,		// none
 	catMaxPhyAtk,	// melee
 	catMaxMagAtk,	// magic
 	catMaxTaoAtk,	// tao 
+	catMaxStabAtk,	// stab
+	catMaxArcheryAtk,	// archery
 };
 
 static INT32 s_AtkTable[spatTotal] =
@@ -484,6 +493,8 @@ static INT32 s_AtkTable[spatTotal] =
 	catPhyAtk,	// melee
 	catMagAtk,	// magic
 	catTaoAtk,	// magic
+	catStabAtk,	// stab
+	catArcheryAtk,	// archery
 };
 
 static INT32 s_MaxDefTable[spatTotal] =
@@ -492,6 +503,8 @@ static INT32 s_MaxDefTable[spatTotal] =
 	catMaxPhyDef,	// phy
 	catMaxMagDef,	// mag
 	catMaxMagDef,	// tao 
+	catMaxPhyDef,	// stab
+	catMaxPhyDef,	// archery
 };
 
 static INT32 s_DefTable[spatTotal] =
@@ -500,6 +513,8 @@ static INT32 s_DefTable[spatTotal] =
 	catPhyDef,	// phy
 	catMagDef,	// mag
 	catMagDef,	// tao 
+	catPhyDef,	// stab
+	catPhyDef,	// archery
 };
 
 static INT32 s_AntiDefTable[spatTotal] =
@@ -508,14 +523,18 @@ static INT32 s_AntiDefTable[spatTotal] =
 	catAntiPhyDef,	// phy
 	catAntiMagDef,	// mag
 	catAntiMagDef,	// tao 
+	catAntiPhyDef,	// stab
+	catAntiPhyDef,	// archery
 };
 
-static INT32 s_SpeedTable[] =
+static INT32 s_SpeedTable[spatTotal] =
 {
 	catDefault,			// spatNone
 	catAtkSpeedRate,	// spatPhy
 	catAtkSpeedRate,	// spatMag
 	catAtkSpeedRate,	// spatTao
+	catAtkSpeedRate,	// stab
+	catAtkSpeedRate,	// archery
 };
 
 

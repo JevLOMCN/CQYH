@@ -91,7 +91,8 @@ void CCliMessageHandler::OnCastSpellEx(CRole* poRole, const char* pData)
 					{
 						if (poCastingSpell->GetAttr(satCancelHardTime))
 						{
-							if (poCastingSpell->GetAttr(satAttackType) != spatPhy && poSpell->GetAttr(satAttackType) == spatPhy)
+							if (!IsPhysicalSpellAttack(poCastingSpell->GetAttr(satAttackType)) &&
+								IsPhysicalSpellAttack(poSpell->GetAttr(satAttackType)))
 							{
 								poCastingSpell->SetFastStop(TRUE);
 								poRole->CacheSpell(pMsg->wSpellID, pMsg->bySerial, pMsg->dwTargetID, nTargetX, nTargetY, nTargetZ);

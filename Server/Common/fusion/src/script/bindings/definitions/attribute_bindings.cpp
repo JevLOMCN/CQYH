@@ -24,6 +24,10 @@ void register_attribute_definitions(lua_State* L)
     globals["catMaxMagAtk"] = static_cast<lua_Number>(catMaxMagAtk);
     globals["catTaoAtk"] = static_cast<lua_Number>(catTaoAtk);
     globals["catMaxTaoAtk"] = static_cast<lua_Number>(catMaxTaoAtk);
+    globals["catStabAtk"] = static_cast<lua_Number>(catStabAtk);
+    globals["catMaxStabAtk"] = static_cast<lua_Number>(catMaxStabAtk);
+    globals["catArcheryAtk"] = static_cast<lua_Number>(catArcheryAtk);
+    globals["catMaxArcheryAtk"] = static_cast<lua_Number>(catMaxArcheryAtk);
     globals["catMaxHp"] = static_cast<lua_Number>(catMaxHp);
     globals["catMaxMp"] = static_cast<lua_Number>(catMaxMp);
     globals["catWalkSpeed"] = static_cast<lua_Number>(catWalkSpeed);

@@ -83,6 +83,8 @@ int sol_spell_open(lua_State* L)
     globals["spatPhy"] = static_cast<lua_Number>(spatPhy);
     globals["spatMag"] = static_cast<lua_Number>(spatMag);
     globals["spatTao"] = static_cast<lua_Number>(spatTao);
+    globals["spatStab"] = static_cast<lua_Number>(spatStab);
+    globals["spatArchery"] = static_cast<lua_Number>(spatArchery);
     globals["spatTotal"] = static_cast<lua_Number>(spatTotal);
     globals["spdtInvalid"] = static_cast<lua_Number>(spdtInvalid);
     globals["spdtNone"] = static_cast<lua_Number>(spdtNone);

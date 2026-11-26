@@ -80,6 +80,8 @@ void register_spell_definitions(lua_State* L)
     spell_attack_type_namespace["spatPhy"] = static_cast<lua_Number>(spatPhy);
     spell_attack_type_namespace["spatMag"] = static_cast<lua_Number>(spatMag);
     spell_attack_type_namespace["spatTao"] = static_cast<lua_Number>(spatTao);
+    spell_attack_type_namespace["spatStab"] = static_cast<lua_Number>(spatStab);
+    spell_attack_type_namespace["spatArchery"] = static_cast<lua_Number>(spatArchery);
     spell_attack_type_namespace["spatTotal"] = static_cast<lua_Number>(spatTotal);
     sol::table spell_damage_type_namespace = globals["SPELL_DAMAGE_TYPE"].get_or_create<sol::table>();
     spell_damage_type_namespace["spdtInvalid"] = static_cast<lua_Number>(spdtInvalid);

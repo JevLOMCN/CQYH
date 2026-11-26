@@ -31,6 +31,10 @@ int main() {
     const char* script = R"(
         assert(errSuccess == 1)
         assert(type(MAX_SPELL_EFFECT_DISTANCE) == 'number')
+        assert(catStabAtk == 12 and catMaxStabAtk == 13)
+        assert(catArcheryAtk == 14 and catMaxArcheryAtk == 15)
+        assert(catMaxHp == 16)
+        assert(spatStab == 4 and spatArchery == 5)
         g_GWConfig.nForceSyncDistance = 4321
         g_GWConfig.szConfigPath = 'test/config'
         assert(g_GWConfig.nForceSyncDistance == 4321)

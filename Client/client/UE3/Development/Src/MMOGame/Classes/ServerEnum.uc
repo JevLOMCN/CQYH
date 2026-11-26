@@ -2,7 +2,7 @@ class ServerEnum extends Object native;
 
 enum ECHAR_ATTR_TYPE
 {
-// conflicted enum definition catEndExAttr(49)
+// conflicted enum definition catEndExAttr(53)
 	E_cat_Invalid                     <DisplayName="E_cat_Invalid">,
 	E_cat_Default                     <DisplayName="E_cat_Default">,
 	E_cat_PhyDef                      <DisplayName="E_cat_PhyDef">,
@@ -15,6 +15,10 @@ enum ECHAR_ATTR_TYPE
 	E_cat_MaxMagAtk                   <DisplayName="E_cat_MaxMagAtk">,
 	E_cat_TaoAtk                      <DisplayName="E_cat_TaoAtk">,
 	E_cat_MaxTaoAtk                   <DisplayName="E_cat_MaxTaoAtk">,
+	E_cat_StabAtk                   <DisplayName="E_cat_StabAtk">,
+	E_cat_MaxStabAtk                   <DisplayName="E_cat_MaxStabAtk">,
+	E_cat_ArcheryAtk                   <DisplayName="E_cat_ArcheryAtk">,
+	E_cat_MaxArcheryAtk                   <DisplayName="E_cat_MaxArcheryAtk">,
 	E_cat_MaxHp                       <DisplayName="E_cat_MaxHp">,
 	E_cat_MaxMp                       <DisplayName="E_cat_MaxMp">,
 	E_cat_WalkSpeed                   <DisplayName="E_cat_WalkSpeed">,
@@ -3801,6 +3805,8 @@ enum ESPELL_ATTACK_TYPE
 	E_spat_Phy                        <DisplayName="E_spat_Phy">,
 	E_spat_Mag                        <DisplayName="E_spat_Mag">,
 	E_spat_Tao                        <DisplayName="E_spat_Tao">,
+	E_spat_Stab                        <DisplayName="E_spat_Stab">,
+	E_spat_Archery                        <DisplayName="E_spat_Archery">,
 	E_spat_Total                      <DisplayName="E_spat_Total">,
 	E_spat_MAX
 };

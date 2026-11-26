@@ -25,6 +25,10 @@ void register_attribute_definitions(lua_State* L)
     char_attr_type_namespace["catMaxMagAtk"] = static_cast<lua_Number>(catMaxMagAtk);
     char_attr_type_namespace["catTaoAtk"] = static_cast<lua_Number>(catTaoAtk);
     char_attr_type_namespace["catMaxTaoAtk"] = static_cast<lua_Number>(catMaxTaoAtk);
+    char_attr_type_namespace["catStabAtk"] = static_cast<lua_Number>(catStabAtk);
+    char_attr_type_namespace["catMaxStabAtk"] = static_cast<lua_Number>(catMaxStabAtk);
+    char_attr_type_namespace["catArcheryAtk"] = static_cast<lua_Number>(catArcheryAtk);
+    char_attr_type_namespace["catMaxArcheryAtk"] = static_cast<lua_Number>(catMaxArcheryAtk);
     char_attr_type_namespace["catMaxHp"] = static_cast<lua_Number>(catMaxHp);
     char_attr_type_namespace["catMaxMp"] = static_cast<lua_Number>(catMaxMp);
     char_attr_type_namespace["catWalkSpeed"] = static_cast<lua_Number>(catWalkSpeed);

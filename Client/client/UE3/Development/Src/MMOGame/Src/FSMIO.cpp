@@ -11,6 +11,7 @@
 #include "MMOSkillManager.h"
 #include "MMOChatManager.h"
 #include "Mir2Attack.h"
+#include "spell_def.h"
 
 using namespace FSM;
 extern UBOOL g_PreMovetoPoint;
@@ -88,8 +89,8 @@ UBOOL FSMIO_Ability::CanUseAnyAbility(class UMMOAbility* InAbility)
 				InAbility->SpellCommonAttribute.CancelLevel == FSM::Ability.CurrentAbility->SpellCommonAttribute.CancelLevel )
 		{
 			if( FSM::Ability.CurrentAbility->SpellCommonAttribute.CancelHardTime &&
-				FSM::Ability.CurrentAbility->SpellCommonAttribute.AttackType!=E_spat_Phy  &&
-				InAbility->SpellCommonAttribute.AttackType==E_spat_Phy &&
+				!IsPhysicalSpellAttack(FSM::Ability.CurrentAbility->SpellCommonAttribute.AttackType)  &&
+				IsPhysicalSpellAttack(InAbility->SpellCommonAttribute.AttackType) &&
 				FSM::Char.MainPlayer->CurrentAbilityState == EAS_Cast )
 			{
 				return TRUE;
@@ -292,7 +293,7 @@ void FSMIO_Target::SetCacheAbility(UMMOAbility* Ability)
 		}
 		else if(Ability->SpellCommonAttribute.AttackType==E_spat_Mag || Ability->SpellCommonAttribute.AttackType==E_spat_Tao )
 		{
-			if(FSM::Ability.CurrentAbility && FSM::Char.MainPlayer->IsUsingAbility() && FSM::Ability.CurrentAbility->SpellCommonAttribute.AttackType==E_spat_Phy)
+			if(FSM::Ability.CurrentAbility && FSM::Char.MainPlayer->IsUsingAbility() && IsPhysicalSpellAttack(FSM::Ability.CurrentAbility->SpellCommonAttribute.AttackType))
 			{
 				FSM::Ability.CacheAbility = Ability;
 			}

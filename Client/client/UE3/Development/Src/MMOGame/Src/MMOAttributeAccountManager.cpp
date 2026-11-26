@@ -666,20 +666,21 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 
 void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 {
-	INT itemNum = 8;
+	// The localization table reserves slot 9 for Peerless Power.
+	const INT localizedRows[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10};
 	
 	FString strPath;
 	StructAttributeGroup& groupAttribute = AttributeGroupList(groupId);
 	
-	for ( INT i = 0 ; i < itemNum ; i++ )
+	for ( INT i = 0 ; i < ARRAY_COUNT(localizedRows) ; i++ )
 	{
 		StructAttributeItem attributeItem;
 
 		for ( INT j = 0 ; j < EPCT_MAX - 1 ; j++ )
 		{
-			strPath = FString::Printf( TEXT("MMOGame.Player.AttriGroup%d_ItemName%d") , groupId , i , j );
+			strPath = FString::Printf( TEXT("MMOGame.Player.AttriGroup%d_ItemName%d") , groupId , localizedRows[i] );
 			attributeItem.AttributeName[j] = MMOUI::ParseLocalizedPropertyPath( strPath );
-			strPath = FString::Printf( TEXT("MMOGame.Player.AttriGroup%d_ItemTipsDesc%d") , groupId , i , j );
+			strPath = FString::Printf( TEXT("MMOGame.Player.AttriGroup%d_ItemTipsDesc%d") , groupId , localizedRows[i] );
 			attributeItem.TipsDesc[j] = MMOUI::ParseLocalizedPropertyPath( strPath );
 		}
 
@@ -688,26 +689,32 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 
 	//attack power
 	INT pos = 0;
-	initBaseAttributeByHighAndLow(catMaxPhyAtk,catPhyAtk,0,pos);
+	initBaseAttributeByHighAndLow(catMaxPhyAtk,catPhyAtk,groupId,pos);
 
 	//magic
 	pos = 1;
-	initBaseAttributeByHighAndLow(catMaxMagAtk,catMagAtk,0,pos);
+	initBaseAttributeByHighAndLow(catMaxMagAtk,catMagAtk,groupId,pos);
 
 	//taoism
 	pos = 2;
-	initBaseAttributeByHighAndLow(catMaxTaoAtk,catTaoAtk,0,pos);
+	initBaseAttributeByHighAndLow(catMaxTaoAtk,catTaoAtk,groupId,pos);
+
+	// Stabbing and archery attack
+	pos = 3;
+	initBaseAttributeByHighAndLow(catMaxStabAtk, catStabAtk, groupId, pos);
+	pos = 4;
+	initBaseAttributeByHighAndLow(catMaxArcheryAtk, catArcheryAtk, groupId, pos);
 
 	//defense
-	pos = 3;
-	initBaseAttributeByHighAndLow(catMaxPhyDef,catPhyDef,0,pos);
+	pos = 5;
+	initBaseAttributeByHighAndLow(catMaxPhyDef,catPhyDef,groupId,pos);
 
 	//magic defense
-	pos = 4;
-	initBaseAttributeByHighAndLow(catMaxMagDef,catMagDef,0,pos);
+	pos = 6;
+	initBaseAttributeByHighAndLow(catMaxMagDef,catMagDef,groupId,pos);
 
 	//life
-	pos = 5;
+	pos = 7;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_HP;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_HP;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catMaxHp;	
@@ -715,7 +722,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 
 	//magic
-	pos = 6;
+	pos = 8;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_MP;
 	groupAttribute.AttributeList(pos).ValueShowType = EVST_MP;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catMaxMp;	
@@ -723,7 +730,7 @@ void MMOAttributeAccountManager::initBaseAttribute( INT groupId )
 	groupAttribute.AttributeList(pos).AttributeMulParaA[EPCT_PlayerClassA] = 1;
 
 	//luck
-	pos = 7;
+	pos = 9;
 	groupAttribute.AttributeList(pos).TipsValueShowType = EVST_Int;
 	groupAttribute.AttributeList(pos).AttributeValueType[EPCT_PlayerClassA] = catLuck;	
 	groupAttribute.AttributeList(pos).AttributeTypeA[EPCT_PlayerClassA] = catLuck;

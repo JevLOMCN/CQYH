@@ -468,7 +468,7 @@ void CBullet::OnTimeup(CCharacter* poTarget, INT32 nFrm)
 		CItemBag* poBag = poRole->GetItemBag();
 		LOG_PROCESS_ERROR(poBag);
 
-		if (m_SpellData.m_nAttrTable[satAttackType] == spatPhy)
+		if (IsPhysicalSpellAttack(m_SpellData.m_nAttrTable[satAttackType]))
 			poBag->OnPhyAttack();
 
 		//nRetCode = CCliMessageHandler::GetInstance().DoDLSpellEffect((CRole*)poCaster, GetSpellID(), GetSpellLevel(), GetSpellRuneSlot(), poTarget->GetObjID(), m_nSpellSerial, m_nParam1, m_nParam2, m_oEffectFlag.GetFlag());
@@ -568,7 +568,7 @@ void CBullet::_AfterDamageEffectProcess(CCharacter* poTarget, CCharacter* poCast
 
 	if(m_oEffectFlag.CheckFlag(sfbCrit))
 	{
-		if(m_SpellData.m_nAttrTable[satAttackType] == spatPhy)
+		if(IsPhysicalSpellAttack(m_SpellData.m_nAttrTable[satAttackType]))
 			poCaster->IncCombatStat(escsPhyAtkCritCount, 1);
 		else if(m_SpellData.m_nAttrTable[satAttackType] == spatMag)
 			poCaster->IncCombatStat(escsMagAtkCritCount, 1);

@@ -35,66 +35,70 @@ enum CHAR_ATTR_TYPE
 	catMaxMagAtk,				   // 9	 最大魔法攻击
 	catTaoAtk,					   // 10 道术攻击
 	catMaxTaoAtk,				   // 11 最大道术攻击
-	catMaxHp,					   // 12 最大HP
-	catMaxMp,					   // 13 最大MP
-	catWalkSpeed,				   // 14 行走速度
-	catRunSpeed,				   // 15 跑步速度
+	catStabAtk,				// 12 Minimum stabbing attack
+	catMaxStabAtk,				// 13 Maximum stabbing attack
+	catArcheryAtk,				// 14 Minimum archery attack
+	catMaxArcheryAtk,				// 15 Maximum archery attack
+	catMaxHp,					   // 16 最大HP
+	catMaxMp,					   // 17 最大MP
+	catWalkSpeed,				   // 18 行走速度
+	catRunSpeed,				   // 19 跑步速度
 
-	catAccurate,				   // 16 准确/命中
-	catAgility,					   // 17 敏捷
-	catMagDodge,				   // 18 魔法闪避
-	catCrit,					   // 19 暴击率
-	catCritDmg,					   // 20 暴击伤害
-	catCritResist,				   // 21 暴击抵抗
-	catCritDmgResist,			   // 22 爆伤抵抗
-	catAntiPhyDef,				   // 23 物理穿透
-	catAntiMagDef,				   // 24 魔法穿透
-	catDrugHpRecovery,			   // 25 药剂HP恢复
-	catDrugMpRecovery,			   // 26 药剂MP恢复
-	catLuck,					   // 27 幸运
-	catHolyDmg,					   // 28 神圣伤害
+	catAccurate,				   // 20 准确/命中
+	catAgility,					   // 21 敏捷
+	catMagDodge,				   // 22 魔法闪避
+	catCrit,					   // 23 暴击率
+	catCritDmg,					   // 24 暴击伤害
+	catCritResist,				   // 25 暴击抵抗
+	catCritDmgResist,			   // 26 爆伤抵抗
+	catAntiPhyDef,				   // 27 物理穿透
+	catAntiMagDef,				   // 28 魔法穿透
+	catDrugHpRecovery,			   // 29 药剂HP恢复
+	catDrugMpRecovery,			   // 30 药剂MP恢复
+	catLuck,					   // 31 幸运
+	catHolyDmg,					   // 32 神圣伤害
 
-	catHurtEnhanced,			   // 29 受击增伤 (受到攻击时下次伤害提升)
-	catDmgResist,				   // 30 伤害抵抗
-	catDmgEnhance,				   // 31 伤害强化
-	catAtkSpeed,				   // 32 攻击速度
+	catHurtEnhanced,			   // 33 受击增伤 (受到攻击时下次伤害提升)
+	catDmgResist,				   // 34 伤害抵抗
+	catDmgEnhance,				   // 35 伤害强化
+	catAtkSpeed,				   // 36 攻击速度
 
-	catHpRecovery,				   // 33 HP恢复
-	catMpRecovery,				   // 34 MP恢复
-	catHpRecoveryTap,			   // 35 HP恢复系数
-	catMpRecoveryTap,			   // 36 MP恢复系数
-	catTapIncrease,				   // 37 系数增加?
-	catAtkSpeedRate,			   // 38 攻击速度加成率
+	catHpRecovery,				   // 37 HP恢复
+	catMpRecovery,				   // 38 MP恢复
+	catHpRecoveryTap,			   // 39 HP恢复系数
+	catMpRecoveryTap,			   // 40 MP恢复系数
+	catTapIncrease,				   // 41 系数增加?
+	catAtkSpeedRate,			   // 42 攻击速度加成率
 
-	catPoisonDef,				   // 39 毒药防御
-	catPoisonRecovery,			   // 40 毒药恢复
+	catPoisonDef,				   // 43 毒药防御
+	catPoisonRecovery,			   // 44 毒药恢复
 
-	catPoisonResist,			   // 41 毒药抵抗
-	catStunResist,				   // 42 击晕抵抗
-	catRepelResist,				   // 43 击退抵抗
-	catHurtResist,				   // 44 受击硬直抵抗
-	catBurnResist,				   // 45 燃烧抵抗
+	catPoisonResist,			   // 45 毒药抵抗
+	catStunResist,				   // 46 击晕抵抗
+	catRepelResist,				   // 47 击退抵抗
+	catHurtResist,				   // 48 受击硬直抵抗
+	catBurnResist,				   // 49 燃烧抵抗
 
-	catWeaponWeightLmt,			   // 46 武器负重限制
-	catArmorWeightLmt,			   // 47 防具负重限制
-	catBagWeightLmt,			   // 48 背包负重限制
+	catWeaponWeightLmt,			   // 50 武器负重限制
+	catArmorWeightLmt,			   // 51 防具负重限制
+	catBagWeightLmt,			   // 52 背包负重限制
 
-	catEndExAttr,				   // 49 
+	catEndExAttr,				   // 53
 
 	// ====================
 
-	catDmgAbsorb = catEndExAttr,   // 49 伤害吸收
-	catExtraDmg,				   // 50 额外固定伤害 - 有使用
-	catExtraHardTime,			   // 51 硬直时间延长 - 有使用
-	catPHitCountDown,			   // 52 物理连击间隔 - 有使用
-	catPHitNum,					   // 53 物理连击次数 - 有使用
-	catSpellPtsIncr,			   // 54 技能点数增益 - 有使用
-	catLeech,					   // 55 吸血系数 - 有使用
-	catMpToHp,					   // 56 魔转血 (MP转HP) - 有使用
-	catMpToHpRemain,			   // 57 剩余法力转生命 - 有使用
-	catExtraThunderDmg,			   // 58 额外雷电伤害
-	catDrugHpSlowRecovery,		   // 59 药剂缓效恢复 - 有使用
-	catExpRate,					   // 60 经验获取率
+	catDmgAbsorb = catEndExAttr,   // 53 伤害吸收
+	catExtraDmg,				   // 54 额外固定伤害 - 有使用
+	catExtraHardTime,			   // 55 硬直时间延长 - 有使用
+	catPHitCountDown,			   // 56 物理连击间隔 - 有使用
+	catPHitNum,					   // 57 物理连击次数 - 有使用
+	catSpellPtsIncr,			   // 58 技能点数增益 - 有使用
+	catLeech,					   // 59 吸血系数 - 有使用
+	catMpToHp,					   // 60 魔转血 (MP转HP) - 有使用
+	catMpToHpRemain,			   // 61 剩余法力转生命 - 有使用
+	catExtraThunderDmg,			   // 62 额外雷电伤害
+	catDrugHpSlowRecovery,		   // 63 药剂缓效恢复 - 有使用
+	catExpRate,					   // 64 经验获取率
 
 	catTotal,					///< @line
 };
