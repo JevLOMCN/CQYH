@@ -6,6 +6,9 @@
 #include <conio.h>
 #include <stdio.h>
 #include <iostream>
+#include <string>
+#include <direct.h>
+#include <errno.h>
 
 typedef unsigned char       BYTE;
 
@@ -77,6 +80,13 @@ public:
 
 bool _MakeDirectory( const TCHAR* Path, bool Tree = true)
 {
+	if (!Path || !*Path)
+		return false;
+	if (!Tree)
+		return _tmkdir(Path) == 0 || errno == EEXIST;
+	if (_tcslen(Path) >= 256)
+		return false;
+
 	// Support code for making a directory tree.
 	//check(Tree);
 	int CreateCount=0;
@@ -104,83 +114,74 @@ bool _MakeDirectory( const TCHAR* Path, bool Tree = true)
 
 int _tmain(int argc, TCHAR* argv[])
 {
+	if (argc < 2 || !argv || !argv[1] || (argc > 2 && !argv[2]))
+	{
+		_tprintf(L"Usage: encry <input> [output] [decode]\n");
+		return -1;
+	}
+
+	std::wstring outputName = argv[1];
+	if (argc == 2)
+		outputName += L".txt";
+	else
+		outputName = argv[2];
+
 	FILE* OriginFile = NULL;
-	_tfopen_s(&OriginFile, argv[1], L"rb" );
-	if ( OriginFile == NULL )
-	{
-		_tprintf(L"[Error] Original File: Open file %s Error! \n", argv[1]);
-		//getch();
-		return -1;
-	}
-
-
-	//_MakeDirectory(argv[2]);
-
 	FILE* DestiFile = NULL;
-
-	if(argc == 2)
+	char* buffer = NULL;
+	int result = -1;
+	_tfopen_s(&OriginFile, argv[1], L"rb");
+	if (!OriginFile)
 	{
-		std::wstring autoFile = argv[1];
-		autoFile += L".txt";
-		_tfopen_s(&DestiFile, autoFile.c_str(), L"wb+" );
-	}
-	else
-	{
-		_tfopen_s(&DestiFile, argv[2], L"wb+" );
-	}
-	if ( DestiFile == NULL )
-	{
-		_tprintf(L"[Error] Target File: Create file %s Error !\n", argv[2]);
-		//getch();
+		_tprintf(L"[Error] Original File: Open file %ls Error!\n", argv[1]);
 		return -1;
 	}
 
-	//printf("Reading and writing files are succeeded!\n");
-
-	FArchiveEncodeDncode* pEncode = FArchiveEncodeDncode::GetInstance();
-	long lSize = 0;
-	char* buffer = 0;
-
-	fseek( OriginFile, 0, SEEK_END );
-	lSize = ftell ( OriginFile );
-	rewind( OriginFile );
-
-	//printf("Getting File's size is succeeded!\n");
-
-	buffer = (char*)malloc( sizeof( char ) * lSize );
-
-	fread( buffer, sizeof( char ), lSize, OriginFile );
-
-	if((argc == 2) || (argc > 3))
+	do
 	{
-		pEncode->DoDecode( buffer, lSize );
-	}
+		if (fseek(OriginFile, 0, SEEK_END) != 0)
+			break;
+		const long size = ftell(OriginFile);
+		if (size < 0 || fseek(OriginFile, 0, SEEK_SET) != 0)
+			break;
+
+		buffer = (char*)malloc(size > 0 ? (size_t)size : 1);
+		if (!buffer || fread(buffer, 1, (size_t)size, OriginFile) != (size_t)size)
+			break;
+		const int closeResult = fclose(OriginFile);
+		OriginFile = NULL;
+		if (closeResult != 0)
+			break;
+
+		FArchiveEncodeDncode* encode = FArchiveEncodeDncode::GetInstance();
+		if (argc == 2 || argc > 3)
+			encode->DoDecode(buffer, size);
+		else
+			encode->DoEncode(buffer, size);
+
+		_tfopen_s(&DestiFile, outputName.c_str(), L"wb+");
+		if (!DestiFile)
+			break;
+		if (fwrite(buffer, 1, (size_t)size, DestiFile) != (size_t)size)
+			break;
+		const int outputCloseResult = fclose(DestiFile);
+		DestiFile = NULL;
+		if (outputCloseResult != 0)
+			break;
+		result = 0;
+	} while (false);
+
+	if (OriginFile)
+		fclose(OriginFile);
+	if (DestiFile)
+		fclose(DestiFile);
+	free(buffer);
+
+	if (result == 0)
+		_tprintf(L"[OK] %ls\r\n", outputName.c_str());
 	else
-	{
-		pEncode->DoEncode( buffer, lSize );
-	}
-
-	//printf("Encode File is succeeded!\n");
-
-	//pEncode->DoDecode( buffer, lSize );
-
-	fwrite( buffer, sizeof( char ), lSize, DestiFile );
-
-	fclose( OriginFile );
-	fclose( DestiFile );
-	free ( buffer );
-
-	_tprintf(L"[OK] %s\r\n", argv[2]);
-	//printf("Encode is finished!\n\n");
-
-	//printf("Press any key to quit...");
-
-// 	while ( !_kbhit() )
-// 	{
-// 		::_sleep( 10 );
-// 	}
-
-	return 0;
+		_tprintf(L"[Error] Could not process %ls\n", argv[1]);
+	return result;
 }
 
 
