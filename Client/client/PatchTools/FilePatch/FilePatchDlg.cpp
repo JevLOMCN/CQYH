@@ -4,6 +4,9 @@
 	Specification :  
 ====================================================================*/
 #include "stdafx.h"
+#include "../ReadFileBuffer.h"
+#include "../PatchPath.h"
+#include "../DownloadBuffer.h"
 #include "FilePatch.h"
 #include "Filepatchdlg.h"
 #include "Controls.h"
@@ -14,6 +17,7 @@
 #include "Task.h"
 #include "ThreadPool.h"
 #include <assert.h>
+#include <sstream>
 
 #ifdef _DEBUG
 #	pragma comment(lib, "zlibwapid.lib")
@@ -148,6 +152,9 @@ CFilePatchDlg::CFilePatchDlg(CWnd* pParent /*=NULL*/)
 	,_checkThreadExit(TRUE)
 	,_nextVerCheckTime(0)
 	, _use64Bit(FALSE)
+	, _iTotalUpdate(0)
+	, _iCurUpdate(0)
+	, _autoStartTime(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	InitializeCriticalSection(&_csCheckThread);
@@ -233,11 +240,23 @@ CRect GetControlRect(const CString& name)
 	// 	CurrentProg=l,t,w,h
 	
 	CString str = cfg.GetStringValue(_T("UI"), name, _T("0,0,50,50"));
-	CRect rc;
-	_stscanf_s((LPCTSTR)str, _T("%d,%d,%d,%d"), &rc.left, &rc.top, &rc.right, &rc.bottom);
+	CRect rc(0, 0, 50, 50);
+	TCHAR comma1 = 0, comma2 = 0, comma3 = 0;
+	std::basic_istringstream<TCHAR> input((LPCTSTR)str);
+	if (!(input >> rc.left >> comma1 >> rc.top >> comma2 >> rc.right >> comma3 >> rc.bottom) ||
+		comma1 != _T(',') || comma2 != _T(',') || comma3 != _T(','))
+	{
+		return CRect(0, 0, 50, 50);
+	}
 
-	rc.right += rc.left;
-	rc.bottom += rc.top;
+	const LONGLONG right = (LONGLONG)rc.left + rc.right;
+	const LONGLONG bottom = (LONGLONG)rc.top + rc.bottom;
+	if (right < -MAXLONG - 1 || right > MAXLONG || bottom < -MAXLONG - 1 || bottom > MAXLONG)
+	{
+		return CRect(0, 0, 50, 50);
+	}
+	rc.right = (LONG)right;
+	rc.bottom = (LONG)bottom;
 
 	return rc;
 }
@@ -307,7 +326,8 @@ BOOL CFilePatchDlg::OnInitDialog(){
 	//MoveControlToRect(_htmlADBar, _T("HtmlAD"));
 
 	TCHAR strBuffer[MAX_PATH];
-	::GetModuleFileName(NULL, strBuffer, MAX_PATH);
+	if (!ClientPatch::ReadModulePath(strBuffer))
+		return FALSE;
 	CString strTmp = strBuffer;
 	_strPatchConfigFile = strTmp.Left( strTmp.ReverseFind('\\') + 1 );
 	_strVersionLocalConfigFile = _strPatchConfigFile;
@@ -360,7 +380,8 @@ BOOL CFilePatchDlg::OnInitDialog(){
 	_strTmpDir = strBuffer;
 
 	// Install Dir
-	::GetModuleFileName(NULL, strBuffer, MAX_PATH);
+	if (!ClientPatch::ReadModulePath(strBuffer))
+		return FALSE;
 	strTmp = strBuffer;
 	_strInstallDir = strTmp.Left( strTmp.ReverseFind('\\') + 1 );
 
@@ -612,7 +633,6 @@ void CFilePatchDlg::LoadLocalViInfo(SFilePatch& filePatch)
 				ASSERT(pFile != NULL);
 				MD5 md5(pFile);
 				filePatch._vectorLocalViInfoes[t]._codeMD5 = md5.hex_digest();
-				fclose(pFile);
 #endif
 			}
 		}
@@ -1227,6 +1247,8 @@ BOOL CFilePatchDlg::DownLoadFile(SLocalVersionInfo* pInfo, SFilePatch& filePatch
 	}
 
 	UINT dwFileLength = 0;
+	BOOL hasContentLength = FALSE;
+	BOOL validContentLength = TRUE;
 	CStdioFile csf;
 	if( !csf.Open(strPutLocalFileName, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary) )
 	{
@@ -1240,26 +1262,32 @@ BOOL CFilePatchDlg::DownLoadFile(SLocalVersionInfo* pInfo, SFilePatch& filePatch
 	else
 	{
 		CString strLength;
-		pFile->QueryInfo(HTTP_QUERY_CONTENT_LENGTH, strLength);
-		dwFileLength = (UINT)_ttoi((LPCTSTR)strLength);
+		hasContentLength = pFile->QueryInfo(HTTP_QUERY_CONTENT_LENGTH, strLength);
+		TCHAR* lengthEnd = NULL;
+		ULONGLONG declaredLength = _tcstoui64((LPCTSTR)strLength, &lengthEnd, 10);
+		validContentLength = !hasContentLength ||
+			(lengthEnd != (LPCTSTR)strLength && *lengthEnd == 0 && declaredLength <= (UINT)-1);
+		dwFileLength = validContentLength && hasContentLength ? (UINT)declaredLength : 0;
 		int iTotalPercent	= dwFileLength / 4096;
 
 		m_ProgressCurrent.SetRange(0, (short)iTotalPercent);
 	}
 
-	BYTE* fileBuf = new BYTE[dwFileLength];// [4096];
-	int curPos = 0;
-	BYTE buf[4096] = {0};
-	int n;
-	while( (n = pFile->Read(buf,4096) ) > 0 )
+	std::vector<BYTE> downloaded;
+	if (!validContentLength || !ClientPatch::ReadDownload(*pFile, downloaded, hasContentLength ? dwFileLength : (UINT)-1) ||
+		(hasContentLength && downloaded.size() != dwFileLength))
 	{
-		//csf.Write(buf,n);
-		memcpy(&fileBuf[curPos], buf, n);
-		curPos += n;
-
-		m_ProgressCurrent.StepIt();
-		M_Update_Msg(FALSE);
+		pFile->Close();
+		delete pFile;
+		csf.Close();
+		_strLog += _T("Invalid download length.\n");
+		return FALSE;
 	}
+	dwFileLength = (UINT)downloaded.size();
+	BYTE* fileBuf = new BYTE[dwFileLength];
+	if (dwFileLength > 0)
+		memcpy(fileBuf, &downloaded[0], dwFileLength);
+	std::vector<BYTE>().swap(downloaded);
 	csf.Close();
 
 	pFile->Close();
@@ -1333,19 +1361,22 @@ void CFilePatchDlg::DoPatchVi()
 		CFile cf;
 		if( cf.Open(strPutLocalFileName, CFile::modeRead | CFile::typeBinary, 0) )
 		{
-			UINT iSrcLen = (UINT)cf.GetLength();
-			BYTE* pbyteBuffer = new BYTE[iSrcLen];
-			cf.Read(pbyteBuffer, iSrcLen);
+			std::vector<BYTE> bytes;
+			const bool complete = ClientPatch::ReadFileBuffer(cf, bytes);
 			cf.Close();
-
-			CFile out;
-			if( out.Open(_vectorFilePatches[t]._strViFileName, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary, 0) )
+			if (!complete)
 			{
-				out.Write(pbyteBuffer, iSrcLen);
-				out.Close();
+				_bPatchSuccess = FALSE;
+				continue;
 			}
 
-			delete [] pbyteBuffer;
+			CFile out;
+			if (out.Open(_vectorFilePatches[t]._strViFileName, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary, 0))
+			{
+				if (!bytes.empty())
+					out.Write(&bytes[0], (UINT)bytes.size());
+				out.Close();
+			}
 
 			_strLog += _T("DoPatchVi : ") + _vectorFilePatches[t]._strViFileName;
 			_strLog += _T("\n");

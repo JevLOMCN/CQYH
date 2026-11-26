@@ -17,15 +17,16 @@ void CU_SetupRegion(CRgn& rgn, CDC *pDC
 {
 	SAFE;
 
+	BITMAP bit = {0};
+	if (!pDC || !uTilesX || !uTilesY || uOffsetX >= uTilesX || uOffsetY >= uTilesY ||
+		!cBitmap.GetBitmap(&bit) || bit.bmWidth <= 0 || bit.bmHeight <= 0 ||
+		uTilesX > (UINT)bit.bmWidth || uTilesY > (UINT)bit.bmHeight)
+		return;
 	CDC memDC;
-	memDC.CreateCompatibleDC(pDC);
-
-	CBitmap *pOldMemBmp = memDC.SelectObject(&cBitmap);
-
+	if (!memDC.CreateCompatibleDC(pDC))
+		return;
+	CBitmap* pOldMemBmp = memDC.SelectObject(&cBitmap);
 	rgn.CreateRectRgn(0,0,0,0);
-
-	BITMAP bit;   
-	cBitmap.GetBitmap (&bit);
 	UINT uWidth		= bit.bmWidth / uTilesX;
 	UINT uHeight	= bit.bmHeight / uTilesY;
 
@@ -146,12 +147,15 @@ void CU_TransparentBlt(CDC *pDC, CBitmap &bmp
 {
 	SAFE;
 
+	BITMAP bit = {0};
+	if (!pDC || !uTilesX || !uTilesY || uOffsetX >= uTilesX || uOffsetY >= uTilesY ||
+		!bmp.GetBitmap(&bit) || bit.bmWidth <= 0 || bit.bmHeight <= 0 ||
+		uTilesX > (UINT)bit.bmWidth || uTilesY > (UINT)bit.bmHeight || szExtend.cx < 0 || szExtend.cy < 0)
+		return;
 	CDC memDC;
-	memDC.CreateCompatibleDC(pDC);
+	if (!memDC.CreateCompatibleDC(pDC))
+		return;
 	CBitmap* pOldMemBmp = memDC.SelectObject(&bmp);
-
-	BITMAP bit;   
-	bmp.GetBitmap (&bit);
 	UINT uBmpItemWidth	= bit.bmWidth / uTilesX;
 	UINT uBmpItemHeight	= bit.bmHeight / uTilesY;
 
@@ -220,10 +224,12 @@ SIZE CU_GetBitmapSize(CBitmap& bmp)
 	sz.cx = sz.cy = 0;
 	if((HGDIOBJ)bmp)
 	{
-		BITMAP bmpInfo;
-		bmp.GetBitmap(&bmpInfo);
-		sz.cx = bmpInfo.bmWidth;
-		sz.cy = bmpInfo.bmHeight;
+		BITMAP bmpInfo = {0};
+		if (bmp.GetBitmap(&bmpInfo))
+		{
+			sz.cx = bmpInfo.bmWidth;
+			sz.cy = bmpInfo.bmHeight;
+		}
 	}
 	return sz;
 
