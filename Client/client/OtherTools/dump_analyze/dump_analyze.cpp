@@ -177,11 +177,14 @@ void CDumpAnalyzeApp::OnReport()
 
 string GenerateUUID()
 {
-	UUID uuid;
-	UuidCreate(&uuid);
+	UUID uuid = {0};
+	const RPC_STATUS status = UuidCreate(&uuid);
+	if (status != RPC_S_OK && status != RPC_S_UUID_LOCAL_ONLY)
+		return std::string();
 
-	RPC_CSTR rpcSTR;;
-	UuidToString(&uuid, &rpcSTR);
+	RPC_CSTR rpcSTR = NULL;
+	if (UuidToString(&uuid, &rpcSTR) != RPC_S_OK || !rpcSTR)
+		return std::string();
 
 	string strRet = string((char*)rpcSTR);
 	RpcStringFree(&rpcSTR);
@@ -199,27 +202,33 @@ void SGZ2DMP(const TCHAR* path)
 
 	for (size_t i = 0; i < vfils.size(); ++i)
 	{
-		char szTmp[1024];
-		char *pName = NULL;
-		GetFullPathName(vfils.at(i).c_str(), 1024, szTmp, &pName);
-		pName = strrchr(szTmp, '.');
-		if (pName != NULL)
-		{
-			*pName = 0;
-		}
-		strcat(szTmp, ".dmp");
+		std::string outputName = vfils.at(i);
+		const size_t extension = outputName.find_last_of('.');
+		if (extension != std::string::npos)
+			outputName.erase(extension);
+		outputName += ".dmp";
 		FILE* fInput = fopen(vfils.at(i).c_str(),"rb");
-		FILE* fOutput = fopen(szTmp,"wb+");
+		FILE* fOutput = fopen(outputName.c_str(),"wb+");
 		if (!fInput || !fOutput)
 		{
-			return;
+			if (fInput) fclose(fInput);
+			if (fOutput) fclose(fOutput);
+			continue;
 		}
 
 		int iBatchSize = 128*1024;		// 每次处理最大字节数 128k
 
 		DWORD dwDestSize = compressBound(iBatchSize);
-		Byte * pSrcMem  = (Byte *)malloc(iBatchSize);
-		Byte * pDestMem = (Byte *)malloc(dwDestSize); 
+		Byte * pSrcMem  = (Byte *)malloc(dwDestSize);
+		Byte * pDestMem = (Byte *)malloc(dwDestSize);
+		if (!pSrcMem || !pDestMem)
+		{
+			free(pSrcMem);
+			free(pDestMem);
+			fclose(fInput);
+			fclose(fOutput);
+			continue;
+		}
 
 
 		DWORD dwSrcSize;
@@ -234,8 +243,13 @@ void SGZ2DMP(const TCHAR* path)
 			// 读取源文件
 			DWORD dw = dwDestSize;
 			dwSrcSize = 0;
-			fread(&dwSrcSize, 1, 4, fInput);
-			dwSrcSize = fread(pSrcMem, 1, dwSrcSize, fInput);
+			if (fread(&dwSrcSize, 1, sizeof(dwSrcSize), fInput) != sizeof(dwSrcSize) ||
+				dwSrcSize > dwDestSize)
+				break;
+			const DWORD requestedSize = dwSrcSize;
+			dwSrcSize = (DWORD)fread(pSrcMem, 1, requestedSize, fInput);
+			if (dwSrcSize != requestedSize)
+				break;
 
 
 			if( dwSrcSize > 0 )

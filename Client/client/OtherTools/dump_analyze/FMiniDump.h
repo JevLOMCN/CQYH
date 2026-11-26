@@ -5,6 +5,12 @@
 
 struct DUMP_MODULE
 {
+    DUMP_MODULE()
+        : m_uBaseAddr(0), m_uImageSize(0), m_bImageUnmatched(FALSE),
+          m_bPdbUnmatched(FALSE), m_bNoSymbolInfo(FALSE), m_pVersionInfo(NULL)
+    {
+    }
+
     ULONG64 m_uBaseAddr;        // Base address
     ULONG64 m_uImageSize;       // Size of module
     CString m_sModuleName;      // Module name  
@@ -22,6 +28,7 @@ struct DUMP_STACK
 {
     DUMP_STACK()
     {
+        m_dwAddrPCOffset = 0;
         m_nModuleRowID = -1;
         m_dw64OffsInSymbol = 0;
         m_nSrcLineNumber = -1;
@@ -52,6 +59,8 @@ struct DUMP_THREAD
 
 struct DUMP_MEMORY
 {
+    DUMP_MEMORY() : m_u64StartOfMemoryRange(0), m_uDataSize(0), m_pStartPtr(NULL) {}
+
     ULONG64 m_u64StartOfMemoryRange; // Starting address
     ULONG32 m_uDataSize;             // Size of data
     LPVOID m_pStartPtr;              // Pointer to the memrange data stored in minidump
@@ -63,6 +72,8 @@ struct DUMP_INFO
     {
         m_hProcess = INVALID_HANDLE_VALUE;
         m_uProcessorArchitecture = 0;
+        m_uchNumberOfProcessors = 0;
+        m_verExe = VS_FIXEDFILEINFO();
         m_uchProductType = 0;
         m_ulVerMajor = 0;
         m_ulVerMinor = 0;
@@ -124,7 +135,10 @@ public:
     int GetModuleRowIdByBaseAddr(DWORD64 dwBaseAddr);
     int GetModuleRowIdByAddress(DWORD64 dwAddress);
     int GetThreadRowIdByThreadId(DWORD dwThreadId);
-	void RVA2String(LPVOID pStartAddr, DWORD rva, CString& out);
+	BOOL RVA2String(LPVOID pStartAddr, DWORD rva, CString& out);
+    LPVOID GetMappedRange(ULONG64 offset, ULONG64 size) const;
+    BOOL ContainsMappedRange(const void* pointer, ULONG64 size) const;
+    BOOL ReadDumpStream(ULONG streamType, LPVOID& start, ULONG& size) const;
 	const char* GetVerString(CString& str);
 	int ReadSysinfo();
 	int ReadException();
@@ -145,6 +159,7 @@ public:
     CString szSymSearchPath;    // pdb和exe搜索路径
     HANDLE hFileMiniDump;       // dmp文件句柄
     HANDLE hFileMapping;        // dmp memory mapping object
+    ULONG64 MiniDumpSize;
     LPVOID lpMiniDumpAddress;   // memory mapping
 	DUMP_LOG* lpLog;
 
