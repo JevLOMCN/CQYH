@@ -53,6 +53,7 @@
 
 // #include <windows.h>
 #include <list>
+#include <atomic>
 #include <map>
 #include "RunObject.h"
 
@@ -63,6 +64,7 @@ using namespace std;
 // info about functions which require servicing will be saved using this struct.
 typedef struct tagFunctionData
 {
+	tagFunctionData() : lpStartAddress(NULL), pData(NULL) {}
 	LPTHREAD_START_ROUTINE lpStartAddress;
 	union 
 	{
@@ -74,6 +76,7 @@ typedef struct tagFunctionData
 // // info about threads in the pool will be saved using this struct.
 typedef struct tagThreadData
 {
+	tagThreadData() : bFree(false), WaitHandle(NULL), hThread(NULL), dwThreadId(0) {}
 	bool	bFree;
 	HANDLE	WaitHandle;
 	HANDLE	hThread;
@@ -81,7 +84,7 @@ typedef struct tagThreadData
 } _ThreadData;
 
 // info about all threads belonging to this pool will be stored in this map
-typedef map<DWORD, _ThreadData, less<DWORD>, allocator<_ThreadData> > ThreadMap;
+typedef map<DWORD, _ThreadData> ThreadMap;
 
 // all functions passed in by clients will be initially stored in this list.
 typedef list<_FunctionData, allocator<_FunctionData> > FunctionList;
@@ -95,6 +98,7 @@ enum ThreadPriority
 
 typedef struct UserPoolData
 {
+	UserPoolData() : pData(NULL), pThreadPool(NULL) {}
 	LPVOID pData;
 	CThreadPool* pThreadPool;
 } _tagUserPoolData;
@@ -109,6 +113,23 @@ enum PoolState
 class CThreadPool
 {
 private:
+	class Guard
+	{
+		CRITICAL_SECTION& section;
+		Guard(const Guard&);
+		Guard& operator=(const Guard&);
+	public:
+		explicit Guard(CRITICAL_SECTION& value) : section(value) { EnterCriticalSection(&section); }
+		~Guard() { LeaveCriticalSection(&section); }
+	};
+	struct WorkerStart
+	{
+		CThreadPool* pool;
+		HANDLE task, shutdown;
+		WorkerStart(CThreadPool* p, HANDLE t, HANDLE s) : pool(p), task(t), shutdown(s) {}
+	};
+	void ReleaseWorkers();
+	void WakeWorker();
 	#ifdef USE_WIN32API_THREAD
 	static DWORD WINAPI _ThreadProc(LPVOID);
 	#else
@@ -123,9 +144,10 @@ private:
 	TCHAR	m_szPoolName[256];
 	HANDLE	m_hNotifyShutdown; // notifies threads that a new function 
 							   // is added
-	volatile PoolState	 m_state;
+	std::atomic<PoolState> m_state;
 	volatile static long m_lInstance;
 	
+	CRITICAL_SECTION m_csLifetime;
 	CRITICAL_SECTION m_csFuncList;
 	CRITICAL_SECTION m_csThreads;
 
@@ -145,7 +167,7 @@ public:
 	CThreadPool(int nPoolSize = POOL_SIZE, bool bCreateNow = true, int nWaitTimeForThreadsToComplete = 5000);
 	virtual ~CThreadPool();
 	bool	Create();	// creates the thread pool
-	void	Destroy();	// destroy the thread pool
+	void	Destroy();	// Call outside this pool; waits for every worker to exit.
 	
 	int		GetPoolSize();
 	void	SetPoolSize(int);

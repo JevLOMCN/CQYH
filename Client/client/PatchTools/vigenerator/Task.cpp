@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../ReadFileBuffer.h"
 #include "Task.h"
 #include "config.h"
 #include "File.h"
@@ -32,10 +33,10 @@ void CopyTask::Run()
 			ASSERT(pFile != NULL);
 
 			MD5 md5(pFile);
-			fclose(pFile);
 
 			char* md5Buf = md5.hex_digest();
 			_vi->_codeMD5 = CString(md5Buf);
+			delete[] md5Buf;
 
 			if(g_useVerMD5FileNameFormat)
 			{
@@ -74,14 +75,46 @@ void AbstractCompressTask::Compress( SVersionInfo* vi )
 	CFile cf;			
 	if( cf.Open(vi->_fullPathName, CFile::modeRead | CFile::typeBinary, 0) )
 	{
+		const unsigned long capacity = compressBound(vi->_originLen);
+		if (cf.GetLength() != vi->_originLen || capacity < vi->_originLen || capacity == 0)
+		{
+			cf.Close();
+			vi->_originLen = 0;
+			return;
+		}
+		std::vector<BYTE> compressed(capacity);
+		BYTE empty = 0;
 #if M_USE_FILE_MAP
-		HANDLE hmap = ::CreateFileMapping((HANDLE)cf, NULL, PAGE_READONLY, 0, 0, NULL);
-
-		BYTE* pbyteBuffer = (BYTE*)::MapViewOfFile(hmap, FILE_MAP_READ, 0, 0, vi->_originLen);
+		HANDLE hmap = NULL;
+		BYTE* pbyteBuffer = &empty;
+		if (vi->_originLen > 0)
+		{
+			hmap = ::CreateFileMapping((HANDLE)cf, NULL, PAGE_READONLY, 0, 0, NULL);
+			if (!hmap)
+			{
+				cf.Close();
+				vi->_originLen = 0;
+				return;
+			}
+			pbyteBuffer = (BYTE*)::MapViewOfFile(hmap, FILE_MAP_READ, 0, 0, vi->_originLen);
+			if (!pbyteBuffer)
+			{
+				::CloseHandle(hmap);
+				cf.Close();
+				vi->_originLen = 0;
+				return;
+			}
+		}
 #else
-		BYTE* pbyteBuffer = new BYTE[vi->_originLen];
-		cf.Read(pbyteBuffer, vi->_originLen);
+		std::vector<BYTE> bytes;
+		if (!ClientPatch::ReadFileBuffer(cf, bytes, vi->_originLen) || bytes.size() != vi->_originLen)
+		{
+			cf.Close();
+			vi->_originLen = 0;
+			return;
+		}
 		cf.Close();
+		BYTE* pbyteBuffer = bytes.empty() ? &empty : &bytes[0];
 #endif
 
 		MD5 md5;
@@ -89,9 +122,10 @@ void AbstractCompressTask::Compress( SVersionInfo* vi )
 		md5.finalize();
 		char* md5Buf = md5.hex_digest();				
 		vi->_codeMD5 = CString(md5Buf);
+		delete[] md5Buf;
 
-		unsigned long comprLen = vi->_originLen + vi->_originLen/1000 + 12;
-		BYTE *compr = new BYTE[comprLen];
+		unsigned long comprLen = capacity;
+		BYTE* compr = &compressed[0];
 
 		int err = compress(compr, &comprLen, (const BYTE*)pbyteBuffer, vi->_originLen);
 		if(err != Z_OK)
@@ -104,7 +138,7 @@ void AbstractCompressTask::Compress( SVersionInfo* vi )
 #if defined(_DEBUG)
 			{
 				CSingleLock lock(&g_logLock, TRUE);
-				int ratio = (int)((FLOAT)comprLen / (FLOAT)vi->_originLen * 100);
+				int ratio = vi->_originLen ? (int)((FLOAT)comprLen / (FLOAT)vi->_originLen * 100) : 0;
 				std::wcout << _idx << _T(" ---- Compressed:") << (LPCTSTR)vi->_relatedPathName
 					<< _T(" ") << ratio << _T("%") << std::endl;
 			}
@@ -140,13 +174,13 @@ void AbstractCompressTask::Compress( SVersionInfo* vi )
 		}
 
 #if M_USE_FILE_MAP
-		::UnmapViewOfFile(pbyteBuffer);
-		::CloseHandle(hmap);
+		if (hmap)
+		{
+			::UnmapViewOfFile(pbyteBuffer);
+			::CloseHandle(hmap);
+		}
 		cf.Close();
-#else
-		delete [] pbyteBuffer;
-#endif		
-		delete [] compr;
+#endif
 
 		if(!bCompressSuccess)
 		{

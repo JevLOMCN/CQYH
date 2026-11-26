@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "../PatchPath.h"
 #include "Task.h"
 #include <sstream>
 #include "config.h"
@@ -96,7 +97,8 @@ BOOL CViGeneratorApp::InitInstance()
 
 	int argc = __argc;
 	TCHAR strAppDir[MAX_PATH];
-	::GetCurrentDirectory(MAX_PATH, strAppDir);
+	if (!ClientPatch::ReadCurrentDirectory(strAppDir))
+		return FALSE;
 
 	if(argc == 2)
 	{
@@ -196,13 +198,12 @@ BOOL CViGeneratorApp::InitInstance()
 
 	CString srcDir = g_srcPath.Left(g_srcPath.GetLength() - 1);
 
-	TCHAR strBuffer[MAX_PATH];
-	::GetCurrentDirectory(MAX_PATH, strBuffer);
+	// Reuse the validated working directory captured before creating worker threads.
 
-	CString mkDirCmd = strBuffer;
+	CString mkDirCmd = strAppDir;
 	mkDirCmd += _T("\\__mkdir.bat");
 	CString para = srcDir + _T(" ") + g_targPath;
-	HINSTANCE hr = ::ShellExecute(0, _T("open"), (LPCTSTR)mkDirCmd, (LPCTSTR)para, CString(strBuffer) + _T("\\"), SW_NORMAL);
+	HINSTANCE hr = ::ShellExecute(0, _T("open"), (LPCTSTR)mkDirCmd, (LPCTSTR)para, CString(strAppDir) + _T("\\"), SW_NORMAL);
 	UNREFERENCED_PARAMETER(hr);
 	RecurseFindFiles(srcDir);
 
