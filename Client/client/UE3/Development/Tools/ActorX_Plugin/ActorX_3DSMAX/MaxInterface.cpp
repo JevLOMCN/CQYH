@@ -44,6 +44,8 @@
 #include "ActorX.h"
 #include "direct.h"
 #include "Shlwapi.h"
+#include <string>
+#include <string.h>
 #include <maxscrpt.h>
 #include <..\include\CS\BIPEXP.H>
 
@@ -238,50 +240,31 @@ public:
 	//
 	// Set the main path for saving all files and logfiles.
 	//
-	INT AXSetOutputPath( TCHAR* newDestinationPathName )
-	{
-
-		INT AXSuccess  = 0;
-		// If a valid path was specified, change the global output path to it.	
-		if( strlen( newDestinationPathName) > 0 ) // TODO - could use a better validity criterium...
-		{
-			_tcscpy(to_path,newDestinationPathName); 
-			_tcscpy(LogPath,newDestinationPathName); 
-			AXSuccess = 1;
-		}
-		return AXSuccess;
-	}
+	INT AXSetOutputPath(TCHAR* newDestinationPathName)
+    {
+        if (!newDestinationPathName || !newDestinationPathName[0] ||
+            !CopyActorXString(to_path, newDestinationPathName))
+            return 0;
+        CopyActorXString(LogPath, to_path);
+        return 1;
+    }
 
 	//
 	// Export the reference mesh and skeletal pose to disk.
 	//
-	INT AXExportMesh( TCHAR* newMeshFileName )
-	{		
-		InitOptions();		
-
-		INT AXSuccess  = 1;
-
-		// If name as supplied is valid, use it..
-		if( strlen( newMeshFileName ) > 0 ) // TODO - could use a better validity criterium...
-		{
-			_tcscpy(to_skinfile, newMeshFileName );
-		}
-		else 
-		{
-			PopupBox("Error: No valid reference pose mesh file name specified.");
-			AXSuccess = 0;
-		}
-		
-		if( AXSuccess ) 
-		{
-			// Write the PSK file to disk using the current to_skinfile and to_pathname
-			SaveCurrentSceneSkin();
-		}
-
-		ClearOptions();
-
-		return AXSuccess;
-	};
+	INT AXExportMesh(TCHAR* newMeshFileName)
+    {
+        InitOptions();
+        INT AXSuccess = newMeshFileName && newMeshFileName[0] &&
+            CopyActorXString(to_skinfile, newMeshFileName) &&
+            MakeActorXFilePath(DestPath, to_path, to_skinfile, ".PSK");
+        if (AXSuccess)
+            SaveCurrentSceneSkin();
+        else
+            PopupBox("Error: Mesh name or output path is empty or too long.");
+        ClearOptions();
+        return AXSuccess;
+    };
 
 	//
 	// Digest an animation into the internal memory buffer.
@@ -293,11 +276,10 @@ public:
 		INT AXSuccess = 0;
 
 		// Specified sequence name ?
-		if( strlen( inputSequenceName ) )
+		if (inputSequenceName && inputSequenceName[0] && CopyActorXString(newsequencename, inputSequenceName))
 		{
 			UBOOL Backup_DoForceRate = OurScene.DoForceRate;
 
-			_tcscpy( newsequencename, inputSequenceName );
 			if( optionalForcedRate !=0.0f )
 			{
 				OurScene.DoForceRate = true;
@@ -326,24 +308,15 @@ public:
 	//
 	// Export the complete animation set to disk.
 	//
-	INT AXExportAnimSet( TCHAR* newAnimFileName )
-	{		
-		InitOptions();
-
-		INT AXSuccess  = 1;
-			
-		// If name as supplied is valid, use it..
-		if( strlen( newAnimFileName ) > 0 ) 
-		{
-			_tcscpy(to_animfile, newAnimFileName );
-		}
-		else 
-		{
-			PopupBox("Error: No valid animation file name specified.");
-			AXSuccess = 0;
-		}
-		
-		if( AXSuccess )
+	INT AXExportAnimSet(TCHAR* newAnimFileName)
+    {
+        InitOptions();
+        INT AXSuccess = newAnimFileName && newAnimFileName[0] &&
+            CopyActorXString(to_animfile, newAnimFileName) &&
+            MakeActorXFilePath(DestPath, to_path, to_animfile, ".PSA");
+        if (!AXSuccess)
+            PopupBox("Error: Animation name or output path is empty or too long.");
+        if( AXSuccess )
 		{
 			// Copy _all_ digested animations to output data.  Respect any existing output data....
 			for( INT i=0; i<TempActor.Animations.Num(); i++)
@@ -358,18 +331,14 @@ public:
 			}
 
 			// Save animation - as done in Dialogs.cpp		
-			char to_ext[32];
-			_tcscpy(to_ext, ("PSA"));
-			sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 			SaveAnimSet( DestPath );    // No error popups...
 
 			// Erase all the animation buffers.
 			ClearOutAnims();
 		}
-
-		ClearOptions();		
-		return AXSuccess;
-	};
+        ClearOptions();
+        return AXSuccess;
+    };
 
 	//
 	// Various options accessors.
@@ -577,13 +546,18 @@ void ChangeAnimNameListSel(HWND hWnd, HWND hWndSecond, TSTR name)
 {
 	SetWindowText( hWnd, name );
 	SetWindowText( hWndSecond, name );
-	GetWindowText( hWnd, to_animfile, 300 );
+	GetWindowText( hWnd, to_animfile, sizeof(to_animfile) / sizeof(to_animfile[0]) );
 	PluginReg.SetKeyString( "TOANIMFILE", to_animfile );
 	GetWindowText( hWndSecond, newsequencename, 100 );
 }
 
 void ExportAnimationData()
 {
+    if (!MakeActorXFilePath(DestPath, to_path, to_animfile, ".PSA"))
+    {
+        ErrorBox("Animation output path is too long.");
+        return;
+    }
 	// Scene stats
 	DebugBox("Start serializing scene tree; serialtree elements: %i ",  OurScene.SerialTree.Num() );
 	OurScene.SurveyScene();
@@ -645,9 +619,6 @@ void ExportAnimationData()
 			}	
 		}
 		// Save animation - as done in Dialogs.cpp		
-		char to_ext[32];
-		_tcscpy(to_ext, ("PSA"));
-		sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 		SaveAnimSet( DestPath );    // No error popups...
 
 		// Erase all the animation buffers.
@@ -666,6 +637,8 @@ TSTR ReturnCurrentFileName()
 
 void GetsAllNodeChildFn( INode* TempNode, TArray<INode*>* AllNodesStr )
 {
+    if (!TempNode || !AllNodesStr)
+        return;
 	for( int i = 0; i < TempNode->NumberOfChildren(); i++ ) 
 	{
 		GetsAllNodeChildFn( TempNode->GetChildNode( i ), AllNodesStr );
@@ -679,7 +652,6 @@ BOOL GetNodeNameCheckSpaceStr()
 	Interface *ip = GetCOREInterface();
 	INode *pRoot =ip->GetRootNode();
 
-	int numAllNodes = pRoot->NumberOfChildren();
 
 	TArray<INode*> AllNodes;
 
@@ -699,10 +671,10 @@ BOOL GetNodeNameCheckSpaceStr()
 
 			if ( SpaceStr == NewStrVal )
 			{
-				char* buf = new char[100];
-				_stprintf(buf, _T("以下物体名字有空格，将无法导出，请修正！ \n\n %s "), NodeName );
-				MessageBox( TheMaxInterface->GetMAXHWnd(), buf, _T("警 告"), MB_ICONQUESTION | MB_OK );
-				delete [] buf;
+				TSTR message(_T("以下物体名字有空格，将无法导出，请修正！ \n\n "));
+				message += NodeName;
+				message += _T(" ");
+				MessageBox( TheMaxInterface->GetMAXHWnd(), message.data(), _T("警 告"), MB_ICONQUESTION | MB_OK );
 
 				return TRUE;
 			}
@@ -715,20 +687,20 @@ BOOL bCheckAnimNameSpace( char *ANameStr )
 {
 	TSTR NewStrVal = _T(" ");
 
-	TSTR	*NodeName = new TSTR( ANameStr );
+	TSTR NodeName( ANameStr ? ANameStr : "" );
 
-	int Len = NodeName->Length();
+	int Len = NodeName.Length();
 
-	for ( INT g = 0; g < Len - 1; g++ )
+	for ( INT g = 0; g < Len; g++ )
 	{
-		TSTR	SpaceStr = NodeName->Substr( g, 1 );
+		TSTR	SpaceStr = NodeName.Substr( g, 1 );
 
 		if ( SpaceStr == NewStrVal )
 		{
-			char* buf = new char[100];
-			_stprintf(buf, _T("动画序列名有空格，将无法导出，请修正！ \n\n %s "), ANameStr );
-			MessageBox( TheMaxInterface->GetMAXHWnd(), buf, _T("警 告"), MB_ICONQUESTION | MB_OK );
-			delete [] buf;
+			TSTR message(_T("动画序列名有空格，将无法导出，请修正！ \n\n "));
+			message += ANameStr;
+			message += _T(" ");
+			MessageBox( TheMaxInterface->GetMAXHWnd(), message.data(), _T("警 告"), MB_ICONQUESTION | MB_OK );
 
 			return TRUE;
 		}
@@ -742,7 +714,6 @@ void GetXScaleValueOfBones()
 	Interface *ip = GetCOREInterface();
 	INode *pRoot =ip->GetRootNode();
 
-	int numAllNodes = pRoot->NumberOfChildren();
 
 	TArray<INode*> AllNodes;
 
@@ -783,10 +754,10 @@ void GetXScaleValueOfBones()
 	INT st = AllNodeName.Length();
 	if ( st != 0 )
 	{
-		char* buf = new char[st + 50];
-		_stprintf(buf, _T("以下骨骼被缩放过, 需要 ResetXForm \n\n %s "), AllNodeName );
-		MessageBox( TheMaxInterface->GetMAXHWnd(), buf, _T("警 告"), MB_ICONQUESTION | MB_OK );
-		delete [] buf;
+		TSTR message(_T("以下骨骼被缩放过, 需要 ResetXForm \n\n "));
+		message += AllNodeName;
+		message += _T(" ");
+		MessageBox( TheMaxInterface->GetMAXHWnd(), message.data(), _T("警 告"), MB_ICONQUESTION | MB_OK );
 	}
 }
 
@@ -841,10 +812,11 @@ void InvalidGeomObj()
 
 	if ( bLeft != 0 || bRight != 0 )
 	{
-		char* buf = new char[AllLeftNodeName.Length() + AllRightNodeName.Length() + 100];
-		_stprintf(buf, _T("以下子对象请不要放在 Weapon_L 和 Weapon_R 以下层级，请和 Root 平级. \n\n %s \n %s"), AllLeftNodeName, AllRightNodeName );
-		MessageBox( ip->GetMAXHWnd(), buf, _T("警 告"), MB_ICONQUESTION | MB_OK );
-		delete [] buf;
+		TSTR message(_T("以下子对象请不要放在 Weapon_L 和 Weapon_R 以下层级，请和 Root 平级. \n\n "));
+		message += AllLeftNodeName;
+		message += _T(" \n ");
+		message += AllRightNodeName;
+		MessageBox( ip->GetMAXHWnd(), message.data(), _T("警 告"), MB_ICONQUESTION | MB_OK );
 	}
 }
 
@@ -1064,29 +1036,42 @@ void ModifyStringInIniFile( char *IniFileNameString, char *Str )
 	fclose(LStream);
 }
 
+template<size_t Size>
+static bool SetActorXIniPath(char (&output)[Size], const std::string& path)
+{
+    output[0] = 0;
+    if (path.size() >= Size)
+        return false;
+    memcpy(output, path.c_str(), path.size() + 1);
+    return true;
+}
+
+static void ClearActorXIniPaths()
+{
+    IniFilePath[0] = IniFileName[0] = IniPathFileName[0] = 0;
+    IniPSKFileName[0] = IniPSAFileName[0] = IniKeyFrameRange[0] = 0;
+}
+
 void CreateIniFile()
 {
-	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, NULL, 0, IniFilePath)))
-	{
-		strcat(IniFilePath, "\\AgeOfDawn\\");
-
-		_tcscpy(IniFileName, IniFilePath);
-		_tcscpy(IniPathFileName, IniFilePath);
-
-		_tcscpy(IniPSKFileName, IniFilePath);
-		_tcscpy(IniPSAFileName, IniFilePath);
-		_tcscpy(IniKeyFrameRange, IniFilePath);
-
-		strcat(IniFileName, "AnimationName.ini");
-		strcat(IniPathFileName, "AnimationPath.ini");
-
-		strcat(IniPSKFileName, "PSKFileName.ini");
-		strcat(IniPSAFileName, "PSAFileName.ini");
-		strcat(IniKeyFrameRange, "KeyFrameRange.ini");
-
-		if ( ( !PathFileExists( IniFileName ) ) && ( !PathFileExists( IniPathFileName ) ) )
-		   _mkdir( IniFilePath );
-	}
+    ClearActorXIniPaths();
+    char documents[MAX_PATH] = {0};
+    if (FAILED(SHGetFolderPath(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, NULL, 0, documents)))
+        return;
+    documents[sizeof(documents) - 1] = 0;
+    const std::string directory = std::string(documents) + "\\AgeOfDawn\\";
+    if (!SetActorXIniPath(IniFilePath, directory) ||
+        !SetActorXIniPath(IniFileName, directory + "AnimationName.ini") ||
+        !SetActorXIniPath(IniPathFileName, directory + "AnimationPath.ini") ||
+        !SetActorXIniPath(IniPSKFileName, directory + "PSKFileName.ini") ||
+        !SetActorXIniPath(IniPSAFileName, directory + "PSAFileName.ini") ||
+        !SetActorXIniPath(IniKeyFrameRange, directory + "KeyFrameRange.ini"))
+    {
+        ClearActorXIniPaths();
+        return;
+    }
+    if (!PathFileExists(IniFileName) && !PathFileExists(IniPathFileName))
+        _mkdir(IniFilePath);
 
 	if ( ( !PathFileExists( IniFileName ) ) || ( !PathFileExists( IniPathFileName ) ) )
 	{
@@ -1096,27 +1081,32 @@ void CreateIniFile()
 
 	if ( !PathFileExists( IniFileName ) ) 
 	{
-		fopen( IniFileName, "w" ); 	
+		FILE* file = fopen( IniFileName, "w" );
+		if (file) fclose(file);
 	}
 
 	if ( !PathFileExists( IniPathFileName ) )
 	{
-		fopen( IniPathFileName, "w" ); 	
+		FILE* file = fopen( IniPathFileName, "w" );
+		if (file) fclose(file);
 	}
 
 	if ( !PathFileExists( IniPSKFileName ) ) 
 	{
-		fopen( IniPSKFileName, "w" ); 	
+		FILE* file = fopen( IniPSKFileName, "w" );
+		if (file) fclose(file);
 	}
 
 	if ( !PathFileExists( IniPSAFileName ) )
 	{
-		fopen( IniPSAFileName, "w" ); 	
+		FILE* file = fopen( IniPSAFileName, "w" );
+		if (file) fclose(file);
 	}
 
 	if ( !PathFileExists( IniKeyFrameRange ) ) 
 	{
-		fopen( IniKeyFrameRange, "w" ); 	
+		FILE* file = fopen( IniKeyFrameRange, "w" );
+		if (file) fclose(file);
 	}
 }
 
@@ -1199,7 +1189,7 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			ThisMaxPlugin.InitSpinner(hWnd,IDC_EDIT_ATIME,IDC_SPIN_ATIME,0,0,1000);
 
 			SetWindowText( GetDlgItem( hWnd, IDC_SKINFILENAME), (filenameT == TempFName) ? "Untitled" : ReturnCurrentFileName() );
-			GetWindowText( GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, 300 );
+			GetWindowText( GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]) );
 			ChangeAnimNameListSel( GetDlgItem( hWnd, IDC_ANIMFILENAME), GetDlgItem( hWnd, IDC_ANIMNAME), _T("Attack") );
 	        SetWindowText( GetDlgItem( hWnd, IDC_ANIMRANGE), "1-100" );
 
@@ -1217,8 +1207,8 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			UpdateKeyFrameRangeFromIniFile( GetDlgItem(hWnd, IDC_ANIMRANGE) );
 
 			UpdateNameListFromIniFile( GetDlgItem( hWnd, IDC_ANIMNAMELIST ) );		
-			GetWindowText( GetDlgItem(hWnd, IDC_PATH), to_path, 300 );
-			GetWindowText( GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, 300 );
+			GetWindowText( GetDlgItem(hWnd, IDC_PATH), to_path, sizeof(to_path) / sizeof(to_path[0]) );
+			GetWindowText( GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]) );
 			break;
 
 		case WM_DESTROY:
@@ -1284,7 +1274,7 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						// Whenenver focus is lost, update path.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path,300);	
+							GetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path, sizeof(to_path) / sizeof(to_path[0]));
 							_tcscpy(LogPath,to_path);
 							PluginReg.SetKeyString("TOPATH", to_path );
 						}
@@ -1301,7 +1291,7 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						case EN_KILLFOCUS:
 						{
 							//PopupBox("EDIT BOX KILLFOCUS");
-							GetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]));
 							PluginReg.SetKeyString("TOSKINFILE", to_skinfile );
 						}
 						break;
@@ -1316,7 +1306,7 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						// whenever focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile, sizeof(to_animfile) / sizeof(to_animfile[0]));
 							PluginReg.SetKeyString("TOANIMFILE", to_animfile );
 						}
 						break;
@@ -1326,7 +1316,7 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 //Bruce
 			case IDC_ANIMMANAGER: // Animation manager activated.
 				{
-					char NewSName[MAX_PATH];
+					char NewSName[MAX_PATH] = {0};
 					GetWindowText(GetDlgItem(hWnd,IDC_ANIMNAME), NewSName, 100);
 
 					if ( bCheckAnimNameSpace( NewSName ) == TRUE )
@@ -1336,8 +1326,8 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					//u->ShowActorManager(hWnd);
                     ExportAnimationData();
 					ModifyStringInIniFile( IniPSAFileName, to_animfile );
-					char KeyRange[MAX_PATH];
-					GetWindowText( GetDlgItem( hWnd, IDC_ANIMRANGE), KeyRange, 300 );
+					char KeyRange[MAX_PATH] = {0};
+					GetWindowText( GetDlgItem( hWnd, IDC_ANIMRANGE), KeyRange, sizeof(KeyRange) / sizeof(KeyRange[0]) );
                     ModifyStringInIniFile( IniKeyFrameRange, KeyRange );
 				}
 				break;
@@ -1421,9 +1411,9 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						FoundFile = FindNextFile(h, &data);
 						T++;
 					}
-					GetWindowText(GetDlgItem(hWnd,IDC_PATH), to_path, 300);
-                    GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile,300);
-                    GetWindowText( GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, 300 );
+					GetWindowText(GetDlgItem(hWnd,IDC_PATH), to_path, sizeof(to_path) / sizeof(to_path[0]));
+                    GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile, sizeof(to_animfile) / sizeof(to_animfile[0]));
+                    GetWindowText( GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]) );
 					GetWindowText(GetDlgItem(hWnd,IDC_ANIMNAME),newsequencename,100);
 				}
 				break;
@@ -1451,7 +1441,7 @@ static INT_PTR CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					INT Num = filename.length();
 					TSTR FinalName = filename.Substr(0, Num - 4);
 					SetWindowText(GetDlgItem(hWnd, IDC_SKINFILENAME), (filename == StrTemp)? "Untitled" : FinalName );
-					GetWindowText(GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, 300 );
+					GetWindowText(GetDlgItem(hWnd, IDC_SKINFILENAME), to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]) );
 				}
 				break;
 
@@ -2037,7 +2027,7 @@ static INT_PTR CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 						// Whenenver focus is lost, update path.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),to_pathvtx,300);	
+							GetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),to_pathvtx, sizeof(to_pathvtx) / sizeof(to_pathvtx[0]));
 							_tcscpy(LogPath,to_pathvtx);
 							PluginReg.SetKeyString("TOPATHVTX", to_pathvtx );
 						}
@@ -2053,7 +2043,7 @@ static INT_PTR CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 						// Whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
 						{							
-							GetWindowText(GetDlgItem(hWnd,IDC_FILENAMEVTX),to_skinfilevtx,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_FILENAMEVTX),to_skinfilevtx, sizeof(to_skinfilevtx) / sizeof(to_skinfilevtx[0]));
 							PluginReg.SetKeyString("TOSKINFILEVTX", to_skinfilevtx );
 						}
 						break;
@@ -3340,7 +3330,7 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 
 	// PopupBox(" Frame rate %f  Ticks per frame %f  Total frames %i FrameTimeInfo %f ",(FLOAT)GetFrameRate(), (FLOAT)FrameTicks, (INT)OurTotalFrames, (FLOAT)Thing->FrameTotalTicks );
 
-	_tcscpy(Thing->RawAnimName,CleanString( AnimName ));
+	CleanString(AnimName, Thing->RawAnimName, sizeof(Thing->RawAnimName));
 
 	//
 	// Rootbone is in tree starting from RootBoneIndex.
@@ -3565,6 +3555,13 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 
 int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeString )
 {
+    char VertexMeshPath[MAX_PATH], VertexAnimPath[MAX_PATH];
+    if (!MakeActorXFilePath(VertexMeshPath, to_pathvtx, DestFileName, "_d.3d") ||
+        !MakeActorXFilePath(VertexAnimPath, to_pathvtx, DestFileName, "_a.3d"))
+    {
+        ErrorBox("Vertex animation output path is empty or too long.");
+        return 0;
+    }
 
     //#define DOLOGVERT 0
 	//if( DOLOGVERT )
@@ -3645,8 +3642,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	if( VAFaces.Num() && (OurScene.DoAppendVertex == 0) )
 	{
 		FastFileClass OutFile;
-		char OutPath[MAX_PATH];
-		sprintf(OutPath,"%s\\%s_d.3d",(char*)to_pathvtx,(char*)DestFileName);		
+		char* OutPath = VertexMeshPath;
 		//PopupBox("OutPath for _d file: %s",OutPath); 
 		if ( OutFile.CreateNewFile(OutPath) != 0) 
 			ErrorBox( "File creation error. ");
@@ -3740,8 +3736,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		// Write.
 		//
 		FastFileClass OutFile;
-		char OutPath[MAX_PATH];
-		sprintf(OutPath,"%s\\%s_a.3d",(char*)to_pathvtx,(char*)DestFileName);							
+		char* OutPath = VertexAnimPath;
 
 		if( ! OurScene.DoAppendVertex )
 		{
@@ -3827,22 +3822,21 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 
 
 
-void GetBitmapName(TCHAR* Name, TCHAR* Path, Mtl* ThisMtl)
+void GetBitmapName(TCHAR* Name, size_t NameSize, TCHAR* Path, size_t PathSize, Mtl* ThisMtl)
 {
-	_tcscpy(Name,"");
-	Texmap *tmap = ThisMtl->GetSubTexmap(ID_DI);
-	if (tmap && tmap->ClassID() == Class_ID(BMTEX_CLASS_ID, 0)) 
-	{
-		// A bitmapped texture - access the UV tiling settings at time 0.
-		BitmapTex *bmt = (BitmapTex*) tmap;
-		//_tcscpy(Name,CleanString( bmt->GetMapName()) );
-
-		TSTR BmpPath, BmpFile;
-		SplitPathFile( TSTR(bmt->GetMapName()), &BmpPath, &BmpFile);
-		
-		_tcscpy(Name,CleanString(BmpFile));
-		_tcscpy(Path,CleanString(BmpPath));
-	}
+    CleanString(NULL, Name, NameSize);
+    CleanString(NULL, Path, PathSize);
+    if (!ThisMtl)
+        return;
+    Texmap* tmap = ThisMtl->GetSubTexmap(ID_DI);
+    if (tmap && tmap->ClassID() == Class_ID(BMTEX_CLASS_ID, 0))
+    {
+        BitmapTex* bmt = (BitmapTex*)tmap;
+        TSTR BmpPath, BmpFile;
+        SplitPathFile(TSTR(bmt->GetMapName()), &BmpPath, &BmpFile);
+        CleanString(BmpFile, Name, NameSize);
+        CleanString(BmpPath, Path, PathSize);
+    }
 }
 
 
@@ -3996,7 +3990,8 @@ int	SceneIFC::DigestSkin(VActor *Thing )
 		Thing->SkinData.Materials.AddItem( Stuff );
 
 		VBitmapOrigin TextureSource;
-		GetBitmapName( TextureSource.RawBitmapName, TextureSource.RawBitmapPath, (Mtl*)Thing->SkinData.RawMaterials[i] );
+		GetBitmapName(TextureSource.RawBitmapName, sizeof(TextureSource.RawBitmapName),
+			TextureSource.RawBitmapPath, sizeof(TextureSource.RawBitmapPath), (Mtl*)Thing->SkinData.RawMaterials[i]);
 		Thing->SkinData.RawBMPaths.AddItem( TextureSource );
 		
 	}		
@@ -5106,10 +5101,12 @@ UBOOL BatchAnimationProcess( char* batchfoldername, INT &NumDigested, INT &NumFo
 			break;
 		}
 
-		char rawfilename[400];
-		// Now put name into newsequencename..
-		sprintf(rawfilename, _T(data.cFileName) );
-		RemoveExtString(rawfilename, ".max", newsequencename );
+        // Filenames are data, never printf format strings.
+        if (!RemoveExtString(data.cFileName, ".max", newsequencename, sizeof(newsequencename)))
+        {
+            ++Errors;
+            break;
+        }
 		//PopupBox("Raw anim name: [%s]",newsequencename );
 		
 		// Scene stats
@@ -5159,6 +5156,11 @@ UBOOL BatchAnimationProcess( char* batchfoldername, INT &NumDigested, INT &NumFo
 
 void SaveCurrentSceneSkin()
 {
+    if (!MakeActorXFilePath(DestPath, to_path, to_skinfile, ".PSK"))
+    {
+        ErrorBox("Mesh output path is too long.");
+        return;
+    }
 	if( GlobalPluginObject )
 	{
 		GlobalPluginObject->ip->ProgressStart(("Export SkeletalMesh ... "), true, fn, NULL ); // Max-specific progress metering.
@@ -5219,7 +5221,7 @@ void SaveCurrentSceneSkin()
 		// TCHAR MessagePopup[512];
 		TCHAR to_ext[32];
 		_tcscpy(to_ext, ("PSK"));
-		sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_skinfile,to_ext);
+
 		FastFileClass OutFile;
 
 		if ( OutFile.CreateNewFile(DestPath) != 0) // Error!

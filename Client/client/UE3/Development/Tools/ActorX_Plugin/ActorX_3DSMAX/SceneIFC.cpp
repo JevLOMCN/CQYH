@@ -87,24 +87,27 @@ int	SceneIFC::LogSkinInfo( VActor *Thing, char* SkinName ) // char* ModelName )
 	{
 		DebugBox("Start printing skin [%i]",i);
 
-		char MaterialName[256];
-		_tcscpy(MaterialName,CleanString( Thing->SkinData.Materials[i].MaterialName ));
+		char MaterialName[sizeof(Thing->SkinData.Materials[i].MaterialName)];
+		CleanString(Thing->SkinData.Materials[i].MaterialName, MaterialName, sizeof(MaterialName));
 
 		DebugBox("Start printing bitmap");
 
 		// Find bitmap:		
-		char BitmapName[MAX_PATH];
-		char BitmapPath[MAX_PATH];
+		char BitmapName[MAX_PATH] = {0};
+		char BitmapPath[MAX_PATH] = {0};
 
 		if( (Thing->SkinData.RawMaterials.Num()>i) && Thing->SkinData.RawMaterials[i] )
 		{
-			_tcscpy( BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName );  
-			_tcscpy( BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath );  
+			if (Thing->SkinData.RawBMPaths.Num() > i)
+			{
+				_tcscpy( BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName );
+				_tcscpy( BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath );
+			}
 		}
 		else
 		{
 			sprintf(BitmapName,"[Internal material]");
-			BitmapPath[MAX_PATH];
+			BitmapPath[0] = 0;
 		}
 
 		DebugBox("Retrieved bitmapname");
@@ -246,10 +249,13 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 
 	{for( INT i=0; i < Thing->SkinData.Materials.Num(); i++)
 	{				
-		char BitmapName[MAX_PATH];
-		char BitmapPath[MAX_PATH];
-		_tcscpy(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
-		_tcscpy(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);
+		char BitmapName[MAX_PATH] = {0};
+		char BitmapPath[MAX_PATH] = {0};
+		if (Thing->SkinData.RawBMPaths.Num() > i)
+		{
+			_tcscpy(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
+			_tcscpy(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);
+		}
 
 		if( DoTexPCX ) // force PCX texture extension
 		{
@@ -286,10 +292,13 @@ int	SceneIFC::WriteScriptFile( VActor *Thing, char* ScriptName, char* BaseName, 
 	// Full material list for debugging purposes.
 	{for( INT i=0; i < Thing->SkinData.Materials.Num(); i++)
 	{
-		char BitmapName[MAX_PATH];
-		char BitmapPath[MAX_PATH];
-		_tcscpy(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
-		_tcscpy(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);		
+		char BitmapName[MAX_PATH] = {0};
+		char BitmapPath[MAX_PATH] = {0};
+		if (Thing->SkinData.RawBMPaths.Num() > i)
+		{
+			_tcscpy(BitmapName,Thing->SkinData.RawBMPaths[i].RawBitmapName);
+			_tcscpy(BitmapPath,Thing->SkinData.RawBMPaths[i].RawBitmapPath);
+		}
 		DLog.Logf("// Original material [%i] is [%s] SkinIndex: %i Bitmap: %s  Path: %s \n",i,Thing->SkinData.Materials[i].MaterialName,Thing->SkinData.Materials[i].TextureIndex,BitmapName,BitmapPath );
 		
 	}}

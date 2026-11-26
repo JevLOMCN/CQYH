@@ -176,22 +176,17 @@ struct VMaterial
 	}	
 
 	// Copy a name and properly zero-terminate it.
-	void SetName( char* NewName)
-	{
-		INT c=0;
-		for(c=0; c<64; c++)
-		{
-			MaterialName[c]=NewName[c];
-			if( MaterialName[c] == 0 ) 
-				break;
-		}
-		// fill out
-		while( c<64)
-		{
-			MaterialName[c] = 0;
-			c++;
-		}	
-	}
+	void SetName(const char* NewName)
+    {
+        size_t Length = 0;
+        if (NewName)
+        {
+            while (Length < sizeof(MaterialName) - 1 && NewName[Length])
+                ++Length;
+            memmove(MaterialName, NewName, Length);
+        }
+        Memzero(MaterialName + Length, sizeof(MaterialName) - Length);
+    }
 };
 
 struct VBitmapOrigin
