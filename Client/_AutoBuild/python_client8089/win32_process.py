@@ -10,53 +10,55 @@ email ekoome@yahoo.com
 license GPL
 """
 from ctypes import *
+from ctypes import wintypes
 
-#PSAPI.DLL
+# ctypes defaults to int without signatures, truncating 64-bit handles.
 psapi = windll.psapi
-#Kernel32.DLL
 kernel = windll.kernel32
+psapi.EnumProcesses.argtypes = [POINTER(wintypes.DWORD), wintypes.DWORD, POINTER(wintypes.DWORD)]
+psapi.EnumProcesses.restype = wintypes.BOOL
+psapi.EnumProcessModules.argtypes = [wintypes.HANDLE, POINTER(wintypes.HMODULE), wintypes.DWORD, POINTER(wintypes.DWORD)]
+psapi.EnumProcessModules.restype = wintypes.BOOL
+psapi.GetModuleBaseNameA.argtypes = [wintypes.HANDLE, wintypes.HMODULE, c_void_p, wintypes.DWORD]
+psapi.GetModuleBaseNameA.restype = wintypes.DWORD
+kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+kernel.OpenProcess.restype = wintypes.HANDLE
+kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+kernel.CloseHandle.restype = wintypes.BOOL
+
 
 def EnumProcesses():
     pp = {}
-    arr = c_ulong * 256
-    lpidProcess= arr()
-    cb = sizeof(lpidProcess)
-    cbNeeded = c_ulong()
-    hModule = c_ulong()
-    count = c_ulong()
-    modname = c_buffer(30)
-    PROCESS_QUERY_INFORMATION = 0x0400
-    PROCESS_VM_READ = 0x0010
-    
-    #Call Enumprocesses to get hold of process id's
-    psapi.EnumProcesses(byref(lpidProcess),
-                        cb,
-                        byref(cbNeeded))
-    
-    #Number of processes returned
-    nReturned = cbNeeded.value/sizeof(c_ulong())
-    
-    pidProcess = [i for i in lpidProcess][:nReturned]
-    
-    for pid in pidProcess:
-        #Get handle to the process based on PID
-        hProcess = kernel.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
-                                      False, pid)
-        if hProcess:
-            psapi.EnumProcessModules(hProcess, byref(hModule), sizeof(hModule), byref(count))
-            psapi.GetModuleBaseNameA(hProcess, hModule.value, modname, sizeof(modname))
-            # print "".join([ i for i in modname if i != '\x00'])
-            name = "".join([ i for i in modname if i != '\x00'])
-            pp[name] = pid
-            #-- Clean up
-            for i in range(modname._length_):
-                modname[i]='\x00'
-            
-            kernel.CloseHandle(hProcess)
-            
+    capacity = 256
+    while True:
+        process_ids = (wintypes.DWORD * capacity)()
+        needed = wintypes.DWORD()
+        if not psapi.EnumProcesses(process_ids, sizeof(process_ids), byref(needed)):
+            return pp
+        if needed.value < sizeof(process_ids):
+            break
+        capacity *= 2
+
+    for pid in process_ids[:needed.value // sizeof(wintypes.DWORD)]:
+        handle = kernel.OpenProcess(0x0400 | 0x0010, False, pid)
+        if not handle:
+            continue
+        try:
+            module = wintypes.HMODULE()
+            module_bytes = wintypes.DWORD()
+            if not psapi.EnumProcessModules(handle, byref(module), sizeof(module), byref(module_bytes)):
+                continue
+            if module_bytes.value < sizeof(module):
+                continue
+            name = create_string_buffer(32768)
+            length = psapi.GetModuleBaseNameA(handle, module, name, sizeof(name))
+            if not length or length >= sizeof(name):
+                continue
+            pp[name.raw[:length]] = pid
+        finally:
+            kernel.CloseHandle(handle)
     return pp
 
+
 if __name__ == '__main__':
-    pl = EnumProcesses()
-    print pl
-## end of http://code.activestate.com/recipes/305279/ }}}
+    print(EnumProcesses())
