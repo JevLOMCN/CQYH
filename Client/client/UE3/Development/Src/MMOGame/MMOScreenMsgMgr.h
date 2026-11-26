@@ -8,6 +8,7 @@
 
 	struct ScreenMsg
 	{
+		ScreenMsg() : _Type(EScnMsgType_Invalid), _MsgValue(0) {}
 		EScreenMsgType _Type;
 		INT _MsgValue;
 		//UBOOL _IsValid;
@@ -17,6 +18,7 @@
 	class MMOScreenMsgMgr: public SingletonMeyers<MMOScreenMsgMgr>, public INativeGameEventHandler
 	{
 	public:
+		MMOScreenMsgMgr() : _IsPlaying(FALSE) {}
 		void Init();
 		void Shutdown();
 		void OnNativeGameEvent( struct MMOGameEvent* evt );

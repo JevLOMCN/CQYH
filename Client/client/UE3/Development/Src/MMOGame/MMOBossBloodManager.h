@@ -16,7 +16,7 @@ public:
 	};
 
 	MMOGameEvent_BossBlood(EBossBlood_Event eventType)
-		: eventBoss(eventType),nCurHp(0),nMaxHp(1),nLevel(1)
+		: nCurHp(0), nMaxHp(1), nLevel(1), eventBoss(eventType), byteQuality(0)
 	{
 	}
 
@@ -36,6 +36,7 @@ public:
 class MMOBossBloodManager: public SingletonMeyers<MMOBossBloodManager>, public INativeGameEventHandler
 {
 public:
+	MMOBossBloodManager() : nBossID(0) {}
 	void Init();
 	void Shutdown();
 

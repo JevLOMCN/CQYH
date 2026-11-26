@@ -58,6 +58,11 @@ struct MasterDetailInfo
 	FString      masterName;
 
 	Teacher_RewardExp reward;
+
+	MasterDetailInfo()
+		: nRoleID(0), nLevel(0), nClass(0), nCZLevel(0), nStudentNum(0)
+	{
+	}
 };
 //fellow disciple data
 struct StudentListData
@@ -85,6 +90,8 @@ struct StudentListData
 //applicant list item data, shared by apprenticeship requests and recruit requests
 struct ApplicantsListData
 {
+	ApplicantsListData() : nRoleID(0), nClass(0), nLevel(0), nMasterExp(0) {}
+
 	INT               nRoleID;
 	INT               nClass;
 	INT               nLevel;
@@ -95,6 +102,9 @@ struct ApplicantsListData
 // system push, shared by master recommendation and apprentice recommendation
 struct SystemPosterListData
 {
+	SystemPosterListData() : nRoleID(0), nClass(0), nLevel(0), nMasterExp(0),
+		  bCanApply(false), bSelect(false), bValid(false) {}
+
 	INT               nRoleID;
 	INT               nClass;
 	INT               nLevel;
@@ -107,6 +117,11 @@ struct SystemPosterListData
 
 struct CongratulationGiftData 
 {
+	CongratulationGiftData() : nTargetLevel(0), nType0Consume(0), nType1Consume(0), nType2Consume(0),
+		  nType0MailID1(0), nType0MailID2(0), nType0MailID3(0),
+		  nType1MailID1(0), nType1MailID2(0), nType1MailID3(0),
+		  nType2MailID1(0), nType2MailID2(0), nType2MailID3(0) {}
+
 	INT nTargetLevel;
 	INT nType0Consume;
 	INT nType1Consume;
@@ -128,6 +143,8 @@ struct CongratulationGiftData
 
 struct TwitterInfo
 {
+	TwitterInfo() : roleID(0), level(0), masterExp(0), bApply(FALSE) {}
+
 	UINT32 roleID;
 	UINT8  level;
 	INT32 masterExp;
@@ -179,7 +196,7 @@ struct MMOGameEvent_MasterStudent : public MMOGameEvent
 public:
 	MMOGameEvent_MasterStudent(EMasterStudentType eventType, UINT32 id = 0)
 		: EventType(eventType),
-		ID(id)
+		ID(id), level(0), masterExp(0)
 	{
 	}
 
@@ -196,6 +213,20 @@ public:
 
 struct GiftDetailData
 {
+	GiftDetailData() : nGiftID(0), nAddExp(0)
+	{
+		for (INT i = 0; i < 3; ++i)
+		{
+			nItemID[i] = 0;
+			nItemCount[i] = 0;
+		}
+		for (INT i = 0; i < 2; ++i)
+		{
+			nMoneyType[i] = 0;
+			nMoneyNum[i] = 0;
+		}
+	}
+
 	INT nGiftID;
 
 	INT nItemID[3];
@@ -251,6 +282,8 @@ typedef TDataManger< GiftDetailData, GiftDetailDataProcessor >   GiftDetailDataM
 
 struct MailTemplateData
 {
+	MailTemplateData() : nMailID(0), nItemID(0) {}
+
 	INT nMailID;
 	INT nItemID;
 };

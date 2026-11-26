@@ -124,8 +124,14 @@ void CMessageHandler::Send_Congratulation(INT nRoleID,INT nTargetID,INT nConType
 	
 	FTCHARToUTF8 szContent( *strCon);
 
-	INT contentLen = szContent.Length()+1;
-	if( contentLen >  MAX_CZ_TEXT_LENGTH )
+	const INT textLength = szContent.Length();
+	if (textLength < 0 || textLength >= MAX_CZ_TEXT_LENGTH)
+		return;
+	const UINT32 contentLen = (UINT32)textLength + 1;
+	if (sizeof(C2M_MASTER_CZ) > sizeof(ms_MsgBuffer)
+		|| contentLen > sizeof(ms_MsgBuffer) - sizeof(C2M_MASTER_CZ)
+		|| sizeof(C2M_MASTER_CZ) > 0xffffu
+		|| contentLen > 0xffffu - sizeof(C2M_MASTER_CZ))
 		return;
 
 	C2M_MASTER_CZ* msg = (C2M_MASTER_CZ*)ms_MsgBuffer;
@@ -198,6 +204,8 @@ void CMessageHandler::Send_ReciveMasterExp(UINT32 roleId)
 */
 void CMessageHandler::Parse_g2c_sync_master(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SYNC_MASTER))
+		return;
 	G2C_SYNC_MASTER* msg = (G2C_SYNC_MASTER*)buf;
 	if(msg == NULL)
 		return;
@@ -208,14 +216,22 @@ void CMessageHandler::Parse_g2c_sync_master(const char* buf, UINT32 size)
 }
 void CMessageHandler::Parse_m2c_master_recruit_list(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_RECRUIT_LIST))
+		return;
 	M2C_MASTER_RECRUIT_LIST* msg = (M2C_MASTER_RECRUIT_LIST*)buf;
+	if (msg->byCount > (size - sizeof(*msg)) / sizeof(msg->szListData[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MasterStudentManager::getSingleton().NotifyUpdateMasterList(msg);
 }
 void CMessageHandler::Parse_m2c_master_get_solo_list_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_GET_SOLO_LIST_ACK))
+		return;
 	M2C_MASTER_GET_SOLO_LIST_ACK* msg = (M2C_MASTER_GET_SOLO_LIST_ACK*)buf;
+	if (msg->byCount > (size - sizeof(*msg)) / sizeof(msg->szListData[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MasterStudentManager::getSingleton().NotifyUpdateMasterSoloListAck(msg);
@@ -230,6 +246,8 @@ void CMessageHandler::Parse_m2c_master_recruit_ack(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_m2c_master_sync_lvl(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_SYNC_LVL))
+		return;
 	M2C_MASTER_SYNC_LVL* msg =(M2C_MASTER_SYNC_LVL*)buf;
 	if(msg == NULL)
 		return;
@@ -252,6 +270,8 @@ void CMessageHandler::Parse_m2c_master_sync_lvl(const char* buf, UINT32 size)
 //}
 void CMessageHandler::Parse_m2c_master_grad(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_GRAD))
+		return;
 	M2C_MASTER_GRAD* msg =(M2C_MASTER_GRAD*)buf;
 	if(msg == NULL)
 		return;
@@ -262,6 +282,8 @@ void CMessageHandler::Parse_m2c_master_grad(const char* buf, UINT32 size)
 */
 void CMessageHandler::Parse_m2c_master_stud_submit_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_STUD_SUBMIT_APP_ACK))
+		return;
 	M2C_MASTER_STUD_SUBMIT_APP_ACK* msg =(M2C_MASTER_STUD_SUBMIT_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -269,6 +291,8 @@ void CMessageHandler::Parse_m2c_master_stud_submit_app_ack(const char* buf, UINT
 }
 void CMessageHandler::Parse_m2c_master_stud_submit_app_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_STUD_SUBMIT_APP_NTF))
+		return;
 	M2C_MASTER_STUD_SUBMIT_APP_NTF* msg =(M2C_MASTER_STUD_SUBMIT_APP_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -276,6 +300,8 @@ void CMessageHandler::Parse_m2c_master_stud_submit_app_ntf(const char* buf, UINT
 }
 void CMessageHandler::Parse_m2c_master_agree_stud_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_AGREE_STUD_APP_ACK))
+		return;
 	M2C_MASTER_AGREE_STUD_APP_ACK* msg =(M2C_MASTER_AGREE_STUD_APP_ACK*)buf; 
 	if(msg == NULL)
 		return;
@@ -283,6 +309,8 @@ void CMessageHandler::Parse_m2c_master_agree_stud_app_ack(const char* buf, UINT3
 }
 void CMessageHandler::Parse_m2c_master_refuse_stud_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_REFUSE_STUD_APP_ACK))
+		return;
 	M2C_MASTER_REFUSE_STUD_APP_ACK* msg =(M2C_MASTER_REFUSE_STUD_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -290,6 +318,8 @@ void CMessageHandler::Parse_m2c_master_refuse_stud_app_ack(const char* buf, UINT
 }
 void CMessageHandler::Parse_m2c_master_refuse_stud_app_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_REFUSE_STUD_APP_NTF))
+		return;
 	M2C_MASTER_REFUSE_STUD_APP_NTF* msg =(M2C_MASTER_REFUSE_STUD_APP_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -297,6 +327,8 @@ void CMessageHandler::Parse_m2c_master_refuse_stud_app_ntf(const char* buf, UINT
 }
 void CMessageHandler::Parse_m2c_master_cancel_stud_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CANCEL_STUD_APP_ACK))
+		return;
 	M2C_MASTER_CANCEL_STUD_APP_ACK* msg =(M2C_MASTER_CANCEL_STUD_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -304,6 +336,8 @@ void CMessageHandler::Parse_m2c_master_cancel_stud_app_ack(const char* buf, UINT
 }
 void CMessageHandler::Parse_m2c_master_cancel_stud_app_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CANCEL_STUD_APP_NTF))
+		return;
 	M2C_MASTER_CANCEL_STUD_APP_NTF* msg =(M2C_MASTER_CANCEL_STUD_APP_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -315,6 +349,8 @@ void CMessageHandler::Parse_m2c_master_cancel_stud_app_ntf(const char* buf, UINT
 */
 void CMessageHandler::Parse_m2c_master_teacher_submit_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_TEACHER_SUBMIT_APP_ACK))
+		return;
 	M2C_MASTER_TEACHER_SUBMIT_APP_ACK* msg =(M2C_MASTER_TEACHER_SUBMIT_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -322,6 +358,8 @@ void CMessageHandler::Parse_m2c_master_teacher_submit_app_ack(const char* buf, U
 }
 void CMessageHandler::Parse_m2c_master_teacher_submit_app_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_TEACHER_SUBMIT_APP_NTF))
+		return;
 	M2C_MASTER_TEACHER_SUBMIT_APP_NTF* msg =(M2C_MASTER_TEACHER_SUBMIT_APP_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -329,6 +367,8 @@ void CMessageHandler::Parse_m2c_master_teacher_submit_app_ntf(const char* buf, U
 }
 void CMessageHandler::Parse_m2c_master_agree_teacher_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_AGREE_TEACHER_APP_ACK))
+		return;
 	M2C_MASTER_AGREE_TEACHER_APP_ACK* msg =(M2C_MASTER_AGREE_TEACHER_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -336,6 +376,8 @@ void CMessageHandler::Parse_m2c_master_agree_teacher_app_ack(const char* buf, UI
 }
 void CMessageHandler::Parse_m2c_master_refuse_teacher_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_REFUSE_TEACHER_APP_ACK))
+		return;
 	M2C_MASTER_REFUSE_TEACHER_APP_ACK* msg =(M2C_MASTER_REFUSE_TEACHER_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -343,6 +385,8 @@ void CMessageHandler::Parse_m2c_master_refuse_teacher_app_ack(const char* buf, U
 }
 void CMessageHandler::Parse_m2c_master_refuse_teacher_app_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_REFUSE_TEACHER_APP_NTF))
+		return;
 	M2C_MASTER_REFUSE_TEACHER_APP_NTF* msg =(M2C_MASTER_REFUSE_TEACHER_APP_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -350,6 +394,8 @@ void CMessageHandler::Parse_m2c_master_refuse_teacher_app_ntf(const char* buf, U
 }
 void CMessageHandler::Parse_m2c_master_cancel_teacher_app_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CANCEL_TEACHER_APP_ACK))
+		return;
 	M2C_MASTER_CANCEL_TEACHER_APP_ACK* msg =(M2C_MASTER_CANCEL_TEACHER_APP_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -357,6 +403,8 @@ void CMessageHandler::Parse_m2c_master_cancel_teacher_app_ack(const char* buf, U
 }
 void CMessageHandler::Parse_m2c_master_cancel_teacher_app_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CANCEL_TEACHER_APP_NTF))
+		return;
 	M2C_MASTER_CANCEL_TEACHER_APP_NTF* msg =(M2C_MASTER_CANCEL_TEACHER_APP_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -368,6 +416,8 @@ void CMessageHandler::Parse_m2c_master_cancel_teacher_app_ntf(const char* buf, U
 */
 void CMessageHandler::Parse_m2c_master_leave_teacher_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_LEAVE_TEACHER_ACK))
+		return;
 	M2C_MASTER_LEAVE_TEACHER_ACK* msg =(M2C_MASTER_LEAVE_TEACHER_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -375,6 +425,8 @@ void CMessageHandler::Parse_m2c_master_leave_teacher_ack(const char* buf, UINT32
 }
 void CMessageHandler::Parse_m2c_master_leave_teacher_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_LEAVE_TEACHER_NTF))
+		return;
 	M2C_MASTER_LEAVE_TEACHER_NTF* msg =(M2C_MASTER_LEAVE_TEACHER_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -382,6 +434,8 @@ void CMessageHandler::Parse_m2c_master_leave_teacher_ntf(const char* buf, UINT32
 }
 void CMessageHandler::Parse_m2c_master_fire_student_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_FIRE_STUDENT_ACK))
+		return;
 	M2C_MASTER_FIRE_STUDENT_ACK* msg =(M2C_MASTER_FIRE_STUDENT_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -389,6 +443,8 @@ void CMessageHandler::Parse_m2c_master_fire_student_ack(const char* buf, UINT32 
 }
 void CMessageHandler::Parse_m2c_master_fire_student_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_FIRE_STUDENT_NTF))
+		return;
 	M2C_MASTER_FIRE_STUDENT_NTF* msg =(M2C_MASTER_FIRE_STUDENT_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -396,6 +452,8 @@ void CMessageHandler::Parse_m2c_master_fire_student_ntf(const char* buf, UINT32 
 }
 void CMessageHandler::Parse_m2c_master_add_student_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_ADD_STUDENT_NTF))
+		return;
 	M2C_MASTER_ADD_STUDENT_NTF* msg =(M2C_MASTER_ADD_STUDENT_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -403,6 +461,8 @@ void CMessageHandler::Parse_m2c_master_add_student_ntf(const char* buf, UINT32 s
 }
 void CMessageHandler::Parse_m2c_master_del_student_ntf(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_DEL_STUDENT_NTF))
+		return;
 	M2C_MASTER_DEL_STUDENT_NTF* msg =(M2C_MASTER_DEL_STUDENT_NTF*)buf;
 	if(msg == NULL)
 		return;
@@ -410,6 +470,8 @@ void CMessageHandler::Parse_m2c_master_del_student_ntf(const char* buf, UINT32 s
 }
 void CMessageHandler::Parse_m2c_master_clear_info(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CLEAR_INFO))
+		return;
 	M2C_MASTER_CLEAR_INFO* msg =(M2C_MASTER_CLEAR_INFO*)buf;
 	if(msg == NULL)
 		return;
@@ -417,13 +479,19 @@ void CMessageHandler::Parse_m2c_master_clear_info(const char* buf, UINT32 size)
 }
 void CMessageHandler::Parse_m2c_master_info(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_INFO))
+		return;
 	M2C_MASTER_INFO* msg =(M2C_MASTER_INFO*)buf;
+	if (msg->byStudentNum > (size - sizeof(*msg)) / sizeof(msg->arrInfo[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MasterStudentManager::getSingleton().NotifyMasterInfo(msg);
 }
 void CMessageHandler::Parse_m2c_master_cz_level(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CZ_LEVEL))
+		return;
 	M2C_MASTER_CZ_LEVEL* msg =(M2C_MASTER_CZ_LEVEL*)buf;
 	if(msg == NULL)
 		return;
@@ -431,6 +499,8 @@ void CMessageHandler::Parse_m2c_master_cz_level(const char* buf, UINT32 size)
 }
 void CMessageHandler::Parse_m2c_master_cz_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_CZ_ACK))
+		return;
 	M2C_MASTER_CZ_ACK* msg =(M2C_MASTER_CZ_ACK*)buf;
 	if(msg == NULL)
 		return;
@@ -439,6 +509,8 @@ void CMessageHandler::Parse_m2c_master_cz_ack(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_m2c_master_hello_teacher(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_HELLO_TEACHER))
+		return;
 	M2C_MASTER_HELLO_TEACHER* msg  = (M2C_MASTER_HELLO_TEACHER*)buf;
 	if (msg == NULL)
 		return;
@@ -448,6 +520,8 @@ void CMessageHandler::Parse_m2c_master_hello_teacher(const char* buf, UINT32 siz
 
 void CMessageHandler::Parse_g2c_sync_master_reward_exp(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SYNC_MASTER_REWARD_EXP))
+		return;
 	G2C_SYNC_MASTER_REWARD_EXP* msg = (G2C_SYNC_MASTER_REWARD_EXP*)buf;
 	if (msg == NULL)
 		return;
@@ -456,6 +530,8 @@ void CMessageHandler::Parse_g2c_sync_master_reward_exp(const char* buf, UINT32 s
 
 void CMessageHandler::Parse_m2c_master_twitter_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_MASTER_TWITTER_ACK))
+		return;
 	M2C_MASTER_TWITTER_ACK* msg = (M2C_MASTER_TWITTER_ACK*)buf;
 	if (msg == NULL)
 		return;
@@ -463,6 +539,8 @@ void CMessageHandler::Parse_m2c_master_twitter_ack(const char* buf, UINT32 size)
 }
 void CMessageHandler::Parse_g2c_receive_master_reward_exp_ack(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_RECEIVE_MASTER_REWARD_EXP_ACK))
+		return;
 	G2C_RECEIVE_MASTER_REWARD_EXP_ACK* msg = (G2C_RECEIVE_MASTER_REWARD_EXP_ACK*)buf;
 	if (msg == NULL)
 		return;

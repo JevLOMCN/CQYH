@@ -82,6 +82,7 @@ struct EnhanceData
 
 struct EnhanceResult
 {
+	EnhanceResult() { appMemzero(_Prop, sizeof(_Prop)); }
 	//ValueData _Prop[ENHANCE_EQUIP_PROPERTY];
 	INT _Prop[ENHANCE_EQUIP_PROPERTY];
 	//EnhanceResult(){
@@ -145,6 +146,7 @@ static const INT EQUIP_RUNE_SKILL_MAX = 2;//MAX_RUNE_COUNT;
 
 struct WeaponSkillCfg
 {
+	WeaponSkillCfg() : _SkillID(0), _SkillRuneID(0), _IsRare(FALSE), _Level(0), _RarePriority(0) {}
 	UINT _SkillID;
 	UINT _SkillRuneID;
 	UBOOL _IsRare;
@@ -158,6 +160,7 @@ struct WeaponSkillCfg
 static const INT EQUIP_LEVEL_MAX = 7;
 struct EquipLvUpCfg
 {
+	EquipLvUpCfg() : _Level(0), _MnyCost(0), _PowerAdd(0) {}
 	UINT _Level;
 	UINT _MnyCost;
 	UINT _PowerAdd;

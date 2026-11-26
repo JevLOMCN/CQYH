@@ -31,6 +31,14 @@ typedef TMap< UINT, struct EquipSlotEnhanceCfgData > EquipSlotEnhanceMap;
 
 struct EquipSlotEnhancePropCfgData
 {
+	EquipSlotEnhancePropCfgData() : RefineLv(0), ClassId(0), EquipSlotId(0)
+	{
+		for (INT i = 0; i < ENHANCE_EFFECT_COUNT; ++i)
+		{
+			EffectProperties[i] = 0;
+		}
+	}
+
 	INT RefineLv;
 	INT ClassId;
 	INT EquipSlotId;
@@ -41,6 +49,12 @@ struct EquipSlotEnhancePropCfgData
 //
 struct EquipSlotEnhanceCfgData
 {
+	EquipSlotEnhanceCfgData()
+		: RefineLv(0), PlayerRequireLv(0), MoneyCost(0), BaseSuccessRate(0),
+		  SuccessRateFactor(0), IsSysTip(FALSE)
+	{
+	}
+
 	INT RefineLv;
 	INT PlayerRequireLv;
 	INT MoneyCost;
@@ -65,13 +79,16 @@ struct EquipSlotProperties
 //Enhancement activation config table data structure
 struct EquipSlotEnhanceActiveTemplate
 {
-	typedef struct
+	EquipSlotEnhanceActiveTemplate() : level(0) {}
+
+	struct EffectData
 	{
+		EffectData() : EType(0), AttributeId(0), Value(0) {}
 		INT EType; //0 bonus value, 1 add ability, etc.
 		INT AttributeId; //Added attribute id
 		INT Value; //Bonus value, or ability id
 		
-	}EffectData;
+	};
 
 	INT level;
 
@@ -143,7 +160,7 @@ public:
 	//Own enhancement data
 	EquipSlotProperties *GetCurMySlotEnhanceState( INT slotID )
 	{
-		if( slotID < 0 || slotID >= NES_TOTAL )
+		if( slotID < 0 || slotID >= EQUIP_SLOT_COUNT )
 		{
 			return NULL;
 		}
@@ -166,7 +183,11 @@ public:
 	//Enhancement stage level
 	const TArray<INT> &GetSortedEnhanceExtrPropLvIdx( INT classID )
 	{
-		check( classID >= 0 && classID < EPCT_MAX );
+		if (classID < 0 || classID >= EPCT_MAX)
+		{
+			static const TArray<INT> EmptyLevels;
+			return EmptyLevels;
+		}
 		return _RefineExtrPropLvIdx[classID];
 	}
 
@@ -196,16 +217,15 @@ public:
 	//-----------------------------------------
 	void ApplyEnhancePropertyToEquip();
 	INT GetEnhanceActiveLevel() const;
-	EquipSlotEnhanceActiveTemplate& GetEquipSlotEnhanceActiveTemplate(INT lv);
+	const EquipSlotEnhanceActiveTemplate& GetEquipSlotEnhanceActiveTemplate(INT lv) const;
 
 private:
 	//
 	UINT CombineRefineKey( INT classID, INT partID, INT refineLv )
 	{
-		INT ret = ( classID << 24 & 0xff000000 );
-		ret |= ( partID << 16 & 0x00ff0000 );
-		ret |= refineLv & 0x0000ffff;
-		return (UINT)ret;
+		return (((UINT)classID & 0xffu) << 24)
+			| (((UINT)partID & 0xffu) << 16)
+			| ((UINT)refineLv & 0xffffu);
 	}
 	
 private:

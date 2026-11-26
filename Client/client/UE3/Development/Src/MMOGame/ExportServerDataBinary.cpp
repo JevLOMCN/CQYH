@@ -1918,7 +1918,6 @@ UBOOL AScout::GenerateGridData(void)
 {
 #if WITH_EDITOR
 	int nRetCode = 0;
-	wchar_t szMessage[1024];
 
 	FString MapName = GWorld->GetMapName();
 
@@ -2061,8 +2060,7 @@ UBOOL AScout::GenerateGridData(void)
 				}
 
 				INT32 nInterval = GetTickCount() - dwStartTime;
-				wsprintf(szMessage, L"%s : %d\n", *ActorName, nInterval);
-				GWarn->StatusUpdatef(0, 0, szMessage);
+				GWarn->StatusUpdatef(0, 0, TEXT("%s : %d\n"), *ActorName, nInterval);
 			}
 		}
 	}

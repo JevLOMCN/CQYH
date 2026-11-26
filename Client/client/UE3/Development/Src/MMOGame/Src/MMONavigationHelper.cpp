@@ -11,14 +11,11 @@ IMPLEMENT_CLASS(UMMONavigationHelper)
 void UMMONavigationHelper::Setup(AController* Owner)
 {
 	_Owner = Owner;
-	if (_Owner)
+	_NavigationHandle = _Owner ? _Owner->NavigationHandle : NULL;
+	if (_NavigationHandle)
 	{
-		_NavigationHandle = _Owner->NavigationHandle;
-		if (_NavigationHandle)
-		{
-			_NavigationHandle->bUltraVerbosePathDebugging = ShowDebugPath;
-			_NavigationHandle->bVisualPathDebugging = ShowDebugPath;
-		}
+		_NavigationHandle->bUltraVerbosePathDebugging = ShowDebugPath;
+		_NavigationHandle->bVisualPathDebugging = ShowDebugPath;
 	}
 }
 
@@ -33,7 +30,8 @@ UBOOL UMMONavigationHelper::FindPathToDest(FVector vecDestLocation)
 		_NavigationHandle->PathGoalList = NULL;
 		_NavigationHandle->ClearConstraints();
 
-		eventPram_NavMeshPath_Toward(_NavigationHandle, vecDestLocation);
+		if (!eventPram_NavMeshPath_Toward(_NavigationHandle, vecDestLocation))
+			return FALSE;
 
 		succ = _NavigationHandle->FindPath();
 #if !SHIPPING_PC_GAME
@@ -50,14 +48,18 @@ UBOOL UMMONavigationHelper::FindPathToDest(FVector vecDestLocation)
 
 void UMMONavigationHelper::BeginPathing(FVector vecDestLocation)
 {
-	_NavigationHandle->SetFinalDestination(vecDestLocation);
 	_Destination = vecDestLocation;
+	if (_NavigationHandle)
+		_NavigationHandle->SetFinalDestination(vecDestLocation);
 }
 
 UBOOL UMMONavigationHelper::GetNextMoveLocation(FVector& aim, FLOAT ArrivalDistance)
 {
-	if (_NavigationHandle->GetNextMoveLocation(aim, ArrivalDistance))
+	aim = FVector(0, 0, 0);
+	FVector nextMove(0, 0, 0);
+	if (_NavigationHandle && _NavigationHandle->GetNextMoveLocation(nextMove, ArrivalDistance))
 	{
+		aim = nextMove;
 		return TRUE;
 	}
 	return FALSE;

@@ -182,37 +182,27 @@ void ReplayManager::Init()
 		FArchive* ar = GFileManager->CreateFileReader(*replayFile);
 		if(ar)
 		{
-			while (!ar->AtEnd())
+			while (!ar->AtEnd() && !ar->IsError())
 			{
-				EReplayDataType dataType;
-				ar->Serialize(&dataType, sizeof(EReplayDataType));
-				
-				switch(dataType)
+				EReplayDataType dataType = ERDT_Network;
+				ar->Serialize(&dataType, sizeof(dataType));
+				if (ar->IsError())
+					break;
+				FReplayData* dat = NULL;
+				switch (dataType)
 				{
-				case ERDT_Network:
-					{
-						FReplayDataNetwork* dat = new FReplayDataNetwork;
-						dat->Serialize(*ar);
-						_replayDataList.push_back(dat);
-					}
+				case ERDT_Network: dat = new FReplayDataNetwork; break;
+				case ERDT_Input: dat = new FReplayDataInput; break;
+				case ERDT_ScreenRes: dat = new FReplayDataScreenRes; break;
+				}
+				if (!dat)
 					break;
-
-				case ERDT_Input:
-					{
-						FReplayDataInput* dat = new FReplayDataInput;
-						dat->Serialize(*ar);
-						_replayDataList.push_back(dat);
-					}
-					break;
-
-				case ERDT_ScreenRes:
-					{
-						FReplayDataScreenRes* dat = new FReplayDataScreenRes;
-						dat->Serialize(*ar);
-						_replayDataList.push_back(dat);
-					}
+				if (!dat->Serialize(*ar))
+				{
+					dat->Destroy();
 					break;
 				}
+				_replayDataList.push_back(dat);
 			}
 
 			delete ar;
@@ -308,34 +298,53 @@ void FReplayDataNetwork::DispatchReplayData()
 	}
 }
 
-void FReplayDataNetwork::Serialize( FArchive& archive )
+UBOOL FReplayDataNetwork::Serialize(FArchive& archive)
 {
-	FReplayData::Serialize(archive);
-
-	INT& tmpDataType = (INT&)DataType;
-	archive << tmpDataType;
-	archive << DataSize;
-
-	if(archive.IsSaving())
+	if (!FReplayData::Serialize(archive))
+		return FALSE;
+	INT dataType = (INT)DataType;
+	INT dataSize = DataSize;
+	archive << dataType;
+	archive << dataSize;
+	if (archive.IsError() || (dataType != ENDT_Recv && dataType != ENDT_Send) ||
+		dataSize < (INT)sizeof(MESSAGE_HEADER) || dataSize > 0xFFFF)
+		return FALSE;
+	if (archive.IsSaving())
 	{
-		archive.Serialize(DataBuffer, DataSize);
+		if (!DataBuffer)
+			return FALSE;
+		archive.Serialize(DataBuffer, dataSize);
+		return !archive.IsError();
 	}
-	else
+	if (archive.Tell() < 0 || archive.Tell() > archive.TotalSize() ||
+		dataSize > archive.TotalSize() - archive.Tell())
+		return FALSE;
+	char* buffer = new char[dataSize];
+	archive.Serialize(buffer, dataSize);
+	if (archive.IsError())
 	{
-		DataBuffer = new char[DataSize];
-		archive.Serialize(DataBuffer, DataSize);
+		delete[] buffer;
+		return FALSE;
 	}
+	delete[] DataBuffer;
+	DataBuffer = buffer;
+	DataSize = dataSize;
+	DataType = (ENetworkDataType)dataType;
+	return TRUE;
 }
 
 FString FReplayDataNetwork::ToString() const
 {
+	if (!DataBuffer || DataSize < (INT)sizeof(MESSAGE_HEADER))
+		return FString(TEXT("Invalid network replay"));
 	MESSAGE_HEADER* pHeader = (MESSAGE_HEADER*)DataBuffer;
 
 	FString str = FString("[") + appItoa(Index) + FString(TEXT("]FReplayDataNetwork:["))
 		+ appItoa(DataSize) + FString(TEXT("]"));
 
 #ifdef _DEBUG
-		str += CMessageHandler::GetInstance().m_MessageDebugString[pHeader->wMsg];
+		if (pHeader->wMsg < ExternalMessage::max_message_count)
+			str += CMessageHandler::GetInstance().m_MessageDebugString[pHeader->wMsg];
 #endif
 
 	return str;
@@ -375,12 +384,15 @@ void FReplayDataInput::DispatchReplayData()
 	}
 }
 
-void FReplayDataInput::Serialize( FArchive& archive )
+UBOOL FReplayDataInput::Serialize( FArchive& archive )
 {
-	FReplayData::Serialize(archive);
-
-	INT& tmpDataType = (INT&)DataType;
+	if (!FReplayData::Serialize(archive))
+		return FALSE;
+	INT tmpDataType = (INT)DataType;
 	archive << tmpDataType;
+	if (archive.IsError() || tmpDataType < EIDT_Key || tmpDataType > EIDT_MousePosition)
+		return FALSE;
+	DataType = (EInputDataType)tmpDataType;
 
 	archive.Serialize(&MousePoint, sizeof(FIntPoint));
 
@@ -397,17 +409,22 @@ void FReplayDataInput::Serialize( FArchive& archive )
 		}
 		else
 		{
-			NAME_INDEX Name;
-			INT Number;
+			NAME_INDEX Name = 0;
+			INT Number = 0;
 			archive.ByteOrderSerialize(&Name, sizeof(Name));
 			archive.ByteOrderSerialize(&Number, sizeof(Number));
 			// copy over the name with a name made from the name index and number
+			if (archive.IsError() || Name < 0 || Name >= FName::GetMaxNames() || !FName::GetEntry(Name) || Number < 0)
+				return FALSE;
 			Key = FName((EName)Name, Number);
 		}
 	}
 
-	INT& tmpEventType = (INT&)EventType;
+	INT tmpEventType = (INT)EventType;
 	archive << tmpEventType;
+	if (archive.IsError() || (DataType == EIDT_Key && (tmpEventType < IE_Pressed || tmpEventType >= IE_MAX)))
+		return FALSE;
+	EventType = (EInputEvent)tmpEventType;
 	archive << AmountDepressed;
 	archive << GamePad;
 
@@ -415,11 +432,12 @@ void FReplayDataInput::Serialize( FArchive& archive )
 	archive << DeltaTime;
 
 	archive.Serialize(&Character, sizeof(TCHAR));
+	return !archive.IsError();
 }
 
 FString FReplayDataInput::ToString() const
 {
-	TCHAR* dataTypeStr = g_inputDataTypeStr[DataType];
+	const TCHAR* dataTypeStr = DataType >= EIDT_Key && DataType <= EIDT_MousePosition ? g_inputDataTypeStr[DataType] : TEXT("Unknown");
 	FString str = FString("[") + appItoa(Index) + FString(TEXT("]FReplayDataInput:["))
 		+ dataTypeStr + FString(TEXT("] ")) + appItoa(MousePoint.X) + TEXT(",") + appItoa(MousePoint.Y) + TEXT(" ");
 
@@ -435,17 +453,19 @@ FString FReplayDataInput::ToString() const
 			TEXT("IE_MAX")
 		};
 
-		str += evtTypeStr[EventType];
+		if (EventType >= IE_Pressed && EventType < IE_MAX)
+			str += evtTypeStr[EventType];
 	}
 
 	return str;
 }
 
-void FReplayDataScreenRes::Serialize( FArchive& archive )
+UBOOL FReplayDataScreenRes::Serialize( FArchive& archive )
 {
 	archive << ResX;
 	archive << ResY;
 	archive << IsFullScreen;
+	return !archive.IsError();
 }
 
 void FReplayDataScreenRes::DispatchReplayData()

@@ -127,11 +127,11 @@ private:
 	// start a background merging thread
 	void StartMergingThread();
 
-	void LockTargetTextureData();
+	UBOOL LockTargetTextureData();
 
 	//void AllocSrcData();
 
-	void GetScrDataFromTex( FTextureLockData *&pTexLockData, FTexture2DResource *&tex2DRes, INT &mipID, INT &DestStride );
+	UBOOL GetScrDataFromTex( FTextureLockData *&pTexLockData, FTexture2DResource *&tex2DRes, INT &mipID );
 	void CheckLockDataRefNum( FTextureLockData *&pTexLockData, INT &mipID, TextureLockDataList &datalist );
 
 	//UBOOL bMergeTaskFinished;
@@ -163,6 +163,7 @@ private:
 	UTexture2DDynamic*	CurrentTargetTexture_N;
 	UTexture2DDynamic*	CurrentTargetTexture_S;
 
+	INT FirstMip;
 	INT MipIdx;	// todo: merge all mip levels
 	INT RegionIdx;
 	INT	LayerIdx;
@@ -181,7 +182,9 @@ private:
 	INT RegionSizeY;
 	DWORD SrcPitchBytes;
 	DWORD SrcRowOffsetBytes;
-	DWORD DestPitchBytes;
+	UINT DestPitchBytes_D;
+	UINT DestPitchBytes_N;
+	UINT DestPitchBytes_S;
 	DWORD DestRowOffsetBytes;
 	DWORD BlockPerRow;
 	FTextureMergeRegion* Region;

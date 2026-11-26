@@ -1449,7 +1449,7 @@ void UMMOUICharacter::InitReputationData()
 			continue;
 		}
 
-		FReputationData data ;
+		FReputationData data(EC_EventParm);
 		data.TempIndex		= i;
 		if(pReputationTemp->ListLevel==0)
 		{

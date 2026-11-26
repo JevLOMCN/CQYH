@@ -31,6 +31,7 @@ enum EAssistDropType
 
 struct AssistDropData
 {
+	AssistDropData() : Id(0), ItemClass(0), Valuable(FALSE), AutoPick(FALSE), Visible(FALSE), Group(0) {}
 	UINT32 Id;
 	UINT32 ItemClass;
 	UBOOL Valuable;
@@ -41,6 +42,7 @@ struct AssistDropData
 
 struct AssistDropInfo
 {
+	AssistDropInfo() : Id(0), Valuable(FALSE), AutoPick(FALSE), Visible(FALSE) {}
 	UINT32 Id;
 	UBOOL Valuable;
 	UBOOL AutoPick;
@@ -117,6 +119,7 @@ enum EProtectType
 
 struct AssistItemData
 {
+	AssistItemData() : ItemId(0), ItemType(0), Sort(0) {}
 	UINT32 ItemId;
 	UINT8 ItemType;
 	UINT8 Sort;
@@ -132,6 +135,7 @@ struct AssistItemInfo
 
 	AssistItemInfo()
 	{
+		appMemzero(this, sizeof(*this));
 		ProtectType = EPT_TOTAL;
 		ItemId = 0;
 		Enable = FALSE;

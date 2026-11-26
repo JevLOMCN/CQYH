@@ -1502,7 +1502,7 @@ void MMOQuestManager::UpdateQuestNpcKillCount(INT questId, UINT16 index, INT val
 	// tips
 	const UQuest* quest = MMOQuestData::getSingleton().GetQuestData(questId);
 	const AcceptedQuestData* acceptedQuest = MMOQuestData::getSingleton().GetAcceptedQuestData(questId);
-	if (quest && acceptedQuest && index < quest->CheckKillNpc.Num())
+	if (quest && acceptedQuest && index < ARRAY_COUNT(acceptedQuest->KillNpcCount) && quest->CheckKillNpc.IsValidIndex(index))
 	{
 		const FQuestCheckKillNpc* killNpc = &quest->CheckKillNpc(index);
 		if (killNpc)
@@ -4954,7 +4954,7 @@ void MMOQuestManager::SetQuestDialogCurrentPage(INT page)
 
 				if (isQuestAvailable)
 				{
-					if (quest->QuestPageSoundAccept.Num() > 0 && quest->QuestPageSoundAccept(_CurPage).PageSoundPath != TEXT(""))
+					if (quest->QuestPageSoundAccept.IsValidIndex(_CurPage) && quest->QuestPageSoundAccept(_CurPage).PageSoundPath != TEXT(""))
 					{
 						USoundCue* questPageSoundAccept = ((UQuest*)quest)->GetQuestPageSoundAccept(_CurPage);
 						if (questPageSoundAccept)
@@ -4966,7 +4966,7 @@ void MMOQuestManager::SetQuestDialogCurrentPage(INT page)
 				}
 				else if (isQuestAccepted && isQuestCompassable)
 				{
-					if (quest->QuestPageSoundSubmit.Num() > 0 && quest->QuestPageSoundSubmit(_CurPage).PageSoundPath != TEXT(""))
+					if (quest->QuestPageSoundSubmit.IsValidIndex(_CurPage) && quest->QuestPageSoundSubmit(_CurPage).PageSoundPath != TEXT(""))
 					{
 						USoundCue* questPageSoundSubmit = ((UQuest*)quest)->GetQuestPageSoundSubmit(_CurPage);
 						if (questPageSoundSubmit)

@@ -40,17 +40,18 @@ FString InternetTranslateError(DWORD GetLastErrorResult)
 
 	if (GetLastErrorResult == ERROR_INTERNET_EXTENDED_ERROR)
 	{
-		DWORD InetError;
+		DWORD InetError = 0;
 		DWORD ExtLength = 0;
-
-		InternetGetLastResponseInfo(&InetError, NULL, &ExtLength);
-		ExtLength = ExtLength+1;
-		TArray<TCHAR, FStringAllocator> ExtErrMsg(ExtLength);
-		if (!InternetGetLastResponseInfo(&InetError, &ExtErrMsg(0), &ExtLength))
-		{
-			ErrorStr += FString::Printf(TEXT("Call to InternetGetLastResponseInfo() failed: %08X. "), GetLastError());
+		if (InternetGetLastResponseInfo(&InetError, NULL, &ExtLength) ||
+			GetLastError() != ERROR_INSUFFICIENT_BUFFER || !ExtLength || ExtLength >= MAXINT / sizeof(TCHAR))
 			return ErrorStr;
-		}
+		TArray<TCHAR, FStringAllocator> ExtErrMsg;
+		ExtErrMsg.AddZeroed(ExtLength + 1);
+		DWORD capacity = ExtErrMsg.Num();
+		if (!InternetGetLastResponseInfo(&InetError, ExtErrMsg.GetTypedData(), &capacity) ||
+			capacity >= (DWORD)ExtErrMsg.Num()) return ErrorStr;
+		ExtErrMsg(capacity) = 0;
+		ErrorStr += FString((INT)capacity, ExtErrMsg.GetTypedData());
 	}
 
 	return ErrorStr;
@@ -73,7 +74,7 @@ static HINTERNET GRootInternetHandle;
 bool InitWinInet()
 {
 	// Check and log the connected state so we can report early errors.
-	DWORD ConnectedFlags;
+	DWORD ConnectedFlags = 0;
 	BOOL Connected = InternetGetConnectedState(&ConnectedFlags, 0);
 	FString ConnectionType;
 	ConnectionType += (ConnectedFlags & INTERNET_CONNECTION_CONFIGURED) ? TEXT("Configured ") : TEXT("");
@@ -190,7 +191,11 @@ void CALLBACK InternetStatusCallbackWinInet(
 		break;
 	case INTERNET_STATUS_REQUEST_COMPLETE:
 		debugf(NAME_DevHttpRequest, TEXT("REQUEST_COMPLETE: %p"), dwContext);
-		ResponseObj->ProcessResponse(AsyncResult);
+		if (ResponseObj)
+		{
+			if (!AsyncResult || dwStatusInformationLength < sizeof(*AsyncResult)) ResponseObj->FailResponse();
+			else ResponseObj->ProcessResponse(AsyncResult);
+		}
 		break;
 	case INTERNET_STATUS_REQUEST_SENT:
 		debugf(NAME_DevHttpRequest, TEXT("REQUEST_SENT: %p"), dwContext);
@@ -221,6 +226,7 @@ void CALLBACK InternetStatusCallbackWinInet(
 		break;
 	case INTERNET_STATUS_COOKIE_HISTORY:
 		{
+			if (!lpvStatusInformation || dwStatusInformationLength < sizeof(InternetCookieHistory)) break;
 			const InternetCookieHistory* CookieHistory = (const InternetCookieHistory*)lpvStatusInformation;
 			debugf(NAME_DevHttpRequest, TEXT("COOKIE_HISTORY: %p. Accepted: %u. Leashed: %u. Downgraded: %u. Rejected: %u.")
 				, dwContext
@@ -450,7 +456,7 @@ const TArray<BYTE>* FHttpResponseWinInet::GetPayload() const
 
 const FString FHttpResponseWinInet::GetPayloadAsString() const
 {
-	if (!IsReady() || GetPayload()->Num() == 0) return FString();
+	if (!IsReady() || ResponsePayload.Num() == 0 || ResponsePayload.Num() == MAXINT) return FString();
 
 	TArray<BYTE> ZeroTerminatedPayload(ResponsePayload);
 	ZeroTerminatedPayload.AddItem(0);
@@ -516,173 +522,115 @@ FHttpResponseWinInet::~FHttpResponseWinInet()
 	debugf(NAME_DevHttpRequest, TEXT("FHttpResponseWinInet object destroyed. %p"), this);
 }
 
-void FHttpResponseWinInet::ProcessResponse( const INTERNET_ASYNC_RESULT* AsyncResult )
+void FHttpResponseWinInet::FailResponse()
 {
-	if (AsyncResult->dwResult)
+	AsyncBytesRead = 0;
+	bResponseSucceeded = FALSE;
+	if (TotalBytesRead < 0 || TotalBytesRead > ResponsePayload.Num())
 	{
-		// Clear the request payload to save memory, as we don't need it anymore.
-		RequestPayload.Empty();
-
-		TotalBytesRead += AsyncBytesRead;
-		// We might be calling back into this from another asynchronous read, so continue where we left off.
-		// if there is no content length, we're prolly receiving chunked data.
-		INT ContentLength = (INT)GetContentLength();
-		// Allocate one extra byte when the content length is known so we can check if we receive too much data.
-		INT BufferSize = ContentLength > 0 && TotalBytesRead == 0 ? ContentLength+1 : TotalBytesRead + BUFFER_SIZE;
-		// For non-chunked responses, allocate one extra byte to check if we are sent extra content
-		// For chunked responses, add data using a fixed size buffer at a time.
-		ResponsePayload.SetNum(BufferSize);
-		do
-		{
-			// It's possible (especially in chunked responses) for this call to block asynchronously.
-			// When this happens, we need to wait for our Internet callback to be called again and continue the operation.
-			if (!InternetReadFile(RequestHandle, &ResponsePayload(TotalBytesRead), ResponsePayload.Num()-TotalBytesRead, (DWORD*)&AsyncBytesRead))
-			{
-				DWORD ErrorCode = GetLastError();
-				if (ErrorCode == ERROR_IO_PENDING)
-				{
-					debugf(NAME_DevHttpRequest, TEXT("InternetReadFile is completing asynchronously, so waiting for our callback to be called again. %p"), this);
-				}
-				else
-				{
-					debugf(NAME_DevHttpRequest, TEXT("InternetReadFile failed (%u bytes read). Returning what we've read so far: %s. %p"), AsyncBytesRead, *InternetTranslateError(ErrorCode), this);
-					bIsReady = TRUE;
-				}
-				return;
-			}
-			TotalBytesRead += AsyncBytesRead;
-			// resize the buffer if we don't know our content length, otherwise don't let the buffer grow larger than content length.
-			if (TotalBytesRead >= ResponsePayload.Num())
-			{
-				if (ContentLength > 0)
-				{
-					debugf(NAME_DevHttpRequest, TEXT("Warning: Response payload (%d bytes read so far) is larger than the content-length (%d). Resizing buffer to accommodate. %p"), TotalBytesRead, ContentLength, this);
-				}
-				ResponsePayload.Add(BUFFER_SIZE);
-			}
-		} while (AsyncBytesRead > 0);
-
-		if (ContentLength != 0 && TotalBytesRead != ContentLength)
-		{
-			debugf(NAME_DevHttpRequest, TEXT("Warning: Response payload was %d bytes, content-length indicated (%d) bytes. %p"), TotalBytesRead, ContentLength, this);
-		}
-
-		debugf(NAME_DevHttpRequest, TEXT("TotalBytesRead = %d. %p"), TotalBytesRead, this);
-		// Make sure the array only contains valid data.
-		ResponsePayload.SetNum(TotalBytesRead);
-		bResponseSucceeded = TRUE;
+		TotalBytesRead = 0;
+		ResponsePayload.Empty();
 	}
 	else
-	{
-		debugf(NAME_DevHttpRequest, TEXT("REQUEST_COMPLETE returned error: %s. %p"), *InternetTranslateError(AsyncResult->dwError), this);
-	}
+		ResponsePayload.SetNum(TotalBytesRead);
 	bIsReady = TRUE;
 }
 
-FString FHttpResponseWinInet::PrivateGetHeaderString( DWORD HttpQueryInfoLevel, const FString& HeaderName ) const
+void FHttpResponseWinInet::ProcessResponse(const INTERNET_ASYNC_RESULT* AsyncResult)
 {
-	// try to use stack allocation where possible.
-	DWORD HeaderSize = 0;
-	TCHAR HeaderValue[128];
-	TArray<TCHAR, FStringAllocator> HeaderValueLong;
-	TCHAR* HeaderValueReal = HeaderValue;
-	if (!HttpQueryInfo(RequestHandle, HttpQueryInfoLevel, const_cast<TCHAR*>(*HeaderName), &HeaderSize, NULL))
+	if (bIsReady) return;
+	if (!AsyncResult || !AsyncResult->dwResult || TotalBytesRead < 0 ||
+		TotalBytesRead > ResponsePayload.Num() || AsyncBytesRead > (DWORD)(ResponsePayload.Num() - TotalBytesRead))
 	{
-		DWORD ErrorCode = GetLastError();
-		if (ErrorCode == ERROR_HTTP_HEADER_NOT_FOUND)
-		{
-			return FString();
-		}
-		else if (ErrorCode == ERROR_INSUFFICIENT_BUFFER)
-		{
-			// make sure we have enough room to supply the HeaderName and Value. If not, dynamically allocate.
-			DWORD HeaderSizeChars = HeaderSize / sizeof(TCHAR) + 1;
-			DWORD HeaderNameChars = HeaderName.Len() == 0 ? 0 : HeaderName.Len() + 1;
-			if (HeaderSizeChars > ARRAYSIZE(HeaderValue) || HeaderNameChars > ARRAYSIZE(HeaderValue))
-			{
-				// we have to create a dynamic allocation to hold the result.
-				debugf(NAME_DevHttpRequest, TEXT("Having to resize default buffer for retrieving header %s. Name length: %u. Value length: %u. %p"), *HeaderName, HeaderNameChars, HeaderSizeChars, this);
-				DWORD NewBufferSizeChars = Max(HeaderSizeChars, HeaderNameChars);
-				// Have to copy the HeaderName into the buffer as well for the API to work.
-				if (HeaderName.Len() > 0)
-				{
-					HeaderValueLong = HeaderName.GetCharArray();
-				}
-				// Set the size of the array to hold the entire value.
-				HeaderValueLong.SetNum(NewBufferSizeChars);
-				HeaderSize = NewBufferSizeChars * sizeof(TCHAR);
-				HeaderValueReal = &HeaderValueLong(0);
-			}
-			else
-			{
-				// Use the stack allocated space if we have the room.
-				appMemcpy(HeaderValue, *HeaderName, HeaderName.Len()*sizeof(TCHAR));
-				HeaderValue[HeaderName.Len()] = 0;
-			}
-			if (!HttpQueryInfo(RequestHandle, HttpQueryInfoLevel, HeaderValueReal, &HeaderSize, NULL))
-			{
-				debugf(NAME_DevHttpRequest, TEXT("HttpQueryInfo failed trying to get Header Value for Name %s: %s. %p"), *HeaderName, *InternetTranslateError(GetLastError()), this);
-				return FString();
-			}
-		}
+		FailResponse();
+		return;
 	}
-	return FString(HeaderValueReal);
+	RequestPayload.Empty();
+	TotalBytesRead += (INT)AsyncBytesRead;
+	AsyncBytesRead = 0;
+	for (;;)
+	{
+		if (TotalBytesRead == MAXINT)
+		{
+			FailResponse();
+			return;
+		}
+		if (TotalBytesRead == ResponsePayload.Num())
+		{
+			const INT extra = Min(BUFFER_SIZE, MAXINT - TotalBytesRead);
+			ResponsePayload.SetNum(TotalBytesRead + extra);
+		}
+		const DWORD capacity = (DWORD)(ResponsePayload.Num() - TotalBytesRead);
+		AsyncBytesRead = 0;
+		if (!InternetReadFile(RequestHandle, &ResponsePayload(TotalBytesRead), capacity, &AsyncBytesRead))
+		{
+			if (GetLastError() != ERROR_IO_PENDING) FailResponse();
+			return;
+		}
+		if (AsyncBytesRead > capacity)
+		{
+			FailResponse();
+			return;
+		}
+		TotalBytesRead += (INT)AsyncBytesRead;
+		if (!AsyncBytesRead)
+		{
+			ResponsePayload.SetNum(TotalBytesRead);
+			bResponseSucceeded = TRUE;
+			bIsReady = TRUE;
+			return;
+		}
+		AsyncBytesRead = 0;
+	}
+}
+
+FString FHttpResponseWinInet::PrivateGetHeaderString(DWORD HttpQueryInfoLevel, const FString& HeaderName) const
+{
+	if (HeaderName.Len() >= MAXINT / (INT)sizeof(TCHAR) - 1) return FString();
+	INT capacity = Max(128, HeaderName.Len() + 1);
+	for (INT attempt = 0; attempt < 3; ++attempt)
+	{
+		TArray<TCHAR, FStringAllocator> buffer;
+		buffer.AddZeroed(capacity);
+		appMemcpy(buffer.GetTypedData(), *HeaderName, ((size_t)HeaderName.Len() + 1) * sizeof(TCHAR));
+		DWORD bytes = capacity * sizeof(TCHAR);
+		if (HttpQueryInfo(RequestHandle, HttpQueryInfoLevel, buffer.GetTypedData(), &bytes, NULL))
+		{
+			if (bytes > (DWORD)capacity * sizeof(TCHAR) || bytes % sizeof(TCHAR)) return FString();
+			return FString((INT)(bytes / sizeof(TCHAR)), buffer.GetTypedData());
+		}
+		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER || bytes <= (DWORD)capacity * sizeof(TCHAR) ||
+			bytes > MAXINT - sizeof(TCHAR)) return FString();
+		const DWORD required = bytes / sizeof(TCHAR) + 1;
+		if (required > MAXINT / sizeof(TCHAR)) return FString();
+		capacity = (INT)required;
+	}
+	return FString();
 }
 
 TArray<FString> FHttpResponseWinInet::GetAllHeaders() const
 {
-	DWORD HeaderSize = 0;
-	TArray<FString> Result;
-	if (!HttpQueryInfo(RequestHandle, HTTP_QUERY_RAW_HEADERS_CRLF, NULL, &HeaderSize, NULL))
+	TArray<FString> result;
+	const FString headers = PrivateGetHeaderString(HTTP_QUERY_RAW_HEADERS_CRLF, FString());
+	const TCHAR* line = *headers;
+	const TCHAR* end = line + headers.Len();
+	while (line < end)
 	{
-		DWORD ErrorCode = GetLastError();
-		if (ErrorCode != ERROR_INSUFFICIENT_BUFFER)
-		{
-			debugf(NAME_DevHttpRequest, TEXT("HttpQueryInfo to get header length for all headers failed: %s. %p"), *InternetTranslateError(GetLastError()), this);
-			return Result;
-		}
-		if (HeaderSize == 0)
-		{
-			debugf(NAME_DevHttpRequest, TEXT("HttpQueryInfo for all headers returned zero header size. %p"), this);
-			return Result;
-		}
-		TArray<TCHAR, FStringAllocator> HeaderBuffer(HeaderSize/sizeof(TCHAR));
-		if (!HttpQueryInfo(RequestHandle, HTTP_QUERY_RAW_HEADERS_CRLF, HeaderBuffer.GetTypedData(), &HeaderSize, NULL))
-		{
-			debugf(NAME_DevHttpRequest, TEXT("HttpQueryInfo for all headers failed: %s. %p"), *InternetTranslateError(GetLastError()), this);
-			return Result;
-		}
-		// parse all the key/value pairs
-		const TCHAR* HeaderPtr = HeaderBuffer.GetTypedData();
-		// don't count the terminating NULL character as one to search.
-		const TCHAR* EndPtr = HeaderPtr + HeaderBuffer.Num()-1;
-		while (HeaderPtr < EndPtr)
-		{
-			const TCHAR* DelimiterPtr = appStrstr(HeaderPtr, TEXT("\r\n"));
-			if (DelimiterPtr == NULL)
-			{
-				DelimiterPtr = EndPtr;
-			}
-			Result.AddItem(FString(DelimiterPtr-HeaderPtr, HeaderPtr));
-			HeaderPtr = DelimiterPtr + 2;
-		}
+		const TCHAR* next = line;
+		while (next < end && !(*next == '\r' && next + 1 < end && next[1] == '\n')) ++next;
+		result.AddItem(FString((INT)(next - line), line));
+		if (next == end) break;
+		line = next + 2;
 	}
-	else
-	{
-		debugf(NAME_DevHttpRequest, TEXT("HttpQueryInfo for all headers returned success when trying to determine the size for the header buffer. %p"), this);
-	}
-	return Result;
+	return result;
 }
 
 INT FHttpResponseWinInet::GetResponseCode() const
 {
-	// get the response code
-	INT Code;
-	DWORD CodeSize = sizeof(Code);
-	if (!HttpQueryInfo(RequestHandle, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &Code, &CodeSize, NULL))
-	{
-		debugf(NAME_DevHttpRequest, TEXT("HttpQueryInfo for response code failed: %s. %p"), *InternetTranslateError(GetLastError()), this);
-	}
-	return Code;
+	INT code = 0;
+	DWORD bytes = sizeof(code);
+	if (!HttpQueryInfo(RequestHandle, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &code, &bytes, NULL) ||
+		bytes != sizeof(code)) return 0;
+	return code;
 }
 #endif

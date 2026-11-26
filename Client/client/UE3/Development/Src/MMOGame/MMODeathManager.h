@@ -8,6 +8,7 @@
 	class MMODeathManager: public SingletonMeyers<MMODeathManager>
 	{
 	public:
+		MMODeathManager();
 		void Init();
 		void Shutdown();
 

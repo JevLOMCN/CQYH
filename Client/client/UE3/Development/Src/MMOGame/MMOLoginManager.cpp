@@ -35,6 +35,8 @@ void ChangeMeshItemDataProcessor::ParseData(ChangeMeshItem* obj, class CTabFile*
 //-------------------------MMOLoaginManager------------------------------
 MMOLoginManager::MMOLoginManager()
 {
+	lastQueueTime = 0;
+	lastQueuePos = 0;
 
 }
 

@@ -19,6 +19,7 @@ _ToUpgradeItemID(-1),
 _ToUpgradeItemLv(0),
 _ConsumptionItemID(-1),
 _ConsumptionItemCnt(0),
+_SuccessRate(0),
 _UpgradeMnyCosts(0),
 _UpgradedItemID(-1)
 {

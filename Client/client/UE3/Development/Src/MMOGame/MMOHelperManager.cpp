@@ -11,6 +11,8 @@ using namespace ExternalMessage;
 
 MMOHelperManager::MMOHelperManager()
 {
+	_CurPlayerShowProgress = 0.0f;
+	_CurPlayerShowTime = 0;
 }
 
 MMOHelperManager::~MMOHelperManager()

@@ -54,6 +54,7 @@ size_t CopyUTF8(char* dst,const TCHAR* src, size_t maxSize);
 
 
 
+
 template<typename T>
 class CharCacheData
 {
@@ -61,6 +62,9 @@ class CharCacheData
 	std::vector<T*> DataList;
 	std::map<INT, INT> SearchMap;
 	INT CurrentIdx;
+
+	CharCacheData(const CharCacheData&);
+	CharCacheData& operator=(const CharCacheData&);
 
 public:
 
@@ -79,16 +83,13 @@ public:
 
 	void InitSize(INT InMaxSize)
 	{
-		if (DataList.size() > 0)
-		{
+		if (!DataList.empty() || InMaxSize <= 0)
 			return;
-		}
-
-		for (INT i = 0; i < InMaxSize; ++i)
-		{
-			DataList.push_back(NULL);
-			IdList.push_back(0);
-		}
+		std::vector<T*> newData(InMaxSize, (T*)NULL);
+		std::vector<INT> newIds(InMaxSize, 0);
+		DataList.swap(newData);
+		IdList.swap(newIds);
+		CurrentIdx = -1;
 	}
 
 	T* GetCacheData(INT InId)
@@ -108,7 +109,7 @@ public:
 
 	void AddNewData(INT InId, T* InData)
 	{
-		if (DataList.size() == 0)
+		if (DataList.size() == 0 || InData == NULL)
 		{
 			return;
 		}
@@ -117,20 +118,24 @@ public:
 		if (pos != SearchMap.end())
 		{
 			INT idx = pos->second;
+			if (DataList[idx] != InData)
+				delete DataList[idx];
 			DataList[idx] = InData;
 			return;
 		}
 
 
-		CurrentIdx++;
-		if (CurrentIdx == DataList.size())
+		if (CurrentIdx < 0 || (size_t)CurrentIdx >= DataList.size() - 1)
 		{
 			CurrentIdx = 0;
 		}
-
-		SearchMap.erase(IdList[CurrentIdx]);
+		else
+		{
+			++CurrentIdx;
+		}
 		if (DataList[CurrentIdx] != NULL)
 		{
+			SearchMap.erase(IdList[CurrentIdx]);
 			delete DataList[CurrentIdx];
 			DataList[CurrentIdx] = NULL;
 			IdList[CurrentIdx] = 0;
@@ -174,6 +179,7 @@ public:
 
 		DataList.clear();
 		IdList.clear();
+		CurrentIdx = -1;
 	}
 };
 

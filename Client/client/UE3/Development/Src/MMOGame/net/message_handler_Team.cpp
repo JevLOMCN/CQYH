@@ -137,6 +137,9 @@ void CMessageHandler::Parse_m2c_team_join(const char* buf, UINT32 size)
 { 
 	//Team creation succeeded or at login time
 	M2C_TEAM_JOIN* msg = (M2C_TEAM_JOIN*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->byMemberCount > (size - sizeof(*msg)) / sizeof(msg->stTeamMemberList[0]))
+		return;
 
 	AMMOPlayer* pl = MMOFacade::getSingleton().GetMainPlayer();
 	if( !pl )
@@ -146,7 +149,7 @@ void CMessageHandler::Parse_m2c_team_join(const char* buf, UINT32 size)
 	teamMgr.CreateMyTeam( msg->dwTeamID );
 	teamMgr.AssignType = msg->byAssignType;
 	teamMgr.MemberLimit = msg->nMemberSizeLimit;
-	teamMgr.SetTeamName( UTF8_TO_TCHAR(msg->szTeamName) );
+	teamMgr.SetTeamName( *ReadFixedUTF8(msg->szTeamName) );
 	teamMgr.SetTeamTargetType(msg->byActivityType);
 	teamMgr.SetTeamTargetId(msg->dwActivityID);
 	
@@ -191,7 +194,7 @@ void CMessageHandler::Parse_m2c_team_join(const char* buf, UINT32 size)
 	{
 		TEAM_MEMBER_BASEINFO MI = msg->stTeamMemberList[i];
 		MMOTeamMember Member;
-		Member.ActorName = UTF8_TO_TCHAR(MI.szRoleName);
+		Member.ActorName = *ReadFixedUTF8(MI.szRoleName);
 		Member.ActorServerId = MI.dwRoleID;
 		Member.ClassId = MI.byClass;
 		Member.Sex = MI.bySex;
@@ -312,7 +315,7 @@ void CMessageHandler::Parse_m2c_team_changeinfo(const char* buf, UINT32 size)
 			//teamMgr.AssignType = msg->byAssignType;
 			teamMgr.MemberLimit = msg->nTeamMemberLimit;
 			teamMgr.SetAuctionItemColorLimit( msg->byAuctionItemColorLimit );
-			teamMgr.SetTeamName( UTF8_TO_TCHAR(msg->szTeamName) );
+			teamMgr.SetTeamName( *ReadFixedUTF8(msg->szTeamName) );
 
 			MMOGameEvent_Any evt( GameEvent_TeamMemberUpdate );
 			MMOUI::PostGameEvent(&evt);
@@ -489,13 +492,13 @@ void CMessageHandler::Parse_m2c_team_answer(const char* buf, UINT32 size)
 		return;
 	if( msg->byAnswerType ==  etatInvite )
 	{
-		TeamManager::getSingleton().InviteTeamRequest( UTF8_TO_TCHAR( msg->szRequestRoleName ) , msg->dwAnswerRequestRoleID );
+		TeamManager::getSingleton().InviteTeamRequest( *ReadFixedUTF8(msg->szRequestRoleName) , msg->dwAnswerRequestRoleID );
 		
 	}
 	else if( msg->byAnswerType == etatEnter )
 	{
-		TeamManager::getSingleton().AddTeamRequest(UTF8_TO_TCHAR( msg->szRequestRoleName ) , msg->dwAnswerRequestRoleID);
-		//MMOUI::GetUIManager()->delegateAddTeamRequest( UTF8_TO_TCHAR( msg->szRequestRoleName ) , msg->dwAnswerRequestRoleID );
+		TeamManager::getSingleton().AddTeamRequest(*ReadFixedUTF8(msg->szRequestRoleName) , msg->dwAnswerRequestRoleID);
+		//MMOUI::GetUIManager()->delegateAddTeamRequest( *ReadFixedUTF8(msg->szRequestRoleName) , msg->dwAnswerRequestRoleID );
 		
 	}
 
@@ -522,7 +525,7 @@ void CMessageHandler::Parse_m2c_team_add_member(const char* buf, UINT32 size)
 			return;
 
 		MMOTeamMember mb;
-		mb.ActorName = UTF8_TO_TCHAR( msg->stAddMember.szRoleName );
+		mb.ActorName = *ReadFixedUTF8(msg->stAddMember.szRoleName);
 		mb.ClassId = msg->stAddMember.byClass;
 		mb.Sex = msg->stAddMember.bySex;
 		mb.ActorServerId = msg->stAddMember.dwRoleID;
@@ -596,14 +599,14 @@ void CMessageHandler::Parse_m2c_team_remove_member(const char* buf, UINT32 size)
 //		TM->CreateMyTeam( msg->dwTeamID );
 //		TM->AssignType = msg->byAssignType;
 //		TM->MemberLimit = msg->nMaxMemberCount;
-//		TM->TeamName  = UTF8_TO_TCHAR( msg->szTeamName);
+//		TM->TeamName  = *ReadFixedUTF8(msg->szTeamName);
 //		
 //
 //		for (UINT32 i = 0 ;i<msg->nMemberCount  ;i++ )
 //		{
 //			TEAM_MEMBER MI = msg->stMemberTable[i];
 //			FMMOTeamMember Member(EC_EventParm);
-//			Member.ActorName = UTF8_TO_TCHAR(MI.szRoleName);
+//			Member.ActorName = *ReadFixedUTF8(MI.szRoleName);
 //			Member.ActorServerId = MI.dwRoleID ;
 //			Member.Lv = MI.btLevel ;
 //			Member.ClassId = MI.btClass;
@@ -671,6 +674,9 @@ void CMessageHandler::Parse_m2c_team_sync_memberstate(const char* buf, UINT32 si
 void CMessageHandler::Parse_g2c_sync_adjacent_team(const char* buf, UINT32 size)
 {
 	    G2C_SYNC_ADJACENT_TEAM* msg = (G2C_SYNC_ADJACENT_TEAM*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->byCount > (size - sizeof(*msg)) / sizeof(msg->stTeamList[0]))
+		return;
 	    AMMOPlayer* pl = MMOFacade::getSingleton().GetMainPlayer();
 	    TeamManager::getSingleton().GetTeamInfoList().Empty();
 	    AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
@@ -680,8 +686,8 @@ void CMessageHandler::Parse_g2c_sync_adjacent_team(const char* buf, UINT32 size)
 	        MMOTeamInfo temp ;
 	        temp.TeamID = msg->stTeamList[i].dwTeamID;
 	        temp.LeadLv = msg->stTeamList[i].btCaptainLevel;
-	        temp.TeamName =  UTF8_TO_TCHAR(msg->stTeamList[i].szTeamName) ;
-			temp.TeamLeaderName = UTF8_TO_TCHAR(msg->stTeamList[i].szCaptainName);
+	        temp.TeamName =  *ReadFixedUTF8(msg->stTeamList[i].szTeamName) ;
+			temp.TeamLeaderName = *ReadFixedUTF8(msg->stTeamList[i].szCaptainName);
 	        temp.MemberCount = msg->stTeamList[i].btMemberCount;
 	        temp.MaxMemberCount = msg->stTeamList[i].btMaxCount;
 			temp.TeamLeaderServeId = msg->stTeamList[i].dwCaptainID;

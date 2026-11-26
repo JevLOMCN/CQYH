@@ -655,6 +655,7 @@ void RegisterMMOFontFile()
 		bool bValueValid;
 
 	public:
+		FontValidEntry() : bKeyExist(false), bValueValid(false) {}
 		void Set(const FString& fontName, const FString& fileName)
 		{
 			m_strFontName = fontName;
@@ -676,9 +677,10 @@ void RegisterMMOFontFile()
 
 			if (FontCount > 0)
 			{
-				TCHAR workDir[MAX_PATH];
-
-				GetCurrentDirectory(MAX_PATH, workDir);
+				TCHAR workDir[MAX_PATH] = TEXT("");
+				DWORD workDirLength = GetCurrentDirectory(ARRAY_COUNT(workDir), workDir);
+				if (!workDirLength || workDirLength >= ARRAY_COUNT(workDir))
+					return;
 
 				FString strFontFilePath;
 
@@ -695,13 +697,12 @@ void RegisterMMOFontFile()
 				GConfig->GetArray(TEXT("Font"), TEXT("FontName"), arrayFontNames, GUIIni);
 				GConfig->GetArray(TEXT("Font"), TEXT("FontFile"), arrayFontFiles, GUIIni);
 
-				check(arrayFontNames.Num() == FontCount);
-				check(arrayFontFiles.Num() == FontCount);
-
-				m_arrayFontEntry.AddZeroed(FontCount);
+				if (arrayFontNames.Num() != FontCount || arrayFontFiles.Num() != FontCount)
+					return;
 
 				for (INT f = 0; f < FontCount; ++f)
 				{
+					m_arrayFontEntry.AddItem(FontValidEntry());
 					m_arrayFontEntry(f).Set(arrayFontNames(f), arrayFontFiles(f));
 				}
 			}
@@ -819,7 +820,7 @@ void RegisterMMOFontFile()
 		TArray<FontValidEntry> m_arrayFontEntry;
 	};
 
-	HKEY	hKey;
+	HKEY	hKey = NULL;
 	LONG	lReturn;
 	// 1. has the font been installed;
 	// 1.1 open the main key
@@ -845,84 +846,30 @@ void RegisterMMOFontFile()
 
 		//TCHAR    achKey[MAX_KEY_LENGTH];		// buffer for subkey name
 		//DWORD    cbName;						// size of name string 
-		TCHAR    achClass[MAX_PATH] = TEXT(""); // buffer for class name 
-		DWORD    cchClassName = MAX_PATH;		// size of class string 
-		DWORD    cSubKeys=0;					// number of subkeys 
-		DWORD    cbMaxSubKey;					// longest subkey size 
-		DWORD    cchMaxClass;					// longest class string 
-		DWORD    cValues;						// number of values for key 
-		DWORD    cchMaxValue;					// longest value name 
-		DWORD    cbMaxValueData;				// longest value data 
-		DWORD    cbSecurityDescriptor;			// size of security descriptor 
-		FILETIME ftLastWriteTime;				// last write time 
-
-		DWORD i, retCode; 
-
-		TCHAR  achValue[MAX_VALUE_NAME]; 
-		TCHAR achData[MAX_VALUE_NAME];
-		DWORD cchValue = MAX_VALUE_NAME; 
-
-
-		// Get the class name and the value count. 
-
-		retCode = ::RegQueryInfoKey(
-			hKey,                    // key handle 
-			achClass,                // buffer for class name 
-			&cchClassName,           // size of class string 
-			NULL,                    // reserved 
-			&cSubKeys,               // number of subkeys 
-			&cbMaxSubKey,            // longest subkey size 
-			&cchMaxClass,            // longest class string 
-			&cValues,                // number of values for this key 
-			&cchMaxValue,            // longest value name 
-			&cbMaxValueData,         // longest value data 
-			&cbSecurityDescriptor,   // security descriptor 
-			&ftLastWriteTime);       // last write time 
-
-		// Enumerate the subkeys, until RegEnumKeyEx fails.
-
-		//if (cSubKeys)
-		//{
-		//	for (i=0; i<cSubKeys; i++) 
-		//	{ 
-		//		cbName = MAX_KEY_LENGTH;
-		//		retCode = ::RegEnumKeyEx(hKey, i,
-		//			achKey, 
-		//			&cbName, 
-		//			NULL, 
-		//			NULL, 
-		//			NULL, 
-		//			&ftLastWriteTime); 
-
-		//		if (retCode == ERROR_SUCCESS) 
-		//		{
-
-		//		}
-		//	}
-		//} 
-
-		// Enumerate the key values. 
-
-		if (cValues) 
+		DWORD valueCount = 0;
+		LONG queryResult = ::RegQueryInfoKey(hKey, NULL, NULL, NULL, NULL, NULL, NULL,
+			&valueCount, NULL, NULL, NULL, NULL);
+		if (queryResult == ERROR_SUCCESS)
 		{
-			for (i=0, retCode=ERROR_SUCCESS; i<cValues; i++) 
-			{ 
-				cchValue = MAX_VALUE_NAME; 
-				achValue[0] = '\0'; 
-				//retCode = RegEnumKey(hKey, i, )
-				retCode = ::RegEnumValue(hKey, i, 
-					achValue, 
-					&cchValue, 
-					NULL, 
-					NULL,
-					(LPBYTE)(achData),
-					&cchValue);
-
-				if (retCode == ERROR_SUCCESS ) 
-				{
-					// check the entry
-					vl.OnEntry(achValue, achData);
-				} 
+			TCHAR valueName[MAX_VALUE_NAME + 1];
+			TCHAR valueData[MAX_VALUE_NAME + 1];
+			for (DWORD index = 0; index < valueCount; ++index)
+			{
+				DWORD nameCharacters = ARRAY_COUNT(valueName) - 1;
+				DWORD dataBytes = sizeof(valueData) - sizeof(TCHAR);
+				DWORD valueType = 0;
+				LONG enumResult = ::RegEnumValue(hKey, index, valueName, &nameCharacters,
+					NULL, &valueType, (LPBYTE)valueData, &dataBytes);
+				if (enumResult == ERROR_NO_MORE_ITEMS)
+					break;
+				if (enumResult != ERROR_SUCCESS ||
+					(valueType != REG_SZ && valueType != REG_EXPAND_SZ) ||
+					nameCharacters >= ARRAY_COUNT(valueName) ||
+					dataBytes > sizeof(valueData) - sizeof(TCHAR) || dataBytes % sizeof(TCHAR) != 0)
+					continue;
+				valueName[nameCharacters] = 0;
+				valueData[dataBytes / sizeof(TCHAR)] = 0;
+				vl.OnEntry(valueName, valueData);
 			}
 		}
 
@@ -933,9 +880,8 @@ void RegisterMMOFontFile()
 		//lReturn = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, *strKey, 0, KEY_SET_VALUE, &hKey);
 
 		bFlushed = vl.Flush(hKey);
+		::RegCloseKey(hKey);
 	}
-
-	::RegCloseKey(hKey);
 
 	if (bFlushed)
 	{
@@ -1470,7 +1416,38 @@ MMOFacade::MMOFacade(void)
 	, IsReceivedGameData(FALSE)
 	, bLevelsLoaded(FALSE)
 {
-	appMemzero(&_PlayerMoney, sizeof(G2C_SYNC_MONEY));
+	bFinger = FALSE;
+	bWrist = FALSE;
+	bFingerShowType = FALSE;
+	LastTimeCheckPlayerShowOrNot = 0.0;
+	m_BlockPosition = FVector(0, 0, 0);
+	MainPlayerLocation = FVector(0, 0, 0);
+	_initTeleportPos = FVector(0, 0, 0);
+	ViewProjectionMatrix = FMatrix::Identity;
+	GameStartTime = 0;
+	LastUpdateTime = 0;
+	StartClientTime = 0;
+	m_BlockCheck = FALSE;
+	m_BlockCheckRes = 0;
+	m_pBufGrid = NULL;
+	GameCaptureInput = FALSE;
+	_isSpecialRepairing = FALSE;
+	appMemzero(NearbyDis, sizeof(NearbyDis));
+	appMemzero(NearbyId, sizeof(NearbyId));
+	appMemzero(_CanAttackWithFreePkModeArray, sizeof(_CanAttackWithFreePkModeArray));
+	ServerFrameCount = 0;
+	StartServerFrameCount = 0;
+	GameWorldPingDelayTime = 0;
+	GatePingDelayTime = 0;
+	InGameStateFps = 0.0f;
+	InGameCalTimes = 0;
+	EnterSceneServerUtcTime = 0;
+	ClientToServerSecDiff = 0;
+	appMemzero(ForceRelative, sizeof(ForceRelative));
+	appMemzero(AttributeList, sizeof(AttributeList));
+	ScreenX = 0;
+	ScreenY = 0;
+	appMemzero(&_PlayerMoney, sizeof(_PlayerMoney));
 	appMemzero(ContainerSize, E_CONSLOT_MAX * sizeof(UINT8));
 
 	MMOUI::RegisterEventHandler(this, GameEvent_RequestMainPlayerData);
@@ -1978,7 +1955,7 @@ MMOBuffManager* MMOFacade::GetMMOBuffManager()
 
 ReputationTemp*  MMOFacade::GetReputationTemp(INT index)
 { 
-	if(index<_ReputationTempArray.Num()){
+	if(_ReputationTempArray.IsValidIndex(index)){
 		return &_ReputationTempArray(index);
 	}
 	return NULL;
@@ -2777,7 +2754,7 @@ void MMOFacade::UpdatePlayerShowCount(FLOAT delta)
 		UBOOL bPet;
 		AMMOActor* Actor;
 
-		ShowNodeEx(){ Actor = NULL;}
+		ShowNodeEx() : Distance(0.0f), bVisible(FALSE), bPet(FALSE), Actor(NULL) {}
 	};
 
 	struct CompareNodeEx
@@ -3238,16 +3215,16 @@ PlayerBaseInfo *MMOFacade::AddPlayerBaseInfo( M2C_SYNC_ROLE_INFO &data )
 	PlayerBaseInfo& info = _PlayerBaseInfoMap.FindOrAdd( data.dwRoleID );
 	
 	info._RoleID = data.dwRoleID;
-	info._RoleName = UTF8_TO_TCHAR(data.szRoleName);
+	info._RoleName = ReadFixedUTF8(data.szRoleName);
 	info._Sex = data.bySex;
 	info._RoleClass = data.byClass;
 	info._Level = 0;
 	info._VIPType = data.byVIPLevel;
-	info._GuildName = UTF8_TO_TCHAR(data.szGuildName);
+	info._GuildName = ReadFixedUTF8(data.szGuildName);
 
 	// modified by zhangrui05
 	//info._Crc = appMemCrc( &data , sizeof(M2C_SYNC_ROLE_INFO) );
-	INT crc = crc32(0, (const Bytef*)(&data), sizeof(M2C_SYNC_ROLE_INFO));
+	info._Crc = crc32(0, (const Bytef*)(&data), sizeof(M2C_SYNC_ROLE_INFO));
 
 	MMOGameEvent_PlayerBaseInfo evt( info._RoleID , &info );
 	MMOUI::PostGameEvent(&evt);
@@ -4868,6 +4845,11 @@ void MMOFacade::ClearItems()
 
 void MMOFacade::ClearItemsByContainerId(UINT16 ContainerTypeID)
 {
+	if (ContainerTypeID >= E_CONSLOT_MAX)
+	{
+		return;
+	}
+
 	ItemsMap& container = _Containers[ContainerTypeID];
 	ItemsMap::iterator it = container.begin();
 	for (; it != container.end(); ++it)
@@ -5059,6 +5041,8 @@ FClientItemInfo* MMOFacade::FindItem(UINT16 ContainerTypeID, UINT16 SlotIdx) con
 
 FClientItemInfo* MMOFacade::FindFirstItemPos(UINT itemID , INT* outContainerTypeID , INT* outSlotIdx) const
 {
+	if (outContainerTypeID) *outContainerTypeID = -1;
+	if (outSlotIdx) *outSlotIdx = -1;
 	for ( INT i = 0 ; i < E_CONSLOT_MAX ; i++ )
 	{
 		const ItemsMap& container = _Containers[i];
@@ -5067,8 +5051,8 @@ FClientItemInfo* MMOFacade::FindFirstItemPos(UINT itemID , INT* outContainerType
 		{
 			if( itor->second->m_nTemplateID == itemID )
 			{
-				*outContainerTypeID = i;
-				*outSlotIdx = itor->first;
+				if (outContainerTypeID) *outContainerTypeID = i;
+				if (outSlotIdx) *outSlotIdx = itor->first;
 				return itor->second;
 			}
 		}
@@ -5212,7 +5196,7 @@ void MMOFacade::AddSoldItem(ItemInfo* info)
 
 struct ItemInfo* MMOFacade::FindSoldItem(INT SlotID) const
 {
-	if(SlotID < _SoldItemList.Num())
+	if(_SoldItemList.IsValidIndex(SlotID))
 	{
 		return _SoldItemList(SlotID);
 	}
@@ -5234,6 +5218,11 @@ void MMOFacade::NotifySoldItemChange()
 
 INT MMOFacade::GetUsedSlotCountInBag(UINT16 containerID) const
 {
+	if (containerID >= E_CONSLOT_MAX)
+	{
+		return 0;
+	}
+
 	const ItemsMap& container = _Containers[containerID];
 	ItemsMap::const_iterator it = container.begin();
 	//for (; it != container.end(); ++it)
@@ -5278,6 +5267,11 @@ INT MMOFacade::GetItemCountInBag(UINT itemID)
 
 INT MMOFacade::GetItemCountInBag( UINT itemID, UINT16 containerID )
 {
+	if (containerID >= E_CONSLOT_MAX)
+	{
+		return 0;
+	}
+
 	INT ret = 0;
 	const ItemsMap& container = _Containers[containerID];
 
@@ -5319,6 +5313,11 @@ INT MMOFacade::GetItemCountInBag( UINT itemID, UINT16 containerID )
 
 INT MMOFacade::GetEmptyItemSlot(ECONTAINER_SLOT ContainerID) const
 {
+	if ((INT)ContainerID < 0 || ContainerID >= E_CONSLOT_MAX)
+	{
+		return -1;
+	}
+
 	UINT16 sz = GetContainerSize(ContainerID);
 	TArray<UBOOL> TestUsed;
 	TestUsed.AddZeroed(sz);
@@ -5348,6 +5347,11 @@ INT MMOFacade::GetEmptyItemSlot(ECONTAINER_SLOT ContainerID) const
 
 INT MMOFacade::GetCanStackSlot( ECONTAINER_SLOT ContainerID , INT itemId , INT stackCount ) const
 {
+	if ((INT)ContainerID < 0 || ContainerID >= E_CONSLOT_MAX)
+	{
+		return -1;
+	}
+
 	const ItemsMap& container = _Containers[ContainerID];
 
 	ItemsMap::const_iterator it = container.begin();
@@ -6722,7 +6726,7 @@ void MMOFacade::SetPlayerMoney( G2C_MONEY_CHANGE PlayerMoneyChange )
 		}
 	}
 
-	if(MoneyType < E_MONEYTYPE_COUNT)
+	if((INT)MoneyType >= 0 && MoneyType < E_MONEYTYPE_COUNT)
 	{
 		
 		INT64 oldMoney = _PlayerMoney.allMoneys[MoneyType];
@@ -6731,7 +6735,7 @@ void MMOFacade::SetPlayerMoney( G2C_MONEY_CHANGE PlayerMoneyChange )
 		INT64 Money	= _PlayerMoney.allMoneys[MoneyType];
 
 		_PlayerMoney.anDailyEarned[MoneyType]		= PlayerMoneyChange.nDailyEarned;
-		_PlayerMoney.anWeeklyUsed[MoneyType]		= PlayerMoneyChange.nDailyUsed;
+		_PlayerMoney.anDailyUsed[MoneyType]		= PlayerMoneyChange.nDailyUsed;
 
 		_PlayerMoney.anWeeklyEarned[MoneyType]		= PlayerMoneyChange.nWeeklyEarned;
 		_PlayerMoney.anWeeklyUsed[MoneyType]		= PlayerMoneyChange.nWeeklyUsed;
@@ -6757,7 +6761,7 @@ void MMOFacade::SetPlayerMoney( EMONEY_TYPE MoneyType, INT64 Money )
 		}
 	}
 
-	if(MoneyType < E_MONEYTYPE_COUNT)
+	if((INT)MoneyType >= 0 && MoneyType < E_MONEYTYPE_COUNT)
 	{
 		INT32 oldMoney = _PlayerMoney.anMoneys[MoneyType];
 		_PlayerMoney.allMoneys[MoneyType] = Money;
@@ -6775,7 +6779,7 @@ INT32 MMOFacade::GetPlayerMoney_Weekly( EMONEY_TYPE MoneyType )
 {
 	//return _PlayerMoney.anWeeklyEarned[MoneyType];
 
-	if(MoneyType < E_MONEYTYPE_COUNT)
+	if((INT)MoneyType >= 0 && MoneyType < E_MONEYTYPE_COUNT)
 	{
 		switch(MoneyType)
 		{
@@ -6802,7 +6806,7 @@ INT32 MMOFacade::GetPlayerMoney_Weekly( EMONEY_TYPE MoneyType )
 
 INT32 MMOFacade::GetPlayerMoney_WeeklyLimit( EMONEY_TYPE MoneyType )
 {
-	if(MoneyType < E_MONEYTYPE_COUNT)
+	if((INT)MoneyType >= 0 && MoneyType < E_MONEYTYPE_COUNT)
 	{
 		switch(MoneyType)
 		{
@@ -6831,7 +6835,7 @@ INT32 MMOFacade::GetPlayerMoney_WeeklyLimit( EMONEY_TYPE MoneyType )
 
 INT32 MMOFacade::GetPlayerMoney( EMONEY_TYPE MoneyType )
 {
-	if(MoneyType < E_MONEYTYPE_COUNT)
+	if((INT)MoneyType >= 0 && MoneyType < E_MONEYTYPE_COUNT)
 	{
 		switch(MoneyType)
 		{
@@ -6863,7 +6867,7 @@ INT32 MMOFacade::GetPlayerMoney( EMONEY_TYPE MoneyType )
 
 INT64 MMOFacade::GetPlayerMoney64( EMONEY_TYPE MoneyType )
 {
-	if(MoneyType < E_MONEYTYPE_COUNT)
+	if((INT)MoneyType >= 0 && MoneyType < E_MONEYTYPE_COUNT)
 	{
 		//switch(MoneyType)
 		//{
@@ -7889,24 +7893,18 @@ INT   MMOFacade::GetAttributeConfigData(INT nLevel,INT nClass,INT AttributeType)
 
 FString MMOFacade::ClientEnum2ServerEnum(const FString& ClientEnum, INT EscapeNum)
 {
-	TCHAR buf[128];
-	INT   size = (INT)ClientEnum.Len();
-	const TCHAR* pClientEnum = (TCHAR*)*ClientEnum;
-	INT   _Num = 0;
-	buf[0] = '\0';
-
-	for(INT i=1,j=0;i<size+1;i++)
+	FString result;
+	const INT size = ClientEnum.Len();
+	const TCHAR* text = *ClientEnum;
+	INT removed = 0;
+	for (INT i = 1; i < size && text[i] != 0; ++i)
 	{
-		if( *(pClientEnum+i)!='_' || _Num>=EscapeNum )
-		{
-			buf[j++] = *(pClientEnum+i);
-		}
+		if (text[i] != '_' || removed >= EscapeNum)
+			result += text[i];
 		else
-		{
-			_Num++;
-		}
+			++removed;
 	}
-	return FString(buf);
+	return result;
 }
 
 
@@ -8026,20 +8024,23 @@ UBOOL MMOFacade::ReadAttribute2Config()
 
 	//Remove the header row
 	//static UEnum* Enum = FindObject<UEnum>(UServerEnum::StaticClass(), TEXT("ECHAR_ATTR_TYPE"), TRUE);
-	vecAttribute2.Add(tabFile->GetRowCount()-1);
+	TArray<Attribute2> attributes;
 	for(INT i=0+2;i<tabFile->GetRowCount();i++)
 	{
 		
 		//UINT len			= ArrayString.Num();
 
-		vecAttribute2(i-1).ClassID  = appAtoi(tabFile->GetData( 0,i));
-		vecAttribute2(i-1).AttrName =  FindClientEnumValue(tabFile->GetData(1,i),TEXT("ECHAR_ATTR_TYPE")) ;// Enum->FindEnumIndex(FName(*buf));
+		Attribute2 data;
+		data.ClassID  = appAtoi(tabFile->GetData( 0,i));
+		data.AttrName =  FindClientEnumValue(tabFile->GetData(1,i),TEXT("ECHAR_ATTR_TYPE")) ;// Enum->FindEnumIndex(FName(*buf));
 
-		vecAttribute2(i-1).ConstParam = appAtoi(tabFile->GetData( 2,i));
-		vecAttribute2(i-1).catValue = appAtoi(tabFile->GetData( 3,i));
-		vecAttribute2(i-1).catCombatParam = appAtoi(tabFile->GetData( 4,i));
+		data.ConstParam = appAtoi(tabFile->GetData( 2,i));
+		data.catValue = appAtoi(tabFile->GetData( 3,i));
+		data.catCombatParam = appAtoi(tabFile->GetData( 4,i));
+		attributes.AddItem(data);
 
 	}
+	vecAttribute2 = attributes;
 	delete tabFile;
 	return TRUE;
 }
@@ -8108,7 +8109,6 @@ UBOOL MMOFacade::ReadForceRelative()
 
 	//Remove the header row
 	
-	vecAttribute2.Add(tabFile->GetRowCount()-1);
 	for(INT i=0+2;i<tabFile->GetRowCount();i++)
 	{
 		INT len			= tabFile->GetColCount();
@@ -8358,8 +8358,15 @@ void  MMOFacade::ReadHintNode(HintConfig& NpcHint,  FString NpcTypeName, INT Nam
 
 HintConfig*  MMOFacade::GetHintInfo(EActorClassType ActorType,ENPC_QUALITY quality )
 {
-	if(ActorType==EACT_Monster)return &NpcQualityHintInfo[quality];
-	else	return &NpcHintInfo[ActorType];
+	if (ActorType == EACT_Monster)
+	{
+		if ((INT)quality < 0 || (INT)quality >= ARRAY_COUNT(NpcQualityHintInfo))
+			return NULL;
+		return &NpcQualityHintInfo[quality];
+	}
+	if ((INT)ActorType < 0 || (INT)ActorType >= ARRAY_COUNT(NpcHintInfo))
+		return NULL;
+	return &NpcHintInfo[ActorType];
 }
 
 //Read overhead text config list
@@ -8379,8 +8386,10 @@ UBOOL MMOFacade::ReadHint()
 
 	INT num =  tabFile->GetRowCount()-1;//  ArrayString2D.Num()-1;
 
-	ZeroMemory(NpcQualityHintInfo,sizeof(NpcQualityHintInfo));
-	ZeroMemory(NpcHintInfo,sizeof(NpcHintInfo));
+	for (INT i = 0; i < ARRAY_COUNT(NpcQualityHintInfo); ++i)
+		NpcQualityHintInfo[i] = HintConfig();
+	for (INT i = 0; i < ARRAY_COUNT(NpcHintInfo); ++i)
+		NpcHintInfo[i] = HintConfig();
 
 	if(num>=13){//13 means the following 13 rows of ReadHintNode need to be read
 		INT i=1;
@@ -9135,7 +9144,6 @@ UBOOL MMOFacade::ReadRandomAttribute()
 	FString strEnum("E_");
 	FString strBuff;
 	ItemRandomAttr attr;
-	ZeroMemory(&attr, sizeof(ItemRandomAttr));
 
     for(UINT i = M_SKIP_ROWS; i < size; ++i )
     {
@@ -9571,7 +9579,7 @@ void MMOFacade::SetContainerSize(UINT8 inContainerSize[CONSLOT_COUNT])
 
 void MMOFacade::SetContainerSize(ECONTAINER_SLOT ContainerID, UINT16 ConSize)
 {
-	if(ContainerID < E_CONSLOT_MAX)
+	if((INT)ContainerID >= 0 && ContainerID < E_CONSLOT_MAX)
 	{
 		ContainerSize[ContainerID] = ConSize;
 	}
@@ -9579,7 +9587,7 @@ void MMOFacade::SetContainerSize(ECONTAINER_SLOT ContainerID, UINT16 ConSize)
 
 UINT16 MMOFacade::GetContainerSize(ECONTAINER_SLOT ContainerID) const
 {
-	if(ContainerID < E_CONSLOT_MAX)
+	if((INT)ContainerID >= 0 && ContainerID < E_CONSLOT_MAX)
 	{
 		return ContainerSize[ContainerID];
 	}
@@ -11046,6 +11054,9 @@ FString MMOFacade::GetUserAccountStoreDir()
 //Begin exporting account character info to a binary file of the specified DataTypeName type
 UBOOL MMOFacade::BeginExportAccountData( FArchive** pArchive , FString DataTypeName , UBOOL bingUsename )
 {
+	if (!pArchive)
+		return FALSE;
+	*pArchive = NULL;
 	AMMOPlayerController* ctrl = GetMainController();
 	AMMOPlayer* player = GetMainPlayer();
 	if( NULL == ctrl || NULL == player )
@@ -11094,6 +11105,9 @@ void MMOFacade::EndExportAccountData( FArchive* pArchive )
 //Read the binary data of DataTypeName in the account character info
 UBOOL MMOFacade::BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeName , UBOOL bingUsename )
 {
+	if (!pArchive)
+		return FALSE;
+	*pArchive = NULL;
 	AMMOPlayerController* ctrl = GetMainController();
 	AMMOPlayer* player = GetMainPlayer();
 	if( NULL == ctrl || NULL == player )
@@ -11118,13 +11132,10 @@ UBOOL MMOFacade::BeginLoadAccountBinary( FArchive** pArchive,FString DataTypeNam
 	tArchive = GFileManager->CreateFileReader(*filePath);
 	if( tArchive )
 	{
-		//First request enough space, to prevent the address from changing on later ReAllocate
-		if( tArchive->IsError() )
+		//先申请足够的空间，防止后面ReAllocate地址会发生改变
+		if (tArchive->IsError() || tArchive->TotalSize() <= 0)
 		{
-			return FALSE;
-		}
-		if( tArchive->TotalSize() <= 0 )
-		{
+			delete tArchive;
 			return FALSE;
 		}
 		*pArchive = tArchive;

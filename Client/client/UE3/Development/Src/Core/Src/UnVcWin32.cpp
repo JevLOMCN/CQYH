@@ -989,8 +989,10 @@ time_t appStrToSeconds(const TCHAR* DateString)
  */
 void appSecondsToLocalTime( time_t Time, INT& Year, INT& Month, INT& DayOfWeek, INT& Day, INT& Hour, INT& Min, INT& Sec )
 {
-	struct tm TimeStruct;
-	localtime_s(&TimeStruct, &Time);
+	Year = Month = DayOfWeek = Day = Hour = Min = Sec = 0;
+	struct tm TimeStruct = {};
+	if (localtime_s(&TimeStruct, &Time) != 0)
+		return;
 
 	Year		= TimeStruct.tm_year + 1900;
 	Month		= TimeStruct.tm_mon + 1;

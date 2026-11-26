@@ -61,6 +61,10 @@ MMOGoldStoreManager::MMOGoldStoreManager()
 	,_currentTabPage(EGTT_Invalid)
 	,_isUpdateOrderCount(FALSE)
 {
+	mMyCurrentOrderType = 0;
+	mUpdate = FALSE;
+	delayTime = 0.0f;
+	mCurrentBuyType = 0;
 	
 }
 

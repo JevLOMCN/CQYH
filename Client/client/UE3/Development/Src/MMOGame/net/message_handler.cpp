@@ -206,25 +206,18 @@ size_t strxcpy(char *dst, const char *src, size_t size)
 
 size_t strxcat(char *dst, const char *src, size_t size)
 {
-	const char *d = dst;
-
 	if (dst == NULL || src == NULL || size == 0)
 		return 0;
 
-	while (--size && *dst++);
-
-	while (--size > 0)
+	size_t length = 0;
+	while (length < size && dst[length] != 0)
+		++length;
+	if (length == size)
 	{
-		if ((*dst++ = *src++) == 0)
-			break;
+		dst[size - 1] = 0;
+		return size - 1;
 	}
-
-	if (size == 0)
-	{
-		*dst++ = 0;
-	}
-
-	return dst - d - 1;
+	return length + strxcpy(dst + length, src, size - length);
 }
 //keep the identifier's complete utf8
 size_t CopyUTF8(char* dst,const TCHAR* src, size_t maxSize)
@@ -301,7 +294,8 @@ void CMessageHandler::OnConnected(ISocketSession* pSocketSession)
 		if(pSocketSession == m_pSocketSessionGate)
 		{
 			warnf( NAME_Log, TEXT("=====####========== [CMessageHandler::OnConnected] Send Login [%x]"), ((SimpleNet::CSocketSession*)pSocketSession)->m_nSockedFD );
-			C2T_LOGIN_REQ msg; //= (C2T_LOGIN_REQ*)ms_MsgBuffer;
+			C2T_LOGIN_REQ msg;
+			appMemzero(&msg, sizeof(msg));
 
 			memset(&msg, 0, sizeof(msg)); // szPassword etc. were left uninitialized
 			msg.wMsg = c2t_login_req;
@@ -312,12 +306,7 @@ void CMessageHandler::OnConnected(ISocketSession* pSocketSession)
 			msg.dwCRC = g_nMessageVersion;
 			memset(msg.szMac, 0, MAC_ADDRESS_LEN);
 			FString MacAddress = appGetMacAddress();
-			// Copy at most MAC_ADDRESS_LEN characters; the old code allocated only MacAddress.Len() bytes and then
-			// copied MAC_ADDRESS_LEN bytes out of it, reading past the end of the buffer.
-			for (INT i = 0; i < MacAddress.Len() && i < MAC_ADDRESS_LEN; ++i)
-			{
-				msg.szMac[i] = (char)MacAddress[i];
-			}
+			strxcpy(msg.szMac, *MacAddress, ARRAY_COUNT(msg.szMac));
 
 			//msg->wInfoLen = 0;
 			strxcpy(msg.szUserName, _UserName, USER_NAME_LEN);
@@ -343,6 +332,21 @@ Exit0:
         pSocketSession->Close();
 
     return;
+}
+
+// Validate framing for both the socket path and replay/debug input.
+static BOOL IsValidReceivedMessage(const char* buf, UINT32 size)
+{
+	if (!buf || size < sizeof(MESSAGE_HEADER))
+		return FALSE;
+	const MESSAGE_HEADER* header = (const MESSAGE_HEADER*)buf;
+	if (header->wMsg >= ExternalMessage::max_message_count)
+		return FALSE;
+	const INT32 expected = g_nS2CMessageSize[header->wMsg];
+	if (expected == ExternalMessage::flex_message_size)
+		return size >= sizeof(FLEX_MESSAGE_HEADER) &&
+			((const FLEX_MESSAGE_HEADER*)buf)->wSize == size;
+	return expected > 0 && size == (UINT32)expected;
 }
 
 void __OnRecv(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, UINT16 wMsg, CMessageHandler::MESSAGE_FUNC* funs, CMessageHandler* hdl)
@@ -384,6 +388,9 @@ void __OnRecv(PACKET_BUFFER* pPacketBuffer, UINT32 dwSize, UINT16 wMsg, CMessage
 void CMessageHandler::OnRecv(ISocketSession* pSocketSession, PACKET_BUFFER* pPacketBuffer, UINT32 dwSize)
 {
 	MESSAGE_HEADER* pHeader = (MESSAGE_HEADER*)pPacketBuffer;
+	LOG_PROCESS_ERROR(pPacketBuffer && dwSize >= sizeof(MESSAGE_HEADER));
+	LOG_PROCESS_ERROR(pHeader->wMsg < ExternalMessage::max_message_count);
+	LOG_PROCESS_ERROR(IsValidReceivedMessage(pPacketBuffer, dwSize));
 
 	if (m_byEncryptCode)
 	{
@@ -539,6 +546,7 @@ void CMessageHandler::TickMsgBuff(FLOAT deltaTime)
 void CMessageHandler::DebugParseMsg(const char* buf, UINT32 dwSize)
 {
 	MESSAGE_HEADER* pHeader = (MESSAGE_HEADER*)buf;
+	LOG_PROCESS_ERROR(IsValidReceivedMessage(buf, dwSize));
 
 #ifdef _DEBUG
 	warnf(NAME_Log, TEXT("------------DebugParseMsg:%d"), pHeader->wMsg);
@@ -755,6 +763,26 @@ CMessageHandler::CMessageHandler()
 	, _fullSpeedProcNetMsg(false)
 #endif
 {
+	m_pNet = NULL;
+	m_pSocketSessionGate = NULL;
+	m_pSocketSession = NULL;
+	m_pSocketSession2 = NULL;
+	m_pPacketAllocator = NULL;
+	m_bConnectBS = FALSE;
+	m_dwServerIP = 0;
+	m_dwPort = 0;
+	appMemzero(_UserName, sizeof(_UserName));
+	appMemzero(_PW, sizeof(_PW));
+	appMemzero(_RoleName, sizeof(_RoleName));
+	_RoleID = 0;
+	_fPing = 0.0f;
+	bPendingToExit = FALSE;
+#if STATS
+	dwUploadSpeed = 0;
+	dwDownloadSpeed = 0;
+#endif
+	for (INT i = 0; i < ExternalMessage::max_message_count; ++i)
+		m_MessageFuncList[i] = NULL;
 
 }
 
@@ -1131,6 +1159,8 @@ void CMessageHandler::Parse_g2c_gpk_auth_data(const char* buf, UINT32 size)
 #endif
 
 	G2C_GPK_AUTH_DATA* msg = (G2C_GPK_AUTH_DATA*)buf;
+	if (!buf || size < sizeof(G2C_GPK_AUTH_DATA))
+		return;
 	INT DataSize = msg->wSize - sizeof(FLEX_MESSAGE_HEADER);
 
 	char* NewData = new char[msg->wSize];
@@ -1140,7 +1170,7 @@ void CMessageHandler::Parse_g2c_gpk_auth_data(const char* buf, UINT32 size)
 	GCltDynCode->ProcessAuth(NULL,NULL,(unsigned char *)(NewMsg->AuthData), DataSize);
 	_Send(NewMsg, NewMsg->wSize);
 
-	delete NewData;
+	delete[] NewData;
 #endif
 }
 
@@ -1156,6 +1186,8 @@ void CMessageHandler::Parse_g2c_gpk_dyn_code(const char* buf, UINT32 size)
 #endif
 
 	G2C_GPK_DYN_CODE* msg = (G2C_GPK_DYN_CODE*)buf;
+	if (!buf || size < sizeof(G2C_GPK_DYN_CODE))
+		return;
 	INT DataSize = msg->wSize - sizeof(FLEX_MESSAGE_HEADER);
 
 	GCltDynCode->SetDynCode((const unsigned char*)(msg->DynCode), DataSize);
@@ -2137,6 +2169,8 @@ void CMessageHandler::Send_QueryPlayerInfo( UINT32 roleID , INT crc )
 //
 void CMessageHandler::Parse_m2c_sync_role_info(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_SYNC_ROLE_INFO))
+		return;
 	M2C_SYNC_ROLE_INFO* msg = (M2C_SYNC_ROLE_INFO*)buf;
 
 	
@@ -2459,7 +2493,7 @@ void CMessageHandler::SetActorAttribute(AMMOActor* Actor, INT AttributeId, INT V
 		return;
 	}
 
-	if (Actor->ActorAttributes && Actor->ActorAttributes->AttributeList.Num() > AttributeId )
+	if (Actor->ActorAttributes && AttributeId >= 0 && Actor->ActorAttributes->AttributeList.Num() > AttributeId )
 	{
 		Actor->ActorAttributes->AttributeList(AttributeId) =  Value;
 	}
@@ -2494,6 +2528,8 @@ void CMessageHandler::Parse_g2c_sync_npc_transform_state(const char* buf, UINT32
 void CMessageHandler::Parse_g2c_sync_char_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_CHAR_LIST* msg = (G2C_SYNC_CHAR_LIST*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_CHAR_LIST))
+		return;
 
 	INT byCharCount = (size - sizeof(G2C_SYNC_CHAR_LIST)) / (sizeof(msg->astAppearData[0]));
 	//debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_sync_char_list] Count:%d"), byCharCount);
@@ -2565,6 +2601,8 @@ void CMessageHandler::Parse_g2c_sync_role_data(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_attr_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ATTR_LIST* msg = (G2C_SYNC_ATTR_LIST*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ATTR_LIST))
+		return;
     INT byAttrCount = (size - sizeof(G2C_SYNC_ATTR_LIST)) / sizeof(msg->astAttrData[0]);
 
 	AMMOActor* actor = MMOFacade::getSingleton().GetMainActor();
@@ -2580,7 +2618,7 @@ void CMessageHandler::Parse_g2c_sync_attr_list(const char* buf, UINT32 size)
 		actor->ActorAttributes->HeroID = 0;
 
 		actor->ActorAttributes->AttributeList.Empty();
-		actor->ActorAttributes->AttributeList.Add( catTotal );
+		actor->ActorAttributes->AttributeList.AddZeroed( catTotal );
 
 	for (INT i = 0; i < byAttrCount; ++i)
 	{
@@ -2948,9 +2986,15 @@ void CMessageHandler::Parse_g2c_modify_reputation(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_title(const char* buf, UINT32 size)
 {
 	G2C_SYNC_TITLE* msg = (G2C_SYNC_TITLE*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->nTitleCount > (size - sizeof(*msg)) / sizeof(msg->stTitleList[0]))
+		return;
+	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
+	if (!player || !player->ActorAttributes)
+		return;
 
 	MMOFacade::getSingleton().ResetTitleData();
-	MMOFacade::getSingleton().GetMainPlayer()->ActorAttributes->TitleID = msg->nEquipedTitleID;
+	player->ActorAttributes->TitleID = msg->nEquipedTitleID;
 	INT TitleCount = msg->nTitleCount;
 	for ( INT i = 0 ; i < TitleCount ; i++ ) //
 	{
@@ -3306,7 +3350,7 @@ void CMessageHandler::Parse_g2c_sync_game_data_begin(const char* buf, UINT32 siz
 	player->HeroAttributes->ClassType = msg->byHeroClass;
 	player->HeroAttributes->GenderType = msg->byHeroSex;
 	player->HeroAttributes->Growth	= msg->nHeroGrowth;
-	player->HeroName =  FString(UTF8_TO_TCHAR(msg->szHeroName));
+	player->HeroName =  ReadFixedUTF8(msg->szHeroName);
 	player->HeroAi	 =  msg->byHeroAiType;
 
 	//if(player->ServerHeroID>0)
@@ -3390,6 +3434,8 @@ void CMessageHandler::Parse_g2c_sync_game_data_begin(const char* buf, UINT32 siz
 void CMessageHandler::Parse_g2c_sync_data_error(const char* buf, UINT32 size)
 {
 	G2C_SYNC_DATA_ERROR* msg = (G2C_SYNC_DATA_ERROR*)buf;
+	if (!buf || size <= sizeof(*msg) || !memchr(msg->szErrorMsg, 0, size - sizeof(*msg)))
+		return;
 
 #if !SHIPPING_PC_GAME && M_ENABLE_RPMGR
 	if(!g_replayMode)
@@ -4014,7 +4060,14 @@ void CMessageHandler::Send_GetAward(BYTE byIdx)
 void CMessageHandler::Send_GMCommand( const TCHAR* cmd )
 {
     C2M_GM_COMMAND* msg = (C2M_GM_COMMAND*)ms_MsgBuffer;
+    if (!cmd)
+        return;
     FTCHARToUTF8 szCmd(cmd);
+    const UINT32 commandSize = szCmd.Length() + 1;
+    if (commandSize > sizeof(ms_MsgBuffer) - sizeof(C2M_GM_COMMAND) ||
+        commandSize > 0xFFFFu - sizeof(C2M_GM_COMMAND))
+        return;
+    appMemzero(ms_MsgBuffer, sizeof(C2M_GM_COMMAND) + commandSize);
 
     msg->wMsg = c2m_gm_command;
 
@@ -4801,6 +4854,8 @@ extern void MMOUIVehicleBook_Refresh();	// MMOUIVehicleBook.cpp
 void CMessageHandler::Parse_g2c_sync_mount_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_MOUNT_LIST* msg =  (G2C_SYNC_MOUNT_LIST*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_MOUNT_LIST))
+		return;
 	INT byCount = (size - sizeof(G2C_SYNC_MOUNT_LIST)) / sizeof(msg->byMountID[0]);
 	
 	MMOFacade::getSingleton().EmptyMountList();
@@ -4946,6 +5001,8 @@ void CMessageHandler::Parse_g2c_hero_attr_change(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_hero_attr_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_HERO_ATTR_LIST* msg =  (G2C_SYNC_HERO_ATTR_LIST*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_HERO_ATTR_LIST))
+		return;
 	INT byAttrCount = (size - sizeof(G2C_SYNC_HERO_ATTR_LIST)) / sizeof(msg->astAttrData[0]);
 
 	AMMOPlayer* actor = MMOFacade::getSingleton().GetMainPlayer();
@@ -4955,7 +5012,7 @@ void CMessageHandler::Parse_g2c_sync_hero_attr_list(const char* buf, UINT32 size
 	}
 	//Player attribute initialization
 	actor->HeroAttributes->AttributeList.Empty();
-	actor->HeroAttributes->AttributeList.Add( catTotal );
+	actor->HeroAttributes->AttributeList.AddZeroed( catTotal );
 
 	for (INT i = 0; i < byAttrCount; ++i)
 	{
@@ -5201,6 +5258,9 @@ INT CMessageHandler::GetClientEquipTypeByServer( INT ServerSlot )
 
 BOOL CMessageHandler::_Send(void* data, UINT32 size)
 {
+	if (!data || size < sizeof(MESSAGE_HEADER) || size > 0xFFFFu ||
+		((MESSAGE_HEADER*)data)->wMsg >= ExternalMessage::max_message_count)
+		return FALSE;
 	MESSAGE_HEADER* msg = (MESSAGE_HEADER*)data;
 	if(msg)
 	{
@@ -5288,7 +5348,7 @@ void CMessageHandler::SyncHeroData(G2C_SYNC_HERO_DATA* NewData,  G2C_SYNC_HERO_D
 	AMMOActor* MainActor = MMOFacade::getSingleton().GetMainActor();
 	if(MainActor && NewData->dwHeroID==MainActor->ServerHeroID)
 	{
-		MainActor->HeroName = FString(UTF8_TO_TCHAR(NewData->szName));
+		MainActor->HeroName = ReadFixedUTF8(NewData->szName);
 
 		MainActor->HeroAttributes->LevelAttributes.Level = NewData->byLevel;
 		MainActor->HeroAttributes->ClassType	= NewData->byClass;
@@ -5304,9 +5364,9 @@ void CMessageHandler::SyncHeroData(G2C_SYNC_HERO_DATA* NewData,  G2C_SYNC_HERO_D
 		return;
 	}
 
-	actor->ActorName =  FString(UTF8_TO_TCHAR(NewData->szName));
+	actor->ActorName =  ReadFixedUTF8(NewData->szName);
 
-	FString MasterName		= FString(UTF8_TO_TCHAR(NewData->szMasterName));
+	FString MasterName		= ReadFixedUTF8(NewData->szMasterName);
 	FString MasterNameEx	= MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Hero.Master"));
 	actor->MasterName = FString::Printf(*MasterNameEx, *MasterName );
 
@@ -5355,7 +5415,7 @@ void CMessageHandler::SyncRoleData(G2C_SYNC_ROLE_DATA* NewData)
 	}
 	actor->SetHidden(TRUE);
 	actor->eventSetMesh(NewData->byClass, NewData->bySex);
-	actor->ActorName =  FString(UTF8_TO_TCHAR(NewData->szName));
+	actor->ActorName =  ReadFixedUTF8(NewData->szName);
 	actor->TeamID =  NewData->dwTeamID;
 
 	actor->bResourceInitialized = TRUE;
@@ -5486,8 +5546,8 @@ void CMessageHandler::SyncRoleData(G2C_SYNC_ROLE_DATA* NewData)
 
 	if (player)
 	{
-		// Data handling while in stall
-		player->StallName = FString(UTF8_TO_TCHAR(NewData->szStallName));
+		// Stall data
+		player->StallName = ReadFixedUTF8(NewData->szStallName);
 		player->StallLevel = NewData->byStallLevel;
 		UStallManager::getSingleton().ChangeActorStallState(player, NewData->byStallState);
 	}

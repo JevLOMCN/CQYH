@@ -14,6 +14,24 @@
 
 MMOHeavenManager::MMOHeavenManager()
 {
+	pkTargetGasSlot = NULL;
+	dwLastOfflineTime = 0;
+	dwLastExp2PtsTime = 0;
+	nDailyExp2PtsTime = 0;
+	nCostMoneyAll = 0;
+	nCurHeavenExp = 0;
+	tNowTime = 0;
+	nNowNeedTime = 0;
+	gasPractiseState = 1;
+	appMemzero(nBloodState, sizeof(nBloodState));
+	curMaxID = 0;
+	nHeavenLevel = 0;
+	bSoulLimited = TRUE;
+	bLevelLimited = TRUE;
+	bServerWaiting = TRUE;
+	nCurConvertType = 0;
+	nGasOperateType = 0;
+	nTempGasOperateType = 0;
 
 }
 void MMOHeavenManager::Init()
@@ -27,6 +45,7 @@ void MMOHeavenManager::Shutdown()
 }
 void MMOHeavenManager::Clear()
 {
+	pkTargetGasSlot = NULL;
 	gasItemTemplateMap.clear();
 	heavenConvertList.clear();
 	heavenLevelDataMap.clear();
@@ -254,7 +273,9 @@ INT MMOHeavenManager::GenerateUniqueID()
 }
 INT	MMOHeavenManager::GetBtnPractiseState(INT nIndex)
 {
-	return (gasPractiseState&((0x0001)<<nIndex));
+	if (nIndex < 0 || nIndex >= MAX_AIR_PROCEDURE)
+		return 0;
+	return (INT)((UINT)gasPractiseState & (1u << nIndex));
 }
 GasItem* MMOHeavenManager::GetItemBySlot(INT nContainerID,INT nSlotID)
 {
@@ -456,6 +477,8 @@ FString	MMOHeavenManager::GetLevelString(INT nLevel)
 
 GasSlot* MMOHeavenManager::GetSlotByIndex(INT nContainerID,INT nSlotID)
 {
+	if (nSlotID < 0)
+		return NULL;
 	if(nContainerID == sasbtBag)
 	{
 		if(nSlotID < arrSlotGasBag.Num())
@@ -843,7 +866,7 @@ void MMOHeavenManager::GetEquipGasPowerDescrible(FString& strPower)
 }
 const SlotOpenTaxData* MMOHeavenManager::GetSlotEquipTax(INT nIndex) const
 {
-	if(nIndex < arrSlotTax.Num())
+	if(arrSlotTax.IsValidIndex(nIndex))
 		return &arrSlotTax(nIndex);
 	return NULL;
 }
@@ -1050,7 +1073,7 @@ void MMOHeavenManager::NotifyUpdateHeavenData(const ROLE_DB_SPIRIT_DATA* pkData)
 	if(pkData == NULL)
 		return;
 	AMMOPlayer *mainPlayer = MMOFacade::getSingleton().GetMainPlayer();
-	if(mainPlayer)
+	if(mainPlayer && mainPlayer->ActorAttributes)
 	{
 		mainPlayer->ActorAttributes->heavenAttributes.heavenLevel = pkData->byLevel;
 		mainPlayer->ActorAttributes->heavenAttributes.heavenExp = pkData->nExp;
@@ -1066,6 +1089,7 @@ void MMOHeavenManager::NotifyUpdateHeavenData(const ROLE_DB_SPIRIT_DATA* pkData)
 	INT nTime = dwLastExp2PtsTime;
 	if(nTime < 0 )
 		dwLastExp2PtsTime = 0;
+	pkTargetGasSlot = NULL;
 	arrSlotGasBag.Empty();
 	arrSlotGasEquip.Empty();
 	arrSlotGasBank.Empty();
@@ -1185,9 +1209,12 @@ void MMOHeavenManager::NotifyUpdateBloodState(INT nPage,INT nIndex, INT nNum)
 }
 void MMOHeavenManager::NotifyOpenGasSlot(INT nContainerID,INT nSlotIndex)
 {
+	if (nSlotIndex <= 0 || (nContainerID != sasbtEquip
+		&& nContainerID != sasbtBag && nContainerID != sasbtStall))
+		return;
 	if(nContainerID == sasbtEquip)
 	{
-		if(nSlotIndex > UCONST_GasEquipSlotMaxNum || (nSlotIndex - arrSlotGasEquip.Num() < 1))
+		if(nSlotIndex > UCONST_GasEquipSlotMaxNum || nSlotIndex <= arrSlotGasEquip.Num())
 			return;
 		for(INT n = arrSlotGasEquip.Num(); n < nSlotIndex; ++n)
 		{
@@ -1200,12 +1227,14 @@ void MMOHeavenManager::NotifyOpenGasSlot(INT nContainerID,INT nSlotIndex)
 	}
 	else if (nContainerID == sasbtBag)
 	{
-		if(nSlotIndex > UCONST_GasBagSlotMaxNum || (nSlotIndex - arrSlotGasBag.Num() < 1))
+		if(nSlotIndex > UCONST_GasBagSlotMaxNum || nSlotIndex <= arrSlotGasBag.Num())
 			return;
+		const INT targetIndex = pkTargetGasSlot ? pkTargetGasSlot->nTagID : -1;
 		for(INT n = arrSlotGasBag.Num(); n < nSlotIndex; ++n)
 		{
 			arrSlotGasBag.AddItem(GasSlot());
 		}
+		pkTargetGasSlot = GetSlotByIndex(sasbtBag, targetIndex);
 
 		// Achievement
 		MMOGameEvent_Achievement evtAch(adSpiritBuyAirBagSlotCount, arrSlotGasBag.Num(), 0, 0);
@@ -1213,7 +1242,7 @@ void MMOHeavenManager::NotifyOpenGasSlot(INT nContainerID,INT nSlotIndex)
 	}
 	else if (nContainerID == sasbtStall)
 	{
-		if(nSlotIndex > UCONST_GasBankSlotMaxNum || (nSlotIndex - arrSlotGasBank.Num()) < 1)
+		if(nSlotIndex > UCONST_GasBankSlotMaxNum || nSlotIndex <= arrSlotGasBank.Num())
 			return;
 		for(INT n = arrSlotGasBank.Num(); n < nSlotIndex; ++n)
 		{

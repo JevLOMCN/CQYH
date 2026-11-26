@@ -71,7 +71,7 @@ private:
 
 		EntryData()
 		{
-
+			Init(BN_COUNT, NULL);
 		}
 
 		EntryData(eBottleNeckEntry eBottleNeckDetail, fnEntryAdjustInterface pfnAdjust)
@@ -84,6 +84,7 @@ private:
 			EntryData::eBottleNeckDetail = eBottleNeckDetail;
 			nDefaultValue = -1;
 			nCurValue = -1;
+			nDesireValue = -1;
 			EntryData::pfnAdjust = pfnAdjust;
 		}
 

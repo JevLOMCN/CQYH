@@ -34,6 +34,7 @@ enum ChangeMeshSexType
 
 struct ChangeMeshSubItem
 {
+	ChangeMeshSubItem() : Class(0), SubTypeValue(0), Sex(0) {}
 	FString MainType;
 	FString DesplayName;
 	INT Class;
@@ -44,6 +45,7 @@ struct ChangeMeshSubItem
 };
 struct ChangeMeshItem
 {
+	ChangeMeshItem() : MainTypeValue(0) {}
 	INT MainTypeValue;
 	ChangeMeshSubItem SubItem;
 
@@ -51,6 +53,8 @@ struct ChangeMeshItem
 
 struct PlayerAppearanceData
 {
+	PlayerAppearanceData()
+		: Class(0), Sex(0), HairColor(0), HairModel(0), SkinColor(0), FaceModel(0) {}
 	INT Class;
 	INT Sex;
 	UINT8 HairColor;

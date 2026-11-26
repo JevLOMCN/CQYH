@@ -220,7 +220,7 @@ void MallManager::NotifyBuyInfo(const M2C_SALE_INFO*pkData)
 		tm     *tp = localtime(&time);
 		if(tp == NULL)
 			continue;
-		FString strName = UTF8_TO_TCHAR(data.szRoleName);
+		FString strName = ReadFixedUTF8(data.szRoleName);
 		FString strInfo = FString::Printf(TEXT("<font color='#14a800'>[%d:%02d]</font> %s purchased"),tp->tm_hour,tp->tm_min,*strName);
 
 		strInfo += LinkManager::HtmlLink_ColorItem(pkItem);
@@ -269,9 +269,16 @@ void MallManager::GetGoodsByPage(std::vector<INT>& vecGoods)
 {
 	vecGoods.clear();
 	
-	for (INT n = nNumPerPage*nCurPage; n < (INT)vecMallCurGoods.size()&&(n < nNumPerPage*(nCurPage+1));++n)
+	if (nCurPage < 0 || nNumPerPage <= 0
+		|| (size_t)nCurPage > vecMallCurGoods.size() / (size_t)nNumPerPage)
 	{
-		vecGoods.push_back(vecMallCurGoods.at(n));
+		return;
+	}
+	const size_t start = (size_t)nCurPage * (size_t)nNumPerPage;
+	const size_t count = Min((size_t)nNumPerPage, vecMallCurGoods.size() - start);
+	for (size_t n = 0; n < count; ++n)
+	{
+		vecGoods.push_back(vecMallCurGoods[start + n]);
 	}
 }
 const std::vector<INT>&	 MallManager::GetHotGoods()

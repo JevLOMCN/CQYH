@@ -535,7 +535,7 @@ void UMMOUISkillBar::PlayerHPChange( INT newHP, INT maxHP )
         }
 
 		TArray<	FASValue> args;
-		FASValue asval;
+		FASValue asval(EC_EventParm);
 
         asval.Type = AS_Number;
         asval.N = hpPercent;
@@ -583,7 +583,7 @@ void UMMOUISkillBar::PlayerMPChange( INT newMP,INT maxMP )
             mpTxt->SetText( FString::Printf(TEXT("%d"), NewMP ) );
         }*/
 		TArray<	FASValue> args;
-		FASValue asval;
+		FASValue asval(EC_EventParm);
 
         asval.Type = AS_Number;
         asval.N = mpPercent;
@@ -653,7 +653,7 @@ void UMMOUISkillBar::PlayerPkModeChange( INT PkMode )
     if( PlayerPKBtn != NULL )
     {
         TArray<	FASValue> args;
-        FASValue asval;
+        FASValue asval(EC_EventParm);
         asval.Type = AS_Number;
         asval.N = PkMode;
         args.AddItem( asval );
@@ -979,7 +979,8 @@ void UMMOUISkillBar::RefreshSkillBarByServerData( INT32* addr, INT  size )
 	if( pp == NULL || size <= 0 ){
 		return;
 	}
-	check( size >= sizeof( FSKILL_BAR_SLOT ) * UCONST_SkillBarSlotMax );
+	if (size < (INT)(sizeof(FSKILL_BAR_SLOT) * UCONST_SkillBarSlotMax))
+		return;
 	for( INT i = 0; i < UCONST_SkillBarSlotMax; ++i )
 	{
 		SkillBarSlotType slotType = (SkillBarSlotType)pp[i].type;
@@ -1696,7 +1697,7 @@ void UMMOUISkillBar::SwapBarSlotDataRaw( INT slotIdx1, INT slotIdx2 )
 	FSlotContainer &slot2Data = SkillBarSlotData( slotIdx2 );
 
 	//
-	FSlotContainer tempData;
+	FSlotContainer tempData(EC_EventParm);
 	tempData.ID = slot1Data.ID;
 	tempData.AidID = slot1Data.AidID;
 	tempData.Type = slot1Data.Type;

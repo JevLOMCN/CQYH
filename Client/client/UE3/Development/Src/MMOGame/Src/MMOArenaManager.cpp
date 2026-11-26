@@ -13,8 +13,29 @@
 
 MMOArenaManager::MMOArenaManager()
 {
-	_VSOneOnOnePKInfo[EVSSide_1]._SideIdx = EVSSide_1;
-	_VSOneOnOnePKInfo[EVSSide_2]._SideIdx = EVSSide_2;
+	_VSSessionIdx = 0;
+	_CurVSState = 0;
+	_MyVSSide = 0;
+	_VSTotalRwd = 0;
+	_VSAvgRwd = 0;
+	_VSRwdCanTryTimes = 0;
+	_VSGettedTryTimes = 0;
+	_VSRwdGettedTimes = 0;
+	_ArenaBeginH = 0;
+	_ArenaEndH = 0;
+	_ArenaCurRoundEndTime = 0;
+	for (INT i = 0; i < EVSSide_Total; ++i)
+	{
+		_VSOneOnOnePKInfo[i]._SideIdx = i;
+		_VSOneOnOnePKInfo[i]._UsedRecovery = 0;
+		_VSOneOnOnePKInfo[i]._PerInfo._ActorID = 0;
+		_VSOneOnOnePKInfo[i]._PerInfo._UsedRecovery = 0;
+	}
+	for (INT i = 0; i < EArean_RankMax; ++i)
+	{
+		_PrizeForRank[i]._RankMoneyNeed = 0;
+		_PrizeForRank[i]._AwardPrizeID = 0;
+	}
 	//
 	_CurArenaAllMoney = 0;
 	_CurArenaHighestScore = 0;
@@ -351,15 +372,19 @@ void MMOArenaManager::Init()
 	//INT percent = 0;
 	//GConfig->GetInt( TEXT("Arena") , TEXT("PrizeMnyPercent"), percent, GDefaultGameIni );
 	//_PrizeMoneyPercent = (FLOAT)(percent) / 100;
-	INT percent;
+	INT percent = 0;
 	GConfig->GetInt( TEXT("Arena") , TEXT("PrizeMnyPercent"), percent, GDefaultGameIni );
 	_PrizeMoneyPercent = percent;
+	percent = 0;
 	GConfig->GetInt( TEXT("Arena") , TEXT("WinMnyRank1Pect"), percent, GDefaultGameIni );
 	_PrizeForWin[EArean_WinPrizeRank1]._PerPlayerPect = percent;
+	percent = 0;
 	GConfig->GetInt( TEXT("Arena") , TEXT("WinMnyRank2Pect"), percent, GDefaultGameIni );
 	_PrizeForWin[EArean_WinPrizeRank2]._PerPlayerPect = percent;
+	percent = 0;
 	GConfig->GetInt( TEXT("Arena") , TEXT("WinMnyRank3Pect"), percent, GDefaultGameIni );
 	_PrizeForWin[EArean_WinPrizeRank3]._PerPlayerPect = percent;
+	percent = 0;
 	GConfig->GetInt( TEXT("Arena") , TEXT("WinMnyRank4Pect"), percent, GDefaultGameIni );
 	_PrizeForWin[EArean_WinPrizeRank4]._PerPlayerPect = percent;
 
@@ -476,7 +501,7 @@ VSPKInfoPersonal &MMOArenaManager::GetVSPersonalPkInfo( INT actorID, EVSSideIdx 
 //============================================================================================================================
 INT MMOArenaManager::GetVSSideUsedRecovery( INT sideIdx )
 {
-	if( sideIdx < EVSSide_1  && EVSSide_Total <= sideIdx ){
+	if( sideIdx < EVSSide_1 || EVSSide_Total <= sideIdx ){
 		return -1;
 	}
 

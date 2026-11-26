@@ -21,7 +21,7 @@ MMOPlayerInfoManager::~MMOPlayerInfoManager()
 
 }
 
-void MMOPlayerInfoManager::UpdatePlayerEquipInfo( INT roleId , INT equipNum , char* equipData , INT crc )
+void MMOPlayerInfoManager::UpdatePlayerEquipInfo( INT roleId , INT equipNum , char* equipData , INT crc, UINT32 dataSize )
 {
 	PlayerDetailInfo* playerInfo = FindPlayerDetailInfo( roleId );
 
@@ -36,11 +36,17 @@ void MMOPlayerInfoManager::UpdatePlayerEquipInfo( INT roleId , INT equipNum , ch
 		for ( int i = 0; i < equipNum ; ++i )
 		{
 			ItemInfo iteminfo;
-			INT buflen = iteminfo.Load( equipData + BuffSize );
+			if ((UINT32)BuffSize > dataSize)
+				return;
+			INT buflen = iteminfo.Load(equipData + BuffSize, dataSize - BuffSize);
+			if (buflen == 0)
+				return;
 			iteminfo.m_byConSlot = E_CONSLOT_PROFILE;
 			BuffSize += buflen;
 
 			
+			if (iteminfo.m_byItemSlot >= ARRAY_COUNT(playerInfo->EquipList))
+				continue;
 			appMemcpy( &playerInfo->EquipList[ iteminfo.m_byItemSlot ] , &iteminfo , sizeof(ItemInfo) );
 			//playerInfo->EquipList[ iteminfo.m_byItemSlot ] = iteminfo;
 
@@ -88,7 +94,8 @@ void MMOPlayerInfoManager::UpdatePlayerAttrInfo( INT roleId , INT attrCount , AT
 		for ( INT i = 0 ; i < attrCount ; ++i )
 		{
 			INT attrId = attrData[i].byAttrID;
-			playerInfo->AttrList[ attrId ] = attrData[i].nAttrValue;
+			if (attrId >= 0 && attrId < ARRAY_COUNT(playerInfo->AttrList))
+				playerInfo->AttrList[ attrId ] = attrData[i].nAttrValue;
 		}
 		playerInfo->AttrCRC = crc;
 		playerInfo->Fatigue = Fatigue;

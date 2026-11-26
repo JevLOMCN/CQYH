@@ -103,6 +103,7 @@ public:
 //------------------------------------------------------------------------------------------------
 struct BuffTemplateDataIndex
 {
+	BuffTemplateDataIndex() : TemplateID(0) {}
 	FString ObjectPath;
 	INT TemplateID;
 };

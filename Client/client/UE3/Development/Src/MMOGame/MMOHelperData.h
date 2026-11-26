@@ -16,6 +16,7 @@ enum
 // help data
 struct HelperData
 {
+	HelperData() : Id(0), BaseClass(0), SubClass(0) {}
 	UINT32 Id;
 	FString PanelName;
 	UINT32 BaseClass;

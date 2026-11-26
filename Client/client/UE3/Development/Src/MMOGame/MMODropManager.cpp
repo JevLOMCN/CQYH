@@ -14,6 +14,10 @@ extern INT g_moveModGridSize;
 MMODropManager::MMODropManager()
 	: _pickupAll(false)
 {
+	m_CanPickUpDropID = 0;
+	m_CanPickUpInfo = NULL;
+	_dropTipsUI = NULL;
+	_alphaCurValue = 0.0f;
 	MMOUI::RegisterEventHandler(this, GameEvent_LeaveGame);
 	MMOUI::RegisterEventHandler(this, GameEvent_LeaveServerScene);
 	AMMOHud::RegisterCanvasRenderable(this);

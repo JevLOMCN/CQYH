@@ -117,7 +117,7 @@ void USeqEvent_BTEvent::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	appSprintf(GBTIni, TEXT("%s%s%sBTEvent.ini"), *appGameConfigDir(), INI_PREFIX, GGameName);
+	appStrncpy(GBTIni, *FString::Printf(TEXT("%s%s%sBTEvent.ini"), *appGameConfigDir(), INI_PREFIX, GGameName), ARRAY_COUNT(GBTIni));
 	GConfig->GetString( *BTEventType, TEXT("Refer"), ParamDesc[0], GBTIni );// GBTIni
 
 	ObjName = BTEventType;
@@ -305,7 +305,7 @@ void USeqEvent_BTEvent::GetDynamicListValues(const DynamicListInfo& ListInfo, TA
 	check(ListInfo.ListName == TEXT("BTEventTypeList"));
 
 	TCHAR GBTIni[1024] = {0};
-	appSprintf(GBTIni, TEXT("%s%s%sBTEvent.ini"), *appGameConfigDir(), INI_PREFIX, GGameName);
+	appStrncpy(GBTIni, *FString::Printf(TEXT("%s%s%sBTEvent.ini"), *appGameConfigDir(), INI_PREFIX, GGameName), ARRAY_COUNT(GBTIni));
 
 	TArray<FString> StrArray;
 	INT nRetCode = GConfig->GetArray( *(ListInfo.ListName), *(ListInfo.ListName), StrArray, GBTIni );

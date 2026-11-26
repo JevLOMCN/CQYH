@@ -3,6 +3,7 @@
 
 struct SSignInReward
 {
+	SSignInReward() : _ItemID(0), _ItemCnt(0), _LevelRequire(0), _DayRequire(0) {}
 	INT _ItemID;
 	INT _ItemCnt;
 	INT _LevelRequire;
@@ -11,6 +12,7 @@ struct SSignInReward
 
 struct SSignInRewardState
 {
+	SSignInRewardState() : _CurSignInDay(0), _SignInTimestamp(0), _CanSignIn(FALSE), _IsValid(FALSE) {}
 	INT _CurSignInDay;
 	UINT32 _SignInTimestamp;
 	UBOOL _CanSignIn;

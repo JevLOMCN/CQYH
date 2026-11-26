@@ -1178,7 +1178,7 @@ void MMONavigationManager::_UpdatePathPoint(FLOAT deltaTime)
 		return;
 	}
 
-	FVector lastPathPointDir;
+	FVector lastPathPointDir(0, 0, 0);
 	for (INT i = 0; i < _PathPointList.Num(); ++ i)
 	{
 		PathPointInfo& ppInfo = _PathPointList(i);

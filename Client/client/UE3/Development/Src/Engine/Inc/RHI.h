@@ -65,6 +65,10 @@ struct FPlatformFeatures
 #define	MAX_GPU_INFO_LEN 1024
 struct FGPUInfo
 {
+	FGPUInfo()
+	{
+		appMemzero(DeviceName, sizeof(DeviceName));
+	}
 	char DeviceName[MAX_GPU_INFO_LEN];
 };
 // NVCHANGE_END_JC - Query Info

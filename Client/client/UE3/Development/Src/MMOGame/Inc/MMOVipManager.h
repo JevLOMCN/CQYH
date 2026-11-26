@@ -28,6 +28,7 @@ enum eGameTimeHintType
 
 struct SVIPTimeLimit
 {
+	SVIPTimeLimit() : _ExpireTime(0) {}
 	//UINT32 _ScenodLeft;
 	//__time32_t _LocalTimeStart;
 	__time32_t _ExpireTime;

@@ -319,12 +319,12 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	strUILoaderBgTexPath = FString::Printf( TEXT("MMO_UIWorldMapImg.%s_wMapBg"), *texPackName );
 	//
 	FString strValueKey;
-	INT tileSizeX;
+	INT tileSizeX = 256;
 	strValueKey = TEXT("WorldMapTileSizeX");
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, tileSizeX, GGameIni );
 
 	strValueKey = TEXT("WorldMapTileSizeY");
-	INT tileSizeY;
+	INT tileSizeY = 256;
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, tileSizeY, GGameIni );
 
 	//
@@ -344,7 +344,7 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	FLOAT worldMapResScale = 0.5;
 	map3Dto2D /= worldMapResScale;//MapUIZoomDefault;
 	//
-	INT minimapY;
+	INT minimapY = 256;
 	GConfig->GetInt( TEXT("MapImg"), TEXT("MiniMapTileSizeY"), minimapY, GGameIni );
 	INT origImgSizeY = RegionInMap.MiniMapTileColNum * minimapY;
 
@@ -357,7 +357,7 @@ void UMMOUIWorldMap::InitWorldMapTiles( const FString& mapName, FInMapRegion Reg
 	beforeUIScale2dOffsetInMap.Y = -regionBox.Min.X * map3Dto2D.Y + trueWorldMapHeight;
 
 	//
-	FVector player3dPos;
+	FVector player3dPos(0, 0, 0);
 	//MMOMapDataManager *pMapDataMgr = &MMOMapDataManager::getSingleton();
 	if( !isResetPos ){
 		AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
@@ -1111,7 +1111,8 @@ void UMMOUIWorldMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg
 					}
 					break;
 				default:
-					break;
+					++iter;
+					continue;
 			}
 
 			//

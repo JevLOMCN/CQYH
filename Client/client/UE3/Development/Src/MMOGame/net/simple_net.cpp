@@ -240,6 +240,7 @@ Exit0:
 
     CSocketSession::CSocketSession()
     {
+        m_wRecvMsgSize = 0;
         m_nSockedFD = INVALID_SOCKET;
         m_Node.pPrev = m_Node.pNext = NULL;
         m_eState = esccUnConnect;
@@ -315,10 +316,11 @@ Exit0:
         return TRUE;
     }
 
-    UINT16 CSocketSession::GetNeedRecvSize()
+    INT32 CSocketSession::GetNeedRecvSize()
     {
         INT32 nNeedRecvSize = sizeof(MESSAGE_HEADER);
         INT32 nMsgSize = 0;
+        UINT16 messageID = 0;
 
         if(m_wRecvMsgSize < sizeof(MESSAGE_HEADER))
         {
@@ -326,7 +328,9 @@ Exit0:
         }
         else if(m_wRecvMsgSize >= sizeof(MESSAGE_HEADER))
         {
-            nMsgSize = g_nS2CMessageSize[*((UINT16*)&m_szTempMsg[0])];
+            memcpy(&messageID, m_szTempMsg, sizeof(messageID));
+            LOG_PROCESS_ERROR(messageID < ExternalMessage::max_message_count);
+            nMsgSize = g_nS2CMessageSize[messageID];
             if(nMsgSize == 0)
             {
                 //warnf(NAME_Error, TEXT("the message[%d] UnRegrister"), (UINT8)m_szTempMsg[0]);
@@ -337,7 +341,12 @@ Exit0:
                 if(m_wRecvMsgSize < sizeof(FLEX_MESSAGE_HEADER))
                     nNeedRecvSize = sizeof(FLEX_MESSAGE_HEADER) - m_wRecvMsgSize;
                 else
-                    nNeedRecvSize = *((UINT16*)(&m_szTempMsg[2])) - m_wRecvMsgSize;
+                {
+                    UINT16 packetSize = 0;
+                    memcpy(&packetSize, &m_szTempMsg[2], sizeof(packetSize));
+                    LOG_PROCESS_ERROR(packetSize >= sizeof(FLEX_MESSAGE_HEADER));
+                    nNeedRecvSize = (INT32)packetSize - m_wRecvMsgSize;
+                }
             }
             else if(nMsgSize > 0)
             {
@@ -348,6 +357,9 @@ Exit0:
                 LOG_PROCESS_ERROR(FALSE);
             }
         }
+        LOG_PROCESS_ERROR(nNeedRecvSize >= 0);
+        LOG_PROCESS_ERROR((UINT32)m_wRecvMsgSize + nNeedRecvSize <= 0xFFFFu);
+        LOG_PROCESS_ERROR((UINT32)m_wRecvMsgSize + nNeedRecvSize <= sizeof(m_szTempMsg));
         return nNeedRecvSize;
 Exit0:
         return flex_message_size;
@@ -529,6 +541,12 @@ Exit0:
     CNet::CNet()
 		: m_ThreadHandle(NULL)
     {
+        m_bThreadRuning = FALSE;
+        m_pPacketAllocator = NULL;
+        m_pNetHandler = NULL;
+        FD_ZERO(&m_ConnetedSet);
+        memset(&m_oInitParam, 0, sizeof(m_oInitParam));
+        memset(m_nMessageSizeList, 0, sizeof(m_nMessageSizeList));
     }
 
     CNet::~CNet()
@@ -697,14 +715,18 @@ Exit0:
         LOG_PROCESS_ERROR(nRetCode == 0);
         LOG_PROCESS_ERROR(pInitParam != NULL);
         memcpy((void*)&m_oInitParam, pInitParam, sizeof(SIMPLE_INIT_PARAM));
-        LOG_PROCESS_ERROR(m_oInitParam.nMaxSessionCount <= 64);
-        LOG_PROCESS_ERROR(m_oInitParam.nMaxAcceptor <= 32);
+        LOG_PROCESS_ERROR(m_oInitParam.nMaxSessionCount >= 0 && m_oInitParam.nMaxSessionCount <= 64);
+        LOG_PROCESS_ERROR(m_oInitParam.nMaxAcceptor >= 0 && m_oInitParam.nMaxAcceptor <= 32);
 
-        m_oSessionPool.Init(m_oInitParam.nMaxSessionCount);
-        m_oAcceptorPool.Init(m_oInitParam.nMaxAcceptor);
+        nRetCode = m_oSessionPool.Init(m_oInitParam.nMaxSessionCount);
+        LOG_PROCESS_ERROR(nRetCode);
+        nRetCode = m_oAcceptorPool.Init(m_oInitParam.nMaxAcceptor);
+        LOG_PROCESS_ERROR(nRetCode);
 
-        m_MsgListToMain.Init(1024);
-        m_MsgListToWork.Init(1024);
+        nRetCode = m_MsgListToMain.Init(1024);
+        LOG_PROCESS_ERROR(nRetCode);
+        nRetCode = m_MsgListToWork.Init(1024);
+        LOG_PROCESS_ERROR(nRetCode);
         
         m_pNetHandler = pNetEvent;
         m_pPacketAllocator = pPacketAllocator;
@@ -1190,14 +1212,25 @@ Exit0:
                     {
 						#if !SHIPPING_PC_GAME
                         wchar_t szText[256];
+                        UINT16 invalidMessageID = 0;
+                        const char* invalidMessageName = "<unknown>";
+                        const char* lastMessageName = "<unknown>";
+                        if (poReadSession->GetCurRecvMsgSize() >= sizeof(MESSAGE_HEADER))
+                        {
+                            memcpy(&invalidMessageID, poReadSession->GetRecvBuff() - poReadSession->GetCurRecvMsgSize(), sizeof(invalidMessageID));
+                            if (invalidMessageID < ExternalMessage::max_message_count && g_szS2CMessageName[invalidMessageID])
+                                invalidMessageName = g_szS2CMessageName[invalidMessageID];
+                        }
+                        if (s_nLastMsgID >= 0 && s_nLastMsgID < ExternalMessage::max_message_count && g_szS2CMessageName[s_nLastMsgID])
+                            lastMessageName = g_szS2CMessageName[s_nLastMsgID];
 						
-                        wsprintf(szText, LocalizeSecure(Localize(TEXT("Error"), TEXT("UnregisterProtocol"), TEXT("ProgError")),
-                            s_nLastMsgID, UTF8_TO_TCHAR(g_szS2CMessageName[s_nLastMsgID]), 
-                            (int)(poReadSession->GetRecvBuff() - poReadSession->GetCurRecvMsgSize())[0], 
-							UTF8_TO_TCHAR(g_szS2CMessageName[(unsigned char)poReadSession->GetRecvBuff()[0]]),
-                            g_nMessageVersion));
-						warnf(NAME_Error, szText);
-                        appMsgf(AMT_OK, szText);
+                        appStrncpy(szText, *FString::Printf(LocalizeSecure(Localize(TEXT("Error"), TEXT("UnregisterProtocol"), TEXT("ProgError")),
+                            s_nLastMsgID, UTF8_TO_TCHAR(lastMessageName),
+                            (int)invalidMessageID,
+							UTF8_TO_TCHAR(invalidMessageName),
+                            g_nMessageVersion)), ARRAY_COUNT(szText));
+						warnf(NAME_Error, TEXT("%s"), szText);
+                        appMsgf(AMT_OK, TEXT("%s"), szText);
 						#endif
 #ifdef _DEBUG
                         appDebugBreak();

@@ -17,7 +17,7 @@ struct MMOGameEvent_Doodad : public MMOGameEvent
 public:
 	MMOGameEvent_Doodad(AMMODoodadActor* actor, BYTE oldOperCnt)
 		: DoodadActor(actor)
-		, OldOperateCount(OldOperateCount)
+		, OldOperateCount(oldOperCnt)
 	{
 	}
 
@@ -36,6 +36,7 @@ public:
 
 struct FDoodadDropSet
 {
+	FDoodadDropSet() : DropChance(0), DropGroupID(0) {}
 	INT DropChance;
 	INT DropGroupID;
 
@@ -45,6 +46,7 @@ struct FDoodadDropSet
 struct FDoodadDropData
 {
 public:
+	FDoodadDropData() : DoodadTemplateID(0), DoodadLevel(0), SceneDifficultyClient(0) {}
 
 	static const INT C_MaxDropSetCount = 16;
 	static UINT CombineID(INT templateID, INT lv, INT sceneDiff);
@@ -75,20 +77,20 @@ public:
 	INT GetDropSetCount() const { return C_MaxDropSetCount; }
 	void SetDropSet(INT idx, const FDoodadDropSet& dropSetData)
 	{
-		if(idx < C_MaxDropSetCount)
+		if(idx >= 0 && idx < C_MaxDropSetCount)
 		{
 			DropSets[idx] = dropSetData;
 		}
 		else
 		{
-			warnf(NAME_Error, TEXT("[FDoodadDropData::SetDropSet] Index out of bound for doodad drop[%s] idx[%s]"), *ToString(), idx);
+			warnf(NAME_Error, TEXT("[FDoodadDropData::SetDropSet] Index out of bound for doodad drop[%s] idx[%d]"), *ToString(), idx);
 		}
 
 	}
 
 	const FDoodadDropSet& GetDropSet(INT idx) const
 	{
-		if(idx < C_MaxDropSetCount)
+		if(idx >= 0 && idx < C_MaxDropSetCount)
 		{
 			return DropSets[idx];
 		}
@@ -166,7 +168,8 @@ struct FDoodadDataHolder
 	UDoodad* DoodadTemplate;
 
 	FDoodadDataHolder()
-		: DoodadTemplate(0)
+		: DoodadID(0)
+		, DoodadTemplate(0)
 	{
 	}
 

@@ -35,6 +35,8 @@ public:
 		//local BodyPart bp;
 		UMMOSkeletalMeshMerge* MergedMesh = Cast<UMMOSkeletalMeshMerge>(
 			UObject::StaticConstructObject(UMMOSkeletalMeshMerge::StaticClass()));
+		if( !MergedMesh )
+			return NULL;
 		//new(Owner) class'MMOSkeletalMeshMerge';
 
 		//MergedMesh->Init( 6 );
@@ -214,6 +216,8 @@ UBOOL UItemManager::PrepareMerge()
 	}
 
 	MergedMesh = GMergingHelper.CreateNewMesh();
+	if( !MergedMesh )
+		return FALSE;
 
 	if(GIsGame)
 	{
@@ -226,7 +230,7 @@ UBOOL UItemManager::PrepareMerge()
 
 			for( INT j = 0; j < EquippedItemList_Normal(i)->MeshList.Num(); ++j )
 			{
-				if( EquippedItemList_Normal(i)->MeshList(j)->MeshType >= EBMT_NoMerge )
+				if( !EquippedItemList_Normal(i)->MeshList(j) || EquippedItemList_Normal(i)->MeshList(j)->MeshType >= EBMT_NoMerge )
 					continue;
 
 				INT partIdx = (INT)EquippedItemList_Normal(i)->MeshList(j)->MeshType;
@@ -299,7 +303,9 @@ UBOOL UItemManager::PrepareMerge()
 			// Belt has no skin texture so drop the i==5 case
 			if( j == 0 && i != 5 && ( !ReplaceFaceByShoulder || i != EBMT_Face ) && meshArray[i](j)->bNeedSkinTexture )
 			{
-				// these two textures should be prepared in advance
+				// 这两张图应该是预先准备好的
+				if( !SkinTextures.IsValidIndex(i) || !SkinTexturesBase.IsValidIndex(i) )
+					return FALSE;
 				MergedMesh->Parts(i).Textures.AddItem( SkinTextures(i) );
 				MergedMesh->Parts(i).Textures_Base.AddItem( SkinTexturesBase(i) );
 			}
@@ -320,6 +326,8 @@ UBOOL UItemManager::PrepareMerge()
 		if( MergedMesh->Parts(i).Textures.Num() == 0 )
 		{
 			debugf( TEXT("Didn't find region texture for part %d."), i );
+			if( !SkinTextures.IsValidIndex(i) || !SkinTexturesBase.IsValidIndex(i) )
+				return FALSE;
 			MergedMesh->Parts(i).Textures.AddItem( SkinTextures(i) );
 			MergedMesh->Parts(i).Textures_Base.AddItem( SkinTexturesBase(i) );
 		}
@@ -690,9 +698,9 @@ UEquip* UItemManager::GetEquipBySlot( INT slot, UBOOL normalEquip )
 		return NULL;
 	}
 	if( normalEquip )
-		return EquippedItemList_Normal(slot);
+		return EquippedItemList_Normal.IsValidIndex(slot) ? EquippedItemList_Normal(slot) : NULL;
 	else
-		return EquippedItemList_Avatar(slot);
+		return EquippedItemList_Avatar.IsValidIndex(slot) ? EquippedItemList_Avatar(slot) : NULL;
 }
 //------------------------------------------------------------------------
 UItem* UItemManager::RequestTakeOn(INT SlotId, INT TargetSlotId, UBOOL normalEquip, const class UItem* itemTemplate, UBOOL autoChagneBag)
@@ -1126,6 +1134,8 @@ void UItemManager::Reset()
 //------------------------------------------------------------------------
 void UItemManager::SetDefaultMeshes(class UAvatarData* InAvatarData,INT InKey)
 {
+	if( !InAvatarData )
+		return;
 	DefaultMeshList.Remove( 0, DefaultMeshList.Num() );
 	DefaultMeshList.AddZeroed( InAvatarData->DefaultMeshListTemplate.Num() );
 	if( !UseMergedMesh )
@@ -1147,8 +1157,8 @@ void UItemManager::SetDefaultMeshes(class UAvatarData* InAvatarData,INT InKey)
 			{
 				if (tEquipMesh->MeshType == InAvatarData->RandomMeshListTemplate(j).MeshType)
 				{
-					INT Count = InAvatarData->RandomMeshListTemplate(j).EquipMeshList.Num() + 1;
-					INT Idx = InKey % Count;
+					UINT Count = UINT(InAvatarData->RandomMeshListTemplate(j).EquipMeshList.Num()) + 1;
+					UINT Idx = UINT(InKey) % Count;
 					if (Idx == 0)
 					{
 						RandomEquipMesh = tEquipMesh;
@@ -1182,11 +1192,12 @@ void UItemManager::SetDefaultMeshes(class UAvatarData* InAvatarData,INT InKey)
 
 void UItemManager::RefreshSkinTexture( INT defaultMeshID, UBOOL colorOnly )
 {
-	if( defaultMeshID >= DefaultMeshList.Num() )
+	if( !DefaultMeshList.IsValidIndex(defaultMeshID) )
 		return;
 
 	UEquipMesh* pMesh = DefaultMeshList( defaultMeshID );
-	if( pMesh == NULL || pMesh->MeshType >= 5/*SkinTextures.Num()*/ )
+	if( pMesh == NULL || pMesh->MeshType >= EBMT_Waist || !SkinTextures.IsValidIndex(pMesh->MeshType) ||
+		(!colorOnly && !SkinTexturesBase.IsValidIndex(pMesh->MeshType)) )
 		return;
 
 	// record skin color texture
@@ -1379,7 +1390,7 @@ int UItemManager::RequestExchangeItem(INT BagId,INT Item1Pos,INT Bag2Id,INT Item
 		break;
 	}
 
-	if( !BagList1 || !BagList2)
+	if( !BagList1 || !BagList2 || !BagList1->IsValidIndex(Item1Pos) || !BagList2->IsValidIndex(Item2Pos) )
 		return 0;
 	Item1 = (*BagList1)(Item1Pos);
 	Item2 = (*BagList2)(Item2Pos);
@@ -1407,7 +1418,7 @@ void UItemManager::UpdateOwnerData( UBOOL bForce )
 	for (INT i = 0; i < DefaultMeshList.Num(); ++i)
 	{
 		UEquipMesh* tMesh = DefaultMeshList(i);
-		if (!tMesh)
+		if (!tMesh || !CurrentMeshList.IsValidIndex(tMesh->MeshType))
 		{
 			continue; 
 		}
@@ -1455,9 +1466,14 @@ void UItemManager::UpdateOwnerData( UBOOL bForce )
 
 	if( !UseMergedMesh )
 	{
+		if( OldMeshList.Num() != EBMT_NoMerge )
+		{
+			OldMeshList.Empty();
+			OldMeshList.AddZeroed(EBMT_NoMerge);
+		}
 		for (INT i = 0; i < EBMT_NoMerge; ++i)
 		{
-			OldMeshList(i) = CurrentMeshList(i);
+			OldMeshList(i) = CurrentMeshList.IsValidIndex(i) ? CurrentMeshList(i) : NULL;
 		}
 	}
 	ApplyEmissiveSilhouetteFactor( GWorld->GetWorldInfo()->EmissiveSilhouetteFactor );
@@ -1828,10 +1844,11 @@ void UItemManager::HideHelmet( UBOOL bHidden )
 
 void UItemManager::ChangeEquipMeshMaterial(BYTE type,const FString& materialPath)
 {
-	UTexture *Diffuse , *Normal , *Specular;
 	UMaterialInterface *newMaterial;
 
 	newMaterial = Cast<UMaterial>(StaticLoadObject(UMaterial::StaticClass(), NULL, *materialPath, NULL, LOAD_NoWarn, NULL));
+	if( !newMaterial || !Owner || !CurrentMeshList.IsValidIndex(type) )
+		return;
 	UEquipMesh* pEquipMesh = Cast<UEquipMesh>( CurrentMeshList( type ) );
 	if( pEquipMesh )
 	{
@@ -1852,14 +1869,22 @@ void UItemManager::ChangeEquipMeshMaterial(BYTE type,const FString& materialPath
 			{
 				for (INT j = 0; j < ToModifyComponent->Materials.Num(); ++j)
 				{
-					UMaterialInstance* pMaterialInstance = ( UMaterialInstance* ) ToModifyComponent->Materials(j);
-					pMaterialInstance->GetTextureParameterValue("Diffuse_Map", Diffuse );
-					pMaterialInstance->GetTextureParameterValue("Normal_Map", Normal );
-					pMaterialInstance->GetTextureParameterValue("Specular_Map", Specular );
+					UMaterialInstance* pMaterialInstance = Cast<UMaterialInstance>(ToModifyComponent->Materials(j));
+					if( !pMaterialInstance )
+						continue;
+					UTexture* Diffuse = NULL;
+					UTexture* Normal = NULL;
+					UTexture* Specular = NULL;
+					UBOOL hasDiffuse = pMaterialInstance->GetTextureParameterValue("Diffuse_Map", Diffuse );
+					UBOOL hasNormal = pMaterialInstance->GetTextureParameterValue("Normal_Map", Normal );
+					UBOOL hasSpecular = pMaterialInstance->GetTextureParameterValue("Specular_Map", Specular );
 					pMaterialInstance->SetParent( newMaterial );
-					pMaterialInstance->SetTextureParameterValue("Diffuse_Map", Diffuse );
-					pMaterialInstance->SetTextureParameterValue("Normal_Map", Normal );
-					pMaterialInstance->SetTextureParameterValue("Specular_Map", Specular );
+					if( hasDiffuse )
+						pMaterialInstance->SetTextureParameterValue("Diffuse_Map", Diffuse );
+					if( hasNormal )
+						pMaterialInstance->SetTextureParameterValue("Normal_Map", Normal );
+					if( hasSpecular )
+						pMaterialInstance->SetTextureParameterValue("Specular_Map", Specular );
 				}
 			}
 		}

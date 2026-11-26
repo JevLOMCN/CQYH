@@ -81,6 +81,7 @@ public:
 
 	MMOGameEvent_Guild(EGuildEventType eventType)
 		: _EventType(eventType)
+		, _CurPost(0), _BuildingId(0), _WelfareId(0), _ViewType(0), _ViewSize(0)
 	{
 	}
 

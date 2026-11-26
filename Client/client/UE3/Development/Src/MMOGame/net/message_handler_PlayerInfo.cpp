@@ -41,6 +41,8 @@ void CMessageHandler::Send_QueryPower( INT roleId )
 void CMessageHandler::Parse_g2c_sync_role_attr_data(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ROLE_ATTR_DATA* msg = (G2C_SYNC_ROLE_ATTR_DATA*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ROLE_ATTR_DATA))
+		return;
 	if(!msg)
 	{
 		return;
@@ -60,6 +62,8 @@ void CMessageHandler::Parse_g2c_sync_role_attr_data(const char* buf, UINT32 size
 void CMessageHandler::Parse_g2c_sync_role_equip_data(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ROLE_EQUIP_DATA* msg = (G2C_SYNC_ROLE_EQUIP_DATA*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ROLE_EQUIP_DATA))
+		return;
 	if(!msg)
 	{
 		return;
@@ -72,13 +76,15 @@ void CMessageHandler::Parse_g2c_sync_role_equip_data(const char* buf, UINT32 siz
 	MMOPlayerInfoManager::getSingleton().showInfoByRankList(msg->dwRoleID);
 	//Body strengthening info first, because the UI is refreshed by message only after equipment info
 	MMOPlayerInfoManager::getSingleton().UpdatePlayerRefineInfo( msg->dwRoleID , msg->awRefineLevels );
-	MMOPlayerInfoManager::getSingleton().UpdatePlayerEquipInfo( msg->dwRoleID , msg->byItemCount , msg->acItems , crc );
+	MMOPlayerInfoManager::getSingleton().UpdatePlayerEquipInfo( msg->dwRoleID , msg->byItemCount , msg->acItems , crc, size - sizeof(*msg) );
 	
 }
 
 void CMessageHandler::Parse_g2c_sync_role_pow(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ROLE_POW* msg = (G2C_SYNC_ROLE_POW*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ROLE_POW))
+		return;
 	if(!msg)
 	{
 		return;
@@ -93,6 +99,8 @@ void CMessageHandler::Parse_g2c_sync_role_pow(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_role_spirit_data( const char* buf, UINT32 size )
 {
 	G2C_SYNC_ROLE_SPIRIT_DATA* msg = (G2C_SYNC_ROLE_SPIRIT_DATA*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ROLE_SPIRIT_DATA) + sizeof(ROLE_DB_SPIRIT_DATA))
+		return;
 	if(!msg)
 	{
 		return;
@@ -108,6 +116,8 @@ void CMessageHandler::Parse_g2c_sync_role_spirit_data( const char* buf, UINT32 s
 void CMessageHandler::Parse_g2c_sync_role_spell_data( const char* buf, UINT32 size )
 {
 	G2C_SYNC_ROLE_SPELL_DATA* msg = (G2C_SYNC_ROLE_SPELL_DATA*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ROLE_SPELL_DATA))
+		return;
 	if(!msg)
 	{
 		return;
@@ -127,6 +137,8 @@ void CMessageHandler::Parse_g2c_sync_role_spell_data( const char* buf, UINT32 si
 void CMessageHandler::Parse_m2c_time_info( const char* buf, UINT32 size )
 {
 	M2C_TIME_INFO* msg = (M2C_TIME_INFO*)buf;
+	if (!buf || size < sizeof(M2C_TIME_INFO))
+		return;
 	if(!msg)
 	{
 		return;
@@ -139,6 +151,8 @@ void CMessageHandler::Parse_m2c_time_info( const char* buf, UINT32 size )
 void CMessageHandler::Parse_m2c_buy_time( const char* buf, UINT32 size )
 {
 	M2C_BUY_TIME* msg = (M2C_BUY_TIME*)buf;
+	if (!buf || size < sizeof(M2C_BUY_TIME))
+		return;
 	if(!msg)
 	{
 		return;
@@ -177,6 +191,8 @@ void CMessageHandler::Send_SignInToday()
 void CMessageHandler::Parse_g2c_checkin( const char* buf, UINT32 size )
 {
 	G2C_CHECKIN* msg = (G2C_CHECKIN*)buf;
+	if (!buf || size < sizeof(G2C_CHECKIN))
+		return;
 	if( !msg ){
 		return;
 	}
@@ -188,6 +204,8 @@ void CMessageHandler::Parse_g2c_checkin( const char* buf, UINT32 size )
 void CMessageHandler::Parse_g2c_sync_checkin_info( const char* buf, UINT32 size )
 {
 	G2C_SYNC_CHECKIN_INFO* msg = (G2C_SYNC_CHECKIN_INFO*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_CHECKIN_INFO))
+		return;
 	if( !msg ){
 		return;
 	}

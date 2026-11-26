@@ -46,6 +46,9 @@ struct GambleTemplateDataKey
 
 struct GambleTemplateDataValue
 {
+	GambleTemplateDataValue()
+		: nGambleType(0), nGambleLevel(0), nCostItemID(0), nCostItemCount(0) {}
+
 	INT nGambleType;
 	INT nGambleLevel;
 	INT nCostItemID;

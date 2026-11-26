@@ -25,7 +25,7 @@ void CMessageHandler::Send_MallAskCRC(INT nCrc)
 }
 void CMessageHandler::Send_MallBuyGoods(INT nGoodsID,INT nNum)
 {
-	C2M_REAL_MONEY_BUY msg;
+	C2M_REAL_MONEY_BUY msg = {};
 	msg.wMsg = c2m_real_money_buy;
 	msg.nItemID = nGoodsID;
 	msg.nCount = nNum;
@@ -42,7 +42,7 @@ void CMessageHandler::Send_RequestExchangeLog()
 
 void CMessageHandler::Send_MallGiveFriend(FString roleName, INT nGoodsID,INT nNum)
 {
-	C2M_REAL_MONEY_BUY msg;
+	C2M_REAL_MONEY_BUY msg = {};
 	msg.wMsg = c2m_real_money_buy;
 	msg.nItemID = nGoodsID;
 	msg.nCount = nNum;
@@ -57,6 +57,8 @@ void CMessageHandler::Send_MallReqBuyInfo()
 }
 void CMessageHandler::Parse_m2c_sync_real_money(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_SYNC_REAL_MONEY))
+		return;
 	M2C_SYNC_REAL_MONEY* msg = (M2C_SYNC_REAL_MONEY*)buf;
 	if(msg == NULL)
 		return;
@@ -78,7 +80,11 @@ void CMessageHandler::Parse_m2c_sync_real_money(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_m2c_sync_real_money_shop_data(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_SYNC_REAL_MONEY_SHOP_DATA))
+		return;
 	M2C_SYNC_REAL_MONEY_SHOP_DATA* msg = (M2C_SYNC_REAL_MONEY_SHOP_DATA*)buf;
+	if (msg->dwItemCount > (size - sizeof(*msg)) / sizeof(msg->Items[0]))
+		return;
 
 	MallManager::getSingleton().NotifyGoodsList(msg);
 	MallController::getSingleton().NotifyGoodsListChange();
@@ -86,6 +92,8 @@ void CMessageHandler::Parse_m2c_sync_real_money_shop_data(const char* buf, UINT3
 
 void CMessageHandler::Parse_m2c_real_money_buy(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_REAL_MONEY_BUY))
+		return;
 	M2C_REAL_MONEY_BUY* msg = (M2C_REAL_MONEY_BUY*)buf;
 	if(msg == NULL)
 		return;
@@ -95,7 +103,11 @@ void CMessageHandler::Parse_m2c_real_money_buy(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_m2c_sale_info(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_SALE_INFO))
+		return;
 	M2C_SALE_INFO* msg = (M2C_SALE_INFO*)buf;
+	if (msg->nSaleInfoCount < 0 || (UINT32)msg->nSaleInfoCount > (size - sizeof(*msg)) / sizeof(msg->stSaleInfo[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MallManager::getSingleton().NotifyBuyInfo(msg);
@@ -104,7 +116,11 @@ void CMessageHandler::Parse_m2c_sale_info(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_m2c_real_money_shop_log(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_REAL_MONEY_SHOP_LOG))
+		return;
 	M2C_REAL_MONEY_SHOP_LOG* msg = (M2C_REAL_MONEY_SHOP_LOG*)buf;
+	if (msg->nShopLogCount < 0 || (UINT32)msg->nShopLogCount > (size - sizeof(*msg)) / sizeof(msg->stShopLog[0]))
+		return;
 	if(!msg)
 		return;
 

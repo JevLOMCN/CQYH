@@ -12,6 +12,7 @@
 // guide record
 struct GuideRecord
 {
+	GuideRecord() : Id(0), State(GS_Unactivated) {}
 	UINT32 Id;
 	GuideState State;
 };

@@ -167,7 +167,7 @@ void AMMOPlayerController::LoginGame(const FString& IP,INT Port, const FString& 
     UBOOL connectToBS = FALSE;
     
 	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	appStrncpy(ipFile, *FString::Printf(TEXT("%sIP.ini"), *appGameConfigDir()), ARRAY_COUNT(ipFile));
 	GConfig->GetBool(TEXT("LoginIP"), TEXT("ConnectBS"), connectToBS, ipFile);
 	CMessageHandler::GetInstance().Login(*IP, Port, *UserName,*Password, connectToBS);
 }
@@ -2549,8 +2549,12 @@ FVector2D AMMOPlayerController::GetMousePosition()
 
 void AMMOPlayerController::NativeGeneratePickRay()
 {
+	MouseProjectionOrigin = FVector(0.f, 0.f, 0.f);
+	MouseProjectionDirection = FVector(0.f, 0.f, 0.f);
+	StartTrace = FVector(0.f, 0.f, 0.f);
+	EndTrace = FVector(0.f, 0.f, 0.f);
 	ULocalPlayer* LP = Cast<ULocalPlayer>(Player);
-	if(!LP)
+	if(!LP || !LP->ViewportClient)
 	{
 		return;
 	}
@@ -2571,7 +2575,7 @@ void AMMOPlayerController::NativeGeneratePickRay()
 
 	FVector2D ViewPortSize;
 	LP->ViewportClient->GetViewportSize(ViewPortSize);
-	if ( ViewPortSize.IsNearlyZero() )
+	if ( ViewPortSize.X <= 0.f || ViewPortSize.Y <= 0.f )
 		return;
 
 	FVector2D RelativeMousePos = FVector2D(MousePos.X/ViewPortSize.X,MousePos.Y/ViewPortSize.Y );

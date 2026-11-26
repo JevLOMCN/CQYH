@@ -26,6 +26,7 @@ void SwapHeap(T &a, T &b)
 template<class T>
 void ReorderUpwards(std::vector<T>& heap, int nd)
 {
+  if (nd < 1 || (size_t)nd >= heap.size()) return;
   //move up the heap swapping the elements until the heap is ordered
   while ( (nd>1) && (heap[nd/2] < heap[nd]))
   {
@@ -45,9 +46,10 @@ void ReorderUpwards(std::vector<T>& heap, int nd)
 template<class T>
 void ReorderDownwards(std::vector<T>& heap, int nd, int HeapSize)
 {
+  if (nd < 1 || HeapSize < nd || (size_t)HeapSize >= heap.size()) return;
   //move down the heap from node nd swapping the elements until
   //the heap is reordered
-  while (2*nd <= HeapSize)
+  while (nd <= HeapSize / 2)
   {
     int child = 2 * nd;
 
@@ -111,7 +113,7 @@ private:
   {
     //move down the heap from node nd swapping the elements until
     //the heap is reordered
-    while (2*nd <= HeapSize)
+    while (nd <= HeapSize / 2)
     {
      int child = 2 * nd;
 
@@ -139,31 +141,33 @@ private:
 
 public:
 
-  PriorityQ(int MaxSize):m_iMaxSize(MaxSize), m_iSize(0)
+  PriorityQ(int MaxSize):m_iSize(0), m_iMaxSize(MaxSize > 0 ? MaxSize : 0)
   {
-    m_Heap.assign(MaxSize+1, T());
+    m_Heap.assign((size_t)m_iMaxSize + 1, T());
   }
 
   bool empty()const{return (m_iSize==0);}
 
   //to insert an item into the queue it gets added to the end of the heap
   //and then the heap is reordered
-  void insert(const T item)
+  bool insert(const T item)
   {
 
-    assert (m_iSize+1 <= m_iMaxSize);
+    if (m_iSize >= m_iMaxSize) return false;
 
     ++m_iSize;
 
     m_Heap[m_iSize] = item;
 
     ReorderUpwards(m_Heap, m_iSize);
+    return true;
   }
 
   //to get the max item the first element is exchanged with the lowest
   //in the heap and then the heap is reordered from the top down. 
   T pop()
   {
+    if (empty()) return T();
     SwapHeap(m_Heap[1], m_Heap[m_iSize]);
 
     ReorderDownwards(m_Heap, 1, m_iSize-1);
@@ -172,7 +176,7 @@ public:
   }
 
   //so we can take a peek at the first in line
-  const T& Peek()const{return m_Heap[1];}
+  const T& Peek()const{return m_Heap[empty() ? 0 : 1];}
 };
 
 //--------------------- PriorityQLow -------------------------------------
@@ -212,7 +216,7 @@ private:
   {
     //move down the heap from node nd swapping the elements until
     //the heap is reordered
-    while (2*nd <= HeapSize)
+    while (nd <= HeapSize / 2)
     {
      int child = 2 * nd;
 
@@ -240,30 +244,32 @@ private:
 
 public:
 
-  PriorityQLow(int MaxSize):m_iMaxSize(MaxSize), m_iSize(0)
+  PriorityQLow(int MaxSize):m_iSize(0), m_iMaxSize(MaxSize > 0 ? MaxSize : 0)
   {
-    m_Heap.assign(MaxSize+1, T());
+    m_Heap.assign((size_t)m_iMaxSize + 1, T());
   }
 
   bool empty()const{return (m_iSize==0);}
 
   //to insert an item into the queue it gets added to the end of the heap
   //and then the heap is reordered
-  void insert(const T item)
+  bool insert(const T item)
   {
-    assert (m_iSize+1 <= m_iMaxSize);
+    if (m_iSize >= m_iMaxSize) return false;
 
     ++m_iSize;
 
     m_Heap[m_iSize] = item;
 
     ReorderUpwards(m_Heap, m_iSize);
+    return true;
   }
 
   //to get the max item the first element is exchanged with the lowest
   //in the heap and then the heap is reordered from the top down. 
   T pop()
   {
+    if (empty()) return T();
     SwapHeap(m_Heap[1], m_Heap[m_iSize]);
 
     ReorderDownwards(m_Heap, 1, m_iSize-1);
@@ -272,7 +278,7 @@ public:
   }
 
   //so we can take a peek at the first in line
-  const T& peek()const{return m_Heap[1];}
+  const T& peek()const{return m_Heap[empty() ? 0 : 1];}
 };
 
 //----------------------- IndexedPriorityQLow ---------------------------
@@ -319,7 +325,7 @@ private:
   {
     //move down the heap from node nd swapping the elements until
     //the heap is reordered
-    while (2*nd <= HeapSize)
+    while (nd <= HeapSize / 2)
     {
       int child = 2 * nd;
 
@@ -352,20 +358,29 @@ public:
   //will be indexing into and the maximum size of the queue.
   IndexedPriorityQLow(std::vector<KeyType>& keys,
                       int              MaxSize):m_vecKeys(keys),
-                                                m_iMaxSize(MaxSize),
+                                                m_iMaxSize(MaxSize > 0 ? MaxSize : 0),
                                                 m_iSize(0)
   {
-    m_Heap.assign(MaxSize+1, 0);
-    m_invHeap.assign(MaxSize+1, 0);
+    if ((size_t)m_iMaxSize > keys.size()) m_iMaxSize = (int)keys.size();
+    m_Heap.assign((size_t)m_iMaxSize + 1, 0);
+    m_invHeap.assign(keys.size(), 0);
   }
 
-  bool empty()const{return (m_iSize==0);}
+  bool empty()const{return m_iSize == 0 || m_vecKeys.size() < m_invHeap.size();}
+
+  bool contains(int idx) const
+  {
+    return idx >= 0 && (size_t)idx < m_invHeap.size() &&
+      m_invHeap[idx] > 0 && m_invHeap[idx] <= m_iSize && m_Heap[m_invHeap[idx]] == idx;
+  }
 
   //to insert an item into the queue it gets added to the end of the heap
   //and then the heap is reordered from the bottom up.
-  void insert(const int idx)
+  bool insert(const int idx)
   {
-    assert (m_iSize+1 <= m_iMaxSize);
+    if (m_vecKeys.size() < m_invHeap.size() || idx < 0 ||
+        (size_t)idx >= m_invHeap.size() || m_iSize >= m_iMaxSize || contains(idx))
+      return false;
 
     ++m_iSize;
 
@@ -374,24 +389,29 @@ public:
     m_invHeap[idx] = m_iSize;
 
     ReorderUpwards(m_iSize);
+    return true;
   }
 
   //to get the min item the first element is exchanged with the lowest
   //in the heap and then the heap is reordered from the top down. 
   int Pop()
   {
+    if (empty()) return -1;
     Swap(1, m_iSize);
-
-    ReorderDownwards(1, m_iSize-1);
-
-    return m_Heap[m_iSize--];
+    const int result = m_Heap[m_iSize--];
+    m_invHeap[result] = 0;
+    ReorderDownwards(1, m_iSize);
+    return result;
   }
 
   //if the value of one of the client key's changes then call this with 
   //the key's index to adjust the queue accordingly
-  void ChangePriority(const int idx)
+  bool ChangePriority(const int idx)
   {
+    if (empty() || !contains(idx)) return false;
     ReorderUpwards(m_invHeap[idx]);
+    ReorderDownwards(m_invHeap[idx], m_iSize);
+    return true;
   }
 };
 

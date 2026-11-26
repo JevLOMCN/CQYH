@@ -40,6 +40,11 @@ using namespace ExternalMessage;
 
 MMOGuideManager::MMOGuideManager()
 {
+	_CurNpcId = 0;
+	_CurDoodadType = E_dt_Invalid;
+	_CurZoneGuideId = 0;
+	_IsGuideEnable = FALSE;
+	_IsLoadRecord = FALSE;
 	MMOUI::RegisterEventHandler(this, GameEvent_LeaveSelectingRole);
 	MMOUI::RegisterEventHandler(this, GameEvent_Guide);
 }
@@ -497,8 +502,9 @@ void MMOGuideManager::_AttachGuidePanel(UINT32 id)
 
 			FASValue pictureName(EC_EventParm);
 			pictureName.Type = AS_String;
-			INT playerClass = MMOFacade::getSingleton().GetMainActor()->GetClassId();
-			if (playerClass < MAX_PLAYER_CLASS_COUNT)
+			AMMOActor* mainActor = MMOFacade::getSingleton().GetMainActor();
+			INT playerClass = mainActor ? mainActor->GetClassId() : -1;
+			if (playerClass >= 0 && playerClass < ARRAY_COUNT(data.Picture))
 			{
 				pictureName.S = FString(TEXT("img://")) + data.Picture[playerClass];
 			}

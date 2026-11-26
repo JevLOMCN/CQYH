@@ -71,6 +71,8 @@ void CMessageHandler::Send_ObtainGuildReward(UINT32 id)
 void CMessageHandler::Parse_g2c_sync_achievement_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ACHIEVEMENT_LIST* msg = (G2C_SYNC_ACHIEVEMENT_LIST*)buf;
+	if (!buf || size < sizeof(*msg) + sizeof(ROLE_DB_ACHIEVEMENT_DATA))
+		return;
 	MMOAchievementManager::getSingleton().NotifyAchievementListUpdate(msg->szData);
 	MMOHandbookManager::getSingleton().NotifySyncHandbookInfo((ROLE_DB_ACHIEVEMENT_DATA*)(msg->szData));
 }
@@ -84,6 +86,8 @@ void CMessageHandler::Parse_g2c_complete_achievement(const char* buf, UINT32 siz
 void CMessageHandler::Parse_g2c_compare_achievement(const char* buf, UINT32 size)
 {
 	G2C_COMPARE_ACHIEVEMENT* msg = (G2C_COMPARE_ACHIEVEMENT*)buf;
+	if (!buf || size < sizeof(*msg) + sizeof(ROLE_DB_ACHIEVEMENT_DATA))
+		return;
 	MMOAchievementManager::getSingleton().NotifyAchievementCompareListUpdate(msg->dwRoleID, msg->acAchievement);
 }
 

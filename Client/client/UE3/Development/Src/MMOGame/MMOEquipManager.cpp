@@ -46,6 +46,7 @@ _PropsCnt(0)
 
 SoulInfo::SoulInfo():
 _ID(-1),
+_ItemID(-1),
 _AttrID(-1),
 _MatchSocket(0),
 _SoulLevel(0),
@@ -57,6 +58,7 @@ _DetouchPrice(0)
 
 MMOEquipManager::MMOEquipManager()
 {
+	ResetWeaponRplcCachedRune();
 	_IsAutoChangeSkills = FALSE;
 	_IsAllowedChangeSkills = FALSE;
 	_ConfirmEquipWeaponSkill = NULL;
@@ -1210,6 +1212,7 @@ const WeaponSkillCfg *MMOEquipManager::GetWeaponSkillCfg( UINT weaponSkillID )
 //=============================================================================================================================
 UMMOAbility* MMOEquipManager::GetCurWeaponRuneSkillOfMainSkillID( INT mainSkillID, UBOOL &outIsSkillActive )
 {
+	outIsSkillActive = FALSE;
 	ItemInfo *pItemInfo = MMOFacade::getSingleton().FindItem( E_CONSLOT_EQUIPPED, E_NES_MAIN_HAND );
 	if( pItemInfo == NULL ){
 		return NULL;
@@ -1218,13 +1221,15 @@ UMMOAbility* MMOEquipManager::GetCurWeaponRuneSkillOfMainSkillID( INT mainSkillI
 	UMMOAbility* weaponSkill = NULL;
 	//
 	for( INT i = 0; i < EQUIP_RUNE_SKILL_MAX; ++i ){
-		weaponSkill = GetWeaponRuneSkillBySlotIdx( i, pItemInfo, outIsSkillActive );
+		UBOOL isSkillActive = FALSE;
+		weaponSkill = GetWeaponRuneSkillBySlotIdx( i, pItemInfo, isSkillActive );
 		if( weaponSkill == NULL ){
 			continue;
 		}
 
 		INT weaponSkillMainID = weaponSkill->eventGetAbilityId();
 		if( weaponSkillMainID == mainSkillID ){
+			outIsSkillActive = isSkillActive;
 			return weaponSkill;
 		}
 	}
@@ -1962,8 +1967,14 @@ UBOOL MMOEquipManager::ReadEquipLevelUpData()
 
 	UINT rowCnt = tabFile->GetRowCount();
 	UINT skipRow = M_SKIP_ROWS;
-	//Actual data starts from row 3; header row, N/A row
-	_EquipLevelUpCfg.Add( rowCnt > skipRow ? (rowCnt - skipRow) : 0 );
+	//实际数据从第3行开始，标题行，N/A行
+	const UINT initialCount = rowCnt > skipRow ? rowCnt - skipRow : 0;
+	if (initialCount > (UINT)(MAXINT / sizeof(EquipLvUpCfg)))
+	{
+		delete tabFile;
+		return FALSE;
+	}
+	_EquipLevelUpCfg.AddZeroed(initialCount);
 	for( UINT i = skipRow ; i < rowCnt; ++i )
 	{
 		INT curLevel = appAtoi( tabFile->GetData( TEXT("EquipLevel"), i ) );
@@ -1986,7 +1997,7 @@ UBOOL MMOEquipManager::ReadEquipLevelUpData()
 const EquipLvUpCfg* MMOEquipManager::FindEquipLevelUpData( INT level )
 {
 	INT curDataCnt = _EquipLevelUpCfg.Num();
-	if( level >= curDataCnt ){
+	if( level < 0 || level >= curDataCnt ){
 		return NULL;
 	}
 
@@ -1995,17 +2006,14 @@ const EquipLvUpCfg* MMOEquipManager::FindEquipLevelUpData( INT level )
 
 EquipLvUpCfg* MMOEquipManager::AddNewEquipLevelUpData( INT level )
 {
-	INT curDataCnt = _EquipLevelUpCfg.Num();
-	if( level > curDataCnt ){
-		_EquipLevelUpCfg.Add( level - curDataCnt );
-	}
-
-	curDataCnt = _EquipLevelUpCfg.Num();
-	if( level > curDataCnt ){
+	if (level < 0 || level >= MAXINT / (INT)sizeof(EquipLvUpCfg))
 		return NULL;
-	}
 
-	return &_EquipLevelUpCfg( level );
+	const INT curDataCnt = _EquipLevelUpCfg.Num();
+	if (level >= curDataCnt)
+		_EquipLevelUpCfg.AddZeroed(level - curDataCnt + 1);
+
+	return &_EquipLevelUpCfg(level);
 }
 
 ////=============================================================================================

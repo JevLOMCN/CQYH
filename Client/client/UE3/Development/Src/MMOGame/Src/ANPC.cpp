@@ -334,9 +334,9 @@ INT32 ANPC::CalGridBlockRadius() // zhaojun@snda
 		{
 			const FString& bt = Template->BodyType;
 
-			check(*((*bt) + 4) >= TEXT('0') && *((*bt) + 4) <= TEXT('9'));
-
-			CurBlockType = *((*bt) + 4) - TEXT('0');
+			CurBlockType = 1;
+			if (bt.Len() > 4 && bt[4] >= TEXT('0') && bt[4] <= TEXT('9'))
+				CurBlockType = bt[4] - TEXT('0');
 			if (ActorType == EACT_Boss)
 			{
 				return (CurBlockType == 0 ? (0) : (CurBlockType / 2));
@@ -734,9 +734,9 @@ void ANPC:: InitBodySize()
 	{
 		const FString& bt = Template->BodyType;
 
-		check(*((*bt) + 4) >= TEXT('0') && *((*bt) + 4) <= TEXT('9'));
-
-		INT32 n = *((*bt) + 4) - TEXT('0');
+		INT32 n = 1;
+		if (bt.Len() > 4 && bt[4] >= TEXT('0') && bt[4] <= TEXT('9'))
+			n = bt[4] - TEXT('0');
 
 		if(n>=3)
 		{

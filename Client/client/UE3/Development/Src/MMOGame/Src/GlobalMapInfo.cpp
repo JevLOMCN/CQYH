@@ -1857,7 +1857,7 @@ void UGlobalMapInfo::LoadSearchPointFromXMLFiles()
 			{
 				if(e.name() == "SearchPoint")
 				{
-					FSearchPointObject info;
+					FSearchPointObject info(EC_EventParm);
 					info.SearchPointID		= getIntAttribuate("SearchPointID", e);
 					info.SearchPointName	= ANSI_TO_TCHAR(e.getAttribute("SearchPointName").c_str());
 					singleton->SearchPoints.AddItem(info);

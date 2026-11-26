@@ -1,5 +1,8 @@
 #include "MMOFacade.h"
 #include "WebHtmlManager.h"
+#include <climits>
+#include <string>
+#include <vector>
 #include "MMOMsgButtonManager.h"
 
 extern HWND GGameWindow;
@@ -7,6 +10,8 @@ extern INT   g_loginAreaID;
 extern BYTE  g_loginServerGroup;
 
 WebHtmlManager::WebHtmlManager(void)
+	: pFunInitWebWindowTitle(NULL), pFunRedrawWindow(NULL),
+	  _OpenGmBallDelegate(EC_EventParm), _webHwnd(NULL)
 {
 	_webDll = NULL;
 	pFunInitWebWindowDll = NULL;
@@ -144,26 +149,38 @@ BOOL WebHTMLContent::LoadWebPage()
 
 BOOL WebHTMLContent::HtmlReadFile(const FString& fileName, FString& content) const
 {
-	BOOL bResult = FALSE;
-	HANDLE hFile = ::CreateFile( *fileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-	if ( hFile != INVALID_HANDLE_VALUE )
+	HANDLE hFile = ::CreateFile(*fileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return FALSE;
+
+	LARGE_INTEGER fileSize;
+	fileSize.QuadPart = 0;
+	if (!GetFileSizeEx(hFile, &fileSize) || fileSize.QuadPart < 0 || fileSize.QuadPart >= MAXINT)
 	{
-		DWORD fileSize = GetFileSize(hFile,NULL);
-		char* buffer= new char[fileSize +1];;
-		if(buffer == NULL)
-			return FALSE;
-
-		DWORD readSize;
-		ReadFile(hFile,buffer,fileSize,&readSize,NULL);
-		buffer[fileSize] = 0;
-
-		content = UTF8_TO_TCHAR(buffer);
-
-		delete []buffer;
-		CloseHandle( hFile );
-
-		bResult = TRUE;
+		CloseHandle(hFile);
+		return FALSE;
 	}
+	const DWORD requestedSize = (DWORD)fileSize.QuadPart;
+	char* buffer = new char[(size_t)requestedSize + 1];
+	if (!buffer)
+	{
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	DWORD readSize = 0;
+	BOOL bResult = ReadFile(hFile, buffer, requestedSize, &readSize, NULL);
+	if (bResult && readSize == requestedSize)
+	{
+		buffer[readSize] = 0;
+		content = UTF8_TO_TCHAR(buffer);
+	}
+	else
+	{
+		bResult = FALSE;
+	}
+	delete[] buffer;
+	CloseHandle(hFile);
 	return bResult;
 }
 
@@ -217,11 +234,11 @@ FString WebHTMLContent::GetSeclectionTemplateHTML()
 struct CursorDragWebWindowCaption 
 {
 	CursorDragWebWindowCaption()
-		:bBenginDrag(false),bBeginDragSize(false),nRelHwnd(NULL),nFrameSizeState(0)
+		: bBenginDrag(false), bBeginDragSize(false), nFrameSizeState(0)
+		, nOldCursorPoint(), nOldWndRect(), nLstFramePoint(), nRelHwnd(NULL)
+		, nFrameSize0(0), nFrameSize1(0)
 	{
 		nLstFramePoint.x = -123;
-		nFrameSize0 = 0;
-		nFrameSize1 = 0;
 	}
 	~CursorDragWebWindowCaption(){}
 
@@ -303,8 +320,8 @@ void WebHtmlManager::OpenSurveyUrl()
 //===========================================================================================================================
 void WebHtmlManager::OpenGameService( FString roleName, INT roleLv )
 {
-	TCHAR ipFile[1024];
-	appSprintf( ipFile, TEXT("%sIP.ini"), *appGameConfigDir() );
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 
 	FString url_cfg;
 	if( !GConfig->GetString( TEXT("QURL"), TEXT("caihongService"), url_cfg, ipFile ) )
@@ -405,8 +422,8 @@ void WebHtmlManager::UnloadGameServiceEncrypt()
 //===========================================================================================================================
 void WebHtmlManager::OpenBugSubmitUrl()
 {
-	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 	FString url_cfg;
 	if (!GConfig->GetString(TEXT("QURL"), TEXT("bugsubmit"), url_cfg, ipFile))
 		return;
@@ -439,8 +456,8 @@ extern RECT GPrimaryMonitorWorkRect;
 //}
 void WebHtmlManager::OpenGameQuitWeb()
 {
-	TCHAR ipFile[1024];
-	appSprintf( ipFile, TEXT("%sIP.ini"), *appGameConfigDir() );
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 
 	FString url_cfg;
 	if( !GConfig->GetString( TEXT("QURL"), TEXT("urlquit"), url_cfg, ipFile ) )
@@ -448,50 +465,33 @@ void WebHtmlManager::OpenGameQuitWeb()
 		return;
 	}
 
-	HKEY hRegKey;
+	HKEY hRegKey = NULL;
 	LPCTSTR subKey = _T("Software\\Microsoft\\Internet Explorer\\Main");
-	INT ret = ::RegOpenKeyEx( HKEY_CURRENT_USER, subKey, 0, KEY_READ|KEY_SET_VALUE, &hRegKey );
-	if( ret == ERROR_SUCCESS )
+	INT ret = ::RegOpenKeyEx(HKEY_CURRENT_USER, subKey, 0, KEY_READ | KEY_SET_VALUE, &hRegKey);
+	if (ret == ERROR_SUCCESS)
 	{
 		LPCTSTR keyName = _T("Window_Placement");
-		DWORD keyType = REG_BINARY;
-		DWORD dataSize = 0;
-		ret = ::RegQueryValueEx( hRegKey, keyName, 0, &keyType, NULL, &dataSize );
-		BYTE *pDataBuf = new BYTE[dataSize];
-		ret = ::RegQueryValueEx( hRegKey, keyName, 0, &keyType, pDataBuf, &dataSize );
-		if( ret == ERROR_SUCCESS )
+		WINDOWPLACEMENT placement = {0};
+		DWORD keyType = 0;
+		DWORD dataSize = sizeof(placement);
+		ret = ::RegQueryValueEx(hRegKey, keyName, 0, &keyType, (LPBYTE)&placement, &dataSize);
+		if (ret == ERROR_SUCCESS && keyType == REG_BINARY && dataSize == sizeof(placement))
 		{
-			WINDOWPLACEMENT *pWndPlcm = (WINDOWPLACEMENT*)pDataBuf;
-
 			INT wndWidth = 1024;
 			INT wndHeight = 768;
-
-			INT ieWndX = 0;
-			ieWndX = ( GPrimaryMonitorWorkRect.right - GPrimaryMonitorWorkRect.left - wndWidth ) / 2;
-			ieWndX = ( ieWndX >= 0 ? ieWndX : 0 );
-			INT ieWndY = 0;
-			ieWndY = ( GPrimaryMonitorWorkRect.bottom - GPrimaryMonitorWorkRect.top - wndHeight ) / 2;
-			ieWndY = ( ieWndY >= 0 ? ieWndY : 0 );
-
-			pWndPlcm->rcNormalPosition.left = ieWndX;
-			pWndPlcm->rcNormalPosition.right = ieWndX + wndWidth;
-			pWndPlcm->rcNormalPosition.top = ieWndY;
-			pWndPlcm->rcNormalPosition.bottom = ieWndY + wndHeight;
-			pWndPlcm->showCmd = SW_SHOWNORMAL;
-
-			ret = ::RegSetValueEx( hRegKey, keyName, 0, keyType, pDataBuf, dataSize );
-			if( ret != ERROR_SUCCESS )
-			{
-
-			}
+			INT ieWndX = (GPrimaryMonitorWorkRect.right - GPrimaryMonitorWorkRect.left - wndWidth) / 2;
+			INT ieWndY = (GPrimaryMonitorWorkRect.bottom - GPrimaryMonitorWorkRect.top - wndHeight) / 2;
+			ieWndX = (ieWndX >= 0 ? ieWndX : 0);
+			ieWndY = (ieWndY >= 0 ? ieWndY : 0);
+			placement.length = sizeof(placement);
+			placement.rcNormalPosition.left = ieWndX;
+			placement.rcNormalPosition.right = ieWndX + wndWidth;
+			placement.rcNormalPosition.top = ieWndY;
+			placement.rcNormalPosition.bottom = ieWndY + wndHeight;
+			placement.showCmd = SW_SHOWNORMAL;
+			::RegSetValueEx(hRegKey, keyName, 0, keyType, (const BYTE*)&placement, sizeof(placement));
 		}
-
-		if( pDataBuf != NULL )
-		{
-			delete[] pDataBuf;
-			pDataBuf = NULL;
-		}
-		RegCloseKey( hRegKey );
+		RegCloseKey(hRegKey);
 	}
 	//
 	OpenUrlByIE( url_cfg );
@@ -500,8 +500,8 @@ void WebHtmlManager::OpenGameQuitWeb()
 //===========================================================================================================================
 void WebHtmlManager::OpenRechargeYuanBao()
 {
-	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 	FString url_cfg;
 	if (!GConfig->GetString(TEXT("QURL"), TEXT("urlRechargeYuanBao"), url_cfg, ipFile))
 		return;
@@ -514,8 +514,8 @@ void WebHtmlManager::OpenRechargeYuanBao()
 
 void WebHtmlManager::OpenRechargeYuanBaoByIE()
 {
-	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 	FString url_cfg;
 	if (!GConfig->GetString(TEXT("QURL"), TEXT("urlRechargeYuanBao2"), url_cfg, ipFile))
 		return;
@@ -525,8 +525,8 @@ void WebHtmlManager::OpenRechargeYuanBaoByIE()
 
 void WebHtmlManager::OpenSellYuanBao()
 {
-	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 	FString url_cfg;
 	if (!GConfig->GetString(TEXT("QURL"), TEXT("urlSellYuanBao"), url_cfg, ipFile))
 		return;
@@ -543,8 +543,8 @@ void WebHtmlManager::OpenSellYuanBao()
 
 void WebHtmlManager::OpenGManagerByIE()
 {
-	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 	FString url_cfg;
 	if (!GConfig->GetString(TEXT("QURL"), TEXT("urlGManager"), url_cfg, ipFile))
 		return;
@@ -553,8 +553,8 @@ void WebHtmlManager::OpenGManagerByIE()
 }
 void WebHtmlManager::OpenDynamicHelpByIE()
 {
-	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	const FString ipFileName = appGameConfigDir() + TEXT("IP.ini");
+	const TCHAR* ipFile = *ipFileName;
 	FString url_cfg;
 	if (!GConfig->GetString(TEXT("QURL"), TEXT("urlDynamicHelp"), url_cfg, ipFile))
 		return;
@@ -793,144 +793,109 @@ std::string WebHtmlManager::QURL_UrlEncode(const std::string& str)
 
 BOOL WebHtmlManager::UrlEncode(const char* szSrc, char* pBuf, int cbBufLen, BOOL bUpperCase)
 {
-	if(szSrc == NULL || pBuf == NULL || cbBufLen <= 0)
+	if (!szSrc || !pBuf || cbBufLen <= 0)
 		return FALSE;
-
-	size_t len_ascii = strlen(szSrc);
-	if(len_ascii == 0)
+	const size_t sourceLength = strlen(szSrc);
+	if (sourceLength > INT_MAX)
 	{
 		pBuf[0] = 0;
+		return FALSE;
+	}
+	const std::string input(szSrc, sourceLength);
+	pBuf[0] = 0;
+	if (input.empty())
 		return TRUE;
-	}
-
-	//先转换到UTF-8
-	char baseChar = bUpperCase ? 'A' : 'a';
-	int cchWideChar = MultiByteToWideChar(CP_ACP, 0, szSrc, len_ascii, NULL, 0);
-	LPWSTR pUnicode = (LPWSTR)malloc((cchWideChar + 1) * sizeof(WCHAR));
-	if(pUnicode == NULL)
+	int wideCount = MultiByteToWideChar(CP_ACP, 0, input.c_str(), (int)input.size(), NULL, 0);
+	if (wideCount <= 0)
 		return FALSE;
-	MultiByteToWideChar(CP_ACP, 0, szSrc, len_ascii, pUnicode, cchWideChar + 1);
-
-	int cbUTF8 = WideCharToMultiByte(CP_UTF8, 0, pUnicode, cchWideChar, NULL, 0, NULL, NULL);
-	LPSTR pUTF8 = (LPSTR)malloc((cbUTF8 + 1) * sizeof(CHAR));
-	if(pUTF8 == NULL)
-	{
-		free(pUnicode);
+	std::vector<WCHAR> wide(wideCount);
+	if (MultiByteToWideChar(CP_ACP, 0, input.c_str(), (int)input.size(), &wide[0], wideCount) != wideCount)
 		return FALSE;
-	}
-	WideCharToMultiByte(CP_UTF8, 0, pUnicode, cchWideChar, pUTF8, cbUTF8 + 1, NULL, NULL);
-	pUTF8[cbUTF8] = '\0';
+	int utf8Count = WideCharToMultiByte(CP_UTF8, 0, &wide[0], wideCount, NULL, 0, NULL, NULL);
+	if (utf8Count <= 0)
+		return FALSE;
+	std::string utf8(utf8Count, '\0');
+	if (WideCharToMultiByte(CP_UTF8, 0, &wide[0], wideCount, &utf8[0], utf8Count, NULL, NULL) != utf8Count)
+		return FALSE;
 
-	unsigned char c;
-	int cbDest = 0; //累加
-	unsigned char *pSrc = (unsigned char*)pUTF8;
-	unsigned char *pDest = (unsigned char*)pBuf;
-	while(*pSrc && cbDest < cbBufLen - 1)
+	const char* hex = bUpperCase ? "0123456789ABCDEF" : "0123456789abcdef";
+	std::string result;
+	const size_t capacity = (size_t)cbBufLen - 1;
+	for (size_t index = 0; index < utf8.size(); ++index)
 	{
-		c = *pSrc;
-		if(isalpha(c) || isdigit(c) || c == '-' || c == '.' || c == '~')
-		{
-			*pDest = c;
-			++pDest;
-			++cbDest;
-		}
-		else if(c == ' ')
-		{
-			*pDest = '+';
-			++pDest;
-			++cbDest;
-		}
+		const unsigned char c = (unsigned char)utf8[index];
+		const bool plain = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(c >= '0' && c <= '9') || c == '-' || c == '.' || c == '~';
+		const size_t width = (plain || c == ' ') ? 1 : 3;
+		if (width > capacity - result.size())
+			return FALSE;
+		if (plain)
+			result += c;
+		else if (c == ' ')
+			result += '+';
 		else
 		{
-			//检查缓冲区大小是否够用？
-			if(cbDest + 3 > cbBufLen - 1)
-				break;
-			pDest[0] = '%';
-			pDest[1] = (c >= 0xA0) ? ((c >> 4) - 10 + baseChar) : ((c >> 4) + '0');
-			pDest[2] = ((c & 0xF) >= 0xA)? ((c & 0xF) - 10 + baseChar) : ((c & 0xF) + '0');
-			pDest += 3;
-			cbDest += 3;
+			result += '%';
+			result += hex[c >> 4];
+			result += hex[c & 15];
 		}
-		++pSrc;
 	}
-	//null-terminator
-	*pDest = '\0';
-	free(pUnicode);
-	free(pUTF8);
+	memcpy(pBuf, result.c_str(), result.size() + 1);
 	return TRUE;
 }
 
 //解码后是utf-8编码
 BOOL WebHtmlManager::UrlDecode(const char* szSrc, char* pBuf, int cbBufLen)
 {
-	if(szSrc == NULL || pBuf == NULL || cbBufLen <= 0)
+	if (!szSrc || !pBuf || cbBufLen <= 0)
 		return FALSE;
-
-	size_t len_ascii = strlen(szSrc);
-	if(len_ascii == 0)
+	const size_t sourceLength = strlen(szSrc);
+	if (sourceLength > INT_MAX)
 	{
 		pBuf[0] = 0;
-		return TRUE;
-	}
-
-	char *pUTF8 = (char*)malloc(len_ascii + 1);
-	if(pUTF8 == NULL)
 		return FALSE;
+	}
+	const std::string input(szSrc, sourceLength);
+	pBuf[0] = 0;
+	if (input.empty())
+		return TRUE;
 
-	int cbDest = 0; //累加
-	unsigned char *pSrc = (unsigned char*)szSrc;
-	unsigned char *pDest = (unsigned char*)pUTF8;
-	while(*pSrc)
+	std::string utf8;
+	for (size_t index = 0; index < input.size(); ++index)
 	{
-		if(*pSrc == '%')
+		const unsigned char c = (unsigned char)input[index];
+		if (c == '%')
 		{
-			*pDest = 0;
-			//高位
-			if(pSrc[1] >= 'A' && pSrc[1] <= 'F')
-				*pDest += (pSrc[1] - 'A' + 10) * 0x10;
-			else if(pSrc[1] >= 'a' && pSrc[1] <= 'f')
-				*pDest += (pSrc[1] - 'a' + 10) * 0x10;
-			else
-				*pDest += (pSrc[1] - '0') * 0x10;
-
-			//低位
-			if(pSrc[2] >= 'A' && pSrc[2] <= 'F')
-				*pDest += (pSrc[2] - 'A' + 10);
-			else if(pSrc[2] >= 'a' && pSrc[2] <= 'f')
-				*pDest += (pSrc[2] - 'a' + 10);
-			else
-				*pDest += (pSrc[2] - '0');
-
-			pSrc += 3;
-		}
-		else if(*pSrc == '+')
-		{
-			*pDest = ' ';
-			++pSrc;
+			if (input.size() - index < 3)
+				return FALSE;
+			const char h = input[index + 1];
+			const char l = input[index + 2];
+			const int high = h >= '0' && h <= '9' ? h - '0' :
+				(h >= 'A' && h <= 'F' ? h - 'A' + 10 : (h >= 'a' && h <= 'f' ? h - 'a' + 10 : -1));
+			const int low = l >= '0' && l <= '9' ? l - '0' :
+				(l >= 'A' && l <= 'F' ? l - 'A' + 10 : (l >= 'a' && l <= 'f' ? l - 'a' + 10 : -1));
+			if (high < 0 || low < 0)
+				return FALSE;
+			utf8 += (char)((high << 4) | low);
+			index += 2;
 		}
 		else
-		{
-			*pDest = *pSrc;
-			++pSrc;
-		}
-		++pDest;
-		++cbDest;
+			utf8 += c == '+' ? ' ' : (char)c;
 	}
-	//null-terminator
-	*pDest = '\0';
-	++cbDest;
 
-	int cchWideChar = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)pUTF8, cbDest, NULL, 0);
-	LPWSTR pUnicode = (LPWSTR)malloc(cchWideChar * sizeof(WCHAR));
-	if(pUnicode == NULL)
-	{
-		free(pUTF8);
+	int wideCount = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8.c_str(), (int)utf8.size(), NULL, 0);
+	if (wideCount <= 0)
 		return FALSE;
-	}
-	MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)pUTF8, cbDest, pUnicode, cchWideChar);
-	WideCharToMultiByte(CP_ACP, 0, pUnicode, cchWideChar, pBuf, cbBufLen, NULL, NULL);
-	free(pUTF8);
-	free(pUnicode);
+	std::vector<WCHAR> wide(wideCount);
+	if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8.c_str(), (int)utf8.size(), &wide[0], wideCount) != wideCount)
+		return FALSE;
+	int ansiCount = WideCharToMultiByte(CP_ACP, 0, &wide[0], wideCount, NULL, 0, NULL, NULL);
+	if (ansiCount <= 0 || ansiCount >= cbBufLen)
+		return FALSE;
+	std::string result(ansiCount, '\0');
+	if (WideCharToMultiByte(CP_ACP, 0, &wide[0], wideCount, &result[0], ansiCount, NULL, NULL) != ansiCount)
+		return FALSE;
+	memcpy(pBuf, result.c_str(), result.size() + 1);
 	return TRUE;
 }
 
@@ -966,31 +931,35 @@ FString WebHtmlManager::GetWholePath(const FString& path)
 
 void CursorDragWebWindowCaption::SetHwnd(HWND hwnd)
 {
+	EndDrag();
 	nRelHwnd = hwnd;
-
-	RECT rcGame,rcClient;
-	GetWindowRect(GGameWindow,&rcGame);
-	GetClientRect(GGameWindow,&rcClient);
+	nFrameSize0 = 0;
+	nFrameSize1 = 0;
+	RECT rcGame = {0}, rcClient = {0};
+	if (!hwnd || !GetWindowRect(GGameWindow, &rcGame) || !GetClientRect(GGameWindow, &rcClient))
+		return;
 	nFrameSize0 = (rcGame.right - rcGame.left - rcClient.right + rcClient.left)/2;
 	nFrameSize1 = (rcGame.bottom - rcGame.top - rcClient.bottom + rcClient.top - nFrameSize0);
 }
 void CursorDragWebWindowCaption::BeginDrag()
 {
-	GetCursorPos(&nOldCursorPoint);
-	ScreenToClient(GGameWindow,&nOldCursorPoint);
+	EndDrag();
+	if (!nRelHwnd || !GetCursorPos(&nOldCursorPoint) ||
+		!ScreenToClient(GGameWindow, &nOldCursorPoint) || !GetWindowRect(nRelHwnd, &nOldWndRect))
+		return;
 	nLstFramePoint = nOldCursorPoint;
-	GetWindowRect(nRelHwnd, &nOldWndRect);
 	bBenginDrag = true;
 }
 
 void CursorDragWebWindowCaption::BeginDragSize(INT nState)
 {
-	GetCursorPos(&nOldCursorPoint);
-	ScreenToClient(GGameWindow,&nOldCursorPoint);
+	EndDrag();
+	if (nState < 1 || nState > 8 || !nRelHwnd || !GetCursorPos(&nOldCursorPoint) ||
+		!ScreenToClient(GGameWindow, &nOldCursorPoint) || !GetWindowRect(nRelHwnd, &nOldWndRect))
+		return;
 	nLstFramePoint = nOldCursorPoint;
-	GetWindowRect(nRelHwnd, &nOldWndRect);
 	nFrameSizeState = nState;
-	bBeginDragSize = (nFrameSizeState != 0);
+	bBeginDragSize = true;
 }
 void CursorDragWebWindowCaption::EndDrag()
 { 
@@ -1001,24 +970,33 @@ void CursorDragWebWindowCaption::EndDrag()
 void CursorDragWebWindowCaption::DragProcess()
 {
 	if(nRelHwnd == NULL)
+	{
+		EndDrag();
 		return;
+	}
 	bool bRedraw = false;
 	if(bBenginDrag)
 	{
-		POINT nNewCursorPoint;
-		GetCursorPos(&nNewCursorPoint);
-		ScreenToClient(GGameWindow,&nNewCursorPoint);
+		POINT nNewCursorPoint = {0};
+		if (!GetCursorPos(&nNewCursorPoint) || !ScreenToClient(GGameWindow, &nNewCursorPoint))
+		{
+			EndDrag();
+			return;
+		}
 
 		if (nLstFramePoint.x != nNewCursorPoint.x || nLstFramePoint.y != nNewCursorPoint.y)
 		{
-			RECT rcGame,rcClient;
-			GetWindowRect(GGameWindow,&rcGame);
-			GetClientRect(GGameWindow,&rcClient);
+			RECT rcGame = {0}, rcClient = {0};
+			if (!GetWindowRect(GGameWindow, &rcGame) || !GetClientRect(GGameWindow, &rcClient))
+			{
+				EndDrag();
+				return;
+			}
 			if(PtInRect(&rcClient,nNewCursorPoint))
 			{
-				nNewCursorPoint.x = nOldWndRect.left + nNewCursorPoint.x - nOldCursorPoint.x - rcGame.left - nFrameSize0;
-				nNewCursorPoint.y = nOldWndRect.top + nNewCursorPoint.y - nOldCursorPoint.y - rcGame.top - nFrameSize1;
-				MoveWindow(nRelHwnd, nNewCursorPoint.x, nNewCursorPoint.y, 
+				const INT windowX = nOldWndRect.left + nNewCursorPoint.x - nOldCursorPoint.x - rcGame.left - nFrameSize0;
+				const INT windowY = nOldWndRect.top + nNewCursorPoint.y - nOldCursorPoint.y - rcGame.top - nFrameSize1;
+				MoveWindow(nRelHwnd, windowX, windowY,
 					nOldWndRect.right - nOldWndRect.left,  nOldWndRect.bottom - nOldWndRect.top, TRUE);
 			}
 			nLstFramePoint = nNewCursorPoint;
@@ -1027,13 +1005,20 @@ void CursorDragWebWindowCaption::DragProcess()
 	}
 	else if (bBeginDragSize)
 	{
-		POINT nNewCursorPoint;
-		GetCursorPos(&nNewCursorPoint);
-		ScreenToClient(GGameWindow,&nNewCursorPoint);
+		POINT nNewCursorPoint = {0};
+		if (!GetCursorPos(&nNewCursorPoint) || !ScreenToClient(GGameWindow, &nNewCursorPoint))
+		{
+			EndDrag();
+			return;
+		}
 		if (nLstFramePoint.x != nNewCursorPoint.x || nLstFramePoint.y != nNewCursorPoint.y)
 		{
-			RECT rcWnd;
-			GetWindowRect(nRelHwnd,&rcWnd);
+			RECT rcWnd = {0};
+			if (!GetWindowRect(nRelHwnd, &rcWnd))
+			{
+				EndDrag();
+				return;
+			}
 
 			INT nPosX = 0,nPosY = 0,nWidth = 0,nHeight = 0;
 			if(nFrameSizeState == 4)
@@ -1078,8 +1063,12 @@ void CursorDragWebWindowCaption::DragProcess()
 				nWidth = nLstFramePoint.x - nNewCursorPoint.x;
 				nPosX = -nWidth;
 			}
-			RECT rcGame;
-			GetWindowRect(GGameWindow,&rcGame);
+			RECT rcGame = {0};
+			if (!GetWindowRect(GGameWindow, &rcGame))
+			{
+				EndDrag();
+				return;
+			}
 			MoveWindow(nRelHwnd,rcWnd.left + nPosX - rcGame.left - nFrameSize0, rcWnd.top + nPosY - rcGame.top - nFrameSize1, 
 				rcWnd.right - rcWnd.left + nWidth,rcWnd.bottom - rcWnd.top + nHeight, TRUE);
 			nLstFramePoint = nNewCursorPoint;

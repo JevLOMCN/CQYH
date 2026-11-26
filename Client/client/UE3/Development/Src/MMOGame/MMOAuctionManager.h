@@ -117,7 +117,12 @@ struct ClientAuctionItemInfo : public FClientItemInfo
 	UINT8       byAuctionStatus;
 	UItem*		ItemTemplate;
 
-	UINT32 ConvertFromServer(AUCTION_ITEM_INFO* info);
+	ClientAuctionItemInfo()
+		: dwAuctionID(0), dwSellerRoleID(0), dwBuyerRoleID(0), nPrice(0),
+		  nBuyoutPrice(0), nDepositPrice(0), dwStartTime(0), dwFinishTime(0),
+		  byAuctionStatus(0), ItemTemplate(NULL) {}
+
+	UINT32 ConvertFromServer(AUCTION_ITEM_INFO* info, UINT32 dataSize);
 
 	INT64 Inc5Percent(INT64 price) const
 	{
@@ -146,6 +151,9 @@ struct ClientAuctionItemInfo : public FClientItemInfo
 
 struct QueryAuctionItemInfo 
 {
+	QueryAuctionItemInfo()
+		: dwAuctionID(0), byFound(0), dwBuyerCount(0), bySellerLevel(0) {}
+
 	UINT32      dwAuctionID;
 	UINT8       byFound;
 	UINT32      dwBuyerCount;
@@ -158,6 +166,10 @@ struct QueryAuctionItemInfo
 
 struct AuctionSellInfo
 {
+	AuctionSellInfo()
+		: byConSlot(0), byItemSlot(0), byAuctionTimeType(0), byOpen(0),
+		  llPrice(0), llBuyoutPrice(0), llDepositePrice(0) {}
+
 	UINT8       byConSlot;
 	UINT8       byItemSlot;
 	UINT8       byAuctionTimeType;
@@ -355,7 +367,7 @@ public:
 	void UpdateSearchPageNumb(INT numb);
 	void Send_SearchByFilter();
 
-	static void ConvertServerAuctionItemList(AuctionItemList& arr, UINT8 count, AUCTION_ITEM_INFO* serverItemList);
+	static void ConvertServerAuctionItemList(AuctionItemList& arr, UINT8 count, AUCTION_ITEM_INFO* serverItemList, UINT32 dataSize);
 	static UGFxObject* CreateAuctionItemListDataObject(UMMOGFXPlayer* gfxPlayer, const AuctionItemList& itemList);
 	static UGFxObject* CreateAuctionItemCategoryListDataObject(UMMOGFXPlayer* gfxPlayer);
 	static UGFxObject* CreatePlayerNameDataObject(UMMOGFXPlayer* gfxPlayer, INT id, const FString& name);
@@ -363,13 +375,13 @@ public:
 	static UINT8 ConvertColIndexToServerSortBy(INT idx);
 
 
-	void OnServer_SearchResult(UINT8 count, AUCTION_ITEM_INFO* serverItemList);
-	void OnServer_QueryAuctionItem(M2C_AUCTION_QUERY* item);
-	void OnServer_ItemSell(AUCTION_ITEM_INFO* item);
+	void OnServer_SearchResult(UINT8 count, AUCTION_ITEM_INFO* serverItemList, UINT32 dataSize);
+	void OnServer_QueryAuctionItem(M2C_AUCTION_QUERY* item, UINT32 size);
+	void OnServer_ItemSell(AUCTION_ITEM_INFO* item, UINT32 dataSize);
 	void OnServer_ItemCancelSell(UINT32 id);
-	void OnServer_ItemBuy(AUCTION_ITEM_INFO* item);
-	void OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* serverItemList);
-	void OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* serverItemList);
+	void OnServer_ItemBuy(AUCTION_ITEM_INFO* item, UINT32 dataSize);
+	void OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* serverItemList, UINT32 dataSize);
+	void OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* serverItemList, UINT32 dataSize);
 	void OnServer_AuctionFinish(M2C_AUCTION_FINISHED* msg);
 
 

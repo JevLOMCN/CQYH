@@ -353,10 +353,10 @@ void UMMOUIMinimap::InitMiniMapTiles( const FString& inMapFileName, FInMapRegion
 	}
 	//
 	FString strValueKey;
-	INT tileSizeX;
+	INT tileSizeX = 256;
 	strValueKey = TEXT("WorldMapTileSizeX");
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, tileSizeX, GGameIni );
-	INT tileSizeY;
+	INT tileSizeY = 256;
 	strValueKey = TEXT("WorldMapTileSizeY");
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, tileSizeY, GGameIni );
 	//
@@ -372,7 +372,7 @@ void UMMOUIMinimap::InitMiniMapTiles( const FString& inMapFileName, FInMapRegion
 	map3Dto2D = map3Dto2DNoScaled;
 
 	//
-	INT minimapX, minimapY;
+	INT minimapX = 256, minimapY = 256;
 	GConfig->GetInt( TEXT("MapImg"), TEXT("MiniMapTileSizeX"), minimapX, GGameIni );
 	GConfig->GetInt( TEXT("MapImg"), TEXT("MiniMapTileSizeY"), minimapY, GGameIni );
 	INT origImgSizeX = RegionInMap.MiniMapTileRowNum * minimapX;
@@ -1241,7 +1241,8 @@ void UMMOUIMinimap::UpdateMarksGlobalPlayer( FVector2D centerPos, FLOAT fYawDegC
 				}
 				break;
 			default:
-				break;
+				++iter;
+				continue;
 			}
 
 			//

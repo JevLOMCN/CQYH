@@ -7,6 +7,8 @@
 //=======================================================================================
 void MMOKillRecordManager::Init()
 {
+	nKillPlayerRecord = 0;
+	nKillMonsterMomentaryCount = 0;
 	nKillMonsterRecord = 0;
 	nKillMonsterMomentaryRecord = 0;
 	nKillPlayerCount = 0;

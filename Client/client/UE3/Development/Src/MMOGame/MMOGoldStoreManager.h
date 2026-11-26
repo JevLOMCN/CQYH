@@ -39,6 +39,9 @@ enum EGoldViewType
 
 struct Client_ExchangeItemInfo 
 {
+	Client_ExchangeItemInfo() : dwOrderID(0), dwFinishTime(0), byOrderType(0), byOrderStatus(0),
+		  nPrice(0), nCount(0), nCurCount(0), nOrderTime(0) {}
+
 	UINT64      dwOrderID;
 	UINT32      dwFinishTime;
     UINT8       byOrderType;
@@ -53,6 +56,8 @@ struct Client_ExchangeItemInfo
 
 struct ExchangePriceInfo
 {
+	ExchangePriceInfo() : nPrice(0), nCount(0), nType(0) {}
+
 	INT32       nPrice;
 	INT32       nCount;
 	INT         nType;
@@ -61,6 +66,8 @@ struct ExchangePriceInfo
 
 struct GoldStoreMyLogsData
 {
+	GoldStoreMyLogsData() : dwTime(0), byOrderType(0), nPrice(0), nCount(0) {}
+
 	UINT32      dwTime;
 	UINT8       byOrderType;
 	INT32       nPrice;

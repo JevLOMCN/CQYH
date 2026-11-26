@@ -55,6 +55,8 @@ void CMessageHandler::Send_List_MyLogs()
 
 void CMessageHandler::Parse_m2c_exchange_add_order(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_EXCHANGE_ADD_ORDER))
+		return;
 	M2C_EXCHANGE_ADD_ORDER* msg = (M2C_EXCHANGE_ADD_ORDER*)buf;
 	if(msg == NULL)
 		return;
@@ -63,6 +65,8 @@ void CMessageHandler::Parse_m2c_exchange_add_order(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_m2c_exchange_cancel_order(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_EXCHANGE_CANCEL_ORDER))
+		return;
 	M2C_EXCHANGE_CANCEL_ORDER* msg = (M2C_EXCHANGE_CANCEL_ORDER*)buf;
 	if(msg == NULL)
 		return;
@@ -70,7 +74,11 @@ void CMessageHandler::Parse_m2c_exchange_cancel_order(const char* buf, UINT32 si
 }
 void CMessageHandler::Parse_m2c_exchange_list_prices(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_EXCHANGE_LIST_PRICES))
+		return;
 	M2C_EXCHANGE_LIST_PRICES* msg = (M2C_EXCHANGE_LIST_PRICES*) buf;
+	if ((UINT32)msg->bySellCount + msg->byBuyCount > (size - sizeof(*msg)) / sizeof(msg->stPrices[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MMOGoldStoreManager::getSingleton().OnServer_Listprices(msg->bySellCount,msg->byBuyCount,(EXCHANGE_PRICE_INFO*)msg->stPrices);
@@ -78,7 +86,11 @@ void CMessageHandler::Parse_m2c_exchange_list_prices(const char* buf, UINT32 siz
 
 void CMessageHandler::Parse_m2c_exchange_list_my_orders(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_EXCHANGE_LIST_MY_ORDERS))
+		return;
 	M2C_EXCHANGE_LIST_MY_ORDERS* msg = (M2C_EXCHANGE_LIST_MY_ORDERS*) buf;
+	if (msg->byCount > (size - sizeof(*msg)) / sizeof(msg->stOrders[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MMOGoldStoreManager::getSingleton().Onserver_ListMyOrders(msg->byOrderType,msg->byCount,(EXCHANGE_ORDER_INFO*)msg->stOrders);
@@ -86,8 +98,12 @@ void CMessageHandler::Parse_m2c_exchange_list_my_orders(const char* buf, UINT32 
 
 void CMessageHandler::Parse_m2c_exchange_list_my_logs(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_EXCHANGE_LIST_MY_LOGS))
+		return;
 	//ASSERT_CHECK_ERROR_RETURN(buf && size == sizeof(M2C_EXCHANGE_LIST_MY_LOGS));
 	M2C_EXCHANGE_LIST_MY_LOGS* msg = (M2C_EXCHANGE_LIST_MY_LOGS*)buf;
+	if (msg->nCount < 0 || (UINT32)msg->nCount > (size - sizeof(*msg)) / sizeof(msg->stLogs[0]))
+		return;
 	if(msg == NULL)
 		return;
 	MMOGoldStoreManager::getSingleton().AddMyLogs(msg->nCount,msg->stLogs);

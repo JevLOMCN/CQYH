@@ -40,15 +40,18 @@ void Exporter_TriggerVolume::ProcessData(INT& GlobalAutoID)
 			if (volume->Quests.Num() > 0 && volume->Quests.Num() <= MAX_QUEST_PER_ZONE)
 			{
 				memset(buffer, 0, sizeof(wchar_t) * C_TMPBUF_SZ);
+				INT questIDs[4] = {0};
+				for (INT questIndex = 0; questIndex < ARRAY_COUNT(questIDs) && questIndex < volume->Quests.Num(); ++questIndex)
+					questIDs[questIndex] = volume->Quests(questIndex);
 
 				swprintf_s(buffer, C_TMPBUF_SZ - 1,
 					TEXT("\t<TriggerVolume Name=\"%s\" Position=\"%s\" QuestId0=\"%d\" QuestId1=\"%d\" QuestId2=\"%d\" QuestId3=\"%d\"/>\n"),
 					*(volume->GetName()),
 					*(volume->Location.ToString()),
-					volume->Quests(0),
-					volume->Quests(1),
-					volume->Quests(2),
-					volume->Quests(3));
+					questIDs[0],
+					questIDs[1],
+					questIDs[2],
+					questIDs[3]);
 
 				ss << buffer;
 			}

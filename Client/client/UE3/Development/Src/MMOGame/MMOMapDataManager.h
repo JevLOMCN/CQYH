@@ -12,6 +12,7 @@ namespace ExternalMessage
 
 	struct FTeleportNetNodeData
 	{
+		FTeleportNetNodeData() : _NodeTemplate(NULL), _isPlayerOpened(FALSE) {}
 		FTeleportNodeObj* _NodeTemplate;
 		UBOOL _isPlayerOpened;
 	};
@@ -97,6 +98,11 @@ namespace ExternalMessage
 
 	struct FMapMarkExport
 	{
+		FMapMarkExport() : _Pos(0.0f, 0.0f, 0.0f), _MarkType(0)
+		{
+			appMemzero(_MarkName, sizeof(_MarkName));
+			appMemzero(_RegionName, sizeof(_RegionName));
+		}
 		TCHAR _MarkName[17];
 		TCHAR _RegionName[33];
 		FVector _Pos;
@@ -136,6 +142,7 @@ namespace ExternalMessage
 
 	struct FPathPointInMapUI : FObjInMapUI
 	{
+		FPathPointInMapUI() : _OrigInMapPos(0.0f, 0.0f, 0.0f), _MapID(0) {}
 		FVector _OrigInMapPos;
 		INT _MapID;
 		//FPathPointInMapUI();
@@ -144,6 +151,7 @@ namespace ExternalMessage
 	//
 	struct MapLineInfo
 	{
+		MapLineInfo() : _SceneLineCombineID(0), _PercentState(0) {}
 		INT _SceneLineCombineID;
 		INT _PercentState;
 	};
@@ -151,6 +159,7 @@ namespace ExternalMessage
 	//
 	struct CurSceneProgress
 	{
+		CurSceneProgress() : _Template(NULL), _CurValue(0) {}
 		const FSceneProgress *_Template;
 		INT _CurValue;
 	};
@@ -173,6 +182,7 @@ namespace ExternalMessage
 	static INT MAX_Dungeon_Target = 8;
 	struct FBAchievementsState
 	{
+		FBAchievementsState() : _achievementTemplate(NULL), _score(0) {}
 		const FDungeonTarget *_achievementTemplate;
 		INT _score;
 	};

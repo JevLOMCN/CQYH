@@ -34,6 +34,7 @@ namespace MMO
 
 	struct ClientBriefStudentDetailInfo : MASTER_DATA
 	{
+		ClientBriefStudentDetailInfo() : MASTER_DATA(), IsSelected(false) {}
 		//bool CanCongraluate;
 		bool IsSelected;
 	};

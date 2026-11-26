@@ -8,6 +8,7 @@
 
 struct FDropItemSet
 {
+	FDropItemSet() : ItemTemplateID(0), DropWeight(0), CountMin(0), CountMax(0) {}
 	class UItem* GetDropItemTemplate() const;
 	INT ItemTemplateID;
 	INT DropWeight;
@@ -17,6 +18,7 @@ struct FDropItemSet
 
 struct FDropGroup
 {
+	FDropGroup() : TemplateID(0), Enabled(FALSE) {}
 	INT TemplateID;
 	FString TemplateDesc;
 	UBOOL Enabled;
@@ -81,6 +83,9 @@ bool MMODropGroupDataManager_IsItemExists(INT itemTemplateID);
 
 struct FDropActorInfo
 {
+	FDropActorInfo()
+		: DropActor(NULL), Hud(NULL), ScreenPos(0.0f, 0.0f), Width(0), Height(0)
+		, IsVisible(FALSE), ShowTime(0.0f), CannotPickCD(0.0f) {}
 	class AMMODropActor* DropActor;
 	UGFxObject* Hud;
 	FVector2D ScreenPos;

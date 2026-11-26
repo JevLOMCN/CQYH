@@ -31,6 +31,10 @@ MMOTargetManager::MMOTargetManager(void)
 
 void MMOTargetManager::Clear()
 {
+	stateTargetPos = FVector(0, 0, 0);
+	stateDesirePos = FVector(0, 0, 0);
+	LastMouseHitNavMeshLocation = FVector(0, 0, 0);
+	stateAiInSafeZoneTime = 0.0f;
 	stateMainPlayer =	NULL;		//main character
 	stateController	=	NULL;		//main controller
 	stateStallState	=	FALSE;		//stall state

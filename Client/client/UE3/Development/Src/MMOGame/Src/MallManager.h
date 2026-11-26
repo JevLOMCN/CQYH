@@ -30,6 +30,8 @@ enum MallStorePageType
 };
 struct MALLGOODSSHOWDATA
 {
+	MALLGOODSSHOWDATA() : nItemTemplateID(0), nHotIndex(0), nShowIndex(0) {}
+
 	INT nItemTemplateID;
 
 	INT nHotIndex;

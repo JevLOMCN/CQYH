@@ -11,9 +11,9 @@
 struct MMOTeamMember
 {
 	MMOTeamMember()
-	{
-		appMemzero( this , sizeof(MMOTeamMember) );
-	}
+		: ActorServerId(0), Lv(0), ClassId(0), isLeader(FALSE), HPPecent(0),
+		  MPPecent(0), Sex(0), Online(FALSE), UIPos(0), HP(0), WorldPos(0, 0, 0),
+		  MapID(0), MapLineID(0) {}
 	INT ActorServerId;
 	INT Lv;
 	FString ActorName;
@@ -32,6 +32,7 @@ struct MMOTeamMember
 
 struct MMONearbyPlayer
 {
+	MMONearbyPlayer() : ActorServerId(0), Lv(0), ClassId(0), Sex(0), InTeam(FALSE) {}
 	INT ActorServerId;
 	INT Lv;
 	FString ActorName;
@@ -51,6 +52,7 @@ enum ETeamAuctionItemState
 
 struct MMOTeamAuctionItem
 {
+	MMOTeamAuctionItem() : BidState(ETAIS_NoPermit), RewardMemberCount(0), Index(0) {}
 	ItemInfo Item;
 	ETeamAuctionItemState BidState;
 	INT RewardMemberCount;
@@ -65,14 +67,12 @@ struct MMOInvitedPlayer
 	INT Level;
 	FString ActorName;
 
-	MMOInvitedPlayer()
-	{
-		appMemzero(this, sizeof(MMOInvitedPlayer));
-	}
+	MMOInvitedPlayer() : ActorServerId(0), Job(0), Level(0) {}
 };
 
 struct MMOTeamInfo
 {
+	MMOTeamInfo() : MemberCount(0), MaxMemberCount(0), LeadLv(0), TeamID(0), TeamLeaderServeId(0) {}
 	INT MemberCount;
 	INT MaxMemberCount;
 	INT LeadLv;
@@ -115,6 +115,7 @@ struct MMOTeamInfo
 typedef std::queue<INT> IntQueue;
 struct TeamAuctionItemColorLimitMap
 {
+	TeamAuctionItemColorLimitMap() : Color(0) {}
 	INT Color;
 	FString ColorStringText;
 };

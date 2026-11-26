@@ -39,17 +39,20 @@ void MMOFullScreenEffectManager::StopAllEffect()
 	}
 }
 
-void MMOFullScreenEffectManager::StartEffect(FullScreenEffectType EffectType)
+void MMOFullScreenEffectManager::StartEffect(INT EffectType)
 {
+	if (EffectType < 0 || EffectType >= FSET_Total) return;
 	if(_FullScreenEffectTypeOpen[EffectType] == TRUE)
 		return;
 
-	MMOFacade::getSingleton().GetMainController()->eventPlayLowHPWarningSound(TRUE);
+	if (MMOFacade::getSingleton().GetMainController())
+		MMOFacade::getSingleton().GetMainController()->eventPlayLowHPWarningSound(TRUE);
 
+	if (!GEngine) return;
 	for(INT PlayerIndex = 0;PlayerIndex < GEngine->GamePlayers.Num();PlayerIndex++)
 	{
 		ULocalPlayer* Player = GEngine->GamePlayers(PlayerIndex);
-		if (Player->Actor && Player->PlayerPostProcess)
+		if (Player && Player->Actor && Player->PlayerPostProcess)
 		{
 			for (INT EffectIdx = 0; EffectIdx < Player->PlayerPostProcess->Effects.Num(); ++EffectIdx)
 			{
@@ -93,17 +96,20 @@ void MMOFullScreenEffectManager::StartEffect(FullScreenEffectType EffectType)
 	}
 }
 
-void MMOFullScreenEffectManager::StopEffect(FullScreenEffectType EffectType)
+void MMOFullScreenEffectManager::StopEffect(INT EffectType)
 {
+	if (EffectType < 0 || EffectType >= FSET_Total) return;
 	if(_FullScreenEffectTypeOpen[EffectType] == FALSE)
 		return;
 
-	MMOFacade::getSingleton().GetMainController()->eventPlayLowHPWarningSound(FALSE);
+	if (MMOFacade::getSingleton().GetMainController())
+		MMOFacade::getSingleton().GetMainController()->eventPlayLowHPWarningSound(FALSE);
 
+	if (!GEngine) return;
 	for(INT PlayerIndex = 0;PlayerIndex < GEngine->GamePlayers.Num();PlayerIndex++)
 	{
 		ULocalPlayer* Player = GEngine->GamePlayers(PlayerIndex);
-		if (Player->Actor && Player->PlayerPostProcess)
+		if (Player && Player->Actor && Player->PlayerPostProcess)
 		{
 			for (INT EffectIdx = 0; EffectIdx < Player->PlayerPostProcess->Effects.Num(); ++EffectIdx)
 			{

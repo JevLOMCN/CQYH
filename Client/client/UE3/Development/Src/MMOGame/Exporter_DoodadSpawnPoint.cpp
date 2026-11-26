@@ -8,6 +8,7 @@
 //Export NPCs placed individually in the scene
 Exporter_DoodadSpawnPoint::Exporter_DoodadSpawnPoint(void)
 {
+	arBlkHdrs = NULL;
 }
 //------------------------------------------------------------------------
 Exporter_DoodadSpawnPoint::~Exporter_DoodadSpawnPoint(void)

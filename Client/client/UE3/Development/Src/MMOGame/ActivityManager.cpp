@@ -16,6 +16,15 @@
 
 ActivityManager::ActivityManager()
 {
+	_ActiveValue = 0;
+	_RewardQuestComNum = 0;
+	_RewardBit = 0;
+	_CurShowType = 0;
+	_MaxActiveValue = 0;
+	_CurActivityId = -1;
+	_CurActivityTeamPage = 0;
+	_CurActivityTeamIndex = 0;
+	_CurActivityTipsTeamId = 0;
 	MMOUI::RegisterEventHandler(this, GameEvent_VariableInit);
 	MMOUI::RegisterEventHandler(this, GameEvent_VariableChanged);
 }
@@ -672,53 +681,57 @@ void ActivityManager::SortTodayActivityList(INT nType,INT nAdd)
 		}
 	}
 }
+static BOOL MakeActivityTime(const tm& now, INT year, INT month, INT day, INT hour, INT minute, time_t& result)
+{
+	result = 0;
+	year = year == 0 ? now.tm_year + 1900 : year;
+	month = month == 0 ? now.tm_mon + 1 : month;
+	day = day == 0 ? now.tm_mday : day;
+	hour = hour == 0 ? now.tm_hour : hour;
+	if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31
+		|| hour < 0 || hour > 23 || minute < 0 || minute > 59)
+		return FALSE;
+	tm date = {};
+	date.tm_year = year - 1900;
+	date.tm_mon = month - 1;
+	date.tm_mday = day;
+	date.tm_hour = hour;
+	date.tm_min = minute;
+	date.tm_isdst = -1;
+	const time_t converted = mktime(&date);
+	if (converted == (time_t)-1)
+		return FALSE;
+	result = converted;
+	return TRUE;
+}
+
 EActivityState ActivityTime::GetState()
 {
-	if(nStartTime_year == 0 && nStartTime_month == 0&&nStartTime_day == 0&&nStartTime_hour ==0&&
-		nEndTime_year ==0 && nEndTime_month == 0 && nEndTime_day == 0 && nEndTime_hour == 0)
-		return EStarting;
-	time_t nowT = time(NULL);
-	tm     *pkTp = localtime(&nowT);
-	static time_t	endT;
-	tm      tp;
-	INT nsYear = (nStartTime_year == 0)? (pkTp->tm_year + 1900):nStartTime_year;
-	INT nsMon   = (nStartTime_month == 0)? (pkTp->tm_mon + 1):nStartTime_month;
-	INT nDay    = (nStartTime_day == 0)?pkTp->tm_mday:nStartTime_day;
-	INT nHour   = (nStartTime_hour == 0)?pkTp->tm_hour:nStartTime_hour;
-	appMemzero(&tp, sizeof(tm));
-
-	tp.tm_year = nsYear - 1900;
-	tp.tm_mon  = nsMon - 1;
-	tp.tm_mday = nDay;
-	tp.tm_hour = nHour;
-	tp.tm_min  = nStartTime_minute;
-
-	startT = mktime(&tp);
-
-	nsYear = (nEndTime_year == 0)? (pkTp->tm_year + 1900):nEndTime_year;
-	nsMon   = (nEndTime_month == 0)? (pkTp->tm_mon + 1):nEndTime_month;
-	nDay    = (nEndTime_day == 0)?pkTp->tm_mday:nEndTime_day;
-	nHour   = (nEndTime_hour == 0)?pkTp->tm_hour:nEndTime_hour;
-
-	tp.tm_year = nsYear - 1900;
-	tp.tm_mon  = nsMon - 1;
-	tp.tm_mday = nDay;
-	tp.tm_hour = nHour;
-	tp.tm_min  = nEndTime_minute;
-	endT   = mktime(&tp);
-
-	if(nowT < startT)
+	startT = 0;
+	nState = EActivityOver;
+	if(nStartTime_year == 0 && nStartTime_month == 0 && nStartTime_day == 0 && nStartTime_hour == 0
+		&& nEndTime_year == 0 && nEndTime_month == 0 && nEndTime_day == 0 && nEndTime_hour == 0)
+		return nState = EStarting;
+	const time_t nowT = time(NULL);
+	if (nowT == (time_t)-1)
+		return nState;
+	const tm* current = localtime(&nowT);
+	if (current == NULL)
+		return nState;
+	const tm now = *current;
+	time_t endT = 0;
+	if (!MakeActivityTime(now, nStartTime_year, nStartTime_month, nStartTime_day,
+		nStartTime_hour, nStartTime_minute, startT)
+		|| !MakeActivityTime(now, nEndTime_year, nEndTime_month, nEndTime_day,
+			nEndTime_hour, nEndTime_minute, endT))
+		return nState;
+	if (nowT < startT)
 		nState = ENOStart;
-	else if (nowT > endT)
-		nState = EActivityOver;
-	else if(nowT >= startT && nowT <= endT)
+	else if (nowT <= endT)
 		nState = EStarting;
-	else if(nowT < startT && nowT +300 > startT)
-		nState = EWillStart;
-	else
-		nState = EActivityOver;
 	return nState;
 }
+
 void  ActivityManager::FilterTodayActivity()
 {
 	time_t nowT = time(NULL);
@@ -824,13 +837,20 @@ void ActivityManager::_GetGuildActivityTimeString(UINT16 activityType, FString& 
 			{
 				if (iter->second.StartTime > 0)
 				{
-					__time32_t startTime = iter->second.StartTime;
+					const INT64 endValue = (INT64)iter->second.StartTime + data.Duration;
+					if (iter->second.StartTime > 0x7fffffffu || endValue > 0x7fffffff)
+						return;
+					__time32_t startTime = (__time32_t)iter->second.StartTime;
 					struct tm *startDate = _localtime32(&startTime);
+					if (startDate == NULL)
+						return;
 					int startHour = startDate->tm_hour;
 					int startMin = startDate->tm_min;
 
-					__time32_t endTime = iter->second.StartTime + data.Duration;
+					__time32_t endTime = (__time32_t)endValue;
 					struct tm *endDate = _localtime32(&endTime);
+					if (endDate == NULL)
+						return;
 					int endHour = endDate->tm_hour;
 					int endMin = endDate->tm_min;
 
@@ -1634,8 +1654,10 @@ void ActivityManager::ClearActivityTeamList()
 	_ActivityTeamListData.Empty(MAX_TEAM_COUNT_PER_PAGE);
 }
 
-void ActivityManager::UpdateActivityTeamList(const char* buf)
+void ActivityManager::UpdateActivityTeamList(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_ACTIVITY_QUERY_TEAM))
+		return;
 	BOOL bSingle = FALSE;
 	if(_CurShowType != (INT)EActivityCopy)
 	{
@@ -1661,7 +1683,7 @@ void ActivityManager::UpdateActivityTeamList(const char* buf)
 			team.TeamId = msg->stRoomTeam[i].nTeamID;
 			team.LeaderId = msg->stRoomTeam[i].dwLeaderID;
 			//_ActivityTeamListData(i).Level = msg->stRoomTeam[i].nTeamLevel;
-			team.Name = UTF8_TO_TCHAR(msg->stRoomTeam[i].szTeamName);
+			team.Name = ReadFixedUTF8(msg->stRoomTeam[i].szTeamName);
 			INT MemberNum = 0;
 			for(INT k = 0; k < MAX_TEAM_MEMBER_COUNT; ++k)
 			{

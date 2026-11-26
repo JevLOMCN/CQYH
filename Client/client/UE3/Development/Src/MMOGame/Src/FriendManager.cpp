@@ -17,6 +17,7 @@
 
 FriendManager::FriendManager()
 {
+	startTime = 0.0f;
 	startTick = FALSE;
 	nTradeNeedIntimacyValue = 0;
 	Init();
@@ -43,12 +44,18 @@ void FriendManager::LoadNearContact()
 	FArchive* archive = NULL;
 	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &archive, TEXT("nearContact") ))
 	{
-		INT data;
-		archive->Serialize( &data, sizeof(INT) );
+		INT data = 0;
+		archive->Serialize(&data, sizeof(data));
+		const INT totalSize = archive->TotalSize();
+		if (archive->IsError() || data < 0 || totalSize < sizeof(INT) ||
+			(UINT)data > (totalSize - sizeof(INT)) / sizeof(INT))
+			data = 0;
 		for ( INT i = 0 ; i < data ; ++i )
 		{
 			INT roleId = -1;
-			archive->Serialize( &roleId , sizeof(INT) );
+			archive->Serialize(&roleId, sizeof(roleId));
+			if (archive->IsError())
+				break;
 			if( roleId >= 0 )
 			{
 				MMOFriendMember mem = GetFriendInfoByRoleId(roleId);
@@ -116,13 +123,14 @@ void FriendManager::ClearAll()
 
 void FriendManager::ClearSearchList()
 {
-	appMemzero( SearchList , sizeof(SearchList) );
+	for (INT i = 0; i < ARRAY_COUNT(SearchList); ++i)
+		SearchList[i] = MMOFriendMember(EC_EventParm);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void FriendManager::AddNewFriend( INT RoleId , FString FriendName , INT GroupId )
 {
-	if( GroupId >= FriendGroupList.Num() )
+	if( GroupId < 0 || GroupId >= FriendGroupList.Num() )
 		return;
 		
 	MMOFriendMember item(EC_EventParm);
@@ -157,7 +165,7 @@ INT FriendManager::GetBlackNum()
 
 void FriendManager::PushToFriendGroup( INT groupId , MMOFriendMember member )
 {
-	if( FriendGroupList.Num() > groupId )
+	if( groupId >= 0 && FriendGroupList.Num() > groupId )
 	{
 		FriendGroupList(groupId).FriendList.AddItem(member);
 	}
@@ -181,7 +189,7 @@ INT FriendManager::GetEmptyFriendGroupId( )
 //----------------------------------------------------------------------------------------------------------------------
 INT FriendManager::GetFriendNumInGroup( INT groupId )
 {
-	if( FriendGroupList.Num() > groupId )
+	if( groupId >= 0 && FriendGroupList.Num() > groupId )
 	{
 		return FriendGroupList(groupId).FriendList.Num();
 	}
@@ -201,7 +209,7 @@ INT FriendManager::GetTotalFriendNum()
 //note, this online actually means not offline----------------------------------------------------------------------------------------------------------------------
 INT FriendManager::GetOnlineFriendNumInGroup( INT groupId )
 {
-	if( FriendGroupList.Num() > groupId )
+	if( groupId >= 0 && FriendGroupList.Num() > groupId )
 	{
 		INT res = 0;
 		for ( INT i = 0 ; i < FriendGroupList(groupId).FriendList.Num() ; i++ )
@@ -521,6 +529,9 @@ INT FriendManager::GetFriendGroupId( INT RoleId )
 //----------------------------------------------------------------------------------------------------------------------
 void FriendManager::MovePlayerToGroup( INT roleId , INT fromGroupId , INT toGroupId )
 {
+	if (fromGroupId < 0 || toGroupId < 0 || fromGroupId >= FriendGroupList.Num()
+		|| toGroupId >= FriendGroupList.Num() || fromGroupId == toGroupId)
+		return;
 	for ( INT j = 0 ; j < FriendGroupList( fromGroupId ).FriendList.Num() ; j++ )
 	{
 		if( FriendGroupList( fromGroupId ).FriendList( j ).RoleId == roleId )
@@ -546,7 +557,8 @@ void FriendManager::MovePlayerToGroup( INT roleId , INT fromGroupId , INT toGrou
 //
 void FriendManager::MoveGroupPlayerToGroup( INT fromGroupId , INT toGroupId )
 {
-	if( FriendGroupList.Num() <= fromGroupId || FriendGroupList.Num() <= toGroupId )
+	if( fromGroupId < 0 || toGroupId < 0
+		|| FriendGroupList.Num() <= fromGroupId || FriendGroupList.Num() <= toGroupId )
 	{
 		return;
 	}
@@ -725,7 +737,8 @@ MMOFriendMember* FriendManager::GetNearMemberByRoleId( INT roleId )
 //-----------------------------------------------------------------------------------------------------
 MMOFriendMember* FriendManager::GetFriendGroupMember( INT groupId , INT pos )
 {
-	if( FriendGroupList.Num() > groupId && FriendGroupList(groupId).FriendList.Num() > pos )
+	if( groupId >= 0 && pos >= 0 && FriendGroupList.Num() > groupId
+		&& FriendGroupList(groupId).FriendList.Num() > pos )
 	{
 		return &FriendGroupList(groupId).FriendList(pos);
 	}
@@ -735,7 +748,7 @@ MMOFriendMember* FriendManager::GetFriendGroupMember( INT groupId , INT pos )
 
 MMOFriendMember* FriendManager::GetFriendGroupMemberById( INT groupId , INT id )
 {
-	if (groupId >= 0)
+	if (groupId >= 0 && groupId < FriendGroupList.Num())
 	{
 		for ( INT i = 0 ; i < FriendGroupList( groupId ).FriendList.Num() ; i++ )
 		{
@@ -752,7 +765,7 @@ MMOFriendMember* FriendManager::GetFriendGroupMemberById( INT groupId , INT id )
 
 MMOFriendMember* FriendManager::GetBlacklistMember( INT pos )
 {
-	if( BlackList.Num() > pos )
+	if( pos >= 0 && BlackList.Num() > pos )
 	{
 		return &BlackList(pos);
 	}
@@ -762,7 +775,7 @@ MMOFriendMember* FriendManager::GetBlacklistMember( INT pos )
 
 MMOFriendMember* FriendManager::GetEnemylistMember( INT pos )
 {
-	if( EnemyList.Num() > pos )
+	if( pos >= 0 && EnemyList.Num() > pos )
 	{
 		return &EnemyList(pos);
 	}
@@ -792,27 +805,23 @@ MMOFriendMember* FriendManager::GetSearchFriend( INT pos )
 
 static QSORT_RETURN CDECL SortFriend( const MMOFriendMember* fa, const MMOFriendMember* fb )
 {
-	if( fa && fb )
+	if (fa && fb)
 	{
-		if( fa->Online < fb->Online  )
-		{
+		if (fa->Online < fb->Online)
 			return -1;
-		}
-		else if( fa->Online == fb->Online )
-		{
-			if( fa->AbbName < fb->AbbName )
-				return -1;
-		}
-
-
+		if (fa->Online > fb->Online)
+			return 1;
+		if (fa->AbbName < fb->AbbName)
+			return -1;
+		if (fb->AbbName < fa->AbbName)
+			return 1;
 	}
-	return 1;
+	return 0;
 }
 
-//-----------------------------------------------------------------------------------------------------
 MMOFriendGroup* FriendManager::GetFriendGroup( INT groupId )
 {
-	if( FriendGroupList.Num() > groupId )
+	if( groupId >= 0 && FriendGroupList.Num() > groupId )
 	{
 		return &FriendGroupList(groupId);
 	}
@@ -822,7 +831,7 @@ MMOFriendGroup* FriendManager::GetFriendGroup( INT groupId )
 
 void FriendManager::SortFriendGroup( INT groupId )
 {
-	if( FriendGroupList.Num() > groupId )
+	if( groupId >= 0 && FriendGroupList.Num() > groupId )
 	{
 		INT num = FriendGroupList(groupId).FriendList.Num();
 		if( num > 0 )
@@ -960,38 +969,35 @@ void FriendManager::SaveKillInfoData()
 
 void FriendManager::LoadKillInfoData()
 {
-	FArchive* pArchive      = NULL;
-	size_t  lDataLength		= 0; 
-
+	FArchive* archive = NULL;
 	KillInfoList.Empty();
-
-	//read binary
-	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive,KillInfoFileName ) )
+	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, KillInfoFileName))
 	{
-		INT TotalSize = pArchive->TotalSize();
-		UINT32	num = 0;
-		
-		pArchive->Serialize( &num, sizeof(UINT32) );
-		
-		for ( UINT32 n = 0 ; n < num ; ++n )
+		UINT32 count = 0;
+		archive->Serialize(&count, sizeof(count));
+		if (archive->IsError() || archive->Tell() > archive->TotalSize() ||
+			count > (UINT32)((archive->TotalSize() - archive->Tell()) / sizeof(UINT32)))
+			goto Finished;
+		for (UINT32 i = 0; i < count; ++i)
 		{
-			UINT32 lenth = 0;
-			pArchive->Serialize( &lenth, sizeof(lenth) );
-			if( lenth > 1024 )
-			{
-				//data is invalid
-				break;
-			}
-			TCHAR info[1024] = {0};
-			pArchive->Serialize( &info, lenth );
-			
-			MMOKillInfo killInfo;
-			killInfo.ShowText = info;
-			KillInfoList.AddItem(killInfo);
+			UINT32 bytes = 0;
+			archive->Serialize(&bytes, sizeof(bytes));
+			TCHAR text[1024] = {0};
+			if (archive->IsError() || bytes > 1024 || bytes % sizeof(TCHAR) != 0 ||
+				archive->Tell() > archive->TotalSize() || bytes > (UINT32)(archive->TotalSize() - archive->Tell()))
+				goto Finished;
+			archive->Serialize(text, bytes);
+			if (archive->IsError())
+				goto Finished;
+			MMOKillInfo info;
+			info.ShowText = text;
+			KillInfoList.AddItem(info);
 		}
 	}
-	MMOFacade::getSingleton().EndLoadAccountBinary( pArchive );
+Finished:
+	MMOFacade::getSingleton().EndLoadAccountBinary(archive);
 }
+
 
 FString FriendManager::_GetCurTimeString()
 {

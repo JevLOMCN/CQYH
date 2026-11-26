@@ -6,6 +6,12 @@
 #include "MMOChatManager.h"
 
 //=======================================================================================
+MMODeathManager::MMODeathManager()
+	: WaitTime(0), KillerID(0), PlayerKilled(FALSE), ReviveTime(0)
+{
+	appMemzero(ReviveInfo, sizeof(ReviveInfo));
+}
+
 void MMODeathManager::Init()
 {
 	//MMOUI::RegisterEventHandler( this, GameEvent_UnlockSkillSlot);

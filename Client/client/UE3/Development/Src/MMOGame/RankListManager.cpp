@@ -6,6 +6,10 @@ RankListManager::RankListManager()
 	eRankTotal(rlLevel),
 	_SelfLastRank(0)
 {
+	appMemzero(&showRankTime, sizeof(showRankTime));
+	_SelfRank = 0;
+	maxLevel = MAX_ROLE_LEVEL;
+	heroRankMaxTime = 0;
 	//GConfig->GetInt(TEXT("MaxLevel"),TEXT("maxLevel"),maxLevel,GDefaultGameIni);
 	GConfig->GetInt(TEXT("HeroRankList"),TEXT("heroRankMaxTime"),heroRankMaxTime,GDefaultGameIni);
 	
@@ -330,15 +334,24 @@ void RankListManager::NotifyUpdateCategoryButton()
 
 void RankListManager::SetShowRank(UINT32 time)
 {
-	__time32_t localTime = time;
+	appMemzero(&showRankTime, sizeof(showRankTime));
+	bShowRank = TRUE;
+	if (time > 0x7fffffffu)
+		return;
+	__time32_t localTime = (__time32_t)time;
 	struct tm *serverTimeTemp = _localtime32(&localTime);
+	if (serverTimeTemp == NULL)
+		return;
 	struct tm serverTime = *serverTimeTemp;
 
 	showRankTime = *serverTimeTemp;
 
-	__time32_t today;
-	_time32(&today);
+	__time32_t today = 0;
+	if (_time32(&today) == (__time32_t)-1)
+		return;
 	struct tm *todayTimeTemp = _localtime32(&today);
+	if (todayTimeTemp == NULL)
+		return;
 	struct tm todayTime = *todayTimeTemp;
 
 

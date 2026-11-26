@@ -9,6 +9,7 @@
 class MMOJigsawManager: public SingletonMeyers<MMOJigsawManager>
 {
 public:
+	MMOJigsawManager();
 	void Init();
 	void Shutdown();
 

@@ -46,10 +46,7 @@
 		INT						 nValue;
 		INT						 nState;
 		FString					 sName;
-		BloodSlot()
-		{
-			appMemzero(this, sizeof(BloodSlot));
-		}
+		BloodSlot() : nPage(0), nIndex(0), nValue(0), nState(0) {}
 	};
 	//-----------------------------config------------------
 	//realm level attribute config
@@ -98,9 +95,9 @@
 		FString					Icon0;
 		FString					Icon1;
 		HeavenGasItemConfig()
-		{
-			appMemzero(this, sizeof(HeavenGasItemConfig));
-		}
+			: nID(0), nLevel(0), nQuality(0), nExp(0), nNextLevelID(0),
+			  nAtriNodeID1(0), nAtriNodeID2(0), nExchangeCost(0), nGroupID(0),
+			  nNextLevelExp(0), nJob(0), nCanExchange(0) {}
 	};
 
 	//blood template attribute config
@@ -184,7 +181,7 @@
 		};
 
 		MMOGameEvent_Heaven(EHeavenEventType eventType)
-			: EventType(eventType)
+			: EventType(eventType), SlotID(0), SlotContainerID(0), nValue(0)
 		{
 		}
 
@@ -322,6 +319,7 @@
 
 	struct HeavenJustConvertData
 	{
+		HeavenJustConvertData() : nID(0), nTimesCount(0), nCostDiscount(0) {}
 		INT nID;
 		INT nTimesCount;
 		INT nCostDiscount;

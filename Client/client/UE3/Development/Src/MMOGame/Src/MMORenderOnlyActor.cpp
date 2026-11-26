@@ -11,7 +11,7 @@ IMPLEMENT_CLASS(AMMORenderOnlyActor)
 // todo: iterate through all equipments to fetch texture layer information
 void AMMORenderOnlyActor::Clone( AMMOActor* baseActor )
 {
-	if( baseActor == NULL )
+	if( baseActor == NULL || baseActor->Mesh == NULL )
 		return;
 
 	// create main mesh component if not exist yet
@@ -28,17 +28,9 @@ void AMMORenderOnlyActor::Clone( AMMOActor* baseActor )
 	// set main mesh
 	MainMesh->SetSkeletalMesh( baseActor->Mesh->SkeletalMesh );
 
-	// init mesh list if needs
-	if( EquipMeshList.Num() == 0 )
-	{
-		EquipMeshList.AddZeroed( EBMT_None );
-	}
-	else
-	{
-		// clear mesh list
-		for( INT i = 0; i < EquipMeshList.Num(); ++i )
-			EquipMeshList(i) = NULL;
-	}
+	// Rebuild the destination even when a previous clone left a short list.
+	EquipMeshList.Empty();
+	EquipMeshList.AddZeroed( EBMT_None );
 
 	// clone equip mesh list
 	if( baseActor->ItemManager != NULL )
@@ -68,6 +60,8 @@ void AMMORenderOnlyActor::AddEquipMeshByTemplate( UEquipMesh* temp, INT idx )
 {
 	if( idx < 0 || idx >= EBMT_None )
 		return;
+	if( EquipMeshList.Num() < EBMT_None )
+		EquipMeshList.AddZeroed(EBMT_None - EquipMeshList.Num());
 
 	UEquipMesh* pNewMesh = Cast<UEquipMesh>( StaticConstructObject(
 			UEquipMesh::StaticClass(), GetTransientPackage(), NAME_None, RF_Transient, temp ) );

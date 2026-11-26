@@ -44,14 +44,16 @@ static TCHAR* g_inputDataTypeStr[] =
 
 struct FReplayData
 {
+	FReplayData() : Index(0), GameTime(0) {}
 	UINT64 Index;
 	DOUBLE GameTime;
 	virtual EReplayDataType GetType() const = 0;
 	
-	virtual void Serialize(FArchive& archive)
+	virtual UBOOL Serialize(FArchive& archive)
 	{
 		archive << Index;
 		archive << GameTime;
+		return !archive.IsError();
 	}
 
 	virtual void Destroy() = 0;
@@ -64,6 +66,7 @@ struct FReplayData
 
 struct FReplayDataNetwork : public FReplayData
 {
+	FReplayDataNetwork() : DataType(ENDT_Recv), DataSize(0), DataBuffer(NULL) {}
 	ENetworkDataType DataType;
 	INT DataSize;
 	char* DataBuffer;
@@ -73,7 +76,7 @@ struct FReplayDataNetwork : public FReplayData
 		return ERDT_Network;
 	}
 
-	virtual void Serialize(FArchive& archive);
+	virtual UBOOL Serialize(FArchive& archive);
 
 	virtual void Destroy()
 	{
@@ -92,6 +95,8 @@ struct FReplayDataNetwork : public FReplayData
 
 	virtual bool IsHiFrequencyData() const
 	{
+		if (!DataBuffer || DataSize < (INT)sizeof(MESSAGE_HEADER))
+			return false;
 		MESSAGE_HEADER* pHeader = (MESSAGE_HEADER*)DataBuffer;
 
 		if(pHeader->wMsg != g2c_frame_signal
@@ -111,6 +116,9 @@ struct FReplayDataNetwork : public FReplayData
 
 struct FReplayDataInput : public FReplayData
 {
+	FReplayDataInput()
+		: DataType(EIDT_Key), MousePoint(0, 0), ControllerId(0), Key(NAME_None),
+		  EventType(IE_Pressed), AmountDepressed(0), GamePad(FALSE), Delta(0), DeltaTime(0), Character(0) {}
 	EInputDataType DataType;
 
 	FIntPoint MousePoint;
@@ -131,7 +139,7 @@ struct FReplayDataInput : public FReplayData
 		return ERDT_Input;
 	}
 
-	virtual void Serialize(FArchive& archive);
+	virtual UBOOL Serialize(FArchive& archive);
 
 
 	virtual void Destroy()
@@ -149,6 +157,7 @@ struct FReplayDataInput : public FReplayData
 
 struct FReplayDataScreenRes : public FReplayData
 {
+	FReplayDataScreenRes() : ResX(0), ResY(0), IsFullScreen(FALSE) {}
 	UINT ResX;
 	UINT ResY;
 	UBOOL IsFullScreen;
@@ -158,7 +167,7 @@ struct FReplayDataScreenRes : public FReplayData
 		return ERDT_ScreenRes;
 	}
 
-	virtual void Serialize(FArchive& archive);
+	virtual UBOOL Serialize(FArchive& archive);
 
 
 	virtual void Destroy()

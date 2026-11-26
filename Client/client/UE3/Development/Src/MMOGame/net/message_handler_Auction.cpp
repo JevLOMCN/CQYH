@@ -74,54 +74,72 @@ void CMessageHandler::Send_AucrionPayLeftMoney(UINT32 auctionId)
 void CMessageHandler::Parse_m2c_auction_search(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_SEARCH* msg = (M2C_AUCTION_SEARCH*)buf;
-	MMOAuctionManager::getSingleton().OnServer_SearchResult(msg->btAuctionItemCount, (AUCTION_ITEM_INFO*)msg->acAuctionItems);
+	if (!buf || size < sizeof(M2C_AUCTION_SEARCH))
+		return;
+	MMOAuctionManager::getSingleton().OnServer_SearchResult(msg->btAuctionItemCount, (AUCTION_ITEM_INFO*)msg->acAuctionItems, size - sizeof(*msg));
 }
 
 void CMessageHandler::Parse_m2c_auction_query(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_QUERY* msg = (M2C_AUCTION_QUERY*)buf;
-	MMOAuctionManager::getSingleton().OnServer_QueryAuctionItem(msg);
+	if (!buf || size < sizeof(M2C_AUCTION_QUERY))
+		return;
+	MMOAuctionManager::getSingleton().OnServer_QueryAuctionItem(msg, size);
 }
 
 void CMessageHandler::Parse_m2c_auction_sell(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_SELL* msg = (M2C_AUCTION_SELL*)buf;
-	MMOAuctionManager::getSingleton().OnServer_ItemSell(&msg->stAuction);
+	if (!buf || size < sizeof(M2C_AUCTION_SELL))
+		return;
+	MMOAuctionManager::getSingleton().OnServer_ItemSell(&msg->stAuction, size - sizeof(*msg) + sizeof(msg->stAuction));
 }
 
 void CMessageHandler::Parse_m2c_auction_cancel_sell(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_CANCEL_SELL* msg = (M2C_AUCTION_CANCEL_SELL*)buf;
+	if (!buf || size < sizeof(M2C_AUCTION_CANCEL_SELL))
+		return;
 	MMOAuctionManager::getSingleton().OnServer_ItemCancelSell(msg->dwAuctionID);
 }
 
 void CMessageHandler::Parse_m2c_auction_buy(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_BUY* msg = (M2C_AUCTION_BUY*)buf;
-	MMOAuctionManager::getSingleton().OnServer_ItemBuy(&msg->stAuction);
+	if (!buf || size < sizeof(M2C_AUCTION_BUY))
+		return;
+	MMOAuctionManager::getSingleton().OnServer_ItemBuy(&msg->stAuction, size - sizeof(*msg) + sizeof(msg->stAuction));
 }
 
 void CMessageHandler::Parse_m2c_auction_list_my_selling(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_LIST_MY_SELLING* msg = (M2C_AUCTION_LIST_MY_SELLING*)buf;
-	MMOAuctionManager::getSingleton().OnServer_ListMySelling(msg->byCount, (AUCTION_ITEM_INFO*)msg->acAuctionItems);
+	if (!buf || size < sizeof(M2C_AUCTION_LIST_MY_SELLING))
+		return;
+	MMOAuctionManager::getSingleton().OnServer_ListMySelling(msg->byCount, (AUCTION_ITEM_INFO*)msg->acAuctionItems, size - sizeof(*msg));
 }
 
 void CMessageHandler::Parse_m2c_auction_list_my_buying(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_LIST_MY_BUYING* msg = (M2C_AUCTION_LIST_MY_BUYING*)buf;
-	MMOAuctionManager::getSingleton().OnServer_ListMyBuying(msg->byCount, (AUCTION_ITEM_INFO*)msg->acAuctionItems);
+	if (!buf || size < sizeof(M2C_AUCTION_LIST_MY_BUYING))
+		return;
+	MMOAuctionManager::getSingleton().OnServer_ListMyBuying(msg->byCount, (AUCTION_ITEM_INFO*)msg->acAuctionItems, size - sizeof(*msg));
 }
 
 void CMessageHandler::Parse_m2c_auction_finished(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_FINISHED* msg = (M2C_AUCTION_FINISHED*)buf;
+	if (!buf || size < sizeof(M2C_AUCTION_FINISHED))
+		return;
 	MMOAuctionManager::getSingleton().OnServer_AuctionFinish(msg);
 }
 
 void CMessageHandler::Parse_m2c_auction_pay_left_money(const char* buf, UINT32 size)
 {
 	M2C_AUCTION_PAY_LEFT_MONEY* msg = (M2C_AUCTION_PAY_LEFT_MONEY*)buf;
+	if (!buf || size < sizeof(M2C_AUCTION_PAY_LEFT_MONEY))
+		return;
 	MMOAuctionManager::getSingleton().NotifyUpdatePayLeftItem();
 }
 

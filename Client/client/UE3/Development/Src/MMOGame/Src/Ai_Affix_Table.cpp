@@ -36,7 +36,7 @@ INT UAI_Affix_Table::GetRowCount()
 
 void UAI_Affix_Table::ExportRowData(TArray<FString>& Row, INT nIndex)
 {
-	if(nIndex < Table.Num())
+	if(Table.IsValidIndex(nIndex))
 	{
 		Row.AddItem(FString::Printf(TEXT("%d"), Table(nIndex).ID));
 		Row.AddItem(Table(nIndex).AffixName);
@@ -77,7 +77,7 @@ void UAI_Affix_Table::ExportRowData(TArray<FString>& Row, INT nIndex)
 
 void UAI_Affix_Table::ImportRowData(const TArray<FString>& Values)
 {
-	if(Values.Num() == 0)
+	if(Values.Num() < 2)
 		return;
 	int nID = appAtoi(*Values(0));
 	int nIndex = -1;

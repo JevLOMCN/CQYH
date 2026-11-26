@@ -79,6 +79,8 @@ void CMessageHandler::Send_TradeCancel()
 void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 {
 	G2C_TRADE_STATE_CHANGE *msg = (G2C_TRADE_STATE_CHANGE*)buf;
+	if (!buf || size < sizeof(G2C_TRADE_STATE_CHANGE))
+		return;
 	//
 	UMMOUITradeP2P *pTradeP2P = (UMMOUITradeP2P*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_TradeP2P );
 	//if( pTradeP2P == NULL ){
@@ -246,6 +248,8 @@ void CMessageHandler::Parse_g2c_trade_state_change(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_trade_set_item(const char* buf, UINT32 size)
 {
 	G2C_TRADE_SET_ITEM *msg = (G2C_TRADE_SET_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_TRADE_SET_ITEM))
+		return;
 	//
 	UMMOUITradeP2P *pTradeP2P = (UMMOUITradeP2P*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_TradeP2P );
 	if( pTradeP2P == NULL ){
@@ -258,12 +262,12 @@ void CMessageHandler::Parse_g2c_trade_set_item(const char* buf, UINT32 size)
 	}
 	//
 	bool isMy = pChara->IsMainPlayer() == TRUE;
-	ItemInfo iteminfo;
-    iteminfo.Load(msg->acItem);
-	iteminfo.m_byConSlot = isMy ? CONSLOT_P2P_MY : CONSLOT_P2P_TG;
-	iteminfo.m_byItemSlot = msg->byTradeSlot;
-	//
 	if( msg->bAdd ){
+		ItemInfo iteminfo;
+		if (!iteminfo.Load(msg->acItem, size - sizeof(*msg)))
+			return;
+		iteminfo.m_byConSlot = isMy ? CONSLOT_P2P_MY : CONSLOT_P2P_TG;
+		iteminfo.m_byItemSlot = msg->byTradeSlot;
 		MMOFacade::getSingleton().AddItem( &iteminfo );
 		FClientItemInfo *addItemInfo = MMOFacade::getSingleton().FindItem( iteminfo.m_byConSlot, iteminfo.m_byItemSlot );
 		MMOPowerManager::getSingleton().UpdateEquipPower( addItemInfo );
@@ -279,6 +283,8 @@ void CMessageHandler::Parse_g2c_trade_set_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_trade_set_money(const char* buf, UINT32 size)
 {
 	G2C_TRADE_SET_MONEY *msg = (G2C_TRADE_SET_MONEY*)buf;
+	if (!buf || size < sizeof(G2C_TRADE_SET_MONEY))
+		return;
 	//
 	UMMOUITradeP2P *pTradeP2P = (UMMOUITradeP2P*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_TradeP2P );
 	if( pTradeP2P == NULL ){

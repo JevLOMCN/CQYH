@@ -49,8 +49,12 @@ template<class T>
 BOOL CFreeObjectPool<T>::Init(INT32 nInitSize)
 {
     INT32 nRetCode = 0;
+    if (nInitSize < 0 || m_pDataPool || (size_t)nInitSize > (size_t)-1 / sizeof(DATA_NODE))
+        return FALSE;
+    if (nInitSize == 0)
+        return TRUE;
 
-    m_pDataPool = new DATA_NODE[nInitSize];
+    m_pDataPool = new DATA_NODE[nInitSize]();
     LOG_PROCESS_ERROR(m_pDataPool);
 
     nRetCode = m_FreeStack.Init();
@@ -101,13 +105,18 @@ Exit0:
 template<class T>
 BOOL CFreeObjectPool<T>::Delete(T* pObject)
 {
-    LOG_PROCESS_ERROR(pObject);
-
-    m_FreeStack.Push((STACK_NODE*)((STACK_NODE*)pObject - 1));
-
+    if (!pObject || !m_pDataPool || m_nSize <= 0)
+        return FALSE;
+    const size_t dataOffset = (BYTE*)&m_pDataPool[0].Data - (BYTE*)&m_pDataPool[0];
+    const size_t relative = (size_t)pObject - (size_t)m_pDataPool;
+    if (relative < dataOffset)
+        return FALSE;
+    const size_t nodeOffset = relative - dataOffset;
+    if (nodeOffset % sizeof(DATA_NODE) != 0 || nodeOffset / sizeof(DATA_NODE) >= (size_t)m_nSize)
+        return FALSE;
+    DATA_NODE* node = &m_pDataPool[nodeOffset / sizeof(DATA_NODE)];
+    m_FreeStack.Push(&node->StackNode);
     return TRUE;
-Exit0:
-    return FALSE;
 }
 
 template<class T>

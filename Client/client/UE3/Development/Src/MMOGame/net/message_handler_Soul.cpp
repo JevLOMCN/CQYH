@@ -40,6 +40,8 @@ struct C2G_ADD_SOUL: MESSAGE_HEADER
 //========================================================================================
 void CMessageHandler::Parse_g2c_upgrade_soul(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_UPGRADE_SOUL))
+		return;
 	G2C_UPGRADE_SOUL* msg = (G2C_UPGRADE_SOUL*)buf;
 	Parse_g2c_upgrade_soul(msg->byResult);
 }
@@ -52,6 +54,8 @@ void CMessageHandler::Parse_g2c_upgrade_soul(UINT8 byResult)
 //========================================================================================
 void CMessageHandler::Parse_g2c_add_soul(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_ADD_SOUL))
+		return;
 	G2C_ADD_SOUL* msg = (G2C_ADD_SOUL*)buf;
 	Parse_g2c_add_soul(msg->byResult);
 }
@@ -64,6 +68,8 @@ void CMessageHandler::Parse_g2c_add_soul(UINT8 byResult)
 //========================================================================================
 void CMessageHandler::Parse_g2c_remove_soul(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_REMOVE_SOUL))
+		return;
 	G2C_REMOVE_SOUL* msg = (G2C_REMOVE_SOUL*)buf;
 	Parse_g2c_remove_soul(msg->byResult);
 }
@@ -100,7 +106,9 @@ void CMessageHandler::Send_UpgradeSoul( UINT wTargetConSlot,UINT wTargetItemSlot
 	C2G_UPGRADE_SOUL msg;
 	ZeroMemory(&msg, sizeof(msg));
 
-	if(bySrcCount < 0 || bySrcCount > 5)
+	if(bySrcCount > ARRAY_COUNT(msg.bySrcConSlot)
+		|| bySrcCount > ARRAY_COUNT(msg.bySrcItemSlot)
+		|| bySrcCount > wSrcConSlot.size() || bySrcCount > wSrcItemSlot.size())
 	{
 		return;
 	}

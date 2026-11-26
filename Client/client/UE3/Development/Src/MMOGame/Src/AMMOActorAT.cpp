@@ -80,12 +80,16 @@ void UMMOActorAT::SetActionLoopBlendTarget(FLOAT BlendTarget, FLOAT BlendTime)
 
 UBOOL UMMOActorAT::GetCurrentAnimInfo(INT& OutActiveAnimKey,BYTE& OutAnimLevel,FLOAT& OutPercent,FName& OutAnimName)
 {
-	if (!ActionLoopBlend || !ActionBlend)
+	OutActiveAnimKey = 0;
+	OutAnimLevel = 0;
+	OutPercent = 0.0f;
+	OutAnimName = NAME_None;
+
+	if (!ActionLoopBlend || !ActionBlend || ActionLoopBlend->Children.Num() != 2)
 	{
 		return FALSE;
 	}
 
-	check(ActionLoopBlend->Children.Num() == 2);
 	if (ActionBlend && ActionLoopBlend->Child2WeightTarget > 0.1 /*ActionLoopBlend->Children(1).Weight >= 0.01*/)
 	{
 		return ActionBlend->GetCurrentAnimInfo(OutActiveAnimKey, OutAnimLevel, OutPercent, OutAnimName);
@@ -161,7 +165,7 @@ FLOAT UMMOActorAT::PlayAnimation(FName Anim,INT InKey,FLOAT Rate,UBOOL bLoop,BYT
 		{
 			if(ActionLoopBlend->BranchStartBoneName.Num() == 0)
 			{
-				ActionLoopBlend->BranchStartBoneName.Add(1);
+				ActionLoopBlend->BranchStartBoneName.AddItem(FName(NAME_None));
 			}
 			if(ActionLoopBlend->BranchStartBoneName(0) != BoneName)
 			{

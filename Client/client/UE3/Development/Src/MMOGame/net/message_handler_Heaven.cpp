@@ -205,7 +205,11 @@ void CMessageHandler::Send_HeavenBloodOpen(INT nPage)
 
 void CMessageHandler::Parse_g2c_sync_spirit(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SYNC_SPIRIT))
+		return;
 	G2C_SYNC_SPIRIT* msg = (G2C_SYNC_SPIRIT*)buf;
+	if (size - sizeof(*msg) < sizeof(ROLE_DB_SPIRIT_DATA))
+		return;
 	if(msg == NULL)
 		return;
  	MMOHeavenManager::getSingleton().NotifyUpdateHeavenData((ROLE_DB_SPIRIT_DATA*)msg->szData);
@@ -213,6 +217,8 @@ void CMessageHandler::Parse_g2c_sync_spirit(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_spirit_exp_change(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_EXP_CHANGE))
+		return;
 	G2C_SPIRIT_EXP_CHANGE* msg = (G2C_SPIRIT_EXP_CHANGE*)buf;
 	if(msg == NULL)
 		return;
@@ -227,6 +233,8 @@ void CMessageHandler::Parse_g2c_spirit_exp_change(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_spirit_up(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_UP))
+		return;
 	G2C_SPIRIT_UP* msg = (G2C_SPIRIT_UP*)buf;
 	if(msg == NULL)
 		return;
@@ -239,6 +247,8 @@ void CMessageHandler::Parse_g2c_spirit_up(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_spirit_air_change(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_AIR_CHANGE))
+		return;
 	G2C_SPIRIT_AIR_CHANGE* msg = (G2C_SPIRIT_AIR_CHANGE*)buf;
 	if(msg == NULL)
 		return;
@@ -273,6 +283,8 @@ void CMessageHandler::Parse_g2c_spirit_air_change(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_spirit_air_levelup(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_AIR_LEVELUP))
+		return;
 	G2C_SPIRIT_AIR_LEVELUP* msg = (G2C_SPIRIT_AIR_LEVELUP*)buf;
 	if(msg == NULL)
 		return;
@@ -281,6 +293,8 @@ void CMessageHandler::Parse_g2c_spirit_air_levelup(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_spirit_brush_slot(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_BRUSH_SLOT))
+		return;
 	G2C_SPIRIT_BRUSH_SLOT* msg = (G2C_SPIRIT_BRUSH_SLOT*)buf;
 	if(msg == NULL)
 		return;
@@ -288,6 +302,8 @@ void CMessageHandler::Parse_g2c_spirit_brush_slot(const char* buf, UINT32 size)
 }
 void CMessageHandler::Parse_g2c_spirit_slot_size_change(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_SLOT_SIZE_CHANGE))
+		return;
 	G2C_SPIRIT_SLOT_SIZE_CHANGE* msg = (G2C_SPIRIT_SLOT_SIZE_CHANGE*)buf;
 	if(msg == NULL)
 		return;
@@ -299,6 +315,8 @@ void CMessageHandler::Parse_g2c_spirit_slot_size_change(const char* buf, UINT32 
 }
 void CMessageHandler::Parse_g2c_spirit_notify_exp_change_time(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_NOTIFY_EXP_CHANGE_TIME))
+		return;
 	G2C_SPIRIT_NOTIFY_EXP_CHANGE_TIME* msg = (G2C_SPIRIT_NOTIFY_EXP_CHANGE_TIME*)buf;
 	if(msg == NULL)
 		return;
@@ -307,6 +325,8 @@ void CMessageHandler::Parse_g2c_spirit_notify_exp_change_time(const char* buf, U
 }
 void CMessageHandler::Parse_g2c_spirit_blood_open(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPIRIT_BLOOD_OPEN))
+		return;
 	G2C_SPIRIT_BLOOD_OPEN* msg = (G2C_SPIRIT_BLOOD_OPEN*)buf;
 	if(msg == NULL)
 		return;

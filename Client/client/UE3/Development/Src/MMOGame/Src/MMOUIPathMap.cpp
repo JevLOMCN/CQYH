@@ -136,12 +136,12 @@ void UMMOUIPathMap::InitPathMapTiles( const FString& inMapFileName, FInMapRegion
 
 	//
 	FString strValueKey;
-	INT tileSizeX;
+	INT tileSizeX = 256;
 	strValueKey = TEXT("WorldMapTileSizeX");
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, tileSizeX, GGameIni );
 
 	strValueKey = TEXT("WorldMapTileSizeY");
-	INT tileSizeY;
+	INT tileSizeY = 256;
 	GConfig->GetInt( TEXT("MapImg"), *strValueKey, tileSizeY, GGameIni );
 	//
 	INT maxImgTileRowNum = RegionInMap.WorldMapTileRowNum;
@@ -159,7 +159,7 @@ void UMMOUIPathMap::InitPathMapTiles( const FString& inMapFileName, FInMapRegion
 	map3Dto2D = map3Dto2DNoScaled;
 
 	//
-	INT minimapX, minimapY;
+	INT minimapX = 256, minimapY = 256;
 	GConfig->GetInt( TEXT("MapImg"), TEXT("MiniMapTileSizeX"), minimapX, GGameIni );
 	GConfig->GetInt( TEXT("MapImg"), TEXT("MiniMapTileSizeY"), minimapY, GGameIni );
 	INT origImgSizeX = RegionInMap.MiniMapTileRowNum * minimapX;
@@ -204,7 +204,7 @@ void UMMOUIPathMap::InitPathMapTiles( const FString& inMapFileName, FInMapRegion
 	ResizeMap( ZoomDefaultQuot );
 
 	//
-	FVector player3dPos;
+	FVector player3dPos(0, 0, 0);
 	//if( !isResetPos ){
 	//	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	//	if( player != NULL ){
@@ -611,7 +611,8 @@ void UMMOUIPathMap::UpdateMarksGlobalPlayer( FVector centerPos3D, float fYawDeg 
 				}
 				break;
 			default:
-				break;
+				++iter;
+				continue;
 			}
 
 			//

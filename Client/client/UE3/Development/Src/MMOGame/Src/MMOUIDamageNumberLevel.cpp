@@ -214,6 +214,7 @@ void UMMOUIDamageNumberLevel::PlayerExpChange(INT CurrentExp,INT MaxExp,INT Chan
 //-----------------------------------------------------------------------------------------------------
 void UMMOUIDamageNumberLevel::InitInfo()
 {
+	IsMoneyVisible.Empty( E_MONEYTYPE_MAX );
 	IsMoneyVisible.Add( E_MONEYTYPE_MAX );
 	for(INT i=0;i<E_MONEYTYPE_MAX;i++)
 	{
@@ -240,7 +241,8 @@ void UMMOUIDamageNumberLevel::PlayerMoneyChange(BYTE MoneyType,INT DeltaMoney)
 
 	//ShowGetMoney (  screenPos.X, screenPos.y , Abs( GainInfoList[0].Value ) , GainInfoList[0].SubType ,GainInfoList[0].Location);
 
-	if( IsMoneyVisible(MoneyType)==0 )return;
+	if (!IsMoneyVisible.IsValidIndex(MoneyType) || IsMoneyVisible(MoneyType) == 0)
+		return;
 	//if( MoneyType == MONEYTYPE_02  || MoneyType == MONEYTYPE_03 || MoneyType == MONEYTYPE_04 || MoneyType == MONEYTYPE_SOUL_PTS)
 	//{	
 	//	return;

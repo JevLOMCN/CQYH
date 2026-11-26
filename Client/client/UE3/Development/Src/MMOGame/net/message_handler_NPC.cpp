@@ -73,7 +73,7 @@ void CMessageHandler::SyncNpcData(G2C_SYNC_NPC_EX_DATA* NewData)
 		if(NewData->byType==E_npct_Pet)
 		{
 			npc->dwHostID = NewData->dwHostID;
-			npc->MasterName =  FString(UTF8_TO_TCHAR(NewData->szHostName));
+			npc->MasterName =  ReadFixedUTF8(NewData->szHostName);
 			npc->ActorAttributes->PetLevel = NewData->byPetLevel;
 
 		}
@@ -178,6 +178,8 @@ void CMessageHandler::SyncNpcData(G2C_SYNC_NPC_EX_DATA* NewData)
 void CMessageHandler::Parse_g2c_play_action(const char* buf, UINT32 size)
 {
 	G2C_PLAY_ACTION* msg = (G2C_PLAY_ACTION*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	AMMOActor* actor = MMOFacade::getSingleton().GetCharacter(msg->dwCharID);
 	if( actor)
@@ -191,6 +193,8 @@ void CMessageHandler::Parse_g2c_sync_npc_data(const char* buf, UINT32 size)
 {
 	//debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_sync_npc_data]"));
 	G2C_SYNC_NPC_DATA* msg = (G2C_SYNC_NPC_DATA*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 #if 0	
 	const UNPCTemplate* npcTemplate = MMOFacade::getSingleton().FindNPCTemplate(msg->nTemplateID);
@@ -210,6 +214,7 @@ void CMessageHandler::Parse_g2c_sync_npc_data(const char* buf, UINT32 size)
 	{
 		G2C_SYNC_NPC_EX_DATA* NewNode = new G2C_SYNC_NPC_EX_DATA;
 		check(NewNode);
+		appMemzero(NewNode, sizeof(*NewNode));
 		memcpy(NewNode, msg, sizeof(G2C_SYNC_NPC_DATA));
 		NewNode->byType=E_npct_Npc;
 		NewNode->byPetLevel=0;
@@ -220,6 +225,7 @@ void CMessageHandler::Parse_g2c_sync_npc_data(const char* buf, UINT32 size)
 	}
 	else
 	{
+		appMemzero(CacheData, sizeof(*CacheData));
 		memcpy(CacheData, msg, sizeof(G2C_SYNC_NPC_DATA));
 		CacheData->byType=E_npct_Npc;
 		CacheData->byPetLevel=0;
@@ -233,6 +239,8 @@ void CMessageHandler::Parse_g2c_sync_npc_ex_data(const char* buf, UINT32 size)
 {
 	//debugIDf( TEXT("Network"), TEXT("[CMessageHandler::Parse_g2c_sync_npc_data]"));
 	G2C_SYNC_NPC_EX_DATA* msg = (G2C_SYNC_NPC_EX_DATA*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 
 	G2C_SYNC_NPC_EX_DATA* CacheData = m_NPCDataCache.GetCacheData(msg->dwNpcID);
@@ -257,6 +265,8 @@ void CMessageHandler::Parse_g2c_sync_npc_ex_data(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_interact_result(const char* buf, UINT32 size)
 {
 	G2C_INTERACT_RESULT* msg = (G2C_INTERACT_RESULT*)buf;
+	if (!buf || size <= sizeof(*msg) || !memchr(msg->szDialogContent, 0, size - sizeof(*msg)))
+		return;
 	ParseContext ctx;
 	ANPC* npc = Cast<ANPC>( MMOFacade::getSingleton().GetCharacter(INT(msg->dwNpcID)) );
 	if( npc)

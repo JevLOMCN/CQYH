@@ -48,6 +48,7 @@ public:
 class FSMCtrl_ShowHintBtn: public IFSMCtrl
 {
 public:	
+	FSMCtrl_ShowHintBtn() : _bShowHintBtn(FALSE) {}
 	UBOOL	Update(FLOAT DelTime);
 	void	Action();
 private:

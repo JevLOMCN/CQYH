@@ -17,6 +17,14 @@ using namespace FSM;
 //IMPLEMENT_CLASS(UTeamManager)
 TeamManager::TeamManager()
 {
+	AssignType = 0;
+	MemberLimit = 0;
+	InLargeTeam = FALSE;
+	_autoTeam = FALSE;
+	_AddBidRate = 0;
+	targetRoleId = 0;
+	bTargetRoleTeam = FALSE;
+	bTeamAnswerHasTeam = FALSE;
 	hasTeam = false;
 	ImTeamLeader = false;
 	TeamLeaderServeId = -1;
@@ -147,31 +155,65 @@ void TeamManager::SetTeamLeaderRoleId(INT RoleId)
 	MMOUI::PostGameEvent(&evt);
 }
 
+// Versioned value records; FString storage addresses must never be persisted.
 void TeamManager::LoadInvitePlayerBinary()
 {
-	FArchive* pArchive      = NULL;
-	size_t  lDataLength		= 0; 
-	FString DataTypeName	= TEXT("TeamInviteHistory");
-
-	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive,DataTypeName ) )
+	FArchive* archive = NULL;
+	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, TEXT("TeamInviteHistory")))
 	{
-		INT TotalSize = pArchive->TotalSize();
-		INT Size = TotalSize *sizeof(BYTE)/sizeof(MMOInvitedPlayer);
-		InvitedPlayerCache.Add(Size);
-		pArchive->Serialize( InvitedPlayerCache.GetData(), pArchive->TotalSize() );
+		const UINT32 format = 0x31495443u; // CTI1
+		UINT32 magic = 0;
+		INT count = 0;
+		archive->Serialize(&magic, sizeof(magic));
+		archive->Serialize(&count, sizeof(count));
+		const INT recordBytes = 3 * sizeof(INT) + ROLE_NAME_LEN * sizeof(TCHAR);
+		if (!archive->IsError() && magic == format && count >= 0 && count <= MAX_ARCHIVE_INVITE_PLAYER &&
+			archive->Tell() <= archive->TotalSize() &&
+			archive->TotalSize() - archive->Tell() == count * recordBytes)
+		{
+			TArray<MMOInvitedPlayer> loaded;
+			for (INT i = 0; i < count; ++i)
+			{
+				MMOInvitedPlayer player;
+				TCHAR name[ROLE_NAME_LEN + 1] = {0};
+				archive->Serialize(&player.ActorServerId, sizeof(player.ActorServerId));
+				archive->Serialize(&player.Job, sizeof(player.Job));
+				archive->Serialize(&player.Level, sizeof(player.Level));
+				archive->Serialize(name, ROLE_NAME_LEN * sizeof(TCHAR));
+				if (archive->IsError())
+					break;
+				player.ActorName = name;
+				loaded.AddItem(player);
+			}
+			if (!archive->IsError())
+				InvitedPlayerCache = loaded;
+		}
 	}
-	MMOFacade::getSingleton().EndLoadAccountBinary( pArchive );
+	MMOFacade::getSingleton().EndLoadAccountBinary(archive);
 }
 
 void TeamManager::SaveInvitePlayerBinary()
 {
-	void    *pData			= InvitedPlayerCache.GetData();
-	size_t  lDataLength		= sizeof(MMOInvitedPlayer)*InvitedPlayerCache.Num();
-	FString DataTypeName	= TEXT("-TeamInviteHistory-");
-
-	MMOFacade::getSingleton().ExportSimpleAccountData( pData,lDataLength,DataTypeName );
+	FArchive* archive = NULL;
+	if (MMOFacade::getSingleton().BeginExportAccountData(&archive, TEXT("TeamInviteHistory")))
+	{
+		UINT32 magic = 0x31495443u; // CTI1
+		INT count = InvitedPlayerCache.Num() < MAX_ARCHIVE_INVITE_PLAYER ? InvitedPlayerCache.Num() : MAX_ARCHIVE_INVITE_PLAYER;
+		archive->Serialize(&magic, sizeof(magic));
+		archive->Serialize(&count, sizeof(count));
+		for (INT i = InvitedPlayerCache.Num() - count; i < InvitedPlayerCache.Num() && !archive->IsError(); ++i)
+		{
+			MMOInvitedPlayer& player = InvitedPlayerCache(i);
+			TCHAR name[ROLE_NAME_LEN] = {0};
+			appStrncpy(name, *player.ActorName, ARRAY_COUNT(name));
+			archive->Serialize(&player.ActorServerId, sizeof(player.ActorServerId));
+			archive->Serialize(&player.Job, sizeof(player.Job));
+			archive->Serialize(&player.Level, sizeof(player.Level));
+			archive->Serialize(name, sizeof(name));
+		}
+	}
+	MMOFacade::getSingleton().EndExportAccountData(archive);
 }
-
 
 //------------------------------------------------------------
 void TeamManager::Init( )
@@ -568,7 +610,7 @@ MMOTeamMember *TeamManager::GetMemberById( INT roleID )
 //------------------------------------------------------------
 MMOTeamMember* TeamManager::GetTeamMember( INT index )
 {
-	if(index >=0 && index <= TeamMemberList.Num())
+	if(TeamMemberList.IsValidIndex(index))
 	{
 		return &TeamMemberList(index);
 	}
@@ -578,7 +620,7 @@ MMOTeamMember* TeamManager::GetTeamMember( INT index )
 //------------------------------------------------------------------------------------------------------------------------
 MMONearbyPlayer* TeamManager::GetNearPlayer( INT index )
 {
-	if( NearbyPlayerList.Num() > index )
+	if( NearbyPlayerList.IsValidIndex(index) )
 	{
 		return &NearbyPlayerList(index);
 	}
@@ -587,7 +629,7 @@ MMONearbyPlayer* TeamManager::GetNearPlayer( INT index )
 
 MMOTeamInfo* TeamManager::GetNearTeam( INT index )
 {
-	if( TeamInfoList.Num() > index )
+	if( TeamInfoList.IsValidIndex(index) )
 	{
 		return &TeamInfoList(index);
 	}

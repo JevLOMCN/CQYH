@@ -18,18 +18,21 @@ void CMessageHandler::Send_QueryGuildName(UINT32 id, UINT32 crc)
 
 void CMessageHandler::Send_CreateGuild(const FString& name, const FString& announce)
 {
-	INT32 nAnnounceSize = 0;
 	FTCHARToUTF8 szAnnounce(*announce);
-	nAnnounceSize = szAnnounce.Length() + 1;
-	if (nAnnounceSize > GUILD_ANNOUNCE_LEN)
+	const INT32 textLength = szAnnounce.Length();
+	if (textLength < 0 || textLength >= GUILD_ANNOUNCE_LEN ||
+		(size_t)textLength + sizeof(C2G_GUILD_CREATE) + 1 > sizeof(ms_MsgBuffer) ||
+		(size_t)textLength + sizeof(C2G_GUILD_CREATE) + 1 > 0xffff)
 	{
 		return;
 	}
 
+	const INT32 nAnnounceSize = textLength + 1;
 	C2G_GUILD_CREATE* msg = (C2G_GUILD_CREATE*)ms_MsgBuffer;
+	appMemzero(msg, sizeof(*msg));
 	msg->wMsg = c2g_guild_create;
 	strxcpy(msg->szGuildName, *name, GUILD_NAME_LEN);
-	strxcpy(msg->szAnnounce, *announce, GUILD_ANNOUNCE_LEN);
+	appMemcpy(msg->szAnnounce, (const ANSICHAR*)szAnnounce, nAnnounceSize);
 	msg->wSize = sizeof(C2G_GUILD_CREATE) + nAnnounceSize;
 	_Send(msg, msg->wSize);
 }
@@ -111,17 +114,20 @@ void CMessageHandler::Send_ViewMoreEvents()
 
 void CMessageHandler::Send_GuildNoticeChange(const FString& notice)
 {
-	INT32 nNoticeSize = 0;
 	FTCHARToUTF8 szNotice(*notice);
-	nNoticeSize = szNotice.Length() + 1;
-	if (nNoticeSize > GUILD_NOTICE_LEN)
+	const INT32 textLength = szNotice.Length();
+	if (textLength < 0 || textLength >= GUILD_NOTICE_LEN ||
+		(size_t)textLength + sizeof(C2M_GUILD_NOTICE_CHANGE) + 1 > sizeof(ms_MsgBuffer) ||
+		(size_t)textLength + sizeof(C2M_GUILD_NOTICE_CHANGE) + 1 > 0xffff)
 	{
 		return;
 	}
 
+	const INT32 nNoticeSize = textLength + 1;
 	C2M_GUILD_NOTICE_CHANGE* msg = (C2M_GUILD_NOTICE_CHANGE*)ms_MsgBuffer;
+	appMemzero(msg, sizeof(*msg));
 	msg->wMsg = c2m_guild_notice_change;
-    strxcpy(msg->szNotice, *notice, GUILD_NOTICE_LEN);
+    appMemcpy(msg->szNotice, (const ANSICHAR*)szNotice, nNoticeSize);
 	msg->wSize = sizeof(C2M_GUILD_NOTICE_CHANGE) + nNoticeSize;
 	_Send(msg, msg->wSize);
 }
@@ -418,17 +424,20 @@ void CMessageHandler::Send_MoreGuildInfo()
 
 void CMessageHandler::Send_GuildAnnounceChange(const FString& announce)
 {
-	INT32 nAnnounceSize = 0;
 	FTCHARToUTF8 szAnnounce(*announce);
-	nAnnounceSize = szAnnounce.Length() + 1;
-	if (nAnnounceSize > GUILD_ANNOUNCE_LEN)
+	const INT32 textLength = szAnnounce.Length();
+	if (textLength < 0 || textLength >= GUILD_ANNOUNCE_LEN ||
+		(size_t)textLength + sizeof(C2M_GUILD_ANNOUNCE_CHANGE) + 1 > sizeof(ms_MsgBuffer) ||
+		(size_t)textLength + sizeof(C2M_GUILD_ANNOUNCE_CHANGE) + 1 > 0xffff)
 	{
 		return;
 	}
 
+	const INT32 nAnnounceSize = textLength + 1;
 	C2M_GUILD_ANNOUNCE_CHANGE* msg = (C2M_GUILD_ANNOUNCE_CHANGE*)ms_MsgBuffer;
+	appMemzero(msg, sizeof(*msg));
 	msg->wMsg = c2m_guild_announce_change;
-	strxcpy(msg->szAnnounce, *announce, GUILD_ANNOUNCE_LEN);
+	appMemcpy(msg->szAnnounce, (const ANSICHAR*)szAnnounce, nAnnounceSize);
 	msg->wSize = sizeof(C2M_GUILD_ANNOUNCE_CHANGE) + nAnnounceSize;
 	_Send(msg, msg->wSize);
 }
@@ -455,18 +464,24 @@ void CMessageHandler::Parse_m2c_query_guild_name_ack(const char* buf, UINT32 siz
 {
 	ASSERT_CHECK_ERROR_RETURN(buf && size == sizeof(M2C_QUERY_GUILD_NAME_ACK));
 	M2C_QUERY_GUILD_NAME_ACK* msg = (M2C_QUERY_GUILD_NAME_ACK*)buf;
+	if (!buf || size < sizeof(M2C_QUERY_GUILD_NAME_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyQueryGuildInfo(msg);
 }
 
 void CMessageHandler::Parse_m2c_create_guild_ack(const char* buf, UINT32 size)
 {
 	M2C_CREATE_GUILD_ACK* msg = (M2C_CREATE_GUILD_ACK*)buf;
-	MMOGuildManager::getSingleton().NotifyCreateGuildSuccess(UTF8_TO_TCHAR(msg->szGuildName));
+	if (!buf || size < sizeof(M2C_CREATE_GUILD_ACK))
+		return;
+	MMOGuildManager::getSingleton().NotifyCreateGuildSuccess(*ReadFixedUTF8(msg->szGuildName));
 }
 
 void CMessageHandler::Parse_m2c_guild_add_storage_event_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ADD_STORAGE_EVENT_NTF* msg = (M2C_GUILD_ADD_STORAGE_EVENT_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ADD_STORAGE_EVENT_NTF))
+		return;
 	UBOOL fullPlayerName = TRUE;
 	if(msg)
 	{
@@ -488,7 +503,8 @@ void CMessageHandler::Parse_m2c_guild_add_storage_event_ntf(const char* buf, UIN
 		}
 
 		ItemInfo iteminfo;
-		iteminfo.Load( msg->szItemBuffer );
+		if (!iteminfo.Load(msg->szItemBuffer, sizeof(msg->szItemBuffer)))
+			return;
 
 		UItem* item = MMOFacade::getSingleton().FindItemTemplate(iteminfo.m_nTemplateID);
 		if (item)
@@ -519,11 +535,15 @@ void CMessageHandler::Parse_m2c_guild_add_storage_event_ntf(const char* buf, UIN
 void CMessageHandler::Parse_m2c_guild_storage_event(const char* buf, UINT32 size)
 {
 	M2C_GUILD_STORAGE_EVENT* msg = (M2C_GUILD_STORAGE_EVENT*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_STORAGE_EVENT))
+		return;
 
 	UBOOL fullPlayerName = TRUE;
 
 	MMOGuildData::getSingleton().ClearAccessInfo();
 
+	if (msg->byEventCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	for ( INT i = 0 ; i < msg->byEventCount ; i++ )
 	{
 		PlayerBaseInfo *playerInfo = MMOFacade::getSingleton().RequestPlayerBaseInfo( msg->info[i].dwRoleID );
@@ -544,7 +564,8 @@ void CMessageHandler::Parse_m2c_guild_storage_event(const char* buf, UINT32 size
 		}
 
 		ItemInfo iteminfo;
-		iteminfo.Load( msg->info[i].szItemBuffer );
+		if (!iteminfo.Load(msg->info[i].szItemBuffer, sizeof(msg->info[i].szItemBuffer)))
+			return;
 
 		UItem* item = MMOFacade::getSingleton().FindItemTemplate(iteminfo.m_nTemplateID);
 		if (item)
@@ -576,29 +597,43 @@ void CMessageHandler::Parse_m2c_guild_storage_event(const char* buf, UINT32 size
 void CMessageHandler::Parse_m2c_view_guild_list_ack(const char* buf, UINT32 size)
 {
 	M2C_VIEW_GUILD_LIST_ACK* msg = (M2C_VIEW_GUILD_LIST_ACK*)buf;
+	if (!buf || size < sizeof(M2C_VIEW_GUILD_LIST_ACK))
+		return;
+	if ((UINT32)msg->byCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildViewList(msg->byViewType, msg->info, msg->byCount);
 }
 
 void CMessageHandler::Parse_m2c_find_guild_ack(const char* buf, UINT32 size)
 {
 	M2C_FIND_GUILD_ACK* msg = (M2C_FIND_GUILD_ACK*)buf;
+	if (!buf || size < sizeof(M2C_FIND_GUILD_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildFindList(msg->data);
 }
 
 void CMessageHandler::Parse_m2c_guild_info_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_INFO_NTF* msg = (M2C_GUILD_INFO_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_INFO_NTF))
+		return;
+	if (msg->byMemberCount > (size - sizeof(*msg)) / sizeof(msg->arrMemberData[0]) ||
+		msg->stEventInfo.byEventCount > ARRAY_COUNT(msg->stEventInfo.stEventInfo) ||
+		msg->stChestInfo.byCount > ARRAY_COUNT(msg->stChestInfo.stEvent) ||
+		msg->byAllianceCount > ARRAY_COUNT(msg->stAlliance) ||
+		msg->byEnemyCount > ARRAY_COUNT(msg->stEnemy))
+		return;
 
 	// Guild basic info
 	GuildBaseInfo baseInfo;
 	baseInfo.Id = msg->dwGuildID;
-	baseInfo.Name = UTF8_TO_TCHAR(msg->szGuildName);
+	baseInfo.Name = *ReadFixedUTF8(msg->szGuildName);
 	baseInfo.level = msg->byLevel;
 	baseInfo.MemberCount = msg->byMemberCount;
 	baseInfo.Money = msg->dwGuildMoney;
 	baseInfo.Salary = 0;
-	baseInfo.LeaderName = UTF8_TO_TCHAR(msg->szLeaderName);
-	baseInfo.CreatorName = UTF8_TO_TCHAR(msg->szCreaterName);
+	baseInfo.LeaderName = *ReadFixedUTF8(msg->szLeaderName);
+	baseInfo.CreatorName = *ReadFixedUTF8(msg->szCreaterName);
 	baseInfo.CreateTime = msg->dwCreateTime;
 	baseInfo.Herb = msg->nHerb;
 	baseInfo.Wood = msg->nWood;
@@ -613,8 +648,8 @@ void CMessageHandler::Parse_m2c_guild_info_ntf(const char* buf, UINT32 size)
 	// Add own guild info to the query list
 	MMOGuildManager::getSingleton().QueryGuildInfo(msg->dwGuildID);
 
-	// Guild announcement
-	MMOGuildManager::getSingleton().NotifyUpdateGuildNotice(UTF8_TO_TCHAR(msg->szNotice));
+	// 公会公告
+	MMOGuildManager::getSingleton().NotifyUpdateGuildNotice(*ReadFixedUTF8(msg->szNotice));
 
 	//Notify info change
 	MMOFacade::getSingleton().NotifyPlayerBaseInfoChange();
@@ -665,6 +700,8 @@ void CMessageHandler::Parse_m2c_guild_info_ntf(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_guild_add_history_event_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ADD_HISTORY_EVENT_NTF* msg = (M2C_GUILD_ADD_HISTORY_EVENT_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ADD_HISTORY_EVENT_NTF))
+		return;
 
 	if (msg->byType > GUILD_HE_TYPE_END && msg->byType < GUILD_CHEST_END)
 	{
@@ -695,12 +732,18 @@ void CMessageHandler::Parse_m2c_guild_add_history_event_ntf(const char* buf, UIN
 void CMessageHandler::Parse_m2c_guild_more_history(const char* buf, UINT32 size)
 {
 	M2C_GUILD_MORE_HISTORY* msg = (M2C_GUILD_MORE_HISTORY*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_MORE_HISTORY))
+		return;
+	if ((UINT32)msg->wEventNum > (size - sizeof(*msg)) / sizeof(msg->stEventInfo[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyMoreGuildEvents(msg->stEventInfo, msg->wEventNum);
 }
 
 void CMessageHandler::Parse_m2c_apply_to_join_guild_ack(const char* buf, UINT32 size)
 {
 	M2C_APPLY_TO_JOIN_GUILD_ACK* msg = (M2C_APPLY_TO_JOIN_GUILD_ACK*)buf;
+	if (!buf || size < sizeof(M2C_APPLY_TO_JOIN_GUILD_ACK))
+		return;
 	if (msg->dwGuildID != 0)
 	{
 		MMOGuildManager::getSingleton().NotifyApplyToJoinGuildSuccess();
@@ -710,78 +753,107 @@ void CMessageHandler::Parse_m2c_apply_to_join_guild_ack(const char* buf, UINT32 
 void CMessageHandler::Parse_m2c_get_apply_guild_list_ack(const char* buf, UINT32 size)
 {
 	M2C_GET_APPLY_GUILD_LIST_ACK* msg = (M2C_GET_APPLY_GUILD_LIST_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GET_APPLY_GUILD_LIST_ACK))
+		return;
+	if ((UINT32)msg->wAppCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildPendingMemberList(msg->info, msg->wAppCount);
 }
 
 void CMessageHandler::Parse_m2c_revert_guild_apply_ack(const char* buf, UINT32 size)
 {
 	M2C_REVERT_GUILD_APPLY_ACK* msg = (M2C_REVERT_GUILD_APPLY_ACK*)buf;
-	// Both accept and reject will receive a reply
+	if (!buf || size < sizeof(M2C_REVERT_GUILD_APPLY_ACK))
+		return;
+	// 同意和拒绝都会收到回复
 	CMessageHandler::GetInstance().Send_GetApplyGuildList();
 }
 
 void CMessageHandler::Parse_m2c_guild_add_member_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ADD_MEMBER_NTF* msg = (M2C_GUILD_ADD_MEMBER_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ADD_MEMBER_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyAddGuildFullMember(msg->info);
 }
 
 void CMessageHandler::Parse_m2c_guild_del_member_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_DEL_MEMBER_NTF* msg = (M2C_GUILD_DEL_MEMBER_NTF*)buf;
-	// Server no longer uses it
+	if (!buf || size < sizeof(M2C_GUILD_DEL_MEMBER_NTF))
+		return;
+	// 服务器不用了
 }
 
 void CMessageHandler::Parse_m2c_be_invited_to_join_guild(const char* buf, UINT32 size)
 {
 	M2C_BE_INVITED_TO_JOIN_GUILD* msg = (M2C_BE_INVITED_TO_JOIN_GUILD*)buf;
-	MMOGuildManager::getSingleton().NotifyBeInviteToJoinGuild(msg->dwRoleID, UTF8_TO_TCHAR(msg->szRoleName), UTF8_TO_TCHAR(msg->szGuildName));
+	if (!buf || size < sizeof(M2C_BE_INVITED_TO_JOIN_GUILD))
+		return;
+	MMOGuildManager::getSingleton().NotifyBeInviteToJoinGuild(msg->dwRoleID, *ReadFixedUTF8(msg->szRoleName), *ReadFixedUTF8(msg->szGuildName));
 }
 
 void CMessageHandler::Parse_m2c_invite_to_join_guild_ack(const char* buf, UINT32 size)
 {
 	M2C_INVITE_TO_JOIN_GUILD_ACK* msg = (M2C_INVITE_TO_JOIN_GUILD_ACK*)buf;
-	MMOGuildManager::getSingleton().NotifyInviteToJoinGuild(msg->byReplyType, UTF8_TO_TCHAR(msg->szRoleName));
+	if (!buf || size < sizeof(M2C_INVITE_TO_JOIN_GUILD_ACK))
+		return;
+	MMOGuildManager::getSingleton().NotifyInviteToJoinGuild(msg->byReplyType, *ReadFixedUTF8(msg->szRoleName));
 }
 
 void CMessageHandler::Parse_m2c_disband_guild_ntf(const char* buf, UINT32 size)
 {
 	M2C_DISBAND_GUILD_NTF* msg = (M2C_DISBAND_GUILD_NTF*)buf;
+	if (!buf || size < sizeof(M2C_DISBAND_GUILD_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyDisbandGuild();
 }
 
 void CMessageHandler::Parse_m2c_guild_notice_change(const char* buf, UINT32 size)
 {
 	M2C_GUILD_NOTICE_CHANGE* msg = (M2C_GUILD_NOTICE_CHANGE*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_NOTICE_CHANGE))
+		return;
 	
-	char szTempNotice[GUILD_NOTICE_LEN];
-	appMemIsZero(szTempNotice , sizeof(char) * GUILD_NOTICE_LEN);
-	memcpy(szTempNotice, msg->szNotice, GUILD_NOTICE_LEN);
-	szTempNotice[GUILD_NOTICE_LEN - 1] = '\0';
+	if (msg->wSize < sizeof(*msg) || msg->wSize > size ||
+		msg->wSize - sizeof(*msg) > GUILD_NOTICE_LEN)
+		return;
+	const UINT32 noticeBytes = msg->wSize - sizeof(*msg);
+	char szTempNotice[GUILD_NOTICE_LEN + 1] = {0};
+	if (noticeBytes > 0)
+		appMemcpy(szTempNotice, msg->szNotice, noticeBytes);
 	MMOGuildManager::getSingleton().NotifyUpdateGuildNotice(UTF8_TO_TCHAR(szTempNotice));
 }
 
 void CMessageHandler::Parse_m2c_guild_forbid_chat_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_FORBID_CHAT_NTF* msg = (M2C_GUILD_FORBID_CHAT_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_FORBID_CHAT_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildFullMemberForbitChat(msg->dwRoleID, msg->byOp == GUILD_CHAT_FORBID);
 }
 
 void CMessageHandler::Parse_m2c_guild_change_position_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_CHANGE_POSITION_NTF* msg = (M2C_GUILD_CHANGE_POSITION_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_CHANGE_POSITION_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyChangeGuildFullMemberPost(msg->dwRoleID, msg->byPosition);
 }
 
 void CMessageHandler::Parse_m2c_guild_role_leave_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ROLE_LEAVE_NTF* msg = (M2C_GUILD_ROLE_LEAVE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ROLE_LEAVE_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyDelGuildFullMember(msg->dwRoleID);
 }
 
 void CMessageHandler::Parse_m2c_guild_role_leave_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ROLE_LEAVE_ACK* msg = (M2C_GUILD_ROLE_LEAVE_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ROLE_LEAVE_ACK))
+		return;
 	
 	if (msg->byLeaveType == GUILD_LEAVE_ACTIVE)
 	{
@@ -796,43 +868,57 @@ void CMessageHandler::Parse_m2c_guild_role_leave_ack(const char* buf, UINT32 siz
 void CMessageHandler::Parse_m2c_guild_demise_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_DEMISE_NTF* msg = (M2C_GUILD_DEMISE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_DEMISE_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildLeaderDemise(msg->dwOldLeaderID, msg->dwNewLeaderID);
 }
 
 void CMessageHandler::Parse_m2c_guild_attr_modify_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ATTR_MODIFY_NTF* msg = (M2C_GUILD_ATTR_MODIFY_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ATTR_MODIFY_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildAttr(msg->nGuildAttrType, msg->dwGuildAttrValue);
 }
 
 void CMessageHandler::Parse_m2c_guild_apply_alliance_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_APPLY_ALLIANCE_ACK* msg = (M2C_GUILD_APPLY_ALLIANCE_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_APPLY_ALLIANCE_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyApplyAllianceSuccess();
 }
 
 void CMessageHandler::Parse_m2c_guild_get_apply_union_list_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_GET_APPLY_UNION_LIST_ACK* msg = (M2C_GUILD_GET_APPLY_UNION_LIST_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_GET_APPLY_UNION_LIST_ACK))
+		return;
+	if ((UINT32)msg->byCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildApplyAllyList(msg->info, msg->byCount);
 }
 
 void CMessageHandler::Parse_m2c_guild_reply_union_app_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_REPLY_UNION_APP_ACK* msg = (M2C_GUILD_REPLY_UNION_APP_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_REPLY_UNION_APP_ACK))
+		return;
 }
 
 void CMessageHandler::Parse_m2c_guild_add_diplomat_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_ADD_DIPLOMAT_NTF* msg = (M2C_GUILD_ADD_DIPLOMAT_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_ADD_DIPLOMAT_NTF))
+		return;
 
 	if (msg->byType == GUILD_DIPLOMAT_ALLIANCE)
 	{
-		MMOGuildManager::getSingleton().NotifyAddGuildAlly(msg->dwGuildID, UTF8_TO_TCHAR(msg->szGuildName), msg->byLevel, msg->byMemberCount, msg->dwLastTime);
+		MMOGuildManager::getSingleton().NotifyAddGuildAlly(msg->dwGuildID, *ReadFixedUTF8(msg->szGuildName), msg->byLevel, msg->byMemberCount, msg->dwLastTime);
 	}
 	else
 	{
-		MMOGuildManager::getSingleton().NotifyAddGuildEnemy(msg->dwGuildID, UTF8_TO_TCHAR(msg->szGuildName), msg->byLevel, msg->byMemberCount, msg->dwLastTime);
+		MMOGuildManager::getSingleton().NotifyAddGuildEnemy(msg->dwGuildID, *ReadFixedUTF8(msg->szGuildName), msg->byLevel, msg->byMemberCount, msg->dwLastTime);
 	}
 
 	Send_GuildGetApplyUnionList();
@@ -841,6 +927,8 @@ void CMessageHandler::Parse_m2c_guild_add_diplomat_ntf(const char* buf, UINT32 s
 void CMessageHandler::Parse_m2c_guild_del_diplomat_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_DEL_DIPLOMAT_NTF* msg = (M2C_GUILD_DEL_DIPLOMAT_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_DEL_DIPLOMAT_NTF))
+		return;
 	
 	if (msg->byType == GUILD_DIPLOMAT_ALLIANCE)
 	{
@@ -857,17 +945,23 @@ void CMessageHandler::Parse_m2c_guild_del_diplomat_ntf(const char* buf, UINT32 s
 void CMessageHandler::Parse_m2c_guild_change_storage_right_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_CHANGE_STORAGE_RIGHT_NTF* msg = (M2C_GUILD_CHANGE_STORAGE_RIGHT_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_CHANGE_STORAGE_RIGHT_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildStorageRights(msg->byPosition, msg->wRight);
 }
 
 void CMessageHandler::Parse_m2c_guild_view_storage_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_VIEW_STORAGE_ACK* msg = (M2C_GUILD_VIEW_STORAGE_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_VIEW_STORAGE_ACK))
+		return;
 
     //TODO
 	MMOGuildData::getSingleton().ClearWarehouseItemInfo();
 
 	INT BuffSize = 0;
+	if (msg->wItemCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	for ( int i = 0 ; i < msg->wItemCount ; i++ )
 	{
 		GUILD_STORAGE_ITEM_INFO* guildItemInfo = &msg->info[i];
@@ -877,7 +971,8 @@ void CMessageHandler::Parse_m2c_guild_view_storage_ack(const char* buf, UINT32 s
 		}
 		
 		ItemInfo itemInfo;
-		itemInfo.Load(guildItemInfo->szItemBuffer);
+		if (!itemInfo.Load(guildItemInfo->szItemBuffer, sizeof(guildItemInfo->szItemBuffer)))
+			return;
 		
 		UItem* item = MMOFacade::getSingleton().FindItemTemplate(itemInfo.m_nTemplateID);
 		if (!item)
@@ -894,9 +989,12 @@ void CMessageHandler::Parse_m2c_guild_view_storage_ack(const char* buf, UINT32 s
 void CMessageHandler::Parse_m2c_guild_push_item_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_PUSH_ITEM_ACK* msg = (M2C_GUILD_PUSH_ITEM_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_PUSH_ITEM_ACK))
+		return;
 
 	ItemInfo itemInfo;
-	itemInfo.Load(msg->buff);
+	if (!itemInfo.Load(msg->buff, size - sizeof(*msg)))
+		return;
 
 	MMOGuildData::getSingleton().SetWarehouseItemInfo( msg->byStorageConSlot , msg->byStorageSlot , &itemInfo  );
 	MMOUI::GetUIManager()->delegateFreshWarehouse();
@@ -905,6 +1003,8 @@ void CMessageHandler::Parse_m2c_guild_push_item_ack(const char* buf, UINT32 size
 void CMessageHandler::Parse_m2c_guild_pop_item_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_POP_ITEM_ACK* msg = (M2C_GUILD_POP_ITEM_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_POP_ITEM_ACK))
+		return;
 
 	MMOGuildData::getSingleton().SetWarehouseItem(msg->byStorageConSlot, msg->byStorageSlot, NULL);
 	MMOUI::GetUIManager()->delegateFreshWarehouse();
@@ -913,6 +1013,8 @@ void CMessageHandler::Parse_m2c_guild_pop_item_ack(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_guild_move_item_ack(const char* buf, UINT32 size)
 {
 	M2C_GUILD_MOVE_ITEM_ACK* msg = (M2C_GUILD_MOVE_ITEM_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_MOVE_ITEM_ACK))
+		return;
 
 	MMOGuildData::getSingleton().SwapItem( msg->bySourceConSlot , msg->bySourceSlot , msg->byTargetConSlot , msg->byTargetSlot );
 	MMOUI::GetUIManager()->delegateFreshWarehouse();
@@ -921,6 +1023,8 @@ void CMessageHandler::Parse_m2c_guild_move_item_ack(const char* buf, UINT32 size
 void CMessageHandler::Parse_m2c_sync_social_attr_ntf(const char* buf, UINT32 size)
 {
 	M2C_SYNC_SOCIAL_ATTR_NTF* msg = (M2C_SYNC_SOCIAL_ATTR_NTF*)buf;
+	if (!buf || size < sizeof(M2C_SYNC_SOCIAL_ATTR_NTF))
+		return;
 
     if (msg->byLevel == 0)  
     {// If 0, it is an offline message. Do not update level and map, only update offline time
@@ -937,6 +1041,8 @@ void CMessageHandler::Parse_m2c_sync_social_attr_ntf(const char* buf, UINT32 siz
 void CMessageHandler::Parse_g2c_sync_guild_name(const char* buf, UINT32 size)
 {
 	G2C_SYNC_GUILD_NAME* msg = (G2C_SYNC_GUILD_NAME*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_GUILD_NAME))
+		return;
 
 	// Add the guild info of the updated name to the query list
 	if (msg->dwGuildID > 0)
@@ -948,78 +1054,110 @@ void CMessageHandler::Parse_g2c_sync_guild_name(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_guild_join_guild_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_JOIN_GUILD_NTF* msg = (M2C_GUILD_JOIN_GUILD_NTF*)buf;
-	MMOGuildManager::getSingleton().NotifyJoinGuildSuccess(UTF8_TO_TCHAR(msg->szGuildName));
+	if (!buf || size < sizeof(M2C_GUILD_JOIN_GUILD_NTF))
+		return;
+	MMOGuildManager::getSingleton().NotifyJoinGuildSuccess(*ReadFixedUTF8(msg->szGuildName));
 }
 
 void CMessageHandler::Parse_m2c_guild_upgrade_building_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_UPGRADE_BUILDING_NTF* msg = (M2C_GUILD_UPGRADE_BUILDING_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_UPGRADE_BUILDING_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpgradeGuildBuilding(msg->qwNpcNameID, msg->byType, msg->nTime);
 }
 
 void CMessageHandler::Parse_m2c_guild_update_building_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_UPDATE_BUILDING_NTF* msg = (M2C_GUILD_UPDATE_BUILDING_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_UPDATE_BUILDING_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildBuilding(msg->qwNpcNameID, msg->byType);
 }
 
 void CMessageHandler::Parse_m2c_guild_del_building_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_DEL_BUILDING_NTF* msg = (M2C_GUILD_DEL_BUILDING_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_DEL_BUILDING_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyDestroyGuildBuilding(msg->qwNpcNameID, msg->byType);
 }
 
 void CMessageHandler::Parse_m2c_guild_cancel_building_upgrade_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_CANCEL_BUILDING_UPGRADE_NTF* msg = (M2C_GUILD_CANCEL_BUILDING_UPGRADE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_CANCEL_BUILDING_UPGRADE_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyCancelGuildBuildingUpgrade(msg->qwNpcNameID, msg->byType);
 }
 
 void CMessageHandler::Parse_m2c_guild_upgrade_welfare_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_UPGRADE_WELFARE_NTF* msg = (M2C_GUILD_UPGRADE_WELFARE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_UPGRADE_WELFARE_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpgradeGuildWelfare(msg->byType, msg->nTime);
 }
 
 void CMessageHandler::Parse_m2c_guild_update_welfare_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_UPDATE_WELFARE_NTF* msg = (M2C_GUILD_UPDATE_WELFARE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_UPDATE_WELFARE_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildWelfare(msg->byType, msg->byLevel);
 }
 
 void CMessageHandler::Parse_m2c_guild_cancel_welfare_upgrade_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_CANCEL_WELFARE_UPGRADE_NTF* msg = (M2C_GUILD_CANCEL_WELFARE_UPGRADE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_CANCEL_WELFARE_UPGRADE_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyCancelGuildWelfareUpgrade(msg->dwID);
 }
 
 void CMessageHandler::Parse_g2c_guild_buy_aura_ack(const char* buf, UINT32 size)
 { 
 	G2C_GUILD_BUY_AURA_ACK* msg = (G2C_GUILD_BUY_AURA_ACK*)buf;
+	if (!buf || size < sizeof(G2C_GUILD_BUY_AURA_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyPurchaseGuildWelfare(msg->byType, msg->byCount);
 }
 
 void CMessageHandler::Parse_g2c_sync_purchase_aura_record(const char* buf, UINT32 size)
 { 
 	G2C_SYNC_PURCHASE_AURA_RECORD* msg = (G2C_SYNC_PURCHASE_AURA_RECORD*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_PURCHASE_AURA_RECORD))
+		return;
+	if (msg->wCount < 0 ||
+		(UINT32)msg->wCount > (size - sizeof(*msg)) / sizeof(msg->data[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildWelfareInfoList(msg->data, msg->wCount);
 }
 
 void CMessageHandler::Parse_m2c_guild_get_dungeon_list_ack(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_GET_DUNGEON_LIST_ACK* msg = (M2C_GUILD_GET_DUNGEON_LIST_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_GET_DUNGEON_LIST_ACK))
+		return;
+	if ((UINT32)msg->byDungeonCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildDungeonList(msg->info, msg->byDungeonCount);
 }
 
 void CMessageHandler::Parse_m2c_guild_open_dungeon_ack(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_OPEN_DUNGEON_ACK* msg = (M2C_GUILD_OPEN_DUNGEON_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_OPEN_DUNGEON_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyOpenDungeonSuccess();
 }
 
 void CMessageHandler::Parse_m2c_guild_dungeon_award(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_DUNGEON_AWARD* msg = (M2C_GUILD_DUNGEON_AWARD*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_DUNGEON_AWARD) ||
+		msg->byItemCount > ARRAY_COUNT(msg->arrItem))
+		return;
 	MMOGuildManager::getSingleton().NotifyDungeonEnd(msg->dwOwnerID, msg->arrItem, msg->byItemCount);
 }
 /*
@@ -1027,7 +1165,9 @@ void CMessageHandler::Parse_m2c_guild_sync_war_stage_ntf(const char* buf, UINT32
 {
     // todo_zhangrui war
 	//M2C_GUILD_SYNC_WAR_STAGE_NTF* msg = (M2C_GUILD_SYNC_WAR_STAGE_NTF*)buf;
-	//// Names of both combatants
+	if (!buf || size < sizeof(M2C_GUILD_SYNC_WAR_STAGE_NTF))
+		return;
+	//// 战斗双方的名字
 	//MMOGuildManager::getSingleton().NotifyGuildWarState(msg->byStage,
 	//	msg->dwIntruderID,
 	//	UTF8_TO_TCHAR(msg->szIntruderName),
@@ -1039,43 +1179,59 @@ void CMessageHandler::Parse_m2c_guild_sync_war_stage_ntf(const char* buf, UINT32
 void CMessageHandler::Parse_m2c_guild_building_state_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_BUILDING_STATE_NTF* msg = (M2C_GUILD_BUILDING_STATE_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_BUILDING_STATE_NTF))
+		return;
 	//MMOGuildManager::getSingleton().NotifyGuildBuildingState(msg->qwNameID, msg->byState);    // todo_zhangrui war
 }
 
 void CMessageHandler::Parse_m2c_guild_battle_achievement(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_BATTLE_ACHIEVEMENT* msg = (M2C_GUILD_BATTLE_ACHIEVEMENT*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_BATTLE_ACHIEVEMENT))
+		return;
+	if ((UINT32)msg->byNum > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildWarResult(msg->info, msg->byNum);
 }
 
 void CMessageHandler::Parse_m2c_guild_member_salary_change(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_MEMBER_SALARY_CHANGE* msg = (M2C_GUILD_MEMBER_SALARY_CHANGE*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_MEMBER_SALARY_CHANGE))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildMemberSalaryChange(msg->dwSalary);
 }
 
 void CMessageHandler::Parse_m2c_guild_sync_war_cd_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_SYNC_WAR_CD_NTF* msg = (M2C_GUILD_SYNC_WAR_CD_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_SYNC_WAR_CD_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildWarCD(msg->dwWarCD);
 }
 
 void CMessageHandler::Parse_g2c_guild_contribute_ack(const char* buf, UINT32 size)
 { 
 	G2C_GUILD_CONTRIBUTE_ACK* msg = (G2C_GUILD_CONTRIBUTE_ACK*)buf;
-	// Deprecated here, now goes through M2C_GUILD_CONTRIBUTE_ACK
+	if (!buf || size < sizeof(G2C_GUILD_CONTRIBUTE_ACK))
+		return;
+	// 这里废掉了，统一走M2C_GUILD_CONTRIBUTE_ACK
 	//MMOGuildManager::getSingleton().NotifyGuildContributeSuccess(GUILD_ATTR_MONEY, msg->nMoney);
 }
 
 void CMessageHandler::Parse_m2c_guild_contribute_ack(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_CONTRIBUTE_ACK* msg = (M2C_GUILD_CONTRIBUTE_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_CONTRIBUTE_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildContributeSuccess(msg->nType, msg->nValue);
 }
 
 void CMessageHandler::Parse_g2c_guild_draw_salary_ack(const char* buf, UINT32 size)
 { 
 	G2C_GUILD_DRAW_SALARY_ACK* msg = (G2C_GUILD_DRAW_SALARY_ACK*)buf;
+	if (!buf || size < sizeof(G2C_GUILD_DRAW_SALARY_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildDrawSalarySuccess(msg->nSalary);
 }
 /*
@@ -1083,6 +1239,8 @@ void CMessageHandler::Parse_m2c_guild_matching_guild_ack(const char* buf, UINT32
 {
     // todo_zhangrui war
 	//M2C_GUILD_MATCHING_GUILD_ACK* msg = (M2C_GUILD_MATCHING_GUILD_ACK*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_MATCHING_GUILD_ACK))
+		return;
 
 	//MMOGuildManager::getSingleton().QueryGuildInfo(msg->dwGuildID);
 	//// Query member name
@@ -1101,12 +1259,18 @@ void CMessageHandler::Parse_m2c_guild_matching_guild_ack(const char* buf, UINT32
 void CMessageHandler::Parse_m2c_guild_notify_ntf(const char* buf, UINT32 size)
 { 
 	M2C_GUILD_NOTIFY_NTF* msg = (M2C_GUILD_NOTIFY_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_NOTIFY_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildEventsHint(msg->byType);
 }
 
 void CMessageHandler::Parse_m2c_guild_more_chest(const char* buf, UINT32 size)
 {
 	M2C_GUILD_MORE_CHEST* msg = (M2C_GUILD_MORE_CHEST*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_MORE_CHEST))
+		return;
+	if ((UINT32)msg->wEventNum > (size - sizeof(*msg)) / sizeof(msg->stEvent[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildMoneyEvents(msg->stEvent, msg->wEventNum);
 
 }
@@ -1114,6 +1278,8 @@ void CMessageHandler::Parse_m2c_guild_more_chest(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_more_guild_info_ack(const char* buf, UINT32 size)
 { 
 	M2C_MORE_GUILD_INFO_ACK* msg = (M2C_MORE_GUILD_INFO_ACK*)buf;
+	if (!buf || size < sizeof(M2C_MORE_GUILD_INFO_ACK))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateMoreGuildInfo(msg->nMatchWarConsumption, msg->byMatchCount);
 }
 
@@ -1121,18 +1287,27 @@ void CMessageHandler::Parse_m2c_more_guild_info_ack(const char* buf, UINT32 size
 void CMessageHandler::Parse_m2c_enroll_sabac(const char* buf, UINT32 size)
 { 
 	M2C_ENROLL_SABAC* msg = (M2C_ENROLL_SABAC*)buf;
+	if (!buf || size < sizeof(M2C_ENROLL_SABAC))
+		return;
 	MMOGuildManager::getSingleton().NotifySabacEnrollGuildId(msg->dwGuildID);
 }
 
 void CMessageHandler::Parse_g2c_sync_sabac_enroll_list(const char* buf, UINT32 size)
 { 
 	G2C_SYNC_SABAC_ENROLL_LIST* msg = (G2C_SYNC_SABAC_ENROLL_LIST*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_SABAC_ENROLL_LIST))
+		return;
+	if (msg->wSize < sizeof(*msg) || msg->wSize > size ||
+		(msg->wSize - sizeof(*msg)) % sizeof(msg->EnrollList[0]) != 0)
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateSabacEnrollList(msg->EnrollList, (msg->wSize - sizeof(G2C_SYNC_SABAC_ENROLL_LIST)) / sizeof(G2C_SYNC_SABAC_ENROLL_LIST::ENROLL_DATA));
 }
 
 void CMessageHandler::Parse_m2c_occupy_sabac(const char* buf, UINT32 size)
 { 
 	M2C_OCCUPY_SABAC* msg = (M2C_OCCUPY_SABAC*)buf;
+	if (!buf || size < sizeof(M2C_OCCUPY_SABAC))
+		return;
 
 	if (MMO::GetCurrentGameState() == EGameState_InGame)
 	{
@@ -1155,23 +1330,29 @@ void CMessageHandler::Parse_m2c_occupy_sabac(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sabac_state_change(const char* buf, UINT32 size)
 { 
 	G2C_SABAC_STATE_CHANGE* msg = (G2C_SABAC_STATE_CHANGE*)buf;
+	if (!buf || size < sizeof(G2C_SABAC_STATE_CHANGE))
+		return;
 	MMOGuildManager::getSingleton().NotifySabacState(msg->byStarted);
 }
 
 void CMessageHandler::Parse_m2c_sabac_winner_login(const char* buf, UINT32 size)
 { 
 	M2C_SABAC_WINNER_LOGIN* msg = (M2C_SABAC_WINNER_LOGIN*)buf;
-	MMOGuildManager::getSingleton().NotifySabacWinnerLogin(UTF8_TO_TCHAR(msg->szRoleName));
+	if (!buf || size < sizeof(M2C_SABAC_WINNER_LOGIN))
+		return;
+	MMOGuildManager::getSingleton().NotifySabacWinnerLogin(*ReadFixedUTF8(msg->szRoleName));
 }
 
 void CMessageHandler::Parse_m2c_erect_statue(const char* buf, UINT32 size)
 { 
 	M2C_ERECT_STATUE* msg = (M2C_ERECT_STATUE*)buf;
+	if (!buf || size < sizeof(M2C_ERECT_STATUE))
+		return;
 
 	SabacStatue statue;
 	statue.RoleId = msg->dwRoleID;
 	MMOFacade::getSingleton().RequestPlayerBaseInfo(statue.RoleId, TRUE);
-	statue.RoleName = UTF8_TO_TCHAR(msg->szRoleName);
+	statue.RoleName = *ReadFixedUTF8(msg->szRoleName);
 	statue.RoleClass = msg->byClass;
 	statue.RoleSex = msg->bySex;
 	statue.HairType = msg->byHairType;
@@ -1192,18 +1373,26 @@ void CMessageHandler::Parse_m2c_erect_statue(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_guild(const char* buf, UINT32 size)
 {
 	G2C_SYNC_GUILD* msg = (G2C_SYNC_GUILD*)buf;
-	// What the server sends here is actually the CD end time
+	if (!buf || size < sizeof(G2C_SYNC_GUILD))
+		return;
+	// 服务器这里发的其实是CD的结束时间
 	MMOGuildManager::getSingleton().NotifyGuildLeaveCD(msg->dwCD);
 }
 
 void CMessageHandler::Parse_m2c_guild_war_record(const char* buf, UINT32 size)
 {
 	M2C_GUILD_WAR_RECORD* msg = (M2C_GUILD_WAR_RECORD*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_WAR_RECORD))
+		return;
+	if ((UINT32)msg->wCount > (size - sizeof(*msg)) / sizeof(msg->info[0]))
+		return;
 	MMOGuildManager::getSingleton().NotifyUpdateGuildWarRecords(msg->info, msg->wCount);
 }
 
 void CMessageHandler::Parse_m2c_guild_join_war_ntf(const char* buf, UINT32 size)
 {
 	M2C_GUILD_JOIN_WAR_NTF* msg = (M2C_GUILD_JOIN_WAR_NTF*)buf;
+	if (!buf || size < sizeof(M2C_GUILD_JOIN_WAR_NTF))
+		return;
 	MMOGuildManager::getSingleton().NotifyGuildJoinWar(msg->byWarCharacter, msg->dwTargetGuildID);
 }

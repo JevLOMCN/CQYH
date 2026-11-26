@@ -8,35 +8,47 @@ using namespace ExternalMessage;
 extern bool bUseGMCmd;
 extern UBOOL g_bGMBuff;
 //----------------------------------------------------------
-void CMessageHandler::Parse_m2c_chat_message(const char* buf, UINT32 size)
+static BOOL ReadChatSender(const char* message, UINT32 bytes, const char*& sender)
 {
-	M2C_CHAT_MESSAGE* msg =  (M2C_CHAT_MESSAGE*)buf;
-	int ChannelId = GetTypeFromID ( msg->dwTargetID );
-	int IndexId = msg->dwTargetID;
-	int off = appStrlen( msg->szMessage )+1;
-	//if( off > msg->wSize - sizeof( M2C_CHAT_MESSAGE ) )
-	//	return;
-
-	//if (msg->dwTargetID == MMOFacade::getSingleton().GetMainPlayer()->ServerID)
-	//{
-		//debugf(UTF8_TO_TCHAR(msg->szMessage));
-	//}
-
-	FString SenderName( UTF8_TO_TCHAR( msg->szMessage + off ));
-	MMOChatManager::getSingleton().ReceiveMessage( msg->uLocation , ChannelId , IndexId , FString( UTF8_TO_TCHAR(msg->szMessage)) , SenderName, msg->dwSrcID , msg->dwTargetID ,msg->bGM);
+	sender = NULL;
+	if (!message || bytes == 0)
+		return FALSE;
+	const char* end = (const char*)memchr(message, 0, bytes);
+	if (!end)
+		return FALSE;
+	const UINT32 offset = (UINT32)(end - message) + 1;
+	if (offset >= bytes || !memchr(message + offset, 0, bytes - offset))
+		return FALSE;
+	sender = message + offset;
+	return TRUE;
 }
 
-//----------------------------------------------------------
+void CMessageHandler::Parse_m2c_chat_message(const char* buf, UINT32 size)
+{
+	if (!buf || size < sizeof(M2C_CHAT_MESSAGE))
+		return;
+	const M2C_CHAT_MESSAGE* msg = (const M2C_CHAT_MESSAGE*)buf;
+	const char* sender = NULL;
+	if (!ReadChatSender(msg->szMessage, size - sizeof(*msg), sender))
+		return;
+	const INT channel = GetTypeFromID(msg->dwTargetID);
+	FString senderName(UTF8_TO_TCHAR(sender));
+	MMOChatManager::getSingleton().ReceiveMessage(msg->uLocation, channel, msg->dwTargetID,
+		FString(UTF8_TO_TCHAR(msg->szMessage)), senderName, msg->dwSrcID, msg->dwTargetID, msg->bGM);
+}
+
 void CMessageHandler::Parse_g2c_chat_message(const char* buf, UINT32 size)
 {
-	G2C_CHAT_MESSAGE* msg =  (G2C_CHAT_MESSAGE*)buf;
-	int ChannelId = GetTypeFromID ( msg->dwTargetID );
-	int IndexId = msg->dwTargetID ;
-	int off = appStrlen( msg->szMessage )+1;
-
-
-	FString SenderName( UTF8_TO_TCHAR( msg->szMessage + off ));
-	MMOChatManager::getSingleton().ReceiveMessage( msg->uLocation , ChannelId , IndexId , FString( UTF8_TO_TCHAR(msg->szMessage)) , SenderName, msg->dwSrcID );
+	if (!buf || size < sizeof(G2C_CHAT_MESSAGE))
+		return;
+	const G2C_CHAT_MESSAGE* msg = (const G2C_CHAT_MESSAGE*)buf;
+	const char* sender = NULL;
+	if (!ReadChatSender(msg->szMessage, size - sizeof(*msg), sender))
+		return;
+	const INT channel = GetTypeFromID(msg->dwTargetID);
+	FString senderName(UTF8_TO_TCHAR(sender));
+	MMOChatManager::getSingleton().ReceiveMessage(msg->uLocation, channel, msg->dwTargetID,
+		FString(UTF8_TO_TCHAR(msg->szMessage)), senderName, msg->dwSrcID);
 }
 
 FString g_lastSendContent = TEXT("");

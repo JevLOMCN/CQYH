@@ -10,6 +10,7 @@
 
 MMOAttributeAccountManager::MMOAttributeAccountManager()
 {
+	expEtra = 0;
 	//Init();
 	//ClassId = 0;
 	BattlePoint = 0;
@@ -23,7 +24,7 @@ MMOAttributeAccountManager::~MMOAttributeAccountManager()
 
 const FString MMOAttributeAccountManager::GetAttributeName( INT groupId , INT index ) const
 {
-	if( AttributeGroupList.Num() <= groupId || AttributeGroupList(groupId).AttributeList.Num() < index )
+	if( !AttributeGroupList.IsValidIndex(groupId) || !AttributeGroupList(groupId).AttributeList.IsValidIndex(index) )
 	{
 		//out of bounds
 		return TEXT("");
@@ -41,7 +42,10 @@ const FString MMOAttributeAccountManager::GetAttributeName( INT groupId , INT in
 	}
 	else
 	{
-		res = item.AttributeName[ CurAttrListener->GetClassId() ];
+		const INT classId = CurAttrListener->GetClassId();
+		if (classId < 0 || classId >= EPCT_MAX)
+			return TEXT("");
+		res = item.AttributeName[classId];
 	}
 
 	if(item.ValueShowType == EVST_Bag || item.ValueShowType == EVST_Weap || item.ValueShowType == EVST_Armor)
@@ -77,7 +81,7 @@ const FString MMOAttributeAccountManager::GetAttributeName( INT groupId , INT in
 //----------get attribute value
 const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT index ) const
 {
-	if( AttributeGroupList.Num() <= groupId || AttributeGroupList(groupId).AttributeList.Num() < index )
+	if( !AttributeGroupList.IsValidIndex(groupId) || !AttributeGroupList(groupId).AttributeList.IsValidIndex(index) )
 	{
 		//out of bounds
 		return TEXT("");
@@ -101,6 +105,9 @@ const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT i
 	{
 		curClass = CurAttrListener->GetClassId();
 	}
+
+	if (curClass < 0 || curClass >= EPCT_MAX)
+		return TEXT("");
 
 	if( item.AttributeValueType[curClass] == 0 && item.ValueShowType != EVST_ExpEtra)
 	{
@@ -247,7 +254,7 @@ const FString MMOAttributeAccountManager::GetAttributeValue( INT groupId , INT i
 
 UBOOL MMOAttributeAccountManager::IsRelationAttribute( INT groupId , INT index , INT Attri )
 {
-	if( AttributeGroupList.Num() <= groupId || AttributeGroupList(groupId).AttributeList.Num() < index )
+	if( !AttributeGroupList.IsValidIndex(groupId) || !AttributeGroupList(groupId).AttributeList.IsValidIndex(index) )
 	{
 		//out of bounds
 		return FALSE;
@@ -276,6 +283,8 @@ UBOOL MMOAttributeAccountManager::IsRelationAttribute( INT groupId , INT index ,
 		//return IsRelationSpecialAttribute( item.AttributeValueType[curClass] , Attri );
 // JO*(WJOSIJERg end
 
+	if (curClass < 0 || curClass >= EPCT_MAX)
+			return FALSE;
 	return item.AttributeValueType[curClass] == Attri || item.AttributeValueTypeB[curClass] == Attri ;
 	
 }
@@ -322,7 +331,7 @@ FString MMOAttributeAccountManager::GetBattlePoint()
 
 INT MMOAttributeAccountManager::GetOwnerAttribute( INT attrId , AttrListenerType type )
 {
-	if( AttrOwnerTypeList.Num() > (INT)type )
+	if( AttrOwnerTypeList.IsValidIndex((INT)type) && AttrOwnerTypeList(type) )
 	{
 		return AttrOwnerTypeList(type)->GetAttribute( attrId );		
 	}
@@ -488,6 +497,11 @@ const FString MMOAttributeAccountManager::GetAttributeDesc( INT groupId , INT in
 	{
 		curClassTipsValue = EPCT_PlayerClassA;
 	}
+
+	if (curClassTipsText < 0 || curClassTipsText >= EPCT_MAX ||
+		curClassTipsType < 0 || curClassTipsType >= EPCT_MAX ||
+		curClassTipsValue < 0 || curClassTipsValue >= EPCT_MAX)
+		return TEXT("");
 
 	FLOAT paraA,paraB;
 	paraA = paraB = 0.0f;
@@ -1357,7 +1371,7 @@ void MMOAttributeAccountManager::SetAttrOwnerMode( AttrListenerType type )
 	//{
 	//	if( AttrOwnerTypeList(i) && AttrOwnerTypeList(i)->GetType() == type )
 	//	{
-			CurAttrListener = AttrOwnerTypeList(type);
+			CurAttrListener = AttrOwnerTypeList.IsValidIndex((INT)type) ? AttrOwnerTypeList(type) : NULL;
 	//	}
 	//}
 				

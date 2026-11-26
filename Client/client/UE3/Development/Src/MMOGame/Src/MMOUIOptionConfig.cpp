@@ -50,7 +50,7 @@ public:
 	{
 		arrLevel[0] = nV0;arrLevel[1] = nV1;arrLevel[2] = nV2;arrLevel[3] = nV3;arrLevel[4] = nV4;
 	}
-	virtual INT   GetIntData(INT nLevel){return arrLevel[nLevel];};
+	virtual INT   GetIntData(INT nLevel){return arrLevel[Clamp<INT>(nLevel, 0, ARRAY_COUNT(arrLevel) - 1)];};
 
 	INT arrLevel[5];
 
@@ -65,7 +65,7 @@ public:
 	{
 		arrLevel[0] = nV0;arrLevel[1] = nV1;arrLevel[2] = nV2;arrLevel[3] = nV3;arrLevel[4] = nV4;
 	}
-	virtual UBOOL GetBoolData(INT nLevel){return arrLevel[nLevel];};
+	virtual UBOOL GetBoolData(INT nLevel){return arrLevel[Clamp<INT>(nLevel, 0, ARRAY_COUNT(arrLevel) - 1)];};
 
 	BOOL arrLevel[5];
 };
@@ -78,7 +78,7 @@ public:
 		arrLevel[0] = nV0;arrLevel[1] = nV1;arrLevel[2] = nV2;arrLevel[3] = nV3;arrLevel[4] = nV4;
 	}
 
-	virtual FLOAT GetFloatData(INT nLevel){return arrLevel[nLevel];};
+	virtual FLOAT GetFloatData(INT nLevel){return arrLevel[Clamp<INT>(nLevel, 0, ARRAY_COUNT(arrLevel) - 1)];};
 	FLOAT arrLevel[5];
 };
 

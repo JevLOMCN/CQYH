@@ -33,7 +33,7 @@ void UMMOUIMsgButtonBar::OpenMailPanel()
 
 void UMMOUIMsgButtonBar::OpenMasterStudentPanel()
 {
-	MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_Master);
+	const MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_Master);
 	for (INT i = 0; i < (INT)list.size(); ++ i)
 	{
 		if(list[i]._Parms.Parm1 == -1)
@@ -78,7 +78,7 @@ void UMMOUIMsgButtonBar::OpenCongUpLevelPanel()
 
 void UMMOUIMsgButtonBar::OpenGuildWarStartPanelAttack()
 {
-	MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_Guild);
+	const MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_Guild);
 	for (INT i = 0; i < (INT)list.size(); ++ i)
 	{
 		if (list[i]._Parms.Parm1 == GMBT_ATTACK)
@@ -95,7 +95,7 @@ void UMMOUIMsgButtonBar::OpenGuildWarStartPanelAttack()
 
 void UMMOUIMsgButtonBar::OpenGuildWarStartPanelDefend()
 {
-	MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_Guild);
+	const MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_Guild);
 	for (INT i = 0; i < (INT)list.size(); ++ i)
 	{
 		if (list[i]._Parms.Parm1 == GMBT_DEFEND)
@@ -112,7 +112,7 @@ void UMMOUIMsgButtonBar::OpenGuildWarStartPanelDefend()
 
 void UMMOUIMsgButtonBar::OpenGuildMainPanelApplyAlly()
 {
-	MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_GuildAlly);
+	const MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo(E_MsgBtnShow_GuildAlly);
 	for (INT i = 0; i < (INT)list.size(); ++ i)
 	{
 		if (list[i]._Parms.Parm1 == GMBT_APPLY_ALLY)
@@ -210,7 +210,7 @@ void UMMOUIMsgButtonBar::OnNativeGameEvent(struct MMOGameEvent* evt)
 					UGFxObject* nameList = GFXPlayer->CreateArray();
 					if( nameList )
 					{
-						MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo( eMsgBtnShowType(umlevt->IntData) );
+						const MsgButtonInfoVec& list = MMOMsgButtonManager::getSingleton().GetMsgButtonInfo( umlevt->IntData );
 
 						for ( INT idx = 0 ; idx < (INT)list.size() ; idx++ )
 						{

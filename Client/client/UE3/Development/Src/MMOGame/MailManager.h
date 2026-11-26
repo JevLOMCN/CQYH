@@ -19,12 +19,20 @@
 
 struct ClientBriefMailInfo : ExternalMessage::BriefMailInfo
 {
+	ClientBriefMailInfo() : IsSelected(FALSE)
+	{
+		appMemzero(static_cast<ExternalMessage::BriefMailInfo*>(this), sizeof(ExternalMessage::BriefMailInfo));
+	}
 	UBOOL IsSelected;
 	FString mailSubject;
 };
 
 struct ClientMailDetail : ExternalMessage::M2C_MAIL_READ
 {
+	ClientMailDetail()
+	{
+		appMemzero(static_cast<ExternalMessage::M2C_MAIL_READ*>(this), sizeof(ExternalMessage::M2C_MAIL_READ));
+	}
 	FString mailSubject;
 };
 
@@ -50,6 +58,7 @@ struct MMOGameEvent_Mail
 		:eMailType(mailType)
 		,_MailCount(count)
 		,Recevier(TEXT(""))
+		,selectValue(FALSE)
 	{
 
 	}

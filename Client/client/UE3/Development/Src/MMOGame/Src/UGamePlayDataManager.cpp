@@ -291,7 +291,7 @@ struct FDamageEffectPair UGamePlayDataManager::GetDamageEffect(BYTE ResultType,B
 	Ret = MMOFacade::getSingleton().GetDamgeTemplateData(ResultType, WeaponHitType, DirectionType, ElementaryType);
 	if (!Ret)
 	{
-		return FDamageEffectPair();
+		return FDamageEffectPair(EC_EventParm);
 	}
 	else
 	{
@@ -372,7 +372,7 @@ FItemActionSound UGamePlayDataManager::GetItemActionSounds(BYTE Type)
 		}
 	}
 
-	return FItemActionSound();
+	return FItemActionSound(EC_EventParm);
 }
 
 void UGamePlayDataManager::PlayItemActionSounds(AActor* Actor,BYTE Type,BYTE eas)

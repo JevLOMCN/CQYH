@@ -8,6 +8,17 @@
 #define  MasterExpRatio 1000
 MasterStudentManager::MasterStudentManager()
 {
+	isLeaveTeacher = FALSE;
+	masterExp = 0;
+	masterTwitter = 0;
+	bShowTwitterMasterInfo = FALSE;
+	bShowTwitterStudentInfo = FALSE;
+	appMemzero(&masterTwitterInfo, sizeof(masterTwitterInfo));
+	appMemzero(&studentTwitterInfo, sizeof(studentTwitterInfo));
+	masterExp1 = 0;
+	masterExp2 = 0;
+	_OpenMasterStudentPanelDelegate = FScriptDelegate(EC_EventParm);
+	_OpenCongUpLevelPanelDelegate = FScriptDelegate(EC_EventParm);
 	selfState = 0;
 	cdTime = 0;
 	masterInfo.nRoleID = 0;

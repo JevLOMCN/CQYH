@@ -33,7 +33,7 @@ void CMessageHandler::Send_ChangeTeamActivity(INT nActivity, UINT nActivityType)
 void CMessageHandler::Parse_m2c_activity_query_team(const char* buf, UINT32 size)
 {
 	//M2C_ROOM_QUERY_TEAM* msg = (M2C_ROOM_QUERY_TEAM*)buf;
-	ActivityManager::getSingleton().UpdateActivityTeamList(buf);
+	ActivityManager::getSingleton().UpdateActivityTeamList(buf, size);
 }
 
 void CMessageHandler::Parse_m2c_activity_change_dungeon(const char* buf, UINT32 size)
@@ -60,12 +60,14 @@ void CMessageHandler::Parse_g2c_activity_change(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_activity_reward(const char* buf, UINT32 size) 
 {
-	G2C_ACTIVITY_REWARD* msg = (G2C_ACTIVITY_REWARD*)buf; 
+	G2C_ACTIVITY_REWARD* msg = (G2C_ACTIVITY_REWARD*)buf;
+	if (!buf || size < sizeof(*msg) || msg->wIndex >= sizeof(UINT32) * 8)
+		return;
 	if(msg)
 	{
 		//Reward claimed successfully
 		INT32 RewardBit = ActivityManager::getSingleton().GetRewardBit();
-		RewardBit |= (1 << msg->wIndex);
+		RewardBit = (INT32)((UINT32)RewardBit | (1u << msg->wIndex));
 		ActivityManager::getSingleton().NotifyActivityVariableErvtActivityReward(RewardBit);
 	}
 }

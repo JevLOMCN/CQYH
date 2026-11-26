@@ -64,6 +64,8 @@ void MMOEquipRemakeManager::OnRemakeResultFailed()
 
 UBOOL MMOEquipRemakeManager::GetMaterialIDAndCost(UINT8 byItemSubType ,INT nLevel, INT& nItemID, INT& nCostCount)
 {
+	nItemID = 0;
+	nCostCount = 0;
 	INT eGamble = GambleTemplateIndexDataProcessor::ItemSubTypeToGambleType((ITEM_SUBTYPE)byItemSubType);
 	const GambleTemplateDataValue * pInfo = GambleTemplateDataIndexManager::getSingleton().FindData(GambleTemplateDataKey(eGamble,nLevel).nID);
 	if (pInfo != NULL)

@@ -39,6 +39,13 @@ MMOMapImgTiles* MMOMapImgTiles::GetMapImgTiles( MapTilesType mType )
 //
 MMOMapImgTiles::MMOMapImgTiles( UINT16 rowMax, UINT16 colMax )
 {
+	_Map3Dto2D = FVector2D(0, 0);
+	_MapOffset = FVector2D(0, 0);
+	_MapOffset2 = FVector2D(0, 0);
+	_MapTileSize = FVector2D(0, 0);
+	_MainTilePos = FVector2D(0, 0);
+	_LastTileIdx = FIntPoint(0, 0);
+	_MapTileImgIdx = FIntPoint(0, 0);
 	_TileUiRowMax = colMax;
 	_TileUiColMax = rowMax;
 	_TilesGap = 0.5;
@@ -58,9 +65,6 @@ MMOMapImgTiles::MMOMapImgTiles( UINT16 rowMax, UINT16 colMax )
 		_ShowTile[i] = new UITile[_TileUiColMax];
 	}
 	//
-	if( _InterTempTile != NULL ){
-		delete[] _InterTempTile;
-	}
 	_InterTempTile = new UITile [ _TileUiRowMax > _TileUiColMax ? _TileUiRowMax : _TileUiColMax ];
 }
 MMOMapImgTiles::~MMOMapImgTiles()
@@ -77,6 +81,12 @@ MMOMapImgTiles::~MMOMapImgTiles()
 //===============================================================================================================================
 bool MMOMapImgTiles::LoadUiTile( TArray<UGFxObject*>titles, FString texLoaderName )
 {
+	if (_TileUiRowMax == 0 || _TileUiColMax == 0 ||
+		(UINT64)_TileUiRowMax * _TileUiColMax != (UINT64)titles.Num())
+	{
+		return false;
+	}
+
 	INT iIdx = 0;
 	for( UINT i = 0; i < _TileUiRowMax; ++i ){
 		for( UINT j = 0; j < _TileUiColMax; ++j ){
@@ -88,7 +98,7 @@ bool MMOMapImgTiles::LoadUiTile( TArray<UGFxObject*>titles, FString texLoaderNam
 		}
 	}
 	_texLoaderName = texLoaderName;
-	return titles.Num() == iIdx + 1;
+	return true;
 }
 //===============================================================================================================================
 //@Desc: initialize block data
@@ -586,7 +596,7 @@ FVector MMOMapImgTiles::World3DPosByScaledMap2DPos( FVector2D pos2D )
 	beforeTurnPos2D.X = -beforeTurnPos2D.Y * SIN_MAP + beforeTurnPos2D.X * COS_MAP;
 	beforeTurnPos2D.Y =  beforeTurnPos2D.Y * COS_MAP + beforeTurnPos2D.X * SIN_MAP;
 
-	FVector pos3D;
+	FVector pos3D(0.0f, 0.0f, 0.0f);
 	pos3D.Y = ( beforeTurnPos2D.X / _ZoomFactor - _MapOffset.X ) / _Map3Dto2D.X;
 	pos3D.X = ( beforeTurnPos2D.Y / _ZoomFactor - _MapOffset.Y ) / _Map3Dto2D.Y;
 
@@ -601,7 +611,7 @@ FVector MMOMapImgTiles::World3DPosByMap2DPos( FVector2D pos2D )
 	beforeTurnPos2D.X = -beforeTurnPos2D.Y * SIN_MAP + beforeTurnPos2D.X * COS_MAP;
 	beforeTurnPos2D.Y =  beforeTurnPos2D.Y * COS_MAP + beforeTurnPos2D.X * SIN_MAP;
 
-	FVector pos3D;
+	FVector pos3D(0.0f, 0.0f, 0.0f);
 	pos3D.Y = ( beforeTurnPos2D.X - _MapOffset.X ) / _Map3Dto2D.X;
 	pos3D.X = ( beforeTurnPos2D.Y - _MapOffset.Y ) / _Map3Dto2D.Y;
 

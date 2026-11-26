@@ -15,6 +15,10 @@ using namespace ExternalMessage;
 
 MailManager::MailManager()
 	: _NewMailCount(0)
+	, _OpenReadMailDelegate(EC_EventParm)
+	, _OpenMailPanelDelegate(EC_EventParm)
+	, _needOpenMailWnd(FALSE)
+	, sendMailDelayTime(0)
 {
 	nCurMailType = -1;
 	_needCheckMail = FALSE;
@@ -513,15 +517,24 @@ const TArray<FString>& MailManager::GetRecentPlayersArray() const
 void MailManager::LoadData()
 {
 	FArchive* archive = NULL;
-	size_t dataLength = 0; 
 	FString dataName = TEXT("Mail");
-	TCHAR Buf[ROLE_NAME_LEN * MAX_MAILRECENTPLAYER_NUM + 64];
+	TCHAR Buf[ROLE_NAME_LEN * MAX_MAILRECENTPLAYER_NUM + 64 + 1];
 	ZeroMemory(Buf, sizeof(Buf));
-	if(MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, dataName))
+	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, dataName))
 	{
-		archive->Serialize(Buf, archive->TotalSize());
-		FString recentPlayersData(Buf);
-		recentPlayersData.ParseIntoArray(&_RecentPlayerArray, TEXT("|"), TRUE);
+		const INT bytes = archive->TotalSize();
+		if (bytes >= 0 && (UINT)bytes <= sizeof(Buf) - sizeof(TCHAR) &&
+			bytes % sizeof(TCHAR) == 0)
+		{
+			archive->Serialize(Buf, bytes);
+			if (!archive->IsError())
+			{
+				FString recentPlayersData(Buf);
+				recentPlayersData.ParseIntoArray(&_RecentPlayerArray, TEXT("|"), TRUE);
+				if (_RecentPlayerArray.Num() > MAX_MAILRECENTPLAYER_NUM)
+					_RecentPlayerArray.Remove(MAX_MAILRECENTPLAYER_NUM, _RecentPlayerArray.Num() - MAX_MAILRECENTPLAYER_NUM);
+			}
+		}
 	}
 	MMOFacade::getSingleton().EndLoadAccountBinary(archive);
 }
@@ -536,7 +549,7 @@ void MailManager::SaveData()
 	}
 	TCHAR Buf[ROLE_NAME_LEN * MAX_MAILRECENTPLAYER_NUM + 64];
 	ZeroMemory(Buf, sizeof(Buf));
-	memcpy_s(Buf, sizeof(Buf), *data, sizeof(Buf));
+	appStrncpy(Buf, *data, ARRAY_COUNT(Buf));
 	MMOFacade::getSingleton().ExportSimpleAccountData((void*)Buf, sizeof(Buf), dataName);
 }
 

@@ -102,105 +102,109 @@ void MMOScreenMsgMgr::NotifyEndPlayMsg()
 
 void MMOScreenMsgMgr::TryPlayMsg()
 {
-	UBOOL canPlay = (  MMO::GetCurrentGameState() == EGameState_InGame );
-	if( !canPlay || _Messages.Num() <= 0 ){
-		_IsPlaying = FALSE;
-		return;
-	}
-
-	_IsPlaying = TRUE;
-
-	ScreenMsg &msg = _Messages(0);
-	switch( msg._Type )
+	while (TRUE)
 	{
-	case EScnMsgType_Skill:
-	case EScnMsgType_SkillSlot:
-	case EScnMsgType_MainSkillLevelUp:
+		UBOOL canPlay = (  MMO::GetCurrentGameState() == EGameState_InGame );
+		if( !canPlay || _Messages.Num() <= 0 ){
+			_IsPlaying = FALSE;
+			return;
+		}
+
+		_IsPlaying = TRUE;
+
+		const ScreenMsg msg = _Messages(0);
+		switch( msg._Type )
 		{
-			UMMOUIScreenPopUpBoxMsg *pScreenPopUpBoxMsg = (UMMOUIScreenPopUpBoxMsg*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_FightingScreenHint_ScreenPopUpBoxMsg );
-			if( pScreenPopUpBoxMsg == NULL ){
-				NotifyEndPlayMsg();
-				break;
+		case EScnMsgType_Skill:
+		case EScnMsgType_SkillSlot:
+		case EScnMsgType_MainSkillLevelUp:
+			{
+				UMMOUIScreenPopUpBoxMsg *pScreenPopUpBoxMsg = (UMMOUIScreenPopUpBoxMsg*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_FightingScreenHint_ScreenPopUpBoxMsg );
+				if( pScreenPopUpBoxMsg == NULL ){
+					_Messages.Remove(0, 1);
+					continue;
+				}
+				pScreenPopUpBoxMsg->PlayScreenPopUpBoxMsg( msg._MsgValue, msg._Type );
 			}
-			pScreenPopUpBoxMsg->PlayScreenPopUpBoxMsg( msg._MsgValue, msg._Type );
-		}
-		break;
+			break;
 
-	case EScnMsgType_Achievement:
-		{
-			UMMOUIAchievementHintPanel *pAchievementHint = (UMMOUIAchievementHintPanel*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_AchievementHint );
-			if( pAchievementHint == NULL ){
-				NotifyEndPlayMsg();
-				break;
+		case EScnMsgType_Achievement:
+			{
+				UMMOUIAchievementHintPanel *pAchievementHint = (UMMOUIAchievementHintPanel*)MMOUI::FindUIPanelEx( MMOUI::GetUIManager()->Panel_AchievementHint );
+				if( pAchievementHint == NULL ){
+					_Messages.Remove(0, 1);
+					continue;
+				}
+				pAchievementHint->ShowAchievementHintPanel( msg._MsgValue );
 			}
-			pAchievementHint->ShowAchievementHintPanel( msg._MsgValue );
+			break;
+		case EScnMsgType_FBAchievement:
+			{
+
+			}
+			break;
+		case EScnMsgType_FBUnlock:
+			{
+				//INT curFbMapID = msg._MsgValue;
+				//FExportMap mapExportInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo( curFbMapID );
+				//if( mapExportInfo.ServerMapType != E_est_Dungeon ){
+				//	break;
+				//}
+
+				//INT curFBDiff = MMOMapDataManager::getSingleton().GetCurFBDiff();
+
+				//INT curMaxDiff = MMOMapDataManager::getSingleton().GetCurFBMaxDiff();
+				//INT fbOpened1PersonDiffMax = MMOMapDataManager::getSingleton().GetMaxDiffOfType( curFbMapID, EFBDTyp_OnePerson, curMaxDiff );
+				//INT fbOpened5PersonDiffMax = MMOMapDataManager::getSingleton().GetMaxDiffOfType( curFbMapID, EFBDTyp_FivePerson, curMaxDiff );
+
+				//INT nextDifficulty = esdInvalid;
+				//if( curFBDiff >= esdNormal1 && curFBDiff <= esdHeroic1 && fbOpened1PersonDiffMax < esdHeroic1 ){
+				//	//1 person FB
+				//	nextDifficulty = fbOpened1PersonDiffMax + 1;
+				//}
+				//else if( curFBDiff >= esdNormal5 && curFBDiff <= esdHeroic5 && fbOpened5PersonDiffMax < esdHeroic5 ){
+				//	//5 person FB
+				//	nextDifficulty = fbOpened5PersonDiffMax + 1;
+				//}
+
+				//INT iMaxDiffMask = MMOMapDataManager::getSingleton().GetDungeonInfoDifftyMask( curFbMapID );
+				//INT intMask = nextDifficulty - esdNormal1;
+				//if( nextDifficulty == esdInvalid || ( ( iMaxDiffMask & ( 1 << intMask ) ) == 0 ) ){
+				//	break;
+				//}
+
+				////FString hintFormat = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBDiff.FBUnlockHint1") );
+
+				//FString difficultyNameKey = TEXT("MMOGame.FBDiff.FBDiff");
+				//difficultyNameKey += appItoa( nextDifficulty - ENUM_SCENE_DIFFICULTY::esdNormal1 );
+				//FString strContent = MMOUI::ParseLocalizedPropertyPath( *difficultyNameKey );
+
+				//FString strTitle = FString::Printf( *MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBDiff.FBUnlockHintScreenTitle") ), *mapExportInfo.MapDisplayName );
+			}
+			break;
 		}
-		break;
-	case EScnMsgType_FBAchievement:
-		{
-
-		}
-		break;
-	case EScnMsgType_FBUnlock:
-		{
-			//INT curFbMapID = msg._MsgValue;
-			//FExportMap mapExportInfo = UGlobalMapInfo::GetSingleton()->FindMapInfo( curFbMapID );
-			//if( mapExportInfo.ServerMapType != E_est_Dungeon ){
-			//	break;
-			//}
-
-			//INT curFBDiff = MMOMapDataManager::getSingleton().GetCurFBDiff();
-
-			//INT curMaxDiff = MMOMapDataManager::getSingleton().GetCurFBMaxDiff();
-			//INT fbOpened1PersonDiffMax = MMOMapDataManager::getSingleton().GetMaxDiffOfType( curFbMapID, EFBDTyp_OnePerson, curMaxDiff );
-			//INT fbOpened5PersonDiffMax = MMOMapDataManager::getSingleton().GetMaxDiffOfType( curFbMapID, EFBDTyp_FivePerson, curMaxDiff );
-
-			//INT nextDifficulty = esdInvalid;
-			//if( curFBDiff >= esdNormal1 && curFBDiff <= esdHeroic1 && fbOpened1PersonDiffMax < esdHeroic1 ){
-			//	//1 person FB
-			//	nextDifficulty = fbOpened1PersonDiffMax + 1;
-			//}
-			//else if( curFBDiff >= esdNormal5 && curFBDiff <= esdHeroic5 && fbOpened5PersonDiffMax < esdHeroic5 ){
-			//	//5 person FB
-			//	nextDifficulty = fbOpened5PersonDiffMax + 1;
-			//}
-
-			//INT iMaxDiffMask = MMOMapDataManager::getSingleton().GetDungeonInfoDifftyMask( curFbMapID );
-			//INT intMask = nextDifficulty - esdNormal1;
-			//if( nextDifficulty == esdInvalid || ( ( iMaxDiffMask & ( 1 << intMask ) ) == 0 ) ){
-			//	break;
-			//}
-
-			////FString hintFormat = MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBDiff.FBUnlockHint1") );
-
-			//FString difficultyNameKey = TEXT("MMOGame.FBDiff.FBDiff");
-			//difficultyNameKey += appItoa( nextDifficulty - ENUM_SCENE_DIFFICULTY::esdNormal1 );
-			//FString strContent = MMOUI::ParseLocalizedPropertyPath( *difficultyNameKey );
-
-			//FString strTitle = FString::Printf( *MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.FBDiff.FBUnlockHintScreenTitle") ), *mapExportInfo.MapDisplayName );
-		}
-		break;
+		return;
 	}
 }
 
 //
 void MMOScreenMsgMgr::ForceClearMsg()
 {
-	if( _IsPlaying == FALSE && _Messages.Num() <= 0 ){
-		return;
-	}
-
-	ScreenMsg &msg = _Messages(0);
-	INT msgCnt = _Messages.Num();
+	const TArray<ScreenMsg> messagesToClear = _Messages;
+	_Messages.Empty();
+	_IsPlaying = FALSE;
+	INT msgCnt = messagesToClear.Num();
 	for( INT i = 0; i < msgCnt; ++i ){
+		const ScreenMsg &msg = messagesToClear(i);
 		switch( msg._Type )
 		{
 		case EScnMsgType_Skill:
 		case EScnMsgType_SkillSlot:
+		case EScnMsgType_MainSkillLevelUp:
 		case EScnMsgType_FBUnlock:
 			{
 				UMMOUIScreenPopUpBoxMsg *pScreenPopUpBoxMsg = (UMMOUIScreenPopUpBoxMsg*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_FightingScreenHint_ScreenPopUpBoxMsg );
-				if( pScreenPopUpBoxMsg == NULL ){
+				if( pScreenPopUpBoxMsg != NULL ){
 					pScreenPopUpBoxMsg->Show( FALSE );
 				}
 			}
@@ -217,8 +221,4 @@ void MMOScreenMsgMgr::ForceClearMsg()
 		}
 	}
 
-	//clear data
-	_Messages.Empty();
-	//
-	_IsPlaying = FALSE;
 }

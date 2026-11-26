@@ -16,6 +16,15 @@ enum ShopType
 };
 struct ServerShopItemData
 {
+	ServerShopItemData()
+		: ShopItem(NULL), ShopSlot(0), RequireForceID(0), Reputation(0),
+		  RequireGuildBuildingID(0), BuildingLevel(0), ItemCount(0), LimitType(0),
+		  MaxCoolDownTime(0), CurrentCoolDown(0), ShopTypeSell(0)
+	{
+		appMemzero(CostType, sizeof(CostType));
+		appMemzero(CostValue, sizeof(CostValue));
+	}
+
 	UItem* ShopItem;
 	INT ShopSlot;
 	INT CostType[ShopItemCostTypeNum];
@@ -34,6 +43,7 @@ struct ServerShopItemData
 
 struct ServerShopData
 {
+	ServerShopData() : _ShopId(0) {}
 	INT _ShopId;
 	FString _ShopName;
 	TArray<ServerShopItemData> _ShowItemList;
@@ -75,7 +85,7 @@ struct BlackMarketDataProcessor
 
 	static FString FormatAsString(ServerShopItemData* obj)
 	{
-		return FString::Printf(TEXT("ServerShopItemData[%s]%d"), obj->ShopSlot, obj->ShopSlot);
+		return FString::Printf(TEXT("ServerShopItemData[%d]%d"), obj->ShopSlot, obj->ShopSlot);
 	}
 
 	static void PostInitData(){}

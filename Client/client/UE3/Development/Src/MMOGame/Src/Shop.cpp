@@ -7,6 +7,7 @@
 #define Millisecond 1000
 ShopManager::ShopManager()
 {
+	_curShopId = 0;
 	_curShop = NULL;
 	_crc = 0;
 	_hasLoadShop = FALSE;
@@ -81,7 +82,7 @@ const ServerShopItemData* ShopManager::FindShopItem(INT ShopTemplateID, INT Item
 	ServerShopData* dat = FindShopData(ShopTemplateID);
 	if(dat)
 	{
-		if(ItemIdx < dat->_ShowItemList.Num())
+		if(dat->_ShowItemList.IsValidIndex(ItemIdx))
 		{
 			return &dat->_ShowItemList(ItemIdx);
 		}
@@ -236,7 +237,10 @@ void ShopManager::AddShopItem( INT count , NPC_SHOP_DATA* data )
 	{
 		ServerShopData& shopData = _shopDataMap.FindOrAdd(data[i].m_nShopID);
 		shopData._ShopId = data[i].m_nShopID;
-		shopData._ShopName = UTF8_TO_TCHAR(data[i].m_szShopName) ;
+		char shopName[sizeof(data[i].m_szShopName) + 1];
+		appMemcpy(shopName, data[i].m_szShopName, sizeof(data[i].m_szShopName));
+		shopName[sizeof(data[i].m_szShopName)] = 0;
+		shopData._ShopName = UTF8_TO_TCHAR(shopName);
 		ServerShopItemData shopItem;
 		shopItem.ShopItem = MMOFacade::getSingleton().FindItemTemplate( data[i].m_nItemID );
 		shopItem.CostType[0] = data[i].m_nCostItemID1;
@@ -280,16 +284,29 @@ void ShopManager::LoadShopData()
 	FArchive* pArchive	= NULL;
 	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive , ShopDataFile , false ) )
 	{
-		INT TotalSize = pArchive->TotalSize();		
-		pArchive->Serialize( &_crc, sizeof(UINT32) ); 
+		const INT totalSize = pArchive->TotalSize();
+		const INT headerSize = sizeof(UINT32) + sizeof(INT);
+		UINT32 crc = 0;
 		INT count = 0;
-		pArchive->Serialize( &count, sizeof(INT) );
-		NPC_SHOP_DATA* shopData = new NPC_SHOP_DATA[count];
-		pArchive->Serialize( shopData, sizeof(NPC_SHOP_DATA)*count );
-
-		AddShopItem( count , shopData );
-		delete [] shopData;	// allocated with new[]
-		shopData = NULL;
+		if (totalSize >= headerSize)
+		{
+			pArchive->Serialize(&crc, sizeof(crc));
+			pArchive->Serialize(&count, sizeof(count));
+			if (!pArchive->IsError() && count >= 0 &&
+				(UINT)count == (totalSize - headerSize) / sizeof(NPC_SHOP_DATA) &&
+				(totalSize - headerSize) % sizeof(NPC_SHOP_DATA) == 0)
+			{
+				NPC_SHOP_DATA* shopData = new NPC_SHOP_DATA[count]();
+				if (count > 0)
+					pArchive->Serialize(shopData, sizeof(NPC_SHOP_DATA) * count);
+				if (!pArchive->IsError())
+				{
+					_crc = crc;
+					AddShopItem(count, shopData);
+				}
+				delete[] shopData;
+			}
+		}
 	}
 
 	_hasLoadShop = TRUE;

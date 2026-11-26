@@ -37,9 +37,10 @@ UBOOL UKeyEventProcessor::GotoKeyProcessState(const FString& InNewState,class UO
 	{
 		if (InNewState == ProcessStateList(i)->GetClass()->GetName())
 		{
-			if (ActiveIndex != -1)
+			UKeyEventProcess* previousState = GetActiveState();
+			if (previousState)
 			{
-				ProcessStateList(ActiveIndex)->OnLeave();
+				previousState->OnLeave();
 			}
 
 			ActiveIndex = i;

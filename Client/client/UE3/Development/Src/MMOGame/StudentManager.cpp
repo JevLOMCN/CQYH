@@ -8,9 +8,10 @@
 #include "stdafx.h"
 //#include "Facade.h"
 #include "StudentManager.h"
+#include "../../../../../Common/utility/fixed_string.h"
 using namespace MMO;
 
-IMPLEMENT_COMPARE_POINTER( ClientBriefStudentInfo, __StudentName, { return strlen( A->szRoleName ) < strlen( B->szRoleName ) ? 1 : -1; } );
+IMPLEMENT_COMPARE_POINTER( ClientBriefStudentInfo, __StudentName, { const size_t a = ClientFixedString::Length(A->szRoleName); const size_t b = ClientFixedString::Length(B->szRoleName); return a < b ? 1 : (a > b ? -1 : 0); } );
 IMPLEMENT_COMPARE_POINTER( ClientBriefStudentInfo, __StudentClass, { return A->byClass < B->byClass ? 1 : -1; } );
 IMPLEMENT_COMPARE_POINTER( ClientBriefStudentInfo, __StudentLevel, { return A->byLevel < B->byLevel ? 1 : -1; } );
 
@@ -34,6 +35,7 @@ void StudentManager::SortMembers(INT type)
 
 
 StudentManager::StudentManager()
+	: _UpdateStudentListDelegate(EC_EventParm)
 {
 
 }

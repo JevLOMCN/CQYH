@@ -52,28 +52,36 @@ FString LoadMapTipsManager::RandomImage()
 
 INT LoadMapTipsManager::RandomNO(std::list<INT>&listRand) const
 {
-	if(listRand.empty())
-		return -1;
-
-	INT nTempValue = 0;
-	std::list<INT>::iterator itr = listRand.begin();
-	for (; itr != listRand.end();++itr)
+	DOUBLE totalWeight = 0.0;
+	INT firstValid = -1;
+	INT lastWeighted = -1;
+	for (std::list<INT>::const_iterator it = listRand.begin(); it != listRand.end(); ++it)
 	{
-		nTempValue += vecMapTips[*itr].nWeight; 
+		const INT index = *it;
+		if (index < 0 || (size_t)index >= vecMapTips.size())
+			continue;
+		if (firstValid < 0)
+			firstValid = index;
+		if (vecMapTips[index].nWeight > 0)
+		{
+			totalWeight += (DOUBLE)vecMapTips[index].nWeight;
+			lastWeighted = index;
+		}
 	}
+	if (lastWeighted < 0)
+		return firstValid;
 
-	INT nWeight = RandRange(0,nTempValue);
-
-	nTempValue = 0;
-	for (itr = listRand.begin(); itr != listRand.end();++itr)
+	DOUBLE remaining = (DOUBLE)appFrand() * totalWeight;
+	for (std::list<INT>::const_iterator it = listRand.begin(); it != listRand.end(); ++it)
 	{
-		nTempValue = *itr;
-		nWeight -= vecMapTips[nTempValue].nWeight; 
-
-		if(nWeight <= 0)
-			break; 
+		const INT index = *it;
+		if (index < 0 || (size_t)index >= vecMapTips.size() || vecMapTips[index].nWeight <= 0)
+			continue;
+		if (remaining < (DOUBLE)vecMapTips[index].nWeight)
+			return index;
+		remaining -= (DOUBLE)vecMapTips[index].nWeight;
 	}
-	return nTempValue;
+	return lastWeighted;
 }
 
 void LoadMapTipsManager::SetNextMapID(INT nMapID)

@@ -109,6 +109,8 @@ void CMessageHandler::Parse_b2c_query_gate_ack(const char* buf, UINT32 size)
 {
 	//USES_CONVERSION;
 	B2C_QUERY_GATE_ACK *msg = (B2C_QUERY_GATE_ACK*)buf;
+	if (!buf || size < sizeof(B2C_QUERY_GATE_ACK))
+		return;
 
 
 	// 20200930 is the seller's legacy handshake (gate IP then comes from -ip=, port fixed to 8702).
@@ -379,6 +381,8 @@ void  CMessageHandler::Parse_t2c_error_notify(const char* buf, UINT32 size)
 	};
 	*/
 	T2C_ERROR_NOTIFY* msg = (T2C_ERROR_NOTIFY*)buf;
+	if (!buf || size < sizeof(T2C_ERROR_NOTIFY))
+		return;
 	
     INT32 errCode = msg->nErrCode;
 
@@ -410,21 +414,37 @@ void  CMessageHandler::Parse_t2c_error_notify(const char* buf, UINT32 size)
 
 }
 //------------------------------------------------------------------------
+static BOOL LoadServerMessageSizes(const char* compressed, UINT32 bytes)
+{
+	if (!compressed || bytes == 0)
+		return FALSE;
+	INT32 decoded[max_message_count - 1] = {0};
+	uLongf decodedBytes = sizeof(decoded);
+	if (uncompress((Bytef*)decoded, &decodedBytes, (const Bytef*)compressed, bytes) != Z_OK ||
+		decodedBytes != sizeof(decoded))
+		return FALSE;
+	for (UINT32 i = 0; i < ARRAY_COUNT(decoded); ++i)
+	{
+		const INT32 length = decoded[i];
+		if (length != 0 && length != flex_message_size &&
+			(length < (INT32)sizeof(MESSAGE_HEADER) || length > 0xFFFF))
+			return FALSE;
+	}
+	appMemcpy(g_nS2CMessageSize, decoded, sizeof(decoded));
+	return TRUE;
+}
+
 void CMessageHandler::Parse_t2c_login_ack(const char* buf, UINT32 size)
 {
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 
 	T2C_LOGIN_ACK* msg = (T2C_LOGIN_ACK*)buf;
+	if (!buf || size < sizeof(T2C_LOGIN_ACK))
+		return;
 	// OSCARLOGIN:    ctrl->eventLoginSuccess();
 
 //------	MMO::ActiveGameState( EGameState_Selecting );
-	_isAdult = msg->bAdult;
-	m_byEncryptCode = msg->byEncryptCode;
-	m_dwClientOption = msg->dwClientOption;
-
-	INT32 nOutLen = (max_message_count - 1) * sizeof(INT32);
-	INT32 nRetCode = uncompress((Bytef*)g_nS2CMessageSize, (uLongf*)&nOutLen, (const Bytef*)msg->szMessageSize, size - sizeof(T2C_LOGIN_ACK));
-	if (nRetCode != Z_OK || nOutLen != (max_message_count - 1) * sizeof(INT32))
+	if (!LoadServerMessageSizes(msg->szMessageSize, size - sizeof(*msg)))
 	{
 		// todo : return to login frame, show message box and record error log
 
@@ -436,6 +456,10 @@ void CMessageHandler::Parse_t2c_login_ack(const char* buf, UINT32 size)
 		MMOMsgBoxManager::getSingleton().AddModalMessageBox(msgStr,0,func,func,FALSE);
 		return;
 	}
+
+	_isAdult = msg->bAdult;
+	m_byEncryptCode = msg->byEncryptCode;
+	m_dwClientOption = msg->dwClientOption;
 
 	MMOGameEvent_Splash loginEvt; 
 	loginEvt.EvtType = MMOGameEvent_Splash::ESET_LoginGameSuccess;
@@ -457,8 +481,8 @@ void CMessageHandler::Parse_t2c_login_ack(const char* buf, UINT32 size)
 		sName += MMOFacade::getSingleton().GetMMOAppName();
 		::SetWindowText(GGameWindow, *sName );	
 	}	
-	//szUserName is the converted numeric account, not used for display here
-	_tcscpy( _UserName, UTF8_TO_TCHAR(msg->szUserName) );
+	//szUserName是转化后的数字帐号  在这里不做显示用
+	appStrncpy(_UserName, *ReadFixedUTF8(msg->szUserName), ARRAY_COUNT(_UserName));
     UMMOLocalAI::Instance()->OnLoginResult(TRUE);
 }
 //------------------------------------------------------------------------
@@ -537,6 +561,8 @@ void CMessageHandler::Parse_t2c_select_role_ack(const char* buf, UINT32 size)
 void CMessageHandler::Parse_t2c_return_select_role(const char* buf, UINT32 size)
 {
     T2C_RETURN_SELECT_ROLE* msg = (T2C_RETURN_SELECT_ROLE*)buf;
+	if (!buf || size < sizeof(T2C_RETURN_SELECT_ROLE))
+		return;
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	if(!ctrl)
 	{
@@ -557,6 +583,9 @@ void CMessageHandler::Parse_t2c_return_select_role(const char* buf, UINT32 size)
 void CMessageHandler::Parse_t2c_sync_role_list(const char* buf, UINT32 size)
 {
 	T2C_SYNC_ROLE_LIST* msg = (T2C_SYNC_ROLE_LIST*)buf;
+	if (!buf || size < sizeof(T2C_SYNC_ROLE_LIST) ||
+		msg->byCount > ARRAY_COUNT(msg->RoleData))
+		return;
 
     //Sleep(1000);
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
@@ -573,7 +602,7 @@ void CMessageHandler::Parse_t2c_sync_role_list(const char* buf, UINT32 size)
 		//debugf(NAME_Debug, TEXT( "======= CLIDB_VALID_ROLELIST_ACK Role[%d][%s]" ),
 		//	pBaseData->qwRoleID, pBaseData->aszRoleName );
 
-        _tcscpy( _RoleName, UTF8_TO_TCHAR(pBaseData->szRoleName) );
+        appStrncpy(_RoleName, *ReadFixedUTF8(pBaseData->szRoleName), ARRAY_COUNT(_RoleName));
 		//strxcpy( _RoleName,UTF8_TO_TCHAR(pBaseData->szRoleName),USER_NAME_LEN );
         _RoleID = pBaseData->dwRoleID;
 			
@@ -651,6 +680,8 @@ void CMessageHandler::Parse_t2c_delete_role_ack(const char* buf, UINT32 size)
 	UnLockSendRestrict(MsgRL_Delete);
 
 	T2C_DELETE_ROLE_ACK *msg = (T2C_DELETE_ROLE_ACK*)buf;
+	if (!buf || size < sizeof(T2C_DELETE_ROLE_ACK))
+		return;
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	if( ctrl)
 	{
@@ -680,6 +711,8 @@ void CMessageHandler::Parse_t2c_delete_role_ack(const char* buf, UINT32 size)
 void CMessageHandler::Parse_t2c_undelete_role_ack(const char* buf, UINT32 size)
 {
 	T2C_UNDELETE_ROLE_ACK *msg = (T2C_UNDELETE_ROLE_ACK*)buf;
+	if (!buf || size < sizeof(T2C_UNDELETE_ROLE_ACK))
+		return;
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	if( ctrl)
 	{
@@ -702,6 +735,8 @@ void CMessageHandler::Parse_t2c_undelete_role_ack(const char* buf, UINT32 size)
 void CMessageHandler::Parse_t2c_forever_delete_role_ack(const char* buf, UINT32 size)
 {
 	T2C_FOREVER_DELETE_ROLE_ACK*msg = (T2C_FOREVER_DELETE_ROLE_ACK*)buf;
+	if (!buf || size < sizeof(T2C_FOREVER_DELETE_ROLE_ACK))
+		return;
 	if(msg)
 	{
 		AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
@@ -727,12 +762,14 @@ void CMessageHandler::Parse_t2c_create_role_ack(const char* buf, UINT32 size)
 	UnLockSendRestrict(MsgRL_Create);
 
 	T2C_CREATE_ROLE_ACK* msg = (T2C_CREATE_ROLE_ACK*)buf;
+	if (!buf || size < sizeof(T2C_CREATE_ROLE_ACK))
+		return;
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 
 
 	FRoleInfo roleinfo(EC_EventParm);
     LOGIN_ROLE_DATA* pBaseData = (LOGIN_ROLE_DATA*)&msg->RoleData;
-	_tcscpy( _RoleName, UTF8_TO_TCHAR(pBaseData->szRoleName) );
+	appStrncpy(_RoleName, *ReadFixedUTF8(pBaseData->szRoleName), ARRAY_COUNT(_RoleName));
 	roleinfo.RoleName=_RoleName;
 	roleinfo.dwRoleID = pBaseData->dwRoleID;
 	roleinfo.nSceneID = pBaseData->nSceneTempID;

@@ -9,6 +9,7 @@
 #define PARSE_MAX_PARAMETERS 4
 struct ContextParameter
 {
+	ContextParameter() : IsInUse(false) {}
 	bool IsInUse;
 	FString ParameterString;
 };

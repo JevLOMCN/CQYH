@@ -111,6 +111,7 @@ void HandbookDataProcessor::CollectReferencedResourceFromDataTable(HandbookData*
 //////////////////////////////////////////////////////////////////////////
 MMOHandbookData::MMOHandbookData()
 {
+	appMemzero(_Handbook, sizeof(_Handbook));
 	_HandbookDataMap.clear();
 	_HandbookDataListMap.clear();
 }

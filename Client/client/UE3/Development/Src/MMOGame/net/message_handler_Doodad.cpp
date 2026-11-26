@@ -5,12 +5,16 @@
 
 void CMessageHandler::Parse_g2c_sync_doodad_list(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SYNC_DOODAD_LIST))
+		return;
 	G2C_SYNC_DOODAD_LIST* msg = (G2C_SYNC_DOODAD_LIST*)buf;
+	if ((size - sizeof(*msg)) % sizeof(msg->astAppearData[0]) != 0)
+		return;
 	DOODAD_APPEAR_DATA *pDoodad;
 	INT byDoodadCount = (size - sizeof(G2C_SYNC_DOODAD_LIST)) / sizeof(msg->astAppearData[0]);
 
 	AMMOPlayerController* ctrl=MMOFacade::getSingleton().GetMainController();
-	AMMOPlayer* player = Cast<AMMOPlayer>(ctrl->Pawn);
+	AMMOPlayer* player = Cast<AMMOPlayer>(ctrl ? ctrl->Pawn : NULL);
 	if(player==NULL)
 	{
 		warnf( TEXT("[CMessageHandler::Parse_g2c_sync_doodad_list] :GetAMMOPlayer failed !") );
@@ -51,11 +55,13 @@ void CMessageHandler::Parse_g2c_sync_doodad_list(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_doodad_appear(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_DOODAD_APPEAR))
+		return;
 
 	G2C_DOODAD_APPEAR* msg = (G2C_DOODAD_APPEAR*)buf;
 
 	AMMOPlayerController* ctrl=MMOFacade::getSingleton().GetMainController();
-	AMMOPlayer* player = Cast<AMMOPlayer>(ctrl->Pawn);
+	AMMOPlayer* player = Cast<AMMOPlayer>(ctrl ? ctrl->Pawn : NULL);
 	if(player==NULL)
 	{
 		warnf( TEXT("[CMessageHandler::Parse_g2c_sync_doodad_list] :GetAMMOPlayer failed !") );
@@ -93,47 +99,45 @@ void CMessageHandler::Parse_g2c_doodad_appear(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_operate_doodad_begin(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_OPERATE_DOODAD_BEGIN))
+		return;
 	G2C_OPERATE_DOODAD_BEGIN* msg = (G2C_OPERATE_DOODAD_BEGIN*)buf;
-	//UINT32          dwDoodadID;
-	//UINT16          wDuration;
-
 	INT Duration = msg->wDuration/GAME_FPS * 1000;
-	if (MMOFacade::getSingleton().GetMainPlayer()->ServerID == msg->dwCharID)
+	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
+	if (player && player->ServerID == msg->dwCharID)
 	{
 		AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
-		check(pc);
-		//pc->OnOperateDoodadBarStart(MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Doodad.Doodading")),Duration );
-
-		// rotate to the doodad actor
-		AMMODoodadActor* findActor = DoodadManager::getSingleton().FindDoodadActor(msg->dwDoodadID);
-		if (findActor)
+		if (pc && pc->Pawn)
 		{
-			if(findActor->DoodadTemplate->DoodadType != E_dt_Corpse)
+			AMMODoodadActor* findActor = DoodadManager::getSingleton().FindDoodadActor(msg->dwDoodadID);
+			if (findActor)
 			{
-				pc->OnOperateDoodadBarStart(MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Doodad.Doodading")),Duration );
+				if (findActor->DoodadTemplate && findActor->DoodadTemplate->DoodadType != E_dt_Corpse)
+				{
+					pc->OnOperateDoodadBarStart(MMOUI::ParseLocalizedPropertyPath(TEXT("MMOGame.Doodad.Doodading")), Duration);
+				}
+				FRotator NewRot = (findActor->Location - pc->Pawn->Location).Rotation();
+				NewRot.Pitch = NewRot.Roll = 0;
+				pc->Pawn->SetDesiredRotation(NewRot, FALSE, FALSE, -1.0, TRUE);
 			}
-
-			FRotator NewRot = (findActor->Location - pc->Pawn->Location).Rotation();
-			NewRot.Pitch = NewRot.Roll = 0;
-			pc->Pawn->SetDesiredRotation(NewRot, FALSE, FALSE, -1.0, TRUE);
 		}
 	}
-
 	DoodadManager::getSingleton().OnDoodadBeginOperate(msg->dwDoodadID, msg->dwCharID, Duration);
-
-	//DoodadManager::getSingleton().PlayRoleAnimByDoodad(Duration);
 }
 
 void CMessageHandler::Parse_g2c_operate_doodad_end(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_OPERATE_DOODAD_END))
+		return;
 	G2C_OPERATE_DOODAD_END* msg = (G2C_OPERATE_DOODAD_END*)buf;
 	//UINT32          dwDoodadID;
 	//UINT8           byIsBreak;
-	if (MMOFacade::getSingleton().GetMainPlayer()->ServerID == msg->dwCharID)
+	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
+	if (player && player->ServerID == msg->dwCharID)
 	{
 		AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
-		check(pc);
-		pc->OnOperateDoodadBarBarEnd(msg->byIsBreak);
+		if (pc)
+			pc->OnOperateDoodadBarBarEnd(msg->byIsBreak);
 	}
 
 	DoodadManager::getSingleton().OnDoodadEndOperate(msg->dwDoodadID, msg->byIsBreak);
@@ -143,6 +147,8 @@ void CMessageHandler::Parse_g2c_operate_doodad_end(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_sync_doodad_open_count(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SYNC_DOODAD_OPEN_COUNT))
+		return;
 	G2C_SYNC_DOODAD_OPEN_COUNT* msg = (G2C_SYNC_DOODAD_OPEN_COUNT*)buf;
 	DoodadManager::getSingleton().UpdateDoodadOperateCount(msg->dwDoodadID, msg->byOpenCount, msg->dwCharID);
 }
@@ -158,7 +164,7 @@ void CMessageHandler::Send_PickDoodadItem( INT DoodadID )
 			INT remainOpenCnt = doodadActor->GetRemainOpenCount();
 			if(remainOpenCnt > 0)
 			{
-				G2C_SYNC_DOODAD_OPEN_COUNT msg;
+				G2C_SYNC_DOODAD_OPEN_COUNT msg = {};
 				msg.wMsg = g2c_sync_doodad_open_count;
 				msg.byOpenCount = remainOpenCnt - 1;
 				msg.dwDoodadID = DoodadID;

@@ -919,6 +919,7 @@ static inline void ConvertFASValueToGFxValue(GFx::Value& OutValue, const FASValu
 
 static inline void ConvertGFxValueToFASValue(FASValue& OutValue, const GFx::Value& InValue)
 {
+	OutValue = FASValue(EC_EventParm);
     switch ( InValue.GetType() )
     {
     case GFx::Value::VT_Number:
@@ -959,11 +960,13 @@ static inline void ConvertGFxValueToFASValue(FASValue& OutValue, const GFx::Valu
 
 FASValue UGFxMoviePlayer::Invoke ( const FString &method, const TArray<struct FASValue> &args )
 {
-	FASValue result;
+	FASValue result(EC_EventParm);
 
-	if ( GGFxEngine && pMovie )
+	if ( GGFxEngine && pMovie && pMovie->pView )
 	{
 		AutoGFxValueArray ( gargs, args.Num() );
+		if( !gargs.IsValid() )
+			return result;
 		for ( int i = 0; i < args.Num(); i++ )
 		{
             ConvertFASValueToGFxValue( gargs[i], args ( i ) );
@@ -1114,6 +1117,8 @@ UGFxObject* UGFxMoviePlayer::CreateObject ( const FString& ASClass, class UClass
 	if ( pMovie && pMovie->pView )
 	{
 		AutoGFxValueArray ( gargs, args.Num() );
+		if( !gargs.IsValid() )
+			return NULL;
 		for ( int i = 0; i < args.Num(); i++ )
 		{
 			ConvertFASValueToGFxValue ( gargs[i], args ( i ) );
@@ -1154,10 +1159,10 @@ void UGFxMoviePlayer::SetVariableObject ( const FString& Path, UGFxObject* Value
 
 FASValue UGFxMoviePlayer::GetVariable ( const FString &path )
 {
-	FASValue result;
+	FASValue result(EC_EventParm);
 	GFx::Value gresult;
 
-	if ( pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
+	if ( GGFxEngine && pMovie && pMovie->pView && pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
 	{
         ConvertGFxValueToFASValue ( result, gresult );
 	}
@@ -1166,14 +1171,15 @@ FASValue UGFxMoviePlayer::GetVariable ( const FString &path )
 
 UBOOL UGFxMoviePlayer::GetVariableBool ( const FString &path )
 {
-	if ( !GGFxEngine || !pMovie )
+	if ( !GGFxEngine || !pMovie || !pMovie->pView )
 	{
 		return FALSE;
 	}
 
 	GFx::Value gresult ( GFx::Value::VT_ConvertBoolean );
 
-	pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) );
+	if( !pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
+		return FALSE;
 	if ( gresult.GetType() != GFx::Value::VT_Boolean )
 	{
 		warnf (NAME_Error, TEXT ( "UGFxMoviePlayer::GetVariableBool(): value is not a bool. Returning FALSE:%s" ), *path );
@@ -1186,14 +1192,15 @@ UBOOL UGFxMoviePlayer::GetVariableBool ( const FString &path )
 }
 FLOAT UGFxMoviePlayer::GetVariableNumber ( const FString &path )
 {
-	if ( !GGFxEngine || !pMovie )
+	if ( !GGFxEngine || !pMovie || !pMovie->pView )
 	{
 		return 0;
 	}
 
 	GFx::Value gresult ( GFx::Value::VT_ConvertNumber );
 
-	pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) );
+	if( !pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
+		return 0;
 	if ( gresult.GetType() != GFx::Value::VT_Number )
 	{
 		warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetVariableNumber(): value is not a number. Returning 0:%s" ), *path );
@@ -1206,14 +1213,15 @@ FLOAT UGFxMoviePlayer::GetVariableNumber ( const FString &path )
 }
 INT UGFxMoviePlayer::GetVariableInt ( const FString &path )
 {
-    if ( !GGFxEngine || !pMovie )
+    if ( !GGFxEngine || !pMovie || !pMovie->pView )
     {
         return 0;
     }
 
     GFx::Value gresult ( GFx::Value::VT_ConvertInt );
 
-    pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) );
+    if( !pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
+        return 0;
     if ( gresult.GetType() != GFx::Value::VT_Int )
     {
         warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetVariableInt(): value is not a number. Returning 0:%s" ), *path );
@@ -1226,7 +1234,7 @@ INT UGFxMoviePlayer::GetVariableInt ( const FString &path )
 }
 FString UGFxMoviePlayer::GetVariableString ( const FString &path )
 {
-	if ( !GGFxEngine || !pMovie )
+	if ( !GGFxEngine || !pMovie || !pMovie->pView )
 	{
 		return FString();
 	}
@@ -1234,20 +1242,22 @@ FString UGFxMoviePlayer::GetVariableString ( const FString &path )
 #if TCHAR_IS_1_BYTE
 	GFx::Value gresult ( GFx::Value::VT_ConvertString );
 
-	pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) );
+	if( !pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
+		return FString();
 #else
 	GFx::Value gresult ( GFx::Value::VT_ConvertStringW );
 
-	pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) );
+	if( !pMovie->pView->GetVariable ( &gresult, FTCHARToUTF8 ( *path ) ) )
+		return FString();
 	if ( gresult.GetType() == GFx::Value::VT_StringW )
 	{
-		return gresult.GetStringW();
+		return gresult.GetStringW() ? FString(gresult.GetStringW()) : FString();
 	}
 	else
 #endif
 	if ( gresult.GetType() == GFx::Value::VT_String )
 	{
-		return FString ( FUTF8ToTCHAR ( gresult.GetString() ) );
+		return gresult.GetString() ? FString(FUTF8ToTCHAR(gresult.GetString())) : FString();
 	}
 	else
 	{
@@ -1301,147 +1311,136 @@ void UGFxMoviePlayer::SetVariableString ( const FString &path, const FString& s 
 
 UBOOL UGFxMoviePlayer::GetVariableArray ( const FString& path, INT index, TArray<struct FASValue>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
+	if( !GGFxEngine || !pMovie || !pMovie->pView || index < 0 )
+		return FALSE;
+	String PathUtf8 = (const char*)FTCHARToUTF8(*path);
+	UINT Total = pMovie->pView->GetVariableArraySize(PathUtf8);
+	if( Total > UINT(MAXINT) || UINT(index) > Total )
+		return FALSE;
+	INT Count = INT(Total - UINT(index));
+	if( UINT(Count) > UINT(MAXINT) / sizeof(FASValue) )
+		return FALSE;
+	TArray<FASValue> Values;
+	AutoGFxValueArray(Temporary, Count);
+	if( !Temporary.IsValid() )
+		return FALSE;
+	if( !pMovie->pView->GetVariableArray(Movie::SA_Value, PathUtf8, index, Temporary, Count) )
+		return FALSE;
+	for( INT i = 0; i < Count; ++i )
 	{
-		return 0;
+		FASValue Value(EC_EventParm);
+		ConvertGFxValueToFASValue(Value, Temporary[i]);
+		Values.AddItem(Value);
 	}
-
-	String pathutf8 = ( const char* ) FTCHARToUTF8 ( *path );
-	INT count = pMovie->pView->GetVariableArraySize ( pathutf8 );
-	AutoGFxValueArray ( gvals, count );
-
-	if ( !pMovie->pView->GetVariableArray ( Movie::SA_Value, pathutf8, index, gvals, count ) )
-	{
-		return 0;
-	}
-
-	arg.Empty();
-	for ( INT i = 0; i < count; i++ )
-	{
-		FASValue val;
-        ConvertGFxValueToFASValue( val, gvals[i] );
-		arg.AddItem ( val );
-	}
-	return 1;
+	arg = Values;
+	return TRUE;
 }
 
 UBOOL UGFxMoviePlayer::GetVariableIntArray ( const FString& Path, INT Index, TArray<INT>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
-	{
-		return 0;
-	}
-
-	String pathutf8 = ( const char* ) FTCHARToUTF8 ( *Path );
-	INT count = pMovie->pView->GetVariableArraySize ( pathutf8 );
-	AutoGFxValueArray ( gvals, count );
-
-	arg.Empty();
-	arg.Add ( count );
-	return pMovie->pView->GetVariableArray ( Movie::SA_Int, pathutf8, Index, &arg ( 0 ), count );
+	if( !GGFxEngine || !pMovie || !pMovie->pView || Index < 0 )
+		return FALSE;
+	String PathUtf8 = (const char*)FTCHARToUTF8(*Path);
+	UINT Total = pMovie->pView->GetVariableArraySize(PathUtf8);
+	if( Total > UINT(MAXINT) || UINT(Index) > Total )
+		return FALSE;
+	INT Count = INT(Total - UINT(Index));
+	if( UINT(Count) > UINT(MAXINT) / sizeof(INT) )
+		return FALSE;
+	TArray<INT> Values;
+	Values.AddZeroed(Count);
+	if( !pMovie->pView->GetVariableArray(Movie::SA_Int, PathUtf8, Index, Values.GetData(), Count) )
+		return FALSE;
+	arg = Values;
+	return TRUE;
 }
 
 UBOOL UGFxMoviePlayer::GetVariableFloatArray ( const FString& Path, INT Index, TArray<FLOAT>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
-	{
-		return 0;
-	}
-
-	String pathutf8 = ( const char* ) FTCHARToUTF8 ( *Path );
-	INT count = pMovie->pView->GetVariableArraySize ( pathutf8 );
-	AutoGFxValueArray ( gvals, count );
-
-	arg.Empty();
-	arg.Add ( count );
-	return pMovie->pView->GetVariableArray ( Movie::SA_Float, pathutf8, Index, &arg ( 0 ), count );
+	if( !GGFxEngine || !pMovie || !pMovie->pView || Index < 0 )
+		return FALSE;
+	String PathUtf8 = (const char*)FTCHARToUTF8(*Path);
+	UINT Total = pMovie->pView->GetVariableArraySize(PathUtf8);
+	if( Total > UINT(MAXINT) || UINT(Index) > Total )
+		return FALSE;
+	INT Count = INT(Total - UINT(Index));
+	if( UINT(Count) > UINT(MAXINT) / sizeof(FLOAT) )
+		return FALSE;
+	TArray<FLOAT> Values;
+	Values.AddZeroed(Count);
+	if( !pMovie->pView->GetVariableArray(Movie::SA_Float, PathUtf8, Index, Values.GetData(), Count) )
+		return FALSE;
+	arg = Values;
+	return TRUE;
 }
 
 UBOOL UGFxMoviePlayer::GetVariableStringArray ( const FString& path, INT index, TArray<FString>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
+	if( !GGFxEngine || !pMovie || !pMovie->pView || index < 0 )
+		return FALSE;
+	String PathUtf8 = (const char*)FTCHARToUTF8(*path);
+	UINT Total = pMovie->pView->GetVariableArraySize(PathUtf8);
+	if( Total > UINT(MAXINT) || UINT(index) > Total )
+		return FALSE;
+	INT Count = INT(Total - UINT(index));
+	if( UINT(Count) > UINT(MAXINT) / sizeof(FString) )
+		return FALSE;
+	TArray<FString> Values;
+	// The SDK's wide-string preparation loop ignores count. Fetch UTF-8 strings
+	// through its bounded path and convert each result before its buffer expires.
+	TArray<const char*> Strings;
+	Strings.AddZeroed(Count);
+	if( !pMovie->pView->GetVariableArray(Movie::SA_String, PathUtf8, index, Strings.GetData(), Count) )
+		return FALSE;
+	for( INT i = 0; i < Count; ++i )
 	{
-		return 0;
-	}
-
-	String pathutf8 = ( const char* ) FTCHARToUTF8 ( *path );
-	INT count = pMovie->pView->GetVariableArraySize ( pathutf8 );
-
 #if TCHAR_IS_1_BYTE
-	char** outs = ( char** ) appAlloca ( sizeof ( char* ) * count );
-	if ( !pMovie->pView->GetVariableArray ( Movie::SA_String, pathutf8, index, outs, count ) )
+		Values.AddItem(Strings(i) ? FString(Strings(i)) : FString());
 #else
-	wchar_t** outs = ( wchar_t** ) appAlloca ( sizeof ( wchar_t* ) * count );
-	if ( !pMovie->pView->GetVariableArray ( Movie::SA_StringW, pathutf8, index, outs, count ) )
+		Values.AddItem(Strings(i) ? FString(FUTF8ToTCHAR(Strings(i))) : FString());
 #endif
-	{
-		return 0;
 	}
-
-	arg.Empty();
-	for ( INT i = 0; i < count; i++ )
-	{
-		arg.AddItem ( FString ( outs[i] ) );
-	}
-	return 1;
+	arg = Values;
+	return TRUE;
 }
 
 UBOOL UGFxMoviePlayer::SetVariableArray ( const FString& Path, INT Index, const TArray<struct FASValue>& args )
 {
-	if ( !GGFxEngine || !pMovie )
-	{
-		return 0;
-	}
-
-	AutoGFxValueArray ( gargs, args.Num() );
-	for ( int i = 0; i < args.Num(); i++ )
-	{
-        ConvertFASValueToGFxValue ( gargs[i], args ( i ) );
-	}
-
-	return pMovie->pView->SetVariableArray ( Movie::SA_Value, FTCHARToUTF8 ( *Path ), Index, gargs, args.Num() );
+	if( !GGFxEngine || !pMovie || !pMovie->pView || Index < 0 || args.Num() > MAXINT - Index )
+		return FALSE;
+	AutoGFxValueArray(Temporary, args.Num());
+	if( !Temporary.IsValid() )
+		return FALSE;
+	for( INT i = 0; i < args.Num(); ++i )
+		ConvertFASValueToGFxValue(Temporary[i], args(i));
+	return pMovie->pView->SetVariableArray(Movie::SA_Value, FTCHARToUTF8(*Path), Index, Temporary, args.Num());
 }
 UBOOL UGFxMoviePlayer::SetVariableIntArray ( const FString& Path, INT Index, const TArray<INT>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
-	{
-		return 0;
-	}
-
-	return pMovie->pView->SetVariableArray ( Movie::SA_Int, FTCHARToUTF8 ( *Path ), Index, &arg ( 0 ), arg.Num() );
+	if( !GGFxEngine || !pMovie || !pMovie->pView || Index < 0 || arg.Num() > MAXINT - Index )
+		return FALSE;
+	return pMovie->pView->SetVariableArray(Movie::SA_Int, FTCHARToUTF8(*Path), Index, arg.GetData(), arg.Num());
 }
 UBOOL UGFxMoviePlayer::SetVariableFloatArray ( const FString& Path, INT Index, const TArray<FLOAT>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
-	{
-		return 0;
-	}
-
-	return pMovie->pView->SetVariableArray ( Movie::SA_Float, FTCHARToUTF8 ( *Path ), Index, &arg ( 0 ), arg.Num() );
+	if( !GGFxEngine || !pMovie || !pMovie->pView || Index < 0 || arg.Num() > MAXINT - Index )
+		return FALSE;
+	return pMovie->pView->SetVariableArray(Movie::SA_Float, FTCHARToUTF8(*Path), Index, arg.GetData(), arg.Num());
 }
 UBOOL UGFxMoviePlayer::SetVariableStringArray ( const FString& Path, INT Index, const TArray<FString>& arg )
 {
-	if ( !GGFxEngine || !pMovie )
-	{
-		return 0;
-	}
-
+	if( !GGFxEngine || !pMovie || !pMovie->pView || Index < 0 || arg.Num() > MAXINT - Index )
+		return FALSE;
+	if( UINT(arg.Num()) > UINT(MAXINT) / sizeof(const TCHAR*) )
+		return FALSE;
+	TArray<const TCHAR*> Strings;
+	Strings.AddZeroed(arg.Num());
+	for( INT i = 0; i < arg.Num(); ++i )
+		Strings(i) = *arg(i);
 #if TCHAR_IS_1_BYTE
-	const char** wstrs = ( const char** ) appAlloca ( sizeof ( GFx::Value ) * arg.Num() );
-	for ( int i = 0; i < arg.Num(); i++ )
-	{
-		wstrs[i] = * ( arg ( i ) );
-	}
-
-	return pMovie->pView->SetVariableArray ( Movie::SA_String, FTCHARToUTF8 ( *Path ), Index, wstrs, arg.Num() );
+	return pMovie->pView->SetVariableArray(Movie::SA_String, FTCHARToUTF8(*Path), Index, Strings.GetData(), arg.Num());
 #else
-	const wchar_t** wstrs = ( const wchar_t** ) appAlloca ( sizeof ( GFx::Value ) * arg.Num() );
-	for ( int i = 0; i < arg.Num(); i++ )
-	{
-		wstrs[i] = * ( arg ( i ) );
-	}
-
-	return pMovie->pView->SetVariableArray ( Movie::SA_StringW, FTCHARToUTF8 ( *Path ), Index, wstrs, arg.Num() );
+	return pMovie->pView->SetVariableArray(Movie::SA_StringW, FTCHARToUTF8(*Path), Index, Strings.GetData(), arg.Num());
 #endif
 }
 
@@ -1676,23 +1675,21 @@ void ExecuteActionScript ( InvokerType InInvoker, UGFxMoviePlayer* MoviePlayer, 
 
 	AutoGFxValueArray ( args, numArgs );
 
-	for ( TFieldIterator<UProperty> It ( Function ); It && ( It->PropertyFlags & ( CPF_Parm | CPF_ReturnParm ) ) == CPF_Parm; ++It, ++i )
+	if( args.IsValid() && MoviePlayer->pMovie && MoviePlayer->pMovie->pView )
 	{
-		FGFxEngine::ConvertUPropToGFx ( *It, Stack.Locals + It->Offset, args[i], MoviePlayer->pMovie->pView );
-	}
-
-	if ( MoviePlayer->pMovie )
-	{
-		InInvoker->Invoke ( FTCHARToUTF8 ( *path ), &DefaultReturnValue, args, numArgs );
-
-		// If the function is not void, translate the return value into a value that UnrealScript understands.
-		if ( ReturnSig != FunctionIsVoid )
+		for ( TFieldIterator<UProperty> It ( Function ); It && ( It->PropertyFlags & ( CPF_Parm | CPF_ReturnParm ) ) == CPF_Parm; ++It, ++i )
 		{
-			UProperty* ReturnProperty = Function->GetReturnProperty();
-			if ( ReturnProperty != NULL )
-			{
-				FGFxEngine::ConvertGFxToUProp ( ReturnProperty, ( BYTE* ) Result, DefaultReturnValue, MoviePlayer );
-			}
+			FGFxEngine::ConvertUPropToGFx ( *It, Stack.Locals + It->Offset, args[i], MoviePlayer->pMovie->pView );
+		}
+		InInvoker->Invoke ( FTCHARToUTF8 ( *path ), &DefaultReturnValue, args, numArgs );
+	}
+	// Translate the supplied default even when argument allocation or invocation is unavailable.
+	if ( ReturnSig != FunctionIsVoid )
+	{
+		UProperty* ReturnProperty = Function->GetReturnProperty();
+		if ( ReturnProperty != NULL )
+		{
+			FGFxEngine::ConvertGFxToUProp ( ReturnProperty, ( BYTE* ) Result, DefaultReturnValue, MoviePlayer );
 		}
 	}
 }
@@ -1776,11 +1773,13 @@ void UGFxObject::BeginDestroy()
 struct FASValue UGFxObject::Invoke ( const FString& method, const TArray<struct FASValue>& args )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsObject() )
+	if ( v && v->IsObject() )
 	{
 		AutoGFxValueArray ( gargs, args.Num() );
+		if( !gargs.IsValid() )
+			return result;
 		for ( int i = 0; i < args.Num(); i++ )
 		{
             ConvertFASValueToGFxValue ( gargs[i], args ( i ) );
@@ -1838,10 +1837,10 @@ void UGFxObject::GotoAndStopI ( INT frame )
 struct FASValue UGFxObject::Get ( const FString& member )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	GFx::Value gresult;
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsObject() && v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+	if ( v && v->IsObject() && v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
 	{
         ConvertGFxValueToFASValue ( result, gresult );
 	}
@@ -1953,7 +1952,7 @@ static void ConvertMatrix2To4 ( FMatrix& dest, const Matrix2F& src )
 	dest.M[0][0] = src.M[0][0];
 	dest.M[1][0] = src.M[0][1];
 	dest.M[2][0] = 0;
-	dest.M[3][0] = src.M[1][3];
+	dest.M[3][0] = src.M[0][3];
 	dest.M[0][1] = src.M[1][0];
 	dest.M[1][1] = src.M[1][1];
 	dest.M[2][1] = 0;
@@ -1995,13 +1994,14 @@ UBOOL UGFxObject::GetBool ( const FString& member )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( !v->IsObject() )
+	if ( !v || !v->IsObject() )
 	{
 		return FALSE;
 	}
 
 	GFx::Value gresult ( GFx::Value::VT_ConvertBoolean );
-	v->GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+	if( !v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+		return FALSE;
 	if ( gresult.GetType() != GFx::Value::VT_Boolean )
 	{
 		warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetBool(): value is not a bool. Returning FALSE.:%s" ), *member  );
@@ -2016,13 +2016,14 @@ FLOAT UGFxObject::GetFloat ( const FString& member )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( !v->IsObject() )
+	if ( !v || !v->IsObject() )
 	{
 		return 0;
 	}
 
 	GFx::Value gresult ( GFx::Value::VT_ConvertNumber );
-	v->GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+	if( !v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+		return 0;
 	if ( gresult.GetType() != GFx::Value::VT_Number )
 	{
 		warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetFloat(): value is not a float. Returning 0:%s" ), *member  );
@@ -2037,13 +2038,14 @@ INT UGFxObject::GetInt ( const FString& member )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
     GFx::Value *v = ( GFx::Value* ) Value;
-    if ( !v->IsObject() )
+    if ( !v || !v->IsObject() )
     {
         return 0;
     }
 
     GFx::Value gresult ( GFx::Value::VT_ConvertInt );
-    v->GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+    if( !v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+        return 0;
     if ( gresult.GetType() != GFx::Value::VT_Int )
     {
 		warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetInt(): value is not an integer. Returning 0:%s" ), *member  );
@@ -2058,26 +2060,28 @@ FString UGFxObject::GetString ( const FString& member )
 {
 	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( !v->IsObject() )
+	if ( !v || !v->IsObject() )
 	{
 		return FString();
 	}
 
 #if TCHAR_IS_1_BYTE
 	GFx::Value gresult ( GFx::Value::VT_ConvertString );
-	v->GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+	if( !v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+		return FString();
 #else
 	GFx::Value gresult ( GFx::Value::VT_ConvertStringW );
-	v->GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+	if( !v->GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+		return FString();
 	if ( gresult.GetType() == GFx::Value::VT_StringW )
 	{
-		return gresult.GetStringW();
+		return gresult.GetStringW() ? FString(gresult.GetStringW()) : FString();
 	}
 	else
 #endif
 		if ( gresult.GetType() == GFx::Value::VT_String )
 	{
-		return FString ( FUTF8ToTCHAR ( gresult.GetString() ) );
+		return gresult.GetString() ? FString(FUTF8ToTCHAR(gresult.GetString())) : FString();
 	}
 	else
 	{
@@ -2089,26 +2093,28 @@ FString UGFxObject::GetText()
 {
 	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( !v->IsDisplayObject() )
+	if ( !v || !v->IsDisplayObject() )
 	{
 		return FString();
 	}
 
 #if TCHAR_IS_1_BYTE
 	GFx::Value gresult ( GFx::Value::VT_ConvertString );
-	v->GetText ( &gresult );
+	if( !v->GetText ( &gresult ) )
+		return FString();
 #else
 	GFx::Value gresult ( GFx::Value::VT_ConvertStringW );
-	v->GetText ( &gresult );
+	if( !v->GetText ( &gresult ) )
+		return FString();
 	if ( gresult.GetType() == GFx::Value::VT_StringW )
 	{
-		return gresult.GetStringW();
+		return gresult.GetStringW() ? FString(gresult.GetStringW()) : FString();
 	}
 	else
 #endif
 		if ( gresult.GetType() == GFx::Value::VT_String )
 	{
-		return FString ( FUTF8ToTCHAR ( gresult.GetString() ) );
+		return gresult.GetString() ? FString(FUTF8ToTCHAR(gresult.GetString())) : FString();
 	}
 	else
 	{
@@ -2118,24 +2124,22 @@ FString UGFxObject::GetText()
 
 struct FASDisplayInfo UGFxObject::GetDisplayInfo()
 {
-	FASDisplayInfo dinfo;
+	FASDisplayInfo dinfo(EC_EventParm);
 	GFx::Value::DisplayInfo ginfo;
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsDisplayObject() )
+	if ( v->IsDisplayObject() && v->GetDisplayInfo ( &ginfo ) )
 	{
-		v->GetDisplayInfo ( &ginfo );
 		GFxDisplayInfoToU ( dinfo, ginfo );
 	}
 	return dinfo;
 }
 FMatrix UGFxObject::GetDisplayMatrix()
 {
-	FMatrix m4;
+	FMatrix m4 = FMatrix::Identity;
 	Matrix2F m2;
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsDisplayObject() )
+	if ( v->IsDisplayObject() && v->GetDisplayMatrix ( &m2 ) )
 	{
-		v->GetDisplayMatrix ( &m2 );
 		ConvertMatrix2To4 ( m4, m2 );
 	}
 	return m4;
@@ -2143,12 +2147,11 @@ FMatrix UGFxObject::GetDisplayMatrix()
 
 FMatrix UGFxObject::GetDisplayMatrix3D()
 {
-	FMatrix m4;
+	FMatrix m4 = FMatrix::Identity;
 	Matrix3F m3;
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsDisplayObject() )
+	if ( v->IsDisplayObject() && v->GetMatrix3D ( &m3 ) )
 	{
-		v->GetMatrix3D ( &m3 );
 		ConvertMatrix3To4 ( m4, m3 );
 	}
 	return m4;
@@ -2156,12 +2159,13 @@ FMatrix UGFxObject::GetDisplayMatrix3D()
 
 FASColorTransform UGFxObject::GetColorTransform()
 {
-	FASColorTransform cxfout;
+	FASColorTransform cxfout(EC_EventParm);
+	cxfout.Multiply = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsDisplayObject() )
 	{
 		Cxform cxform;
-		v->GetColorTransform ( &cxform );
+		if (!v->GetColorTransform ( &cxform )) return cxfout;
 		cxfout.Multiply.R = cxform.M[0][0];
 		cxfout.Multiply.G = cxform.M[0][1];
 		cxfout.Multiply.B = cxform.M[0][2];
@@ -2177,11 +2181,12 @@ FASColorTransform UGFxObject::GetColorTransform()
 UBOOL UGFxObject::GetPosition ( FLOAT& X, FLOAT& Y )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
+	X = 0.0f;
+	Y = 0.0f;
 	GFx::Value::DisplayInfo ginfo;
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsDisplayObject() )
+	if ( v->IsDisplayObject() && v->GetDisplayInfo ( &ginfo ) )
 	{
-		v->GetDisplayInfo ( &ginfo );
 		X = ginfo.GetX();
 		Y = ginfo.GetY();
 		return TRUE;
@@ -2506,9 +2511,9 @@ void UGFxObject::SetElementObject ( INT I, class UGFxObject* inval )
 struct FASValue UGFxObject::GetElement ( INT Index )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( v && v->IsArray() )
 	{
 		GFx::Value gresult;
 		if ( v->GetElement ( Index, &gresult ) )
@@ -2523,7 +2528,7 @@ UBOOL UGFxObject::GetElementBool ( INT Index )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( Index >= 0 && v && v->IsArray() )
 	{
 		GFx::Value gresult ( GFx::Value::VT_ConvertBoolean );
 		if ( v->GetElement ( Index, &gresult ) )
@@ -2546,7 +2551,7 @@ FLOAT UGFxObject::GetElementFloat ( INT Index )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( Index >= 0 && v && v->IsArray() )
 	{
 		GFx::Value gresult ( GFx::Value::VT_ConvertNumber );
 		if ( v->GetElement ( Index, &gresult ) )
@@ -2569,7 +2574,7 @@ INT UGFxObject::GetElementInt ( INT Index )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
     GFx::Value *v = ( GFx::Value* ) Value;
-    if ( v->IsArray() )
+    if ( Index >= 0 && v && v->IsArray() )
     {
         GFx::Value gresult ( GFx::Value::VT_ConvertInt );
         if ( v->GetElement ( Index, &gresult ) )
@@ -2591,29 +2596,22 @@ INT UGFxObject::GetElementInt ( INT Index )
 FString UGFxObject::GetElementString ( INT Index )
 {
 	if(!this) return FString();  // 1.05 UI: tolerate missing swf objects
-	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
-	{
+	GFx::Value* v = (GFx::Value*)Value;
+	if( Index < 0 || !v || !v->IsArray() )
+		return FString();
 #if TCHAR_IS_1_BYTE
-		GFx::Value gresult ( GFx::Value::VT_ConvertString );
-		if ( v->GetElement ( Index, &gresult ) )
-		{
+	GFx::Value gresult(GFx::Value::VT_ConvertString);
 #else
-		GFx::Value gresult ( GFx::Value::VT_ConvertStringW );
-		if ( v->GetElement ( Index, &gresult ) )
-		{
-			if ( gresult.GetType() == GFx::Value::VT_StringW )
-			{
-				return gresult.GetStringW();
-			}
-			else
+	GFx::Value gresult(GFx::Value::VT_ConvertStringW);
 #endif
-				if ( gresult.GetType() == GFx::Value::VT_String )
-			{
-				return FString ( FUTF8ToTCHAR ( gresult.GetString() ) );
-			}
-		}
-	}
+	if( !v->GetElement(Index, &gresult) )
+		return FString();
+#if !TCHAR_IS_1_BYTE
+	if( gresult.GetType() == GFx::Value::VT_StringW )
+		return gresult.GetStringW() ? FString(gresult.GetStringW()) : FString();
+#endif
+	if( gresult.GetType() == GFx::Value::VT_String )
+		return gresult.GetString() ? FString(FUTF8ToTCHAR(gresult.GetString())) : FString();
 	return FString();
 }
 
@@ -2752,9 +2750,9 @@ void UGFxObject::SetElementColorTransform ( INT Index, FASColorTransform cxfin )
 struct FASValue UGFxObject::GetElementMember ( INT Index, const FString& member )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( v && v->IsArray() )
 	{
 		GFx::Value elem, gresult;
 		if ( v->GetElement ( Index, &elem ) && elem.IsObject() && elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
@@ -2783,13 +2781,14 @@ class UGFxObject* UGFxObject::GetElementMemberObject ( INT Index, const FString&
 UBOOL UGFxObject::GetElementMemberBool ( INT Index, const FString& member )
 {
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( Index >= 0 && v && v->IsArray() )
 	{
 		GFx::Value elem;
 		if ( v->GetElement ( Index, &elem ) && elem.IsObject() )
 		{
 			GFx::Value gresult ( GFx::Value::VT_ConvertBoolean );
-			elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+			if( !elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+				return FALSE;
 			if ( gresult.GetType() != GFx::Value::VT_Boolean )
 			{
 				warnf (NAME_Error, TEXT ( "UGFxMoviePlayer::GetElementMemberBool(): value is not a bool. Returning FALSE:%s" ), *member  );
@@ -2807,13 +2806,14 @@ UBOOL UGFxObject::GetElementMemberBool ( INT Index, const FString& member )
 FLOAT UGFxObject::GetElementMemberFloat ( INT Index, const FString& member )
 {
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( Index >= 0 && v && v->IsArray() )
 	{
 		GFx::Value elem;
 		if ( v->GetElement ( Index, &elem ) && elem.IsObject() )
 		{
 			GFx::Value gresult ( GFx::Value::VT_ConvertNumber );
-			elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+			if( !elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+				return 0;
 			if ( gresult.GetType() != GFx::Value::VT_Number )
 			{
 				warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetElementMemberFloat(): value is not a float. Returning 0.0:%s" ), *member );
@@ -2830,13 +2830,14 @@ FLOAT UGFxObject::GetElementMemberFloat ( INT Index, const FString& member )
 INT UGFxObject::GetElementMemberInt ( INT Index, const FString& member )
 {
     GFx::Value *v = ( GFx::Value* ) Value;
-    if ( v->IsArray() )
+    if ( Index >= 0 && v && v->IsArray() )
     {
         GFx::Value elem;
         if ( v->GetElement ( Index, &elem ) && elem.IsObject() )
         {
             GFx::Value gresult ( GFx::Value::VT_ConvertInt );
-            elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+            if( !elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+                return 0;
             if ( gresult.GetType() != GFx::Value::VT_Int )
             {
 				warnf (NAME_Error,  TEXT ( "UGFxMoviePlayer::GetElementMemberInt(): value is not an integer. Returning 0." ) );
@@ -2853,26 +2854,28 @@ INT UGFxObject::GetElementMemberInt ( INT Index, const FString& member )
 FString UGFxObject::GetElementMemberString ( INT Index, const FString& member )
 {
 	GFx::Value *v = ( GFx::Value* ) Value;
-	if ( v->IsArray() )
+	if ( Index >= 0 && v && v->IsArray() )
 	{
 		GFx::Value elem;
 		if ( v->GetElement ( Index, &elem ) && elem.IsObject() )
 		{
 #if TCHAR_IS_1_BYTE
 			GFx::Value gresult ( GFx::Value::VT_ConvertString );
-			elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+			if( !elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+				return FString();
 #else
 			GFx::Value gresult ( GFx::Value::VT_ConvertStringW );
-			elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult );
+			if( !elem.GetMember ( FTCHARToUTF8 ( *member ), &gresult ) )
+				return FString();
 			if ( gresult.GetType() == GFx::Value::VT_StringW )
 			{
-				return gresult.GetStringW();
+				return gresult.GetStringW() ? FString(gresult.GetStringW()) : FString();
 			}
 			else
 #endif
 				if ( gresult.GetType() == GFx::Value::VT_String )
 			{
-				return FString ( FUTF8ToTCHAR ( gresult.GetString() ) );
+				return gresult.GetString() ? FString(FUTF8ToTCHAR(gresult.GetString())) : FString();
 			}
 		}
 	}
@@ -2881,7 +2884,7 @@ FString UGFxObject::GetElementMemberString ( INT Index, const FString& member )
 
 struct FASDisplayInfo UGFxObject::GetElementDisplayInfo ( INT Index )
 {
-	FASDisplayInfo dinfo;
+	FASDisplayInfo dinfo(EC_EventParm);
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
 	{
@@ -2889,7 +2892,7 @@ struct FASDisplayInfo UGFxObject::GetElementDisplayInfo ( INT Index )
 		if ( v->GetElement ( Index, &elem ) && elem.IsDisplayObject() )
 		{
 			GFx::Value::DisplayInfo ginfo;
-			elem.GetDisplayInfo ( &ginfo );
+			if (!elem.GetDisplayInfo ( &ginfo )) return dinfo;
 			GFxDisplayInfoToU ( dinfo, ginfo );
 		}
 	}
@@ -2898,7 +2901,7 @@ struct FASDisplayInfo UGFxObject::GetElementDisplayInfo ( INT Index )
 
 FMatrix UGFxObject::GetElementDisplayMatrix ( INT Index )
 {
-	FMatrix m4;
+	FMatrix m4 = FMatrix::Identity;
 	Matrix2F m2;
 	GFx::Value *v = ( GFx::Value* ) Value;
 	if ( v->IsArray() )
@@ -2906,7 +2909,7 @@ FMatrix UGFxObject::GetElementDisplayMatrix ( INT Index )
 		GFx::Value elem;
 		if ( v->GetElement ( Index, &elem ) && elem.IsDisplayObject() )
 		{
-			elem.GetDisplayMatrix ( &m2 );
+			if (!elem.GetDisplayMatrix ( &m2 )) return m4;
 			ConvertMatrix2To4 ( m4, m2 );
 		}
 	}
@@ -3490,7 +3493,7 @@ UBOOL UGFxMoviePlayer::SetExternalTexture ( const FString& Name, class UTexture*
 
 FASValue UGFxMoviePlayer::Invoke ( const FString &method, const TArray<struct FASValue> &args )
 {
-	FASValue result;
+	FASValue result(EC_EventParm);
 	result.Type = AS_Null;
 	return result;
 }
@@ -3533,7 +3536,7 @@ void UGFxMoviePlayer::SetVariableObject ( const FString& Path, UGFxObject* Value
 
 FASValue UGFxMoviePlayer::GetVariable ( const FString &path )
 {
-	FASValue result;
+	FASValue result(EC_EventParm);
 	result.Type = AS_Null;
 	return result;
 }
@@ -3634,7 +3637,7 @@ void UGFxObject::BeginDestroy()
 struct FASValue UGFxObject::Invoke ( const FString& method, const TArray<struct FASValue>& args )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	result.Type = AS_Null;
 	return result;
 }
@@ -3650,7 +3653,7 @@ void UGFxObject::GotoAndStopI ( INT frame ) {}
 struct FASValue UGFxObject::Get ( const FString& member )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	result.Type = AS_Null;
 	return result;
 }
@@ -3693,28 +3696,31 @@ FString UGFxObject::GetText()
 
 struct FASDisplayInfo UGFxObject::GetDisplayInfo()
 {
-	return FASDisplayInfo();
+	return FASDisplayInfo(EC_EventParm);
 }
 
 FMatrix UGFxObject::GetDisplayMatrix()
 {
-	FMatrix m;
-	return m;
+	return FMatrix::Identity;
 }
 
 FMatrix UGFxObject::GetDisplayMatrix3D()
 {
-	return FMatrix();
+	return FMatrix::Identity;
 }
 
 FASColorTransform UGFxObject::GetColorTransform()
 {
-	return FASColorTransform();
+	FASColorTransform cxfout(EC_EventParm);
+	cxfout.Multiply = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	return cxfout;
 }
 
 UBOOL UGFxObject::GetPosition ( FLOAT& X, FLOAT& Y )
 {
 	if(!this) return 0;  // 1.05 UI: tolerate missing swf objects
+	X = 0.0f;
+	Y = 0.0f;
 	return FALSE;
 }
 
@@ -3781,7 +3787,7 @@ void UGFxObject::SetElementObject ( INT I, class UGFxObject* inval ) { }
 struct FASValue UGFxObject::GetElement ( INT Index )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	result.Type = AS_Null;
 	return result;
 }
@@ -3829,7 +3835,7 @@ void UGFxObject::SetElementColorTransform ( INT Index, FASColorTransform cxfin )
 struct FASValue UGFxObject::GetElementMember ( INT Index, const FString& member )
 {
 	if(!this) return FASValue();  // 1.05 UI: tolerate missing swf objects
-	FASValue result;
+	FASValue result(EC_EventParm);
 	result.Type = AS_Null;
 	return result;
 }
@@ -3862,14 +3868,13 @@ FString UGFxObject::GetElementMemberString ( INT Index, const FString& member )
 
 struct FASDisplayInfo UGFxObject::GetElementDisplayInfo ( INT Index )
 {
-	FASDisplayInfo dinfo;
+	FASDisplayInfo dinfo(EC_EventParm);
 	return dinfo;
 }
 
 FMatrix UGFxObject::GetElementDisplayMatrix ( INT Index )
 {
-	FMatrix m4;
-	return m4;
+	return FMatrix::Identity;
 }
 
 void UGFxObject::SetElementMember ( INT Index, const FString& member, struct FASValue arg ) { }

@@ -3,6 +3,7 @@
 
 #include <comdef.h>
 #include <Wbemidl.h>
+#include "../../../../../../Common/utility/fixed_string.h"
 
 # pragma comment(lib, "wbemuuid.lib")
 
@@ -13,67 +14,112 @@ using namespace ExternalMessage;	//......
 
 class DeviceInfoHelper
 {
+	template<class T> class ScopedComPtr
+	{
+		ScopedComPtr(const ScopedComPtr&);
+		ScopedComPtr& operator=(const ScopedComPtr&);
+	public:
+		T* Value;
+		ScopedComPtr() : Value(NULL) {}
+		~ScopedComPtr() { if (Value) Value->Release(); }
+	};
+	class ScopedVariant
+	{
+		ScopedVariant(const ScopedVariant&);
+		ScopedVariant& operator=(const ScopedVariant&);
+	public:
+		VARIANT Value;
+		ScopedVariant() { VariantInit(&Value); }
+		~ScopedVariant() { VariantClear(&Value); }
+	};
+	class ScopedComInit
+	{
+		ScopedComInit(const ScopedComInit&);
+		ScopedComInit& operator=(const ScopedComInit&);
+	public:
+		ScopedComInit() {}
+		~ScopedComInit() { CoUninitialize(); }
+	};
+	static HRESULT ReadProperty(IWbemClassObject* object, const WCHAR* name, VARTYPE type, VARIANT* value)
+	{
+		VariantClear(value);
+		HRESULT result = object->Get(name, 0, value, 0, 0);
+		if (FAILED(result) || value->vt == VT_EMPTY || value->vt == VT_NULL) return E_FAIL;
+		if (type == VT_BSTR)
+			return value->vt == VT_BSTR && value->bstrVal ? S_OK : E_INVALIDARG;
+		if (value->vt != type)
+			return VariantChangeType(value, value, 0, type);
+		return S_OK;
+	}
+
 	UBOOL GetCpuInfo(C2G_CLIENT_HARDWARE_INFO& Info, IWbemServices *InSvc, UBOOL bLogToFile)
 	{
-		IEnumWbemClassObject* pEnumerator = NULL;
+		if (!InSvc) return FALSE;
+		ScopedComPtr<IEnumWbemClassObject> enumerator;
+		IEnumWbemClassObject*& pEnumerator = enumerator.Value;
 		HRESULT hres = InSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_Processor"),
 			WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 			NULL,&pEnumerator);
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pEnumerator)
 		{
 			return FALSE;
 		}
 
-		IWbemClassObject *pclsObj;
+		IWbemClassObject *pclsObj = NULL;
 		ULONG uReturn = 0;
+		UBOOL found = FALSE;
 		while(pEnumerator)
 		{
-			hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+			ScopedComPtr<IWbemClassObject> row;
+			uReturn = 0;
+			hres = pEnumerator->Next(WBEM_INFINITE, 1, &row.Value, &uReturn);
+			pclsObj = row.Value;
 
-			if(0 == uReturn)
-			{
-				return false;
-			}
+			if (FAILED(hres)) return FALSE;
+			if (uReturn == 0) return found;
+			if (uReturn != 1 || !pclsObj) return FALSE;
+			found = TRUE;
 
-			VARIANT vtProp;
+			ScopedVariant property;
+			VARIANT& vtProp = property.Value;
 
 			if (bLogToFile) GLog->Logf(TEXT("Cpu Info:"));
 
 			// Get the value of the Name property
-			hres = pclsObj->Get(L"Name", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Name", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf(TEXT("    Name:%s"), vtProp.bstrVal);
-				strcpy_s(Info.stcpuinfo.Name, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stcpuinfo.Name, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Family", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Family", VT_UI2, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    Family:%d")), vtProp.iVal);
-				Info.stcpuinfo.Family = vtProp.iVal;
+				if (bLogToFile) GLog->Logf((TEXT("    Family:%d")), vtProp.uiVal);
+				Info.stcpuinfo.Family = vtProp.uiVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Level", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Level", VT_UI2, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    Level:%d")), vtProp.iVal);
-				Info.stcpuinfo.Level = vtProp.iVal;
+				if (bLogToFile) GLog->Logf((TEXT("    Level:%d")), vtProp.uiVal);
+				Info.stcpuinfo.Level = vtProp.uiVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Revision", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Revision", VT_UI2, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    Revision:%d")), vtProp.iVal);
-				Info.stcpuinfo.Revision = vtProp.iVal;
+				if (bLogToFile) GLog->Logf((TEXT("    Revision:%d")), vtProp.uiVal);
+				Info.stcpuinfo.Revision = vtProp.uiVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Version", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Version", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Version:%s")), vtProp.bstrVal);
@@ -92,11 +138,11 @@ class DeviceInfoHelper
 				OsVersionInfo.szCSDVersion,
 				OsVersionInfo.wServicePackMajor,
 				OsVersionInfo.wServicePackMinor);
-			strcpy_s(Info.stcpuinfo.Version, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(*osInfo));
+			ClientFixedString::Assign(Info.stcpuinfo.Version, TCHAR_TO_UTF8(*osInfo));
 
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Stepping", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Stepping", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Stepping:%s")), vtProp.bstrVal);
@@ -105,55 +151,55 @@ class DeviceInfoHelper
 
 			extern FString GetPlayerRoleName();
 			FString roleName = GetPlayerRoleName();
-			strcpy_s(Info.stcpuinfo.Stepping, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(*roleName));
+			ClientFixedString::Assign(Info.stcpuinfo.Stepping, TCHAR_TO_UTF8(*roleName));
 
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"AddressWidth", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"AddressWidth", VT_UI2, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    AddressWidth:%d")), vtProp.iVal);
-				Info.stcpuinfo.AddressWidth = vtProp.iVal;
+				if (bLogToFile) GLog->Logf((TEXT("    AddressWidth:%d")), vtProp.uiVal);
+				Info.stcpuinfo.AddressWidth = vtProp.uiVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"NumberOfCores", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"NumberOfCores", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    NumberOfCores:%d")), vtProp.intVal);
-				Info.stcpuinfo.NumberOfCores = vtProp.intVal;
+				if (bLogToFile) GLog->Logf((TEXT("    NumberOfCores:%d")), vtProp.uintVal);
+				Info.stcpuinfo.NumberOfCores = vtProp.uintVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"NumberOfLogicalProcessors", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"NumberOfLogicalProcessors", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    NumberOfLogicalProcessors:%d")), vtProp.intVal);
-				Info.stcpuinfo.NumberOfLogicalProcessors = vtProp.intVal;
+				if (bLogToFile) GLog->Logf((TEXT("    NumberOfLogicalProcessors:%d")), vtProp.uintVal);
+				Info.stcpuinfo.NumberOfLogicalProcessors = vtProp.uintVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"MaxClockSpeed", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"MaxClockSpeed", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    MaxClockSpeed:%d")), vtProp.intVal);
-				Info.stcpuinfo.MaxClockSpeed = vtProp.intVal;
+				if (bLogToFile) GLog->Logf((TEXT("    MaxClockSpeed:%d")), vtProp.uintVal);
+				Info.stcpuinfo.MaxClockSpeed = vtProp.uintVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"L2CacheSize", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"L2CacheSize", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    L2CacheSize:%d")), vtProp.intVal);
-				Info.stcpuinfo.L2CacheSize = vtProp.intVal;
+				if (bLogToFile) GLog->Logf((TEXT("    L2CacheSize:%d")), vtProp.uintVal);
+				Info.stcpuinfo.L2CacheSize = vtProp.uintVal;
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"L3CacheSize", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"L3CacheSize", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
-				if (bLogToFile) GLog->Logf((TEXT("    L3CacheSize:%d")), vtProp.intVal);
-				Info.stcpuinfo.L3CacheSize = vtProp.intVal;
+				if (bLogToFile) GLog->Logf((TEXT("    L3CacheSize:%d")), vtProp.uintVal);
+				Info.stcpuinfo.L3CacheSize = vtProp.uintVal;
 			}
 			VariantClear(&vtProp);
 
@@ -165,34 +211,41 @@ class DeviceInfoHelper
 
 	UBOOL GetMemoryInfo(C2G_CLIENT_HARDWARE_INFO& Info, IWbemServices *InSvc, UBOOL bLogToFile)
 	{
-		IEnumWbemClassObject* pEnumerator = NULL;
+		if (!InSvc) return FALSE;
+		ScopedComPtr<IEnumWbemClassObject> enumerator;
+		IEnumWbemClassObject*& pEnumerator = enumerator.Value;
 		HRESULT hres = InSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_PhysicalMemory"),
 			WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 			NULL,&pEnumerator);
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pEnumerator)
 		{
 			return FALSE;
 		}
 
-		IWbemClassObject *pclsObj;
+		IWbemClassObject *pclsObj = NULL;
 		ULONG uReturn = 0;
+		UBOOL found = FALSE;
 
 		while(pEnumerator)
 		{
 
-			hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+			ScopedComPtr<IWbemClassObject> row;
+			uReturn = 0;
+			hres = pEnumerator->Next(WBEM_INFINITE, 1, &row.Value, &uReturn);
+			pclsObj = row.Value;
 
-			if(0 == uReturn)
-			{
-				return false;
-			}
+			if (FAILED(hres)) return FALSE;
+			if (uReturn == 0) return found;
+			if (uReturn != 1 || !pclsObj) return FALSE;
+			found = TRUE;
 
 			if (bLogToFile) GLog->Logf((TEXT("Memory Info:")));
 
-			VARIANT vtProp;
+			ScopedVariant property;
+			VARIANT& vtProp = property.Value;
 
-			hres = pclsObj->Get(L"Capacity", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Capacity", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Capacity:%s")), vtProp.bstrVal);
@@ -201,7 +254,7 @@ class DeviceInfoHelper
 
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"TypeDetail", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"TypeDetail", VT_UI2, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    TypeDetail:%u")), vtProp.uiVal);
@@ -209,7 +262,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Speed", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Speed", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if(vtProp.uintVal > Info.stmemoryinfo.Speed)
@@ -289,43 +342,50 @@ class DeviceInfoHelper
 
 	UBOOL GetVideoInfo(C2G_CLIENT_HARDWARE_INFO& Info, IWbemServices *InSvc, UBOOL bLogToFile)
 	{
-		IEnumWbemClassObject* pEnumerator = NULL;
+		if (!InSvc) return FALSE;
+		ScopedComPtr<IEnumWbemClassObject> enumerator;
+		IEnumWbemClassObject*& pEnumerator = enumerator.Value;
 		HRESULT hres = InSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_VideoController"),
 			WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 			NULL,&pEnumerator);
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pEnumerator)
 		{
 			return FALSE;
 		}
 
-		IWbemClassObject *pclsObj;
+		IWbemClassObject *pclsObj = NULL;
 		ULONG uReturn = 0;
+		UBOOL found = FALSE;
 
 		while(pEnumerator)
 		{
 
-			hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+			ScopedComPtr<IWbemClassObject> row;
+			uReturn = 0;
+			hres = pEnumerator->Next(WBEM_INFINITE, 1, &row.Value, &uReturn);
+			pclsObj = row.Value;
 
-			if(0 == uReturn)
-			{
-				return FALSE;
-			}
+			if (FAILED(hres)) return FALSE;
+			if (uReturn == 0) return found;
+			if (uReturn != 1 || !pclsObj) return FALSE;
+			found = TRUE;
 
 			if (bLogToFile) GLog->Logf((TEXT("Video Info:")));
-			VARIANT vtProp;
+			ScopedVariant property;
+			VARIANT& vtProp = property.Value;
 
 
 
-			hres = pclsObj->Get(L"Name", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Name", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Name:%s")), vtProp.bstrVal);
-				strcpy_s(Info.stvideoinfo.Name, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stvideoinfo.Name, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"AdapterRAM", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"AdapterRAM", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    AdapterRAM:%u")), vtProp.uintVal);
@@ -333,7 +393,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"VideoMemoryType", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"VideoMemoryType", VT_UI2, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    VideoMemoryType:%u")), vtProp.uiVal);
@@ -341,7 +401,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"CurrentBitsPerPixel", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"CurrentBitsPerPixel", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    CurrentBitsPerPixel:%u")), vtProp.uintVal);
@@ -349,7 +409,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"CurrentHorizontalResolution", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"CurrentHorizontalResolution", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    CurrentHorizontalResolution:%u")), vtProp.uintVal);
@@ -357,7 +417,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"CurrentRefreshRate", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"CurrentRefreshRate", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    CurrentRefreshRate:%u")), vtProp.uintVal);
@@ -365,7 +425,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"CurrentVerticalResolution", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"CurrentVerticalResolution", VT_UI4, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    CurrentVerticalResolution:%u")), vtProp.uintVal);
@@ -373,11 +433,11 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"VideoProcessor", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"VideoProcessor", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    VideoProcessor:%s")), vtProp.bstrVal);
-				strcpy_s(Info.stvideoinfo.VideoProcessor, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stvideoinfo.VideoProcessor, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
@@ -389,36 +449,43 @@ class DeviceInfoHelper
 
 	UBOOL GetDiskInfo(C2G_CLIENT_HARDWARE_INFO& Info, IWbemServices *InSvc, UBOOL bLogToFile)
 	{
-		IEnumWbemClassObject* pEnumerator = NULL;
+		if (!InSvc) return FALSE;
+		ScopedComPtr<IEnumWbemClassObject> enumerator;
+		IEnumWbemClassObject*& pEnumerator = enumerator.Value;
 		HRESULT hres = InSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_DiskDrive"),
 			WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 			NULL,&pEnumerator);
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pEnumerator)
 		{
 			return FALSE;
 		}
 
-		IWbemClassObject *pclsObj;
+		IWbemClassObject *pclsObj = NULL;
 		ULONG uReturn = 0;
+		UBOOL found = FALSE;
 
 		while(pEnumerator)
 		{
 
-			hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+			ScopedComPtr<IWbemClassObject> row;
+			uReturn = 0;
+			hres = pEnumerator->Next(WBEM_INFINITE, 1, &row.Value, &uReturn);
+			pclsObj = row.Value;
 
-			if(0 == uReturn)
-			{
-				return FALSE;
-			}
+			if (FAILED(hres)) return FALSE;
+			if (uReturn == 0) return found;
+			if (uReturn != 1 || !pclsObj) return FALSE;
+			found = TRUE;
 
 			if (bLogToFile) GLog->Logf((TEXT("Disk Info:")));
 
-			VARIANT vtProp;
+			ScopedVariant property;
+			VARIANT& vtProp = property.Value;
 
 
 
-			hres = pclsObj->Get(L"MediaType", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"MediaType", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    MediaType:%s")), vtProp.bstrVal);
@@ -426,29 +493,29 @@ class DeviceInfoHelper
 			}
 
 			FString  strBUILD_NUMBER = appItoa(BUILD_NUMBER);
-			strcpy_s(Info.stdiskinfo.MediaType, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(*strBUILD_NUMBER));
+			ClientFixedString::Assign(Info.stdiskinfo.MediaType, TCHAR_TO_UTF8(*strBUILD_NUMBER));
 
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Size", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Size", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Size:%s")), vtProp.bstrVal);
 				//Info.stdiskinfo.Size = _wtoi64(vtProp.bstrVal);
 			}
 
-			MEMORYSTATUSEX M;
+			MEMORYSTATUSEX M = {0};
 			M.dwLength = sizeof(MEMORYSTATUSEX);
-			GlobalMemoryStatusEx(&M);
-			Info.stdiskinfo.Size = M.ullTotalVirtual;
+			if (GlobalMemoryStatusEx(&M))
+				Info.stdiskinfo.Size = M.ullTotalVirtual;
 
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"Model", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Model", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Model:%s")), vtProp.bstrVal);
-				strcpy_s(Info.stdiskinfo.Model, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stdiskinfo.Model, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
@@ -461,33 +528,40 @@ class DeviceInfoHelper
 
 	UBOOL GetNetworkAdapterInfo(C2G_CLIENT_HARDWARE_INFO& Info, IWbemServices *InSvc, UBOOL bLogToFile)
 	{
-		IEnumWbemClassObject* pEnumerator = NULL;
+		if (!InSvc) return FALSE;
+		ScopedComPtr<IEnumWbemClassObject> enumerator;
+		IEnumWbemClassObject*& pEnumerator = enumerator.Value;
 		HRESULT hres = InSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_NetworkAdapter"),
 			WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 			NULL,&pEnumerator);
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pEnumerator)
 		{
 			return FALSE;
 		}
 
-		IWbemClassObject *pclsObj;
+		IWbemClassObject *pclsObj = NULL;
 		ULONG uReturn = 0;
+		UBOOL found = FALSE;
 
 		while(pEnumerator)
 		{
 
-			hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+			ScopedComPtr<IWbemClassObject> row;
+			uReturn = 0;
+			hres = pEnumerator->Next(WBEM_INFINITE, 1, &row.Value, &uReturn);
+			pclsObj = row.Value;
 
-			if(0 == uReturn)
-			{
-				return FALSE;
-			}
+			if (FAILED(hres)) return FALSE;
+			if (uReturn == 0) return found;
+			if (uReturn != 1 || !pclsObj) return FALSE;
+			found = TRUE;
 
-			VARIANT vtProp;
+			ScopedVariant property;
+			VARIANT& vtProp = property.Value;
 
 
-			hres = pclsObj->Get(L"PhysicalAdapter", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"PhysicalAdapter", VT_BOOL, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if(vtProp.boolVal == false)
@@ -497,7 +571,7 @@ class DeviceInfoHelper
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"NetEnabled", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"NetEnabled", VT_BOOL, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if(vtProp.boolVal == false)
@@ -511,34 +585,34 @@ class DeviceInfoHelper
 
 
 
-			hres = pclsObj->Get(L"Name", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"Name", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    Name:%s")), vtProp.bstrVal);
-				strcpy_s(Info.stnetworkadapterinfo.Name, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stnetworkadapterinfo.Name, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"MACAddress", 0 , &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"MACAddress", VT_BSTR, &vtProp);
 			if (SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    MACAddress:%s")), vtProp.bstrVal);
-				strcpy_s(Info.stnetworkadapterinfo.NetworkAdapterInfo, 19, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stnetworkadapterinfo.NetworkAdapterInfo, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
-			//   hres = pclsObj->Get(L"MaxSpeed", 0, &vtProp, 0, 0);
+			//   hres = ReadProperty(pclsObj, L"MaxSpeed", VT_BSTR, &vtProp);
 			//if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			//{
 			//	Info.MaxSpeed = _wtoi64(vtProp.bstrVal);
 			//}
 			//VariantClear(&vtProp);
 
-			hres = pclsObj->Get(L"AdapterType", 0, &vtProp, 0, 0);
+			hres = ReadProperty(pclsObj, L"AdapterType", VT_BSTR, &vtProp);
 			if(SUCCEEDED(hres) && vtProp.vt != VT_NULL)
 			{
 				if (bLogToFile) GLog->Logf((TEXT("    AdapterType:%s")), vtProp.bstrVal);
-				strcpy_s(Info.stnetworkadapterinfo.AdapterType, MAX_DEVICE_STRING_LEN, TCHAR_TO_UTF8(vtProp.bstrVal));
+				ClientFixedString::Assign(Info.stnetworkadapterinfo.AdapterType, TCHAR_TO_UTF8(vtProp.bstrVal));
 			}
 			VariantClear(&vtProp);
 
@@ -552,12 +626,16 @@ class DeviceInfoHelper
 
 	UBOOL GetHardwareInfo(C2G_CLIENT_HARDWARE_INFO& OutInfo, UBOOL bLogToFile = FALSE)
 	{
+		memset(&OutInfo, 0, sizeof(OutInfo));
+		OutInfo.wMsg = c2g_client_hardware_info;
 		HRESULT hres =  CoInitializeEx(0, COINIT_APARTMENTTHREADED); 
 		if (FAILED(hres))
 		{
 			warnf(TEXT("Failed to initialize COM library. Err=%d"), hres);
 			return FALSE;              // Program has failed.
 		}
+
+		ScopedComInit comInitialization;
 
 		// Initialize 
 		hres =  CoInitializeSecurity(NULL,
@@ -575,25 +653,25 @@ class DeviceInfoHelper
 		if (FAILED(hres) && hres != RPC_E_TOO_LATE)
 		{
 			warnf(TEXT("Failed to initialize security. Err=%d"), hres);
-			CoUninitialize();
 			return FALSE;          // Program has failed.
 		}
 
 		// Obtain the initial locator to Windows Management
 		// on a particular host computer.
-		IWbemLocator *pLoc = 0;
+		ScopedComPtr<IWbemLocator> locator;
+		IWbemLocator*& pLoc = locator.Value;
 
 		hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *) &pLoc);
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pLoc)
 		{
 			warnf(TEXT("Failed to create IWbemLocator object. Err=%d"), hres);
 			//cout << "Failed to create IWbemLocator object. "<< "Error code = 0x"<< hex << hres << endl;
-			CoUninitialize();
 			return FALSE;       // Program has failed.
 		}
 
-		IWbemServices *pSvc = 0;
+		ScopedComPtr<IWbemServices> services;
+		IWbemServices*& pSvc = services.Value;
 
 		// Connect to the root\cimv2 namespace with the
 		// current user and obtain pointer pSvc
@@ -611,11 +689,9 @@ class DeviceInfoHelper
 			&pSvc                    // IWbemServices proxy
 			);                              
 
-		if (FAILED(hres))
+		if (FAILED(hres) || !pSvc)
 		{
 			warnf(TEXT("Could not connect. Err=%d"), hres);
-			pLoc->Release();     
-			CoUninitialize();
 			return FALSE;                // Program has failed.
 		}
 
@@ -637,15 +713,11 @@ class DeviceInfoHelper
 		if (FAILED(hres))
 		{
 			warnf(TEXT("Could not set proxy blanket. Err=%d"), hres);
-			pSvc->Release();
-			pLoc->Release();     
-			CoUninitialize();
 			return FALSE;               // Program has failed.
 		}
 
 
-		memset(&OutInfo, 0 ,sizeof(OutInfo));
-		OutInfo.wMsg = c2g_client_hardware_info;
+
 		UBOOL Ret = GetCpuInfo(OutInfo, pSvc, bLogToFile);
 
 		Ret = GetMemoryInfo(OutInfo, pSvc, bLogToFile);
@@ -663,10 +735,6 @@ class DeviceInfoHelper
 
 		// Cleanup
 		// ========
-
-		pSvc->Release();
-		pLoc->Release();     
-		CoUninitialize();
 
 		return TRUE;
 	}

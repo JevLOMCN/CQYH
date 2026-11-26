@@ -50,6 +50,7 @@ extern UIMaps AllUIMaps;
 
 struct StringMapVal
 {
+	StringMapVal() : msgInfoType(0) {}
 	FString stringVal;
 	FString soundName;
 	INT	msgInfoType;
@@ -68,6 +69,7 @@ extern GameStateMap g_gameStatesMap;
 
 struct ItemRandomAttr
 {
+	ItemRandomAttr() : formatType(E_cmi_Invalid), value(0), power(0), weatherType(E_swt_Invalid), dayType(E_sdt_Total) {}
 	ECHAR_MODIFIER_INDEX formatType;
 	FString attrType;
 	INT32 value;
@@ -187,10 +189,13 @@ struct ItemInfo
 		return 1;
 	}
     template<typename T>
-    void ReadBuf(T& t, UINT32& s, const char* pData)
+    bool ReadBuf(T& t, UINT32& s, const char* pData, UINT32 dataSize)
     {
+        if (!pData || s > dataSize || sizeof(T) > dataSize - s)
+            return false;
         memcpy(&t, pData+s, sizeof(T));
         s += sizeof(T);
+        return true;
     }
 
     static const UINT32 HAS_IDENTIFIED      = 0x1;
@@ -213,128 +218,162 @@ struct ItemInfo
 	static const UINT32 HAS_ROLEID          = 0x20000;
 	static const UINT32 HAS_COST_MONEY      = 0x40000;
 
-    UINT32 Load(const char* pData)
+    UINT32 Load(const char* pData, UINT32 dataSize)
     {
 		UINT8 itemver = 0;
         UINT32 bufsize = 0;
         UINT32 field_bits = 0;
         memset(this, 0, sizeof(ItemInfo));
 
-		ReadBuf(itemver, bufsize, pData);
+		if (!ReadBuf(itemver, bufsize, pData, dataSize))
+		    return 0;
 		if (itemver != 3)
 		{
 			warnf(NAME_Error, TEXT("Client and server item data structure versions do not match. Server version: %d, client version: 3"), itemver);
+			return 0;
 		}
 
-        ReadBuf(m_llGuid, bufsize, pData);
-        ReadBuf(m_nTemplateID, bufsize, pData);
-        ReadBuf(m_byConSlot, bufsize, pData);
-        ReadBuf(m_byItemSlot, bufsize, pData);
-        ReadBuf(m_nCurDur, bufsize, pData);
-        ReadBuf(m_nMaxDur, bufsize, pData);
-        ReadBuf(m_byBindType, bufsize, pData);
+        if (!ReadBuf(m_llGuid, bufsize, pData, dataSize))
+            return 0;
+        if (!ReadBuf(m_nTemplateID, bufsize, pData, dataSize))
+            return 0;
+        if (!ReadBuf(m_byConSlot, bufsize, pData, dataSize))
+            return 0;
+        if (!ReadBuf(m_byItemSlot, bufsize, pData, dataSize))
+            return 0;
+        if (!ReadBuf(m_nCurDur, bufsize, pData, dataSize))
+            return 0;
+        if (!ReadBuf(m_nMaxDur, bufsize, pData, dataSize))
+            return 0;
+        if (!ReadBuf(m_byBindType, bufsize, pData, dataSize))
+            return 0;
 
-        ReadBuf(field_bits, bufsize, pData);
+        if (!ReadBuf(field_bits, bufsize, pData, dataSize))
+            return 0;
 
         if (field_bits & HAS_IDENTIFIED)
         {
-            ReadBuf(m_byIdentified, bufsize, pData);
+            if (!ReadBuf(m_byIdentified, bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RANDOM_ATTR_0)
         {
-            ReadBuf(m_wRandomAttrID[0], bufsize, pData);
+            if (!ReadBuf(m_wRandomAttrID[0], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RANDOM_ATTR_1)
         {
-            ReadBuf(m_wRandomAttrID[1], bufsize, pData);
+            if (!ReadBuf(m_wRandomAttrID[1], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RANDOM_ATTR_2)
         {
-            ReadBuf(m_wRandomAttrID[2], bufsize, pData);
+            if (!ReadBuf(m_wRandomAttrID[2], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RANDOM_ATTR_3)
         {
-            ReadBuf(m_wRandomAttrID[3], bufsize, pData);
+            if (!ReadBuf(m_wRandomAttrID[3], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RUNE0)
         {
-            ReadBuf(m_wRune[0], bufsize, pData);
+            if (!ReadBuf(m_wRune[0], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RUNE1)
         {
-            ReadBuf(m_wRune[1], bufsize, pData);
+            if (!ReadBuf(m_wRune[1], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RUNE2)
         {
-            ReadBuf(m_wRune[2], bufsize, pData);
+            if (!ReadBuf(m_wRune[2], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RUNE3)
         {
-            ReadBuf(m_wRune[3], bufsize, pData);
+            if (!ReadBuf(m_wRune[3], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RUNE4)
         {
-            ReadBuf(m_wRune[4], bufsize, pData);
+            if (!ReadBuf(m_wRune[4], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_RUNE5)
         {
-            ReadBuf(m_wRune[5], bufsize, pData);
+            if (!ReadBuf(m_wRune[5], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_LUCK)
         {
-            ReadBuf(m_byLuck, bufsize, pData);
+            if (!ReadBuf(m_byLuck, bufsize, pData, dataSize))
+                return 0;
         }
 
 		if (field_bits & HAS_LEVELUP)
 		{
 			UINT8 useless;
-			ReadBuf(useless, bufsize, pData);
-			ReadBuf(m_byLevelupPhyPoint, bufsize, pData);
-			ReadBuf(m_byLevelupMagPoint, bufsize, pData);
-			ReadBuf(m_byLevelupTaoPoint, bufsize, pData);
-			ReadBuf(useless, bufsize, pData);
-			ReadBuf(useless, bufsize, pData);
+			if (!ReadBuf(useless, bufsize, pData, dataSize))
+			    return 0;
+			if (!ReadBuf(m_byLevelupPhyPoint, bufsize, pData, dataSize))
+			    return 0;
+			if (!ReadBuf(m_byLevelupMagPoint, bufsize, pData, dataSize))
+			    return 0;
+			if (!ReadBuf(m_byLevelupTaoPoint, bufsize, pData, dataSize))
+			    return 0;
+			if (!ReadBuf(useless, bufsize, pData, dataSize))
+			    return 0;
+			if (!ReadBuf(useless, bufsize, pData, dataSize))
+			    return 0;
 		}
 
         if (field_bits & HAS_SOCKETS)
         {
-            ReadBuf(m_dwSocketCombination, bufsize, pData);
+            if (!ReadBuf(m_dwSocketCombination, bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_SOUL0)
         {
-            ReadBuf(m_nSoulID[0], bufsize, pData);
+            if (!ReadBuf(m_nSoulID[0], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_SOUL1)
         {
-            ReadBuf(m_nSoulID[1], bufsize, pData);
+            if (!ReadBuf(m_nSoulID[1], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_SOUL2)
         {
-            ReadBuf(m_nSoulID[2], bufsize, pData);
+            if (!ReadBuf(m_nSoulID[2], bufsize, pData, dataSize))
+                return 0;
         }
 
         if (field_bits & HAS_ROLEID)
         {
-            ReadBuf(m_dwRoleID, bufsize, pData);
+            if (!ReadBuf(m_dwRoleID, bufsize, pData, dataSize))
+                return 0;
         }
 
 		if (field_bits & HAS_COST_MONEY)
 		{
-			ReadBuf(m_dwCostMoney, bufsize, pData);
+			if (!ReadBuf(m_dwCostMoney, bufsize, pData, dataSize))
+			    return 0;
 		}
 
         return bufsize;
@@ -360,6 +399,9 @@ struct ItemInfo
 
 struct PlayerBaseInfo
 {
+	PlayerBaseInfo()
+		: _RoleID(0), _RoleClass(0), _Sex(0), _Level(0), _VIPType(0), _Crc(0) {}
+
 	UINT32 _RoleID;
 	FString _RoleName;
 	UINT8 _RoleClass;
@@ -373,6 +415,7 @@ struct PlayerBaseInfo
 
 struct Player_Money
 {
+	Player_Money() { appMemzero(this, sizeof(*this)); }
 	INT64            allMoneys[MONEYTYPE_COUNT];
 	INT64            allMoneysLimit[MONEYTYPE_COUNT];
 
@@ -712,6 +755,8 @@ class PlayerProxy;
 //typedef std::map< std::string , class UAI_Affix_Table*> AffixTemplateMap;
 struct AffixClientInfo
 {
+	AffixClientInfo()
+		: ID(0), Type(0) {}
 	INT ID;
 	INT Type;
 	FString Name;
@@ -721,10 +766,15 @@ struct AffixClientInfo
 //Instance rating
 struct FBSummaryData
 {
-	//Clear time
+	FBSummaryData()
+		: m_uiClearanceTimePt(0), m_uiClearanceTime(0), m_uiKillSkillPt(0), m_uiKilled(0)
+		, m_uiDestroyed(0), m_uiStrategy(0), m_uiAccomplishPt(0), m_uiGradedPt(0), m_uiGradedExp(0)
+		, m_uiVIPExp(0), m_uiGuildExp(0), m_uiActivityExp(0), m_uiFirstTimeExp(0), m_uiCouplesExp(0)
+		, m_uiSumUpExp(0) {}
+	//通关时间
 	UINT m_uiClearanceTimePt;//rating
 	UINT m_uiClearanceTime;//seconds
-	//Kill technique
+	//击杀技巧
 	UINT m_uiKillSkillPt;//rating
 	UINT m_uiKilled;
 	UINT m_uiDestroyed;
@@ -751,6 +801,7 @@ struct FBSummaryData
 //Instance reward
 struct FBAward
 {
+	FBAward() : uiItemID(0), uiItemCnt(0), isValid(FALSE) {}
 	UINT uiItemID;
 	UINT uiItemCnt;
 	UBOOL isValid;
@@ -759,6 +810,7 @@ struct FBAward
 static const UINT MAX_FB_AWARDS_CNT = 3;
 struct FBMemberAwardData
 {
+	FBMemberAwardData() : m_uiMemberID(0), m_uiFBGradedPt(0), m_uiFBAwardCount(0) {}
 	UINT m_uiMemberID;//0 means this entry is empty
 	//var string MemberName;
 	UINT m_uiFBGradedPt;
@@ -769,6 +821,9 @@ struct FBMemberAwardData
 //npc overhead display config table
 struct HintConfig
 {
+	HintConfig()
+		: NpcType(0), NpcColor(0), NameVisible(0), StatusVisible(0), IconVisible(0)
+		, HPVisible(0) {}
 	FString NpcTypeName;
 	INT NpcType;
 	INT NpcColor;
@@ -781,7 +836,13 @@ struct HintConfig
 //title table
 struct TitleData 
 {
-	//Table value, order
+	TitleData()
+		: ID(0), ValidTime(0), Pow(0), ConditionValue1(0), ConditionValue2(0)
+		, TitleLevel(0), TitleStyle(0), TitleType(0), IsNew(0), HoverShow(0)
+	{
+		appMemzero(AttrID, sizeof(AttrID));
+	}
+	//表值，顺序
 	INT ID;
 	INT ValidTime;
 	INT Pow;
@@ -813,7 +874,15 @@ struct TitleData
 //tween data physical motion effect setting data
 struct TweenData
 {
-	//Unit: centimeters, seconds
+	TweenData()
+		: sx(0), sy(0), sz(0), vx(0), vy(0)
+		, vz(0), ax(0), ay(0), az(0), sxRange(0)
+		, syRange(0), szRange(0), vxRange(0), vyRange(0), vzRange(0)
+		, axRange(0), ayRange(0), azRange(0), scaleStart(0), scaleBomb(0)
+		, scaleEnd(0), scaleStartRange(0), scaleBombRange(0), scaleEndRange(0), durTime(0)
+		, bombTime(0), dumping(0), alphaStart(0), alphaBomb(0), alphaEnd(0)
+		, alphaPow(0), isVisible(0) {}
+	//单位厘米,秒
 	FLOAT sx;
 	FLOAT sy;
 	FLOAT sz;				
@@ -861,6 +930,10 @@ struct TweenData
 //mount structure
 struct MountData
 {
+	MountData()
+		: ID(0), Quality(0), LevelLimit(0), SpeedModificationRate(0), HitUnmountRate(0)
+		, ItemID1(0), ItemCount1(0), ItemID2(0), ItemCount2(0), ItemID3(0)
+		, ItemCount3(0), Have(0), MountPower(0), SoulAuraID(0), InUiSpeed(0), DataVisible(0) {}
 	INT ID;
 	FString Name;
 	INT Quality;
@@ -913,6 +986,21 @@ struct ShowPanelAdvancedData
 //Reputation structure
 struct ReputationTemp
 {
+	ReputationTemp()
+		: Index(0), ForceID(0), ListLevel(0), ForceVisible(0), SceneID(0)
+		, InitValue(0), MaxValue(0), _CanAttackWithFreePkMode(0)
+	{
+		appMemzero(_WarriorAwardItemID, sizeof(_WarriorAwardItemID));
+		appMemzero(_WarriorAwardItemCount, sizeof(_WarriorAwardItemCount));
+		appMemzero(_MageAwardItemID, sizeof(_MageAwardItemID));
+		appMemzero(_MageAwardItemCount, sizeof(_MageAwardItemCount));
+		appMemzero(_RogueAwardItemID, sizeof(_RogueAwardItemID));
+		appMemzero(_RogueAwardItemCount, sizeof(_RogueAwardItemCount));
+		appMemzero(_ArcherAwardItemID, sizeof(_ArcherAwardItemID));
+		appMemzero(_ArcherAwardItemCount, sizeof(_ArcherAwardItemCount));
+		appMemzero(_TaoistAwardItemID, sizeof(_TaoistAwardItemID));
+		appMemzero(_TaoistAwardItemCount, sizeof(_TaoistAwardItemCount));
+	}
 	INT Index;
 	INT ForceID;
 	INT ListLevel;

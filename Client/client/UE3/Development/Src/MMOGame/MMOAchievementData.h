@@ -57,6 +57,19 @@ enum AchievementDetailType
 // Achievement data
 struct AchievementData
 {
+	AchievementData()
+		: Id(0), BaseClass(0), SubClass(0), DetailType(0), Point(0), Hide(FALSE), AutoTrace(FALSE),
+		  MinTraceLevel(0), MaxTraceLevel(0), RewardPoint(0), RewardTitle(0)
+	{
+		appMemzero(ConditionType, sizeof(ConditionType));
+		appMemzero(ConditionValue1, sizeof(ConditionValue1));
+		appMemzero(ConditionValue2, sizeof(ConditionValue2));
+		appMemzero(ConditionValue3, sizeof(ConditionValue3));
+		appMemzero(RewardType, sizeof(RewardType));
+		appMemzero(RewardValue, sizeof(RewardValue));
+		appMemzero(PreAchievement, sizeof(PreAchievement));
+	}
+
 	UINT16 Id;
 	FString Name;
 	FString Desc;
@@ -127,6 +140,18 @@ typedef std::map<UINT16, struct AchievementData, M_UE3_STL_ALLOC_MAP(UINT16, Ach
 // Monster-kill achievement data
 struct KillNpcAchievementData
 {
+	KillNpcAchievementData()
+		: KillId(0), NpcTemplateId(0), NpcGroupId(0), BaseClass(0), SubClass(0)
+	{
+		appMemzero(KillCount, sizeof(KillCount));
+		appMemzero(Point, sizeof(Point));
+		appMemzero(RewardExp, sizeof(RewardExp));
+		appMemzero(Hide, sizeof(Hide));
+		appMemzero(AutoTrace, sizeof(AutoTrace));
+		appMemzero(MinTraceLevel, sizeof(MinTraceLevel));
+		appMemzero(MaxTraceLevel, sizeof(MaxTraceLevel));
+	}
+
 	UINT16 KillId;
 	UINT32 NpcTemplateId;
 	UINT32 NpcGroupId;
@@ -188,6 +213,16 @@ typedef std::map<UINT16, struct KillNpcAchievementData, M_UE3_STL_ALLOC_MAP(UINT
 // Guild achievement data
 struct GuildAchievementData
 {
+	GuildAchievementData()
+		: Id(0), BaseClass(0), SubClass(0), Hide(FALSE)
+	{
+		appMemzero(ConditionType, sizeof(ConditionType));
+		appMemzero(ConditionParam, sizeof(ConditionParam));
+		appMemzero(RewardType, sizeof(RewardType));
+		appMemzero(RewardTemp, sizeof(RewardTemp));
+		appMemzero(RewardCount, sizeof(RewardCount));
+	}
+
 	UINT16 Id;
 	FString Name;
 	FString Desc;
@@ -246,6 +281,7 @@ typedef std::map<UINT16, struct GuildAchievementData, M_UE3_STL_ALLOC_MAP(UINT16
 // Guild condition data
 struct GuildConditionData
 {
+	GuildConditionData() : ConditionType(0), ConditionParam(0), ConditionPos(0) {}
 	UINT16 ConditionType;
 	UINT16 ConditionParam;
 	UINT16 ConditionPos;

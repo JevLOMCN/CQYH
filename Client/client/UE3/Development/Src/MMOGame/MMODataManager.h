@@ -156,30 +156,30 @@ BYTE TReadDataValue_ServerEnum(const FString& headerName, class CTabFile* dataRo
 		{
 			FString enumStr(dat);
 			enumStr = MMOUI::ConvertServerEnumToClientEnum(enumStr);
-			BYTE retVal = (BYTE)Enum->FindEnumIndex(FName(*enumStr));
+			const INT retVal = Enum->FindEnumIndex(FName(*enumStr));
 
-			if(INDEX_NONE == retVal)
+			if (retVal < 0 || retVal > 0xff)
 			{
 				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Failed to read server enum value %s : %s"), clientEnumName, dat));
 				return 0;
 			}
 
-			return retVal;
+			return (BYTE)retVal;
 
 		}
 		else
 		{
 			FString defaultVal = ManagerType::getSingleton().FindDefaultValue(r.Index);
 			FString enumStr = MMOUI::ConvertServerEnumToClientEnum(defaultVal);
-			BYTE retVal = (BYTE)Enum->FindEnumIndex(FName(*enumStr));
+			const INT retVal = Enum->FindEnumIndex(FName(*enumStr));
 
-			if(INDEX_NONE == retVal)
+			if (retVal < 0 || retVal > 0xff)
 			{
 				M_AddDataError(ManagerType::GetTabfileName(), FString::Printf(TEXT("Failed to read default server enum value %s : %s"), clientEnumName, *defaultVal));
 				return 0;
 			}
 
-			return retVal;
+			return (BYTE)retVal;
 		}
 	}
 	else
@@ -416,7 +416,7 @@ const TCHAR* TDataManger<DataType, DataProcessor, KeyType>::FindDefaultValue(int
 {
 	if(!GIsEditor)
 	{
-		if(idx < _defaultValues.Num())
+		if(_defaultValues.IsValidIndex(idx))
 		{
 			return *_defaultValues(idx);
 		}

@@ -27,6 +27,8 @@ void CMessageHandler::Send_Compose(UINT32 iFomulaId)
 
 void CMessageHandler::Parse_g2c_decompose(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_DECOMPOSE))
+		return;
 	G2C_DECOMPOSE* msg = (G2C_DECOMPOSE*)buf;
 	if(!msg)
 	{
@@ -66,6 +68,8 @@ void CMessageHandler::Parse_g2c_decompose(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_compose(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_COMPOSE))
+		return;
 	G2C_COMPOSE* msg = (G2C_COMPOSE*)buf;
 	MMOGameEvent_EquipMaker equipCompEvt(MMOGameEvent_EquipMaker::EEDT_ComposeSuccess);
 	equipCompEvt.IntRst = msg->byResult;

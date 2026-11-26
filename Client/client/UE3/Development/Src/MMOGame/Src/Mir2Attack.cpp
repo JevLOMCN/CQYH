@@ -20,6 +20,10 @@ UBOOL g_bMineHitSound;
 
 AttackClassX::AttackClassX()
 {
+	_DesPos = FVector(0, 0, 0);
+	_fDistance_GridX = 0.0f;
+	_fDistance_GridY = 0.0f;
+	_in8Dir = FALSE;
 	ClearAbilityFlag();
 	_pMainPlayer=MMOFacade::getSingleton().GetMainPlayer();
 	_fDistance = 0.0f;
@@ -986,6 +990,10 @@ void AttackClassE::Update(FLOAT fDeltaTime)
 //-------------------------------------------------------------------------
 Mir2Attack::Mir2Attack()
 {
+	m_PracticeAbilityID = 0;
+	m_PracticeTime = 0.0f;
+	m_bPracticeOpen = FALSE;
+	m_TryToMinePos = FVector(0, 0, 0);
 	_AttackClassX = NULL;
 	_ShowScreenMsgEnum = -1;
 	_ShowScreenMsgCountDown = -1.0f;

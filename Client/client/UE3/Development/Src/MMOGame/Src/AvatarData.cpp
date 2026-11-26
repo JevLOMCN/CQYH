@@ -256,7 +256,7 @@ void UAvatarData::RebulidMesh(USkeletalMeshComponent* BaseSMC, USkeletalMeshComp
 				SkinTexturesBase(DefaultMeshList(i)->MeshType) = NULL;
 				debugf( TEXT("Failed to get skin base texture.") );
 			}
-			if( DefaultMeshList(i)->ColorTextures.Num() > TestSkinColorIdx )
+			if( DefaultMeshList(i)->ColorTextures.IsValidIndex(TestSkinColorIdx) )
 			{
 				SkinTextures(DefaultMeshList(i)->MeshType) =
 					DefaultMeshList(i)->ColorTextures( TestSkinColorIdx );

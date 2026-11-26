@@ -28,6 +28,7 @@ namespace MMO
 
 	struct ClientBriefStudentInfo : M2C_MASTER_ADD_APPLICANT
 	{
+		ClientBriefStudentInfo() : M2C_MASTER_ADD_APPLICANT(), IsSelected(false) {}
 		bool IsSelected;
 	};
 

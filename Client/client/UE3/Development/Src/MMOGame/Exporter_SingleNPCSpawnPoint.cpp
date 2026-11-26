@@ -9,6 +9,7 @@ using namespace std;
 //Export NPCs placed individually in the scene
 Exporter_SingleNPCSpawnPoint::Exporter_SingleNPCSpawnPoint(void)
 {
+	arBlkHdrs = NULL;
 }
 //------------------------------------------------------------------------
 Exporter_SingleNPCSpawnPoint::~Exporter_SingleNPCSpawnPoint(void)

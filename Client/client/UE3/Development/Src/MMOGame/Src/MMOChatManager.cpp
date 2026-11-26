@@ -21,6 +21,18 @@ extern UBOOL g_bGMBuff;
 
 MMOChatManager::MMOChatManager()
 {
+	MarqueeTimes = 0;
+	MarqueeSpeed = 0;
+	TrumpetCDTimes = 0;
+	_IsAddChannelTab = FALSE;
+	TrumpetTime = 0;
+	TrumpetTimes = 0;
+	isShowTrumpet = FALSE;
+	isInTrumpetCDTime = FALSE;
+	TrumpetID = 0;
+	bFocus = FALSE;
+	ChatNearCD = 0;
+	bNewChat = FALSE;
 	//const FString IconPath = GConfig->GetStr( TEXT("MMOGame.HintButtonIcon") , TEXT("ArenaQueueHintIcon") , GGameIni );
 	//_HintIconMap.insert( std::make_pair( EHintButtonType_ArenaQueueHint , IconPath )  );
 
@@ -906,6 +918,11 @@ void MMOChatManager::LoadRecord()
 	{
 		INT cnt = 0;
 		pArchive->Serialize(&cnt, sizeof(INT));
+		if (pArchive->IsError() || cnt < 0 || cnt > UCONST_MaxChatChannelNum)
+		{
+			cnt = 0;
+			AddDefaultFilterChannel();
+		}
 
 		for (INT i = 0; i < cnt; ++i)
 		{
@@ -915,11 +932,17 @@ void MMOChatManager::LoadRecord()
 			pArchive->Serialize( &nameLen, sizeof(nameLen) );
 
 			TCHAR chatChannelName[1024] = {0};
+			if (pArchive->IsError() || nameLen < 0 ||
+				(UINT)nameLen > sizeof(chatChannelName) - sizeof(TCHAR) ||
+				nameLen % sizeof(TCHAR) != 0)
+				break;
 			pArchive->Serialize( &chatChannelName, nameLen );
 			chatFilter.ChannelName = chatChannelName;
 
 			pArchive->Serialize( &chatFilter.IsDefaultChannel, sizeof(UBOOL) );
 
+			if (pArchive->IsError())
+				break;
 			SetFilterChannel(i,chatFilter.ChannelName,chatFilter.ChannelFilterType,chatFilter.IsDefaultChannel);
 		}
 
@@ -1190,7 +1213,7 @@ BOOL MMOChatManager::IsImgChat(FString content)
 
 void MMOChatManager::CleanChannelChat(INT id)
 {
-	if(id < ChatFilterChannelList.Num())
+	if(ChatFilterChannelList.IsValidIndex(id))
 	{
 		ChatFilterChannelList(id).ChatMessageList.Empty();
 	}

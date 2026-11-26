@@ -26,6 +26,8 @@ void CMessageHandler::Send_TeamAuctionAbandonBid( INT itemTempId , INT itemIndex
 void CMessageHandler::Parse_g2c_team_auction_abandon(const char* buf, UINT32 size)
 {
 	G2C_TEAM_AUCTION_ABANDON* msg = (G2C_TEAM_AUCTION_ABANDON*)buf;
+	if (!buf || size < sizeof(G2C_TEAM_AUCTION_ABANDON))
+		return;
 	if(msg)
 	{
 		if (msg->dwRoleID == MMOFacade::getSingleton().GetMainPlayer()->ServerID)
@@ -40,6 +42,8 @@ void CMessageHandler::Parse_g2c_team_auction_begin(const char* buf, UINT32 size)
 {
 	//Start auctioning this item
 	G2C_TEAM_AUCTION_BEGIN* msg = (G2C_TEAM_AUCTION_BEGIN*)buf;
+	if (!buf || size < sizeof(G2C_TEAM_AUCTION_BEGIN))
+		return;
 	INT BuffSize = 0;
 
 //	ItemInfo iteminfo;
@@ -52,6 +56,8 @@ void CMessageHandler::Parse_g2c_team_auction_begin(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_team_auction_add_item(const char* buf, UINT32 size)
 {
 	G2C_TEAM_AUCTION_ADD_ITEM* msg = (G2C_TEAM_AUCTION_ADD_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_TEAM_AUCTION_ADD_ITEM))
+		return;
 	INT BuffSize = 0;
 
 //	if( TeamManager::getSingleton().GetMyTeamID() != msg->dwTeamID )
@@ -60,7 +66,8 @@ void CMessageHandler::Parse_g2c_team_auction_add_item(const char* buf, UINT32 si
 //	}	
 
 	ItemInfo iteminfo;
-	INT buflen = iteminfo.Load( msg->acItemInfo + BuffSize );
+	if (!iteminfo.Load(msg->acItemInfo, size - sizeof(*msg)))
+		return;
 
 	ETeamAuctionItemState state = ETAIS_CanBid;
 //	if( !msg->bCanBid )
@@ -75,6 +82,8 @@ void CMessageHandler::Parse_g2c_team_auction_notify(const char* buf, UINT32 size
 {
 	//Someone bid
 	G2C_TEAM_AUCTION_NOTIFY* msg = (G2C_TEAM_AUCTION_NOTIFY*)buf;
+	if (!buf || size < sizeof(G2C_TEAM_AUCTION_NOTIFY))
+		return;
 	if(msg)
 	{
 		TeamManager::getSingleton().OtherBid( msg->dwBidderRoleID , msg->dwAuctionIndex , msg->dwOfferPrice );
@@ -84,6 +93,8 @@ void CMessageHandler::Parse_g2c_team_auction_notify(const char* buf, UINT32 size
 void CMessageHandler::Parse_g2c_team_auction_end(const char* buf, UINT32 size)
 {
 	G2C_TEAM_AUCTION_END* msg = (G2C_TEAM_AUCTION_END*)buf;
+	if (!buf || size < sizeof(G2C_TEAM_AUCTION_END))
+		return;
 	if(msg)
 	{
 		TeamManager::getSingleton().EndTeamAuctionItem( msg->dwAuctionIndex , msg->dwWinnerRoleID );

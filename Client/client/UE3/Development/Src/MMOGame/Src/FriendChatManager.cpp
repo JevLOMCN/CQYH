@@ -102,59 +102,58 @@ void FriendChatManager::SaveChatLogToFile()
 
 void FriendChatManager::LoadChatLogFromFile()
 {
-
-	FArchive* pArchive      = NULL;
-	size_t  lDataLength		= 0; 
-
+	FArchive* archive = NULL;
 	ContactLogList.Empty();
-
-	//read binary
-	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive , FriendChatLogFile ) )
+	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, FriendChatLogFile))
 	{
-		INT TotalSize = pArchive->TotalSize();
-		INT	size = 0;
-
-		pArchive->Serialize( &size, sizeof(UINT32) );
-
-		for ( INT i = 0 ; i < size ; ++i )
+		INT count = 0;
+		archive->Serialize(&count, sizeof(count));
+		if (archive->IsError() || count < 0 || archive->Tell() > archive->TotalSize() ||
+			count > (archive->TotalSize() - archive->Tell()) / (3 * (INT)sizeof(INT)))
+			goto Finished;
+		for (INT i = 0; i < count; ++i)
 		{
 			ContactLogStruct contactLog(EC_EventParm);
-			
-			pArchive->Serialize( &contactLog.RoleId , sizeof(contactLog.RoleId) );
-			INT nameLen = 0;
-			pArchive->Serialize( &nameLen, sizeof(nameLen) );
-
-			TCHAR playerName[1024] = {0};
-			pArchive->Serialize( &playerName, nameLen );
+			INT nameBytes = 0;
+			archive->Serialize(&contactLog.RoleId, sizeof(contactLog.RoleId));
+			archive->Serialize(&nameBytes, sizeof(nameBytes));
+			TCHAR playerName[1025] = {0};
+			if (archive->IsError() || nameBytes < 0 || nameBytes % sizeof(TCHAR) != 0 ||
+				(UINT)nameBytes > sizeof(playerName) - sizeof(TCHAR) ||
+				archive->Tell() > archive->TotalSize() || nameBytes > archive->TotalSize() - archive->Tell())
+				goto Finished;
+			archive->Serialize(playerName, nameBytes);
+			if (archive->IsError())
+				goto Finished;
 			contactLog.PlayerName = playerName;
-			contactLog.LogList.Empty();
-			
-			INT num = 0;//??? is this num wrong?
-			pArchive->Serialize( &num, sizeof(num) );
-				
-			for ( INT j = 0 ; j < num ; j++ )
+			INT logs = 0;
+			archive->Serialize(&logs, sizeof(logs));
+			if (archive->IsError() || logs < 0 || logs > MaxFriendChatLogNum ||
+				archive->Tell() > archive->TotalSize() ||
+				logs > (archive->TotalSize() - archive->Tell()) / (INT)sizeof(INT))
+				goto Finished;
+			for (INT j = 0; j < logs; ++j)
 			{
-				INT textLen = 0;
-				pArchive->Serialize( &textLen, sizeof(textLen) );;
-				TCHAR chatText[2048] = {0};
-				pArchive->Serialize( (void*)( chatText ) , textLen );
-				contactLog.LogList.AddItem( chatText );
+				INT textBytes = 0;
+				archive->Serialize(&textBytes, sizeof(textBytes));
+				TCHAR text[2049] = {0};
+				if (archive->IsError() || textBytes < 0 || textBytes % sizeof(TCHAR) != 0 ||
+					(UINT)textBytes > sizeof(text) - sizeof(TCHAR) ||
+					archive->Tell() > archive->TotalSize() || textBytes > archive->TotalSize() - archive->Tell())
+					goto Finished;
+				archive->Serialize(text, textBytes);
+				if (archive->IsError())
+					goto Finished;
+				contactLog.LogList.AddItem(text);
 			}
-
-			if( FriendManager::getSingleton().IsMyFriend( contactLog.RoleId ) )
-			{
-				//only add for friends
+			if (FriendManager::getSingleton().IsMyFriend(contactLog.RoleId))
 				ContactLogList.AddItem(contactLog);
-			}
-			
 		}
 	}
-
-	MMOFacade::getSingleton().EndLoadAccountBinary( pArchive );
-
-	//HasLoad = TRUE;
-	//HasSave = FALSE;
+Finished:
+	MMOFacade::getSingleton().EndLoadAccountBinary(archive);
 }
+
 BOOL FriendChatManager::IsInRoleChatList(int nRoleID)
 {
 	for (int n = 0; n < curChatRoleIDList.Num(); ++n)

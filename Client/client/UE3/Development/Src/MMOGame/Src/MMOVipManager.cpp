@@ -11,6 +11,10 @@
 //==========================================================================================================================
 MMOVipManager::MMOVipManager()
 {
+	appMemzero(_VipItemID, sizeof(_VipItemID));
+	_VipShopId = 0;
+	_MySelectedRoleTotalTime = 0;
+	_LastSelectedRoleTime = 0;
 	_VipItemID[eVIPTyp_LV1] = 2101;
 	_VipItemID[eVIPTyp_LV2] = 2102;
 	_VipItemID[eVIPTyp_LV3] = 2103;
@@ -270,7 +274,11 @@ void MMOVipManager::ReadVipPrivilege()
 //==========================================================================================================================
 const TArray<FString> &MMOVipManager::GetVipPrivilege( eVipType vipType )
 {
-	check( vipType >= eVIPTyp_None && vipType < eVIPTyp_LVMax );
+	if (vipType < eVIPTyp_None || vipType >= eVIPTyp_LVMax)
+	{
+		static const TArray<FString> empty;
+		return empty;
+	}
 
 	return _VipPrivilege[vipType];
 }
@@ -309,7 +317,7 @@ void MMOVipManager::GetVipDescriptionString( INT vipType, FString &vipName, UINT
 	if( vipType <= eVIPTyp_None || vipType >= eVIPTyp_LVMax ){
 		vipName = TEXT("");
 		leftDay = 0;
-		leftDay = 0;
+		leftHour = 0;
 		return;
 	}
 

@@ -14,6 +14,7 @@ using namespace ExternalMessage;
 
 
 StudentDetailManager::StudentDetailManager()
+	: _UpdateStudentDetailListDelegate(EC_EventParm)
 {
 
 }

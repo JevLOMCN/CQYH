@@ -16,13 +16,108 @@ TextureLockDataList FTextureMergeUtil::LockData_S;
 
 UINT FTextureMergeUtil::CurrentRunningThreadNum = 0;
 
-FTextureMergeUtil::FTextureMergeUtil()
+static UBOOL GetTextureMergeBufferLayout(INT Width, INT Height, UINT& RowBytes, SIZE_T& Rows)
 {
-	bFinished = FALSE;
-	//bMergeTaskFinished = FALSE;
-	bDoingMerge = FALSE;
-	bBackgroundMerging = FALSE;
+	RowBytes = 0;
+	Rows = 0;
+	if( Width <= 0 || Height <= 0 )
+		return FALSE;
+	SIZE_T Blocks = (SIZE_T(Width) + 3) / 4;
+	Rows = (SIZE_T(Height) + 3) / 4;
+	if( Blocks > UINT(-1) / 8 || Blocks > SIZE_T(-1) / 8 )
+		return FALSE;
+	RowBytes = UINT(Blocks * 8);
+	return RowBytes <= SIZE_T(-1) / Rows;
+}
 
+// Clip block-aligned copies to the space remaining after both offsets.
+static void GetTextureMergeCopyBounds(const FTextureMergeRegion& InRegion, INT InMip,
+	INT SrcWidth, INT SrcHeight, INT DstWidth, INT DstHeight, INT BlockX, INT BlockY,
+	INT& SrcX, INT& SrcY, INT& DstX, INT& DstY, INT& Width, INT& Height)
+{
+	SrcX = SrcY = DstX = DstY = Width = Height = 0;
+	if( InMip < 0 || InMip >= 31 || BlockX <= 0 || BlockY <= 0 ||
+		SrcWidth < BlockX || SrcHeight < BlockY || DstWidth < BlockX || DstHeight < BlockY )
+		return;
+
+	SrcX = (Clamp(Max(0, InRegion.OffsetX) >> InMip, 0, SrcWidth - BlockX) / BlockX) * BlockX;
+	SrcY = (Clamp(Max(0, InRegion.OffsetY) >> InMip, 0, SrcHeight - BlockY) / BlockY) * BlockY;
+	INT RequestedDstX = InRegion.DestOffsetX < 0 ? SrcX : InRegion.DestOffsetX >> InMip;
+	INT RequestedDstY = InRegion.DestOffsetY < 0 ? SrcY : InRegion.DestOffsetY >> InMip;
+	DstX = (Clamp(RequestedDstX, 0, DstWidth - BlockX) / BlockX) * BlockX;
+	DstY = (Clamp(RequestedDstY, 0, DstHeight - BlockY) / BlockY) * BlockY;
+
+	INT AvailableX = Min(SrcWidth - SrcX, DstWidth - DstX) / BlockX;
+	INT AvailableY = Min(SrcHeight - SrcY, DstHeight - DstY) / BlockY;
+	if( InRegion.SizeX == -1 )
+		Width = AvailableX * BlockX;
+	else if( InRegion.SizeX > 0 )
+	{
+		INT Requested = Min(Max(1, InRegion.SizeX >> InMip), AvailableX * BlockX);
+		Width = Min(AvailableX, Requested / BlockX + (Requested % BlockX != 0)) * BlockX;
+	}
+	if( InRegion.SizeY == -1 )
+		Height = AvailableY * BlockY;
+	else if( InRegion.SizeY > 0 )
+	{
+		INT Requested = Min(Max(1, InRegion.SizeY >> InMip), AvailableY * BlockY);
+		Height = Min(AvailableY, Requested / BlockY + (Requested % BlockY != 0)) * BlockY;
+	}
+}
+
+FTextureMergeUtil::FTextureMergeUtil() :
+	TargetTexture_D(NULL),
+	TargetTexture_N(NULL),
+	TargetTexture_S(NULL),
+	bFinished(FALSE),
+	bWaiting(FALSE),
+	bBackgroundMerging(FALSE),
+	bDoingMerge(FALSE),
+	bCancelCurrentMerge(FALSE),
+	DstData_D(NULL),
+	DstData_N(NULL),
+	DstData_S(NULL),
+	SrcData_D(NULL),
+	SrcData_N(NULL),
+	SrcData_S(NULL),
+	CurrentTargetTexture_D(NULL),
+	CurrentTargetTexture_N(NULL),
+	CurrentTargetTexture_S(NULL),
+	FirstMip(0),
+	MipIdx(0),
+	RegionIdx(0),
+	LayerIdx(0),
+	BlockSizeX(0),
+	BlockSizeY(0),
+	BlockBytes(0),
+	DestMipSizeX(0),
+	DestMipSizeY(0),
+	SrcMipSizeX(0),
+	SrcMipSizeY(0),
+	SrcRegionOffsetX(0),
+	SrcRegionOffsetY(0),
+	DestRegionOffsetX(0),
+	DestRegionOffsetY(0),
+	RegionSizeX(0),
+	RegionSizeY(0),
+	SrcPitchBytes(0),
+	SrcRowOffsetBytes(0),
+	DestPitchBytes_D(0),
+	DestPitchBytes_N(0),
+	DestPitchBytes_S(0),
+	DestRowOffsetBytes(0),
+	BlockPerRow(0),
+	Region(NULL),
+	TexTargetD(NULL),
+	TexTargetN(NULL),
+	TexTargetS(NULL),
+	SrcTex2DResource_D(NULL),
+	SrcTex2DResource_N(NULL),
+	SrcTex2DResource_S(NULL),
+	SrcLockData_D(NULL),
+	SrcLockData_N(NULL),
+	SrcLockData_S(NULL)
+{
 	MergeFinishEvent.Create();
 }
 
@@ -100,89 +195,62 @@ FTextureMergeUtil::~FTextureMergeUtil()
 
 UBOOL FTextureMergeUtil::Validate()
 {
-	if( SourceRegions_D.Num() == 0 )
-	{
-		debugf( TEXT("No merge region." ) );
+	INT Drop = GSystemSettings.GetNumMipsToDrop();
+	if( Drop < 0 || Drop >= 10 || !TargetTexture_D || !TargetTexture_N || !TargetTexture_S )
 		return FALSE;
+	UTexture2DDynamic* Targets[] = {TargetTexture_D, TargetTexture_N, TargetTexture_S};
+	for( INT Channel = 0; Channel < ARRAY_COUNT(Targets); ++Channel )
+	{
+		UTexture2DDynamic* Target = Targets[Channel];
+		UINT RowBytes;
+		SIZE_T Rows;
+		if( !Target->Resource || Target->Format != PF_DXT1 || Target->NumMips <= 0 ||
+			Target->NumMips > 10 - Drop || Target->NumMips != TargetTexture_D->NumMips ||
+			Target->SizeX != TargetTexture_D->SizeX || Target->SizeY != TargetTexture_D->SizeY ||
+			!GetTextureMergeBufferLayout(Target->SizeX, Target->SizeY, RowBytes, Rows) )
+			return FALSE;
 	}
-
-	if( SourceRegions_D.Num() != SourceRegions_N.Num() ||
+	if( SourceRegions_D.Num() == 0 || SourceRegions_D.Num() != SourceRegions_N.Num() ||
 		SourceRegions_D.Num() != SourceRegions_S.Num() )
-	{
-		debugf( TEXT("Merge regions not consist: D%d N%d S%d."),
-			SourceRegions_D.Num(), SourceRegions_N.Num(), SourceRegions_S.Num() );
 		return FALSE;
-	}
-
+	UBOOL HasSource = FALSE;
 	for( INT i = 0; i < SourceRegions_D.Num(); ++i )
 	{
-		INT texNum = SourceRegions_D(i).Textures.Num();
-
-		if( texNum == 0 )
+		INT Count = SourceRegions_D(i).Textures.Num();
+		if( SourceRegions_N(i).Textures.Num() != Count || SourceRegions_S(i).Textures.Num() != Count )
+			return FALSE;
+		if( Count == 0 )
 		{
 			if( i == 0 || i == 5 )
-				continue;	// may have no belt.. or shoulder...
-			warnf( NAME_Error, TEXT("Merge texture not exist %d."), i );
+				continue;
 			return FALSE;
 		}
-
-		if( SourceRegions_N(i).Textures.Num() != texNum ||
-			SourceRegions_S(i).Textures.Num() != texNum )
+		HasSource = TRUE;
+		for( INT j = 0; j < Count; ++j )
 		{
-			debugf( TEXT("Merge textures not consist.") );
-			return FALSE;
-		}
-
-		for( INT j = 0; j < texNum; ++j )
-		{
-			if( SourceRegions_D(i).Textures(j)->Format != PF_DXT1 )
+			UTexture2D* Textures[] = {SourceRegions_D(i).Textures(j),
+				SourceRegions_N(i).Textures(j), SourceRegions_S(i).Textures(j)};
+			for( INT Channel = 0; Channel < ARRAY_COUNT(Textures); ++Channel )
 			{
-				debugf( TEXT("Source texture format is not DXT1: %s."), 
-					*SourceRegions_D(i).Textures(j)->GetName() );
-				return FALSE;
-			}
-			if( !SourceRegions_D(i).Textures(j)->IsFullyStreamedIn() )
-			{
-				debugf( TEXT("Source texture is not fully streamed in: %s."), 
-					*SourceRegions_D(i).Textures(j)->GetName() );
-			//	return FALSE;
-			}
-
-			if( SourceRegions_N(i).Textures(j)->Format != PF_DXT1 )
-			{
-				debugf( TEXT("Source texture format is not DXT1: %s."), 
-					*SourceRegions_N(i).Textures(j)->GetName() );
-				return FALSE;
-			}
-			if( !SourceRegions_N(i).Textures(j)->IsFullyStreamedIn() )
-			{
-				debugf( TEXT("Source texture is not fully streamed in: %s."), 
-					*SourceRegions_N(i).Textures(j)->GetName() );
-			//	return FALSE;
-			}
-
-			if( SourceRegions_S(i).Textures(j)->Format != PF_DXT1 )
-			{
-				debugf( TEXT("Source texture format is not DXT1: %s."), 
-					*SourceRegions_S(i).Textures(j)->GetName() );
-				return FALSE;
-			}
-			if( !SourceRegions_S(i).Textures(j)->IsFullyStreamedIn() )
-			{
-				debugf( TEXT("Source texture is not fully streamed in: %s."), 
-					*SourceRegions_S(i).Textures(j)->GetName() );
-			//	return FALSE;
+				UTexture2D* Texture = Textures[Channel];
+				UINT RowBytes;
+				SIZE_T Rows;
+				if( !Texture || !Texture->Resource || Texture->Format != PF_DXT1 ||
+					!Texture->IsFullyStreamedIn() || Texture->ResidentMips <= 0 || Texture->ResidentMips > Texture->Mips.Num() ||
+					Texture->Mips.Num() - Texture->ResidentMips > Drop ||
+					Texture->Mips.Num() < Drop + TargetTexture_D->NumMips ||
+					Texture->SizeX != Textures[0]->SizeX || Texture->SizeY != Textures[0]->SizeY ||
+					!GetTextureMergeBufferLayout(Texture->SizeX, Texture->SizeY, RowBytes, Rows) )
+					return FALSE;
 			}
 		}
 	}
-
-	// todo: still need to check size and format
-
-	return TRUE;
+	return HasSource;
 }
 
 void FTextureMergeUtil::StartNewMerge( UBOOL UseBackgroundMerge )
 {
+	FirstMip = GSystemSettings.GetNumMipsToDrop();
 	bDoingMerge = TRUE;
 	bFinished = FALSE;
 	bCancelCurrentMerge = FALSE;
@@ -367,30 +435,25 @@ void BlendTile_CPU(
 // gpu merge can't be cancelled
 void FTextureMergeUtil::RenderThread_BlendRegions()
 {
-	TexTargetD = ((FTexture2DDynamicResource*)TargetTexture_D->Resource)->GetTexture2DRHI();
-	TexTargetN = ((FTexture2DDynamicResource*)TargetTexture_N->Resource)->GetTexture2DRHI();
-	TexTargetS = ((FTexture2DDynamicResource*)TargetTexture_S->Resource)->GetTexture2DRHI();
+	TexTargetD = ((FTexture2DDynamicResource*)CurrentTargetTexture_D->Resource)->GetTexture2DRHI();
+	TexTargetN = ((FTexture2DDynamicResource*)CurrentTargetTexture_N->Resource)->GetTexture2DRHI();
+	TexTargetS = ((FTexture2DDynamicResource*)CurrentTargetTexture_S->Resource)->GetTexture2DRHI();
 
-	INT NumMips = CurrentSourceRegions_D(0).Textures(0)->ResidentMips;
+	INT NumMips = CurrentTargetTexture_D->NumMips;
 
 	INT Format = PF_DXT1;
 	BlockSizeX = GPixelFormats[Format].BlockSizeX;
 	BlockSizeY = GPixelFormats[Format].BlockSizeY;
 	BlockBytes = GPixelFormats[Format].BlockBytes;
 
-	INT BaseSizeX = TargetTexture_D->SizeX;
-	INT BaseSizeY = TargetTexture_D->SizeY;
+	INT BaseSizeX = CurrentTargetTexture_D->SizeX;
+	INT BaseSizeY = CurrentTargetTexture_D->SizeY;
 
 	// process each mip level
-	for( MipIdx=0; MipIdx < NumMips; MipIdx++ )
+	for( MipIdx=FirstMip; MipIdx < FirstMip + NumMips; MipIdx++ )
 	{
-		UINT DstStride;
-		DstData_D = (BYTE*)RHILockTexture2D( TexTargetD, MipIdx, TRUE, DstStride, FALSE );
-		DstData_N = (BYTE*)RHILockTexture2D( TexTargetN, MipIdx, TRUE, DstStride, FALSE );
-		DstData_S = (BYTE*)RHILockTexture2D( TexTargetS, MipIdx, TRUE, DstStride, FALSE );
-
-		DestMipSizeX = Max((INT)BlockSizeX,BaseSizeX >> MipIdx);
-		DestMipSizeY = Max((INT)BlockSizeY,BaseSizeY >> MipIdx);
+		if( !LockTargetTextureData() )
+			return;
 
 		// list of source regions that need to be copied for this mip level
 		TArray<FBlendTextureRegion2D*> BlendRegions;
@@ -417,10 +480,31 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 				SrcTex2DResource_N = (FTexture2DResource*)CurrentSourceRegions_N(RegionIdx).Textures(LayerIdx)->Resource;
 				SrcTex2DResource_S = (FTexture2DResource*)CurrentSourceRegions_S(RegionIdx).Textures(LayerIdx)->Resource;
 
-				UINT SrcStride;
-				SrcData_D = (BYTE*)RHILockTexture2D( SrcTex2DResource_D->GetTexture2DRHI(), MipIdx, FALSE, SrcStride, FALSE );
-				SrcData_N = (BYTE*)RHILockTexture2D( SrcTex2DResource_N->GetTexture2DRHI(), MipIdx, FALSE, SrcStride, FALSE );
-				SrcData_S = (BYTE*)RHILockTexture2D( SrcTex2DResource_S->GetTexture2DRHI(), MipIdx, FALSE, SrcStride, FALSE );
+				UINT SrcStrideD = 0, SrcStrideN = 0, SrcStrideS = 0;
+				INT SrcMipD = MipIdx - (SrcTexture->Mips.Num() - SrcTexture->ResidentMips);
+				UTexture2D* SrcTextureN = CurrentSourceRegions_N(RegionIdx).Textures(LayerIdx);
+				UTexture2D* SrcTextureS = CurrentSourceRegions_S(RegionIdx).Textures(LayerIdx);
+				INT SrcMipN = MipIdx - (SrcTextureN->Mips.Num() - SrcTextureN->ResidentMips);
+				INT SrcMipS = MipIdx - (SrcTextureS->Mips.Num() - SrcTextureS->ResidentMips);
+				SrcData_D = SrcTex2DResource_D->GetTexture2DRHI() ? (BYTE*)RHILockTexture2D( SrcTex2DResource_D->GetTexture2DRHI(), SrcMipD, FALSE, SrcStrideD, FALSE ) : NULL;
+				SrcData_N = SrcTex2DResource_N->GetTexture2DRHI() ? (BYTE*)RHILockTexture2D( SrcTex2DResource_N->GetTexture2DRHI(), SrcMipN, FALSE, SrcStrideN, FALSE ) : NULL;
+				SrcData_S = SrcTex2DResource_S->GetTexture2DRHI() ? (BYTE*)RHILockTexture2D( SrcTex2DResource_S->GetTexture2DRHI(), SrcMipS, FALSE, SrcStrideS, FALSE ) : NULL;
+				UINT RequiredPitch;
+				SIZE_T RequiredRows;
+				UBOOL LayoutValid = GetTextureMergeBufferLayout(Max(4, SrcTexture->SizeX >> MipIdx),
+					Max(4, SrcTexture->SizeY >> MipIdx), RequiredPitch, RequiredRows);
+				if( !LayoutValid || !SrcData_D || !SrcData_N || !SrcData_S || SrcStrideD < RequiredPitch ||
+					SrcStrideN < RequiredPitch || SrcStrideS < RequiredPitch ||
+					RequiredRows > SIZE_T(-1) / SrcStrideD || RequiredRows > SIZE_T(-1) / SrcStrideN ||
+					RequiredRows > SIZE_T(-1) / SrcStrideS )
+				{
+					if( SrcData_D ) RHIUnlockTexture2D(SrcTex2DResource_D->GetTexture2DRHI(), SrcMipD, FALSE);
+					if( SrcData_N ) RHIUnlockTexture2D(SrcTex2DResource_N->GetTexture2DRHI(), SrcMipN, FALSE);
+					if( SrcData_S ) RHIUnlockTexture2D(SrcTex2DResource_S->GetTexture2DRHI(), SrcMipS, FALSE);
+					bCancelCurrentMerge = TRUE;
+					RenderThread_FinishMerge();
+					return;
+				}
 
 				// Calculate source values
 				INT SrcSizeX = SrcTexture->SizeX >> MipIdx;
@@ -428,40 +512,16 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 				SrcMipSizeX = Max((INT)GPixelFormats[Format].BlockSizeX,SrcSizeX);
 				SrcMipSizeY = Max((INT)GPixelFormats[Format].BlockSizeY,SrcSizeY);
 
-				// Source region offsets
-				SrcRegionOffsetX = (Clamp( Region->OffsetX, 0, SrcMipSizeX - BlockSizeX ) / BlockSizeX ) * BlockSizeX;
-				SrcRegionOffsetY = (Clamp( Region->OffsetY, 0, SrcMipSizeY - BlockSizeY ) / BlockSizeY ) * BlockSizeY;
-
-				// Destination region offsets
-				INT DestRegionOffsetX = SrcRegionOffsetX;
-				if( Region->DestOffsetX >= 0 )
-				{
-					DestRegionOffsetX = (Clamp( Region->DestOffsetX, 0, DestMipSizeX - BlockSizeX ) / BlockSizeX) * BlockSizeX;
-				}
-				INT DestRegionOffsetY = SrcRegionOffsetY;
-				if( Region->DestOffsetY >= 0 )
-				{
-					DestRegionOffsetY = (Clamp( Region->DestOffsetY, 0, DestMipSizeY - BlockSizeY ) / BlockSizeY) * BlockSizeY;
-				}
-
-				// scale region size to the current mip level. Size is aligned to the block size
-				check(Region->SizeX != 0 && Region->SizeY != 0);
-				RegionSizeX = Clamp( Align( Region->SizeX, BlockSizeX ), 0, SrcMipSizeX );
-				RegionSizeY = Clamp( Align( Region->SizeY, BlockSizeY ), 0, SrcMipSizeY );
-				// handle special case for full copy
-				if( Region->SizeX == -1 || Region->SizeY == -1 )
-				{
-					RegionSizeX = SrcMipSizeX;
-					RegionSizeY = SrcMipSizeY;
-				}
+				GetTextureMergeCopyBounds(*Region, MipIdx, SrcMipSizeX, SrcMipSizeY,
+					DestMipSizeX, DestMipSizeY, BlockSizeX, BlockSizeY,
+					SrcRegionOffsetX, SrcRegionOffsetY, DestRegionOffsetX, DestRegionOffsetY, RegionSizeX, RegionSizeY);
 
 				// size in bytes of an entire row for this mip
-				SrcPitchBytes = (SrcMipSizeX / BlockSizeX) * BlockBytes;
-				DestPitchBytes = (DestMipSizeX / BlockSizeX) * BlockBytes;
+				SrcPitchBytes = UINT((SIZE_T(SrcMipSizeX) + BlockSizeX - 1) / BlockSizeX) * BlockBytes;
 
 				// size in bytes of the offset to the starting part of the row to copy for this mip
-				SrcRowOffsetBytes = (SrcRegionOffsetX / BlockSizeX) * BlockBytes;
-				DestRowOffsetBytes = (DestRegionOffsetX / BlockSizeX) * BlockBytes;
+				SrcRowOffsetBytes = UINT(SrcRegionOffsetX / BlockSizeX) * BlockBytes;
+				DestRowOffsetBytes = UINT(DestRegionOffsetX / BlockSizeX) * BlockBytes;
 
 				// block number of each row
 				BlockPerRow = RegionSizeX / BlockSizeX;
@@ -472,20 +532,20 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 				INT CurDestOffsetY = DestRegionOffsetY;
 				if( LayerIdx == 0 )
 				{	// copy by row
-					DWORD RowSizeBytes = ( RegionSizeX / BlockSizeX ) * BlockBytes;
+					DWORD RowSizeBytes = UINT(RegionSizeX / BlockSizeX) * BlockBytes;
 					for( INT CurSrcOffsetY = SrcRegionOffsetY; CurSrcOffsetY < (SrcRegionOffsetY + RegionSizeY); CurSrcOffsetY += BlockSizeY )
 					{
 						INT CurSrcBlockOffsetY = CurSrcOffsetY / BlockSizeY;
 						INT CurDestBlockOffsetY = CurDestOffsetY / BlockSizeY;
 
-						BYTE* SrcOffset = SrcData_D + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-						BYTE* DstOffset = DstData_D + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+						BYTE* SrcOffset = SrcData_D + (SIZE_T(CurSrcBlockOffsetY) * SrcStrideD) + SrcRowOffsetBytes;
+						BYTE* DstOffset = DstData_D + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_D) + DestRowOffsetBytes;
 						appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
-						SrcOffset = SrcData_N + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-						DstOffset = DstData_N + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+						SrcOffset = SrcData_N + (SIZE_T(CurSrcBlockOffsetY) * SrcStrideN) + SrcRowOffsetBytes;
+						DstOffset = DstData_N + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_N) + DestRowOffsetBytes;
 						appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
-						SrcOffset = SrcData_S + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-						DstOffset = DstData_S + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+						SrcOffset = SrcData_S + (SIZE_T(CurSrcBlockOffsetY) * SrcStrideS) + SrcRowOffsetBytes;
+						DstOffset = DstData_S + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_S) + DestRowOffsetBytes;
 						appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
 
 						CurDestOffsetY += BlockSizeY;
@@ -498,12 +558,12 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 						INT CurSrcBlockOffsetY = CurSrcOffsetY / BlockSizeY;
 						INT CurDestBlockOffsetY = CurDestOffsetY / BlockSizeY;
 
-						BYTE* SrcOffset_D = SrcData_D + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-						BYTE* DstOffset_D = DstData_D + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
-						BYTE* SrcOffset_N = SrcData_N + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-						BYTE* DstOffset_N = DstData_N + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
-						BYTE* SrcOffset_S = SrcData_S + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-						BYTE* DstOffset_S = DstData_S + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+						BYTE* SrcOffset_D = SrcData_D + (SIZE_T(CurSrcBlockOffsetY) * SrcStrideD) + SrcRowOffsetBytes;
+						BYTE* DstOffset_D = DstData_D + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_D) + DestRowOffsetBytes;
+						BYTE* SrcOffset_N = SrcData_N + (SIZE_T(CurSrcBlockOffsetY) * SrcStrideN) + SrcRowOffsetBytes;
+						BYTE* DstOffset_N = DstData_N + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_N) + DestRowOffsetBytes;
+						BYTE* SrcOffset_S = SrcData_S + (SIZE_T(CurSrcBlockOffsetY) * SrcStrideS) + SrcRowOffsetBytes;
+						BYTE* DstOffset_S = DstData_S + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_S) + DestRowOffsetBytes;
 						//appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
 
 						for( UINT blockIdx = 0; blockIdx < BlockPerRow; ++blockIdx )
@@ -524,9 +584,9 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 			
 			}
 
-				RHIUnlockTexture2D( SrcTex2DResource_D->GetTexture2DRHI(), MipIdx, FALSE );
-				RHIUnlockTexture2D( SrcTex2DResource_N->GetTexture2DRHI(), MipIdx, FALSE );
-				RHIUnlockTexture2D( SrcTex2DResource_S->GetTexture2DRHI(), MipIdx, FALSE );
+				RHIUnlockTexture2D( SrcTex2DResource_D->GetTexture2DRHI(), SrcMipD, FALSE );
+				RHIUnlockTexture2D( SrcTex2DResource_N->GetTexture2DRHI(), SrcMipN, FALSE );
+				RHIUnlockTexture2D( SrcTex2DResource_S->GetTexture2DRHI(), SrcMipS, FALSE );
 		}
 
 			//// scale regions for the current mip level. The regions are assumed to be sized w/ respect to the base (maybe not loaded) mip level
@@ -549,9 +609,9 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 			//	);
 		}
 
-		RHIUnlockTexture2D( TexTargetD, MipIdx, FALSE );
-		RHIUnlockTexture2D( TexTargetN, MipIdx, FALSE );
-		RHIUnlockTexture2D( TexTargetS, MipIdx, FALSE );
+		RHIUnlockTexture2D( TexTargetD, MipIdx - FirstMip, FALSE );
+		RHIUnlockTexture2D( TexTargetN, MipIdx - FirstMip, FALSE );
+		RHIUnlockTexture2D( TexTargetS, MipIdx - FirstMip, FALSE );
 
 		//// copy from all of the source regions for the current mip level to the temp texture
 		//RHICopyTexture2D(
@@ -562,7 +622,6 @@ void FTextureMergeUtil::RenderThread_BlendRegions()
 		//	CompositeResource->Format,
 		//	CopyRegions
 		//	);
-		break;
 	}
 
 	bFinished = TRUE;
@@ -574,15 +633,15 @@ void FTextureMergeUtil::RenderThread_StartMerge()
 #ifdef OutputDebugInfo
 	debugf(	TEXT("Start merge.") );
 #endif
-	MipIdx = GSystemSettings.GetNumMipsToDrop();//0;
+	MipIdx = FirstMip;
 	RegionIdx = 0;
 	LayerIdx = 0;
 
-	TexTargetD = ((FTexture2DDynamicResource*)TargetTexture_D->Resource)->GetTexture2DRHI();
-	TexTargetN = ((FTexture2DDynamicResource*)TargetTexture_N->Resource)->GetTexture2DRHI();
-	TexTargetS = ((FTexture2DDynamicResource*)TargetTexture_S->Resource)->GetTexture2DRHI();
+	TexTargetD = ((FTexture2DDynamicResource*)CurrentTargetTexture_D->Resource)->GetTexture2DRHI();
+	TexTargetN = ((FTexture2DDynamicResource*)CurrentTargetTexture_N->Resource)->GetTexture2DRHI();
+	TexTargetS = ((FTexture2DDynamicResource*)CurrentTargetTexture_S->Resource)->GetTexture2DRHI();
 
-	//INT NumMips = TargetTexture_D->NumMips;//CurrentSourceRegions_D(0).Textures(0)->ResidentMips;
+	//INT NumMips = CurrentTargetTexture_D->NumMips;//CurrentSourceRegions_D(0).Textures(0)->ResidentMips;
 
 // 	INT Format = PF_DXT1;
 // 	BlockSizeX = GPixelFormats[Format].BlockSizeX;
@@ -595,17 +654,18 @@ void FTextureMergeUtil::RenderThread_StartMerge()
 // 	DstData_N = (BYTE*)RHILockTexture2D( TexTargetN, MipIdx, TRUE, DstStride, FALSE );
 // 	DstData_S = (BYTE*)RHILockTexture2D( TexTargetS, MipIdx, TRUE, DstStride, FALSE );
 // 
-// 	INT BaseSizeX = TargetTexture_D->SizeX;
-// 	INT BaseSizeY = TargetTexture_D->SizeY;
+// 	INT BaseSizeX = CurrentTargetTexture_D->SizeX;
+// 	INT BaseSizeY = CurrentTargetTexture_D->SizeY;
 // 	DestMipSizeX = Max(BlockSizeX,BaseSizeX >> MipIdx);
 // 	DestMipSizeY = Max(BlockSizeY,BaseSizeY >> MipIdx);
 
-	LockTargetTextureData();
+	if( !LockTargetTextureData() )
+		return;
 
 	RenderThread_MergeOneTexBegin();
 }
 
-void FTextureMergeUtil::LockTargetTextureData()
+UBOOL FTextureMergeUtil::LockTargetTextureData()
 {
 	INT Format = PF_DXT1;
 	BlockSizeX = GPixelFormats[Format].BlockSizeX;
@@ -619,29 +679,83 @@ void FTextureMergeUtil::LockTargetTextureData()
 // 		RHIUnlockTexture2D( TexTargetS, MipIdx, FALSE );
 // 	}
 	// lock dest surfaces
-	INT TargetMip = MipIdx - GSystemSettings.GetNumMipsToDrop();
-	UINT DstStride;
-	DstData_D = (BYTE*)RHILockTexture2D( TexTargetD, TargetMip, TRUE, DstStride, FALSE );
-	DstData_N = (BYTE*)RHILockTexture2D( TexTargetN, TargetMip, TRUE, DstStride, FALSE );
-	DstData_S = (BYTE*)RHILockTexture2D( TexTargetS, TargetMip, TRUE, DstStride, FALSE );
+	INT TargetMip = MipIdx - FirstMip;
+	DestPitchBytes_D = DestPitchBytes_N = DestPitchBytes_S = 0;
+	DstData_D = TexTargetD ? (BYTE*)RHILockTexture2D( TexTargetD, TargetMip, TRUE, DestPitchBytes_D, FALSE ) : NULL;
+	DstData_N = TexTargetN ? (BYTE*)RHILockTexture2D( TexTargetN, TargetMip, TRUE, DestPitchBytes_N, FALSE ) : NULL;
+	DstData_S = TexTargetS ? (BYTE*)RHILockTexture2D( TexTargetS, TargetMip, TRUE, DestPitchBytes_S, FALSE ) : NULL;
 
 	//debugf( TEXT("FTextureMergeUtil: Lock %d "), MipIdx );
 
 
-	INT BaseSizeX = TargetTexture_D->SizeX;
-	INT BaseSizeY = TargetTexture_D->SizeY;
+	INT BaseSizeX = CurrentTargetTexture_D->SizeX;
+	INT BaseSizeY = CurrentTargetTexture_D->SizeY;
 	DestMipSizeX = Max(BlockSizeX,BaseSizeX >> TargetMip);
 	DestMipSizeY = Max(BlockSizeY,BaseSizeY >> TargetMip);
+	UINT RowBytes;
+	SIZE_T Rows;
+	UBOOL LayoutValid = GetTextureMergeBufferLayout(DestMipSizeX, DestMipSizeY, RowBytes, Rows);
+	if( !LayoutValid || !DstData_D || !DstData_N || !DstData_S || DestPitchBytes_D < RowBytes ||
+		DestPitchBytes_N < RowBytes || DestPitchBytes_S < RowBytes ||
+		Rows > SIZE_T(-1) / DestPitchBytes_D || Rows > SIZE_T(-1) / DestPitchBytes_N ||
+		Rows > SIZE_T(-1) / DestPitchBytes_S )
+	{
+		if( DstData_D ) RHIUnlockTexture2D(TexTargetD, TargetMip, FALSE);
+		if( DstData_N ) RHIUnlockTexture2D(TexTargetN, TargetMip, FALSE);
+		if( DstData_S ) RHIUnlockTexture2D(TexTargetS, TargetMip, FALSE);
+		DstData_D = DstData_N = DstData_S = NULL;
+		bCancelCurrentMerge = TRUE;
+		bDoingMerge = FALSE;
+		bFinished = TRUE;
+		return FALSE;
+	}
+	// Uncovered atlas blocks must not retain uninitialized lock memory.
+	for( SIZE_T Row = 0; Row < Rows; ++Row )
+	{
+		appMemzero(DstData_D + SIZE_T(Row) * DestPitchBytes_D, RowBytes);
+		appMemzero(DstData_N + SIZE_T(Row) * DestPitchBytes_N, RowBytes);
+		appMemzero(DstData_S + SIZE_T(Row) * DestPitchBytes_S, RowBytes);
+	}
+	return TRUE;
 }
 
-void FTextureMergeUtil::GetScrDataFromTex( FTextureLockData *&pTexLockData, FTexture2DResource *&tex2DRes, INT &mipID, INT &numRows )
+UBOOL FTextureMergeUtil::GetScrDataFromTex( FTextureLockData *&pTexLockData, FTexture2DResource *&tex2DRes, INT &mipID )
 {
-	UINT  rowStride = 0;
-	BYTE* dataPoint = (BYTE*)RHILockTexture2D( tex2DRes->GetTexture2DRHI(), mipID - GSystemSettings.GetNumMipsToDrop(), FALSE, rowStride, FALSE );
-	pTexLockData->Data[mipID] = new BYTE[ ( numRows >> mipID >> 2 ) * rowStride ];
-	appMemcpy( pTexLockData->Data[mipID], dataPoint, ( numRows >> mipID >> 2 ) * rowStride );
+	if( !pTexLockData || !pTexLockData->TextureKey || !tex2DRes || mipID < 0 ||
+		mipID >= ARRAY_COUNT(pTexLockData->Data) )
+		return FALSE;
+	UTexture2D* Texture = pTexLockData->TextureKey;
+	INT FirstResidentMip = Texture->Mips.Num() - Texture->ResidentMips;
+	if( Texture->SizeX <= 0 || Texture->SizeY <= 0 || FirstResidentMip < 0 ||
+		mipID < FirstResidentMip || mipID >= Texture->Mips.Num() )
+		return FALSE;
+	INT Width = Max(4, Texture->SizeX >> mipID);
+	INT Height = Max(4, Texture->SizeY >> mipID);
+	UINT RowBytes;
+	SIZE_T Rows;
+	if( !GetTextureMergeBufferLayout(Width, Height, RowBytes, Rows) )
+		return FALSE;
+	if( !tex2DRes->GetTexture2DRHI() )
+		return FALSE;
+	UINT RowStride = 0;
+	INT ResourceMip = mipID - FirstResidentMip;
+	BYTE* Data = (BYTE*)RHILockTexture2D(tex2DRes->GetTexture2DRHI(), ResourceMip, FALSE, RowStride, FALSE);
+	if( !Data )
+		return FALSE;
+	if( RowStride < RowBytes || Rows > SIZE_T(-1) / RowStride )
+	{
+		RHIUnlockTexture2D(tex2DRes->GetTexture2DRHI(), ResourceMip, FALSE);
+		return FALSE;
+	}
+	// Cache the full source mip using a tight pitch, independent of region height
+	// and of padding in the hardware lock's rows.
+	BYTE* Copy = new BYTE[Rows * RowBytes];
+	for( SIZE_T Row = 0; Row < Rows; ++Row )
+		appMemcpy(Copy + Row * RowBytes, Data + Row * RowStride, RowBytes);
+	pTexLockData->Data[mipID] = Copy;
 	++pTexLockData->RefCount[mipID];
-	RHIUnlockTexture2D( tex2DRes->GetTexture2DRHI(), mipID - GSystemSettings.GetNumMipsToDrop(), FALSE );
+	RHIUnlockTexture2D(tex2DRes->GetTexture2DRHI(), ResourceMip, FALSE);
+	return TRUE;
 }
 
 void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
@@ -649,6 +763,12 @@ void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
 #ifdef OutputDebugInfo
 	debugf( TEXT("Begin merge tex: region %d layer %d."), RegionIdx, LayerIdx );
 #endif
+	SrcLockData_D = SrcLockData_N = SrcLockData_S = NULL;
+	if( !CurrentSourceRegions_D.IsValidIndex(RegionIdx) )
+	{
+		RenderThread_FinishMerge();
+		return;
+	}
 	Region = &CurrentSourceRegions_D(RegionIdx);
 	while( Region->Textures.Num() == 0 )
 	{
@@ -658,7 +778,10 @@ void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
 		Region = &CurrentSourceRegions_D(RegionIdx);
 	}
 	if( Region->Textures.Num() == 0 )
+	{
+		RenderThread_FinishMerge();
 		return;
+	}
 	UTexture2D* SrcTexture = Region->Textures(LayerIdx);
 
 	SrcTex2DResource_D = (FTexture2DResource*)SrcTexture->Resource;
@@ -679,7 +802,13 @@ void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
 	
 	if ( SrcLockData_D->RefCount[MipIdx] == 0 )
 	{
-		GetScrDataFromTex( SrcLockData_D, SrcTex2DResource_D, MipIdx, Region->SizeY );
+		if( !GetScrDataFromTex( SrcLockData_D, SrcTex2DResource_D, MipIdx ) )
+		{
+			if( SrcLockData_D ) CheckLockDataRefNum(SrcLockData_D, MipIdx, LockData_D);
+			bCancelCurrentMerge = TRUE;
+			RenderThread_FinishMerge();
+			return;
+		}
 		SrcData_D = SrcLockData_D->Data[MipIdx];
 	}
 	else
@@ -698,7 +827,14 @@ void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
 	
 	if ( SrcLockData_N->RefCount[MipIdx] == 0 )
 	{
-		GetScrDataFromTex( SrcLockData_N, SrcTex2DResource_N, MipIdx, Region->SizeY );
+		if( !GetScrDataFromTex( SrcLockData_N, SrcTex2DResource_N, MipIdx ) )
+		{
+			if( SrcLockData_D ) CheckLockDataRefNum(SrcLockData_D, MipIdx, LockData_D);
+			if( SrcLockData_N ) CheckLockDataRefNum(SrcLockData_N, MipIdx, LockData_N);
+			bCancelCurrentMerge = TRUE;
+			RenderThread_FinishMerge();
+			return;
+		}
 		SrcData_N = SrcLockData_N->Data[MipIdx];
 	}
 	else
@@ -717,7 +853,15 @@ void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
 
 	if ( SrcLockData_S->RefCount[MipIdx] == 0 )
 	{
-		GetScrDataFromTex( SrcLockData_S, SrcTex2DResource_S, MipIdx, Region->SizeY );
+		if( !GetScrDataFromTex( SrcLockData_S, SrcTex2DResource_S, MipIdx ) )
+		{
+			if( SrcLockData_D ) CheckLockDataRefNum(SrcLockData_D, MipIdx, LockData_D);
+			if( SrcLockData_N ) CheckLockDataRefNum(SrcLockData_N, MipIdx, LockData_N);
+			if( SrcLockData_S ) CheckLockDataRefNum(SrcLockData_S, MipIdx, LockData_S);
+			bCancelCurrentMerge = TRUE;
+			RenderThread_FinishMerge();
+			return;
+		}
 		SrcData_S = SrcLockData_S->Data[MipIdx];
 	}
 	else
@@ -738,39 +882,16 @@ void FTextureMergeUtil::RenderThread_MergeOneTexBegin()
 	SrcMipSizeX = Max(BlockSizeX,SrcSizeX);
 	SrcMipSizeY = Max(BlockSizeY,SrcSizeY);
 
-	// Source region offsets, 0 for most of the time
-	SrcRegionOffsetX = (Clamp( Region->OffsetX >> MipIdx, 0, SrcMipSizeX - BlockSizeX ) / BlockSizeX ) * BlockSizeX;
-	SrcRegionOffsetY = (Clamp( Region->OffsetY >> MipIdx, 0, SrcMipSizeY - BlockSizeY ) / BlockSizeY ) * BlockSizeY;
-
-	// Destination region offsets
-	DestRegionOffsetX = SrcRegionOffsetX;
-	if( Region->DestOffsetX >= 0 )
-	{
-		DestRegionOffsetX = (Clamp( Region->DestOffsetX >> MipIdx, 0, DestMipSizeX - BlockSizeX ) / BlockSizeX) * BlockSizeX;
-	}
-	DestRegionOffsetY = SrcRegionOffsetY;
-	if( Region->DestOffsetY >= 0 )
-	{
-		DestRegionOffsetY = (Clamp( Region->DestOffsetY >> MipIdx, 0, DestMipSizeY - BlockSizeY ) / BlockSizeY) * BlockSizeY;
-	}
-
-	// scale region size to the current mip level. Size is aligned to the block size
-	RegionSizeX = Clamp( Align( Region->SizeX, BlockSizeX ), 0, SrcMipSizeX );
-	RegionSizeY = Clamp( Align( Region->SizeY, BlockSizeY ), 0, SrcMipSizeY );
-	// handle special case for full copy
-	if( Region->SizeX == -1 || Region->SizeY == -1 )
-	{
-		RegionSizeX = SrcMipSizeX;
-		RegionSizeY = SrcMipSizeY;
-	}
+	GetTextureMergeCopyBounds(*Region, MipIdx, SrcMipSizeX, SrcMipSizeY,
+		DestMipSizeX, DestMipSizeY, BlockSizeX, BlockSizeY,
+		SrcRegionOffsetX, SrcRegionOffsetY, DestRegionOffsetX, DestRegionOffsetY, RegionSizeX, RegionSizeY);
 
 	// size in bytes of an entire row for this mip
-	SrcPitchBytes = (SrcMipSizeX / BlockSizeX) * BlockBytes;
-	DestPitchBytes = (DestMipSizeX / BlockSizeX) * BlockBytes;
+	SrcPitchBytes = UINT((SIZE_T(SrcMipSizeX) + BlockSizeX - 1) / BlockSizeX) * BlockBytes;
 
 	// size in bytes of the offset to the starting part of the row to copy for this mip
-	SrcRowOffsetBytes = (SrcRegionOffsetX / BlockSizeX) * BlockBytes;
-	DestRowOffsetBytes = (DestRegionOffsetX / BlockSizeX) * BlockBytes;
+	SrcRowOffsetBytes = UINT(SrcRegionOffsetX / BlockSizeX) * BlockBytes;
+	DestRowOffsetBytes = UINT(DestRegionOffsetX / BlockSizeX) * BlockBytes;
 
 	// block number of each row
 	BlockPerRow = RegionSizeX / BlockSizeX;
@@ -802,6 +923,8 @@ void FTextureMergeUtil::StartMergingThread()
 
 void FTextureMergeUtil::CheckLockDataRefNum( FTextureLockData *&pTexLockData, INT &mipID, TextureLockDataList &datalist )
 {
+	if( !pTexLockData || mipID < 0 || mipID >= ARRAY_COUNT(pTexLockData->Data) )
+		return;
 	pTexLockData->RefCount[mipID] = Max( 0, pTexLockData->RefCount[mipID] -1 );
 	if ( pTexLockData->RefCount[mipID] == 0 )
 	{
@@ -866,8 +989,8 @@ void FTextureMergeUtil::RenderThread_MergeOneTexEnd()
 		if( RegionIdx == CurrentSourceRegions_D.Num() || 
 			CurrentSourceRegions_D(RegionIdx).Textures.Num() == 0 )
 		{
-			INT TargetMip = MipIdx - GSystemSettings.GetNumMipsToDrop();
-			if ( TargetMip + 1 == TargetTexture_D->NumMips )
+			INT TargetMip = MipIdx - FirstMip;
+			if ( TargetMip + 1 == CurrentTargetTexture_D->NumMips )
 			{
 				RenderThread_FinishMerge();
 				return;
@@ -877,7 +1000,8 @@ void FTextureMergeUtil::RenderThread_MergeOneTexEnd()
 			RHIUnlockTexture2D( TexTargetS, TargetMip, FALSE );
 			//debugf( TEXT("FTextureMergeUtil: UnLock %d "), MipIdx );
 			++MipIdx;
-			LockTargetTextureData();
+			if( !LockTargetTextureData() )
+				return;
 			RegionIdx = 0;
 		}
 
@@ -909,7 +1033,7 @@ void FTextureMergeUtil::RenderThread_FinishMerge()
 #endif
 
 	// release dest surfaces // shit who commented this code out!
-	INT TargetMip = MipIdx - GSystemSettings.GetNumMipsToDrop();
+	INT TargetMip = MipIdx - FirstMip;
  	RHIUnlockTexture2D( TexTargetD, TargetMip, FALSE );
  	RHIUnlockTexture2D( TexTargetN, TargetMip, FALSE );
  	RHIUnlockTexture2D( TexTargetS, TargetMip, FALSE );
@@ -931,7 +1055,7 @@ void FTextureMergeUtil::BackgroundThread_MergeTextures()
 	INT CurDestOffsetY = DestRegionOffsetY;
 	if( LayerIdx == 0 )
 	{	// copy by row
-		DWORD RowSizeBytes = ( RegionSizeX / BlockSizeX ) * BlockBytes;
+		DWORD RowSizeBytes = UINT(RegionSizeX / BlockSizeX) * BlockBytes;
 		for( INT CurSrcOffsetY = SrcRegionOffsetY; CurSrcOffsetY < (SrcRegionOffsetY + RegionSizeY); CurSrcOffsetY += BlockSizeY )
 		{
 #ifdef OutputDebugInfo
@@ -940,14 +1064,14 @@ void FTextureMergeUtil::BackgroundThread_MergeTextures()
 			INT CurSrcBlockOffsetY = CurSrcOffsetY / BlockSizeY;
 			INT CurDestBlockOffsetY = CurDestOffsetY / BlockSizeY;
 
-			BYTE* SrcOffset = SrcData_D + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-			BYTE* DstOffset = DstData_D + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+			BYTE* SrcOffset = SrcData_D + (SIZE_T(CurSrcBlockOffsetY) * SrcPitchBytes) + SrcRowOffsetBytes;
+			BYTE* DstOffset = DstData_D + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_D) + DestRowOffsetBytes;
 			appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
-			SrcOffset = SrcData_N + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-			DstOffset = DstData_N + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+			SrcOffset = SrcData_N + (SIZE_T(CurSrcBlockOffsetY) * SrcPitchBytes) + SrcRowOffsetBytes;
+			DstOffset = DstData_N + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_N) + DestRowOffsetBytes;
 			appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
-			SrcOffset = SrcData_S + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-			DstOffset = DstData_S + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+			SrcOffset = SrcData_S + (SIZE_T(CurSrcBlockOffsetY) * SrcPitchBytes) + SrcRowOffsetBytes;
+			DstOffset = DstData_S + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_S) + DestRowOffsetBytes;
 			appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
 
 			CurDestOffsetY += BlockSizeY;
@@ -963,12 +1087,12 @@ void FTextureMergeUtil::BackgroundThread_MergeTextures()
 			INT CurSrcBlockOffsetY = CurSrcOffsetY / BlockSizeY;
 			INT CurDestBlockOffsetY = CurDestOffsetY / BlockSizeY;
 
-			BYTE* SrcOffset_D = SrcData_D + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-			BYTE* DstOffset_D = DstData_D + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
-			BYTE* SrcOffset_N = SrcData_N + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-			BYTE* DstOffset_N = DstData_N + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
-			BYTE* SrcOffset_S = SrcData_S + (CurSrcBlockOffsetY * SrcPitchBytes) + SrcRowOffsetBytes;
-			BYTE* DstOffset_S = DstData_S + (CurDestBlockOffsetY * DestPitchBytes) + DestRowOffsetBytes;
+			BYTE* SrcOffset_D = SrcData_D + (SIZE_T(CurSrcBlockOffsetY) * SrcPitchBytes) + SrcRowOffsetBytes;
+			BYTE* DstOffset_D = DstData_D + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_D) + DestRowOffsetBytes;
+			BYTE* SrcOffset_N = SrcData_N + (SIZE_T(CurSrcBlockOffsetY) * SrcPitchBytes) + SrcRowOffsetBytes;
+			BYTE* DstOffset_N = DstData_N + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_N) + DestRowOffsetBytes;
+			BYTE* SrcOffset_S = SrcData_S + (SIZE_T(CurSrcBlockOffsetY) * SrcPitchBytes) + SrcRowOffsetBytes;
+			BYTE* DstOffset_S = DstData_S + (SIZE_T(CurDestBlockOffsetY) * DestPitchBytes_S) + DestRowOffsetBytes;
 			//appMemcpy( DstOffset, SrcOffset, RowSizeBytes );
 
 			for( UINT blockIdx = 0; blockIdx < BlockPerRow; ++blockIdx )

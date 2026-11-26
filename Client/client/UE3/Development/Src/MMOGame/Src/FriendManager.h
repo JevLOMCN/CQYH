@@ -8,20 +8,10 @@
 struct MMOFriendMember
 {
 	MMOFriendMember(EEventParm)
-	{
-		appMemzero(this, sizeof(MMOFriendMember));
-	}
+		: RoleId(0), Lv(0), ClassId(0), Sex(0), Online(0), nIntimacy(0), SceneTempID(0) {}
 	MMOFriendMember()
-	{
-		//appMemzero(this, sizeof(MMOFriendMember));
-		RoleId = 0;
-		Lv = 0;
-		ClassId = 0;
-		Sex = 0;
-		Online = 0;
-		nIntimacy = 0;
-		SceneTempID = -1;
-	}
+		: RoleId(0), Lv(0), ClassId(0), Sex(0), Online(0), nIntimacy(0), SceneTempID((UINT8)-1) {}
+
 	INT RoleId;
 	INT Lv;
 	FString ActorName;
@@ -37,6 +27,7 @@ struct MMOFriendMember
 
 struct MMOFriendGroup
 {
+	MMOFriendGroup() : IsDefault(FALSE) {}
 	TArray<MMOFriendMember> FriendList;
 	FString GroupName;
 	UBOOL IsDefault;
@@ -44,6 +35,7 @@ struct MMOFriendGroup
 
 struct MMOKillInfo
 {
+	MMOKillInfo() : Time(0), RoleId(0), Killed(FALSE) {}
 	INT Time;
 	INT RoleId;
 	UBOOL Killed;

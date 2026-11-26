@@ -15,6 +15,9 @@ No.	map ID	applicable class	min level	max level	spawn weight	Tips content
 
 struct LoadMapTipsData
 {
+	LoadMapTipsData()
+		: nID(0), nMapId(0), nClass(0), nMinLevel(0), nMaxLevel(0), nWeight(0) {}
+
 	INT nID;
 	INT nMapId;
 	INT nClass;

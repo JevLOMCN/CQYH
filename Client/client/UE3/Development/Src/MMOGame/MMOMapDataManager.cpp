@@ -38,6 +38,7 @@ _RelatedMarkID(-1)
 FMapMark::FMapMark():
 _MarkID(-1),
 _SceneID(-1),
+_Pos(0, 0, 0),
 _isValid(FALSE),
 _MarkType(0)
 {
@@ -49,7 +50,9 @@ FObjInMapUI(),
 _ActorID(-1),
 _AidID(-1),
 _InMapID(-1),
-_ToggleFlag(0)
+_ToggleFlag(0),
+_OrigInMapPos(0, 0, 0),
+_CurMapPos2D(0, 0)
 {
 
 }
@@ -69,12 +72,14 @@ MMOMapDataManager::MMOMapDataManager(void)
 	:_IsTeleportInited(FALSE),
 	_IsTeleportUpdatedByServer(FALSE),
 	_LastOpenedTeleportNodeID(-1),
-	//_CurFBDiff(ENUM_SCENE_DIFFICULTY::esdNormal1),
+	_CurFBDiff(0),
+	_CurFBMaxDiff(0),
 	_InCurMapRegionIdx(-1),
 	_InCurMapRegion(NULL),
 	_InWorldmapRegionIdx(-1),
 	_InWorldmapRegion(NULL),
 	_LastInputPos( 0, 0, 0 ),
+	_CurWorldMapInfo(EC_EventParm),
 	_DungeonStartUtcTime(0)
 {
 	//_CurFBMaxDiff = ( 1 << ENUM_SCENE_DIFFICULTY::esdNormal1 ) | ( 1 << ENUM_SCENE_DIFFICULTY::esdHeroic1 );
@@ -660,7 +665,7 @@ void MMOMapDataManager::ClearTeleportDynamicData()
 //
 FTeleportNetNodeData *MMOMapDataManager::GetTeleportNetNodes( EWorldRegion regionID, INT nodeID )
 {
-	if( regionID >= EWR_MAX ){
+	if( (INT)regionID < 0 || regionID >= EWR_MAX ){
 		return NULL;
 	}
 
@@ -670,7 +675,7 @@ FTeleportNetNodeData *MMOMapDataManager::GetTeleportNetNodes( EWorldRegion regio
 	for( INT i = 0; i < inReginCnt; ++i  ){
 		pTemp = _RegionTeleportNetList[regionID](i)._NodeTemplate;
 
-		if( pTemp->ServerID == nodeID ){
+		if( pTemp && pTemp->ServerID == nodeID ){
 			pRtn = &_RegionTeleportNetList[regionID](i);
 			break;
 		}	
@@ -681,7 +686,7 @@ FTeleportNetNodeData *MMOMapDataManager::GetTeleportNetNodes( EWorldRegion regio
 //
 FTeleportNetNodeData *MMOMapDataManager::GetTeleportNetNodes( EWorldRegion regionID, INT inSceneID, const FString &nodeName )
 {
-	if( regionID >= EWR_MAX ){
+	if( (INT)regionID < 0 || regionID >= EWR_MAX ){
 		return NULL;
 	}
 
@@ -692,7 +697,7 @@ FTeleportNetNodeData *MMOMapDataManager::GetTeleportNetNodes( EWorldRegion regio
 	for( INT j = 0; j < inReginCnt; ++j  ){
 		pNodeTemplate = _RegionTeleportNetList[regionID](j)._NodeTemplate;
 
-		if( pNodeTemplate->InSceneID == inSceneID && pNodeTemplate->Name == nodeName ){
+		if( pNodeTemplate && pNodeTemplate->InSceneID == inSceneID && pNodeTemplate->Name == nodeName ){
 			pRtn = &_RegionTeleportNetList[regionID](j);
 			break;
 		}	
@@ -722,7 +727,7 @@ INT MMOMapDataManager::GetTeleportNetNodesIn( EWorldRegion regionID, INT mapID, 
 		return rtnCnt;
 	}
 
-	if( regionID >= EWR_MAX ){
+	if( (INT)regionID < 0 || regionID >= EWR_MAX ){
 		return rtnCnt;
 	}
 
@@ -737,7 +742,7 @@ INT MMOMapDataManager::GetTeleportNetNodesIn( EWorldRegion regionID, INT mapID, 
 	for( INT i = 0; i < inReginCnt; ++i  ){
 		FTeleportNetNodeData *pNode = &_RegionTeleportNetList[regionID](i);
 
-		if( isAllMap || pNode->_NodeTemplate->InSceneID == mapID ){
+		if( pNode->_NodeTemplate && (isAllMap || pNode->_NodeTemplate->InSceneID == mapID) ){
 			rtnList->Push( pNode );
 			++rtnCnt;
 		}	
@@ -767,7 +772,7 @@ INT MMOMapDataManager::GetTeleportNetNodesIn( INT mapID, TArray<FTeleportNetNode
 		for( INT j = 0; j < inReginCnt; ++j  ){
 			FTeleportNetNodeData *pNode = &_RegionTeleportNetList[i](j);
 
-			if( pNode->_NodeTemplate->InSceneID == mapID ){
+			if( pNode->_NodeTemplate && pNode->_NodeTemplate->InSceneID == mapID ){
 				rtnList->Push( pNode );
 				++rtnCnt;
 			}
@@ -1088,9 +1093,20 @@ UBOOL MMOMapDataManager::LoadMapUserMarks( INT sceneID )
 	if( MMOFacade::getSingleton().BeginLoadAccountBinary( &pArchive,mapName ) )
 	{
 		INT TotalSize = pArchive->TotalSize();
-		INT Size = TotalSize *sizeof(BYTE)/sizeof(FMapMarkExport);
+		if (TotalSize < 0 || TotalSize % sizeof(FMapMarkExport) != 0)
+		{
+			MMOFacade::getSingleton().EndLoadAccountBinary(pArchive);
+			return FALSE;
+		}
+		INT Size = TotalSize / sizeof(FMapMarkExport);
 		vecUserMarkData.Add( Size  );
-		pArchive->Serialize( vecUserMarkData.GetData(), pArchive->TotalSize() );
+		if (TotalSize > 0)
+			pArchive->Serialize(vecUserMarkData.GetData(), TotalSize);
+		if (pArchive->IsError())
+		{
+			MMOFacade::getSingleton().EndLoadAccountBinary(pArchive);
+			return FALSE;
+		}
 	}
 	MMOFacade::getSingleton().EndLoadAccountBinary( pArchive );
 
@@ -1108,6 +1124,8 @@ UBOOL MMOMapDataManager::LoadMapUserMarks( INT sceneID )
 	for( INT i = 0; i < dataCnt; ++i )
 	{
 		FMapMarkExport &markData = vecUserMarkData(i);
+		markData._MarkName[ARRAY_COUNT(markData._MarkName) - 1] = 0;
+		markData._RegionName[ARRAY_COUNT(markData._RegionName) - 1] = 0;
 
 		FMapMark &mark = mapUserMarksMap.FindOrAdd( i );
 
@@ -1142,8 +1160,6 @@ UBOOL MMOMapDataManager::ExportMapUserMarks( INT sceneID )
 
 	//convert data for export
 	TArray<FMapMarkExport> vecUserMarkData;
-	INT markNameStrSize = 17;
-	INT regionNameStrSize = 33;
 	for( TMap<INT, FMapMark>::TIterator iter( mapUserMarksMap ); iter; ++iter){
 		FMapMark &mark = iter.Value();
 
@@ -1152,8 +1168,9 @@ UBOOL MMOMapDataManager::ExportMapUserMarks( INT sceneID )
 		}
 
 		FMapMarkExport exportMarkData;
-		appStrncpy( exportMarkData._MarkName, *mark._MarkName, markNameStrSize );
-		appStrncpy( exportMarkData._RegionName, *mark._RegionName, regionNameStrSize );
+		appMemzero(&exportMarkData, sizeof(exportMarkData));
+		appStrncpy( exportMarkData._MarkName, *mark._MarkName, ARRAY_COUNT(exportMarkData._MarkName) );
+		appStrncpy( exportMarkData._RegionName, *mark._RegionName, ARRAY_COUNT(exportMarkData._RegionName) );
 		exportMarkData._Pos = mark._Pos;
 		exportMarkData._MarkType = mark._MarkType;
 
@@ -2295,6 +2312,8 @@ int MMOMapDataManager::PutSpeciZoneToMapUI( INT sceneServerID, INT curObjIdx, TA
 	INT cntAllObjInMap = container.Num();
 	for( INT i = 0; i < cntAllZones; ++i ){
 		const FQuestVolumeInfo &zoneInfo = zonesData(i);
+		if (zoneInfo.Quests.Num() == 0)
+			continue;
 		
 		const UQuest* quest = MMOQuestData::getSingleton().GetQuestData(zoneInfo.Quests(0));
 		if (!quest)

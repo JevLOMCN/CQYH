@@ -359,7 +359,9 @@ void AMMOActor::ClearAllMirrors()
 
 UBOOL AMMOActor::GetCurrentAnimName(FName& OutAnim)
 {
-	if (ActorAT && ActorAT->ActionLoopBlend)
+	OutAnim = NAME_None;
+
+	if (ActorAT && ActorAT->ActionLoopBlend && ActorAT->ActionLoopBlend->Children.IsValidIndex(1))
 	{
 		if (ActorAT->ActionLoopBlend->Children(1).Weight >= 1)
 		{

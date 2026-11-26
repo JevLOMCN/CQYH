@@ -11,6 +11,12 @@
 
 struct EquipComposeTemplate
 {
+	EquipComposeTemplate() : itemId(0), equipId(0), cost(0), bBroadCast(FALSE)
+	{
+		appMemzero(matId, sizeof(matId));
+		appMemzero(matCnt, sizeof(matCnt));
+	}
+
 	INT itemId;  //Scroll id
 	INT equipId; //Equipment id
 	INT cost;    //Gold cost
@@ -21,6 +27,7 @@ struct EquipComposeTemplate
 
 struct DecomposeResult
 {
+	DecomposeResult() : itemId(0), cnt(0) {}
 	INT itemId;
 	INT cnt;
 };

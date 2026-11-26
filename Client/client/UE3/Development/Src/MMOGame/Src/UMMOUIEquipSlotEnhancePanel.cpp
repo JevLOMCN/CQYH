@@ -638,7 +638,7 @@ void UMMOUIEquipSlotEnhancePanel::ShowActiveTips()
 	if(current_active_lv < 1)
 	{
 		gfxObj->SetBool(TEXT("ActiveMask"),FALSE);
-		EquipSlotEnhanceActiveTemplate& data = EquipSlotManager::getSingleton().GetEquipSlotEnhanceActiveTemplate(0);
+		const EquipSlotEnhanceActiveTemplate& data = EquipSlotManager::getSingleton().GetEquipSlotEnhanceActiveTemplate(0);
 
 		for(i = 0; i < data.ActiveEffectList.Num(); i++)
 		{
@@ -649,7 +649,7 @@ void UMMOUIEquipSlotEnhancePanel::ShowActiveTips()
 	}
 	else
 	{
-		EquipSlotEnhanceActiveTemplate& data = EquipSlotManager::getSingleton().GetEquipSlotEnhanceActiveTemplate(current_active_lv - 1);
+		const EquipSlotEnhanceActiveTemplate& data = EquipSlotManager::getSingleton().GetEquipSlotEnhanceActiveTemplate(current_active_lv - 1);
 
 		for(i = 0; i < data.ActiveEffectList.Num(); i++)
 		{
@@ -665,7 +665,7 @@ void UMMOUIEquipSlotEnhancePanel::ShowActiveTips()
 		else
 		{
 			gfxObj->SetBool(TEXT("MaxLvMask"),FALSE);
-			EquipSlotEnhanceActiveTemplate& next_data = EquipSlotManager::getSingleton().GetEquipSlotEnhanceActiveTemplate(current_active_lv);
+			const EquipSlotEnhanceActiveTemplate& next_data = EquipSlotManager::getSingleton().GetEquipSlotEnhanceActiveTemplate(current_active_lv);
 
 			for(i = 0; i < next_data.ActiveEffectList.Num(); i++)
 			{

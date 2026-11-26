@@ -29,10 +29,10 @@ void MMOHintButtonManager::ClearAllButton()
 
 void MMOHintButtonManager::ClickButton( INT pos )
 {
-	if( INT(_HintPosVec.size()) > pos )
+	if( pos >= 0 && (size_t)pos < _HintPosVec.size() )
 	{
 		HintButtonCommandMap::iterator itor = _HintCommandMap.find(_HintPosVec[pos]);
-		if( itor != _HintCommandMap.end() )
+		if( itor != _HintCommandMap.end() && itor->second != NULL )
 		{
 			itor->second->Click();
 		}

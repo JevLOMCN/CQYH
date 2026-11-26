@@ -211,17 +211,17 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 	if (it != ActiveBuffsMap.end())
 	{
 		STLInt2BuffDataMap::iterator pos = it->second->Buffs.begin();
-		for(;pos!=it->second->Buffs.end()&&index<MAXBUFFSLOT;pos++)
+		for(;pos!=it->second->Buffs.end();pos++)
 		{
 			if(pos->second->ObjId == MMOFacade::getSingleton().GetMainPlayer()->ServerID)
 			{
-				if(pos->second->Buff->bShowIcon && pos->second->Buff->bBuffType == EBuff_Normal )
+				if(pos->second->Buff->bShowIcon && pos->second->Buff->bBuffType == EBuff_Normal && index < ARRAY_COUNT(ShowBuffs) )
 				{
 					ShowBuffs[index] = pos->second;	
 					index++;
 				}
 
-				if(pos->second->Buff->bShowIcon && pos->second->Buff->bBuffType == EBuff_Function )
+				if(pos->second->Buff->bShowIcon && pos->second->Buff->bBuffType == EBuff_Function && indexEx < ARRAY_COUNT(ShowBuffsEx) )
 				{
 					ShowBuffsEx[indexEx] = pos->second;	
 					indexEx++;
@@ -284,41 +284,7 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 			}		
 		}
 
-		for(;pos!=it->second->Buffs.end();pos++)
-		{
-			if(pos->second->Buff->Type==E_auet_Type01 ||
-				pos->second->Buff->Type==E_auet_Type02 ||
-				pos->second->Buff->Type==E_auet_Type03 )//||
-				//pos->second->Buff->Type==E_auet_Type17 ||
-				//pos->second->Buff->Type==E_auet_Type20 )
-			{
-				bStun = TRUE;
-			}
 
-			if (pos->second->Buff->TemplateID == 2516)
-			{
-				g_bGMBuff = TRUE;
-			}
-
-			if(pos->second->Buff->Type==E_auet_Type21)
-			{
-				Mir2Attack::getSingleton().SetAbilityFlag(EAT_FLAG_ZHURI);
-				warnf(TEXT("Refresh buff----------add Zhuri (Chase the Sun)"));
-
-			}
-			if(pos->second->Buff->Type==E_auet_Type20)
-			{
-				Mir2Attack::getSingleton().SetAbilityFlag(EAT_FLAG_LIEHUO);
-			}
-			if(pos->second->Buff->Type==E_auet_Type19)
-			{
-				Mir2Attack::getSingleton().SetAbilityFlag(EAT_FLAG_BANYUE);
-			}
-			if(pos->second->Buff->Type==E_auet_Type18)
-			{
-				Mir2Attack::getSingleton().SetAbilityFlag(EAT_FLAG_CISHA);
-			}
-		}
 	}
 
 
@@ -346,7 +312,7 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 			FLOAT CurrentTime = max((ShowBuffs[i]->Duration-ShowBuffs[i]->CurrentTime)*1000.0f , 0.0f);
 			UBOOL debuff = FALSE; 
 			BYTE Category = E_ac_None;
-			
+
 			if(ShowBuffs[i]->Buff ){
 			   Category = ShowBuffs[i]->Buff->Category;
 			   if(Category==E_ac_Negative){
@@ -397,7 +363,7 @@ void MMOBuffManager::RefreshSlotBuff(INT ObjId)
 			MMOUI::GetUIManager()->delegateDeleteFunctionBuffPanel(i);
 		}
 	}
-	
+
 
 }
 

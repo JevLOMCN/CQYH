@@ -51,6 +51,7 @@ public:
 
 struct RuneSkillLevelUpConsum
 {
+	RuneSkillLevelUpConsum() : _ItemID(0), _ItemCnt(0) {}
 	INT _ItemID;
 	INT _ItemCnt;
 };
@@ -67,6 +68,7 @@ enum SpecailSkillType
 
 struct SpecialSkill
 {
+	SpecialSkill() : _SkillID(0), _SpecialSkillType(ESpcSkill_MAX) {}
 	UINT _SkillID;
 	SpecailSkillType _SpecialSkillType;
 	FString _GetRequire;
@@ -84,6 +86,7 @@ struct SkillDynamicData
 //
 struct TransformSkillGroup
 {
+	TransformSkillGroup() { appMemzero(_MainSkillID, sizeof(_MainSkillID)); }
 	UINT _MainSkillID[SKILL_EQUIP_MAX];
 };
 
@@ -91,6 +94,7 @@ struct TransformSkillGroup
 class MMOSkillManager : public SingletonMeyers<MMOSkillManager>, public INativeGameEventHandler
 {
 public:
+	MMOSkillManager();
 	void Init();
 	void Shutdown();
 	void ResetPersonalData();
@@ -239,7 +243,7 @@ private:
 	TArray<INT> vecRuneDebrisIds;
 
 	TMap< INT, INT > _SkillSlotCmdDefault;
-	INT _SkillBarSlotRedirect[SKILL_EQUIP_MAX];
+	INT _SkillBarSlotRedirect[UCONST_SkillBarSlotMax];
 
 	TMap< INT, UBOOL > _SkillSlotActive;
 	TMap< INT, UBOOL > _SkillSlotFlag1;
@@ -276,6 +280,9 @@ private:
 //------------------------------------------------------------------------------------------------
 struct AbilityTemplateDataIndex
 {
+	AbilityTemplateDataIndex()
+		: TemplateID(0), Class(EC_EventParm), RuneSlotID(0)
+		, CastType(E_spct_Passive), QTEType(E_spqte_None), ShowOnUI(FALSE) {}
 	FString ObjectPath;
 	INT TemplateID;
 	FSpell_ClassType Class;
@@ -348,6 +355,7 @@ public:
 //------------------------------------------------------------------------------------------------
 struct SpellVarData
 {
+	SpellVarData() : TemplateID(0), RuneSlotID(0), Level(0), EffectRangeEnum(0) {}
 	INT TemplateID;
 	INT RuneSlotID;
 	INT Level;
@@ -509,6 +517,9 @@ public:
 //------------------------------------------------------------------------------------------------
 struct SpellProgessData
 {
+	SpellProgessData()
+		: TemplateID(0), RuneSlot(0), Level(0), ConsumePts(0), RequireLevel(0)
+		, RequireItem(0), RequireItemCount(0), Pow(0) {}
 	INT TemplateID;
 	INT RuneSlot;
 	INT Level;
@@ -583,6 +594,7 @@ public:
 //------------------------------------------------------------------------------------------------
 struct MissileTemplateDataIndex
 {
+	MissileTemplateDataIndex() : TemplateID(0) {}
 	FString ObjectPath;
 	INT TemplateID;
 };

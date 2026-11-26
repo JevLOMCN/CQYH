@@ -697,6 +697,9 @@ void CMessageHandler::Parse_g2c_char_select_focus(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_focus_info(const char* buf, UINT32 size)
 {
 	G2C_FOCUS_INFO* msg = ( G2C_FOCUS_INFO*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->byAuraCount > (size - sizeof(*msg)) / sizeof(msg->astAuraData[0]))
+		return;
 	AMMOActor* actor =Cast<AMMOActor>( MMOFacade::getSingleton().GetActor(msg->dwFocusID) ) ;
 	if( !actor )
 		return;

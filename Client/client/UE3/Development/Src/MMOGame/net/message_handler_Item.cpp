@@ -388,6 +388,8 @@ void CMessageHandler::Send_SellAllItemInBagResource()
 void CMessageHandler::Parse_g2c_weapon_level_up_put_in(const char* buf, UINT32 size)
 {
 	G2C_WEAPON_LEVEL_UP_PUT_IN* msg = (G2C_WEAPON_LEVEL_UP_PUT_IN*)buf;
+	if (!buf || size < sizeof(G2C_WEAPON_LEVEL_UP_PUT_IN))
+		return;
 	if( msg == NULL ){
 		return;
 	}
@@ -398,6 +400,8 @@ void CMessageHandler::Parse_g2c_weapon_level_up_put_in(const char* buf, UINT32 s
 void CMessageHandler::Parse_g2c_weapon_level_up_take_out(const char* buf, UINT32 size)
 {
 	G2C_WEAPON_LEVEL_UP_TAKE_OUT* msg = (G2C_WEAPON_LEVEL_UP_TAKE_OUT*)buf;
+	if (!buf || size < sizeof(G2C_WEAPON_LEVEL_UP_TAKE_OUT))
+		return;
 	if( msg == NULL ){
 		return;
 	}
@@ -408,6 +412,8 @@ void CMessageHandler::Parse_g2c_weapon_level_up_take_out(const char* buf, UINT32
 void CMessageHandler::Parse_g2c_weapon_level_up_result(const char* buf, UINT32 size)
 {
 	G2C_WEAPON_LEVEL_UP_RESULT* msg = (G2C_WEAPON_LEVEL_UP_RESULT*)buf;
+	if (!buf || size < sizeof(G2C_WEAPON_LEVEL_UP_RESULT))
+		return;
 	if( msg == NULL ){
 		return;
 	}
@@ -419,6 +425,8 @@ void CMessageHandler::Parse_g2c_weapon_level_up_result(const char* buf, UINT32 s
 //void CMessageHandler::Parse_g2c_equip_level_up(const char* buf, UINT32 size)
 //{
 //	G2C_EQUIP_LEVEL_UP* msg = (G2C_EQUIP_LEVEL_UP*)buf;
+//	if (!buf || size < sizeof(G2C_EQUIP_LEVEL_UP))
+//		return;
 //
 //	UMMOUIEquipLevelUp *pEquipLvUp = (UMMOUIEquipLevelUp*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_EquipLevelUp );
 //	if( pEquipLvUp != NULL ){
@@ -449,6 +457,8 @@ void CMessageHandler::Send_Refine( UINT16 wItemCon, UINT16 wItemSlot )
 void CMessageHandler::Parse_g2c_refine_item(const char* buf, UINT32 size)
 {
 	G2C_REFINE_ITEM* msg = (G2C_REFINE_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_REFINE_ITEM))
+		return;
 
 	UMMOUIEquipEnhance *pEnhanceUi = (UMMOUIEquipEnhance*)MMOUI::FindUIPanel( MMOUI::GetUIManager()->Panel_EquipEnhance );
 	if( pEnhanceUi != NULL ){
@@ -478,6 +488,8 @@ void CMessageHandler::Send_Unrefine( UINT16 wItemSlot, UINT8 bAll )
 void CMessageHandler::Parse_g2c_transfer_refine_item(const char* buf, UINT32 size)
 {
 	G2C_TRANSFER_REFINE_ITEM* msg = (G2C_TRANSFER_REFINE_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_TRANSFER_REFINE_ITEM))
+		return;
 
 }
 */
@@ -486,6 +498,8 @@ void CMessageHandler::Parse_g2c_transfer_refine_item(const char* buf, UINT32 siz
 void CMessageHandler::Parse_g2c_sync_container_sizes(const char* buf, UINT32 size)
 {
 	G2C_SYNC_CONTAINER_SIZES* msg = (G2C_SYNC_CONTAINER_SIZES*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_CONTAINER_SIZES))
+		return;
 	
 	MMOFacade::getSingleton().SetContainerSize( msg->abySizes );
 
@@ -531,10 +545,13 @@ void CMessageHandler::Parse_g2c_lose_pk_item(const char* buf, UINT32 size)
 {
 	//目前先这么写，等服务器改协议
 	G2C_LOSE_PK_ITEM* msg = (G2C_LOSE_PK_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_LOSE_PK_ITEM))
+		return;
 	if(msg)
 	{
 		ItemInfo iteminfo;
-		iteminfo.Load(msg->acItem);
+		if (!iteminfo.Load(msg->acItem, size - sizeof(*msg)))
+        return;
 		FClientItemInfo clientItemInfo;
 		memset(&clientItemInfo, 0, sizeof(FClientItemInfo));
 		memcpy(&clientItemInfo, &iteminfo, sizeof(ItemInfo));
@@ -549,8 +566,11 @@ void CMessageHandler::Parse_g2c_lose_pk_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_destroy_death_item(const char* buf, UINT32 size)
 {
 	G2C_DESTROY_DEATH_ITEM* msg = (G2C_DESTROY_DEATH_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_DESTROY_DEATH_ITEM))
+		return;
 	ItemInfo item;
-	item.Load(msg->acItem);
+	if (!item.Load(msg->acItem, size - sizeof(*msg)))
+        return;
 
 	UItem* itemTemplate = MMOFacade::getSingleton().FindItemTemplate(item.m_nTemplateID);
 	if (itemTemplate && itemTemplate->IsA(UEquip::StaticClass()))
@@ -599,6 +619,8 @@ void CMessageHandler::Parse_g2c_destroy_death_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_item_delete(const char* buf, UINT32 size)
 {
 	G2C_ITEM_DELETE* msg = (G2C_ITEM_DELETE*)buf;
+	if (!buf || size < sizeof(G2C_ITEM_DELETE))
+		return;
 	AMMOActor* player = MMOFacade::getSingleton().GetMainActor();
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 
@@ -706,10 +728,13 @@ void CMessageHandler::Parse_g2c_item_delete(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_item_change(const char* buf, UINT32 size)
 {
 	G2C_ITEM_CHANGE* msg = (G2C_ITEM_CHANGE*)buf;
+	if (!buf || size < sizeof(G2C_ITEM_CHANGE))
+		return;
 	//check(sizeof(ITEM_INFO) == (msg->wSize - sizeof(G2C_ITEM_CHANGE)));
 
 	ItemInfo iteminfo;
-    iteminfo.Load(msg->acItem);
+    if (!iteminfo.Load(msg->acItem, size - sizeof(*msg)))
+        return;
 	FClientItemInfo clientItemInfo;
 	memset(&clientItemInfo, 0, sizeof(FClientItemInfo));
 	memcpy(&clientItemInfo, &iteminfo, sizeof(ItemInfo));
@@ -931,12 +956,16 @@ void CMessageHandler::Parse_g2c_item_change(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_equip_dur_change(const char* buf, UINT32 size)
 {
 	G2C_EQUIP_DUR_CHANGE* msg = (G2C_EQUIP_DUR_CHANGE*)buf;
+	if (!buf || size < sizeof(G2C_EQUIP_DUR_CHANGE))
+		return;
 	MMOFacade::getSingleton().UpdateItemDurability( msg->byConSlot, msg->byEquipSlot, msg->nDur );
 }
 //------------------------------------------------------------------------------
 void CMessageHandler::Parse_g2c_item_swap(const char* buf, UINT32 size)
 {
 	G2C_ITEM_SWAP* msg = (G2C_ITEM_SWAP*)buf;
+	if (!buf || size < sizeof(G2C_ITEM_SWAP))
+		return;
 	AMMOActor* player = MMOFacade::getSingleton().GetMainActor();
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	debugf( TEXT("[CMessageHandler::Parse_g2c_item_swap] [%d.%d] -> [%d.%d]"), 
@@ -1149,6 +1178,8 @@ void CMessageHandler::Parse_g2c_item_swap(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sign_item(const char* buf, UINT32 size)
 {
 	G2C_SIGN_ITEM* msg = (G2C_SIGN_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_SIGN_ITEM))
+		return;
 	//ItemInfo* info = MMOFacade::getSingleton().FindItem(msg->wConSlot, msg->wItemSlot);
 
 	MMOUI::GetUIManager()->SetItemSlotWaitingState(FALSE);
@@ -1159,6 +1190,8 @@ void CMessageHandler::Parse_g2c_sign_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_container_size_change(const char* buf, UINT32 size)
 {
 	G2C_CONTAINER_SIZE_CHANGE* msg = (G2C_CONTAINER_SIZE_CHANGE*)buf;
+	if (!buf || size < sizeof(G2C_CONTAINER_SIZE_CHANGE))
+		return;
 
 	
 
@@ -1208,6 +1241,8 @@ void CMessageHandler::Parse_g2c_container_size_change(const char* buf, UINT32 si
 void CMessageHandler::Parse_g2c_luck_oil(const char* buf, UINT32 size)
 {
 	G2C_LUCK_OIL* msg = (G2C_LUCK_OIL*)buf;
+	if (!buf || size < sizeof(G2C_LUCK_OIL))
+		return;
 	FString str;
 	FString str2;
 	if( msg->chResult > 0 )
@@ -1235,6 +1270,8 @@ void CMessageHandler::Parse_g2c_luck_oil(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_item_bag(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ITEM_BAG *msg = (G2C_SYNC_ITEM_BAG*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_ITEM_BAG))
+		return;
 
 	AMMOActor* player = MMOFacade::getSingleton().GetMainActor();
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
@@ -1302,7 +1339,9 @@ void CMessageHandler::Parse_g2c_sync_item_bag(const char* buf, UINT32 size)
 	while (BuffSize < (INT)(size - sizeof(G2C_SYNC_ITEM_BAG)))
 	{
         ItemInfo iteminfo;
-        INT buflen = iteminfo.Load(msg->acItems + BuffSize);
+        INT buflen = iteminfo.Load(msg->acItems + BuffSize, size - sizeof(*msg) - BuffSize);
+        if (buflen == 0)
+            return;
 
 		BuffSize += buflen;
 	
@@ -1448,6 +1487,8 @@ void CMessageHandler::Send_TryGetWeaponRune( INT weaponConSlot, INT weaponItemSl
 void CMessageHandler::Parse_g2c_rune_item(const char* buf, UINT32 size)
 {
 	G2C_RUNE_ITEM *msg = (G2C_RUNE_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_RUNE_ITEM))
+		return;
 
 	MMOGameEvent_OneInt evt( GameEvent_WeaponSkillAdd, msg->byResult );
 	MMOUI::PostGameEvent(&evt);
@@ -1466,6 +1507,8 @@ void CMessageHandler::Send_TryReplaceWeaponRune( INT weaponConSlot, INT weaponIt
 void CMessageHandler::Parse_g2c_rune_item_advance(const char* buf, UINT32 size)
 {
 	G2C_RUNE_ITEM_ADVANCE *msg = (G2C_RUNE_ITEM_ADVANCE*)buf;
+	if (!buf || size < sizeof(G2C_RUNE_ITEM_ADVANCE))
+		return;
 
 	MMOEquipManager::getSingleton().NotifyWeaponRplcCachedRuneChg( msg->wRune, msg->byResult );
 }
@@ -1482,6 +1525,8 @@ void CMessageHandler::Send_ConfirmReplaceWeaponRune( INT weaponConSlot, INT weap
 void CMessageHandler::Parse_g2c_rune_item_advance_confirm(const char* buf, UINT32 size)
 {
 	G2C_RUNE_ITEM_ADVANCE_CONFIRM *msg = (G2C_RUNE_ITEM_ADVANCE_CONFIRM*)buf;
+	if (!buf || size < sizeof(G2C_RUNE_ITEM_ADVANCE_CONFIRM))
+		return;
 
 	MMOGameEvent_OneInt evt( GameEvent_WeaponSkillAdd, msg->byResult );
 	MMOUI::PostGameEvent(&evt);
@@ -1490,6 +1535,8 @@ void CMessageHandler::Parse_g2c_rune_item_advance_confirm(const char* buf, UINT3
 void CMessageHandler::Parse_g2c_identify_item(const char* buf, UINT32 size)
 {
 	G2C_IDENTIFY_ITEM* msg = (G2C_IDENTIFY_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_IDENTIFY_ITEM))
+		return;
 	if(msg)
 	{
 		//服务器说没枚举，就当bool处理
@@ -1510,6 +1557,8 @@ void CMessageHandler::Parse_g2c_identify_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_repair_item(const char* buf, UINT32 size)
 {
 	G2C_REPAIR_ITEM* msg = (G2C_REPAIR_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_REPAIR_ITEM))
+		return;
 
 	if(msg)
 	{
@@ -1520,6 +1569,11 @@ void CMessageHandler::Parse_g2c_repair_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sell_resource_item(const char* buf, UINT32 size)
 {
 	G2C_SELL_RESOURCE_ITEM* msg = (G2C_SELL_RESOURCE_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_SELL_RESOURCE_ITEM))
+		return;
+	if (msg->nSoldCount < 0 ||
+		(UINT32)msg->nSoldCount > (size - sizeof(*msg)) / sizeof(msg->itemslots[0]))
+		return;
 	if (msg)
 	{
 		AMMOActor* player = MMOFacade::getSingleton().GetMainActor();

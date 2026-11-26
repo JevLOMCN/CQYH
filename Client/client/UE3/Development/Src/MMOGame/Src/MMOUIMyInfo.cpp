@@ -147,7 +147,7 @@ void UMMOUIMyInfo::PlayerHPChange(int NewHP, int MaxHP)
 	AMMOActor* MainPlayer = MMOFacade::getSingleton().GetMainActor();
 	if(MainPlayer){
 		TArray<	FASValue> args;
-		FASValue asval;
+		FASValue asval(EC_EventParm);
 		asval.Type = AS_Number;
 		asval.N = MainPlayer->ActorAttributes->GetCurHp();
 		args.AddItem( asval );
@@ -187,7 +187,7 @@ void UMMOUIMyInfo::PlayerPkModeChange( INT PkMode )
 	if( GetObject(TEXT( "btnPkFlagOption" )) )
 	{
 		TArray<	FASValue> args;
-		FASValue asval;
+		FASValue asval(EC_EventParm);
 		asval.Type = AS_Number;
 		asval.N = PkMode;
 		args.AddItem( asval );

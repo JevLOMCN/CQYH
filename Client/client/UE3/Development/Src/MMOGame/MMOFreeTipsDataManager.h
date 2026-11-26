@@ -14,11 +14,8 @@ struct FFreeTipsData
 	FString ScriptTxt;
 
 	/** Constructors */
-	FFreeTipsData() {}
-	FFreeTipsData(EEventParm)
-	{
-		appMemzero(this, sizeof(FFreeTipsData));
-	}
+	FFreeTipsData() : ID(0) {}
+	FFreeTipsData(EEventParm) : ID(0) {}
 };
 
 

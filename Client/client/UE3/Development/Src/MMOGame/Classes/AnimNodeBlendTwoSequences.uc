@@ -34,7 +34,7 @@ function StopAllAnimation()
 {
 	local int i;
 	local AnimNodeSequence child;
-	for( i = 0; i < 2; ++i )
+	for( i = 0; i < 2 && i < Children.Length; ++i )
 	{
 		child = AnimNodeSequence( Children[i].Anim );
 		if( child != none )
@@ -55,7 +55,7 @@ function ShowPlayStatus()
 		`log( "Not Playing Animation" );
 		return;
 	}
-	for( i = 0; i < 2; ++i )
+	for( i = 0; i < 2 && i < Children.Length; ++i )
 	{
 		child = AnimNodeSequence( Children[i].Anim );
 		if( child != none )

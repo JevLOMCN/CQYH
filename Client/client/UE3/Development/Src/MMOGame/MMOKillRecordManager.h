@@ -18,7 +18,7 @@ public:
 	};
 
 	MMOGameEvent_KillRecord(EKillRecordEventType eventType)
-		: EventType(eventType)
+		: EventType(eventType), nCount(0), nExp(0), bNew(false)
 	{
 	}
 
@@ -44,6 +44,10 @@ class MMOKillRecordManager: public SingletonMeyers<MMOKillRecordManager>
 		CONST_KILL_MAXCOUNT = 999,
 	};
 public:
+	MMOKillRecordManager()
+		: nKillPlayerCount(0), nKillPlayerRecord(0), nKillMonsterCount(0),
+		  nKillMonsterRecord(0), nKillMonsterMomentaryCount(0), nKillMonsterMomentaryRecord(0) {}
+
 	void Init();
 	void Shutdown();
 

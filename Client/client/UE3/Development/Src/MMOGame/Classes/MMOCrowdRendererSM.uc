@@ -44,18 +44,31 @@ event Tick( float DeltaTime )
 	local MMOCrowdInstance inst;
 	local int i;
 
-	//if( PSModule != none && CrowdSystem != none )
-	//{
-		i = 0;
-		foreach CrowdSystem.CrowdInstanceData( inst )
+	if (PSModule == none)
+		return;
+	if (CrowdSystem == none)
+	{
+		PSModule.ParticleLocations.Length = 0;
+		PSModule.ParticleRotations.Length = 0;
+		return;
+	}
+
+	PSModule.ParticleLocations.Length = CrowdSystem.CrowdInstanceData.Length;
+	PSModule.ParticleRotations.Length = CrowdSystem.CrowdInstanceData.Length;
+	for (i = 0; i < CrowdSystem.CrowdInstanceData.Length; ++i)
+	{
+		inst = CrowdSystem.CrowdInstanceData[i];
+		if (inst != none)
 		{
-			//if( i < PSModule.ParticleLocations.Length )
-			//{
-				PSModule.ParticleLocations[i] = inst.Location;
-			//}
-			++i;
+			PSModule.ParticleLocations[i] = inst.Location;
+			PSModule.ParticleRotations[i] = inst.Direction;
 		}
-	//}
+		else
+		{
+			PSModule.ParticleLocations[i] = vect(0, 0, 0);
+			PSModule.ParticleRotations[i] = vect(0, 0, 0);
+		}
+	}
 }
 
 defaultproperties

@@ -95,6 +95,11 @@ MMOAuctionManager::MMOAuctionManager()
 	, _lastActionIsNextPage(true)
 	, _searchItemId(0)
 {
+	bShowByLink = FALSE;
+	linkItemId = 0;
+	linkItemIndex = 0;
+	bShowLinkItem = FALSE;
+	bUpdateCurrentPage = FALSE;
 }
 
 MMOAuctionManager::~MMOAuctionManager()
@@ -282,7 +287,7 @@ void MMOAuctionManager::UpdateSearchSortBy( INT colIdx, UBOOL decending )
 }
 
 
-void MMOAuctionManager::ConvertServerAuctionItemList( AuctionItemList& arr, UINT8 count, AUCTION_ITEM_INFO* serverItemList )
+void MMOAuctionManager::ConvertServerAuctionItemList( AuctionItemList& arr, UINT8 count, AUCTION_ITEM_INFO* serverItemList, UINT32 dataSize)
 {
 	arr.clear();
 
@@ -291,9 +296,14 @@ void MMOAuctionManager::ConvertServerAuctionItemList( AuctionItemList& arr, UINT
 	for (INT i = 0; i < count; ++i)
 	{
 		ClientAuctionItemInfo itemInfo;
+		if (offset > dataSize || dataSize - offset < sizeof(AUCTION_ITEM_INFO))
+			return;
 		AUCTION_ITEM_INFO* auctionItem = (AUCTION_ITEM_INFO*)(((BYTE*)serverItemList) + offset);
 
-		offset += itemInfo.ConvertFromServer(auctionItem);
+		const UINT32 decoded = itemInfo.ConvertFromServer(auctionItem, dataSize - (UINT32)offset);
+		if (decoded == 0)
+			return;
+		offset += decoded;
 
 		UItem* itemTemp = itemInfo.ItemTemplate;
 
@@ -329,7 +339,7 @@ void MMOAuctionManager::ConvertServerAuctionItemList( AuctionItemList& arr, UINT
 }
 
 
-void MMOAuctionManager::OnServer_SearchResult(UINT8 count, AUCTION_ITEM_INFO* serverItemList)
+void MMOAuctionManager::OnServer_SearchResult(UINT8 count, AUCTION_ITEM_INFO* serverItemList, UINT32 dataSize)
 {
 	if(_lastActionIsNextPage && ((count == AUCTION_SEARCH_RESULT_ITEMS_PER_PAGE)
 				&& (_maxPageNumb < _peakMaxPage)))
@@ -337,7 +347,7 @@ void MMOAuctionManager::OnServer_SearchResult(UINT8 count, AUCTION_ITEM_INFO* se
 		++_maxPageNumb;
 	}
 
-	ConvertServerAuctionItemList(_auctionViewItemList, count, serverItemList);
+	ConvertServerAuctionItemList(_auctionViewItemList, count, serverItemList, dataSize);
 
 	NotifySearchResult();
 	NotifyUpdatePageInfo();
@@ -349,48 +359,33 @@ void MMOAuctionManager::OnServer_SearchResult(UINT8 count, AUCTION_ITEM_INFO* se
 	}
 }
  
-void MMOAuctionManager::OnServer_QueryAuctionItem(M2C_AUCTION_QUERY* msg)
+void MMOAuctionManager::OnServer_QueryAuctionItem(M2C_AUCTION_QUERY* msg, UINT32 size)
 {
-	/*if(msg->byFound)
+	if (!msg || size < sizeof(*msg))
+		return;
+
+	QueryAuctionItemInfo query;
+	query.dwAuctionID = msg->dwAuctionID;
+	query.byFound = msg->byFound;
+	if (msg->byFound)
 	{
-		ClientAuctionItemInfo info;
-		info.ConvertFromServer(&msg->stAuction);
-		if (!info.ItemTemplate)
-		{
-			warnf(NAME_Error, TEXT("OnServer_QueryAuctionItemAuction item template not found:%d"), info.m_nTemplateID);
+		if (!query.info.ConvertFromServer(&msg->stAuction,
+			size - sizeof(*msg) + sizeof(msg->stAuction)))
 			return;
-		}
-		
-		TryAddToList(_auctionMyFailedAuctionItemList, info);
-		NotifyFailedList();
+		char guildName[sizeof(msg->szGuildName) + 1];
+		char sellerName[sizeof(msg->szSellerName) + 1];
+		appMemcpy(guildName, msg->szGuildName, sizeof(msg->szGuildName));
+		appMemcpy(sellerName, msg->szSellerName, sizeof(msg->szSellerName));
+		guildName[sizeof(msg->szGuildName)] = 0;
+		sellerName[sizeof(msg->szSellerName)] = 0;
+		query.szGuildName = UTF8_TO_TCHAR(guildName);
+		query.szSellerName = UTF8_TO_TCHAR(sellerName);
+		query.bySellerLevel = msg->bySellerLevel;
+		query.dwBuyerCount = msg->dwBuyerCount;
+		query.bySellerClass = MMOUI::ParseLocalizedPropertyPath(FString("MMOGame.School.SchoolName") + FString::Printf(TEXT("%d"), msg->bySellerClass));
 	}
-	else
-	{
-		if(TryRemoveFromList(_auctionMyFailedAuctionItemList, msg->dwAuctionID))
-		{
-			NotifyFailedList();
-		}
-	}
-
-
-	TryRemoveFromList(_auctionMyFailedAuctionItemIDList, msg->dwAuctionID);*/
-
-	if (msg)
-	{
-		currentQueryAuctionInfo.dwAuctionID = msg->dwAuctionID;
-		currentQueryAuctionInfo.szGuildName = UTF8_TO_TCHAR(msg->szGuildName);
-		currentQueryAuctionInfo.szSellerName = UTF8_TO_TCHAR(msg->szSellerName);
-		currentQueryAuctionInfo.bySellerLevel = msg->bySellerLevel;
-		currentQueryAuctionInfo.dwBuyerCount = msg->dwBuyerCount;
-		currentQueryAuctionInfo.bySellerClass = MMOUI::ParseLocalizedPropertyPath( FString("MMOGame.School.SchoolName") + FString::Printf(TEXT("%d"),msg->bySellerClass));
-
-		AUCTION_ITEM_INFO* info = &msg->stAuction; 
-		currentQueryAuctionInfo.info.ConvertFromServer(info);
-		NotifyUpdateQueryItem();
-	}
-
-	
-	
+	currentQueryAuctionInfo = query;
+	NotifyUpdateQueryItem();
 }
 
 
@@ -400,12 +395,13 @@ void MMOAuctionManager:: NotifyUpdateQueryItem()
 	MMOUI::PostGameEvent(&evt);
 }
 
-void MMOAuctionManager::OnServer_ItemSell(AUCTION_ITEM_INFO* item)
+void MMOAuctionManager::OnServer_ItemSell(AUCTION_ITEM_INFO* item, UINT32 dataSize)
 {
 	MMOGameEvent_Auction_DataUpdate evt(GameEvent_Auction_ItemSell);
 
 	ClientAuctionItemInfo info;
-	info.ConvertFromServer(item);
+	if (!info.ConvertFromServer(item, dataSize))
+		return;
 	if (!info.ItemTemplate)
 	{
 		warnf(NAME_Error, TEXT("OnServer_ItemSellAuction item template not found:%d"), info.m_nTemplateID);
@@ -442,10 +438,11 @@ void MMOAuctionManager::OnServer_ItemCancelSell(UINT32 id)
 
 }
 
-void MMOAuctionManager::OnServer_ItemBuy(AUCTION_ITEM_INFO* item)
+void MMOAuctionManager::OnServer_ItemBuy(AUCTION_ITEM_INFO* item, UINT32 dataSize)
 {
 	ClientAuctionItemInfo info;
-	info.ConvertFromServer(item);
+	if (!info.ConvertFromServer(item, dataSize))
+		return;
 	if (!info.ItemTemplate)
 	{
 		warnf(NAME_Error, TEXT("OnServer_ItemBuyAuction item template not found:%d"), info.m_nTemplateID);
@@ -573,7 +570,7 @@ BOOL MMOAuctionManager::Check_IsMySellingItem(INT itemID)
 	}
 	return FALSE;
 }
-void MMOAuctionManager::OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* item_lst)
+void MMOAuctionManager::OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* item_lst, UINT32 dataSize)
 {
 	_auctionMySellingItemList.clear();
 
@@ -582,9 +579,14 @@ void MMOAuctionManager::OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* i
 	for (INT i = 0; i < count; ++i)
 	{
 		ClientAuctionItemInfo itemInfo;
+		if (offset > dataSize || dataSize - offset < sizeof(AUCTION_ITEM_INFO))
+			return;
 		AUCTION_ITEM_INFO* auctionItem = (AUCTION_ITEM_INFO*)(((BYTE*)item_lst) + offset);
 
-		offset += itemInfo.ConvertFromServer(auctionItem);
+		const UINT32 decoded = itemInfo.ConvertFromServer(auctionItem, dataSize - (UINT32)offset);
+		if (decoded == 0)
+			return;
+		offset += decoded;
 
 		UItem* itemTemp = itemInfo.ItemTemplate;
 
@@ -623,7 +625,7 @@ void MMOAuctionManager::OnServer_ListMySelling(UINT8 count, AUCTION_ITEM_INFO* i
 
 }
 
-void MMOAuctionManager::OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* item_lst)
+void MMOAuctionManager::OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* item_lst, UINT32 dataSize)
 {
 	if (_currentTabPage == EATID_Order)
 	{
@@ -648,9 +650,14 @@ void MMOAuctionManager::OnServer_ListMyBuying(UINT8 count, AUCTION_ITEM_INFO* it
 	for (INT i = 0; i < count; ++i)
 	{
 		ClientAuctionItemInfo itemInfo;
+		if (offset > dataSize || dataSize - offset < sizeof(AUCTION_ITEM_INFO))
+			return;
 		AUCTION_ITEM_INFO* auctionItem = (AUCTION_ITEM_INFO*)(((BYTE*)item_lst) + offset);
 
-		offset += itemInfo.ConvertFromServer(auctionItem);
+		const UINT32 decoded = itemInfo.ConvertFromServer(auctionItem, dataSize - (UINT32)offset);
+		if (decoded == 0)
+			return;
+		offset += decoded;
 
 		UItem* itemTemp = itemInfo.ItemTemplate;
 
@@ -1483,15 +1490,23 @@ void MMOAuctionManager::LoadFailedList()
 		INT id = 0;
 		ar->Serialize(&cnt, sizeof(INT));
 
-		if(cnt > 0)
+		if (ar->IsError() || cnt < 0 || ar->Tell() > ar->TotalSize() ||
+			cnt > (ar->TotalSize() - ar->Tell()) / (INT)sizeof(INT))
 		{
-			_auctionMyFailedAuctionItemIDList.Empty(cnt);
-			_auctionMyFailedAuctionItemIDList.Add(cnt);
+			MMOFacade::getSingleton().EndLoadAccountBinary(ar);
+			return;
 		}
+		_auctionMyFailedAuctionItemIDList.Empty(cnt);
+		_auctionMyFailedAuctionItemIDList.AddZeroed(cnt);
 
 		for (INT i = 0; i < cnt; ++i)
 		{
 			ar->Serialize(&id, sizeof(INT));
+			if (ar->IsError())
+			{
+				_auctionMyFailedAuctionItemIDList.Empty();
+				break;
+			}
 			_auctionMyFailedAuctionItemIDList(i) = id;
 		}
 		MMOFacade::getSingleton().EndLoadAccountBinary(ar);
@@ -1500,8 +1515,13 @@ void MMOAuctionManager::LoadFailedList()
 	}
 }
 
-UINT32 ClientAuctionItemInfo::ConvertFromServer( AUCTION_ITEM_INFO* info )
+UINT32 ClientAuctionItemInfo::ConvertFromServer(AUCTION_ITEM_INFO* info, UINT32 dataSize)
 {
+	if (!info || dataSize < sizeof(*info))
+		return 0;
+	const UINT32 sz = Load(info->acItem, dataSize - sizeof(*info));
+	if (sz == 0)
+		return 0;
 	dwAuctionID = info->dwAuctionID;
 	dwSellerRoleID = info->dwSellerRoleID;
 	dwBuyerRoleID = info->dwBuyerRoleID;
@@ -1513,7 +1533,6 @@ UINT32 ClientAuctionItemInfo::ConvertFromServer( AUCTION_ITEM_INFO* info )
 	dwStartTime = info->dwStartTime;
 	//nSellerLevel = info->nSellerLevel;
 	//szSellerGuildName =  UTF8_TO_TCHAR(info->szSellerGuildName);
-	UINT32 sz = Load(info->acItem);
 
 	ItemTemplate = MMOFacade::getSingleton().FindItemTemplate(m_nTemplateID);
 

@@ -22,6 +22,8 @@ void CMessageHandler::Send_Refine( UINT8 refineSlot, UINT8 hasConsume, UINT8 con
 
 void CMessageHandler::Parse_g2c_refine(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_REFINE))
+		return;
 	G2C_REFINE* msg = (G2C_REFINE*)buf;
 	MMOGameEvent_EquipSlotEnhanceResult event( msg->bySlot, msg->byResult, msg->wRefineLevel );
 	MMOUI::PostGameEvent(&event);
@@ -29,6 +31,8 @@ void CMessageHandler::Parse_g2c_refine(const char* buf, UINT32 size)
 
 void CMessageHandler::Parse_g2c_sync_refine(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SYNC_REFINE))
+		return;
 	G2C_SYNC_REFINE* msg = (G2C_SYNC_REFINE*)buf;
 	EquipSlotManager::getSingleton().SyncEquipSlotLevel(msg->awRefineLevel);
 }

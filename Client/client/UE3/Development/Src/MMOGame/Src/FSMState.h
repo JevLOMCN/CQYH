@@ -77,6 +77,7 @@ public:
 class FSMState_Input: public IFSMState
 {
 public:
+	FSMState_Input() { Init(); }
 	void Init();
 	void Update(FLOAT DelTime);
 public:
@@ -99,6 +100,7 @@ public:
 class FSMState_Charactor: public IFSMState
 {
 public:
+	FSMState_Charactor() { Init(); }
 	void Init();
 	void Update(FLOAT DelTime);
 public:
@@ -117,6 +119,7 @@ public:
 class FSMState_CDTime: public IFSMState
 {
 public:
+	FSMState_CDTime() { Init(); }
 	void Init();
 	void Update(FLOAT DelTime);
 public:
@@ -145,6 +148,7 @@ public:
 class FSMState_Ability: public IFSMState
 {
 public:
+	FSMState_Ability() { Init(); }
 	void Init();
 	void Update(FLOAT DelTime);
 public:
@@ -167,6 +171,7 @@ public:
 class FSMState_Target: public IFSMState
 {
 public:
+	FSMState_Target() { Init(); }
 	void Init();
 	void Update(FLOAT DelTime);
 public:
@@ -231,6 +236,7 @@ public:
 class FSMState_Trigger: public IFSMState
 {
 public:
+	FSMState_Trigger() { Init(); }
 	void Init();
 	void Update(FLOAT DelTime);
 public:
@@ -245,6 +251,12 @@ public:
 class FSMState_Ctrl: public IFSMState
 {
 public:
+	FSMState_Ctrl()
+		: ctrlFlag_IgnoreShiftBtn(FALSE), ctrlFlag_DDCS(FALSE), ctrlFlag_ZNBY(FALSE)
+		, ctrlFlag_ZDZR(FALSE), ctrlFlag_ZDLH(FALSE), ctrlFlag_ZDYS(FALSE), ctrlFlag_ZDKD(FALSE)
+	{
+		Init();
+	}
 	void Init();
 	void Update(FLOAT DelTime);
 public:

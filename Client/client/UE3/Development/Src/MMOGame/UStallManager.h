@@ -43,7 +43,9 @@ struct StallItemInfo
 	INT SrcBag;
 	INT SrcSlot;
 
-	StallItemInfo() {}
+	StallItemInfo()
+		: IsLocked(0), ItemId(0), Item(NULL), DurType(0), MaxStack(0), CurDur(0),
+		  Price(0), ModifyTime(0), SrcBag(-1), SrcSlot(-1) {}
 	StallItemInfo(EEventParm)
 	{
 		appMemzero(this, sizeof(StallItemInfo));

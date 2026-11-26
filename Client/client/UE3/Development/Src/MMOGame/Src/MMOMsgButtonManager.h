@@ -53,7 +53,7 @@ struct MMOMsgButtonManager_Parms
 struct MsgButtonInfo
 {
 	MsgButtonInfo()
-		:_Parms(EC_EventParm),infoId(0)
+		: infoId(0), OnEventHandle(EC_EventParm), _Parms(EC_EventParm)
 	{
 
 		EventId = GameEvent_Invalid;
@@ -122,7 +122,7 @@ public:
 
 	void ToggleMsgLine( INT type );
 	void UpdateMsgLine( INT type );
-	MsgButtonInfoVec& GetMsgButtonInfo( eMsgBtnShowType type );
+	const MsgButtonInfoVec& GetMsgButtonInfo( INT type ) const;
 
 protected:
 	

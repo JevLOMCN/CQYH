@@ -24,6 +24,7 @@ void AInstancedShadowPlaneActor::PostBeginPlay()
 	instancedShadowPlane->WindInteractive = FALSE;
 	//instancedShadowPlane->ReleaseWindField( this );
 	currentIndex = 0;
+	InstanceList.Empty( MAX_SHADOW_NUM );
 	InstanceList.Add( MAX_SHADOW_NUM );
 	for( int i = 0 ; i < InstanceList.Num() ; ++ i )
 	{
@@ -43,14 +44,18 @@ void AInstancedShadowPlaneActor::PostBeginPlay()
 
 INT AInstancedShadowPlaneActor::AddInstance( FVector InstanceTransform , float Scale)
 {
-	if( currentIndex >= MAX_SHADOW_NUM || GSystemSettings.GetAllowDynamicShadows() )
+	if( !instancedShadowPlane || currentIndex < 0 || currentIndex >= MAX_SHADOW_NUM ||
+		!InstanceList.IsValidIndex(currentIndex) || GSystemSettings.GetAllowDynamicShadows() )
 		return -1;
 	FMatrix mar = FMatrix::Identity;
 	InstanceTransform.Z += zOffset;
 	mar.SetOrigin( InstanceTransform /*-  Location*/ );
 	mar = mar.ApplyScale( Scale * fixedScale );
-	INT index = InstanceList.GetData()[currentIndex++];
-	if ( instancedShadowPlane->PerInstanceSMData.Num() < currentIndex + 1)
+	INT index = InstanceList(currentIndex);
+	if (index < 0 || index > instancedShadowPlane->PerInstanceSMData.Num())
+		return -1;
+	++currentIndex;
+	if (index == instancedShadowPlane->PerInstanceSMData.Num())
 	{
 		FInstancedStaticMeshInstanceData* NewInstanceData = new(instancedShadowPlane->PerInstanceSMData) FInstancedStaticMeshInstanceData();
 		NewInstanceData->Transform = mar;
@@ -69,9 +74,14 @@ INT AInstancedShadowPlaneActor::AddInstance( FVector InstanceTransform , float S
 
 void AInstancedShadowPlaneActor::ReleaseInstance(INT index)
 {
-	if ( index >= instancedShadowPlane->PerInstanceSMData.Num() )
+	if (!instancedShadowPlane || !instancedShadowPlane->PerInstanceSMData.IsValidIndex(index) ||
+		currentIndex < 0 || currentIndex > InstanceList.Num())
 		return;
-	assert( currentIndex >= 0 );
+	for (INT i = currentIndex; i < InstanceList.Num(); ++i)
+	{
+		if (InstanceList(i) == index)
+			return;
+	}
 	if( currentIndex == 0 )
 		return;
 	InstanceList.GetData()[ --currentIndex ] = index;
@@ -83,8 +93,14 @@ void AInstancedShadowPlaneActor::ReleaseInstance(INT index)
 
 void AInstancedShadowPlaneActor::Refresh(INT index,FVector InstanceTransform)
 {
-	if ( index >= instancedShadowPlane->PerInstanceSMData.Num() )
+	if (!instancedShadowPlane || !instancedShadowPlane->PerInstanceSMData.IsValidIndex(index) ||
+		currentIndex < 0 || currentIndex > InstanceList.Num())
 		return;
+	for (INT i = currentIndex; i < InstanceList.Num(); ++i)
+	{
+		if (InstanceList(i) == index)
+			return;
+	}
 	FMatrix mar = instancedShadowPlane->PerInstanceSMData.GetData()[index].Transform;
 	InstanceTransform.Z += zOffset;
 	mar.SetOrigin( InstanceTransform );

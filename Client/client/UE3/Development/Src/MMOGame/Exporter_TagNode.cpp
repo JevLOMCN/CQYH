@@ -8,6 +8,7 @@
 //Export NPCs placed individually in the scene
 Exporter_TagNode::Exporter_TagNode(void)
 {
+	arBlkHdrs = NULL;
 }
 //------------------------------------------------------------------------
 Exporter_TagNode::~Exporter_TagNode(void)

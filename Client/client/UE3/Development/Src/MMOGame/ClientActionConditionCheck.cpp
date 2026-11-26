@@ -16,6 +16,7 @@ FClientActionConditionContex::FClientActionConditionContex( EClientActionConditi
 	, ItemTemplate(0)
 	, NPC(0)
 	, PlayerActor(0)
+	, UsefulInt(0)
 {
 	if(Item && !ItemTemplate)
 	{

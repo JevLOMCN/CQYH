@@ -100,7 +100,7 @@ namespace SimpleNet
         inline UINT16 GetCurRecvMsgSize();
 
         CHAR* GetRecvBuff();
-        UINT16 GetNeedRecvSize();
+        INT32 GetNeedRecvSize();
 
         BOOL GetRecvMsg(PACKET_BUFFER*& pPackBuffer, INT32& nSize);
         BOOL IsRecvMsg();

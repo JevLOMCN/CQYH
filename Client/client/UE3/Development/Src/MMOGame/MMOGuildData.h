@@ -122,6 +122,7 @@ struct GuildViewInfo
 		CreateTime = 0;
 		Announce = TEXT("");
 		Prosperity = 0;
+		appMemzero(BuildingLevel, sizeof(BuildingLevel));
 		ProtectionTime = 0;
 	}
 };
@@ -159,6 +160,7 @@ typedef std::map<FString, struct GuildQueryInfo, ComparFString, STLAllocator<std
 // guild official member info
 struct GuildFullMemberInfo
 {
+	GuildFullMemberInfo() : Id(0), Post(0), Level(0), Job(0), SceneID(0), LastLoginTime(0), IsForbitChat(FALSE), Salary(0) {}
 	UINT32 Id;
 	FString Name;
 	UINT8 Post;
@@ -175,6 +177,7 @@ typedef std::list<GuildFullMemberInfo, M_UE3_STL_ALLOC(GuildFullMemberInfo) > Gu
 // guild pending member info
 struct GuildPendingMemberInfo
 {
+	GuildPendingMemberInfo() : Id(0), Level(0), Job(0), ApplyTime(0) {}
 	UINT32 Id;
 	FString Name;
 	UINT8 Level;
@@ -204,6 +207,7 @@ enum GuildForeignMoney
 // guild diplomacy info
 struct GuildForeignInfo 
 {
+	GuildForeignInfo() : Id(0), Level(0), MemberCount(0), LeftTime(0) {}
 	UINT32 Id;
 	FString Name;
 	UINT8 Level;
@@ -217,6 +221,7 @@ typedef std::list<GuildForeignInfo, M_UE3_STL_ALLOC(GuildForeignInfo) > GuildEne
 // guild alliance application info
 struct GuildApplyAllyInfo 
 {
+	GuildApplyAllyInfo() : Id(0), Level(0), MemberCount(0), LeftTime(0) {}
 	UINT32 Id;
 	FString Name;
 	UINT8 Level;
@@ -228,6 +233,7 @@ struct GuildApplyAllyInfo
 // guild warehouse record
 struct GuildWareAccessInfo 
 {
+	GuildWareAccessInfo() : RoleId(0), ItemTempId(0), Count(0), Time(0), Type(0) {}
 	UINT32 RoleId;
 	INT ItemTempId;
 	FString RoleName;
@@ -246,6 +252,12 @@ enum GuildTerritoryType
 // guild building
 struct GuildBuildingData
 {
+	GuildBuildingData()
+		: BuildingType(0), Level(0), MaxLevel(0), MaxNum(0), BaseNpcId(0)
+		, NpcId(0), Effect(0), GuildMoneyReq(0), HerbReq(0), WoodReq(0)
+		, CrystalReq(0), SilverReq(0), UpgradeTime(0), RoutineReq(0), PreBuildingType(0)
+		, PreBuildingLevel(0), Param1(0), Param2(0), Param3(0), Param4(0)
+		, Param5(0), UpgradeSpellID(0) {}
 	UINT32 BuildingType;			// building Id
 	FString Name;					// building name
 	UINT32 Level;					// building level
@@ -311,6 +323,8 @@ typedef TDataManger<GuildBuildingData, GuildBuildingDataProcessor> GuildBuilding
 
 struct GuildBuildingInfo
 {
+	GuildBuildingInfo()
+		: BuildingId(0), BuildingType(0), BuildingLv(0), UpgradeLeftTime(0), UpgradeEndTime(0) {}
 	UINT64 BuildingId;
 	UINT32 BuildingType;	
 	UINT32 BuildingLv;	
@@ -321,6 +335,11 @@ struct GuildBuildingInfo
 // guild welfare
 struct GuildWelfareData
 {
+	GuildWelfareData()
+		: WelfareId(0), BuffId(0), Type(0), Level(0), MaxLevel(0)
+		, ExchangeLevelReq(0), ExchangeMoneyReq(0), ExchangeContributeReq(0), ExchangeMax(0), VipExchangeMax1(0)
+		, VipExchangeMax2(0), VipExchangeMax3(0), UpgradeTime(0), UpgradePreBuildingType(0), UpgradePreBuildingLevel(0)
+		, UpgradeGuildMoneyReq(0), UpgradeHerbReq(0), UpgradeWoodReq(0), UpgradeCrystalReq(0), UpgradeSliverReq(0) {}
 	UINT32 WelfareId;				// welfare Id
 	FString Name;					// welfare name
 	UINT32 BuffId;					// corresponding BuffId
@@ -386,6 +405,8 @@ typedef TDataManger<GuildWelfareData, GuildWelfareDataProcessor> GuildWelfareDat
 
 struct GuildWelfareUpgradeInfo
 {
+	GuildWelfareUpgradeInfo()
+		: WelfareId(0), WelfareLv(0), UpgradeLeftTime(0), UpgradeEndTime(0) {}
 	UINT32 WelfareId;	
 	UINT32 WelfareLv;	
 	UINT32 UpgradeLeftTime;
@@ -394,6 +415,8 @@ struct GuildWelfareUpgradeInfo
 
 struct GuildWelfareInfo
 {
+	GuildWelfareInfo()
+		: WelfareId(0), WelfareLv(0), AlreadyBuyTime(0) {}
 	UINT32 WelfareId;	
 	UINT32 WelfareLv;	
 	UINT32 AlreadyBuyTime;			// times already exchanged
@@ -415,6 +438,9 @@ typedef std::list<GuildWelfareUpgradeInfo, M_UE3_STL_ALLOC(GuildWelfareUpgradeIn
 // guild dungeon
 struct GuildDungeonData
 {
+	GuildDungeonData()
+		: DungeonId(0), BuildingReq(0), BuildingLvReq(0), MoneyReq(0), MemberCountLimit(0)
+	{ appMemzero(Award, sizeof(Award)); }
 	UINT32 DungeonId;
 	FString DungeonName;
 	FString DungeonDesc;
@@ -521,6 +547,8 @@ struct SabacStatue
 // guild activity
 struct GuildActivityData
 {
+	GuildActivityData() : Type(0), Level(0), Variable(0), NpcId(0), MaxCount(0), Duration(0), BuildingReq(0), BuildingLvReq(0), MoneyReq(0), HerbReq(0), WoodReq(0), CrystalReq(0), SilverReq(0) {}
+
 	UINT16 Type;					// activity type
 	UINT16 Level;					// activity level
 	UINT32 Variable;				// activity variable
@@ -589,6 +617,8 @@ enum GuildActivityState
 
 struct GuildActivityInfo
 {
+	GuildActivityInfo() : Type(0), Complete(0), StartTime(0), State(0) {}
+
 	UINT16 Type;					// activity type
 	UINT8 Complete;					// completion status
 	UINT32 StartTime;				// start time

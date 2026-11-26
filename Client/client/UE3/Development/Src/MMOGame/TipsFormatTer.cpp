@@ -138,6 +138,7 @@ void FillAutoSizeCommonTip( class UGFxObject * commonTip, const FString &strCont
 //------------------------------------------------------------------------
 void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips* TipsPanel, class UGFxObject* SubPanel)
 {
+	ItemInfo iteminfoTemp;
 	LOG_PROCESS_ERROR(SrcObj && TipsPanel && SubPanel);
 
 	INT ContainerID;
@@ -164,7 +165,7 @@ void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips*
 			if( ContainerID == E_CONSLOT_PROFILE )
 			{
 				PlayerDetailInfo* detailInfo = MMOPlayerInfoManager::getSingleton().FindCurPlayerDetailInfo();
-				if(detailInfo)
+				if(detailInfo && ItemId >= 0 && ItemId < ARRAY_COUNT(detailInfo->EquipList))
 				{
 					itemInfo = &detailInfo->EquipList[ItemId];
 				}
@@ -232,8 +233,8 @@ void TipsFormatter_Item::FormatTips(class UGFxObject* SrcObj,  class UMMOUITips*
 			ClientMailDetail* mail = MailManager::getSingleton().GetCurReadMail();
 			if (mail && mail->byBufferAttach > 0 )
 			{
-				ItemInfo iteminfoTemp;
-				iteminfoTemp.Load(mail->acAttachItem);
+				if (!iteminfoTemp.Load(mail->acAttachItem, sizeof(mail->acAttachItem)))
+					return;
 				itemInfo = &iteminfoTemp;
 			}
 			else

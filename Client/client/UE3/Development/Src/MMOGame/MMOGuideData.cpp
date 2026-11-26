@@ -311,7 +311,7 @@ UBOOL MMOGuideData::LoadGuideDataFromUpk()
 				}
 
 				data.TargetWindowName = guide->TargetWindowName;
-				for (INT i = 0; i < MAX_TARGET_COMPONENT_COUNT; ++ i)
+				for (INT i = 0; i < ARRAY_COUNT(data.TargetComponentName) && i < guide->TargetComponent.Num(); ++ i)
 				{
 					data.TargetComponentName[i] = guide->TargetComponent(i).TargetComponentName;
 				}

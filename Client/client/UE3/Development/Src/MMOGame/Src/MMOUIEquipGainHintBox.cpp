@@ -116,7 +116,8 @@ void UMMOUIEquipGainHintBox::OnItemSwapped( INT srcConIdx, INT srcSlotIdx, INT d
 //===================================================================================================================================
 void UMMOUIEquipGainHintBox::AddNewEquipGain( INT conID, INT slotID )
 {
-	FOperationItemBagPos newEquipPos;
+	FOperationItemBagPos newEquipPos(EC_EventParm);
+	newEquipPos._IsValid = TRUE;
 	newEquipPos._ConID = conID;
 	newEquipPos._SlotID = slotID;
 
@@ -126,7 +127,8 @@ void UMMOUIEquipGainHintBox::AddNewEquipGain( INT conID, INT slotID )
 //===================================================================================================================================
 void UMMOUIEquipGainHintBox::TryShowNextOrHide()
 {
-	_NewGainedEquip.Remove( 0 );
+	if( _NewGainedEquip.Num() > 0 )
+		_NewGainedEquip.Remove( 0 );
 
 	//
 	INT leftCnt = _NewGainedEquip.Num();

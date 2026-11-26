@@ -171,10 +171,11 @@ private:
 	 * You are supposed to keep doing this until InternetReadFile returns 0 with a successful return value.
 	 */
 	void ProcessResponse(const INTERNET_ASYNC_RESULT* AsyncResult);
+	void FailResponse();
 	FString PrivateGetHeaderString(DWORD HttpQueryInfoLevel, const FString& HeaderName) const;
 	/**
-	 * Fixed length buffer size to read responses from when the Content-Length is not available (ie, chunked responses).
-	 * The response will be read in chunks of this size in this case.
+	 * Fixed-size increments for response buffers. The server-provided Content-Length
+	 * is advisory and does not control allocation sizes.
 	 */
 	static const INT BUFFER_SIZE=16*1024;
 	friend FHttpRequestWinInet;
@@ -191,7 +192,7 @@ private:
 	 * Holds the bytes read parameter that WinInet fills when a call to InternetReadFile returns asynchronously.
 	 * The payload and the bytes read argument must stick around until the async call completes.
 	 */
-	INT AsyncBytesRead;
+	DWORD AsyncBytesRead;
 	/**
 	 * Caches how many bytes of the response we've read so far. Since the read process could complete asynchronously, 
 	 * we need to keep running state as the payload arrives.

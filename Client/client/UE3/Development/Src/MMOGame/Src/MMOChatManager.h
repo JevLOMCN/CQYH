@@ -31,6 +31,8 @@ struct ChatMessage
 //save chat channel messages
 struct ChatFilterChannelMessage
 {
+	ChatFilterChannelMessage() : ChannelFilterType(0), IsDefaultChannel(FALSE) {}
+
 	INT ChannelFilterType; // channel filter flag
 	TArray<ChatMessage> ChatMessageList;
 	UBOOL IsDefaultChannel;

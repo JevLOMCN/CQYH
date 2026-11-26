@@ -74,6 +74,8 @@ struct ArenaWinPrize
 	ArenaWinPrize()
 	{
 		_MoneyToAward = 0;
+		_MaxPlayerGetNum = 0;
+		_PerPlayerPect = 0.0f;
 	}
 	UINT64 _MoneyToAward;
 	INT _MaxPlayerGetNum;
@@ -82,6 +84,7 @@ struct ArenaWinPrize
 
 struct ArenaRankPrize
 {
+	ArenaRankPrize() : _RankMoneyNeed(0), _AwardPrizeID(0) {}
 	UINT _RankMoneyNeed;
 	INT _AwardPrizeID;
 	FString _Desc;
@@ -152,6 +155,7 @@ enum EVSNotify
 
 struct VSPKInfoPersonal
 {
+	VSPKInfoPersonal() : _ActorID(0), _UsedRecovery(0) {}
 	INT _ActorID;
 	INT _UsedRecovery;
 };
@@ -163,6 +167,7 @@ enum EVSSideIdx
 };
 struct VSPKInfo
 {
+	VSPKInfo() : _SideIdx(0), _UsedRecovery(0) {}
 	INT _SideIdx;
 	FString _Name;
 	INT _UsedRecovery;

@@ -16,6 +16,7 @@ using namespace ExternalMessage;
 
 MMOAssistManager::MMOAssistManager()
 {
+	appMemzero(_AssistItemTimeProcess, sizeof(_AssistItemTimeProcess));
 	_FirstEnterGame = FALSE;
 	_AssistItemCheckTimeProcess = 0.0f;
 }
@@ -148,12 +149,20 @@ void MMOAssistManager::_LoadAssistDrop()
 	FString dataName = TEXT("AssistDrop");
 	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, dataName))
 	{
-		INT size;
+		INT size = 0;
 		archive->Serialize(&size, sizeof(INT));
+		if (archive->IsError() || size < 0 || archive->Tell() > archive->TotalSize() ||
+			size > (archive->TotalSize() - archive->Tell()) / (INT)sizeof(AssistDropInfo))
+		{
+			MMOFacade::getSingleton().EndLoadAccountBinary(archive);
+			return;
+		}
 		for (INT i = 0; i < size; ++ i)
 		{
 			AssistDropInfo info;
 			archive->Serialize(&info, sizeof(AssistDropInfo));
+			if (archive->IsError())
+				break;
 			MMOAssistData::getSingleton().UpdateAssistDropInfo(info.Id, info.Valuable, info.AutoPick, info.Visible);
 		}
 	}
@@ -198,8 +207,13 @@ void MMOAssistManager::_LoadAssistSkill(UINT32 skillData)
 	FString dataName = TEXT("AssistSkill");
 	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, dataName))
 	{
-		UINT32 skillData;
+		UINT32 skillData = 0;
 		archive->Serialize(&skillData, sizeof(UINT32));
+		if (archive->IsError())
+		{
+			MMOFacade::getSingleton().EndLoadAccountBinary(archive);
+			return;
+		}
 
 		FSM::Ctrl.ctrlFlag_DDCS = skillData & (1 << 0);
 		FSM::Ctrl.ctrlFlag_ZNBY = skillData & (1 << 1);
@@ -313,13 +327,21 @@ void MMOAssistManager::_LoadAssistProtect(const UINT32 (&protectData)[PROTECT_DA
 	FString dataName = TEXT("AssistItem");
 	if (MMOFacade::getSingleton().BeginLoadAccountBinary(&archive, dataName))
 	{
-		INT size;
+		INT size = 0;
 		archive->Serialize(&size, sizeof(INT));
+		if (archive->IsError() || size < 0 || size > EPT_TOTAL || archive->Tell() > archive->TotalSize() ||
+			size > (archive->TotalSize() - archive->Tell()) / (INT)sizeof(AssistItemInfo))
+		{
+			MMOFacade::getSingleton().EndLoadAccountBinary(archive);
+			return;
+		}
 
 		for (INT i = 0; i < size; ++ i)
 		{
 			AssistItemInfo info;
 			archive->Serialize(&info, sizeof(AssistItemInfo));
+			if (archive->IsError())
+				break;
 			MMOAssistData::getSingleton().UpdateAssistItemInfo(i, info);
 		}
 	}

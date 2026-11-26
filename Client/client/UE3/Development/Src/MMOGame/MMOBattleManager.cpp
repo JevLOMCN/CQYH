@@ -21,6 +21,15 @@ IMPLEMENT_COMPARE_CONSTREF( FBattlePlayer, __BattleBeKilled, { return (A._BtlTea
 MMOBattleManager::MMOBattleManager(void)
 	: _BattlesInfo(0)
 {
+	_PrepareJoinedBtlID = -1;
+	_JoinedBattleID = -1;
+	_EnteredBattleID = -1;
+	_BattleState = EBTLS_NONE;
+	appMemzero(&_JoinLocalTime, sizeof(_JoinLocalTime));
+	_BattleStartUtcTime = 0;
+	_IsBattleBegin = FALSE;
+	_WinTeamID = -1;
+	_IsDogfall = FALSE;
 
 }
 MMOBattleManager::~MMOBattleManager(void)

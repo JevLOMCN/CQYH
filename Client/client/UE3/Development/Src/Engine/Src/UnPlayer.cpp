@@ -986,6 +986,7 @@ void UGameViewportClient::SetViewport( FViewport* InViewport )
  */
 void UGameViewportClient::GetViewportSize( FVector2D& out_ViewportSize )
 {
+	out_ViewportSize = FVector2D(0.f, 0.f);
 	if ( Viewport != NULL )
 	{
 		out_ViewportSize.X = Viewport->GetSizeX();
@@ -4570,7 +4571,9 @@ FSceneView* ULocalPlayer::CalcSceneView( FSceneViewFamily* ViewFamily, FVector& 
  */
 void ULocalPlayer::DeProject(FVector2D RelativeScreenPos, FVector& WorldOrigin, FVector& WorldDirection)
 {
-	if (ViewportClient != NULL && ViewportClient->Viewport != NULL && Actor != NULL)
+	WorldOrigin = FVector(0.f, 0.f, 0.f);
+	WorldDirection = FVector(0.f, 0.f, 0.f);
+	if (ViewportClient != NULL && ViewportClient->Viewport != NULL && Actor != NULL && Actor->WorldInfo != NULL && GWorld != NULL)
 	{
 		// create the view family for rendering the world scene to the viewport's render target
 		FSceneViewFamilyContext ViewFamily(
@@ -4593,8 +4596,11 @@ void ULocalPlayer::DeProject(FVector2D RelativeScreenPos, FVector& WorldOrigin, 
 
 		FSceneView* View = CalcSceneView(&ViewFamily, ViewLocation, ViewRotation, ViewportClient->Viewport, NULL);
 
-		FVector2D ScreenPos(RelativeScreenPos.X * View->SizeX, RelativeScreenPos.Y * View->SizeY);
-		View->DeprojectFVector2D(ScreenPos, WorldOrigin, WorldDirection);
+		if (View != NULL)
+		{
+			FVector2D ScreenPos(RelativeScreenPos.X * View->SizeX, RelativeScreenPos.Y * View->SizeY);
+			View->DeprojectFVector2D(ScreenPos, WorldOrigin, WorldDirection);
+		}
 	}
 }
 

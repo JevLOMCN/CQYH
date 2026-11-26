@@ -106,6 +106,7 @@ public:
 // quest rewards
 struct QuestAwardItemInfo
 {
+	QuestAwardItemInfo() : ItemTemplate(NULL), Count(0), Index(0) {}
 	UItem* ItemTemplate;
 	INT Count;
 	INT Index; // index in the original config
@@ -122,6 +123,9 @@ typedef std::vector<QuestAwardItemInfo, M_UE3_STL_ALLOC(QuestAwardItemInfo)> Que
 // circle quest data
 struct CircleQuestData
 {
+	CircleQuestData()
+		: CircleId(0), CircleGroup(0), CircleRoundMax(0), CircleSize(0), ResetTime(0), Level(0), CircleRound(0)
+	{ appMemzero(RewardId, sizeof(RewardId)); }
 	INT CircleId;									// circle number
 	INT	CircleGroup;								// circle group
 	INT	CircleRoundMax;								// max rounds of circle quests per day
@@ -170,6 +174,15 @@ typedef TDataManger<CircleQuestData, CircleQuestDataProcessor> CircleQuestDataMa
 // circle quest reward data
 struct CircleQuestRewardData
 {
+	CircleQuestRewardData()
+		: RewardId(0), MoneyType(0), Money(0), Exp(0), BuffId(0), BuffLevel(0), Soul(0), Title(0)
+		, ReputationForceId(0), Reputation(0), NeedSelectAwardItem(FALSE), GuildContribute(0), MoneyTypeEx(0), MoneyEx(0)
+	{
+		appMemzero(AwardItemId, sizeof(AwardItemId));
+		appMemzero(AwardItemCount, sizeof(AwardItemCount));
+		appMemzero(SelectableAwardItemId, sizeof(SelectableAwardItemId));
+		appMemzero(SelectableAwardItemCount, sizeof(SelectableAwardItemCount));
+	}
 	INT RewardId;
 	INT MoneyType;
 	INT Money;
@@ -375,6 +388,7 @@ typedef std::map<UINT32, QuestDataList, M_UE3_STL_ALLOC_MAP(UINT32, QuestDataLis
 // recovery quest
 struct QuestRecycleData
 {
+	QuestRecycleData() : ItemLevel(0), ItemColor(0), VarIndex(INVALID_QUEST_VAR_ID) {}
 	INT ItemLevel;
 	INT ItemColor;
 	FString ItemSubType;
@@ -423,6 +437,7 @@ typedef std::map<UINT32, QuestTraceList, M_UE3_STL_ALLOC_MAP(UINT32, QuestTraceL
 // emergency quest info: used to record the CD time of emergency quests and determine whether the current emergency quest can be accepted
 struct EmergencyQuestCoolDownInfo
 {
+	EmergencyQuestCoolDownInfo() : QuestId(0), CoolDown(0) {}
 	INT QuestId;
 	INT CoolDown;
 };

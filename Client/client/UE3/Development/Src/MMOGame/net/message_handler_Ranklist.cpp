@@ -17,6 +17,8 @@ void CMessageHandler::Send_QueryRanklist(INT ranklistID, INT pageNum)
 
 void CMessageHandler::Parse_m2c_query_ranklist(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(M2C_QUERY_RANKLIST))
+		return;
 	//ASSERT_CHECK_ERROR_RETURN(buf && size == sizeof(M2C_QUERY_RANKLIST));
 	M2C_QUERY_RANKLIST* msg = (M2C_QUERY_RANKLIST*)buf;
 	if(msg == NULL)

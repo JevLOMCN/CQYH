@@ -128,8 +128,8 @@ void UMMOUIReputationPanel::InitReputationData()
 			mc->SetInt("slotType", ESPType_Invalid );	
 			mc->SetInt("slotIndex",i);		
 			mc->SetInt("itemid",i);
-			ItemSlot.AddItem(mc);	
 		}
+		ItemSlot.AddItem(mc);
 	}
 
 
@@ -152,7 +152,7 @@ void UMMOUIReputationPanel::InitReputationData()
 			continue;
 		}
 
-		FReputationData2 data ;
+		FReputationData2 data(EC_EventParm);
 		data.TempIndex		= i;
 		if(pReputationTemp->ListLevel==0)
 		{
@@ -246,8 +246,10 @@ void UMMOUIReputationPanel::UpdateRewordSlot(UGFxObject * SlotObj)
 		}
 
 
-		for(INT i=0;i<10;i++)
+		for(INT i=0;i<ARRAY_COUNT(ID) && i<ItemSlot.Num();i++)
 		{
+			if( !ItemSlot(i) )
+				continue;
 			if(ID[i]>0||Count[i]>0){
 				UItem* item	= MMOFacade::getSingleton().FindItemTemplate( ID[i] );
 				SetItemBarData(ItemSlot(i),item,i,Count[i]);

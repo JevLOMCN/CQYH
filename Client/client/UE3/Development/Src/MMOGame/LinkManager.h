@@ -37,6 +37,7 @@ private:
 		CallBackLinkFun MouseOutProcess;
 
 		FCallbackLinkFuns()
+			: MouseClickProcess(NULL), MouseOverProcess(NULL), MouseOutProcess(NULL)
 		{
 		}
 

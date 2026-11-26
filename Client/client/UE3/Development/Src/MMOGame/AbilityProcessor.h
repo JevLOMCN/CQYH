@@ -59,6 +59,8 @@ enum EEffectCreatorType
 
 struct EffectNode
 {
+	EffectNode() : CasterID(0), TargetID(0), BaseActorId(0), AbilityID(0), AbilityLevel(0), AbilityRune(0)
+		, SerialId(0), CastId(0), Index(0), Flag(0), Param1(0), Param2(0), BaseAbilityNode(NULL) {}
 	UINT CasterID;
 	UINT TargetID;
 	UINT BaseActorId;
@@ -100,6 +102,7 @@ struct InitData
 
 struct CastNode
 {
+	CastNode() : CastId(0) {}
 	UINT				CastId;
 	STLEffectNodeVector	EffectList;
 };
@@ -175,6 +178,11 @@ struct BaseComponent
 
 	BaseComponent()
 	{
+		ComponentId = 0;
+		ComponentType = 0;
+		ComponentData = NULL;
+		CreatorId = 0;
+		TargetPoint = FVector(0, 0, 0);
 		bStopped = TRUE;
 		StopType = 0;
 		BaseActorId = 0;
@@ -241,6 +249,7 @@ struct BaseComponent
 
 struct AnimComponent : public BaseComponent
 {
+	AnimComponent() : AnimData(NULL), AnimIdx(-1), AnimLastTime(0.0f), AnimKey(0) {}
 	UAbilityAnimationComponent* AnimData;
 	// dy
 	INT AnimIdx;
@@ -255,6 +264,7 @@ struct AnimComponent : public BaseComponent
 
 struct ActionProcComponent : public BaseComponent
 {
+	ActionProcComponent() : ActionProcData(NULL), AnimIdx(-1), AnimLastTime(0.0f) {}
 	UAbilityActionProcComponent* ActionProcData;
 	// dy
 	INT AnimIdx;
@@ -267,6 +277,7 @@ struct ActionProcComponent : public BaseComponent
 
 struct SoundComponent : public BaseComponent
 {
+	SoundComponent() : SoundData(NULL), SoundCueComponentIdx(-1) {}
 	UAbilitySoundCueComponent* SoundData;
 
 	INT SoundCueComponentIdx;
@@ -290,6 +301,7 @@ struct EmitterComponent : public BaseComponent
 
 	EmitterComponent()
 	{
+		EmitterData = NULL;
 		ProjecitleId = 0;
 		ProActorId = 0;
 		BeamTargetActorId = 0;
@@ -309,6 +321,7 @@ struct EmitterComponent : public BaseComponent
 
 struct SkeletalMeshComponent : public BaseComponent
 {
+	SkeletalMeshComponent() : MeshData(NULL), ActorIdx(-1) {}
 	UAbilitySkeletalMeshComponent* MeshData;
 
 	//dy
@@ -324,6 +337,7 @@ struct SkeletalMeshComponent : public BaseComponent
 
 struct StaticMeshComponent : public BaseComponent
 {
+	StaticMeshComponent() : MeshData(NULL), ActorIdx(-1) {}
 	UAbilityStaticMeshComponent* MeshData;
 
 	//dy
@@ -338,6 +352,7 @@ struct StaticMeshComponent : public BaseComponent
 
 struct DecalComponent : public BaseComponent
 {
+	DecalComponent() : DecalData(NULL) {}
 	UAbilityDecalComponent* DecalData;
 
 	//dy
@@ -347,6 +362,7 @@ struct DecalComponent : public BaseComponent
 
 struct CameraAnimComponent : public BaseComponent
 {
+	CameraAnimComponent() : CameraAnimData(NULL), bPlayed(FALSE) {}
 	UCameraShakeComponent* CameraAnimData;
 
 	UBOOL bPlayed;
@@ -359,6 +375,7 @@ struct CameraAnimComponent : public BaseComponent
 
 struct MaterialEffectComponent : public BaseComponent
 {
+	MaterialEffectComponent() : MaterialEffectData(NULL), EffectId(0), InData(NULL) {}
 	// static data
 	UAbilityComp_MaterialEffect* MaterialEffectData;
 
@@ -374,6 +391,7 @@ struct MaterialEffectComponent : public BaseComponent
 
 struct WindSourceComponent : public BaseComponent
 {
+	WindSourceComponent() : WindSourceData(NULL), ActorIdx(0), WindPointSourceComponent(NULL) {}
 	// static data
 	UAbilityWindSourceComponent* WindSourceData;
 
@@ -389,6 +407,7 @@ struct WindSourceComponent : public BaseComponent
 
 struct TimeFactorComponent : public BaseComponent
 {
+	TimeFactorComponent() : TimeFactorData(NULL) {}
 	// static data
 	UAbilityTimeFactorComponent* TimeFactorData;
 
@@ -400,6 +419,7 @@ struct TimeFactorComponent : public BaseComponent
 
 struct PhysicHitComponent : public BaseComponent
 {
+	PhysicHitComponent() : PhysicHitData(NULL) {}
 	// static data
 	UAbilityHitEffectComponent* PhysicHitData;
 
@@ -410,6 +430,7 @@ struct PhysicHitComponent : public BaseComponent
 
 struct HitPointComponent : public BaseComponent
 {
+	HitPointComponent() : HitPointData(NULL) {}
 	// static data
 	UAbilityHitPointComponent* HitPointData;
 
@@ -421,6 +442,11 @@ struct HitPointComponent : public BaseComponent
 
 struct TrailComponent : public BaseComponent
 {
+	TrailComponent() : TrailData(NULL), TrailNotify(NULL), Seq(NULL)
+#if SHOW_TRAIL_LOG
+		, SrcPoint1(0.0f, 0.0f, 0.0f), SrcPoint2(0.0f, 0.0f, 0.0f), SrcPoint3(0.0f, 0.0f, 0.0f), bFirstTime(TRUE)
+#endif
+	{}
 	UAbilityTrailComponent* TrailData;
 
 	// danamic data
@@ -440,6 +466,7 @@ struct TrailComponent : public BaseComponent
 
 struct MoveControlComponent : public BaseComponent
 {
+	MoveControlComponent() : MoveControlData(NULL) {}
 	UAbilityMoveControlComponent* MoveControlData;
 
 	virtual UBOOL Init(InitData& InData);
@@ -449,6 +476,7 @@ struct MoveControlComponent : public BaseComponent
 
 struct ThrowComponent : public BaseComponent
 {
+	ThrowComponent() : ThrowData(NULL), LastVelocity(0.0f, 0.0f, 0.0f), bSuccessed(FALSE) {}
 	UAbilityThrowComponent* ThrowData;
 
 	FVector LastVelocity;
@@ -462,6 +490,7 @@ struct ThrowComponent : public BaseComponent
 
 struct PostProcessComponent : public BaseComponent
 {
+	PostProcessComponent() : PostProcessData(NULL) {}
 	UAbilityPostProcessComponent* PostProcessData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -469,6 +498,7 @@ struct PostProcessComponent : public BaseComponent
 
 struct ActionsComponent : public BaseComponent
 {
+	ActionsComponent() : ActionsData(NULL) {}
 	UAbilityActionsComponent* ActionsData;
 
 	virtual UBOOL Init(InitData& InData);
@@ -478,6 +508,7 @@ struct ActionsComponent : public BaseComponent
 
 struct VisibleComponent : public BaseComponent
 {
+	VisibleComponent() : VisibleData(NULL) {}
 	UAbilityVisibleComponent* VisibleData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -485,6 +516,7 @@ struct VisibleComponent : public BaseComponent
 
 struct PhysicalSimulateComponent : public BaseComponent
 {
+	PhysicalSimulateComponent() : PhysicSimulateData(NULL) {}
 	UAbilityPhysicSimulateComponent* PhysicSimulateData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -492,6 +524,7 @@ struct PhysicalSimulateComponent : public BaseComponent
 
 struct ScaleComponent : public BaseComponent
 {
+	ScaleComponent() : ScaleData(NULL) {}
 	UAbilityScaleComponent* ScaleData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -499,6 +532,7 @@ struct ScaleComponent : public BaseComponent
 
 struct MirrorComponent : public BaseComponent
 {
+	MirrorComponent() : MirrorData(NULL), NextCreateTime(0.0f) {}
 	UAbilityMirrorComponent* MirrorData;
 	FLOAT NextCreateTime;
 	std::list<INT> MirrorIdList;
@@ -509,6 +543,7 @@ struct MirrorComponent : public BaseComponent
 
 struct MeshChangeComponent : public BaseComponent
 {
+	MeshChangeComponent() : MeshChangeData(NULL) {}
 	UAbilityMeshChangeComponent* MeshChangeData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -516,6 +551,7 @@ struct MeshChangeComponent : public BaseComponent
 
 struct PositionTransformComponent : public BaseComponent
 {
+	PositionTransformComponent() : PositionTransformData(NULL) {}
 	UPositionTransformComponent* PositionTransformData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -524,6 +560,7 @@ struct PositionTransformComponent : public BaseComponent
 
 struct BackgroundMusicComponent : public BaseComponent
 {
+	BackgroundMusicComponent() : BackgroundMusicData(NULL) {}
 	UAbilityBackgroundMusicComponent* BackgroundMusicData;
 	virtual UBOOL Init(InitData& InData);
 	virtual void OnAction(UBOOL bOn = TRUE);
@@ -606,6 +643,9 @@ public:
 
 	AbilityNode()
 	{
+		TargetPoint = FVector(0, 0, 0);
+		for (INT i = 0; i < HIT_POINT_MAX_NUMBER; ++i)
+			PrepareEffectList[i] = NULL;
 		Processor = NULL;
 		RequestCurrentTime = 0.f;
 		SpellCurrentTime = 0.f;

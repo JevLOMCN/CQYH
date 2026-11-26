@@ -1390,7 +1390,7 @@ UBOOL FOpenGLDynamicRHI::GetColorWriteEnable()
 // NVCHANGE_BEGIN_JC - Query Info
 void FOpenGLDynamicRHI::QueryGPUHardWareInfo( FGPUInfo& info )
 {
-	// not implemented
+	info = FGPUInfo();
 }
 // NVCHANGE_END_JC - Query Info
 

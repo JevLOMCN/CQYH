@@ -59,6 +59,11 @@ enum EActivityRoleVariable
 //Activity time
 struct ActivityTime
 {
+	ActivityTime()
+		: nStartTime_year(0), nStartTime_month(0), nStartTime_day(0), nStartTime_weekDay(0), nStartTime_hour(0), nStartTime_minute(0), nEndTime_year(0), nEndTime_month(0), nEndTime_day(0), nEndTime_weekDay(0), nEndTime_hour(0), nEndTime_minute(0), nState(ENOStart), startT(0)
+	{
+	}
+
 	INT				nStartTime_year;
 	INT				nStartTime_month;
 	INT				nStartTime_day;
@@ -84,6 +89,11 @@ struct ActivityTime
 
 struct RewardBarItem
 {
+	RewardBarItem()
+		: nID(0), nVitality(0), nRewardItemID(0), nRewardItemCount(0), nBoxLevel(0)
+	{
+	}
+
 	INT nID;
 	INT nVitality;			//Accumulated activity points
 	INT nRewardItemID;
@@ -94,6 +104,12 @@ struct RewardBarItem
 //Activity reward
 struct ActivityReward
 {
+	ActivityReward()
+		: nRewardType(0), nRewardVitality(0)
+	{
+		appMemzero(nArrItemID, sizeof(nArrItemID));
+	}
+
 	INT				nRewardType;			//1 is gold, 2 is experience, 4 is treasure hunt; gold and experience combined is 1+2, and so on: 1+4, 2+4, 1+2+4
 	INT				nRewardVitality;		//Activity points reward
 	INT				nArrItemID[10];
@@ -133,8 +149,8 @@ struct ActivityData
 	FString					sDecrible;
 
 	ActivityData()
+		: nVipLevel(0), nActivityID(0), nLinkQuestType(0), nLinkQuestID(0), nCheckLevelMin(0), nCheckLevelMax(0), nHotStarNum(0), nPersonNumMin(0), nPersonNumMax(0), nHaveDoneTimes(0), nPerDayJoinNum(0), nCompleteType(0), nCompleteMap(0), nGuildActivityType(0), nRoleVariable(0), nActivityType(0)
 	{
-		appMemzero(this, sizeof(ActivityData));
 	}
 };
 //Read activity config table
@@ -247,14 +263,19 @@ struct FBActivityData
 	FString					sDecrible;
 
 	FBActivityData()
+		: nFBID(0), nFBType(0), nCheckLevelMin(0), nCheckLevelMax(0), nPersonNumMin(0), nPersonNumMax(0), nHaveDoneTimes(0), nPerDayJoinNum(0), nAcceptNpcID(0), ndestMapID(0), nPosX(0), nPosY(0), nPosZ(0), nFBCostActiveValue(0), nFBDifficulty(0)
 	{
-		appMemzero(this, sizeof(FBActivityData));
 	}
 };
 
 //Activity/dungeon target table
 struct ActivityTarget
 {
+	ActivityTarget()
+		: sType(0), sDifficulty(0), sLevel(0), sBossCount(0), sConsume(0), sAchieve(0), sRecommend(0)
+	{
+	}
+
 	FString sName;     //Name
 	INT sType;         //Type
 	INT sDifficulty;   //Difficulty
@@ -295,12 +316,14 @@ public:
 		Level = 0;
 		PlayerCount = 0;
 		MaxPlayerCount = 0;
+		appMemzero(MemberId, sizeof(MemberId));
 	}
 };
 
 
 struct ActivityTeamMember
 {
+	ActivityTeamMember() : PlayerId(0), Vitality(0), ActivityTimes(0), MaxActivityTimes(0), ClassId(0), Level(0) {}
 	INT PlayerId;
 	FString Name;
 	INT Vitality;
@@ -411,7 +434,7 @@ public:
 	void	SetCurActivityId(INT nActivityId);
 	void	SetCurActivityTeamPage(INT nPage);
 	void	SetSelectedActivityTeam(INT nIndex);
-	void	UpdateActivityTeamList(const char* buf);
+	void	UpdateActivityTeamList(const char* buf, UINT32 size);
 	void	ClearActivityTeamList();
 
 	void FilterActivityType(INT nActivityType,INT nRewardType);

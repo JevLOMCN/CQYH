@@ -60,6 +60,10 @@ void CMessageHandler::Send_BlackMarketBuy(INT nBlackMarketProductID)
 void CMessageHandler::Parse_g2c_black_market_limit_info(const char* buf, UINT32 size)
 {
 	G2C_BLACK_MARKET_LIMIT_INFO* msg = (G2C_BLACK_MARKET_LIMIT_INFO*)buf;
+	if (!buf || size < sizeof(G2C_BLACK_MARKET_LIMIT_INFO))
+		return;
+	if (msg->nLimitInfoCount > (size - sizeof(*msg)) / sizeof(msg->LimitInfo[0]))
+		return;
 
 	size_t offset = 0;
 
@@ -81,6 +85,10 @@ void CMessageHandler::Parse_g2c_black_market_limit_info(const char* buf, UINT32 
 void CMessageHandler::Parse_g2c_black_market_cooldown_info(const char* buf, UINT32 size)
 {
 	G2C_BLACK_MARKET_COOLDOWN_INFO* msg = (G2C_BLACK_MARKET_COOLDOWN_INFO*)buf;
+	if (!buf || size < sizeof(G2C_BLACK_MARKET_COOLDOWN_INFO))
+		return;
+	if (msg->nCooldownInfoCount > (size - sizeof(*msg)) / sizeof(msg->CooldownInfo[0]))
+		return;
 	size_t offset = 0;
 	for(int i = 0; i < msg->nCooldownInfoCount; i++)
 	{
@@ -99,6 +107,8 @@ void CMessageHandler::Parse_g2c_black_market_cooldown_info(const char* buf, UINT
 void CMessageHandler::Parse_g2c_black_market_buy(const char* buf, UINT32 size)
 {
 	G2C_BLACK_MARKET_BUY* msg = (G2C_BLACK_MARKET_BUY*)buf;
+	if (!buf || size < sizeof(G2C_BLACK_MARKET_BUY))
+		return;
 
 	BLACK_MARKET_LIMIT_INFO iteminfo;
 	iteminfo.nBlackMarketProductID = msg->nBlackMarketProductID;
@@ -115,6 +125,10 @@ void CMessageHandler::Parse_g2c_black_market_buy(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_npc_shop_data(const char* buf, UINT32 size)
 {
 	G2C_SYNC_NPC_SHOP_DATA* msg = (G2C_SYNC_NPC_SHOP_DATA*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_NPC_SHOP_DATA))
+		return;
+	if (msg->dwItemCount > (size - sizeof(*msg)) / sizeof(msg->ShopData[0]))
+		return;
 	if(!msg)
 	{
 		return;
@@ -136,6 +150,8 @@ void CMessageHandler::Parse_g2c_sync_npc_shop_data(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_view_sold_items(const char* buf, UINT32 size)
 {
 	G2C_VIEW_SOLD_ITEMS *msg = (G2C_VIEW_SOLD_ITEMS*)buf;
+	if (!buf || size < sizeof(G2C_VIEW_SOLD_ITEMS))
+		return;
 
 	// Use the Index sent over as the marker
 	MMOFacade::getSingleton().ClearSoldItems();
@@ -145,7 +161,11 @@ void CMessageHandler::Parse_g2c_view_sold_items(const char* buf, UINT32 size)
 	for (int i = 0; i < msg->byCount; ++i)
 	{
         ItemInfo iteminfo;
-        INT itemlen = iteminfo.Load(msg->acItems + BuffSize);
+        if ((UINT32)BuffSize > size - sizeof(*msg))
+            return;
+        INT itemlen = iteminfo.Load(msg->acItems + BuffSize, size - sizeof(*msg) - BuffSize);
+        if (itemlen == 0)
+            return;
 
 		BuffSize += itemlen;
 		MMOFacade::getSingleton().AddSoldItem(&iteminfo);

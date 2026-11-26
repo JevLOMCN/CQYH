@@ -2357,7 +2357,7 @@ void HitPointComponent::OnAction(UBOOL bOn /* = TRUE */)
 
 		AActor* OutActor = NULL;
 		FCheckResult Hit(1.f);
-		FDamageData DamageData;
+		FDamageData DamageData(EC_EventParm);
 		DamageData.AbilityData = HitPointData;
 		DamageData.BaseActor = BaseActor;
 		DamageData.CreatorId = CreatorId;
@@ -5655,7 +5655,7 @@ void AbilityProcessor::PushEffect(EffectNode* node)
 	UBOOL bCauseDead = (node->Flag & (1<<sfbDead) ? TRUE : FALSE);
 	FDamageEffectPair* dep = NULL;
 	FDamageEffectPair* dep2 = NULL;
-	FHitGroup HitGroup;
+	FHitGroup HitGroup(EC_EventParm);
 	HitGroup.WeaponType = HitGroup.DirectionType = HitGroup.WeaponHitType = 0;
 	EWeaponType wType = EWT_Weapon_0;
 	EElementaryType EleType = (EElementaryType)abilityData->SpellCommonAttribute.ElementaryType;
@@ -6879,8 +6879,8 @@ void AMMOEmitter::TickSpecial( FLOAT DeltaSeconds )
 	}
 	else if (OverwriteEmitterType == EMIT_FlyTo)
 	{
-		FVector NewPoint;
-		FRotator NewRotation;
+		FVector NewPoint = Location;
+		FRotator NewRotation = Rotation;
 		// if it is a missile
 		if (EmitterData == FALSE)
 		{
@@ -6920,7 +6920,7 @@ void AMMOEmitter::TickSpecial( FLOAT DeltaSeconds )
 		else	// if it is a emitter
 		{
 			FLOAT ct = CurrentTime / Duration;
-			FVector DstPoint;
+			FVector DstPoint = TargetPoint;
 			FVector SpawnPoint = SpawnMatrix.GetOrigin();
 			if (OverwriteTargetType == EPTT_Actor)
 			{
@@ -6938,7 +6938,7 @@ void AMMOEmitter::TickSpecial( FLOAT DeltaSeconds )
 			{
 				DstPoint = TargetPoint;
 			}
-			else if (OverwriteTargetType == EPTT_UseCasterDirection)
+			else if (OverwriteTargetType == EPTT_UseCasterDirection || OverwriteTargetType == EPTT_UseCasterDirectionAndCollision)
 			{
 				DstPoint = SpawnPoint + SpawnMatrix.Rotator().Vector().SafeNormal() * MaxDistance;
 			}
@@ -7011,7 +7011,7 @@ void AMMOEmitter::TickSpecial( FLOAT DeltaSeconds )
 		}
 
 		FVector Dst(0, 0, 0);
-		FVector HitNormal;
+		FVector HitNormal(0.0f, 0.0f, 0.0f);
 
 		if (EmitterData->ProjectileTargetType == EPTT_Actor)
 		{
@@ -7134,7 +7134,7 @@ void AMMOEmitter::TickSpecial( FLOAT DeltaSeconds )
 	}
 	else if (OverwriteEmitterType == EMIT_Rotate)
 	{
-		FMatrix NewMat;
+		FMatrix NewMat = SpawnMatrix;
 		if (EmitterData->bAttach)
 		{
 			NewMat = EmitterData->GetSocketMatrix(Creator, TargetPoint, FALSE);

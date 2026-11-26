@@ -33,10 +33,7 @@ struct FreeTipsData
 	FreeTipsData():ID(0) 
 	{
 	}
-	FreeTipsData(EEventParm):ID(0)
-	{
-		appMemzero(this, sizeof(FreeTipsData));
-	}
+	FreeTipsData(EEventParm) : ID(0) {}
 };
 
 typedef TArray<FreeTipsData*> DataList;

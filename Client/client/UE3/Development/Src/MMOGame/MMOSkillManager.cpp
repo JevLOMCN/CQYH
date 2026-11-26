@@ -22,6 +22,12 @@ IMPLEMENT_COMPARE_POINTER( UMMOAbility, __SortInUi, { return (A->SpellCommonAttr
 
 int  guiID = -1;
 
+MMOSkillManager::MMOSkillManager() : CurRangeShowedSkill(NULL)
+{
+	for (INT i = 0; i < ARRAY_COUNT(_SkillBarSlotRedirect); ++i)
+		_SkillBarSlotRedirect[i] = -1;
+}
+
 void MMOSkillManager::Init()
 {
 	//LoadAbilityTemplates();
@@ -64,12 +70,8 @@ void MMOSkillManager::Init()
 	_SkillSlotCmdDefault.FindOrAdd(4) = ECK_Slot5;
 	_SkillSlotCmdDefault.FindOrAdd(5) = ECK_Slot6;
 	//
-	_SkillBarSlotRedirect[0] = GetSkillSlotDefaultBindEnum(0);
-	_SkillBarSlotRedirect[1] = GetSkillSlotDefaultBindEnum(1);
-	_SkillBarSlotRedirect[2] = GetSkillSlotDefaultBindEnum(2);
-	_SkillBarSlotRedirect[3] = GetSkillSlotDefaultBindEnum(3);
-	_SkillBarSlotRedirect[4] = GetSkillSlotDefaultBindEnum(4);
-	_SkillBarSlotRedirect[5] = GetSkillSlotDefaultBindEnum(5);
+	for (INT i = 0; i < ARRAY_COUNT(_SkillBarSlotRedirect); ++i)
+		_SkillBarSlotRedirect[i] = GetSkillSlotDefaultBindEnum(i);
 
 	_SkillSlotActive.Empty();
 	_SkillSlotFlag1.Empty();
@@ -957,6 +959,8 @@ INT MMOSkillManager::GetSkillbarSlotRealCmd( INT slotIdx )
 
 INT MMOSkillManager::GetSkillbarSlotIdxByKeyCmd( INT cmdIdx )
 {
+	if (cmdIdx < ECK_Slot1 || cmdIdx > ECK_Slot12)
+		return -1;
 	for (INT i = 0; i < UCONST_SkillBarSlotMax; ++i)
 	{
 		if( _SkillBarSlotRedirect[i] == cmdIdx ){
@@ -1193,6 +1197,10 @@ void MMOSkillManager::ReflashSkillOutlineData()
 TMap< INT, class UMMOAbility* > MMOSkillManager::GetAllMainAbilitiesSorted( INT classType, INT skillType )
 {
 	TMap< INT, class UMMOAbility* > allMainSkillMap;
+	if (!_AllMainAbilityIDList.IsValidIndex(classType) ||
+		!_AllMainAbilityIDList(classType).IsValidIndex(skillType))
+		return allMainSkillMap;
+
 	INT iTotal = _AllMainAbilityIDList( classType )( skillType ).Num();
 	for( INT i = 0; i < iTotal; ++i ){
 		UINT tempID = _AllMainAbilityIDList( classType )( skillType )( i );
@@ -1240,6 +1248,10 @@ void MMOSkillManager::SortAllAbilitiesByRequireLevel( TMap< INT, class UMMOAbili
 TMap< INT, INT > MMOSkillManager::GetAllMainAbilitiesIDs( INT classType, INT skillType )
 {
 	TMap< INT, INT > allMainSkillMap;
+	if (!_AllMainAbilityIDList.IsValidIndex(classType) ||
+		!_AllMainAbilityIDList(classType).IsValidIndex(skillType))
+		return allMainSkillMap;
+
 	INT iTotal = _AllMainAbilityIDList( classType )( skillType ).Num();
 	for( INT i = 0; i < iTotal; ++i ){
 		UINT tempID = _AllMainAbilityIDList( classType )( skillType )( i );
@@ -1723,14 +1735,8 @@ UMMOAbility *MMOSkillManager::GetAbilityWithRuneByNextLevel( UMMOAbility *abilit
 
 void MMOSkillManager::ConvertSpellType( TArray<UBOOL>& ClassUsble, const FSpell_ClassType& classType )
 {
-#if !SHIPPING_PC_GAME
-	check(ClassUsble.Num() == EPCT_MAX);
-#endif
-
-	if(ClassUsble.Num() != EPCT_MAX)
-	{
-		ClassUsble.AddZeroed((INT)(EPCT_MAX) - ClassUsble.Num());
-	}
+	ClassUsble.Empty(EPCT_MAX);
+	ClassUsble.AddZeroed(EPCT_MAX);
 
 	ClassUsble(0) = classType.bClassType1;
 	ClassUsble(1) = classType.bClassType2;
@@ -2763,7 +2769,13 @@ void AbilityTemplateIndexDataProcessor::ParseData( AbilityTemplateDataIndex* obj
 	obj->TemplateID = TReadDataValue_Int<AbilityTemplateDataIndexManager>(TEXT("SpellCommonAttribute.ID"), dataRow, rowIdx);
 	obj->ObjectPath = TReadDataValue_FString<AbilityTemplateDataIndexManager>(TEXT("Index"), dataRow, rowIdx);
 	INT playerClass = TReadDataValue_Int<AbilityTemplateDataIndexManager>(TEXT("SpellCommonAttribute.Class"), dataRow, rowIdx);
-	memcpy(&obj->Class, &playerClass, sizeof(FSpell_ClassType) > sizeof(INT) ? sizeof(FSpell_ClassType) : sizeof(INT));
+	obj->Class = FSpell_ClassType(EC_EventParm);
+	obj->Class.bClassType1 = (playerClass & 0x01) != 0;
+	obj->Class.bClassType2 = (playerClass & 0x02) != 0;
+	obj->Class.bClassType3 = (playerClass & 0x04) != 0;
+	obj->Class.bClassType4 = (playerClass & 0x08) != 0;
+	obj->Class.bClassType5 = (playerClass & 0x10) != 0;
+	obj->Class.bClassType6 = (playerClass & 0x20) != 0;
 
 	obj->RuneSlotID = TReadDataValue_Int<AbilityTemplateDataIndexManager>(TEXT("SpellCommonAttribute.RuneSlotID"), dataRow, rowIdx);
 

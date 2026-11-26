@@ -23,6 +23,7 @@ public:
 
 struct NPCTemplateDataIndex
 {
+	NPCTemplateDataIndex() : TemplateID(0) {}
 	FString ObjectPath;
 	FString DisplayName;
 	INT TemplateID;
@@ -43,6 +44,7 @@ struct NPCTemplateIndexDataProcessor
 
 	static NPCTemplateDataIndex* CreateDataObject(INT templateID, bool& needAddToMap)
 	{
+		needAddToMap = true;
 		NPCTemplateDataIndex* item = new NPCTemplateDataIndex;
 		item->TemplateID = templateID;
 		return item;

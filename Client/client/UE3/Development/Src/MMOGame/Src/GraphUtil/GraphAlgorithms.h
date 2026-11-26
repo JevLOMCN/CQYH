@@ -96,10 +96,10 @@ public:
   std::list<int> GetPathToTarget()const;
 
   //returns the total cost to the target
-  double GetCostToTarget()const{return m_CostToThisNode[m_iTarget];}
+  double GetCostToTarget()const{return m_iTarget >= 0 && (size_t)m_iTarget < m_CostToThisNode.size() ? m_CostToThisNode[m_iTarget] : 0.0;}
 
   //returns the total cost to the given node
-  double GetCostToNode(unsigned int nd)const{return m_CostToThisNode[nd];}
+  double GetCostToNode(unsigned int nd)const{return nd < m_CostToThisNode.size() ? m_CostToThisNode[nd] : 0.0;}
 };
 
 
@@ -107,6 +107,8 @@ public:
 template <class graph_type>
 void Graph_SearchDijkstra<graph_type>::Search()
 {
+  if (m_iSource < 0 || (size_t)m_iSource >= m_SearchFrontier.size() ||
+      m_iTarget < -1 || (m_iTarget >= 0 && (size_t)m_iTarget >= m_SearchFrontier.size())) return;
   //create an indexed priority queue that sorts smallest to largest
   //(front to back).Note that the maximum number of elements the iPQ
   //may contain is N. This is because no node can be represented on the 
@@ -141,6 +143,8 @@ void Graph_SearchDijkstra<graph_type>::Search()
         !ConstEdgeItr.end();
         pE=ConstEdgeItr.next())
     {
+      if (!pE || pE->To() < 0 || (size_t)pE->To() >= m_SearchFrontier.size()) continue;
+
       //the total cost to the node this edge points to is the cost to the
       //current node plus the cost of the edge connecting them.
       double NewCost = m_CostToThisNode[NextClosestNode] + pE->Cost();
@@ -182,21 +186,18 @@ template <class graph_type>
 std::list<int> Graph_SearchDijkstra<graph_type>::GetPathToTarget()const
 {
   std::list<int> path;
-
-  //just return an empty path if no target or no path found
-  if (m_iTarget < 0)  return path;
-
+  if (m_iSource < 0 || (size_t)m_iSource >= m_ShortestPathTree.size() ||
+      m_iTarget < 0 || (size_t)m_iTarget >= m_ShortestPathTree.size()) return path;
   int nd = m_iTarget;
-
-  path.push_front(nd);
-
-  while ((nd != m_iSource) && (m_ShortestPathTree[nd] != 0))
+  for (size_t steps = 0; nd != m_iSource; ++steps)
   {
-    nd = m_ShortestPathTree[nd]->From();
-
+    if (nd < 0 || (size_t)nd >= m_ShortestPathTree.size() ||
+        steps >= m_ShortestPathTree.size() || !m_ShortestPathTree[nd])
+      return std::list<int>();
     path.push_front(nd);
+    nd = m_ShortestPathTree[nd]->From();
   }
-
+  path.push_front(m_iSource);
   return path;
 }
 
@@ -259,13 +260,15 @@ public:
   std::list<int> GetPathToTarget()const;
 
   //returns the total cost to the target
-  double GetCostToTarget()const{return m_GCosts[m_iTarget];}
+  double GetCostToTarget()const{return m_iTarget >= 0 && (size_t)m_iTarget < m_GCosts.size() ? m_GCosts[m_iTarget] : 0.0;}
 };
 
 //-----------------------------------------------------------------------------
 template <class graph_type, class heuristic>
 void Graph_SearchAStar<graph_type, heuristic>::Search()
 {
+  if (m_iSource < 0 || (size_t)m_iSource >= m_SearchFrontier.size() ||
+      m_iTarget < 0 || (size_t)m_iTarget >= m_SearchFrontier.size()) return;
   //create an indexed priority queue of nodes. The nodes with the
   //lowest overall F cost (G+H) are positioned at the front.
   IndexedPriorityQLow<double> pq(m_FCosts, m_Graph.NumNodes());
@@ -295,6 +298,8 @@ void Graph_SearchAStar<graph_type, heuristic>::Search()
         !ConstEdgeItr.end(); 
          pE=ConstEdgeItr.next())
     {
+      if (!pE || pE->To() < 0 || (size_t)pE->To() >= m_SearchFrontier.size()) continue;
+
       //calculate the heuristic cost from this node to the target (H)                       
       double HCost = heuristic::Calculate(m_Graph, m_iTarget, pE->To()); 
 
@@ -334,21 +339,18 @@ template <class graph_type, class heuristic>
 std::list<int> Graph_SearchAStar<graph_type, heuristic>::GetPathToTarget()const
 {
   std::list<int> path;
-
-  //just return an empty path if no target or no path found
-  if (m_iTarget < 0)  return path;    
-
+  if (m_iSource < 0 || (size_t)m_iSource >= m_ShortestPathTree.size() ||
+      m_iTarget < 0 || (size_t)m_iTarget >= m_ShortestPathTree.size()) return path;
   int nd = m_iTarget;
-
-  path.push_front(nd);
-    
-  while ((nd != m_iSource) && (m_ShortestPathTree[nd] != 0))
+  for (size_t steps = 0; nd != m_iSource; ++steps)
   {
-    nd = m_ShortestPathTree[nd]->From();
-
+    if (nd < 0 || (size_t)nd >= m_ShortestPathTree.size() ||
+        steps >= m_ShortestPathTree.size() || !m_ShortestPathTree[nd])
+      return std::list<int>();
     path.push_front(nd);
+    nd = m_ShortestPathTree[nd]->From();
   }
-
+  path.push_front(m_iSource);
   return path;
 } 
 
@@ -379,6 +381,7 @@ private:
 
   void Search(const int source)
   {
+    if (source < 0 || (size_t)source >= m_Fringe.size()) return;
     //create a priority queue
     IndexedPriorityQLow<double> pq(m_CostToThisNode, m_Graph.NumNodes());
 
@@ -397,9 +400,10 @@ private:
       //now to test the edges attached to this node
       graph_type::ConstEdgeIterator ConstEdgeItr(m_Graph, best);
 
-      for (const Edge* pE=ConstEdgeItr.beg(); !ConstEdgeItr.end(); pE=ConstEdgeItr.nxt())
+      for (const Edge* pE=ConstEdgeItr.begin(); !ConstEdgeItr.end(); pE=ConstEdgeItr.next())
       {
-        double Priority = pE->Cost;
+        if (!pE || pE->To() < 0 || (size_t)pE->To() >= m_Fringe.size()) continue;
+        double Priority = pE->Cost();
 
         if (m_Fringe[pE->To()] == 0)
         {

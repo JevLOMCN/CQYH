@@ -45,6 +45,8 @@ void CMessageHandler::Send_PickDropItem(INT	DropID,UINT8 iMode )
 void CMessageHandler::Parse_g2c_sync_drop_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_DROP_LIST* msg = (G2C_SYNC_DROP_LIST*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_DROP_LIST))
+		return;
     INT byCount = (size - sizeof(G2C_SYNC_DROP_LIST)) / sizeof(msg->astDrops[0]);
 
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
@@ -81,6 +83,8 @@ void CMessageHandler::Parse_g2c_sync_drop_list(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_generate_drop_from_object(const char* buf, UINT32 size)
 {
 	G2C_GENERATE_DROP_FROM_OBJECT* msg = (G2C_GENERATE_DROP_FROM_OBJECT*)buf;
+	if (!buf || size < sizeof(G2C_GENERATE_DROP_FROM_OBJECT))
+		return;
 	DROP_INFO* pDropItem = &msg->drop;
 
 	//Convert from server coordinates to local coordinates
@@ -133,6 +137,8 @@ INT CMessageHandler::GetDropCounterFromID(INT srcID)
 void CMessageHandler::Parse_g2c_pickup_item(const char* buf, UINT32 size)
 {
 	G2C_PICKUP_ITEM* msg = (G2C_PICKUP_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_PICKUP_ITEM))
+		return;
 	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 	AMMOPlayer* player = Cast<AMMOPlayer>( MMOFacade::getSingleton().GetCharacter( msg->dwRoleID ) );
 	if( !player || !pc )
@@ -142,7 +148,8 @@ void CMessageHandler::Parse_g2c_pickup_item(const char* buf, UINT32 size)
 	}
 	
 	ItemInfo iteminfo;
-    iteminfo.Load(msg->acItem);
+    if (!iteminfo.Load(msg->acItem, size - sizeof(*msg)))
+        return;
 
 	UItem* tItem = MMOFacade::getSingleton().FindItemTemplate( iteminfo.m_nTemplateID );
 	if( !tItem )
@@ -195,6 +202,8 @@ void CMessageHandler::Parse_g2c_pickup_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_pickup_money(const char* buf, UINT32 size)
 {
 	G2C_PICKUP_MONEY* msg = (G2C_PICKUP_MONEY*)buf;
+	if (!buf || size < sizeof(G2C_PICKUP_MONEY))
+		return;
 	AMMOPlayerController* pc = MMOFacade::getSingleton().GetMainController();
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	if( !player || !pc )
@@ -229,6 +238,8 @@ void CMessageHandler::Parse_g2c_pickup_money(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_drop_disappear(const char* buf, UINT32 size)
 {
 	G2C_DROP_DISAPPEAR* msg = (G2C_DROP_DISAPPEAR*)buf;
+	if (!buf || size < sizeof(G2C_DROP_DISAPPEAR))
+		return;
 	AMMOPlayerController* ctrl=MMOFacade::getSingleton().GetMainController();
 	AMMOPlayer* player = Cast<AMMOPlayer>(ctrl->Pawn);
 	if(player==NULL)
@@ -243,10 +254,14 @@ void CMessageHandler::Parse_g2c_drop_disappear(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_drop_need_roll(const char* buf, UINT32 size)
 {
 	G2C_DROP_NEED_ROLL* msg = (G2C_DROP_NEED_ROLL*)buf;
+	if (!buf || size < sizeof(G2C_DROP_NEED_ROLL))
+		return;
 }
 
 void CMessageHandler::Parse_g2c_drop_roll_result(const char* buf, UINT32 size)
 {
 	G2C_DROP_ROLL_RESULT* msg = (G2C_DROP_ROLL_RESULT*)buf;
+	if (!buf || size < sizeof(G2C_DROP_ROLL_RESULT))
+		return;
 }*/
 //End dropped item pickup related-----

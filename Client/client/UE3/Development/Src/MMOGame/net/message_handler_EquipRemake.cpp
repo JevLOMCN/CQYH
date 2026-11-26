@@ -18,6 +18,8 @@ void CMessageHandler::Send_Remake(UINT uGambleType,UINT uGambleLevel)
 }
 void CMessageHandler::Parse_g2c_gamble(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_GAMBLE))
+		return;
 	G2C_GAMBLE* msg = (G2C_GAMBLE*)buf;
 	if (msg->nResult == 1)
 	{
@@ -40,6 +42,8 @@ void CMessageHandler::Send_RemakeBook()
 
 void CMessageHandler::Parse_g2c_spell_book_gamble(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_SPELL_BOOK_GAMBLE))
+		return;
 	G2C_SPELL_BOOK_GAMBLE* msg = (G2C_SPELL_BOOK_GAMBLE*)buf;
 
 	MMOGameEvent_RemakeResult remakeBookRst( GameEvent_BookRemakeResult, msg->nResult, msg->nItemID );
@@ -57,6 +61,8 @@ void CMessageHandler::Send_RemakeMedicine()
 
 void CMessageHandler::Parse_g2c_potion_gamble(const char* buf, UINT32 size)
 {
+	if (!buf || size < sizeof(G2C_POTION_GAMBLE))
+		return;
 	G2C_POTION_GAMBLE* msg = (G2C_POTION_GAMBLE*)buf;
 
 	MMOGameEvent_RemakeResult remakeMedicineRst( GameEvent_MedicineRemakeResult, msg->nResult, msg->nItemID );

@@ -35,6 +35,8 @@ void UpdateTransducer( int Progress );
 void CMessageHandler::Parse_g2c_sync_frame(const char* buf, UINT32 size)
 {
     G2C_SYNC_FRAME* msg = (G2C_SYNC_FRAME*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	warnf(NAME_Warning, TEXT("[CMessageHandler::Parse_g2c_sync_frame] FrameNum[%d]"), msg->nFrame);
 
@@ -45,6 +47,8 @@ void CMessageHandler::Parse_g2c_sync_frame(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_enter_scene(const char* buf, UINT32 size)
 {
 	G2C_ENTER_SCENE* msg = (G2C_ENTER_SCENE*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
     FVector pos = FVector(
         msg->wX,
@@ -153,6 +157,8 @@ void CMessageHandler::Parse_g2c_leave_scene(const char* buf, UINT32 size)
 	//MMOFacade::getSingleton().GetMainController()->GotoState(FName(TEXT("Loading")));
 
 	G2C_LEAVE_SCENE* msg = (G2C_LEAVE_SCENE*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	//	warnf(NAME_Warning, TEXT("[CMessageHandler::Parse_g2c_leave_scene] FrameNum[%d]"), msg->nFrame);
 	_lockPlayer = true;
@@ -310,6 +316,8 @@ void CMessageHandler::Parse_g2c_changescene_enter(const char* buf, UINT32 size)
 	//GMalloc->DumpAllocations(*GLog); // oscar@snda
 
 	G2C_CHANGESCENE_ENTER* msg = (G2C_CHANGESCENE_ENTER*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	memcpy(&ChangeSceneMsg,msg,sizeof(G2C_CHANGESCENE_ENTER));
 	AMMOPlayerController* MainController = MMOFacade::getSingleton().GetMainController();
 	if( MainController && MainController->CurMapID == msg->nSceneTempID )
@@ -393,7 +401,12 @@ void CMessageHandler::Parse_g2c_changescene_enter(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_scene_variables(const char* buf, UINT32 size)
 {
 	G2C_SYNC_SCENE_VARIABLES* msg = (G2C_SYNC_SCENE_VARIABLES*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
     
+	if (msg->wSize < sizeof(*msg) || msg->wSize > size ||
+		(msg->wSize - sizeof(*msg)) % sizeof(msg->VarList[0]) != 0)
+		return;
 	INT count = (msg->wSize - sizeof(G2C_SYNC_SCENE_VARIABLES)) / sizeof(G2C_SYNC_SCENE_VARIABLES::VARIABLE_DATA);
 	warnf(NAME_Warning, TEXT("[CMessageHandler::Parse_g2c_sync_scene_variables] Count:%d"), count);
 
@@ -423,7 +436,12 @@ void CMessageHandler::Parse_g2c_sync_scene_variables(const char* buf, UINT32 siz
 void CMessageHandler::Parse_g2c_sync_role_variables(const char* buf, UINT32 size)
 {
 	G2C_SYNC_ROLE_VARIABLES* msg = (G2C_SYNC_ROLE_VARIABLES*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	
+	if (msg->wSize < sizeof(*msg) || msg->wSize > size ||
+		(msg->wSize - sizeof(*msg)) % sizeof(msg->VarList[0]) != 0)
+		return;
 	INT listSize = (msg->wSize - sizeof(G2C_SYNC_ROLE_VARIABLES)) / sizeof(G2C_SYNC_ROLE_VARIABLES::VARIABLE_DATA);
 	for (INT i = 0; i < listSize; ++ i)
 	{
@@ -443,6 +461,8 @@ void CMessageHandler::Parse_g2c_sync_role_variables(const char* buf, UINT32 size
 void CMessageHandler::Parse_g2c_sync_client_variables(const char* buf, UINT32 size)
 {
     G2C_SYNC_CLIENT_VARIABLES* msg = (G2C_SYNC_CLIENT_VARIABLES*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	MMOClientVariableManager::getSingleton().SyncClientVariables(msg->nVariableList);
 }
 
@@ -450,6 +470,8 @@ void CMessageHandler::Parse_g2c_sync_client_variables(const char* buf, UINT32 si
 void CMessageHandler::Parse_g2c_update_variable(const char* buf, UINT32 size)
 {
 	G2C_UPDATE_VARIABLE* msg = (G2C_UPDATE_VARIABLE*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
     switch (msg->byType)
     {
@@ -565,6 +587,9 @@ void CMessageHandler::Send_ChangeToSceneLine( UINT8 lineID )
 void CMessageHandler::Parse_m2c_query_line_ack(const char* buf, UINT32 size)
 {
 	M2C_QUERY_LINE_ACK* msg = ( M2C_QUERY_LINE_ACK*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->wCount > (size - sizeof(*msg)) / sizeof(msg->LineSceneData[0]))
+		return;
 
 	MMOMapDataManager &mapDataMgr = MMOMapDataManager::getSingleton();
 	mapDataMgr.ClearCurMapLines();
@@ -585,6 +610,8 @@ void CMessageHandler::Parse_m2c_query_line_ack(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_flag_pos(const char* buf, UINT32 size)
 {
 	G2C_SYNC_FLAG_POS* msg = ( G2C_SYNC_FLAG_POS*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	MMOMapDataManager *pMapDataMgr = &MMOMapDataManager::getSingleton();
 	MMOBattleManager *pBattleMgr = &MMOBattleManager::getSingleton();
@@ -649,6 +676,8 @@ void CMessageHandler::Parse_g2c_sync_flag_pos(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_teleport_platform(const char* buf, UINT32 size)
 {
 	 G2C_SYNC_TELEPORT_PLATFORM* msg = ( G2C_SYNC_TELEPORT_PLATFORM*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	INT cntPer = sizeof( msg->nTeleportPlatform[0] );
 	INT cnt = sizeof( msg->nTeleportPlatform ) / cntPer;
@@ -677,6 +706,8 @@ void CMessageHandler::Parse_g2c_sync_teleport_platform(const char* buf, UINT32 s
 void CMessageHandler::Parse_g2c_active_platform(const char* buf, UINT32 size)
 {
 	G2C_ACTIVE_PLATFORM* msg = (G2C_ACTIVE_PLATFORM*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	MMOMapDataManager *pMapDataManager = &MMOMapDataManager::getSingleton();
 	pMapDataManager->NotifyTeleportsNetNodesOpened( msg->byActivePlatformID, TRUE );
@@ -693,6 +724,8 @@ void CMessageHandler::Parse_g2c_active_platform(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_activate_revive_pt(const char* buf, UINT32 size)
 {
 	G2C_ACTIVATE_REVIVE_PT* msg = (G2C_ACTIVATE_REVIVE_PT*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	//
 	FVector pos( msg->nX, msg->nY, msg->nZ );
@@ -706,6 +739,8 @@ void CMessageHandler::Parse_g2c_activate_revive_pt(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_select_scene_difficulty(const char* buf, UINT32 size)
 {
 	G2C_SELECT_SCENE_DIFFICULTY* msg = (G2C_SELECT_SCENE_DIFFICULTY*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	SET_WARN_COLOR(COLOR_CYAN);
 	warnf(NAME_Log, TEXT("[CMessageHandler::Parse_g2c_select_scene_difficulty] SelectedDifficulty[%d] "),  msg->bySelectedDifficulty);
@@ -722,6 +757,8 @@ void CMessageHandler::Parse_g2c_select_scene_difficulty(const char* buf, UINT32 
 void CMessageHandler::Parse_g2c_query_scene_difficulty(const char* buf, UINT32 size)
 {
 	G2C_QUERY_SCENE_DIFFICULTY* msg = (G2C_QUERY_SCENE_DIFFICULTY*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 
 	SET_WARN_COLOR(COLOR_CYAN);
 	warnf(NAME_Log, TEXT("[CMessageHandler::Parse_g2c_query_scene_difficulty] SceneTemplate[%d] SelectedDegree[%d] "),  msg->dwSceneTemplateID, msg->byDungeonDifficultyMask);
@@ -745,6 +782,8 @@ void CMessageHandler::Parse_g2c_query_scene_difficulty(const char* buf, UINT32 s
 void CMessageHandler::Parse_g2c_scene_finish(const char* buf, UINT32 size)
 {
 	G2C_SCENE_FINISH* msg = (G2C_SCENE_FINISH*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	
 	//initialize the last data
 	//MMOFacade::getSingleton().ResetFBSummary();
@@ -784,6 +823,8 @@ void CMessageHandler::Parse_g2c_scene_finish(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_dungeon_finish_data(const char* buf, UINT32 size)
 {
 	G2C_DUNGEON_FINISH_DATA* msg = (G2C_DUNGEON_FINISH_DATA*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
 	MMOFacade::getSingleton().SetFBSummary( *msg );
 	//
@@ -796,6 +837,8 @@ void CMessageHandler::Parse_g2c_dungeon_finish_data(const char* buf, UINT32 size
 void CMessageHandler::Parse_g2c_dungeon_reward(const char* buf, UINT32 size)
 {
 	G2C_DUNGEON_REWARD* msg = (G2C_DUNGEON_REWARD*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
 	MMOFacade::getSingleton().SetFBAward( *msg );
 	//
@@ -820,6 +863,8 @@ void CMessageHandler::Parse_g2c_dungeon_reward(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_dungeon_goal(const char* buf, UINT32 size)
 {
 	G2C_SYNC_DUNGEON_GOAL* msg = (G2C_SYNC_DUNGEON_GOAL*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
 	const FExportMap& curScene = MMOMapDataManager::getSingleton().GetCurMap();
 	//
@@ -838,7 +883,11 @@ void CMessageHandler::Parse_g2c_sync_dungeon_goal(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_dungeon_finish_score(const char* buf, UINT32 size)
 {
 	G2C_DUNGEON_FINISH_SCORE* msg = (G2C_DUNGEON_FINISH_SCORE*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
+	if (msg->byCount > (size - sizeof(*msg)) / sizeof(msg->stScore[0]))
+		return;
 	MMOFacade::getSingleton().SetFBOtherScore( *msg );
 }
 //===========================================Send=====================================
@@ -891,6 +940,8 @@ void CMessageHandler::Send_Join_Battles( UINT selectedBattleBit )
 void CMessageHandler::Parse_m2c_join_battle_queue(const char* buf, UINT32 size)
 {
 	M2C_JOIN_BATTLE_QUEUE* msg = (M2C_JOIN_BATTLE_QUEUE*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
 	MMOBattleManager::getSingleton().NotifyJoinedBattle();
 }
@@ -915,6 +966,8 @@ void CMessageHandler::Send_Leave_WaitingBattle()
 void CMessageHandler::Parse_m2c_cancel_join_battle_ack(const char* buf, UINT32 size)
 {
 	M2C_CANCEL_JOIN_BATTLE_ACK* msg = (M2C_CANCEL_JOIN_BATTLE_ACK*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
 	MMOBattleManager::getSingleton().NotifyLeaveBattle();
 	//
@@ -933,6 +986,8 @@ void CMessageHandler::Send_Ack_JoinBattle( UBOOL isAgreed )
 void CMessageHandler::Parse_m2c_join_battle_confirm_req(const char* buf, UINT32 size)
 {
 	M2C_JOIN_BATTLE_CONFIRM_REQ* msg = (M2C_JOIN_BATTLE_CONFIRM_REQ*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	//
 	MMOBattleManager::getSingleton().NotifyEnterBattle( msg->dwSceneTempID );
 }
@@ -958,7 +1013,7 @@ void CMessageHandler::Send_UpdateClientVariable(UINT8 index, INT32 value)
 
 void CMessageHandler::Send_UpdateClientVarRange(UINT8 idx_start, UINT8 idx_end, BYTE* buf, size_t size)
 {
-	if (idx_start >= idx_end)
+	if (!buf || idx_start >= idx_end)
 		return;
 	if (idx_start >= ECVT_End || idx_end >= ECVT_End)
 		return;
@@ -974,6 +1029,9 @@ void CMessageHandler::Send_UpdateClientVarRange(UINT8 idx_start, UINT8 idx_end, 
 void CMessageHandler::Parse_g2c_sync_combat_stat(const char* buf, UINT32 size)
 {
 	G2C_SYNC_COMBAT_STAT* msg = (G2C_SYNC_COMBAT_STAT*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		(size - sizeof(*msg)) % sizeof(msg->DataList[0]) != 0)
+		return;
 	INT byCount = ( size - sizeof(G2C_SYNC_COMBAT_STAT) ) / sizeof(msg->DataList[0]);
 
 	//MMOArenaManager::getSingleton().UpdateArenaSummary( msg->DataList , byCount );
@@ -1006,6 +1064,8 @@ extern FLOAT g_preLoadY;
 void CMessageHandler::Parse_g2c_sync_next_jump_point(const char* buf, UINT32 size)
 {
 	G2C_SYNC_NEXT_JUMP_POINT* msg = (G2C_SYNC_NEXT_JUMP_POINT*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	FVector pos(msg->wJumpX,msg->wJumpY,msg->wJumpZ);
 	ConvertCoordN2C(pos);
 

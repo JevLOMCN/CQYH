@@ -35,8 +35,9 @@ void CMessageHandler::SendFriendChat( INT RoleId , FString ChatContent )
 	msg->dwTargetID = RoleId;
 
 	FTCHARToUTF8 szContent( *ChatContent);
-	msg->wSize = sizeof(C2M_FRIEND_CHAT) + appStrlen( szContent ) + 1;
-	strxcpy( msg->szMessage , szContent , MAX_CHAT_MESSAGE_LEN );
+	msg->byColor = 0;
+	const size_t copied = strxcpy(msg->szMessage, szContent, MAX_CHAT_MESSAGE_LEN);
+	msg->wSize = sizeof(C2M_FRIEND_CHAT) + copied + 1;
 
 	_Send(msg, msg->wSize);
 }
@@ -99,6 +100,9 @@ void CMessageHandler::ChangeFriendGroup( INT RoleId, INT GroupId   )
 void CMessageHandler::Parse_g2c_friend_group_list(const char* buf, UINT32 size)
 {
 	G2C_FRIEND_GROUP_LIST* msg = (G2C_FRIEND_GROUP_LIST*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->byGroupCount > (size - sizeof(*msg)) / sizeof(msg->stGroupInfo[0]))
+		return;
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	if( !player )
 	{
@@ -112,7 +116,7 @@ void CMessageHandler::Parse_g2c_friend_group_list(const char* buf, UINT32 size)
 		INT GroupId = msg->stGroupInfo[i].byGroupID;
 		if( FriendManager::getSingleton().GetFriendGroup(GroupId) )
 		{
-			FriendManager::getSingleton().GetFriendGroup(GroupId)->GroupName = UTF8_TO_TCHAR( msg->stGroupInfo[i].szGroupName);
+			FriendManager::getSingleton().GetFriendGroup(GroupId)->GroupName = *ReadFixedUTF8(msg->stGroupInfo[i].szGroupName);
 		}		
 
 		MMOGameEvent_OneInt evt( GameEvent_UpdateFriendGroup , GroupId );
@@ -131,6 +135,9 @@ void CMessageHandler::Parse_m2c_self_info(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_friend_list(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_LIST* msg = (M2C_FRIEND_LIST*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->byFriendCount > (size - sizeof(*msg)) / sizeof(msg->stFriendInfoWithGroup[0]))
+		return;
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	AMMOPlayerController* ctrl = MMOFacade::getSingleton().GetMainController();
 	if( ctrl && player )
@@ -139,14 +146,14 @@ void CMessageHandler::Parse_m2c_friend_list(const char* buf, UINT32 size)
 		for ( int i = 0 ; i< msg->byFriendCount ; i++ )
 		{
 			MMOFriendMember Friend;
-			Friend.ActorName = UTF8_TO_TCHAR( msg->stFriendInfoWithGroup[i].stFriendInfo.szRoleName );
+			Friend.ActorName = *ReadFixedUTF8(msg->stFriendInfoWithGroup[i].stFriendInfo.szRoleName);
 			Friend.ClassId = msg->stFriendInfoWithGroup[i].stFriendInfo.byClass;
 			//Friend.Lv = msg->stFriendInfoWithGroup[i].stFriendInfo.byLevel;
 			Friend.RoleId = msg->stFriendInfoWithGroup[i].stFriendInfo.dwRoleID;
 			Friend.Sex = msg->stFriendInfoWithGroup[i].stFriendInfo.bySex;
 			Friend.Online = msg->stFriendInfoWithGroup[i].stFriendInfo.byFriendState;
 			Friend.AbbName = MMOFacade::CheckName( Friend.ActorName );
-			Friend.Sign = UTF8_TO_TCHAR( msg->stFriendInfoWithGroup[i].stFriendInfo.szSignature );
+			Friend.Sign = *ReadFixedUTF8(msg->stFriendInfoWithGroup[i].stFriendInfo.szSignature);
 			Friend.nIntimacy = msg->stFriendInfoWithGroup[i].stFriendInfo.wIntimacy;
 			Friend.SceneTempID = msg->stFriendInfoWithGroup[i].stFriendInfo.bySceneTempID;
 
@@ -211,7 +218,7 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 				{
 					//fMember->Lv = msg->stFriendInfo.byLevel;
 					//fMember->Online = msg->stFriendInfo.byFriendState;
-					fMember->Sign = UTF8_TO_TCHAR(msg->stFriendInfo.szSignature);
+					fMember->Sign = *ReadFixedUTF8(msg->stFriendInfo.szSignature);
 					fMember->ClassId = msg->stFriendInfo.byClass;
 					fMember->Sex = msg->stFriendInfo.bySex;
 					fMember->SceneTempID = msg->stFriendInfo.bySceneTempID;
@@ -273,7 +280,7 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 		{
 			//enemy->Lv = msg->stFriendInfo.byLevel;
 			enemy->Online = msg->stFriendInfo.byFriendState;
-			enemy->Sign = UTF8_TO_TCHAR(msg->stFriendInfo.szSignature);
+			enemy->Sign = *ReadFixedUTF8(msg->stFriendInfo.szSignature);
 			enemy->ClassId = msg->stFriendInfo.byClass;
 			enemy->Sex = msg->stFriendInfo.bySex;
 			enemy->Location =  UGlobalMapInfo::GetSingleton()->FindMapInfo( msg->stFriendInfo.bySceneTempID ).MapDisplayName;
@@ -290,7 +297,7 @@ void CMessageHandler::Parse_m2c_friend_info_change(const char* buf, UINT32 size)
 		{
 			//blackP->Lv = msg->stFriendInfo.byLevel;
 			blackP->Online = msg->stFriendInfo.byFriendState;
-			blackP->Sign = UTF8_TO_TCHAR(msg->stFriendInfo.szSignature);
+			blackP->Sign = *ReadFixedUTF8(msg->stFriendInfo.szSignature);
 			blackP->ClassId = msg->stFriendInfo.byClass;
 			blackP->Sex = msg->stFriendInfo.bySex;
 			blackP->Location =  UGlobalMapInfo::GetSingleton()->FindMapInfo( msg->stFriendInfo.bySceneTempID ).MapDisplayName;
@@ -310,7 +317,7 @@ void CMessageHandler::Parse_m2c_personal_enemy_add(const char* buf, UINT32 size)
 	M2C_PERSONAL_ENEMY_ADD* msg = (M2C_PERSONAL_ENEMY_ADD*)buf;
 	
 	MMOFriendMember Friend(EC_EventParm);
-	//Friend.ActorName = UTF8_TO_TCHAR( msg->szRoleName );
+	//Friend.ActorName = *ReadFixedUTF8(msg->szRoleName);
 	Friend.RoleId = msg->dwRoleID;
 	if(Friend.RoleId <= 0)
 		return;
@@ -350,7 +357,7 @@ void CMessageHandler::Parse_m2c_friend_add(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_ADD* msg = (M2C_FRIEND_ADD*)buf;
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
-	FString roleName = FString( UTF8_TO_TCHAR(msg->szRoleName) );
+	FString roleName = FString( *ReadFixedUTF8(msg->szRoleName) );
 	if( player )
 	{
 		if( msg->bMutual )
@@ -433,7 +440,7 @@ void CMessageHandler::Parse_m2c_friend_added_by(const char* buf, UINT32 size)
 	AMMOPlayer* player = MMOFacade::getSingleton().GetMainPlayer();
 	if( player )
 	{
-		FString roleName(UTF8_TO_TCHAR(msg->szRoleName));
+		FString roleName(*ReadFixedUTF8(msg->szRoleName));
 		if( FriendManager::getSingleton().IsMyAttention( msg->dwRoleID) ) //I also follow him, so move from follow to friend
 		{
 			MMOFriendMember* member = FriendManager::getSingleton().GetAttentionInfo(msg->dwRoleID);
@@ -468,7 +475,7 @@ void CMessageHandler::Parse_m2c_friend_added_by(const char* buf, UINT32 size)
 		}
 		else  // Remind me whether to follow him
 		{
-			FriendManager::getSingleton().AddedAttentionBy( msg->dwRoleID , UTF8_TO_TCHAR(msg->szRoleName) );
+			FriendManager::getSingleton().AddedAttentionBy( msg->dwRoleID , *ReadFixedUTF8(msg->szRoleName) );
 		}
 	}
 	
@@ -478,6 +485,8 @@ void CMessageHandler::Parse_m2c_friend_added_by(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_friend_chat(const char* buf, UINT32 size)
 {
 	M2C_FRIEND_CHAT* msg = (M2C_FRIEND_CHAT*)buf;
+	if (!buf || size <= sizeof(*msg) || !memchr(msg->szMessage, 0, size - sizeof(*msg)))
+		return;
 
 	MMOFacade::getSingleton().NotifyFriendChatMsg( msg->dwFrom , UTF8_TO_TCHAR(msg->szMessage) );
 }
@@ -486,6 +495,9 @@ void CMessageHandler::Parse_m2c_friend_chat(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_sync_shield_list(const char* buf, UINT32 size)
 {
 	G2C_SYNC_SHIELD_LIST* msg = (G2C_SYNC_SHIELD_LIST*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->byRoleCount > (size - sizeof(*msg)) / sizeof(msg->arrRoleID[0]))
+		return;
 	//UBOOL fullPlayerName = TRUE;
 
 	for ( INT i = 0 ; i < msg->byRoleCount ; i++ )
@@ -663,7 +675,7 @@ void CMessageHandler::Parse_m2c_h5_url(const char* buf, UINT32 size)
 		INT GroupId = msg->stGroupInfo[i].byGroupID;
 		if( FriendManager::getSingleton().GetFriendGroup(GroupId) )
 		{
-			FriendManager::getSingleton().GetFriendGroup(GroupId)->GroupName = UTF8_TO_TCHAR( msg->stGroupInfo[i].szGroupName);
+			FriendManager::getSingleton().GetFriendGroup(GroupId)->GroupName = *ReadFixedUTF8(msg->stGroupInfo[i].szGroupName);
 		}		
 
 		MMOGameEvent_OneInt evt( GameEvent_UpdateFriendGroup , GroupId );

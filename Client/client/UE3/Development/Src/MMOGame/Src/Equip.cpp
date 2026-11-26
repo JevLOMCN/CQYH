@@ -264,7 +264,8 @@ void UEquip::Init(BYTE pc, BYTE gt, UBOOL useAdvancedApperance)
 
 UBOOL UEquip::OnTakeOn(class AMMOActor* Target, UBOOL UseAdvancedAppearence)
 {
-	check(Target);
+	if( !Target || !Target->ItemManager )
+		return FALSE;
 
 	UItem::OnTakeOn(Target, UseAdvancedAppearence);
 
@@ -283,7 +284,8 @@ UBOOL UEquip::OnTakeOn(class AMMOActor* Target, UBOOL UseAdvancedAppearence)
 	{
 		UEquipMesh* em = MeshList(i);
 
-		if (em && em->OnTakeOn(Target, Target->ItemManager->UseMergedMesh))
+		if (em && em->MeshType < EBMT_None && Target->ItemManager->CurrentMeshList.IsValidIndex(em->MeshType) &&
+			em->OnTakeOn(Target, Target->ItemManager->UseMergedMesh))
 		{
 			// special case for hair... some helmet may have hair set, and the default hair is not put off..
 			if( Target->ItemManager->CurrentMeshList(em->MeshType) != NULL )
@@ -317,7 +319,8 @@ UBOOL UEquip::OnTakeOn(class AMMOActor* Target, UBOOL UseAdvancedAppearence)
 
 UBOOL UEquip::OnTakeOff(class AMMOActor* Target)
 {
-	check(Target);
+	if( !Target || !Target->ItemManager )
+		return FALSE;
 	UItem::OnTakeOff(Target);
 
 	BaseActor = NULL;
@@ -327,7 +330,8 @@ UBOOL UEquip::OnTakeOff(class AMMOActor* Target)
 	for (INT i = 0; i < MeshList.Num(); ++i)
 	{
 		UEquipMesh* em = MeshList(i);
-		if (em && em->OnTakeOff(Target, Target->ItemManager->UseMergedMesh))
+		if (em && Target->ItemManager->CurrentMeshList.IsValidIndex(em->MeshType) &&
+			em->OnTakeOff(Target, Target->ItemManager->UseMergedMesh))
 		{
 			if (em->MeshType >= EBMT_None)
 			{

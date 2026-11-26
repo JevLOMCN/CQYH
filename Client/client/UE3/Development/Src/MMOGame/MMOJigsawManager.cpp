@@ -8,10 +8,18 @@
 #include "MMOMsgBoxManager.h"
 
 //=======================================================================================
+MMOJigsawManager::MMOJigsawManager()
+	: _OpenJigsawPanelDelegate(EC_EventParm)
+{
+	Init();
+}
+
 void MMOJigsawManager::Init()
 {
 	isBuildingTexture = FALSE;
 	isBuildDone = FALSE;
+	appMemzero(_TargetTextureData, sizeof(_TargetTextureData));
+	appMemzero(_AnswerTextureData, sizeof(_AnswerTextureData));
 
 	pTargetTexture = NULL;
 
@@ -112,6 +120,9 @@ void MMOJigsawManager::CopyTargetTextureData(char *src,INT copySize /* = JIGSAW_
 	{
 		return ;
 	}
+	if (!src || copySize < 0 || (UINT)copySize > sizeof(_TargetTextureData))
+		return;
+	appMemzero(_TargetTextureData, sizeof(_TargetTextureData));
 	appMemcpy(_TargetTextureData , src , copySize);
 }
 
@@ -121,6 +132,10 @@ void MMOJigsawManager::CopyAnswerTextureData(char *src,INT nIndex , INT copySize
 	{
 		return ;
 	}
+	if (!src || nIndex < 0 || nIndex >= JIGSAW_ANSWER_COUNT ||
+		copySize < 0 || (UINT)copySize > sizeof(_AnswerTextureData[nIndex]))
+		return;
+	appMemzero(_AnswerTextureData[nIndex], sizeof(_AnswerTextureData[nIndex]));
 	appMemcpy(_AnswerTextureData[nIndex] , src , copySize);
 }
 
@@ -163,28 +178,52 @@ void MMOJigsawManager::OnRecieveJigsawMsg()
 	return ;
 }
 
+static BOOL UploadJigsawTexture(UTexture2D* texture, const char* source, UINT width, size_t sourceSize)
+{
+	if (!texture || !source || !width || width % JIGSAW_BLOCK_WIDTH || !texture->Resource ||
+		texture->SizeX <= 0 || (UINT)texture->SizeX != width || (UINT)texture->SizeY != width)
+		return FALSE;
+	const size_t blockRows = width / JIGSAW_BLOCK_WIDTH;
+	if (blockRows > (size_t)-1 / sizeof(UINT64)) return FALSE;
+	const size_t rowBytes = blockRows * sizeof(UINT64);
+	if (blockRows > (size_t)-1 / rowBytes || sourceSize != rowBytes * blockRows)
+		return FALSE;
+	FTexture2DResource* resource = (FTexture2DResource*)texture->Resource;
+	UINT stride = 0;
+	BYTE* destination = (BYTE*)RHILockTexture2D(resource->GetTexture2DRHI(), 0, TRUE, stride, FALSE);
+	if (!destination)
+		return FALSE;
+	BOOL copied = FALSE;
+	if (stride >= rowBytes && blockRows - 1 <= ((size_t)-1 - rowBytes) / stride)
+	{
+		for (size_t row = 0; row < blockRows; ++row)
+			appMemcpy(destination + row * stride, source + row * rowBytes, rowBytes);
+		copied = TRUE;
+	}
+	RHIUnlockTexture2D(resource->GetTexture2DRHI(), 0, FALSE);
+	return copied;
+}
+
 void MMOJigsawManager::BuilJigsawTexture()
 {
 	isBuildingTexture = TRUE;
-
-	UINT DstStride;
-	BYTE* TexturAddr =NULL;
-	TexturAddr = (BYTE*)RHILockTexture2D( ((FTexture2DResource*)pTargetTexture->Resource)->GetTexture2DRHI(), 0, TRUE, DstStride, FALSE );
-	appMemcpy(TexturAddr , _TargetTextureData , sizeof(_TargetTextureData));
-	RHIUnlockTexture2D( ((FTexture2DResource*)pTargetTexture->Resource)->GetTexture2DRHI(), 0, FALSE );
-
-	INT i;
-	for (i=0;i<JIGSAW_ANSWER_COUNT;i++)
+	isBuildDone = FALSE;
+	if (!UploadJigsawTexture(pTargetTexture, _TargetTextureData, JIGSAW_PIC_WIDTH, sizeof(_TargetTextureData)))
 	{
-		TexturAddr = (BYTE*)RHILockTexture2D( ((FTexture2DResource*)pAnsTexture[i]->Resource)->GetTexture2DRHI(), 0, TRUE, DstStride, FALSE );
-		appMemcpy(TexturAddr , _AnswerTextureData[i] , sizeof(_AnswerTextureData[i]));
-		RHIUnlockTexture2D( ((FTexture2DResource*)pAnsTexture[i]->Resource)->GetTexture2DRHI(), 0, FALSE );
+		isBuildingTexture = FALSE;
+		return;
 	}
-
+	for (INT index = 0; index < JIGSAW_ANSWER_COUNT; ++index)
+	{
+		if (!UploadJigsawTexture(pAnsTexture[index], _AnswerTextureData[index], JIGSAW_ANSWER_WIDTH,
+			sizeof(_AnswerTextureData[index])))
+		{
+			isBuildingTexture = FALSE;
+			return;
+		}
+	}
 	isBuildingTexture = FALSE;
-
 	isBuildDone = TRUE;
-	return;
 }
 
 void MMOJigsawManager::OnSelectAnswer(INT answer)

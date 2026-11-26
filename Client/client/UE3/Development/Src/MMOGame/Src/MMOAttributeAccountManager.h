@@ -72,7 +72,16 @@ struct StructAttributeItem
 
 	void Reset()
 	{
-		appMemzero( this , sizeof(StructAttributeItem) );
+		for (INT i = 0; i < EPCT_MAX; ++i)
+		{
+			AttributeName[i].Empty();
+			TipsDesc[i].Empty();
+			AttributeValueType[i] = AttributeValueTypeB[i] = 0;
+			AttributeTypeA[i] = AttributeTypeB[i] = 0;
+			AttributeMulParaA[i] = AttributeMulParaB[i] = 0.0f;
+		}
+		DifferName = DifferValueType = DifferTips = DifferTipsValueType = DifferTipsValuePara = FALSE;
+		ValueShowType = TipsValueShowType = EVST_Int;
 	}
 
 

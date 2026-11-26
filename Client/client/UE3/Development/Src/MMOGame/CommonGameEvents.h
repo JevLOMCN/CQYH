@@ -277,6 +277,7 @@ public:
 	MMOGameEvent_OtherPlayerLevelUp()
 	{
 		roleID = 0;
+		lv = 0;
 	}
 
 	virtual EGameEvent GetEventType() const
@@ -453,14 +454,15 @@ public:
 	};
 
 	MMOGameEvent_MatineeSubtitle(const FString& subTitle, EMatineeSubtitleEventType evtType)
-		: Subtitle(subTitle)
-		, SubtitleEventType(evtType)
+		: SubtitleEventType(evtType)
+		, ShowSubtitle(false)
+		, Subtitle(subTitle)
 	{
 	}
 
 	MMOGameEvent_MatineeSubtitle(bool show, EMatineeSubtitleEventType evtType)
-		: ShowSubtitle(show)
-		, SubtitleEventType(evtType)
+		: SubtitleEventType(evtType)
+		, ShowSubtitle(show)
 	{
 	}
 
@@ -490,20 +492,30 @@ public:
 		, MainPlayer(mainPlayer)
 		, CurrentIntValue(currIntVal)
 		, MaxIntValue(maxIntVal)
+		, CurrentFloatValue(0.0f)
+		, MaxFloatValue(1.0f)
+		, BoolValue(FALSE)
 	{
 	}
 
 	MMOGameEvent_MainPlayerDataChange(EPlayerDataChangeEventType changeType, class AMMOPlayer* mainPlayer, FLOAT currFloatVal, FLOAT maxFloatVal = 1)
 		: DataChangeEventType(changeType)
 		, MainPlayer(mainPlayer)
+		, CurrentIntValue(0)
+		, MaxIntValue(1)
 		, CurrentFloatValue(currFloatVal)
 		, MaxFloatValue(maxFloatVal)
+		, BoolValue(FALSE)
 	{
 	}
 
 	MMOGameEvent_MainPlayerDataChange(EPlayerDataChangeEventType changeType, class AMMOPlayer* mainPlayer, UBOOL boolVal)
 		: DataChangeEventType(changeType)
 		, MainPlayer(mainPlayer)
+		, CurrentIntValue(0)
+		, MaxIntValue(1)
+		, CurrentFloatValue(0.0f)
+		, MaxFloatValue(1.0f)
 		, BoolValue(boolVal)
 	{
 	}

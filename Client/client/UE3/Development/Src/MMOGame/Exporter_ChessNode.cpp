@@ -8,6 +8,7 @@
 //Export NPCs placed individually in the scene
 Exporter_ChessNode::Exporter_ChessNode(void)
 {
+	arBlkHdrs = NULL;
 }
 //------------------------------------------------------------------------
 Exporter_ChessNode::~Exporter_ChessNode(void)

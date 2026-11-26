@@ -505,7 +505,8 @@ void UMMOUIWeaponSkillSetting::AutoCheckAndSetWeaponSkillLeveUpItem( UMMOAbility
 			if( pItemInfo != NULL && pItemInfo->m_nTemplateID == _CurLevelUpItemID ){
 				totalHaveCnt += pItemInfo->m_nCurDur;
 
-				FOperationItemBagPos newPos;
+				FOperationItemBagPos newPos(EC_EventParm);
+				newPos._IsValid = TRUE;
 				newPos._ConID = E_CONSLOT_DEFAULT;
 				newPos._SlotID = j;
 				_SkillLevelUpItems.Push( newPos );

@@ -18,7 +18,11 @@
 using namespace ExternalMessage;
 
 MMOGuildManager::MMOGuildManager()
+	: _OpenGuildWarStartPanelAttackDelegate(EC_EventParm)
+	, _OpenGuildWarStartPanelDefendDelegate(EC_EventParm)
+	, _OpenGuildMainPanelApplyAllyDelegate(EC_EventParm)
 {
+	_SabacProgress = 0.0f;
 	_OnlineMemberNotify = TRUE;
 	_GuildAllyTimeProgress = 0.0f;
 	_GuildEnemyTimeProgress = 0.0f;
@@ -633,26 +637,26 @@ void MMOGuildManager::NotifyUpdateGuildFindList(const GUILD_VIEW_SUMMARY& result
 	{
 		GuildViewInfo info;
 		info.Id = result.dwGuildID;
-		info.Name = UTF8_TO_TCHAR(result.szGuildName);
+		info.Name = *ReadFixedUTF8(result.szGuildName);
 		info.level = result.byGuildLevel;
 		info.MemberCount = result.byCurrentMemberCount;
-		info.LeaderName = UTF8_TO_TCHAR(result.szLeaderName);
-		info.CreatorName = UTF8_TO_TCHAR(result.szCreaterName);
+		info.LeaderName = *ReadFixedUTF8(result.szLeaderName);
+		info.CreatorName = *ReadFixedUTF8(result.szCreaterName);
 		info.CreateTime = result.dwCreateTime;
-		info.Announce = UTF8_TO_TCHAR(result.szAnnounce);
+		info.Announce = *ReadFixedUTF8(result.szAnnounce);
 		info.ProtectionTime = result.dwProtectionTime;
 		MMOGuildData::getSingleton().AddGuildViewInfo(info);
 	}
 
 	MMOGameEvent_Guild evt(MMOGameEvent_Guild::EGET_UpdateGuildFindList);
 	evt._FindInfo.Id = result.dwGuildID; 
-	evt._FindInfo.Name = UTF8_TO_TCHAR(result.szGuildName);
+	evt._FindInfo.Name = *ReadFixedUTF8(result.szGuildName);
 	evt._FindInfo.Level = result.byGuildLevel; 
 	evt._FindInfo.MemberCount = result.byCurrentMemberCount; 
-	evt._FindInfo.LeaderName = UTF8_TO_TCHAR(result.szLeaderName);
-	evt._FindInfo.CreatorName = UTF8_TO_TCHAR(result.szCreaterName);
+	evt._FindInfo.LeaderName = *ReadFixedUTF8(result.szLeaderName);
+	evt._FindInfo.CreatorName = *ReadFixedUTF8(result.szCreaterName);
 	evt._FindInfo.CreateTime = result.dwCreateTime;
-	evt._FindInfo.Announce = UTF8_TO_TCHAR(result.szAnnounce);
+	evt._FindInfo.Announce = *ReadFixedUTF8(result.szAnnounce);
 	evt._FindInfo.ProtectionTime = result.dwProtectionTime;
 	MMOUI::PostGameEvent(&evt);
 }

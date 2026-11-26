@@ -8,6 +8,7 @@
 
 Exporter_DoodadSpawn::Exporter_DoodadSpawn(void)
 {
+	arBlkHdrs = NULL;
 }
 //------------------------------------------------------------------------
 Exporter_DoodadSpawn::~Exporter_DoodadSpawn(void)

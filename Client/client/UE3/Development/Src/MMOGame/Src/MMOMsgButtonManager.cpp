@@ -32,6 +32,8 @@ void MMOMsgButtonManager::ClearAll()
 
 void MMOMsgButtonManager::ClickButton( INT type )
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 
 	MsgButtonInfoVec& list = _MsgButtonInfoList[type];
 	INT size = list.size();
@@ -46,14 +48,15 @@ void MMOMsgButtonManager::ClickButton( INT type )
 	{
 		if( size == 1 )
 		{
-			//if there is only one, pop up the menu directly and remove this button
-			UGFxObject* mc = MMOMsgBoxManager::getSingleton().AddMessageBoxEvent( list[0].msgText , list[0].infoId , list[0].EventId ,list[0].type);
+			//只有一个的话就直接弹出菜单，消掉此按钮
+			MsgButtonInfo selected = list[0];
+			list.erase(list.begin());
+			UGFxObject* mc = MMOMsgBoxManager::getSingleton().AddMessageBoxEvent(selected.msgText, selected.infoId, selected.EventId, selected.type);
 			if (mc)
 			{
-				mc->GetObject("yesButton_mc")->SetString(TEXT("label"),list[0].leftButtonName);
-				mc->GetObject("noButton_mc")->SetString(TEXT("label"),list[0].rightButtonName);
+				mc->GetObject("yesButton_mc")->SetString(TEXT("label"),selected.leftButtonName);
+				mc->GetObject("noButton_mc")->SetString(TEXT("label"),selected.rightButtonName);
 			}
-			list.erase( list.begin() );
 			UpdateButton(type);
 			//refresh button
 		}
@@ -78,17 +81,20 @@ void MMOMsgButtonManager::ClickButton( INT type )
 
 void MMOMsgButtonManager::ClickMsgLine( INT pos , INT type )
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 	
 	MsgButtonInfoVec& list = _MsgButtonInfoList[type];
-	if( (INT)list.size() > pos )
+	if (pos >= 0 && pos < (INT)list.size())
 	{
-		UGFxObject* mc = MMOMsgBoxManager::getSingleton().AddMessageBoxEvent( list[pos].msgText , list[pos].infoId , list[pos].EventId ,list[0].type);
+		MsgButtonInfo selected = list[pos];
+		list.erase(list.begin() + pos);
+		UGFxObject* mc = MMOMsgBoxManager::getSingleton().AddMessageBoxEvent(selected.msgText, selected.infoId, selected.EventId, selected.type);
 		if (mc)
 		{
-			mc->GetObject("yesButton_mc")->SetString(TEXT("label"),list[pos].leftButtonName);
-			mc->GetObject("noButton_mc")->SetString(TEXT("label"),list[pos].rightButtonName);
+			mc->GetObject("yesButton_mc")->SetString(TEXT("label"),selected.leftButtonName);
+			mc->GetObject("noButton_mc")->SetString(TEXT("label"),selected.rightButtonName);
 		}
-		list.erase( list.begin() + pos );
 	}
 	//refresh button
 	UpdateButton(type);
@@ -98,13 +104,18 @@ void MMOMsgButtonManager::ClickMsgLine( INT pos , INT type )
 
 }
 
-MsgButtonInfoVec& MMOMsgButtonManager::GetMsgButtonInfo( eMsgBtnShowType type )
-{	
+const MsgButtonInfoVec& MMOMsgButtonManager::GetMsgButtonInfo( INT type ) const
+{
+	static const MsgButtonInfoVec empty;
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return empty;
 	return _MsgButtonInfoList[type];
 }
 
 void MMOMsgButtonManager::_EmitDelegate(INT type)
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 	if( _MsgButtonInfoList[type].size() == 0 )
 	{
 		return;
@@ -115,12 +126,15 @@ void MMOMsgButtonManager::_EmitDelegate(INT type)
 
 	if( contextObject && funName.IsValid() && funName != NAME_None )
 	{
-		contextObject->ProcessEvent( contextObject->FindFunctionChecked(funName),  &(_MsgButtonInfoList[type][0]._Parms) , NULL );
+		MMOMsgButtonManager_Parms parameters = _MsgButtonInfoList[type][0]._Parms;
+		contextObject->ProcessEvent( contextObject->FindFunctionChecked(funName), &parameters, NULL );
 	}
 }
 
 void MMOMsgButtonManager::UpdateButton( INT type )
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 	MsgButtonInfoVec& list = _MsgButtonInfoList[type];
 	INT size = list.size();
 
@@ -139,12 +153,16 @@ void MMOMsgButtonManager::UpdateButton( INT type )
 
 void MMOMsgButtonManager::ToggleMsgLine( INT type )
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 	MMOGameEvent_OneInt evt( GameEvent_ToggleMsgLine , type );
 	MMOUI::PostGameEvent(&evt);	
 }
 
 void MMOMsgButtonManager::UpdateMsgLine( INT type )
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 	MMOGameEvent_OneInt evt( GameEvent_UpdateMsgLine , type );
 	MMOUI::PostGameEvent(&evt);	
 }
@@ -171,6 +189,8 @@ void MMOMsgButtonManager::UpdateMsgLine( INT type )
 
 INT MMOMsgButtonManager::AddNewButton( const FString& Text , INT InfoId , FString sendName , EGameEvent eventId , eMsgBtnShowType type ,FString leftButtonMsg, FString rightButtonMsg)
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return -1;
 	MsgButtonInfo msgButtonInfo;
 	msgButtonInfo._eventHandleType = EVENTHANDLE_GAMEEVENT;
 	msgButtonInfo.msgText = Text;
@@ -208,18 +228,19 @@ INT MMOMsgButtonManager::AddNewButton( const FString& Text , INT InfoId , FStrin
 
 INT MMOMsgButtonManager::AddNewButton( FScriptDelegate OnEventHandle, MMOMsgButtonManager_Parms Parms, eMsgBtnShowType type ,FString leftButtonMsg, FString rightButtonMsg)
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return -1;
 	MsgButtonInfo msgButtonInfo;
 	
-	ZeroMemory(&msgButtonInfo, sizeof(msgButtonInfo));
 	msgButtonInfo._eventHandleType = EVENTHANDLE_NOMSGBOX;	
 	msgButtonInfo.OnEventHandle = OnEventHandle;
 	msgButtonInfo._Parms = Parms;
+	msgButtonInfo.type = type;
 	msgButtonInfo.leftButtonName = MMOUI::ParseLocalizedPropertyPath( leftButtonMsg );
 	msgButtonInfo.rightButtonName = MMOUI::ParseLocalizedPropertyPath( rightButtonMsg );
 
 	MsgButtonInfoVec& msgButtonList = _MsgButtonInfoList[type];
 	msgButtonList.push_back( msgButtonInfo );
-	msgButtonInfo.type = type;
 
 	INT cnt = msgButtonList.size();
 	//update button
@@ -249,6 +270,8 @@ void MMOMsgButtonManager::TickTime( float deltaTime )
 }
 void MMOMsgButtonManager::RemoveOneTypeButtons(INT type)
 {
+	if (type < 0 || type >= E_MsgBtnShow_Max)
+		return;
 	MsgButtonInfoVec& list = _MsgButtonInfoList[type];
 	if(list.size() == 0)
 		return;

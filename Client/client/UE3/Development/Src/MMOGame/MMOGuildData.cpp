@@ -204,6 +204,12 @@ void GuildActivityDataProcessor::PostInitData()
 //////////////////////////////////////////////////////////////////////////
 MMOGuildData::MMOGuildData()
 {
+	appMemzero(_GuildStorageRights, sizeof(_GuildStorageRights));
+	appMemzero(_GuildSalaryPercent, sizeof(_GuildSalaryPercent));
+	appMemzero(_GuildPostCount, sizeof(_GuildPostCount));
+	_MyGuildWarAttackId = 0;
+	_MyGuildWarDefendId = 0;
+	_CurOccupySabacGuildId = 0;
 }
 
 MMOGuildData::~MMOGuildData()
@@ -318,13 +324,13 @@ void MMOGuildData::UpdateGuildViewList(UINT8 type, GUILD_VIEW_SUMMARY* list, UIN
 		{
 			GuildViewInfo info;
 			info.Id = list[i].dwGuildID;
-			info.Name = UTF8_TO_TCHAR(list[i].szGuildName);
+			info.Name = *ReadFixedUTF8(list[i].szGuildName);
 			info.level = list[i].byGuildLevel;
 			info.MemberCount = list[i].byCurrentMemberCount;
-			info.LeaderName = UTF8_TO_TCHAR(list[i].szLeaderName);
-			info.CreatorName = UTF8_TO_TCHAR(list[i].szCreaterName);
+			info.LeaderName = *ReadFixedUTF8(list[i].szLeaderName);
+			info.CreatorName = *ReadFixedUTF8(list[i].szCreaterName);
 			info.CreateTime = list[i].dwCreateTime;
-			info.Announce = UTF8_TO_TCHAR(list[i].szAnnounce);
+			info.Announce = *ReadFixedUTF8(list[i].szAnnounce);
 			info.ProtectionTime = list[i].dwProtectionTime;
 			for (INT j = 0; j < GUILD_B_NUM; ++ j)
 			{
@@ -339,13 +345,13 @@ void MMOGuildData::UpdateGuildViewList(UINT8 type, GUILD_VIEW_SUMMARY* list, UIN
 		{
 			GuildViewInfo info;
 			info.Id = list[i].dwGuildID;
-			info.Name = UTF8_TO_TCHAR(list[i].szGuildName);
+			info.Name = *ReadFixedUTF8(list[i].szGuildName);
 			info.level = list[i].byGuildLevel;
 			info.MemberCount = list[i].byCurrentMemberCount;
-			info.LeaderName = UTF8_TO_TCHAR(list[i].szLeaderName);
-			info.CreatorName = UTF8_TO_TCHAR(list[i].szCreaterName);
+			info.LeaderName = *ReadFixedUTF8(list[i].szLeaderName);
+			info.CreatorName = *ReadFixedUTF8(list[i].szCreaterName);
 			info.CreateTime = list[i].dwCreateTime;
-			info.Announce = UTF8_TO_TCHAR(list[i].szAnnounce);
+			info.Announce = *ReadFixedUTF8(list[i].szAnnounce);
 			info.ProtectionTime = list[i].dwProtectionTime;
 			for (INT j = 0; j < GUILD_B_NUM; ++ j)
 			{
@@ -411,7 +417,7 @@ void MMOGuildData::UpdateGuildPendingMemberList(GUILD_APPLICANT_INFO* list, UINT
 	{
 		GuildPendingMemberInfo info;
 		info.Id = list[i].dwRoleID;
-		info.Name = UTF8_TO_TCHAR(list[i].szRoleName);
+		info.Name = *ReadFixedUTF8(list[i].szRoleName);
 		info.Level = list[i].byLevel;
 		info.Job = list[i].byClass;
 		info.ApplyTime = list[i].dwEndTime;
@@ -535,7 +541,7 @@ void MMOGuildData::AddGuildFullMember(const GUILD_MEMBER_INFO& info)
 {
 	GuildFullMemberInfo memberInfo;
 	memberInfo.Id = info.dwRoleID;
-	memberInfo.Name = UTF8_TO_TCHAR(info.szRoleName);
+	memberInfo.Name = *ReadFixedUTF8(info.szRoleName);
 	memberInfo.Post = info.byPosition;
 	// count members per position
 	if (memberInfo.Post > GUILD_POSITION_NONE && memberInfo.Post < GUILD_POSITION_TOTAL)
@@ -1226,7 +1232,7 @@ void MMOGuildData::UpdateGuildAllyList(GUILD_DIPLOMAT_INFO* list, UINT8 size)
 		{
 			time = 0;
 		}
-		AddGuildAlly(list[i].dwGuildID, UTF8_TO_TCHAR(list[i].szGuildName), list[i].byLevel, list[i].byMemberCount, time);
+		AddGuildAlly(list[i].dwGuildID, *ReadFixedUTF8(list[i].szGuildName), list[i].byLevel, list[i].byMemberCount, time);
 		MMOGuildManager::getSingleton().QueryGuildInfo(list[i].dwGuildID);
 	}
 }
@@ -1249,7 +1255,7 @@ void MMOGuildData::UpdateGuildEnemyList(GUILD_DIPLOMAT_INFO* list, UINT8 size)
 		{
 			time = 0;
 		}
-		AddGuildEnemy(list[i].dwGuildID, UTF8_TO_TCHAR(list[i].szGuildName), list[i].byLevel, list[i].byMemberCount, time);
+		AddGuildEnemy(list[i].dwGuildID, *ReadFixedUTF8(list[i].szGuildName), list[i].byLevel, list[i].byMemberCount, time);
 		MMOGuildManager::getSingleton().QueryGuildInfo(list[i].dwGuildID);
 	}
 }
@@ -1309,10 +1315,10 @@ void MMOGuildData::UpdateGuildApplyAllyList(APPLY_ALLIANCE_INFO* list, UINT8 siz
 	{
 		GuildApplyAllyInfo info;
 		info.Id = list[i].dwGuildID;
-		info.Name = UTF8_TO_TCHAR(list[i].szGuildName);
+		info.Name = *ReadFixedUTF8(list[i].szGuildName);
 		info.Level = list[i].byLevel;
 		info.MemberCount = list[i].byMemberCount;
-		info.LeaderName = UTF8_TO_TCHAR(list[i].szLeaderName);
+		info.LeaderName = *ReadFixedUTF8(list[i].szLeaderName);
 		/*
 		switch (list[i].byTimeType)
 		{
@@ -2968,7 +2974,7 @@ void MMOGuildData::AddOrUpdateGuildInfo(M2C_QUERY_GUILD_NAME_ACK* msg)
 	{ 
 		GuildQueryInfo info;
 		info.Id = msg->dwGuildID;
-		info.Name = UTF8_TO_TCHAR(msg->szGuildName);
+		info.Name = *ReadFixedUTF8(msg->szGuildName);
 		info.LeaderId = msg->dwLeaderID;
 		info.MemberCount = msg->byMemberCount;
 		info.Level = msg->byMainLevel;
@@ -2983,7 +2989,7 @@ void MMOGuildData::AddOrUpdateGuildInfo(M2C_QUERY_GUILD_NAME_ACK* msg)
 	else
 	{
 		iterId->second.Id = msg->dwGuildID;
-		iterId->second.Name = UTF8_TO_TCHAR(msg->szGuildName);
+		iterId->second.Name = *ReadFixedUTF8(msg->szGuildName);
 		iterId->second.LeaderId = msg->dwLeaderID;
 		iterId->second.MemberCount = msg->byMemberCount;
 		iterId->second.Level = msg->byMainLevel;
@@ -2994,12 +3000,12 @@ void MMOGuildData::AddOrUpdateGuildInfo(M2C_QUERY_GUILD_NAME_ACK* msg)
 		iterId->second.Crc = crc32(0, (const Bytef*)msg, sizeof(M2C_QUERY_GUILD_NAME_ACK));
 	}
 
-	QueryGuildInfoByNameMap::iterator iterName = _QueryGuildInfoByNameMap.find(FString(UTF8_TO_TCHAR(msg->szGuildName)));
+	QueryGuildInfoByNameMap::iterator iterName = _QueryGuildInfoByNameMap.find(FString(*ReadFixedUTF8(msg->szGuildName)));
 	if (iterName == _QueryGuildInfoByNameMap.end())
 	{ 
 		GuildQueryInfo info;
 		info.Id = msg->dwGuildID;
-		info.Name = UTF8_TO_TCHAR(msg->szGuildName);
+		info.Name = *ReadFixedUTF8(msg->szGuildName);
 		info.LeaderId = msg->dwLeaderID;
 		info.MemberCount = msg->byMemberCount;
 		info.Level = msg->byMainLevel;
@@ -3009,12 +3015,12 @@ void MMOGuildData::AddOrUpdateGuildInfo(M2C_QUERY_GUILD_NAME_ACK* msg)
 		//info.Crc = appMemCrc(msg, sizeof(M2C_QUERY_GUILD_NAME_ACK));
 		info.Crc = crc32(0, (const Bytef*)msg, sizeof(M2C_QUERY_GUILD_NAME_ACK));
 
-		_QueryGuildInfoByNameMap.insert(std::make_pair(FString(UTF8_TO_TCHAR(msg->szGuildName)), info));
+		_QueryGuildInfoByNameMap.insert(std::make_pair(FString(*ReadFixedUTF8(msg->szGuildName)), info));
 	}
 	else
 	{
 		iterName->second.Id = msg->dwGuildID;
-		iterName->second.Name = UTF8_TO_TCHAR(msg->szGuildName);
+		iterName->second.Name = *ReadFixedUTF8(msg->szGuildName);
 		iterName->second.LeaderId = msg->dwLeaderID;
 		iterName->second.MemberCount = msg->byMemberCount;
 		iterName->second.Level = msg->byMainLevel;

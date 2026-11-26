@@ -6,6 +6,8 @@
 
 Exporter_NPCSpawnGroup::Exporter_NPCSpawnGroup(void)
 {
+	for (INT i = 0; i < ARRAY_COUNT(arBlkHdrs); ++i)
+		arBlkHdrs[i] = NULL;
 	//sbtNpcSpawnPoint,
 	//sbtNpcSpawnGroup,
 }

@@ -72,7 +72,7 @@ public:
 
 
 	void UpdatePlayerRefineInfo( INT roleId , UINT16* level );
-	void UpdatePlayerEquipInfo( INT roleId , INT equipNum , char* equipData , INT crc );
+	void UpdatePlayerEquipInfo( INT roleId , INT equipNum , char* equipData , INT crc, UINT32 dataSize );
 	void UpdatePlayerAttrInfo( INT roleId , INT attrCount , ATTR_DATA* attrData , INT crc , INT32 Fatigue);
 	void UpdatePlayerSpiritInfo( INT roleId , ROLE_DB_SPIRIT_DATA* data , INT crc );
 	void UpdatePlayerPower( INT roleId , INT power );

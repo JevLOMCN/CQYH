@@ -10,7 +10,9 @@
 //const static INT MMODailySignInManager::SIGN_IN_LV_REQUIRE = 7;
 //==========================================================================================================================
 MMODailySignInManager::MMODailySignInManager()
+	: _OpenDailySignInPanelDelegate(EC_EventParm)
 {
+	_IsLastInRoleSelecting = FALSE;
 	_MyCurSignInState._CurSignInDay = 0;
 	_MyCurSignInState._CanSignIn = FALSE;
 	_MyCurSignInState._SignInTimestamp = 0;

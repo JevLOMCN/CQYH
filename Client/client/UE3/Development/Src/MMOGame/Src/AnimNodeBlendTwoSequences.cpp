@@ -14,6 +14,9 @@ FLOAT UAnimNodeBlendTwoSequences::PlayAnimation(
 	float Position,
 	BYTE InAnimLevel)
 {
+	if (Children.Num() < 2 || ActiveChildIdx < -1 || ActiveChildIdx > 1)
+		return 0.0f;
+
 	UAnimNodeSequence* child = 0;
 	UAnimNodeSequence* child2 = 0;
 	
@@ -24,14 +27,14 @@ FLOAT UAnimNodeBlendTwoSequences::PlayAnimation(
 
 	if( ActiveChildIdx == 0 )
 	{
-		child = (UAnimNodeSequence*)( Children(1).Anim );
+		child = Cast<UAnimNodeSequence>(Children(1).Anim);
 		if( child != NULL )
 		{
 			child->SetAnim( animName );
 			//child->bCauseActorAnimPlay = true;
 			child->bCauseActorAnimEnd = !noAnimEnd;
 
-			child2 = (UAnimNodeSequence*)Children(0).Anim;
+			child2 = Cast<UAnimNodeSequence>(Children(0).Anim);
 			if (child2 && child2->bPlaying)
 			{
 				child2->bCauseActorAnimEnd = FALSE;
@@ -60,7 +63,7 @@ FLOAT UAnimNodeBlendTwoSequences::PlayAnimation(
 	}
 	else// if( ActiveChildIdx == 1 )
 	{
-		child = (UAnimNodeSequence*)Children(0).Anim;
+		child = Cast<UAnimNodeSequence>(Children(0).Anim);
 		if( child != NULL )
 		{
 			child->SetAnim( animName );
@@ -68,7 +71,7 @@ FLOAT UAnimNodeBlendTwoSequences::PlayAnimation(
 			//child->bCauseActorAnimPlay = true;
 			child->bCauseActorAnimEnd = !noAnimEnd;
 
-			child2 = (UAnimNodeSequence*)Children(1).Anim;
+			child2 = Cast<UAnimNodeSequence>(Children(1).Anim);
 			if (child2 && child2->bPlaying)
 			{
 				child2->bCauseActorAnimEnd = FALSE;
@@ -100,7 +103,7 @@ FLOAT UAnimNodeBlendTwoSequences::PlayAnimation(
 
 UBOOL UAnimNodeBlendTwoSequences::StopAnimationByName(FName InAnim)
 {
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 2 && i < Children.Num(); ++i)
 	{
 		UAnimNodeSequence* node = Cast<UAnimNodeSequence>(Children(i).Anim);
 		if (node && node->AnimSeqName == InAnim && node->bPlaying)
@@ -117,10 +120,10 @@ UBOOL UAnimNodeBlendTwoSequences::StopAnimationByKey(INT InKey)
 	UBOOL bRet = FALSE;
 	if (InKey == ActiveAnimKey)
 	{
-		for (int i = 0; i < 2; ++i)
+		for (int i = 0; i < 2 && i < Children.Num(); ++i)
 		{
 			UAnimNodeSequence* node = Cast<UAnimNodeSequence>(Children(i).Anim);
-			if (node->bPlaying)
+			if (node && node->bPlaying)
 			{
 				node->StopAnim();
 				bRet = TRUE;
@@ -135,7 +138,7 @@ UBOOL UAnimNodeBlendTwoSequences::StopAnimationByKey(INT InKey)
 
 void UAnimNodeBlendTwoSequences::ReplayAnim()
 {
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 2 && i < Children.Num(); ++i)
 	{
 		UAnimNodeSequence* node = Cast<UAnimNodeSequence>(Children(i).Anim);
 		if (node&&node->bPlaying)
@@ -147,7 +150,7 @@ void UAnimNodeBlendTwoSequences::ReplayAnim()
 
 UBOOL UAnimNodeBlendTwoSequences::IsPlayingAnimationByName(FName InAnim)
 {
-	if (ActiveChildIdx < 0)
+	if (!Children.IsValidIndex(ActiveChildIdx))
 	{
 		return FALSE;
 	}
@@ -162,7 +165,7 @@ UBOOL UAnimNodeBlendTwoSequences::IsPlayingAnimationByName(FName InAnim)
 
 UBOOL UAnimNodeBlendTwoSequences::IsPlayingAnimationByKey(INT InKey)
 {
-	if (ActiveChildIdx < 0)
+	if (!Children.IsValidIndex(ActiveChildIdx))
 	{
 		return FALSE;
 	}
@@ -178,14 +181,14 @@ UBOOL UAnimNodeBlendTwoSequences::IsPlayingAnimationByKey(INT InKey)
 }
 UBOOL UAnimNodeBlendTwoSequences::IsPlayAnyAnimation()
 {
-	if (ActiveChildIdx < 0)
+	if (!Children.IsValidIndex(ActiveChildIdx))
 	{
 		return FALSE;
 	}
 
 	UBOOL bRet = FALSE;
 	UAnimNodeSequence* node = Cast<UAnimNodeSequence>(Children(ActiveChildIdx).Anim);
-	if (node->bPlaying)
+	if (node && node->bPlaying)
 	{
 		bRet = TRUE;
 	}
@@ -211,14 +214,19 @@ void UAnimNodeBlendTwoSequences::SetAnimRate(INT InKey,FLOAT InRate)
 
 UBOOL UAnimNodeBlendTwoSequences::GetCurrentAnimInfo(INT& OutActiveAnimKey,BYTE& OutAnimLevel,FLOAT& OutPercent,FName& OutAnimName)
 {
-	if (ActiveChildIdx < 0)
+	OutActiveAnimKey = 0;
+	OutAnimLevel = 0;
+	OutPercent = 0.0f;
+	OutAnimName = NAME_None;
+
+	if (!Children.IsValidIndex(ActiveChildIdx))
 	{
 		return FALSE;
 	}
 
 	UBOOL bRet = FALSE;
 	UAnimNodeSequence* node = Cast<UAnimNodeSequence>(Children(ActiveChildIdx).Anim);
-	if (node->bPlaying)
+	if (node && node->bPlaying)
 	{
 		OutActiveAnimKey = ActiveAnimKey;
 		OutAnimLevel = AnimLevel;

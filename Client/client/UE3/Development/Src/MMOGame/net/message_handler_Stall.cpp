@@ -94,12 +94,16 @@ void CMessageHandler::Send_UpgradeStall(UINT8 timeType)
 void CMessageHandler::Parse_g2c_sync_stall(const char* buf, UINT32 size)
 {
 	G2C_SYNC_STALL* msg =  (G2C_SYNC_STALL*)buf;
+	if (!buf || size < sizeof(G2C_SYNC_STALL))
+		return;
 	UStallManager::getSingleton().SetStallUpgradeLeftTime(msg->dwUpgradeExpireTime);
 }
 
 void CMessageHandler::Parse_g2c_stall_state_change(const char* buf, UINT32 size)
 {
 	G2C_STALL_STATE_CHANGE* msg =  (G2C_STALL_STATE_CHANGE*)buf;
+	if (!buf || size < sizeof(G2C_STALL_STATE_CHANGE))
+		return;
 	
 	AMMOPlayer* player = Cast<AMMOPlayer>( MMOFacade::getSingleton().GetCharacter(msg->dwRoleID));
 	UStallManager::getSingleton().ChangeActorStallState(player, msg->btStallState);
@@ -110,6 +114,8 @@ void CMessageHandler::Parse_g2c_stall_state_change(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_add_stall_item(const char* buf, UINT32 size)
 {
 	G2C_ADD_STALL_ITEM* msg =  (G2C_ADD_STALL_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_ADD_STALL_ITEM))
+		return;
 	
 	UStallManager::getSingleton().AddStallItem(msg->btStallSlot, 
 		msg->byConSlot,
@@ -126,6 +132,8 @@ void CMessageHandler::Parse_g2c_add_stall_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_remove_stall_item(const char* buf, UINT32 size)
 {
 	G2C_REMOVE_STALL_ITEM* msg =  (G2C_REMOVE_STALL_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_REMOVE_STALL_ITEM))
+		return;
 	
 	UStallManager::getSingleton().RemoveStallItem(msg->btStallSlot);
 	UMMOUIBag* bagPanel = (UMMOUIBag*)MMOUI::FindUIPanel(MMOUI::GetUIManager()->Panel_Bag);
@@ -138,16 +146,20 @@ void CMessageHandler::Parse_g2c_remove_stall_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_change_stall_name(const char* buf, UINT32 size)
 {
     G2C_CHANGE_STALL_NAME* msg =  (G2C_CHANGE_STALL_NAME*)buf;
+	if (!buf || size < sizeof(G2C_CHANGE_STALL_NAME))
+		return;
 	AMMOPlayer* player = Cast<AMMOPlayer>(MMOFacade::getSingleton().GetCharacter(msg->dwRoleID));
 	if (player)
 	{
-		player->StallName = FString(UTF8_TO_TCHAR(msg->szStallName));
+		player->StallName = ReadFixedUTF8(msg->szStallName);
 	}
 }
 
 void CMessageHandler::Parse_g2c_view_stall_item(const char* buf, UINT32 size)
 {
 	G2C_VIEW_STALL_ITEM* msg =  (G2C_VIEW_STALL_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_VIEW_STALL_ITEM))
+		return;
 
 	UStallManager::getSingleton().SetStallBuyPlayerId(msg->dwRoleID);
 	UStallManager::getSingleton().ResetStallBuyItems();
@@ -155,6 +167,9 @@ void CMessageHandler::Parse_g2c_view_stall_item(const char* buf, UINT32 size)
 	INT bufSize = 0;
 	for (int i = 0; i < msg->btStallItemCount; ++ i)
 	{
+		if ((UINT32)bufSize > size - sizeof(*msg) ||
+			size - sizeof(*msg) - bufSize < sizeof(STALL_ITEM_INFO))
+			return;
 		STALL_ITEM_INFO* tStallItemInfo = (STALL_ITEM_INFO*)(msg->acStallItems + bufSize);
 		if (!tStallItemInfo)
 		{
@@ -162,7 +177,9 @@ void CMessageHandler::Parse_g2c_view_stall_item(const char* buf, UINT32 size)
 		}
 
 		ItemInfo iteminfo;
-        INT buflen = iteminfo.Load(tStallItemInfo->acItem);
+        INT buflen = iteminfo.Load(tStallItemInfo->acItem, size - sizeof(*msg) - bufSize - sizeof(*tStallItemInfo));
+        if (buflen == 0)
+            return;
 
 		bufSize += sizeof(STALL_ITEM_INFO) + buflen;
 
@@ -201,18 +218,24 @@ void CMessageHandler::Parse_g2c_view_stall_item(const char* buf, UINT32 size)
 void CMessageHandler::Parse_g2c_buy_stall_item(const char* buf, UINT32 size)
 {
 	G2C_BUY_STALL_ITEM* msg = (G2C_BUY_STALL_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_BUY_STALL_ITEM))
+		return;
 	UStallManager::getSingleton().BuyStallItem(msg->btStallSlot, msg->nLeftItemCount);
 }
 
 void CMessageHandler::Parse_g2c_sold_stall_item(const char* buf, UINT32 size)
 {
 	G2C_SOLD_STALL_ITEM* msg = (G2C_SOLD_STALL_ITEM*)buf;
+	if (!buf || size < sizeof(G2C_SOLD_STALL_ITEM))
+		return;
 	UStallManager::getSingleton().SellStallItem(msg->btStallSlot, msg->nItemCount);
 }
 
 void CMessageHandler::Parse_g2c_change_stall_level(const char* buf, UINT32 size)
 {
 	G2C_CHANGE_STALL_LEVEL* msg =  (G2C_CHANGE_STALL_LEVEL*)buf;
+	if (!buf || size < sizeof(G2C_CHANGE_STALL_LEVEL))
+		return;
 	UStallManager::getSingleton().ChangeStallLevel(msg->dwRoleID, msg->byStallLevel);
 }
 

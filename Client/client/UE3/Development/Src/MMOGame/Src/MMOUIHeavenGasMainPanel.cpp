@@ -383,7 +383,7 @@ void UMMOUIHeavenGasMainPanel::UpdateSlotState(UMMOGFXPlayer*GFXPlayer,INT nCont
 		return;
 	if (nContainerID == sasbtEquip)
 	{
-		if(nSlotID < EquipGasItemSlotList.Num() && nSlotID <=  MMOHeavenManager::getSingleton().GetEquipContainerSize())
+		if(EquipGasItemSlotList.IsValidIndex(nSlotID) && nSlotID <=  MMOHeavenManager::getSingleton().GetEquipContainerSize())
 		{
 			for (INT n = 0; n <= nSlotID;++n)
 			{
@@ -395,7 +395,7 @@ void UMMOUIHeavenGasMainPanel::UpdateSlotState(UMMOGFXPlayer*GFXPlayer,INT nCont
 	}
 	else if (nContainerID == sasbtBag)
 	{
-		if(nSlotID < BagGasItemSlotList.Num() && nSlotID <=  MMOHeavenManager::getSingleton().GetBagContainerSize())
+		if(BagGasItemSlotList.IsValidIndex(nSlotID) && nSlotID <=  MMOHeavenManager::getSingleton().GetBagContainerSize())
 		{
 			for (INT n = 0; n <= nSlotID;++n)
 			{
@@ -406,7 +406,7 @@ void UMMOUIHeavenGasMainPanel::UpdateSlotState(UMMOGFXPlayer*GFXPlayer,INT nCont
 	}
 	else if (nContainerID == sasbtStall)
 	{
-		if(nSlotID < BankGasItemSlotList.Num() && nSlotID <=  MMOHeavenManager::getSingleton().GetBankContainerSize())
+		if(BankGasItemSlotList.IsValidIndex(nSlotID) && nSlotID <=  MMOHeavenManager::getSingleton().GetBankContainerSize())
 		{
 			for (INT n = 0; n <= nSlotID;++n)
 			{
@@ -427,7 +427,7 @@ void UMMOUIHeavenGasMainPanel::UpdateSlotItem(UMMOGFXPlayer*GFXPlayer,INT nConta
 		return;
 	if (nContainerID == sasbtEquip)
 	{
-		if(nSlotID < EquipGasItemSlotList.Num())
+		if(EquipGasItemSlotList.IsValidIndex(nSlotID))
 		{
 			UpdateContainerSlot(GFXPlayer,EquipGasItemSlotList(nSlotID),ESPType_HeavenGasEquip,nContainerID,nSlotID);
 			UpdateEquipSlotStateShow(GFXPlayer,sasbtEquip,nSlotID);
@@ -436,12 +436,12 @@ void UMMOUIHeavenGasMainPanel::UpdateSlotItem(UMMOGFXPlayer*GFXPlayer,INT nConta
 	}
 	else if (nContainerID == sasbtBag)
 	{
-		if(nSlotID < BagGasItemSlotList.Num())
+		if(BagGasItemSlotList.IsValidIndex(nSlotID))
 			UpdateContainerSlot(GFXPlayer,BagGasItemSlotList(nSlotID),ESPType_HeavenGasBag,nContainerID,nSlotID);
 	}
 	else if (nContainerID == sasbtStall)
 	{
-		if(nSlotID < BankGasItemSlotList.Num())
+		if(BankGasItemSlotList.IsValidIndex(nSlotID))
 			UpdateContainerSlot(GFXPlayer,BankGasItemSlotList(nSlotID),ESPType_HeavenGasBank,nContainerID,nSlotID);
 	}
 }

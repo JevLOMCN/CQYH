@@ -141,7 +141,7 @@ void AMMOVolume_Trigger::OnEnterQuestZone(class AMMOPlayer* Other)
 
 	if (Other && Other->IsMainPlayer())
 	{
-		if (Quests(0) > 0)
+		if (Quests.Num() > 0 && Quests(0) > 0)
 		{
 			MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_EnterQuestZone, Quests(0));
 			evt.QuestGridType = QuestTriggerType;
@@ -159,7 +159,7 @@ void AMMOVolume_Trigger::OnLeaveQuestZone(class AMMOPlayer* Other)
 
 	if (Other && Other->IsMainPlayer())
 	{
-		if (Quests(0) > 0)
+		if (Quests.Num() > 0 && Quests(0) > 0)
 		{
 			MMOGameEvent_Quest evt(MMOGameEvent_Quest::EQET_LeaveQuestZone, Quests(0));
 			evt.QuestGridType = QuestTriggerType;

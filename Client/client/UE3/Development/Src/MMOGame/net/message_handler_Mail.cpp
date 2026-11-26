@@ -125,19 +125,23 @@ void CMessageHandler::Send_GetMailAttach(UINT32 mailID)
 void CMessageHandler::Parse_m2c_mail_list_recv(const char* buf, UINT32 size)
 {
 	M2C_MAIL_LIST_RECV *msg = (M2C_MAIL_LIST_RECV*)buf;
+	if (!buf || size < sizeof(*msg) ||
+		msg->wMailCount > (size - sizeof(*msg)) / sizeof(msg->stBriefMailInfo[0]))
+		return;
 
 	DialogContext tmpCtx;
 	for (UINT32 i = 0; i < msg->wMailCount; ++i)
 	{
 		ParseContext parseCtx;
 
-		BriefMailInfo* mail = &msg->stBriefMailInfo[i];
+		BriefMailInfo record = msg->stBriefMailInfo[i];
+		BriefMailInfo* mail = &record;
 		tmpCtx.Clear();
-		UITextParser::getSingleton().Parse(parseCtx, tmpCtx, UTF8_TO_TCHAR(mail->szSenderRoleName));
+		UITextParser::getSingleton().Parse(parseCtx, tmpCtx, *ReadFixedUTF8(mail->szSenderRoleName));
 		ZeroMemory(mail->szSenderRoleName, sizeof(mail->szSenderRoleName));
 		strxcpy(mail->szSenderRoleName, *(tmpCtx.TempText), sizeof(mail->szSenderRoleName));
 		tmpCtx.Clear();
-		UITextParser::getSingleton().Parse(parseCtx, tmpCtx, UTF8_TO_TCHAR(mail->szMailSubject));
+		UITextParser::getSingleton().Parse(parseCtx, tmpCtx, *ReadFixedUTF8(mail->szMailSubject));
 		ZeroMemory(mail->szMailSubject, sizeof(mail->szMailSubject));
 		
 		strxcpy(mail->szMailSubject, *(tmpCtx.TempText), sizeof(mail->szMailSubject));
@@ -164,24 +168,25 @@ void CMessageHandler::Parse_m2c_mail_write_success(const char* buf, UINT32 size)
 //------------------------------------------------------------------------
 void CMessageHandler::Parse_m2c_mail_read(const char* buf, UINT32 size)
 {
-	M2C_MAIL_READ *msg = (M2C_MAIL_READ*)buf;
-	FString roleName = UTF8_TO_TCHAR(msg->szSenderRoleName);
-	FString subject = UTF8_TO_TCHAR(msg->szMailSubject);
+	if (!buf || size < sizeof(M2C_MAIL_READ))
+		return;
+	ClientMailDetail newMail;
+	M2C_MAIL_READ* msg = &newMail;
+	appMemcpy(msg, buf, sizeof(*msg));
+	msg->szMailContent[ARRAY_COUNT(msg->szMailContent) - 1] = 0;
 	//FString content = UTF8_TO_TCHAR(msg->szMailContent);
 
 	DialogContext tmpCtx;
 	ParseContext parseCtx;
-	UITextParser::getSingleton().Parse(parseCtx, tmpCtx, UTF8_TO_TCHAR(msg->szSenderRoleName));
+	UITextParser::getSingleton().Parse(parseCtx, tmpCtx, *ReadFixedUTF8(msg->szSenderRoleName));
 	ZeroMemory(msg->szSenderRoleName, sizeof(msg->szSenderRoleName));
 	strxcpy(msg->szSenderRoleName, *(tmpCtx.TempText), sizeof(msg->szSenderRoleName));
 
 	tmpCtx.Clear();
-	UITextParser::getSingleton().Parse(parseCtx, tmpCtx, UTF8_TO_TCHAR(msg->szMailSubject));
+	UITextParser::getSingleton().Parse(parseCtx, tmpCtx, *ReadFixedUTF8(msg->szMailSubject));
 	ZeroMemory(msg->szMailSubject, sizeof(msg->szMailSubject));
 	strxcpy(msg->szMailSubject, *(tmpCtx.TempText), sizeof(msg->szMailSubject));
 
-	ClientMailDetail newMail;
-	appMemcpy(&newMail, msg, sizeof(M2C_MAIL_READ));
 	newMail.mailSubject = tmpCtx.TempText;
 	//<#T1008 For this kind of client-assembled mail the designer wants no length limit, so parse it only when it needs to be displayed
 	//tmpCtx.Clear();
@@ -195,6 +200,8 @@ void CMessageHandler::Parse_m2c_mail_read(const char* buf, UINT32 size)
 void CMessageHandler::Parse_m2c_mail_delete_success(const char* buf, UINT32 size)
 {
 	M2C_MAIL_DELETE_SUCCESS *msg = (M2C_MAIL_DELETE_SUCCESS*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	MailManager::getSingleton().DeleteMail(msg->dwMailID);
 	MailManager::getSingleton().NotifyUpdateMailList();
 	MailManager::getSingleton().CheckAllSelectMail();
@@ -203,6 +210,8 @@ void CMessageHandler::Parse_m2c_mail_delete_success(const char* buf, UINT32 size
 void CMessageHandler::Parse_m2c_mail_new_count(const char* buf, UINT32 size)
 {
 	M2C_MAIL_NEW_COUNT *msg = (M2C_MAIL_NEW_COUNT*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	
 	MailManager::getSingleton().SetNewMailCount(msg->dwMailNewCount);
 }

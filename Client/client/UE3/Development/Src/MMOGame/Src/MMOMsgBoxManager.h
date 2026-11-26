@@ -19,6 +19,7 @@ enum MsgboxType
 
 struct MsgInfoEvent
 {
+	MsgInfoEvent() : MsgId(0), OnClickEventId(GameEvent_Invalid) {}
 	INT MsgId;
 	EGameEvent OnClickEventId;
 	
@@ -26,6 +27,7 @@ struct MsgInfoEvent
 
 struct MsgInfo
 {
+	MsgInfo() : MsgId(0), OnClick(EC_EventParm), OnClickNo(EC_EventParm), type(EMsgboxType_Modeless) {}
 	INT MsgId;
 	FScriptDelegate OnClick;
 	FScriptDelegate OnClickNo;

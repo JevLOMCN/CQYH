@@ -14,12 +14,14 @@ void CMessageHandler::Send_WebSurveyPageAck()
 void CMessageHandler::Parse_g2c_query_survey_path(const char* buf, UINT32 size)
 {
 	G2C_QUERY_SURVEY_PATH* msg = (G2C_QUERY_SURVEY_PATH*)buf;
+	if (!buf || size < sizeof(*msg))
+		return;
 	if(msg)
 	{
 		TArray<FString>  tArrUrlStr;
 		for (INT n = 0; n < MAX_SURVEY_COUNT; ++n)
 		{
-			FString str(UTF8_TO_TCHAR(msg->szQuerySurveyPath[n]));
+			FString str = ReadFixedUTF8(msg->szQuerySurveyPath[n]);
 			if(str.Len() > 0)
 			    tArrUrlStr.AddItem(str);
 			else

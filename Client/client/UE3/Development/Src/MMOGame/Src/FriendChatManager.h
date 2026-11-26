@@ -14,11 +14,8 @@ struct ContactLogStruct
 	FString PlayerName;
 	INT RoleId;
 
-	ContactLogStruct() {}
-	ContactLogStruct(EEventParm)
-	{
-		appMemzero(this, sizeof(ContactLogStruct));
-	}
+	ContactLogStruct() : RoleId(0) {}
+	ContactLogStruct(EEventParm) : RoleId(0) {}
 };
 
 struct MMOGameEvent_FriendChat_ShowChatHint : public MMOGameEvent

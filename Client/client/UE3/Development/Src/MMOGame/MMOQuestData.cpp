@@ -323,7 +323,6 @@ void QuestDataProcessor::ParseData(UQuest* obj, class CTabFile* dataRow, int row
 
 	for (int i = 0; i < obj->CheckVar.Num(); ++ i)
 	{
-		FQuestCheckVar checkVar;
 		FString text = FString::Printf(TEXT("CheckVar.CheckVarType%d"), i + 1);
 		obj->CheckVar(i).CheckVarType = TReadDataValue_FString<QuestDataManager>(*text, dataRow, rowIdx);
 
@@ -339,7 +338,6 @@ void QuestDataProcessor::ParseData(UQuest* obj, class CTabFile* dataRow, int row
 
 	for (int i = 0; i < obj->CheckClassVar.Num(); ++ i)
 	{
-		FQuestCheckClassVar checkClassVar;
 		FString text = FString::Printf(TEXT("CheckClassVar.CheckClassVarCnt%d"), i + 1);
 		obj->CheckClassVar(i).CheckClassVarCnt = TReadDataValue_Int<QuestDataManager>(*text, dataRow, rowIdx);
 
@@ -1590,23 +1588,21 @@ UINT32 MMOQuestData::GetCompletedQuestMaxCount(INT32 questId) const
 
 UINT32 MMOQuestData::GetQuestCompletedDate(INT32 questId, INT32& year, INT32& month, INT32& day, INT32& dayOfWeek, INT32& hour, INT32& min, INT32& seconds) const
 {
+	year = month = day = dayOfWeek = hour = min = seconds = 0;
 	if (questId <= MAX_NORMAL_QUEST_COUNT)
 		return 0;
-
-	UINT32 time = _RepeatQuestScanTime;//[questId - MAX_NORMAL_QUEST_COUNT];
-	appSecondsToLocalTime(time, year, month, dayOfWeek, day, hour, min, seconds);
-
-	struct tm* TimeStruct;
-	INT64 time64 = time;
-	TimeStruct = localtime(&time64);
-	if (TimeStruct)
-	{
-		year = TimeStruct->tm_year;
-		month = TimeStruct->tm_mon;
-		day = TimeStruct->tm_mday;
-	}
-
-	return time;
+	const time_t completed = (time_t)_RepeatQuestScanTime;
+	const tm* date = localtime(&completed);
+	if (date == NULL)
+		return 0;
+	year = date->tm_year;
+	month = date->tm_mon;
+	day = date->tm_mday;
+	dayOfWeek = date->tm_wday;
+	hour = date->tm_hour;
+	min = date->tm_min;
+	seconds = date->tm_sec;
+	return _RepeatQuestScanTime;
 }
 
 const AcceptedQuestData* MMOQuestData::GetAcceptedQuestData(INT32 questId) const
@@ -2261,7 +2257,7 @@ void MMOQuestData::UpdateQuestNpcKillCount(INT questId, UINT16 index, INT value)
 
 			// count kill-monster quests
 			const UQuest* quest = GetQuestData((INT)questId);
-			if (quest)
+			if (quest && quest->CheckKillNpc.IsValidIndex(index))
 			{
 				const FQuestCheckKillNpc* killNpc = &quest->CheckKillNpc(index);
 				if (killNpc)
@@ -3038,7 +3034,7 @@ UBOOL MMOQuestData::GetCircleQuestRewardData(INT circleId, INT circleIndex, INT 
 	CircleQuestData data;
 	if (GetCircleQuestData(circleId, playerLevel, data))
 	{
-		if (circleIndex >= 0 && circleIndex < data.CircleSize)
+		if (circleIndex >= 0 && circleIndex < data.CircleSize && circleIndex < ARRAY_COUNT(data.RewardId))
 		{
 			CircleQuestRewardDataMap::iterator iter = _CircleQuestRewardDataMap.find(data.RewardId[circleIndex]);
 			if (iter != _CircleQuestRewardDataMap.end())

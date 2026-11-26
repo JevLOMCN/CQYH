@@ -143,8 +143,11 @@ void EquipSlotManager::OnNativeGameEvent(struct MMOGameEvent* evt)
 //================================================================================================================
 void EquipSlotManager::SyncEquipSlotLevel(UINT16 level[NES_TOTAL])
 {
-	check( NES_TOTAL == EQUIP_SLOT_COUNT );
-	for(INT i = 0; i < EQUIP_SLOT_COUNT; i++)
+	if (level == NULL)
+	{
+		return;
+	}
+	for(INT i = 0; i < EQUIP_SLOT_COUNT && i < NES_TOTAL; i++)
 	{
 		_MyEquipSlotProperties[i].CurEnhanceLevel = (UINT)level[i];
 	}
@@ -172,6 +175,11 @@ void EquipSlotManager::ReadEnhancePropConfig()
 		INT refineLv = appAtoi( tabFile->GetData( TEXT("RefineLevel"), i ) );
 		INT refineDataClassId = mmoFacade.FindClientEnumValue( tabFile->GetData( TEXT("Class"), i ), TEXT("ECHAR_CLASS_TYPE"));
 		INT slotID = mmoFacade.FindClientEnumValue( tabFile->GetData( TEXT("NormalEquipSlot"), i ), TEXT("ENORMAL_EQUIP_SLOT"), 1 );	
+		if (refineDataClassId < 0 || refineDataClassId >= EPCT_MAX
+			|| slotID < 0 || slotID > NES_TOTAL || refineLv < 0 || refineLv > 0xffff)
+		{
+			continue;
+		}
 
 		//Record the index of the extra enhancement bonus data
 		if( slotID == NES_TOTAL && refineDataClassId >= 0 && refineDataClassId < EPCT_MAX )
@@ -236,6 +244,7 @@ void EquipSlotManager::ReadEquipSlotEnhanceConfig()
 		INT refineLv = appAtoi( tabFile->GetData( TEXT("RefineLevel"), i ) );
 
 		EquipSlotEnhanceCfgData &dataElement = _EnhanceEquipSlotCfg.FindOrAdd( refineLv );
+		dataElement.RefineLv = refineLv;
 		dataElement.PlayerRequireLv		= appAtoi( tabFile->GetData( TEXT("RequireLevel"), i ) );
 		dataElement.BaseSuccessRate		= appAtoi( tabFile->GetData( TEXT("SuccessRate"), i ) );
 		dataElement.SuccessRateFactor	= appAtoi( tabFile->GetData( TEXT("BasePow"), i ) );
@@ -257,6 +266,11 @@ void EquipSlotManager::ReadEquipSlotEnhanceConfig()
 //----------------------------------------------------------------------------------------------------------------
 const EquipSlotEnhancePropCfgData *EquipSlotManager::FindEnhancePropCfg( INT classID, INT partID, INT refineLv )
 {
+	if (classID < 0 || classID >= EPCT_MAX || partID < 0 || partID > NES_TOTAL
+		|| refineLv < 0 || refineLv > 0xffff)
+	{
+		return NULL;
+	}
 	UINT keyID = CombineRefineKey( classID, partID, refineLv );
 	EquipSlotEnhancePropCfgData *pDataElement = _EnhancePropCfg.Find( keyID );
 	if( pDataElement == NULL )
@@ -490,9 +504,13 @@ INT EquipSlotManager::GetEnhanceActiveLevel() const
 	return lv;
 }
 //==========================================================================================================================
-EquipSlotEnhanceActiveTemplate& EquipSlotManager::GetEquipSlotEnhanceActiveTemplate(INT lv)
+const EquipSlotEnhanceActiveTemplate& EquipSlotManager::GetEquipSlotEnhanceActiveTemplate(INT lv) const
 {
-	check( lv >= 0 && lv < MAX_ACTIVE_LEVEL );
+	if (lv < 0 || lv >= MAX_ACTIVE_LEVEL)
+	{
+		static const EquipSlotEnhanceActiveTemplate EmptyTemplate;
+		return EmptyTemplate;
+	}
 	return m_EquipSlotEnhanceActiveData[lv];
 }
 //==========================================================================================================================

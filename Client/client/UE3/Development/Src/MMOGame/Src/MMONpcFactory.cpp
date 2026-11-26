@@ -30,7 +30,7 @@ ANPC* MMONpcFactory::CreateNpc( INT type )
 	}
 	else
 	{	// load template and store it
-		TCHAR fileName[MAX_PATH];
+		TCHAR fileName[MAX_PATH] = TEXT("");
 		switch( type )
 		{
 		case 1:
@@ -45,8 +45,12 @@ ANPC* MMONpcFactory::CreateNpc( INT type )
 			// not a registered type, return NULL
 			return NULL;
 		}
+		if (fileName[0] == 0)
+			return NULL;
 		AActor* temp = Cast<AActor>(UObject::StaticLoadObject( 
 			ANPC::StaticClass(), NULL, NULL, fileName, 0, NULL ));
+		if (temp == NULL)
+			return NULL;
 		templates[type] = temp;
 		return Cast<ANPC>( GWorld->SpawnActor(ANPC::StaticClass(), NAME_None, FVector(0,0,0),
 			FRotator(0,0,0), temp, true ) );

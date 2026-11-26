@@ -30,7 +30,7 @@ void USeqAct_BTNode::PostEditChangeProperty(FPropertyChangedEvent& PropertyChang
 	//}
 
 	TCHAR GBTIni[1024] = {0};
-	appSprintf(GBTIni, TEXT("%s%s%sBTNode.ini"), *appGameConfigDir(), INI_PREFIX, GGameName);
+	appStrncpy(GBTIni, *FString::Printf(TEXT("%s%s%sBTNode.ini"), *appGameConfigDir(), INI_PREFIX, GGameName), ARRAY_COUNT(GBTIni));
 	GConfig->GetString( *ObjName, TEXT("p0"), ParamDesc[0], GBTIni );	//GBTIni
 	GConfig->GetString( *ObjName, TEXT("p1"), ParamDesc[1], GBTIni );
 	GConfig->GetString( *ObjName, TEXT("p2"), ParamDesc[2], GBTIni );
@@ -122,10 +122,24 @@ FString USeqAct_BTNode::GetAutoComment() const
 	return AutoComment;
 }
 
+static BOOL BuildBTIndentation(INT32 depth, FString& tabs)
+{
+	tabs.Empty();
+	if (depth < 0 || (UINT)depth > (MAXINT / sizeof(TCHAR) - 1) / 4)
+		return FALSE;
+	tabs.Reserve((UINT)depth * 4);
+	for (INT32 i = 0; i < depth; ++i)
+		tabs += TEXT("    ");
+	return TRUE;
+}
+
 BOOL USeqAct_BTNode::ExportBTNode( FString& Buffer, INT32 nDepth )
 {
 	USeqAct_BTNode* pNode = (USeqAct_BTNode*)this;
 	INT32 nRetCode = FALSE;
+	FString tabs;
+	if (!BuildBTIndentation(nDepth, tabs))
+		return FALSE;
 
 	if( NULL == pNode )
 		return FALSE;
@@ -250,9 +264,7 @@ BOOL USeqAct_BTNode::ExportBTNode( FString& Buffer, INT32 nDepth )
 		}// for v
 	}// for vl
 
-	char szTabs[256] = { 0 };
-	memset( szTabs, ' ', nDepth * 4 );
-	Buffer += szTabs;
+	Buffer += tabs;
 	Buffer += FString::Printf( TEXT("{ %s, "),	*(pNode->ObjName) );
 
 	check( Params.Num() <= 4 );
@@ -341,7 +353,7 @@ BOOL USeqAct_BTNode::ExportBTNode( FString& Buffer, INT32 nDepth )
 	}
 
 	// end
-	Buffer += szTabs;
+	Buffer += tabs;
 	Buffer += TEXT("},\n");
 
 	return TRUE;
@@ -354,7 +366,7 @@ void USeqAct_BTNode::GetDynamicListValues(const DynamicListInfo& ListInfo, TArra
 	check(ListInfo.ListName == TEXT("BTNodeTypeList"));
 
 	TCHAR GBTIni[1024] = {0};
-	appSprintf(GBTIni, TEXT("%s%s%sBTNode.ini"), *appGameConfigDir(), INI_PREFIX, GGameName);
+	appStrncpy(GBTIni, *FString::Printf(TEXT("%s%s%sBTNode.ini"), *appGameConfigDir(), INI_PREFIX, GGameName), ARRAY_COUNT(GBTIni));
 
 	TArray<FString> StrArray;
 	INT nRetCode = GConfig->GetArray( *(ListInfo.ListName), *(ListInfo.ListName), StrArray, GBTIni );

@@ -11,6 +11,8 @@
 #define Seconds 1.0f
 struct HurtData
 {
+	HurtData() : AllHurts(0), HurtTime(0.0f) {}
+
 	UINT AllHurts; //total damage
 	float HurtTime;//total combat time
 

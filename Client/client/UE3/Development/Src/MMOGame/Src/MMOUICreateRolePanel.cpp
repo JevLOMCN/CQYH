@@ -474,11 +474,10 @@ INT UMMOUICreateRolePanel::CheckName( const FString& InputName, INT &Count ,INT 
 {
 	Count = 0;
 	Size  = 0;
-	static TCHAR   szRoleName[256];
-	wcscpy_s(szRoleName, _countof(szRoleName), *InputName) ;
+	const TCHAR* szRoleName = *InputName;
 	size_t Length = InputName.Len();
 
-	INT res = 1;
+	INT res = MMOUI::HasSpecialSymbol(InputName) ? 0 : 1;
 	for(size_t i=0;i<Length;i++)
 	{
 		TCHAR c = szRoleName[i];
@@ -513,10 +512,7 @@ INT UMMOUICreateRolePanel::CheckName( const FString& InputName, INT &Count ,INT 
 			Size+=2;
 		}
 
-		if(MMOUI::HasSpecialSymbol(InputName))
-		{
-			res = 0;
-		}
+
 		//else{
 		//	res = 0;
 		//}

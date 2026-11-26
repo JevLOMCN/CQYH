@@ -70,6 +70,7 @@ public:
 class FSMCtrl_Test: public IFSMCtrl
 {
 public:	
+	FSMCtrl_Test() : m_DelTime(0.0f) {}
 	UBOOL	Update(FLOAT DelTime);
 	void	Action();
 private:

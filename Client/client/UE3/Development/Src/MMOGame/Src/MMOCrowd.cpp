@@ -59,7 +59,7 @@ void AMMOCrowdSystem::PostEditChangeProperty( struct FPropertyChangedEvent& Prop
 //------------------------------------------------------------------------
 class UMMOCrowdInstance* AMMOCrowdSystem::GetInstanceByID(INT instId)
 {
-	if(instId < CrowdInstanceData.Num())
+	if(CrowdInstanceData.IsValidIndex(instId))
 	{
 		return CrowdInstanceData(instId);
 	}

@@ -25,6 +25,8 @@ public:
 		ESET_UpdateRoleListUI,
 	};
 
+	MMOGameEvent_Splash() : EvtType(ESET_ShowSplashUI), PositionInfo(0.0f, 0.0f, 0.0f), SelectRoleIndex(-1), ShowSplashUI(FALSE) {}
+
 	ESplashEventType EvtType;
 	FVector PositionInfo;
 	INT SelectRoleIndex;

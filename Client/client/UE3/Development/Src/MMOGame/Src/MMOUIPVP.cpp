@@ -30,24 +30,25 @@ void UMMOUIPVP::Init()
 		GFXPlayer->AddPostAdvanceDelegate( FScriptDelegate(this, TEXT("PostAdvance")) );
 	}
 
-	ArenaMode.Add(ArenaModeSelCount);
+	ArenaMode.Empty();
 	for( INT i = 0 ; i < ArenaModeSelCount ; i++ )
 	{
-		ArenaMode(i) = GetObject( FString( TEXT("ArenaMode") ) + appItoa(i) );
+		ArenaMode.AddItem(GetObject( FString( TEXT("ArenaMode") ) + appItoa(i) ));
 	}
 
 
-	ArenaSize.Add(ArenaSizeSelCount);
+	ArenaSize.Empty();
 	for( INT i = 0 ; i < ArenaSizeSelCount ; i++ )
 	{
-		ArenaSize(i) = GetObject( FString( TEXT("ArenaSize") ) + appItoa(i) );
+		ArenaSize.AddItem(GetObject( FString( TEXT("ArenaSize") ) + appItoa(i) ));
 	}
 
-	//5V5 is disabled in this version
-	ArenaSize(1)->SetBool( TEXT("enable") , FALSE );
+	//这个版本禁用掉5V5
+	if (ArenaSize.IsValidIndex(1) && ArenaSize(1))
+		ArenaSize(1)->SetBool( TEXT("enable") , FALSE );
 
 
-	UGFxObject* data = GFXPlayer->CreateObject( TEXT("Object") );
+	UGFxObject* data = GFXPlayer ? GFXPlayer->CreateObject( TEXT("Object") ) : NULL;
 	if(data)
 	{
 		data->SetString( TEXT("titleName") , MMOUI::ParseLocalizedPropertyPath( TEXT("MMOGame.Arena.Arena") ));

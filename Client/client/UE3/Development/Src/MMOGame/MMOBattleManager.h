@@ -31,7 +31,9 @@ enum eBattleState
 
 //Battlefield personal score
 struct FBattlePlayerScore
-{	//Score earned in the personal battlefield, meaning varies by battlefield
+{
+	FBattlePlayerScore() : _Sum(0), _Kills(0), _BeKilled(0), _Damages(0), _Heals(0) {}
+	//个人战场获得的分数，分数含义根据不同战场而不同
 	INT	_Sum;
 
 	INT _Kills;
@@ -44,12 +46,15 @@ struct FBattlePlayerScore
 //Battlefield personal reward
 struct FBattlePlayerAwards
 {
+	FBattlePlayerAwards() : _Points(0) {}
 	INT _Points;
 };
 
 //Battlefield players
 struct FBattlePlayer
 {
+	FBattlePlayer() : _ID(0), _Sex(0), _ClassID(0), _Lv(0)
+		, _State(EBPS_OFFLINE), _IsLeader(false), _BtlTeamID(0) {}
 	INT			_ID;
 
 	INT			_Sex;

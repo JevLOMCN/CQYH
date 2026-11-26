@@ -407,7 +407,7 @@ void UMMOUIContactWidget::UpdateSearchList( TArray<MMOFriendMember>& resList )
 
 	if( !same )
 	{
-		appMemzero( searchList , sizeof(MMOFriendMember)*UCONST_MaxSearchPanelItem );
+		FriendManager::getSingleton().ClearSearchList();
 		//appMemcpy( searchList , resList.GetData() , sizeof(MMOFriendMember)*resNum );
 
 		for ( INT j = 0 ; j < resNum ; j++ )

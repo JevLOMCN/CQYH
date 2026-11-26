@@ -75,6 +75,11 @@ IFSMState::IFSMState(void)
 //Mouse/key series states----------------------------------------------------------------
 void FSMState_Input::Init()
 {
+	ShiftDown_Last = FALSE;
+	LeftBtnDown_Last = FALSE;
+	RightBtnDown_Last = FALSE;
+	CtrlBtnDown_Last = FALSE;
+	AltBtnDown_Last = FALSE;
 	ShiftDown		= FALSE;				
 	LeftBtnDown		= FALSE;				
 	RightBtnDown	= FALSE;				
@@ -113,6 +118,7 @@ void FSMState_Input::Update(FLOAT DelTime)
 //Main character related series states-------------------------------------------------------------
 void FSMState_Charactor::Init()
 {
+	nCannotInterruptLevel = 0;
 	MainPlayer		= NULL;
 	Controller		= NULL;
 	MoveEnable		= FALSE;
@@ -356,6 +362,8 @@ void FSMState_Ability::Update(FLOAT DelTime)
 //Control series states----------------------------------------------------------
 void FSMState_Ctrl::Init()
 {
+	KeyType = KT_NONE;
+	vecRotation = FVector(0.0f, 0.0f, 0.0f);
 	IsBattleState	= FALSE;
 	IsGuildBattle	= FALSE;			//Guild battle state
 	//GameControlType = GC_DIABLO3;
@@ -400,6 +408,14 @@ void FSMState_Ctrl::Update(FLOAT DelTime)
 //target series states----------------------------------------------------------------
 void FSMState_Target::Init()
 {
+	CurTargetPos = FVector(0.0f, 0.0f, 0.0f);
+	CurOptimizeTargetPos = FVector(0.0f, 0.0f, 0.0f);
+	DesirePos = FVector(0.0f, 0.0f, 0.0f);
+	LastMouseHitNavMeshLocation = FVector(0.0f, 0.0f, 0.0f);
+	LastMainPlayerPos = FVector(0.0f, 0.0f, 0.0f);
+	LastOffsetDes = FVector(0.0f, 0.0f, 0.0f);
+	CaptureInput = FALSE;
+	ShowUITipsFlag = FALSE;
 	CurTargetActor			= NULL;
 	LastTargetActor			= NULL;
 	CurTargetMMOActor		= NULL;		

@@ -36,6 +36,8 @@ enum JourneyMonsterType
 
 struct MonsterMapData
 {
+	MonsterMapData()
+		: MonsterId(0), MonsterType(0), MonsterMapId(0), MonsterPoint(0.0f, 0.0f) {}
 	UINT32 MonsterId;
 	FString MonsterName;
 	UINT32 MonsterType;
@@ -47,6 +49,10 @@ struct MonsterMapData
 // Path of the Strong data
 struct JourneyData
 {
+	JourneyData()
+		: Id(0), MinLevel(0), MaxLevel(0), ForceId(0), StoryQuestStar(0), MonsterStar(0)
+		, EmegencyQuestStar(0), BossStar(0), ActivityQuestStar(0), GuideQuestStar(0)
+		, AchievementStar(0), GuildStar(0), AchievementBaseClass(0), AchievementSubClass(0) {}
 	INT32 Id;
 	FString Title;
 	FString NpcName;

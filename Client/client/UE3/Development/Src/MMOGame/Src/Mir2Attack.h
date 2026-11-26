@@ -80,6 +80,7 @@ public:
 class AttackClassE: public AttackClassX
 {
 public:
+	AttackClassE() : _Last_ShiDu_Ability(3400) {}
 	void  Init();
 	UBOOL InPrimaryAbilityRange(FVector DesPos, UBOOL b3x3);
 	UMMOAbility* GetPrimaryAbility();	

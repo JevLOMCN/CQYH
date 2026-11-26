@@ -5,6 +5,8 @@
 #include "MMOLoginManager.h"
 
 LoginBase::LoginBase()
+	: PlayerStartRotation(0, 0, 0), PlayerStartPostion(0.0f, 0.0f, 0.0f)
+	, HiddenPostion(0.0f, 0.0f, 0.0f), SelectCameraNormalPostion(0.0f, 0.0f, 0.0f), CreateShowActors(E_ForceInit)
 {
 	//IsChinaJoy = TRUE;
 	IsVersion2T = FALSE;
@@ -40,7 +42,7 @@ TArray<FString> LoginBase::GetLoginIPList()
 {
 	TArray<FString> ipNameList;
 	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	appStrncpy(ipFile, *FString::Printf(TEXT("%sIP.ini"), *appGameConfigDir()), ARRAY_COUNT(ipFile));
 	GConfig->GetArray(TEXT("LoginIP"), TEXT("LoginServerIP"), ipNameList, ipFile);
 	return ipNameList;
 }
@@ -49,7 +51,7 @@ TArray<FString> LoginBase::GetLoginIPNameList()
 {
 	TArray<FString> ipNameList;
 	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	appStrncpy(ipFile, *FString::Printf(TEXT("%sIP.ini"), *appGameConfigDir()), ARRAY_COUNT(ipFile));
 	GConfig->GetArray(TEXT("LoginIP"), TEXT("LoginServerName"), ipNameList, ipFile);
 	return ipNameList;
 }
@@ -60,7 +62,7 @@ void LoginBase::GetIPSelected( const FString& serverName,FString& ip )
 
 	ipList = GetLoginIPList();
 	ipNameList = GetLoginIPNameList();
-	for(INT i = 0; i < ipNameList.Num(); ++i)
+	for(INT i = 0; i < ipNameList.Num() && i < ipList.Num(); ++i)
 	{
 		if(ipNameList(i) == serverName)
 		{
@@ -73,7 +75,7 @@ void LoginBase::GetIPSelected( const FString& serverName,FString& ip )
 INT LoginBase::GetLoginPort()
 {
 	TCHAR ipFile[1024];
-	appSprintf(ipFile, TEXT("%sIP.ini"), *appGameConfigDir());
+	appStrncpy(ipFile, *FString::Printf(TEXT("%sIP.ini"), *appGameConfigDir()), ARRAY_COUNT(ipFile));
 	INT port = 0;
 	GConfig->GetInt(TEXT("LoginIP"), TEXT("LoginServerPort"), port, ipFile);
 	return port;

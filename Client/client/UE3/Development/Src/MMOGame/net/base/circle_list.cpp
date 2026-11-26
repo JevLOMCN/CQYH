@@ -15,9 +15,10 @@ CCircleList::~CCircleList()
 
 BOOL CCircleList::Init(UINT32 dwSize)
 {
-    LOG_PROCESS_ERROR(dwSize > 0);
+    if (!dwSize || m_ppData || (size_t)dwSize > (size_t)-1 / sizeof(void*))
+        return FALSE;
 
-    m_ppData = new void*[dwSize];
+    m_ppData = new void*[dwSize]();
     LOG_PROCESS_ERROR(m_ppData);
 
     m_dwSize = dwSize;
@@ -31,7 +32,7 @@ Exit0:
 BOOL CCircleList::UnInit(void)
 {
     SAFE_DELETE_ARRAY(m_ppData);
-    m_dwSize = 0;
+    m_dwSize = m_dwHead = m_dwRear = 0;
 
     return TRUE;
 }
@@ -54,7 +55,7 @@ void* CCircleList::Pop(void)
 {
     void* pResult = NULL;
 
-    PROCESS_ERROR(m_dwRear != m_dwHead);
+    PROCESS_ERROR(m_dwSize > 0 && m_ppData && m_dwRear != m_dwHead);
 
     pResult = m_ppData[m_dwHead];
     m_dwHead = (m_dwHead + 1) % m_dwSize;
@@ -65,7 +66,7 @@ Exit0:
 
 void* CCircleList::Check(void)
 {
-    PROCESS_ERROR(m_dwRear != m_dwHead);
+    PROCESS_ERROR(m_dwSize > 0 && m_ppData && m_dwRear != m_dwHead);
 
     return m_ppData[m_dwHead];
 Exit0:

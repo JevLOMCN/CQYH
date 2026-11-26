@@ -846,40 +846,44 @@ extern UGFxEngine* GGFxGCManager;
 
 #define UGALLOC(s) GALLOC(s, GStat_Default_Mem)
 
-// Helper for dynamic arrays of GFx::Value on stack.
+// Own temporary GFx values without an input-sized stack allocation.
 struct FAutoGFxValueArray
 {
 	unsigned Count;
-	GFx::Value *Array;
+	GFx::Value* Array;
 
-	FAutoGFxValueArray ( unsigned count, void *p ) : Count ( count ), Array ( ( GFx::Value* ) p )
+	explicit FAutoGFxValueArray(unsigned count) : Count(count), Array(NULL)
 	{
-		for ( unsigned i = 0; i < Count; i++ )
+		if( Count > UINT(MAXINT) / sizeof(GFx::Value) )
+			return;
+		if( Count )
 		{
-			new ( &Array[i] ) GFx::Value;
+			Array = (GFx::Value*)appMalloc(SIZE_T(Count) * sizeof(GFx::Value));
+			if( Array )
+			{
+				for( unsigned i = 0; i < Count; ++i )
+					new(&Array[i]) GFx::Value;
+			}
 		}
 	}
 	~FAutoGFxValueArray()
 	{
-		for ( unsigned i = 0; i < Count; i++ )
+		if( Array )
 		{
-			Array[i].~Value();
+			for( unsigned i = 0; i < Count; ++i )
+				Array[i].~Value();
+			appFree(Array);
 		}
 	}
-	operator GFx::Value* ()
-	{
-		return Array;
-	}
-	GFx::Value& operator[] ( unsigned i )
-	{
-		return Array[i];
-	}
-	GFx::Value& operator[] ( int i )
-	{
-		return Array[i];
-	}
+	UBOOL IsValid() const { return Count == 0 || Array != NULL; }
+	operator GFx::Value*() { return Array; }
+	GFx::Value& operator[](unsigned i) { return Array[i]; }
+	GFx::Value& operator[](int i) { return Array[i]; }
+private:
+	FAutoGFxValueArray(const FAutoGFxValueArray&);
+	FAutoGFxValueArray& operator=(const FAutoGFxValueArray&);
 };
-#define AutoGFxValueArray(name,count) FAutoGFxValueArray name (count,appAlloca((count) * sizeof(GFx::Value)))
+#define AutoGFxValueArray(name,count) FAutoGFxValueArray name(count)
 
 #endif // WITH_GFx
 

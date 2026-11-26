@@ -86,6 +86,11 @@ UBOOL UMMOSkeletalMeshMerge::CheckFinish()
 
 UBOOL UMMOSkeletalMeshMerge::PrepareTextures()
 {
+	for( INT i = 0; i < Parts.Num(); ++i )
+	{
+		if( Parts(i).Textures.Num() != Parts(i).Textures_Base.Num() )
+			return FALSE;
+	}
 	UTexture2D* tex;
 	NumMipLevels = 5 - GSystemSettings.GetNumMipsToDrop();	// maximum mip levels we need
 	for( INT i = 0; i < Parts.Num(); ++i )
@@ -222,7 +227,7 @@ UBOOL UMMOSkeletalMeshMerge::IsSourceTexturesFullyLoaded()
 	{
 		for( INT j = 0; j < Parts(i).Textures.Num(); ++j )
 		{
-			if( !Parts(i).Textures(j)->IsFullyStreamedIn() )
+			if( !Parts(i).Textures(j) || !Parts(i).Textures(j)->IsFullyStreamedIn() )
 			{
 				return FALSE;
 			}
@@ -230,7 +235,7 @@ UBOOL UMMOSkeletalMeshMerge::IsSourceTexturesFullyLoaded()
 
 		for( INT j = 0; j < Parts(i).Textures_N.Num(); ++j )
 		{	// normal texture may exist or not( 0 )
-			if( !Parts(i).Textures_N(j) && !Parts(i).Textures_N(j)->IsFullyStreamedIn() )
+			if( !Parts(i).Textures_N(j) || !Parts(i).Textures_N(j)->IsFullyStreamedIn() )
 			{
 				return FALSE;
 			}
@@ -238,7 +243,7 @@ UBOOL UMMOSkeletalMeshMerge::IsSourceTexturesFullyLoaded()
 
 		for( INT j = 0; j < Parts(i).Textures_S.Num(); ++j )
 		{	// specular texture must exist
-			if( !Parts(i).Textures_S(j)->IsFullyStreamedIn() )
+			if( !Parts(i).Textures_S(j) || !Parts(i).Textures_S(j)->IsFullyStreamedIn() )
 			{
 				return FALSE;
 			}
@@ -325,6 +330,17 @@ UBOOL UMMOSkeletalMeshMerge::MergeMeshes()
 
 UBOOL UMMOSkeletalMeshMerge::MergeTextures()
 {
+	for( INT idx = 0; idx < Parts.Num(); ++idx )
+	{
+		INT count = Parts(idx).Textures.Num();
+		if( Parts(idx).Textures_N.Num() != count || Parts(idx).Textures_S.Num() != count )
+			return FALSE;
+		for( INT layer = 0; layer < count; ++layer )
+		{
+			if( !Parts(idx).Textures(layer) || !Parts(idx).Textures_N(layer) || !Parts(idx).Textures_S(layer) )
+				return FALSE;
+		}
+	}
 	//if( MergedTex == NULL )
 	//{
 	//	MergedTex = CastChecked<UTexture2DComposite>( 

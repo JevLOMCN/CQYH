@@ -282,6 +282,9 @@ void GuildConditionDataProcessor::PostInitData()
 //////////////////////////////////////////////////////////////////////////
 MMOAchievementData::MMOAchievementData()
 {
+	appMemzero(_AchievementVariable, sizeof(_AchievementVariable));
+	appMemzero(_BaseClassCompleteCount, sizeof(_BaseClassCompleteCount));
+	appMemzero(_BaseClassTotalCount, sizeof(_BaseClassTotalCount));
 }
 
 MMOAchievementData::~MMOAchievementData()
@@ -1130,6 +1133,7 @@ void MMOAchievementData::GetAchievementRecentComplete(INT (&id)[MAX_RECENT_COMPL
 {
 	int index = 0;
 	memset(id, 0, sizeof(INT) * MAX_RECENT_COMPLETE_COUNT);
+	memset(date, 0, sizeof(INT) * MAX_RECENT_COMPLETE_COUNT);
 	AchievementIdList::iterator iter = _AchievementCompleteList.begin();
 	for (; iter != _AchievementCompleteList.end(); ++ iter)
 	{

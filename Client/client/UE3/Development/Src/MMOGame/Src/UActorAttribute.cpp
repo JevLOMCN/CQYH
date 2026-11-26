@@ -111,7 +111,7 @@ int UActorAttribute::GetAttribute(INT AttrID)
 void UActorAttribute::SetReputation(INT Index,INT ForceID,INT ReputationData)
 {
 	INT i;
-	FReputation buf;
+	FReputation buf(EC_EventParm);
 	UBOOL AddNew = TRUE;
 
 	for(i = ReputationArray.Num() - 1; i >= 0; --i)

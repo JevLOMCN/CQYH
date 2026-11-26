@@ -18,7 +18,7 @@ inline void ClearNode(BASE_LIST_NODE* pNode)
 class CBaseList
 {
 public:
-    CBaseList() {};
+    CBaseList() { Clear(); };
     ~CBaseList() {};
 
     inline void Clear(void);
@@ -109,7 +109,7 @@ Exit0:
 
 inline BOOL CBaseList::PushHead(BASE_LIST_NODE* pNode)
 {
-    LOG_PROCESS_ERROR(pNode->pNext == NULL && pNode->pPrev == NULL);
+    LOG_PROCESS_ERROR(pNode && pNode->pNext == NULL && pNode->pPrev == NULL);
 
     pNode->pPrev = &m_Head;
     pNode->pNext = m_Head.pNext;
@@ -141,7 +141,7 @@ Exit0:
 
 inline BOOL CBaseList::PushRear(BASE_LIST_NODE* pNode)
 {
-    LOG_PROCESS_ERROR(pNode->pNext == NULL && pNode->pPrev == NULL);
+    LOG_PROCESS_ERROR(pNode && pNode->pNext == NULL && pNode->pPrev == NULL);
 
     pNode->pPrev = m_Rear.pPrev;
     pNode->pNext = &m_Rear;

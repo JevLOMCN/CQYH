@@ -66,6 +66,8 @@ public:
 
 typedef struct tagRankListData 
 {
+	tagRankListData() : Id(0), Value(0), LastRank(0) {}
+
 	INT64 Id;
 	INT64 Value;
 	UINT8 LastRank;
@@ -74,6 +76,8 @@ typedef std::vector<RankListData*,  M_UE3_STL_ALLOC(RankListData*) > RankVec;
 
 typedef struct tagPageInfo
 {
+	tagPageInfo() : curPage(0), totalPage(0) {}
+
 	INT curPage;
 	INT totalPage;
 }PageInfo;

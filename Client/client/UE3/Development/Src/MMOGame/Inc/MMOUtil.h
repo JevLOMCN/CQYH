@@ -5,6 +5,18 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <limits>
+#include <new>
+
+// Fixed wire fields may fill their complete array without a terminator.
+template<size_t Size>
+inline FString ReadFixedUTF8(const char (&field)[Size])
+{
+    char terminated[Size + 1];
+    appMemcpy(terminated, field, Size);
+    terminated[Size] = 0;
+    return FString(UTF8_TO_TCHAR(terminated));
+}
 
 class ComparFString : public std::less<FString>
 {
@@ -131,8 +143,12 @@ public :
 	{
 		(void)ptr;
 		// convert request to bytes
-		register size_type sz = count*sizeof( T );
+		if (count > max_size())
+			throw std::bad_alloc();
+		const size_type sz = count * sizeof(T);
 		pointer p  = static_cast<pointer>(AllocPolicy::allocateBytes(sz));
+		if (p == NULL && count != 0)
+			throw std::bad_alloc();
 		return p;
 	}
 
@@ -157,7 +173,7 @@ public :
 	size_type max_size() const throw()
 	{
 		// maximum size this can handle, delegate
-		return AllocPolicy::getMaxAllocationSize();
+		return AllocPolicy::getMaxAllocationSize() / sizeof(T);
 	}
 
 	void construct(pointer p)
@@ -229,6 +245,8 @@ public:
 	static inline void* allocateBytes(size_t count, 
 		const char* file = 0, int line = 0, const char* func = 0)
 	{
+		if (count > getMaxAllocationSize())
+			throw std::bad_alloc();
 		return GMalloc->Malloc((DWORD)count);
 	}
 	static inline void deallocateBytes(void* ptr)
@@ -238,7 +256,7 @@ public:
 	/// Get the maximum size of a single allocation
 	static inline size_t getMaxAllocationSize()
 	{
-		return std::numeric_limits<size_t>::max();
+		return (std::numeric_limits<DWORD>::max)();
 	}
 
 private:
