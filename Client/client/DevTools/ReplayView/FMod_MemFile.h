@@ -33,13 +33,13 @@ public:
         ,bCheckFileSize(false)
         ,bAutoDelete(auto_delete)
     {
-        pMemBuffer = (init_size > 0 ? (BYTE*)malloc(init_size) : 0);
+        pMemBuffer = (init_size > 0 ? (BYTE*)calloc(init_size, 1) : 0);
         nMemLength = pMemBuffer ? init_size : 0;
     }
     // 以其它内存地址来初始化本类
     explicit FMemFile(const BYTE* _data, size_t length, bool auto_delete = true)
         :pMemBuffer((BYTE*)_data)
-        ,nMemLength(length)
+        ,nMemLength(_data ? length : 0)
         ,nPosition(0)
         ,nFileSize(0)
         ,bCheckFileSize(false)
@@ -50,6 +50,8 @@ public:
         :pMemBuffer(0)
         ,nMemLength(0)
         ,nPosition(0)
+        ,nFileSize(0)
+        ,bCheckFileSize(false)
         ,bAutoDelete(auto_delete)
     {
         LoadFileW(filename, mode);
@@ -58,6 +60,8 @@ public:
         :pMemBuffer(0)
         ,nMemLength(0)
         ,nPosition(0)
+        ,nFileSize(0)
+        ,bCheckFileSize(false)
         ,bAutoDelete(auto_delete)
     {
         LoadFileA(filename, mode);
@@ -79,11 +83,16 @@ public:
     // 获取容量
     FINLINE size_t Capacity() { return nMemLength; }
     FINLINE size_t Capacity() const { return nMemLength; }
+    FINLINE size_t Remaining() const
+    {
+        const size_t length = bCheckFileSize && nFileSize < nMemLength ? nFileSize : nMemLength;
+        return nPosition <= length ? length - nPosition : 0;
+    }
     // 取首地址
     FINLINE BYTE* Get() { return pMemBuffer; }
     FINLINE BYTE* Get() const { return pMemBuffer; }
     // 定位
-    FINLINE void Seek(size_t pos) { nPosition = pos; }
+    FINLINE void Seek(size_t pos) { nPosition = pos < nMemLength ? pos : nMemLength; }
     // 当前内存是否为空
     FINLINE bool IsLoad() { return pMemBuffer != 0; }
     FINLINE bool IsLoad() const { return pMemBuffer != 0; }
@@ -95,7 +104,7 @@ public:
         Release();
 
         pMemBuffer = _data;
-        nMemLength = length;
+        nMemLength = _data ? length : 0;
         nPosition = 0;
         bAutoDelete = auto_delete;
     }
@@ -111,11 +120,9 @@ public:
     // 重新分配
     FINLINE void ReAllocate(size_t newsize)
     {
-        if (newsize < nMemLength)
+        if (newsize <= nMemLength)
             return;
-        BYTE* pNewBuffer = (BYTE*)malloc(newsize);
-        if (!pNewBuffer)
-            pNewBuffer = (BYTE*)malloc(newsize);
+        BYTE* pNewBuffer = (BYTE*)calloc(newsize, 1);
         if (!pNewBuffer)
             return;
         if (pMemBuffer)
@@ -123,48 +130,56 @@ public:
             memcpy(pNewBuffer, pMemBuffer, nMemLength);
             if (bAutoDelete)
                 Free(pMemBuffer);
-            bAutoDelete = true;
         }
+        bAutoDelete = true;
         pMemBuffer = pNewBuffer;
         nMemLength = newsize;
     }
     // 写入数据
     FINLINE void* WriteByte(const void* _str, size_t _size, size_t _count)
     {
-        if (!_str)
+        if (!_str || !_size || _count > (size_t)-1 / _size)
             return 0;
         size_t _data_count = _size * _count;
         if (_data_count <= 0)
             return 0;
-        if (!pMemBuffer)
+        if (nPosition > nMemLength || _data_count > (size_t)-1 - nPosition)
+            return 0;
+        const size_t required = nPosition + _data_count;
+        const size_t sourceOffset = (size_t)_str - (size_t)pMemBuffer;
+        const bool sourceInBuffer = pMemBuffer && sourceOffset <= nMemLength;
+        if (sourceInBuffer && _data_count > nMemLength - sourceOffset)
+            return 0;
+        if (required > nMemLength)
         {
-            ReAllocate(_data_count + (_data_count>>1));
-            if (!pMemBuffer)
-                return 0;
-            bAutoDelete = true;
+            const size_t extra = required >> 1;
+            ReAllocate(required <= (size_t)-1 - extra ? required + extra : required);
         }
-        if (nPosition + _data_count > nMemLength)
-            ReAllocate(nMemLength + _data_count + (nMemLength>>1));
+        if (!pMemBuffer || required > nMemLength)
+            return 0;
         BYTE* dst_pos = pMemBuffer + nPosition;
-        memcpy(dst_pos, _str, _data_count);
+        memmove(dst_pos, sourceInBuffer ? pMemBuffer + sourceOffset : _str, _data_count);
         nPosition += _data_count;
         return dst_pos;
     }
     // 读取数据
     FINLINE void* ReadByte(void* _str, size_t _size, size_t _count)
     {
-        if (!_str)
+        if (!_str || !_size || _count > (size_t)-1 / _size)
             return 0;
         size_t _data_count = _size * _count;
         if (_data_count <= 0)
             return 0;
         if (!pMemBuffer)
             return 0;
-        if (nPosition + _data_count > nMemLength)
+        if (nPosition > nMemLength || _data_count > nMemLength - nPosition)
             return 0;
-        if (bCheckFileSize && nPosition + _data_count > nFileSize)
+        if (bCheckFileSize && (nPosition > nFileSize || _data_count > nFileSize - nPosition))
             return 0;
-        memcpy(_str, pMemBuffer + nPosition, _data_count);
+        const size_t destinationOffset = (size_t)_str - (size_t)pMemBuffer;
+        if (destinationOffset <= nMemLength && _data_count > nMemLength - destinationOffset)
+            return 0;
+        memmove(_str, pMemBuffer + nPosition, _data_count);
         nPosition += _data_count;
         if (nPosition > nMemLength)
             nPosition = nMemLength;
@@ -185,7 +200,7 @@ public:
     }
     FINLINE bool SaveFileA(const ACHAR* filename, const ACHAR* mode = _FTA("wb+"))
     {
-        if (!pMemBuffer)
+        if (!pMemBuffer || nPosition > nMemLength)
             return false;
         FILE* pFile = fopen(filename, mode);
         if (!pFile)
@@ -220,12 +235,18 @@ public:
         int ret = ::_stat64(filename, &buf);
         if (ret == 0)
             file_size = buf.st_size;
-        if (file_size > 0)
+        if (file_size > 0 && (unsigned __int64)file_size <= (size_t)-1)
         {
             nFileSize = (size_t)file_size;
             bCheckFileSize = true;
             ReAllocate(nFileSize);
-            fread(pMemBuffer, nMemLength, 1, pFile);
+            if (!pMemBuffer || nMemLength < nFileSize ||
+                fread(pMemBuffer, 1, nFileSize, pFile) != nFileSize)
+            {
+                fclose(pFile);
+                Release();
+                return false;
+            }
         }
         fclose(pFile);
         nPosition = 0;
@@ -279,14 +300,16 @@ public:
             return 0;
         if (bCheckFileSize)
         {
-            if (nPosition + size > nFileSize)
+            if (nPosition > nFileSize || size > nFileSize - nPosition)
                 return 0;
         }
         else
         {
-            if (nPosition + size > nMemLength)
+            if (nPosition > nMemLength || size > nMemLength - nPosition)
                 return 0;
         }
+        if (size % sizeof(WCHAR) != 0)
+            return 0;
         str.Append((WCHAR*)(pMemBuffer + nPosition), size / sizeof(WCHAR));
         nPosition += size;
         return str.GetString();
@@ -299,12 +322,12 @@ public:
             return 0;
         if (bCheckFileSize)
         {
-            if (nPosition + size > nFileSize)
+            if (nPosition > nFileSize || size > nFileSize - nPosition)
                 return 0;
         }
         else
         {
-            if (nPosition + size > nMemLength)
+            if (nPosition > nMemLength || size > nMemLength - nPosition)
                 return 0;
         }
         str.Append((ACHAR*)(pMemBuffer + nPosition), size / sizeof(ACHAR));

@@ -44,6 +44,7 @@ static TCHAR* g_inputDataTypeStr[] =
 
 struct FReplayData
 {
+    FReplayData() : Index(0), GameTime(0) {}
     UINT64 Index;
     DOUBLE GameTime;
 
@@ -58,6 +59,7 @@ struct FReplayData
 
 struct FReplayDataScreenRes : public FReplayData
 {
+    FReplayDataScreenRes() : ResX(0), ResY(0), IsFullScreen(FALSE) {}
     UINT ResX;
     UINT ResY;
     UBOOL IsFullScreen;
@@ -66,9 +68,7 @@ struct FReplayDataScreenRes : public FReplayData
     {
         //if (!FReplayData::Read(pf))
         //    return false;
-        pf.Read(&ResX);
-        pf.Read(&ResY);
-        return pf.Read(&IsFullScreen) != 0;
+        return pf.Read(&ResX) && pf.Read(&ResY) && pf.Read(&IsFullScreen);
     }
     virtual void ToString(CString& out)
     {
@@ -78,22 +78,28 @@ struct FReplayDataScreenRes : public FReplayData
 
 struct FReplayDataNetwork : public FReplayData
 {
+    FReplayDataNetwork() : DataType(ENDT_Recv), DataSize(0) {}
     ENetworkDataType DataType;
     INT DataSize;
     std::vector< BYTE > buf;
 
     virtual bool Read(FMemFile& pf)
     {
-        if (!FReplayData::Read(pf))
+        buf.clear();
+        DataSize = 0;
+        if (!FReplayData::Read(pf) || !pf.Read(&DataType) || !pf.Read(&DataSize) ||
+            (DataType != ENDT_Recv && DataType != ENDT_Send) ||
+            DataSize < (INT)sizeof(WORD) || DataSize > 0xFFFF || (size_t)DataSize > pf.Remaining())
             return false;
-        pf.Read(&DataType);
-        pf.Read(&DataSize);
         buf.resize(DataSize);
         return pf.ReadByte(&buf[0], DataSize, 1) != 0;
     }
     virtual void ToString(CString& out)
     {
-        WORD id = *(WORD*)&buf[0];
+        if (buf.size() < sizeof(WORD))
+            return;
+        WORD id = 0;
+        memcpy(&id, &buf[0], sizeof(id));
         net_message_object& nmo = ((CReplayViewDlg*)theApp.m_pMainWnd)->m_NetMessage;
         out.AppendFormat(_T("%lld(%.04lf)£¨%s£∫%d£¨%s"), Index, GameTime, ENDT_Recv == DataType ? _T("Ω” ’") : _T("∑¢ÀÕ"), id, nmo.GetMsgName(id));
     }
@@ -113,6 +119,12 @@ enum EInputEvent
 };
 struct FReplayDataInput : public FReplayData
 {
+    FReplayDataInput()
+        : DataType(EIDT_Key), ControllerId(0), EventType(IE_Pressed), AmountDepressed(0),
+          GamePad(FALSE), Delta(0), DeltaTime(0), Character(0), name_idx(0), name_number(0)
+    {
+        MousePoint.X = MousePoint.Y = 0;
+    }
     EInputDataType DataType;
     FIntPoint MousePoint;
     INT ControllerId;
@@ -129,24 +141,20 @@ struct FReplayDataInput : public FReplayData
 
     virtual bool Read(FMemFile& pf)
     {
-        if (!FReplayData::Read(pf))
+        if (!FReplayData::Read(pf) || !pf.Read(&DataType) ||
+            DataType < EIDT_Key || DataType > EIDT_MousePosition ||
+            !pf.Read(&MousePoint) || !pf.Read(&ControllerId))
             return false;
-        pf.Read(&DataType);
-        pf.Read(&MousePoint);
-        pf.Read(&ControllerId);
+        name_idx = name_number = 0;
 
         if(DataType == EIDT_Key)
         {
-            pf.Read(&name_idx);
-            pf.Read(&name_number);
+            if (!pf.Read(&name_idx) || !pf.Read(&name_number))
+                return false;
         }
 
-        pf.Read(&EventType);
-        pf.Read(&AmountDepressed);
-        pf.Read(&GamePad);
-        pf.Read(&Delta);
-        pf.Read(&DeltaTime);
-        return pf.Read(&Character) != 0;
+        return pf.Read(&EventType) && pf.Read(&AmountDepressed) && pf.Read(&GamePad) &&
+            pf.Read(&Delta) && pf.Read(&DeltaTime) && pf.Read(&Character);
     }
     virtual void ToString(CString& out)
     {
