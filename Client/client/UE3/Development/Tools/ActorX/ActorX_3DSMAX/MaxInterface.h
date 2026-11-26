@@ -185,7 +185,7 @@ inline Matrix3 Get_Relative_Matrix(INode *node, int t)
 
 
 // Make Max strings safe.
-char* CleanString(TCHAR* name);
+void CleanString(const char* Name, char* OutName, size_t OutSize);
 
 
 

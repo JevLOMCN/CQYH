@@ -606,9 +606,11 @@ BOOL CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 				// Load the same name and folder as specified. 
 				case IDC_ANIMLOAD:
 				{	
-					char to_ext[32];
-					_tcscpy(to_ext, ("PSA"));
-					sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
+					if (!MakeActorXFilePath(DestPath, to_path, to_animfile, ".PSA"))
+					{
+						ErrorBox("Animation output path is too long.");
+						break;
+					}
 					FastFileClass InFile;
 					if ( InFile.OpenExistingFileForReading(DestPath) != 0) // Error!
 						ErrorBox("File [%s] does not exist yet.", DestPath);
@@ -665,9 +667,6 @@ BOOL CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 				case IDC_ANIMSAVEAS:
 				{				
 					char defaultextension[]=".psa";
-					char to_ext[32];
-					_tcscpy(to_ext, ("PSA"));
-					sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
 
 					char newname[MAX_PATH];
 					_tcscpy(newname,("XX"));
@@ -709,9 +708,11 @@ BOOL CALLBACK ActorManagerDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 
 				case IDC_ANIMSAVE:
 				{					
-					char to_ext[32];
-					_tcscpy(to_ext, ("PSA"));
-					sprintf(DestPath,"%s\\%s.%s",(char*)to_path,(char*)to_animfile,to_ext);
+					if (!MakeActorXFilePath(DestPath, to_path, to_animfile, ".PSA"))
+					{
+						ErrorBox("Animation output path is too long.");
+						break;
+					}
 					
 					if ( TempActor.OutAnims.Num() == 0)
 					{

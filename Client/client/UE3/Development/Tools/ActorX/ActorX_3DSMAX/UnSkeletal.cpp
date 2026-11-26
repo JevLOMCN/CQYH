@@ -12,6 +12,7 @@
 =============================================================================*/
 
 #include "UnSkeletal.h"
+#include <limits.h>
 #include "Win32IO.h"
 
 #pragma warning(push)
@@ -25,6 +26,9 @@
 // Case insensitive substring search
 UBOOL FindSubString(const char* CheckString, const char* Fragment, INT& Pos)
 {
+    Pos = 0;
+    if (!CheckString || !Fragment)
+        return 0;
 	char *LString = new char[strlen(CheckString)+1];
 	_tcscpy(LString,CheckString);
 	_strlwr(LString); //make lower case
@@ -37,11 +41,18 @@ UBOOL FindSubString(const char* CheckString, const char* Fragment, INT& Pos)
 
 	UBOOL Result = (PosPtr != NULL);  // check if it contains LString
 
-	if (PosPtr != NULL) Pos = (INT)(PosPtr-LString); // start position
+    if (PosPtr != NULL)
+    {
+        const size_t offset = (size_t)(PosPtr - LString);
+        if (offset > INT_MAX)
+            Result = 0;
+        else
+            Pos = (INT)offset;
+    }
 	else Pos = 0;
 
-	if (LString) delete LString;
-	if (LFragment) delete LFragment;
+	if (LString) delete[] LString;
+	if (LFragment) delete[] LFragment;
 	return Result;
 }
 
@@ -91,50 +102,45 @@ INT FindValueTag(const char* CheckString, const char* Fragment, INT DigitNum)
 #define SINGLE_QUOTE 39
 
 // Replace some characters we don't care for.
-char* CleanString(char* name)
+void CleanString(const char* Name, char* OutName, size_t OutSize)
 {
-	static char buffer[256];
-	TCHAR* cPtr;
-	
-    _tcscpy(buffer, name);
-    cPtr = buffer;
-	
-    while(*cPtr) {
-		if (*cPtr == '"')
-			*cPtr = SINGLE_QUOTE;
-        else if (*cPtr <= CTL_CHARS)
-			*cPtr = ('_');
-        cPtr++;
+    if (!OutName || !OutSize)
+        return;
+
+    // Copy directly into the caller's buffer, reserving space for its terminator.
+    size_t Length = 0;
+    if (Name)
+    {
+        while (Length < OutSize - 1 && Name[Length])
+            ++Length;
+        memmove(OutName, Name, Length);
     }
 
-	// clean out tail
-	while( cPtr <= &buffer[255] ) 
-	{
-		*cPtr = 0;
-		cPtr++;
-	}
-
-	return buffer;
+    for (size_t i = 0; i < Length; ++i)
+    {
+        if (OutName[i] == '"')
+            OutName[i] = SINGLE_QUOTE;
+        else if ((unsigned char)OutName[i] <= CTL_CHARS)
+            OutName[i] = '_';
+    }
+    memset(OutName + Length, 0, OutSize - Length);
 }
 
 
 // Removes the 'Fragment' (e.g.  .max ) and puts result in OutString.
-UBOOL RemoveExtString(const char* CheckString, const char* Fragment, char* OutString)
+UBOOL RemoveExtString(const char* CheckString, const char* Fragment, char* OutString, size_t OutSize)
 {
-	INT Pos=0;
-	FindSubString( CheckString, Fragment, Pos);
-	if(Pos == 0)
-	{
-		return 0;
-		OutString[0] = 0;
-	}
-
-	for(INT t=0; t<Pos; t++)
-	{
-		OutString[t]=CheckString[t];
-	}
-	OutString[Pos] = 0;
-	return 1;
+    if (!OutString || !OutSize)
+        return 0;
+    INT Pos = 0;
+    if (!FindSubString(CheckString, Fragment, Pos) || Pos <= 0 || (size_t)Pos >= OutSize)
+    {
+        OutString[0] = 0;
+        return 0;
+    }
+    memmove(OutString, CheckString, (size_t)Pos);
+    OutString[Pos] = 0;
+    return 1;
 }
 
 

@@ -136,6 +136,11 @@ struct VMaterial
 	INT			LodBias;          // material-specific lod bias
 	INT			LodStyle;         // material-specific lod style
 
+	VMaterial()
+	{
+		Memzero(this, sizeof(VMaterial));
+	}
+
 	// Necessary to determine material uniqueness
 	UBOOL operator==( const VMaterial& M ) const
 	{
@@ -159,26 +164,27 @@ struct VMaterial
 	}	
 
 	// Copy a name and properly zero-terminate it.
-	void SetName( char* NewName)
-	{
-		INT c;
-		for(c=0; c<64; c++)
-		{
-			MaterialName[c]=NewName[c];
-			if( MaterialName[c] == 0 ) 
-				break;
-		}
-		// fill out
-		while( c<64)
-		{
-			MaterialName[c] = 0;
-			c++;
-		}	
-	}
+	void SetName(const char* NewName)
+    {
+        size_t Length = 0;
+        if (NewName)
+        {
+            while (Length < sizeof(MaterialName) - 1 && NewName[Length])
+                ++Length;
+            memmove(MaterialName, NewName, Length);
+        }
+        Memzero(MaterialName + Length, sizeof(MaterialName) - Length);
+    }
 };
 
 struct VBitmapOrigin
 {
+    VBitmapOrigin()
+    {
+        Memzero(RawBitmapName, sizeof(RawBitmapName));
+        Memzero(RawBitmapPath, sizeof(RawBitmapPath));
+    }
+
 	char RawBitmapName[MAX_PATH];
 	char RawBitmapPath[MAX_PATH];
 };

@@ -12,6 +12,8 @@
 #define UNSKELMATH_H
 
 #include <math.h>
+#include <stddef.h>
+#include <string.h>
 
 
 #define  AXNode void
@@ -125,10 +127,54 @@ typedef unsigned long       BITFIELD;	// For bitfields.
 UBOOL FindSubString(const char* CheckString, const char* Fragment, INT& Pos);
 UBOOL CheckSubString(const char* CheckString, const char* Fragment);
 INT FindValueTag(const char* CheckString, const char* Fragment, INT DigitNum);
-char* CleanString(char* name);
-UBOOL RemoveExtString(const char* CheckString, const char* Fragment, char* OutString);
+void CleanString(const char* Name, char* OutName, size_t OutSize);
+UBOOL RemoveExtString(const char* CheckString, const char* Fragment, char* OutString, size_t OutSize);
 UBOOL CheckStringsEqual( const char* FirstString, const char* SecondString );
 
+
+// Copy only complete strings; rejected script inputs leave the previous value intact.
+template<size_t Size>
+UBOOL CopyActorXString(char (&Output)[Size], const char* Input)
+{
+    if (!Input)
+        return 0;
+    size_t Length = 0;
+    while (Length < Size && Input[Length])
+        ++Length;
+    if (Length == Size)
+        return 0;
+    memmove(Output, Input, Length + 1);
+    return 1;
+}
+
+// Include separators and suffixes in the capacity check before committing a path.
+template<size_t Size>
+UBOOL MakeActorXFilePath(char (&Output)[Size], const char* Directory, const char* Name, const char* Suffix)
+{
+    const char* Parts[] = {Directory, "\\", Name, Suffix};
+    char Result[Size];
+    size_t Length = 0;
+    for (size_t i = 0; i < sizeof(Parts) / sizeof(Parts[0]); ++i)
+    {
+        if (!Parts[i])
+        {
+            Output[0] = 0;
+            return 0;
+        }
+        for (const char* p = Parts[i]; *p; ++p)
+        {
+            if (Length == Size - 1)
+            {
+                Output[0] = 0;
+                return 0;
+            }
+            Result[Length++] = *p;
+        }
+    }
+    Result[Length] = 0;
+    memcpy(Output, Result, Length + 1);
+    return 1;
+}
 
 // Forward declarations.
 class  FVector;

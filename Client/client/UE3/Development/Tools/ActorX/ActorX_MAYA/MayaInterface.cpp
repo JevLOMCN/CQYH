@@ -1390,7 +1390,7 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 	// PopupBox(" Frame rate %f  Ticks per frame %f  Total frames %i FrameTimeInfo %f ",(FLOAT)GetFrameRate(), (FLOAT)FrameTicks, (INT)OurTotalFrames, (FLOAT)Thing->FrameTotalTicks );
 	// PopupBox(" TotalFrames/BetaNumFrames: %i ",Thing->RawNumFrames);
 
-	_tcscpy_s(Thing->RawAnimName,CleanString( SequenceName ));
+	CleanString(SequenceName, Thing->RawAnimName, sizeof(Thing->RawAnimName));
 
 	//
 	// Rootbone is in tree starting from RootBoneIndex.
@@ -1492,6 +1492,13 @@ int SceneIFC::DigestAnim(class VActor *Thing,char *SequenceName,char *RangeStrin
 
 int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeString )
 {
+    char VertexMeshPath[MAX_PATH], VertexAnimPath[MAX_PATH];
+    if (!MakeActorXFilePath(VertexMeshPath, to_path, DestFileName, "_d.3d") ||
+        !MakeActorXFilePath(VertexAnimPath, to_path, DestFileName, "_a.3d"))
+    {
+        ErrorBox("Vertex animation output path is empty or too long.");
+        return 0;
+    }
 
     //#define DOLOGVERT 0
 	//if( DOLOGVERT )
@@ -1566,8 +1573,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	if( VAFaces.Num() && (OurScene.DoAppendVertex == 0) )
 	{
 		FastFileClass OutFile;
-		char OutPath[MAX_PATH];
-		sprintf_s(OutPath,"%s\\%s_d.3d",(char*)to_path,(char*)DestFileName);		
+		char* OutPath = VertexMeshPath;
 		//PopupBox("OutPath for _d file: %s",OutPath); 
 		if ( OutFile.CreateNewFile(OutPath) != 0) 
 			ErrorBox( "Vertex Anim File creation error. ");
@@ -1663,8 +1669,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		// Write.
 		//
 		FastFileClass OutFile;
-		char OutPath[MAX_PATH];
-		sprintf_s(OutPath,"%s\\%s_a.3d",(char*)to_path,(char*)DestFileName);				
+		char* OutPath = VertexAnimPath;
 
 		if( ! OurScene.DoAppendVertex )
 		{
@@ -2965,7 +2970,7 @@ void GetBitmapName(TCHAR* Name, size_t NameLen, TCHAR* Path, MObject& ThisShader
 		GetExtensionFromPath( BmpExtension, TextureSourceString, MAX_PATH );
 
 		sprintf_s( Name,NameLen,"%s.%s",BmpFilename,BmpExtension);
-		strcpysafe(Path,CleanString(BmpPathname),MAX_PATH);	
+		CleanString(BmpPathname, Path, MAX_PATH);
 	}
 	else
 	{
@@ -4987,7 +4992,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path,300);										
+							GetWindowText(GetDlgItem(hWnd,IDC_PATH),to_path, sizeof(to_path) / sizeof(to_path[0]));
 							_tcscpy_s(LogPath,to_path);
 							PluginReg.SetKeyString("TOPATH", to_path );
 						}
@@ -5002,7 +5007,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]));
 							PluginReg.SetKeyString("TOSKINFILE", to_skinfile );
 						}
 						break;
@@ -5016,7 +5021,7 @@ static INT_PTR CALLBACK PanelOneDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile, sizeof(to_animfile) / sizeof(to_animfile[0]));
 							PluginReg.SetKeyString("TOANIMFILE", to_animfile );
 						}
 						break;
@@ -5260,7 +5265,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 			//if ( OurScene.DoForceRate ) 
 			{
-				char RateString[MAX_PATH];				
+				char RateString[MAX_PATH] = {0};
 				sprintf_s(RateString,"%5.3f",OurScene.PersistentRate);
 				PrintWindowString(hWnd,IDC_PERSISTRATE,RateString);		
 			}
@@ -5495,7 +5500,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						case EN_KILLFOCUS:
 						{
-							char RateString[MAX_PATH];
+							char RateString[MAX_PATH] = {0};
 							GetWindowText( GetDlgItem(hWnd,IDC_PERSISTRATE),RateString,100 );
 							OurScene.PersistentRate = atof(RateString);
 							PluginReg.SetKeyValue("PERSISTENTRATE", OurScene.PersistentRate );
@@ -5609,7 +5614,7 @@ static INT_PTR CALLBACK PanelTwoDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 					{
 						case EN_KILLFOCUS:
 						{
-							GetWindowText( GetDlgItem(hWnd,IDC_EDITCLASS),batchfoldername,300 );
+							GetWindowText( GetDlgItem(hWnd,IDC_EDITCLASS),batchfoldername, sizeof(batchfoldername) / sizeof(batchfoldername[0]) );
 						}
 						break;
 					};
@@ -5947,7 +5952,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 							}
 							if( MatIdx > -1)
 							{
-								GetWindowText(GetDlgItem(hWnd,MatIDC[MatIdx]),materialnames[MatIdx],300);
+								GetWindowText(GetDlgItem(hWnd,MatIDC[MatIdx]),materialnames[MatIdx], sizeof(materialnames[MatIdx]) / sizeof(materialnames[MatIdx][0]));
 							}
 						}
 					}
@@ -5961,7 +5966,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							case EN_KILLFOCUS:
 							{
-								GetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath,300);										
+								GetWindowText(GetDlgItem(hWnd,IDC_BRUSHPATH),to_brushpath, sizeof(to_brushpath) / sizeof(to_brushpath[0]));
 								//_tcscpy_s(LogPath,to_brushpath);
 							}
 							break;
@@ -5975,7 +5980,7 @@ INT_PTR CALLBACK BrushPanelDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							case EN_KILLFOCUS:
 							{
-								GetWindowText(GetDlgItem(hWnd,IDC_BRUSHFILENAME),to_brushfile,300);
+								GetWindowText(GetDlgItem(hWnd,IDC_BRUSHFILENAME),to_brushfile, sizeof(to_brushfile) / sizeof(to_brushfile[0]));
 							}
 							break;
 						};

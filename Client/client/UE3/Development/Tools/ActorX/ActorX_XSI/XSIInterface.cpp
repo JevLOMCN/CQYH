@@ -928,9 +928,9 @@ void XSIInterface::DoGlobalDataExchange ()
 {
 	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMNAME),animname,100);
 	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMRANGE),framerangestring,500);
-	GetWindowText(GetDlgItem(m_hActorX,IDC_DEFOUTPATH),to_path,300);
-	GetWindowText(GetDlgItem(m_hActorX,IDC_SKINFILENAME),to_skinfile,300);
-	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMFILENAME),to_animfile,300);
+	GetWindowText(GetDlgItem(m_hActorX,IDC_DEFOUTPATH),to_path, sizeof(to_path) / sizeof(to_path[0]));
+	GetWindowText(GetDlgItem(m_hActorX,IDC_SKINFILENAME),to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]));
+	GetWindowText(GetDlgItem(m_hActorX,IDC_ANIMFILENAME),to_animfile, sizeof(to_animfile) / sizeof(to_animfile[0]));
 
 	OurScene.CheckPersistSettings = GetCheckBox(m_hActorXSetup,IDC_CHECKPERSISTSETTINGS);
 	OurScene.CheckPersistPaths = GetCheckBox(m_hActorXSetup,IDC_CHECKPERSISTPATHS);
@@ -1522,7 +1522,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 						// Whenenver focus is lost, update path.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_DEFOUTPATH),to_path,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_DEFOUTPATH),to_path, sizeof(to_path) / sizeof(to_path[0]));
 							_tcscpy(LogPath,to_path);
 							PluginReg.SetKeyString("TOPATH", to_path );
 							//g_XSIInterface->DoGlobalDataExchange();
@@ -1539,7 +1539,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 						// Whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_SKINFILENAME),to_skinfile, sizeof(to_skinfile) / sizeof(to_skinfile[0]));
 							// PluginReg.SetKeyString("TOSKINFILE", to_skinfile );
 							//g_XSIInterface->DoGlobalDataExchange();
 						}
@@ -1555,7 +1555,7 @@ static BOOL CALLBACK ActorXDlgProc(	HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 						// whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_ANIMFILENAME),to_animfile, sizeof(to_animfile) / sizeof(to_animfile[0]));
 							//PluginReg.SetKeyString("TOANIMFILE", to_animfile );
 							//g_XSIInterface->DoGlobalDataExchange();
 						}
@@ -2086,7 +2086,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						// Whenenver focus is lost, update path.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),to_pathvtx,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_PATHVTX),to_pathvtx, sizeof(to_pathvtx) / sizeof(to_pathvtx[0]));
 							_tcscpy(LogPath,to_pathvtx);
 							PluginReg.SetKeyString("TOPATHVTX", to_pathvtx );
 						}
@@ -2102,7 +2102,7 @@ static BOOL CALLBACK VertexDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 						// Whenenver focus is lost, update the skin file name.
 						case EN_KILLFOCUS:
 						{
-							GetWindowText(GetDlgItem(hWnd,IDC_FILENAMEVTX),to_skinfilevtx,300);
+							GetWindowText(GetDlgItem(hWnd,IDC_FILENAMEVTX),to_skinfilevtx, sizeof(to_skinfilevtx) / sizeof(to_skinfilevtx[0]));
 							PluginReg.SetKeyString("TOSKINFILEVTX", to_skinfilevtx );
 						}
 						break;
@@ -2340,7 +2340,7 @@ int SceneIFC::DigestAnim(VActor *Thing, char* AnimName, char* RangeString )
 
 	// PopupBox(" Frame rate %f  Ticks per frame %f  Total frames %i FrameTimeInfo %f ",(FLOAT)GetFrameRate(), (FLOAT)FrameTicks, (INT)OurTotalFrames, (FLOAT)Thing->FrameTotalTicks );
 
-	_tcscpy(Thing->RawAnimName,CleanString( AnimName ));
+	CleanString(AnimName, Thing->RawAnimName, sizeof(Thing->RawAnimName));
 
 	//
 	// Rootbone is in tree starting from RootBoneIndex.
@@ -4155,6 +4155,13 @@ void SceneIFC::SurveyScene()
 
 int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeString )
 {
+    char VertexMeshPath[MAX_PATH], VertexAnimPath[MAX_PATH];
+    if (!MakeActorXFilePath(VertexMeshPath, to_pathvtx, DestFileName, "_d.3d") ||
+        !MakeActorXFilePath(VertexAnimPath, to_pathvtx, DestFileName, "_a.3d"))
+    {
+        ErrorBox("Vertex animation output path is empty or too long.");
+        return 0;
+    }
 
     //#define DOLOGVERT 0
 	//if( DOLOGVERT )
@@ -4236,8 +4243,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 	if( VAFaces.Num() && (OurScene.DoAppendVertex == 0) )
 	{
 		FastFileClass OutFile;
-		char OutPath[MAX_PATH];
-		sprintf(OutPath,"%s\\%s_d.3d",(char*)to_pathvtx,(char*)DestFileName);
+		char* OutPath = VertexMeshPath;
 		//PopupBox("OutPath for _d file: %s",OutPath);
 		if ( OutFile.CreateNewFile(OutPath) != 0)
 			ErrorBox( "File creation error. ");
@@ -4342,8 +4348,7 @@ int SceneIFC::WriteVertexAnims(VActor *Thing, char* DestFileName, char* RangeStr
 		// Write.
 		//
 		FastFileClass OutFile;
-		char OutPath[MAX_PATH];
-		sprintf(OutPath,"%s\\%s_a.3d",(char*)to_pathvtx,(char*)DestFileName);
+		char* OutPath = VertexAnimPath;
 
 		if( ! OurScene.DoAppendVertex )
 		{
