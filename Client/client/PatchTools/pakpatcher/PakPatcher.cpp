@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "../PatchPath.h"
 
 #include <assert.h>
 #include <string.h>
@@ -10,6 +11,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <new>
+#include <memory>
 
 #include "StormPort.h"
 #include "StormLib.h"
@@ -111,28 +114,28 @@ size_t WINAPI BuildinLog(LPCWSTR lpszMergeInfo, int nRetCode)
 	}
 	else
 	{
-		wprintf(lpszMergeInfo);
+		wprintf(L"%ls", lpszMergeInfo);
 		return 0;
 	}
 }
 
 void OutputInfo(PFNMergeDirInfoProc pfn, const char* pszFormat, ...)
 {
-	if (pfn)
+	if (pfn && pszFormat)
 	{
 		va_list args;
 		va_start(args, pszFormat);
 
-		check(pszFormat != NULL);
-		char szTemp[1024];
+		char szTemp[1024] = {0};
 
-		vsprintf_s(szTemp, sizeof(szTemp), pszFormat, args);
+		_vsnprintf_s(szTemp, sizeof(szTemp), _TRUNCATE, pszFormat, args);
 
 		va_end(args);
 
 		WCHAR szOutput[1024];
 
-		MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,szTemp,-1,szOutput,sizeof(szOutput));
+		if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,szTemp,-1,szOutput, (int)(sizeof(szOutput) / sizeof(szOutput[0]))))
+			return;
 
 		(*pfn)(szOutput, 0);
 	}
@@ -482,7 +485,7 @@ bool PackFolder(const char* SrcFolderName/*资源位置*/, const char* DestPackageFo
 
 			//////////////////////////////////////////////////////////////////////////
 
-			data.empty();
+			data.clear();
 
 			if (RenameFiles.ToString(data))
 			{
@@ -517,6 +520,38 @@ bool PackFolder(const char* SrcFolderName/*资源位置*/, const char* DestPackageFo
 	return 0;
 }
 
+bool EnsureArchiveCapacity(HANDLE archive, DWORD additionalFiles)
+{
+	DWORD files = 0, maximumFiles = 0;
+	if (!SFileGetFileInfo(archive, SFileMpqNumberOfFiles, &files, sizeof(files), NULL) ||
+		!SFileGetFileInfo(archive, SFileMpqMaxFileCount, &maximumFiles, sizeof(maximumFiles), NULL) ||
+		additionalFiles > (DWORD)-1 - files)
+		return false;
+	const DWORD required = files + additionalFiles;
+	return required < maximumFiles || SFileSetMaxFileCount(archive, required);
+}
+
+template<class Table>
+bool LoadPatchTable(HANDLE file, char* localBuffer, DWORD localBufferSize, Table& table)
+{
+	DWORD sizeHigh = 0;
+	const DWORD size = SFileGetFileSize(file, &sizeHigh);
+	if (sizeHigh != 0 || size == (DWORD)-1)
+		return false;
+	std::unique_ptr<char[]> storage;
+	if (size > localBufferSize)
+		storage.reset(new (std::nothrow) char[size]);
+	char* buffer = size <= localBufferSize ? localBuffer : storage.get();
+	if (!buffer)
+		return false;
+	DWORD read = 0;
+	const bool complete = SFileReadFile(file, buffer, size, &read, NULL) && read == size;
+	bool valid = false;
+	if (complete)
+		valid = table.FromString(PathString(buffer, size));
+	return valid;
+}
+
 unsigned int ApplyPatch(const char* DestFolder, const char* PatchFolder, bool CompactDestArchive = false, PFNMergeDirInfoProc pfn = NULL)
 {
 	unsigned int nPatchedFile = 0;
@@ -541,30 +576,26 @@ unsigned int ApplyPatch(const char* DestFolder, const char* PatchFolder, bool Co
 		HANDLE hFile = NULL;
 		if (SFileOpenFileEx(hDelRenArchive, PATCH_DEL_TABLE_FILE, 0, &hFile))
 		{
-			DWORD FileSize = SFileGetFileSize(hFile, NULL);
-			DWORD dwRead = 0;
-			SFileReadFile(hFile, LocalBuffer, FileSize, &dwRead, NULL);
-			check(FileSize == dwRead);
-
-			PathString data(LocalBuffer, FileSize);
-
-			DeleFiles.FromString(data);
-
+			const bool valid = LoadPatchTable(hFile, LocalBuffer, LocalBufferSize, DeleFiles);
 			SFileCloseFile(hFile);
+			if (!valid)
+			{
+				SFileCloseArchive(hDelRenArchive);
+				delete[] LocalBuffer;
+				return 0;
+			}
 		}
 
 		if (SFileOpenFileEx(hDelRenArchive, PATCH_RENAME_TABLE_FILE, 0, &hFile))
 		{
-			DWORD FileSize = SFileGetFileSize(hFile, NULL);
-			DWORD dwRead = 0;
-			SFileReadFile(hFile, LocalBuffer, FileSize, &dwRead, NULL);
-			check(FileSize == dwRead);
-
-			PathString data(LocalBuffer, FileSize);
-
-			RenameFiles.FromString(data);
-
+			const bool valid = LoadPatchTable(hFile, LocalBuffer, LocalBufferSize, RenameFiles);
 			SFileCloseFile(hFile);
+			if (!valid)
+			{
+				SFileCloseArchive(hDelRenArchive);
+				delete[] LocalBuffer;
+				return 0;
+			}
 		}
 
 		SFileCloseArchive(hDelRenArchive);
@@ -671,16 +702,14 @@ unsigned int ApplyPatch(const char* DestFolder, const char* PatchFolder, bool Co
 				{
 					check(hPatchArchive);
 
-					DWORD NumFiles, MaxnumFiles;
-					SFileGetFileInfo(hDestArchive, SFileMpqNumberOfFiles, &NumFiles, sizeof(NumFiles), NULL);
-					SFileGetFileInfo(hDestArchive, SFileMpqMaxFileCount, &MaxnumFiles, sizeof(MaxnumFiles), NULL);
-
-					DWORD NumPatchFiles;
-					SFileGetFileInfo(hPatchArchive, SFileMpqNumberOfFiles, &NumPatchFiles, sizeof(NumPatchFiles), NULL);
-
-					if (NumFiles + NumPatchFiles >= MaxnumFiles)
+					DWORD NumPatchFiles = 0;
+					if (!SFileGetFileInfo(hPatchArchive, SFileMpqNumberOfFiles, &NumPatchFiles, sizeof(NumPatchFiles), NULL) ||
+						!EnsureArchiveCapacity(hDestArchive, NumPatchFiles))
 					{
-						SFileSetMaxFileCount(hDestArchive, NumFiles + NumPatchFiles);
+						SFileCloseArchive(hPatchArchive);
+						SFileCloseArchive(hDestArchive);
+						delete[] LocalBuffer;
+						return nPatchedFile;
 					}
 
 					SFILE_FIND_DATA fd;
@@ -706,15 +735,19 @@ unsigned int ApplyPatch(const char* DestFolder, const char* PatchFolder, bool Co
 
 									FileSize = SFileGetFileSize(hPatchFile, &FileSizeHigh);
 
-									check(FileSizeHigh == 0);
+									if (FileSizeHigh != 0 || FileSize == (DWORD)-1)
+									{
+										SFileCloseFile(hPatchFile);
+										continue;
+									}
 
 
 									char* Buffer = ((LocalBufferSize >= FileSize) ? (LocalBuffer) : (new char[FileSize]));
 
-									DWORD dwRead;
+									DWORD dwRead = 0;
 
-									if (SFileReadFile(hPatchFile, Buffer, FileSize, &dwRead, NULL) &&
-										SFileCreateFile(hDestArchive, fd.cFileName, 0, fd.dwFileSize, fd.lcLocale, PAK_CREATE_FLAG, &hDestFile))
+									if (SFileReadFile(hPatchFile, Buffer, FileSize, &dwRead, NULL) && dwRead == FileSize &&
+										SFileCreateFile(hDestArchive, fd.cFileName, 0, FileSize, fd.lcLocale, PAK_CREATE_FLAG, &hDestFile))
 									{
 										check(FileSize == dwRead);
 										SFileWriteFile(hDestFile, Buffer, dwRead, PAK_COMPRESSION);
@@ -820,17 +853,20 @@ bool MergeFileInternal(const char* pSrcFileDir, const char* pDeltaFileDir, const
 	}
 
 	WCHAR szSrcDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, sizeof(szSrcDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, (int)(sizeof(szSrcDir) / sizeof(szSrcDir[0]))))
+		return false;
 
 	WCHAR szDeltaDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strDeltaFile.c_str(), -1, szDeltaDir, sizeof(szDeltaDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strDeltaFile.c_str(), -1, szDeltaDir, (int)(sizeof(szDeltaDir) / sizeof(szDeltaDir[0]))))
+		return false;
 
 	bool bSucc = false;
 	int index = strSrcFile.find(".delta");
 	if (index != -1)
 	{// 合并差异文件
 		strSrcFile = strSrcFile.substr(0, index);
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, sizeof(szSrcDir));
+		if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, (int)(sizeof(szSrcDir) / sizeof(szSrcDir[0]))))
+			return false;
 
 		ResultMD5List;
 		std::map<std::string, std::string>::iterator iterRes;
@@ -850,7 +886,7 @@ bool MergeFileInternal(const char* pSrcFileDir, const char* pDeltaFileDir, const
 			PathString text("merge file:");
 			text += strSrcFile;
 			text += PathString(" success！\n");
-			OutputInfo(pfn, text.c_str());
+			OutputInfo(pfn, "%s", text.c_str());
 			bSucc = true;
 		}
 		else
@@ -861,14 +897,14 @@ bool MergeFileInternal(const char* pSrcFileDir, const char* pDeltaFileDir, const
 				PathString text("merge file:");
 				text += strSrcFile;
 				text += PathString(" success！\n");
-				OutputInfo(pfn, text.c_str());
+				OutputInfo(pfn, "%s", text.c_str());
 			}
 			else
 			{
 				PathString text("merge file:");
 				text += strSrcFile;
 				text += PathString(" failed！\n");
-				OutputInfo(pfn, text.c_str());
+				OutputInfo(pfn, "%s", text.c_str());
 			}
 		}
 	}
@@ -887,14 +923,14 @@ bool MergeFileInternal(const char* pSrcFileDir, const char* pDeltaFileDir, const
 			PathString text("copy file:");
 			text += strSrcFile;
 			text += PathString(" success！\n");
-			OutputInfo(pfn, text.c_str());
+			OutputInfo(pfn, "%s", text.c_str());
 		}
 		else
 		{
 			PathString text("copy file:");
 			text += strSrcFile;
 			text += PathString(" failed！\n");
-			OutputInfo(pfn, text.c_str());
+			OutputInfo(pfn, "%s", text.c_str());
 		}
 	}
 
@@ -972,13 +1008,18 @@ bool ExtractFromPak2Folder(const std::vector<PathString>& vecPakFiles, const Pat
 
 				FileSize = SFileGetFileSize(hFile, &FileSizeHigh);
 
-				check(FileSizeHigh == 0);
+				if (FileSizeHigh != 0 || FileSize == (DWORD)-1)
+				{
+					SFileCloseFile(hFile);
+					SFileCloseArchive(hArchive);
+					return false;
+				}
 
 				char* Buffer = new char[FileSize];
 
-				DWORD dwRead;
+				DWORD dwRead = 0;
 
-				if (SFileReadFile(hFile, Buffer, FileSize, &dwRead, NULL))
+				if (SFileReadFile(hFile, Buffer, FileSize, &dwRead, NULL) && dwRead == FileSize)
 				{
 					check(FileSize == dwRead);
 				
@@ -988,7 +1029,7 @@ bool ExtractFromPak2Folder(const std::vector<PathString>& vecPakFiles, const Pat
 
 					if (pFile)
 					{
-						bSucc = (fwrite(Buffer, FileSize, 1, pFile) == 1);
+						bSucc = (fwrite(Buffer, 1, FileSize, pFile) == FileSize);
 						fclose(pFile);
 					}
 				}
@@ -1097,8 +1138,8 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 		unsigned int iFileIndex;
 
 		PakFileIndex()
+			: iPakIndex(-1), iFileIndex(0)
 		{
-
 		}
 
 		PakFileIndex(int p, unsigned int f)
@@ -1123,18 +1164,19 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 	strSrcTempDir += "\\Temp";
 	CreateDirectoryHierarchy(strSrcTempDir, true);
 
-	char szCurDir[1024];
-	::GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-
-	::SetCurrentDirectory(strSrcTempDir);
+	ClientPatch::ScopedCurrentDirectory<char> currentDirectory;
+	if (!currentDirectory.Change(strSrcTempDir))
+		return false;
 
 	//////////////////////// 4. merge dir ////////////////////////
 
 	WCHAR Src[MAX_PATH];
 	WCHAR Delta[MAX_PATH];
 
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcTempDir, -1, Src, MAX_PATH);
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strDeltaDir, -1, Delta, MAX_PATH);
+	if (!ClientPatch::ToWide(strSrcTempDir, Src))
+		return false;
+	if (!ClientPatch::ToWide(strDeltaDir, Delta))
+		return false;
 
 	if (!(*pfMD)(Src, Delta, Src, pfn))
 	{
@@ -1166,10 +1208,12 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 		}
 		
 		WCHAR szDeltaFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strDeltaFilePath.c_str(), -1, szDeltaFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strDeltaFilePath.c_str(), szDeltaFilePath))
+			return false;
 
 		WCHAR szTempFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strTempFilePath.c_str(), -1, szTempFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strTempFilePath.c_str(), szTempFilePath))
+			return false;
 
 		int iPakIndex = -1;
 
@@ -1181,7 +1225,7 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 				PathString text("extract file:");
 				text += strFilePath;
 				text += PathString(" success！\n");
-				OutputInfo(pfn, text.c_str());
+				OutputInfo(pfn, "%s", text.c_str());
 
 				PathString strSubFile = strFilePath;
 				if (pSubDirWithoutFirstSlash)
@@ -1205,7 +1249,7 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 					text = PathString("merge file:");
 					text += strTempFilePath;
 					text += PathString(" success！\n");
-					OutputInfo(pfn, text.c_str());
+					OutputInfo(pfn, "%s", text.c_str());
 				}
 				else
 				{
@@ -1215,14 +1259,14 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 						text = PathString("merge file:");
 						text += strTempFilePath;
 						text += PathString(" success！\n");
-						OutputInfo(pfn, text.c_str());
+						OutputInfo(pfn, "%s", text.c_str());
 					}
 					else
 					{
 						text = PathString("merge file:");
 						text += strTempFilePath;
 						text += PathString(" failed！\n");
-						OutputInfo(pfn, text.c_str());
+						OutputInfo(pfn, "%s", text.c_str());
 						return false;
 					}
 				}
@@ -1232,7 +1276,7 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 				PathString text("extract file:");
 				text += strTempFilePath;
 				text += PathString(" failed！\n");
-				OutputInfo(pfn, text.c_str());
+				OutputInfo(pfn, "%s", text.c_str());
 			}
 		}
 		else
@@ -1250,14 +1294,14 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 				PathString text("copy file:");
 				text += strTempFilePath;
 				text += PathString(" success！\n");
-				OutputInfo(pfn, text.c_str());
+				OutputInfo(pfn, "%s", text.c_str());
 			}
 			else
 			{
 				PathString text("copy file:");
 				text += strTempFilePath;
 				text += PathString(" failed！\n");
-				OutputInfo(pfn, text.c_str());
+				OutputInfo(pfn, "%s", text.c_str());
 				return false;
 			}
 		}
@@ -1320,16 +1364,11 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 					}
 					else
 					{
-						DWORD NumFiles, MaxnumFiles;
 						SFileOpenArchive(vecPackFiles.back(), 0, STREAM_PROVIDER_FLAT, &hArchive);
-
-						if (hArchive)
+						if (hArchive && !EnsureArchiveCapacity(hArchive, dwNewFileCount))
 						{
-							SFileGetFileInfo(hArchive, SFileMpqNumberOfFiles, &NumFiles, sizeof(NumFiles), NULL);
-							SFileGetFileInfo(hArchive, SFileMpqMaxFileCount, &MaxnumFiles, sizeof(MaxnumFiles), NULL);
-
-							if (NumFiles + dwNewFileCount >= MaxnumFiles)
-								SFileSetMaxFileCount(hArchive, NumFiles + dwNewFileCount);
+							SFileCloseArchive(hArchive);
+							hArchive = NULL;
 						}
 					}
 				}
@@ -1351,7 +1390,7 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 
 		if (!hArchive)
 		{
-			::SetCurrentDirectory(szCurDir);
+			currentDirectory.Restore();
 			return false;
 		}
 
@@ -1361,7 +1400,7 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 			PathString text("add file:");
 			text += strFilePath;
 			text += PathString(" success！\n");
-			OutputInfo(pfn, text.c_str());
+			OutputInfo(pfn, "%s", text.c_str());
 		}
 		else
 		{
@@ -1373,8 +1412,8 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 			PathString text("add file:");
 			text += strFilePath;
 			text += PathString(" failed！\n");
-			OutputInfo(pfn, text.c_str());
-			::SetCurrentDirectory(szCurDir);
+			OutputInfo(pfn, "%s", text.c_str());
+			currentDirectory.Restore();
 			return false;
 		}
 	}
@@ -1389,9 +1428,9 @@ bool MergeDirPakInternal(const char* pSrcDir, const char* pDeltaDir, const char*
 	PathString text("remove temp file:");
 	text += strSrcTempDir;
 	text += PathString("\n");
-	OutputInfo(pfn, text.c_str());
+	OutputInfo(pfn, "%s", text.c_str());
 
-	::SetCurrentDirectory(szCurDir);
+	currentDirectory.Restore();
 
 	// 6. shrink mpq if need
 	if (0)
@@ -1444,8 +1483,16 @@ bool MergeDirInternal(const char* pSrcDir, const char* pDeltaDir, const char* pS
 							WCHAR Src[MAX_PATH];
 							WCHAR Delta[MAX_PATH];
 
-							MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,(LPCSTR)strSrcDir,-1,Src,MAX_PATH);
-							MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,(LPCSTR)strDeltaDir,-1,Delta,MAX_PATH);
+							if (!ClientPatch::ToWide(strSrcDir, Src))
+							{
+								bSucc = false;
+								break;
+							}
+							if (!ClientPatch::ToWide(strDeltaDir, Delta))
+							{
+								bSucc = false;
+								break;
+							}
 
 							bSucc = bSucc && ((*pfMD)(Src, Delta, Src, pfn));
 							bSucc = bSucc && MergeDirInternal(pSrcDir, pDeltaDir, strSubDir, pfn);
@@ -1495,14 +1542,14 @@ bool MergeDirInternal(const char* pSrcDir, const char* pDeltaDir, const char* pS
 		PathString text("merge dir internal:");
 		text += strFindDir;
 		text += PathString("success！\n");
-		OutputInfo(NULL, text.c_str());
+		OutputInfo(NULL, "%s", text.c_str());
 	}
 	else
 	{
 		PathString text("merge dir internal:");
 		text += strFindDir;
 		text += PathString("failed！\n");
-		OutputInfo(NULL, text.c_str());
+		OutputInfo(NULL, "%s", text.c_str());
 	}
 
 	return bSucc;
@@ -1515,8 +1562,10 @@ extern "C" __declspec(dllexport) bool MergeFile(LPCWSTR lpszSrcFilePath, LPCWSTR
 		char szSrcDir[1024];
 		char szDeltaDir[1024];
 
-		WideCharToMultiByte(CP_ACP,0,lpszSrcFilePath,(DWORD)(wcslen(lpszSrcFilePath))+1,szSrcDir,sizeof(szSrcDir),NULL,NULL);
-		WideCharToMultiByte(CP_ACP,0,lpszDeltaFilePath,(DWORD)(wcslen(lpszDeltaFilePath))+1,szDeltaDir,sizeof(szDeltaDir),NULL,NULL);
+		if (!WideCharToMultiByte(CP_ACP,0,lpszSrcFilePath, -1,szSrcDir,sizeof(szSrcDir),NULL,NULL))
+			return 0;
+		if (!WideCharToMultiByte(CP_ACP,0,lpszDeltaFilePath, -1,szDeltaDir,sizeof(szDeltaDir),NULL,NULL))
+			return 0;
 
 		char szDriver[MAX_PATH];
 		char szDir[MAX_PATH];
@@ -1551,8 +1600,10 @@ extern "C" __declspec(dllexport) bool MergeDir(LPCWSTR lpszSrcDir, LPCWSTR lpszD
 		char szSrcDir[1024];
 		char szDeltaDir[1024];
 
-		WideCharToMultiByte(CP_ACP,0,lpszSrcDir,(DWORD)(wcslen(lpszSrcDir))+1,szSrcDir,sizeof(szSrcDir),NULL,NULL);
-		WideCharToMultiByte(CP_ACP,0,lpszDeltaDir,(DWORD)(wcslen(lpszDeltaDir))+1,szDeltaDir,sizeof(szDeltaDir),NULL,NULL);
+		if (!WideCharToMultiByte(CP_ACP,0,lpszSrcDir, -1,szSrcDir,sizeof(szSrcDir),NULL,NULL))
+			return 0;
+		if (!WideCharToMultiByte(CP_ACP,0,lpszDeltaDir, -1,szDeltaDir,sizeof(szDeltaDir),NULL,NULL))
+			return 0;
 
 		char szDeltaDirFull[1024];
 		sprintf_s(szDeltaDirFull, sizeof(szDeltaDirFull), "%s\\patch_delta_direct.dat", szDeltaDir);
@@ -1658,7 +1709,11 @@ bool GetFileListInternal(const char* pArchivePath, char pFilePath[][MAX_PATH], u
 			{
 				if (index < nCount)
 				{
-					memcpy(pFilePath[index], fd.cFileName, sizeof(fd.cFileName));
+					size_t nameLength = 0;
+					while (nameLength < sizeof(fd.cFileName) && nameLength < MAX_PATH - 1 && fd.cFileName[nameLength])
+						++nameLength;
+					memcpy(pFilePath[index], fd.cFileName, nameLength);
+					pFilePath[index][nameLength] = 0;
 					index++;
 				}
 			} while (SFileFindNextFile(hFind, &fd));
@@ -1674,89 +1729,52 @@ bool GetFileListInternal(const char* pArchivePath, char pFilePath[][MAX_PATH], u
 
 DWORD GetFileSizeInternal(const char* pArchivePath, const char* pFilePath)
 {
-	DWORD dwSize = 0;
 	if (!pArchivePath || !pFilePath)
+		return 0;
+	HANDLE archive = NULL;
+	if (!SFileOpenArchive(pArchivePath, 0, STREAM_PROVIDER_FLAT | STREAM_FLAG_READ_ONLY, &archive))
+		return 0;
+	DWORD size = 0;
+	HANDLE file = NULL;
+	if (SFileOpenFileEx(archive, pFilePath, 0, &file))
 	{
-		return dwSize;
+		DWORD high = 0;
+		size = SFileGetFileSize(file, &high);
+		if (high != 0 || size == (DWORD)-1)
+			size = 0;
+		SFileCloseFile(file);
 	}
-
-	PathString strArchivePath(pArchivePath);
-	HANDLE hArchive = NULL;
-	if (SFileOpenArchive(strArchivePath, 0, STREAM_PROVIDER_FLAT, &hArchive))
-	{
-		check(hArchive);
-
-		SFILE_FIND_DATA fd;
-		HANDLE hFind = SFileFindFirstFile(hArchive, "*", &fd, NULL);
-		if (hFind)
-		{
-			do
-			{
-				if (strcmp(fd.cFileName, pFilePath) == 0)
-				{
-					HANDLE hFile = NULL;
-					if (SFileOpenFileEx(hArchive, pFilePath, 0, &hFile))
-					{
-						dwSize = SFileGetFileSize(hFile, NULL);
-						SFileCloseFile(hFile);
-					}
-
-					break;
-				}
-			} while (SFileFindNextFile(hFind, &fd));
-
-			SFileFindClose(hFind);
-		}
-
-		SFileCloseArchive(hArchive);
-	}
-
-	return dwSize;
+	SFileCloseArchive(archive);
+	return size;
 }
 
-bool GetFileBufferInternal(const char* pArchivePath, const char* pFilePath, unsigned char* pBuffer)
+bool GetFileBufferInternal(const char* pArchivePath, const char* pFilePath,
+	unsigned char* pBuffer, DWORD bufferSize, DWORD* pBytesRead)
 {
+	if (pBytesRead)
+		*pBytesRead = 0;
 	if (!pArchivePath || !pFilePath || !pBuffer)
-	{
 		return false;
-	}
-
-	PathString strArchivePath(pArchivePath);
-	HANDLE hArchive = NULL;
-	if (SFileOpenArchive(strArchivePath, 0, STREAM_PROVIDER_FLAT, &hArchive))
+	HANDLE archive = NULL;
+	if (!SFileOpenArchive(pArchivePath, 0, STREAM_PROVIDER_FLAT | STREAM_FLAG_READ_ONLY, &archive))
+		return false;
+	bool success = false;
+	HANDLE file = NULL;
+	if (SFileOpenFileEx(archive, pFilePath, 0, &file))
 	{
-		check(hArchive);
-
-		SFILE_FIND_DATA fd;
-		HANDLE hFind = SFileFindFirstFile(hArchive, "*", &fd, NULL);
-		if (hFind)
+		DWORD high = 0;
+		const DWORD size = SFileGetFileSize(file, &high);
+		if (high == 0 && size != (DWORD)-1 && size <= bufferSize)
 		{
-			do
-			{
-				if (strcmp(fd.cFileName, pFilePath) == 0)
-				{
-					HANDLE hFile = NULL;
-					if (SFileOpenFileEx(hArchive, pFilePath, 0, &hFile))
-					{
-						DWORD dwSize = SFileGetFileSize(hFile, NULL);
-						DWORD dwRead = 0;
-						SFileReadFile(hFile, pBuffer, dwSize, &dwRead, NULL);
-						check(dwSize == dwRead);
-
-						SFileCloseFile(hFile);
-					}
-
-					break;
-				}
-			} while (SFileFindNextFile(hFind, &fd));
-
-			SFileFindClose(hFind);
+			DWORD read = 0;
+			success = SFileReadFile(file, pBuffer, size, &read, NULL) && read == size;
+			if (success && pBytesRead)
+				*pBytesRead = read;
 		}
-
-		SFileCloseArchive(hArchive);
+		SFileCloseFile(file);
 	}
-
-	return true;
+	SFileCloseArchive(archive);
+	return success;
 }
 
 bool DeleteFileInternal(const char* pArchivePath, const char* pFilePath)
@@ -1781,7 +1799,9 @@ bool ExtractFileInternal(const char* pSrcPath, const char* pTempPath, const char
 	PathString strSrcPath(pSrcPath);
 	PathString strFilePath(pFilePath);
 	PathString strTempPath(pTempPath);
-	::SetCurrentDirectory(strTempPath);
+	ClientPatch::ScopedCurrentDirectory<char> currentDirectory;
+	if (!currentDirectory.Change(strTempPath))
+		return false;
 
 	std::vector<PathString> vecSrcPacks;
 	EnumFilesInDirectory(vecSrcPacks, strSrcPath, PAK_EXT_WITH_POINT);
@@ -1804,12 +1824,10 @@ bool AddFileInternal(const char* pArchivePath, const char* pFilePath, bool bCrea
 		{
 			if (dwNewFileCount > 0)
 			{
-				DWORD dwNumFiles, dwMaxNumFiles;
-				SFileGetFileInfo(hArchive, SFileMpqNumberOfFiles, &dwNumFiles, sizeof(dwNumFiles), NULL);
-				SFileGetFileInfo(hArchive, SFileMpqMaxFileCount, &dwMaxNumFiles, sizeof(dwMaxNumFiles), NULL);
-				if (dwNumFiles + dwNewFileCount >= dwMaxNumFiles)
+				if (!EnsureArchiveCapacity(hArchive, dwNewFileCount))
 				{
-					SFileSetMaxFileCount(hArchive, dwNumFiles + dwNewFileCount);
+					SFileCloseArchive(hArchive);
+					return false;
 				}
 			}
 		}
@@ -1835,7 +1853,8 @@ extern "C" __declspec(dllexport) int GetPackFileCount(LPCWSTR lpszArchivePath)
 	if (lpszArchivePath)
 	{
 		char szArchivePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, (DWORD)(wcslen(lpszArchivePath)) + 1, szArchivePath, sizeof(szArchivePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, szArchivePath, sizeof(szArchivePath), NULL, NULL))
+			return 0;
 		return GetFileCountInternal(szArchivePath);
 	}
 	else
@@ -1849,7 +1868,8 @@ extern "C" __declspec(dllexport) bool GetPackFileList(LPCWSTR lpszArchivePath, c
 	if (lpszArchivePath)
 	{
 		char szArchivePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, (DWORD)(wcslen(lpszArchivePath)) + 1, szArchivePath, sizeof(szArchivePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, szArchivePath, sizeof(szArchivePath), NULL, NULL))
+			return 0;
 		return GetFileListInternal(szArchivePath, pFilePath, nMaxCount, nCount);
 	}
 	else
@@ -1863,10 +1883,12 @@ extern "C" __declspec(dllexport) DWORD GetPackFileSize(LPCWSTR lpszArchivePath, 
 	if (lpszArchivePath && lpszFilePath)
 	{
 		char szArchivePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, (DWORD)(wcslen(lpszArchivePath)) + 1, szArchivePath, sizeof(szArchivePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, szArchivePath, sizeof(szArchivePath), NULL, NULL))
+			return 0;
 
 		char szFilePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszFilePath, (DWORD)(wcslen(lpszFilePath)) + 1, szFilePath, sizeof(szFilePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszFilePath, -1, szFilePath, sizeof(szFilePath), NULL, NULL))
+			return 0;
 
 		return GetFileSizeInternal(szArchivePath, szFilePath);
 	}
@@ -1881,12 +1903,15 @@ extern "C" __declspec(dllexport) bool GetPackFileBuffer(LPCWSTR lpszArchivePath,
 	if (lpszArchivePath && lpszFilePath && pBuffer)
 	{
 		char szArchivePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, (DWORD)(wcslen(lpszArchivePath)) + 1, szArchivePath, sizeof(szArchivePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, szArchivePath, sizeof(szArchivePath), NULL, NULL))
+			return 0;
 
 		char szFilePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszFilePath, (DWORD)(wcslen(lpszFilePath)) + 1, szFilePath, sizeof(szFilePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszFilePath, -1, szFilePath, sizeof(szFilePath), NULL, NULL))
+			return 0;
 
-		return GetFileBufferInternal(szArchivePath, szFilePath, pBuffer);
+		// Legacy callers must allocate the full member size. New callers use the sized export.
+		return GetFileBufferInternal(szArchivePath, szFilePath, pBuffer, (DWORD)-1, NULL);
 	}
 	else
 	{
@@ -1894,15 +1919,31 @@ extern "C" __declspec(dllexport) bool GetPackFileBuffer(LPCWSTR lpszArchivePath,
 	}
 }
 
+extern "C" __declspec(dllexport) bool GetPackFileBufferSized(LPCWSTR lpszArchivePath,
+	LPCWSTR lpszFilePath, unsigned char* pBuffer, DWORD bufferSize)
+{
+	if (!lpszArchivePath || !lpszFilePath || !pBuffer)
+		return false;
+	char archivePath[1024], filePath[1024];
+	if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, archivePath, sizeof(archivePath), NULL, NULL) ||
+		!WideCharToMultiByte(CP_ACP, 0, lpszFilePath, -1, filePath, sizeof(filePath), NULL, NULL))
+		return false;
+	DWORD read = 0;
+	// A changed member must not leave part of the caller's hash input uninitialized.
+	return GetFileBufferInternal(archivePath, filePath, pBuffer, bufferSize, &read) && read == bufferSize;
+}
+
 extern "C" __declspec(dllexport) bool DeletePackFile(LPCWSTR lpszArchivePath, LPCWSTR lpszFilePath)
 {
 	if (lpszArchivePath && lpszFilePath)
 	{
 		char szArchivePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, (DWORD)(wcslen(lpszArchivePath)) + 1, szArchivePath, sizeof(szArchivePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, szArchivePath, sizeof(szArchivePath), NULL, NULL))
+			return 0;
 
 		char szFilePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszFilePath, (DWORD)(wcslen(lpszFilePath)) + 1, szFilePath, sizeof(szFilePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszFilePath, -1, szFilePath, sizeof(szFilePath), NULL, NULL))
+			return 0;
 
 		return DeleteFileInternal(szArchivePath, szFilePath);
 	}
@@ -1917,13 +1958,16 @@ extern "C" __declspec(dllexport) bool ExtractPackFile(LPCWSTR lpszSrcPath, LPCWS
 	if (lpszSrcPath && lpszTempPath && lpszFilePath)
 	{
 		char szSrcPath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszSrcPath, (DWORD)(wcslen(lpszSrcPath)) + 1, szSrcPath, sizeof(szSrcPath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszSrcPath, -1, szSrcPath, sizeof(szSrcPath), NULL, NULL))
+			return 0;
 
 		char szTempPath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszTempPath, (DWORD)(wcslen(lpszTempPath)) + 1, szTempPath, sizeof(szTempPath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszTempPath, -1, szTempPath, sizeof(szTempPath), NULL, NULL))
+			return 0;
 
 		char szFilePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszFilePath, (DWORD)(wcslen(lpszFilePath)) + 1, szFilePath, sizeof(szFilePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszFilePath, -1, szFilePath, sizeof(szFilePath), NULL, NULL))
+			return 0;
 
 		return ExtractFileInternal(szSrcPath, szTempPath, szFilePath, iPackIndex);
 	}
@@ -1938,10 +1982,12 @@ extern "C" __declspec(dllexport) bool AddPackFile(LPCWSTR lpszArchivePath, LPCWS
 	if (lpszArchivePath && lpszFilePath)
 	{
 		char szArchivePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, (DWORD)(wcslen(lpszArchivePath)) + 1, szArchivePath, sizeof(szArchivePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszArchivePath, -1, szArchivePath, sizeof(szArchivePath), NULL, NULL))
+			return 0;
 
 		char szFilePath[1024];
-		WideCharToMultiByte(CP_ACP, 0, lpszFilePath, (DWORD)(wcslen(lpszFilePath)) + 1, szFilePath, sizeof(szFilePath), NULL, NULL);
+		if (!WideCharToMultiByte(CP_ACP, 0, lpszFilePath, -1, szFilePath, sizeof(szFilePath), NULL, NULL))
+			return 0;
 
 		return AddFileInternal(szArchivePath, szFilePath, bCreateArchive, dwNewFileCount);
 	}
@@ -1988,10 +2034,9 @@ INT MMOMain(const char* pNewVersionPath, const char* pDestDir,
 
 	const UINT nDirCount = NonePakSubDirs.size();
 
-	char szCurDir[1024];
-	::GetCurrentDirectory(sizeof(szCurDir), szCurDir);
-
-	::SetCurrentDirectory(pNewVersionPath);
+	ClientPatch::ScopedCurrentDirectory<char> currentDirectory;
+	if (!currentDirectory.Change(pNewVersionPath))
+		return 0;
 
 	for (UINT n = 0; n < nDirCount; ++n)
 	{
@@ -2034,7 +2079,7 @@ INT MMOMain(const char* pNewVersionPath, const char* pDestDir,
 		}
 	}
 
-	::SetCurrentDirectory(szCurDir);
+	currentDirectory.Restore();
 
 	//////////////////////////////////////////////////////////////////////////
 	// resource file

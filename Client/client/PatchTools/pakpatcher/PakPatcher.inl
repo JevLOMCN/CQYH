@@ -73,7 +73,8 @@ public:
 	{
 		char szTemp[1024];
 
-		WideCharToMultiByte(CP_ACP,0,p,(DWORD)(wcslen(p))+1,szTemp,sizeof(szTemp),NULL,NULL);
+		if (!p || !WideCharToMultiByte(CP_ACP, 0, p, -1, szTemp, sizeof(szTemp), NULL, NULL))
+			return;
 
 		assign(szTemp);
 	}
@@ -125,27 +126,32 @@ public:
 };
 
 
-void ExtractString(PathString& str, const char*& p, unsigned int len)
+bool ExtractString(PathString& str, const char*& p, size_t& remaining, size_t len)
 {
+	if (len > remaining)
+		return false;
 	str.assign(p, len);
-
 	p += len;
+	remaining -= len;
+	return true;
 }
 
-void ExtractInt(int& n, const char*& p)
+bool ExtractInt(int& n, const char*& p, size_t& remaining)
 {
-	const int* pn = (const int*)(p);
-
-	n = *pn;
-
-	p += sizeof(int);
+	if (remaining < sizeof(n))
+		return false;
+	memcpy(&n, p, sizeof(n));
+	p += sizeof(n);
+	remaining -= sizeof(n);
+	return true;
 }
 
-void ExtractString(PathString& str, const char*& p)
+bool ExtractString(PathString& str, const char*& p, size_t& remaining)
 {
-	int n;
-	ExtractInt(n, p);
-	ExtractString(str, p, n);
+	int length = 0;
+	if (!ExtractInt(length, p, remaining) || length < 0)
+		return false;
+	return ExtractString(str, p, remaining, (size_t)length);
 }
 
 void GetConfigDirs(std::vector<PathString>& VersionSubDirs, const char* pConfigFileName)
@@ -158,7 +164,7 @@ void GetConfigDirs(std::vector<PathString>& VersionSubDirs, const char* pConfigF
 	{
 		char szBuff[1024];
 
-		while(fscanf_s(hFile, "%s", szBuff) != EOF )
+		while (fscanf_s(hFile, "%s", szBuff, (unsigned)sizeof(szBuff)) == 1)
 		{
 			VersionSubDirs.push_back(szBuff);
 		}
@@ -205,41 +211,39 @@ public:
 		}
 	}
 
-	void FromString(const PathString& data)
+	bool FromString(const PathString& data)
 	{
 		const char* p = data.c_str();
-
+		size_t remaining = data.size();
 		PathString temp;
+		DeleteFileMap parsed;
+		if (!ExtractString(temp, p, remaining, strlen(PATCH_DEL_TABLE_FILE_MAGIC)) ||
+			temp != PATCH_DEL_TABLE_FILE_MAGIC ||
+			!ExtractString(temp, p, remaining, strlen(PATCH_DEL_TABLE_FILE_VER)) ||
+			temp != PATCH_DEL_TABLE_FILE_VER)
+			return false;
 
-		ExtractString(temp, p, strlen(PATCH_DEL_TABLE_FILE_MAGIC));
-
-		check(temp == PATCH_DEL_TABLE_FILE_MAGIC);
-
-		ExtractString(temp, p, strlen(PATCH_DEL_TABLE_FILE_VER));
-
-		check(temp == PATCH_DEL_TABLE_FILE_VER);
-
-		int count;
-
-		ExtractInt(count, p);
-
+		int count = 0;
+		if (!ExtractInt(count, p, remaining) || count < 0 || (size_t)count > remaining / (2 * sizeof(int)))
+			return false;
 		for (int i = 0; i < count; ++i)
 		{
-			ExtractString(temp, p);
-
-			int nDelCount = 0;
-
-			ExtractInt(nDelCount, p);
-
-			std::vector<PathString>& DelFiles = operator[](temp);
-
-			for (int f = 0; f < nDelCount; ++f)
+			int fileCount = 0;
+			if (!ExtractString(temp, p, remaining) || !ExtractInt(fileCount, p, remaining) ||
+				fileCount < 0 || (size_t)fileCount > remaining / (sizeof(int)))
+				return false;
+			std::vector<PathString>& files = parsed[temp];
+			for (int f = 0; f < fileCount; ++f)
 			{
-				ExtractString(temp, p);
-
-				DelFiles.push_back(temp);
+				if (!ExtractString(temp, p, remaining))
+					return false;
+				files.push_back(temp);
 			}
 		}
+		if (remaining != 0)
+			return false;
+		swap(parsed);
+		return true;
 	}
 };
 
@@ -282,43 +286,39 @@ public:
 		}
 	}
 
-	void FromString(PathString& data)
+	bool FromString(const PathString& data)
 	{
 		const char* p = data.c_str();
+		size_t remaining = data.size();
+		PathString temp, temp2;
+		RenameFileMap parsed;
+		if (!ExtractString(temp, p, remaining, strlen(PATCH_RENAME_TABLE_FILE_MAGIC)) ||
+			temp != PATCH_RENAME_TABLE_FILE_MAGIC ||
+			!ExtractString(temp, p, remaining, strlen(PATCH_RENAME_TABLE_FILE_VER)) ||
+			temp != PATCH_RENAME_TABLE_FILE_VER)
+			return false;
 
-		PathString temp;
-		PathString temp2;
-
-		ExtractString(temp, p, strlen(PATCH_RENAME_TABLE_FILE_MAGIC));
-
-		check(temp == PATCH_RENAME_TABLE_FILE_MAGIC);
-
-		ExtractString(temp, p, strlen(PATCH_RENAME_TABLE_FILE_VER));
-
-		check(temp == PATCH_RENAME_TABLE_FILE_VER);
-
-		int count;
-
-		ExtractInt(count, p);
-
+		int count = 0;
+		if (!ExtractInt(count, p, remaining) || count < 0 || (size_t)count > remaining / (2 * sizeof(int)))
+			return false;
 		for (int i = 0; i < count; ++i)
 		{
-			ExtractString(temp, p);
-
-			int nDelCount = 0;
-
-			ExtractInt(nDelCount, p);
-
-			std::vector<std::pair<PathString, PathString>>& RenameFiles = operator[](temp);
-
-			for (int f = 0; f < nDelCount; ++f)
+			int fileCount = 0;
+			if (!ExtractString(temp, p, remaining) || !ExtractInt(fileCount, p, remaining) ||
+				fileCount < 0 || (size_t)fileCount > remaining / (2 * sizeof(int)))
+				return false;
+			std::vector<std::pair<PathString, PathString> >& files = parsed[temp];
+			for (int f = 0; f < fileCount; ++f)
 			{
-				ExtractString(temp, p);
-				ExtractString(temp2, p);
-
-				RenameFiles.push_back(std::pair<PathString, PathString>(temp, temp2));
+				if (!ExtractString(temp, p, remaining) || !ExtractString(temp2, p, remaining))
+					return false;
+				files.push_back(std::make_pair(temp, temp2));
 			}
 		}
+		if (remaining != 0)
+			return false;
+		swap(parsed);
+		return true;
 	}
 };
 
@@ -768,10 +768,10 @@ bool CompareFile(const PathString& FileName,
 
 	unsigned char* szRefFile = NULL;
 
-	bool bUpdated = false;
+	bool bUpdated = true;
 
 	HANDLE hArchive = NULL;
-	SFileOpenArchive(MPQName, 0, STREAM_PROVIDER_FLAT, &hArchive);
+	SFileOpenArchive(MPQName, 0, STREAM_PROVIDER_FLAT | STREAM_FLAG_READ_ONLY, &hArchive);
 
 	if (hArchive)
 	{
@@ -780,11 +780,12 @@ bool CompareFile(const PathString& FileName,
 
 		if (hFile)
 		{
-			dwRefFileSize = SFileGetFileSize(hFile, NULL);
+			DWORD sizeHigh = 0;
+			dwRefFileSize = SFileGetFileSize(hFile, &sizeHigh);
 
 			dwSrcFileSize = GetFileSize(FileName);
 
-			if (dwRefFileSize != dwSrcFileSize)
+			if (sizeHigh != 0 || dwRefFileSize == (DWORD)-1 || dwSrcFileSize == (DWORD)-1 || dwRefFileSize != dwSrcFileSize)
 			{
 				//  different size
 				bUpdated = true;
@@ -796,11 +797,14 @@ bool CompareFile(const PathString& FileName,
 
 				DWORD dwRead = 0;
 
-				SFileReadFile(hFile, szRefFile, dwRefFileSize, &dwRead, NULL);
-
-				check(dwRead == dwRefFileSize);
-
-				bUpdated = false;
+				if (!SFileReadFile(hFile, szRefFile, dwRefFileSize, &dwRead, NULL) || dwRead != dwRefFileSize)
+				{
+					delete[] szRefFile;
+					szRefFile = NULL;
+					bUpdated = true;
+				}
+				else
+					bUpdated = false;
 			}
 			else
 			{
@@ -823,20 +827,20 @@ bool CompareFile(const PathString& FileName,
 		if (pSrcFile)
 		{
 			MD5 SrcMD5(pSrcFile);
-			fclose(pSrcFile);
 
 			MD5 RefMD5;
 			RefMD5.update(szRefFile, dwRefFileSize);
 			RefMD5.finalize();
 
-			char* pSrcDigest = SrcMD5.hex_digest();
-			char* pRefDigest = RefMD5.hex_digest();
 
 			const unsigned char* pSrcRaw = SrcMD5.raw_digest2();
 			const unsigned char* pRefRaw = RefMD5.raw_digest2();
 
 			bUpdated = !!memcmp(pSrcRaw, pRefRaw, 16);
 		}
+
+		else
+			bUpdated = true;
 
 		delete [] szRefFile;
 	}
@@ -858,7 +862,7 @@ bool CompareFile(const PathString& FileName, const PathString& RefFileName)
 	dwSrcFileSize = GetFileSize(FileName);
 	dwRefFileSize = GetFileSize(RefFileName);
 
-	if (dwSrcFileSize != dwRefFileSize)
+	if (dwSrcFileSize == (DWORD)-1 || dwRefFileSize == (DWORD)-1 || dwSrcFileSize != dwRefFileSize)
 	{
 		bUpdated = true;
 	}
@@ -873,20 +877,19 @@ bool CompareFile(const PathString& FileName, const PathString& RefFileName)
 		{
 			MD5 SrcMD5(pSrcFile);
 
-			if (pSrcFile)
-				fclose(pSrcFile);
-
 			MD5 RefMD5(pRefFile);
-			if (pRefFile)
-				fclose(pRefFile);
 
-			char* pSrcDigest = SrcMD5.hex_digest();
-			char* pRefDigest = RefMD5.hex_digest();
 
 			const unsigned char* pSrcRaw = SrcMD5.raw_digest2();
 			const unsigned char* pRefRaw = RefMD5.raw_digest2();
 
 			bUpdated = !!memcmp(pSrcRaw, pRefRaw, 16);
+		}
+		else
+		{
+			if (pSrcFile) fclose(pSrcFile);
+			if (pRefFile) fclose(pRefFile);
+			bUpdated = true;
 		}
 	}
 
@@ -903,9 +906,10 @@ bool CompareFileWithMD5(const PathString& FileName, const PathString& md5)
 	if (pSrcFile)
 	{
 		MD5 SrcMD5(pSrcFile);
-		fclose(pSrcFile);
 
-		PathString strSrcMD5 = SrcMD5.hex_digest();
+		char* digest = SrcMD5.hex_digest();
+		PathString strSrcMD5(digest);
+		delete[] digest;
 		PathString strDstMD5 = md5;
 
 		std::transform(strSrcMD5.begin(), strSrcMD5.end(), strSrcMD5.begin(), ::tolower);
