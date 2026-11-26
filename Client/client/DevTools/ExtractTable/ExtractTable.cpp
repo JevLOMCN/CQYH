@@ -11,6 +11,8 @@
 #include <conio.h>
 #include "tabfile.h"
 #include "utf8.h"
+#include <windows.h>
+#include <limits.h>
 
 std::wstring TrimQuotes(const std::wstring& str, bool* bQuotesRemoved=NULL )
 {
@@ -54,6 +56,25 @@ int GetHdeaderIndex(const std::wstring& headerName)
 	return 0;
 }
 
+
+static bool AppendUtf8TableCell(std::wstring& output, const char* text)
+{
+    if (!text)
+        return false;
+    const size_t bytes = strlen(text);
+    if (bytes == 0)
+        return true;
+    if (bytes > INT_MAX)
+        return false;
+    const int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, (int)bytes, NULL, 0);
+    if (length <= 0)
+        return false;
+    std::wstring converted(length, L'\0');
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, (int)bytes, &converted[0], length) != length)
+        return false;
+    output.append(converted);
+    return true;
+}
 
 int _tmain(int argc, wchar_t* argv[])
 {
@@ -127,9 +148,8 @@ int _tmain(int argc, wchar_t* argv[])
 			
 			if(buf)
 			{
-				wchar_t tmpBuf[2048] = {0};
-				size_t wclen = utf8_to_wchar(buf, strlen(buf), tmpBuf, 2048, 0);
-				writeBuf += std::wstring(tmpBuf);
+				if (!AppendUtf8TableCell(writeBuf, buf))
+					return -4;
 			}
 			else
 			{
