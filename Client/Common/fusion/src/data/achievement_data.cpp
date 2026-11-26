@@ -60,32 +60,27 @@ BOOL HANDBOOK_DATA::ReadLine(INT32& rnID, const char*& rpcszName, HANDBOOK_DATA*
 {
 	READ_START();
 
-	memset(pData->szValue, 0, sizeof(pData->szValue));
+	memset(pData, 0, sizeof(*pData));
 
 	READ_INT("HandbookID", nHandbookID);
 	READ_INT("HandbookIndex", nIndex);
 	READ_INT_EXPR("HandbookType", nHandbookType);
-
 	READ_STR("ID", szValue);
+	pData->szValue[sizeof(pData->szValue) - 1] = 0;
 
 	INT32 i = 0;
 	char* p = pData->szValue;
-
-	if (p[strlen(pData->szValue)] != ',')
-		p[strlen(pData->szValue)] = ',';
-
-	while(1)
+	while (*p)
 	{
-		char* tok = SplitStr(p, ',');
-		if(tok == NULL)
-			break;
-
-		pData->nID[i++] = atoi(tok);
-
 		LOG_PROCESS_ERROR(i < MAX_HANDBOOKITEM_COUNT);
+		char* separator = strchr(p, ',');
+		if (separator)
+			*separator = 0;
+		pData->nID[i++] = atoi(p);
+		if (!separator)
+			break;
+		p = separator + 1;
 	}
-
-//	READ_INT("ID", nID);
 
 	READ_END(nHandbookID);
 }

@@ -48,6 +48,9 @@
       CommandLineTemplate="%(toluapp.CommandLineTemplate)"
       AdditionalOptions="%(toluapp.AdditionalOptions)"
       Inputs="%(toluapp.Identity)" />
+    <Exec
+      Condition="'@(toluapp)' != '' and '%(toluapp.ExcludedFromBuild)' != 'true'"
+      Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)FixLuaStrings.ps1&quot; -Path &quot;%(toluapp.Outputs)&quot;" />
   </Target>
   <PropertyGroup>
     <ComputeLinkInputsTargets>

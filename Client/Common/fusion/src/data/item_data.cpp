@@ -50,9 +50,10 @@ BOOL ITEM_DATA::ReadLine(INT32& rnID, const char*& rpcszName, ITEM_DATA* pData, 
         char* tok = SplitStr(pValue, ';');
         if(tok == NULL)
             break;
-
-        sscanf(tok, "%d-%d",&pData->m_CdGrp[pData->m_nCdGrpCount].m_nCdGrpID, 
+        LOG_PROCESS_ERROR(pData->m_nCdGrpCount < (INT32)(sizeof(pData->m_CdGrp) / sizeof(pData->m_CdGrp[0])));
+        nRetCode = sscanf(tok, "%d-%d", &pData->m_CdGrp[pData->m_nCdGrpCount].m_nCdGrpID,
             &pData->m_CdGrp[pData->m_nCdGrpCount].m_nCdGrpValue);
+        LOG_PROCESS_ERROR(nRetCode == 2);
         pData->m_CdGrp[pData->m_nCdGrpCount].m_nCdGrpValue = CONVERT_TIME(pData->m_CdGrp[pData->m_nCdGrpCount].m_nCdGrpValue);
 
         pData->m_nCdGrpCount++;

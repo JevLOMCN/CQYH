@@ -11,6 +11,8 @@
 #include "string.h"
 
 #include "tolua++.h"
+#include "../../../utility/lua_array_index.h"
+#include "../../../utility/fixed_string.h"
 
 /* Exported function */
 TOLUA_API int tolua_guild_config_open (lua_State* tolua_S);
@@ -2778,7 +2780,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nInitGuildPositionRight(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildPositionRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=8)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -2804,7 +2806,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nInitGuildPositionRight(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildPositionRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=8)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -2830,7 +2832,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nInitGuildStorageRight(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildStorageRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=7)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -2856,7 +2858,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nInitGuildStorageRight(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildStorageRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=7)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3122,7 +3124,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nMaxDonateMoneyPerDay(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateMoneyPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3148,7 +3150,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nMaxDonateMoneyPerDay(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateMoneyPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3174,7 +3176,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nMaxDonateResPerDay(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateResPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3200,7 +3202,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nMaxDonateResPerDay(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateResPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3226,7 +3228,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nAllianceConsumeMoney(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAllianceConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3252,7 +3254,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nAllianceConsumeMoney(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAllianceConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3278,7 +3280,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nEnemyConsumeMoney(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEnemyConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3304,7 +3306,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nEnemyConsumeMoney(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEnemyConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3330,7 +3332,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_nGuildDiplomatLastTime(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nGuildDiplomatLastTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3356,7 +3358,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_nGuildDiplomatLastTime(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nGuildDiplomatLastTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3764,7 +3766,8 @@ static int tolua_get_GUILD_CONFIG_szBMainNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBMainNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBMainNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBMainNameID, ClientFixedString::Length(self->szBMainNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3780,8 +3783,8 @@ static int tolua_set_GUILD_CONFIG_szBMainNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBMainNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBMainNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3794,7 +3797,8 @@ static int tolua_get_GUILD_CONFIG_szBBusinessNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBBusinessNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBBusinessNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBBusinessNameID, ClientFixedString::Length(self->szBBusinessNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3810,8 +3814,8 @@ static int tolua_set_GUILD_CONFIG_szBBusinessNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBBusinessNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBBusinessNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3824,7 +3828,8 @@ static int tolua_get_GUILD_CONFIG_szBDeityNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBDeityNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBDeityNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBDeityNameID, ClientFixedString::Length(self->szBDeityNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3840,8 +3845,8 @@ static int tolua_set_GUILD_CONFIG_szBDeityNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBDeityNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBDeityNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3854,7 +3859,8 @@ static int tolua_get_GUILD_CONFIG_szBWonderNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBWonderNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBWonderNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBWonderNameID, ClientFixedString::Length(self->szBWonderNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3870,8 +3876,8 @@ static int tolua_set_GUILD_CONFIG_szBWonderNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBWonderNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBWonderNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3952,7 +3958,7 @@ static int tolua_get_guild_config_GUILD_CONFIG_arrWeatherCondition(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->arrWeatherCondition, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -3978,7 +3984,7 @@ static int tolua_set_guild_config_GUILD_CONFIG_arrWeatherCondition(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->arrWeatherCondition, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);

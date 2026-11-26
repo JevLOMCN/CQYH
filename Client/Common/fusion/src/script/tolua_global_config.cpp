@@ -11,6 +11,8 @@
 #include "string.h"
 
 #include "tolua++.h"
+#include "../../../utility/lua_array_index.h"
+#include "../../../utility/fixed_string.h"
 
 /* Exported function */
 TOLUA_API int tolua_global_config_open (lua_State* tolua_S);
@@ -2916,7 +2918,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName0(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName0'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName0);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName0, ClientFixedString::Length(self->szRoleName0));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -2932,8 +2935,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName0(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName0,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName0, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -2946,7 +2949,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName1(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName1'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName1);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName1, ClientFixedString::Length(self->szRoleName1));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -2962,8 +2966,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName1(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName1,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName1, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -2976,7 +2980,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName2(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName2'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName2);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName2, ClientFixedString::Length(self->szRoleName2));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -2992,8 +2997,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName2(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName2,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName2, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3006,7 +3011,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName3(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName3'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName3);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName3, ClientFixedString::Length(self->szRoleName3));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3022,8 +3028,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName3(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName3,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName3, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3036,7 +3042,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName4(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName4'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName4);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName4, ClientFixedString::Length(self->szRoleName4));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3052,8 +3059,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName4(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName4,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName4, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3066,7 +3073,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName5(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName5'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName5);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName5, ClientFixedString::Length(self->szRoleName5));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3082,8 +3090,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName5(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName5,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName5, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3096,7 +3104,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName6(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName6'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName6);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName6, ClientFixedString::Length(self->szRoleName6));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3112,8 +3121,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName6(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName6,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName6, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3126,7 +3135,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName7(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName7'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName7);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName7, ClientFixedString::Length(self->szRoleName7));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3142,8 +3152,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName7(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName7,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName7, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3156,7 +3166,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName8(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName8'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName8);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName8, ClientFixedString::Length(self->szRoleName8));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3172,8 +3183,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName8(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName8,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName8, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3186,7 +3197,8 @@ static int tolua_get_GM_CUSTOM_CONFIG_szRoleName9(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRoleName9'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRoleName9);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRoleName9, ClientFixedString::Length(self->szRoleName9));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3202,8 +3214,8 @@ static int tolua_set_GM_CUSTOM_CONFIG_szRoleName9(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRoleName9,(const char*)tolua_tostring(tolua_S,2,0),25-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRoleName9, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3276,7 +3288,8 @@ static int tolua_get_ASIMOV_CONFIG_szAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3292,8 +3305,8 @@ static int tolua_set_ASIMOV_CONFIG_szAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),256-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3396,7 +3409,8 @@ static int tolua_get_GAME_WORLD_CONFIG_szConfigPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szConfigPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szConfigPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szConfigPath, ClientFixedString::Length(self->szConfigPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -3412,8 +3426,8 @@ static int tolua_set_GAME_WORLD_CONFIG_szConfigPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szConfigPath,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szConfigPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -4184,7 +4198,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nBagNormalItemDropRateByPla
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagNormalItemDropRateByPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4210,7 +4224,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nBagNormalItemDropRateByPla
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagNormalItemDropRateByPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4236,7 +4250,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nBagExpensiveItemDropRateBy
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagExpensiveItemDropRateByPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4262,7 +4276,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nBagExpensiveItemDropRateBy
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagExpensiveItemDropRateByPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4288,7 +4302,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nBagNormalItemDropRateByNon
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagNormalItemDropRateByNonPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4314,7 +4328,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nBagNormalItemDropRateByNon
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagNormalItemDropRateByNonPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4340,7 +4354,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nBagExpensiveItemDropRateBy
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagExpensiveItemDropRateByNonPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4366,7 +4380,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nBagExpensiveItemDropRateBy
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagExpensiveItemDropRateByNonPlayer, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=rncTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4482,7 +4496,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nStallTax(lua_State* tolua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nStallTax, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4508,7 +4522,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nStallTax(lua_State* tolua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nStallTax, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4624,7 +4638,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nBagSlotCost(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagSlotCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=32)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4650,7 +4664,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nBagSlotCost(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBagSlotCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=32)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4676,7 +4690,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nBankSlotCost(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBankSlotCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=56)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4702,7 +4716,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nBankSlotCost(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nBankSlotCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=56)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4728,7 +4742,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nResourceSlotCost(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nResourceSlotCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=184)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4754,7 +4768,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nResourceSlotCost(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nResourceSlotCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=184)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4960,7 +4974,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_LuckModifier_nModifier(lua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -4986,7 +5000,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_LuckModifier_nModifier(lua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -5012,7 +5026,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nEquipLevelupLuckModifier(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEquipLevelupLuckModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=7)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -5038,7 +5052,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nEquipLevelupLuckModifier(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEquipLevelupLuckModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=7)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -5064,7 +5078,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_PurityModifier_nModifier(lu
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -5090,7 +5104,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_PurityModifier_nModifier(lu
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -5116,7 +5130,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nEquipLevelupPurityModifier
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEquipLevelupPurityModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=6)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -5142,7 +5156,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nEquipLevelupPurityModifier
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEquipLevelupPurityModifier, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=6)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6548,7 +6562,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_AddReputation(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->AddReputation, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=nqTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6574,7 +6588,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_AddReputation(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->AddReputation, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=nqTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6600,7 +6614,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_SubReputation(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->SubReputation, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=nqTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6626,7 +6640,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_SubReputation(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->SubReputation, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=nqTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6652,7 +6666,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_HERO_AI_AiId(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->AiId, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6678,7 +6692,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_HERO_AI_AiId(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->AiId, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6704,7 +6718,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_HeroAiId(lua_State* tolua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->HeroAiId, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6730,7 +6744,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_HeroAiId(lua_State* tolua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->HeroAiId, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6748,7 +6762,8 @@ static int tolua_get_GAME_WORLD_CONFIG__HERO_DEFAULT_NAME_SEX_szName(lua_State* 
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szName, ClientFixedString::Length(self->szName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -6764,8 +6779,8 @@ static int tolua_set_GAME_WORLD_CONFIG__HERO_DEFAULT_NAME_SEX_szName(lua_State* 
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -6786,7 +6801,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_HERO_DEFAULT_NAME_Sex(lua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->Sex, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6812,7 +6827,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_HERO_DEFAULT_NAME_Sex(lua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->Sex, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6838,7 +6853,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_HeroDefaultName(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->HeroDefaultName, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6864,7 +6879,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_HeroDefaultName(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->HeroDefaultName, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6890,7 +6905,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_BaseWeaponSpeed(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->BaseWeaponSpeed, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=18)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6916,7 +6931,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_BaseWeaponSpeed(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->BaseWeaponSpeed, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=18)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6942,7 +6957,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_BaseWeaponStiffFactor(lua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->BaseWeaponStiffFactor, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=18)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -6968,7 +6983,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_BaseWeaponStiffFactor(lua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->BaseWeaponStiffFactor, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=18)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7024,7 +7039,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_CritConst(lua_State* tolua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->CritConst, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7050,7 +7065,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_CritConst(lua_State* tolua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->CritConst, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7076,7 +7091,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DefConst(lua_State* tolua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->DefConst, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7102,7 +7117,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DefConst(lua_State* tolua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->DefConst, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7128,7 +7143,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_MagHitRateToRunningTarget(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->MagHitRateToRunningTarget, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7154,7 +7169,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_MagHitRateToRunningTarget(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->MagHitRateToRunningTarget, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7180,7 +7195,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_PhyHitRateToWalkingTarget(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->PhyHitRateToWalkingTarget, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7206,7 +7221,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_PhyHitRateToWalkingTarget(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->PhyHitRateToWalkingTarget, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7232,7 +7247,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_PhyHitRateToRunningTarget(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->PhyHitRateToRunningTarget, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7258,7 +7273,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_PhyHitRateToRunningTarget(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->PhyHitRateToRunningTarget, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7374,7 +7389,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_ReviveParam(lua_State* tolu
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->ReviveParam, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7400,7 +7415,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_ReviveParam(lua_State* tolu
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->ReviveParam, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7606,7 +7621,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_NormalPracticeParam(lua_Sta
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->NormalPracticeParam, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7632,7 +7647,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_NormalPracticeParam(lua_Sta
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->NormalPracticeParam, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7688,7 +7703,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_FastPracticeMoneyCost(lua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->FastPracticeMoneyCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7714,7 +7729,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_FastPracticeMoneyCost(lua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->FastPracticeMoneyCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7830,7 +7845,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_FastPracticeSpeedupCost(lua
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->FastPracticeSpeedupCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -7856,7 +7871,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_FastPracticeSpeedupCost(lua
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->FastPracticeSpeedupCost, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8204,7 +8219,8 @@ static int tolua_get_GAME_WORLD_CONFIG_TeamDefaultName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'TeamDefaultName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->TeamDefaultName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->TeamDefaultName, ClientFixedString::Length(self->TeamDefaultName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -8220,8 +8236,8 @@ static int tolua_set_GAME_WORLD_CONFIG_TeamDefaultName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->TeamDefaultName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->TeamDefaultName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -8362,7 +8378,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_VIPData(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->VIPData, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=vlTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8388,7 +8404,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_VIPData(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->VIPData, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=vlTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8414,7 +8430,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nTeamExpRate(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTeamExpRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=21)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8440,7 +8456,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nTeamExpRate(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTeamExpRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=21)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8466,7 +8482,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nLevelExpRate(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLevelExpRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=31)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8492,7 +8508,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nLevelExpRate(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLevelExpRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=31)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8698,7 +8714,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nLevelDiffExtraExpRate(lua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLevelDiffExtraExpRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8724,7 +8740,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nLevelDiffExtraExpRate(lua_
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLevelDiffExtraExpRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8750,7 +8766,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nDropChanceRate(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nDropChanceRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -8776,7 +8792,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nDropChanceRate(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nDropChanceRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9582,7 +9598,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nTimeScoreRat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTimeScoreRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9608,7 +9624,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nTimeScoreRat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTimeScoreRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9634,7 +9650,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nAttackScoreR
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAttackScoreRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9660,7 +9676,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nAttackScoreR
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAttackScoreRate, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9686,7 +9702,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nTotalAttackV
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTotalAttackValue, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9712,7 +9728,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nTotalAttackV
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTotalAttackValue, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9858,7 +9874,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nGoalScoreDif
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nGoalScoreDiff, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9884,7 +9900,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nGoalScoreDif
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nGoalScoreDiff, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9910,7 +9926,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nTotalScore(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTotalScore, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -9936,7 +9952,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DUNGEON_SCORE_nTotalScore(l
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nTotalScore, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=edsTotal)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -10832,7 +10848,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_ARENA_nWashoutTime(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nWashoutTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=ARENA_MATCH_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -10858,7 +10874,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_ARENA_nWashoutTime(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nWashoutTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=ARENA_MATCH_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -11604,7 +11620,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_ArenaReward(lua_State* tolu
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->ArenaReward, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -11630,7 +11646,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_ArenaReward(lua_State* tolu
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->ArenaReward, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -11656,7 +11672,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nAntiCheatInterval(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAntiCheatInterval, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_ANTI_CHEAT_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -11682,7 +11698,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nAntiCheatInterval(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAntiCheatInterval, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_ANTI_CHEAT_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -11708,7 +11724,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nAntiCheatPunishTime(lua_St
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAntiCheatPunishTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_ANTI_CHEAT_PUNISH_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -11734,7 +11750,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nAntiCheatPunishTime(lua_St
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAntiCheatPunishTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_ANTI_CHEAT_PUNISH_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -12622,7 +12638,8 @@ static int tolua_get_GAME_WORLD_CONFIG__SURVEY_szSurveyPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSurveyPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSurveyPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSurveyPath, ClientFixedString::Length(self->szSurveyPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -12638,8 +12655,8 @@ static int tolua_set_GAME_WORLD_CONFIG__SURVEY_szSurveyPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSurveyPath,(const char*)tolua_tostring(tolua_S,2,0),MAX_SURVEY_PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSurveyPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -12660,7 +12677,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_Survey(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->Survey, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_SURVEY_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -12686,7 +12703,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_Survey(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->Survey, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_SURVEY_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -12704,7 +12721,8 @@ static int tolua_get_GAME_WORLD_CONFIG_szCensoredWordList(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szCensoredWordList'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szCensoredWordList);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szCensoredWordList, ClientFixedString::Length(self->szCensoredWordList));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -12720,8 +12738,8 @@ static int tolua_set_GAME_WORLD_CONFIG_szCensoredWordList(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szCensoredWordList,(const char*)tolua_tostring(tolua_S,2,0),65536-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szCensoredWordList, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -12974,7 +12992,8 @@ static int tolua_get_GAME_WORLD_CONFIG_szRecallFailMessage(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRecallFailMessage'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRecallFailMessage);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRecallFailMessage, ClientFixedString::Length(self->szRecallFailMessage));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -12990,8 +13009,8 @@ static int tolua_set_GAME_WORLD_CONFIG_szRecallFailMessage(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRecallFailMessage,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRecallFailMessage, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -13462,7 +13481,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_GpkPunishGoldPool(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->GpkPunishGoldPool, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_GPK_PUNISH_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13488,7 +13507,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_GpkPunishGoldPool(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->GpkPunishGoldPool, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_ROLE_GPK_PUNISH_LEVEL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13634,7 +13653,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DISTRIBUTE_EXP_nRoleCountTa
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nRoleCountTable, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=101)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13660,7 +13679,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DISTRIBUTE_EXP_nRoleCountTa
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nRoleCountTable, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=101)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13686,7 +13705,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DISTRIBUTE_EXP_nLevelTable(
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLevelTable, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=101)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13712,7 +13731,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DISTRIBUTE_EXP_nLevelTable(
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLevelTable, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=101)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13738,7 +13757,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_DistributeExp(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->DistributeExp, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=2)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -13764,7 +13783,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_DistributeExp(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->DistributeExp, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=2)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -14630,7 +14649,7 @@ static int tolua_get_global_config_GAME_WORLD_CONFIG_nAuctionTimeInterval(lua_St
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAuctionTimeInterval, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -14656,7 +14675,7 @@ static int tolua_set_global_config_GAME_WORLD_CONFIG_nAuctionTimeInterval(lua_St
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAuctionTimeInterval, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=3)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15576,7 +15595,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nInitGuildPositionRight(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildPositionRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=8)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15602,7 +15621,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nInitGuildPositionRight(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildPositionRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=8)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15628,7 +15647,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nInitGuildStorageRight(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildStorageRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=7)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15654,7 +15673,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nInitGuildStorageRight(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nInitGuildStorageRight, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=7)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15920,7 +15939,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nMaxDonateMoneyPerDay(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateMoneyPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15946,7 +15965,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nMaxDonateMoneyPerDay(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateMoneyPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15972,7 +15991,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nMaxDonateResPerDay(lua_State* t
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateResPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -15998,7 +16017,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nMaxDonateResPerDay(lua_State* t
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nMaxDonateResPerDay, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GUILD_POSITION_TOTAL)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16024,7 +16043,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nAllianceConsumeMoney(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAllianceConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16050,7 +16069,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nAllianceConsumeMoney(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nAllianceConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16076,7 +16095,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nEnemyConsumeMoney(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEnemyConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16102,7 +16121,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nEnemyConsumeMoney(lua_State* to
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nEnemyConsumeMoney, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16128,7 +16147,7 @@ static int tolua_get_global_config_GUILD_CONFIG_nGuildDiplomatLastTime(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nGuildDiplomatLastTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16154,7 +16173,7 @@ static int tolua_set_global_config_GUILD_CONFIG_nGuildDiplomatLastTime(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nGuildDiplomatLastTime, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16562,7 +16581,8 @@ static int tolua_get_GUILD_CONFIG_szBMainNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBMainNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBMainNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBMainNameID, ClientFixedString::Length(self->szBMainNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16578,8 +16598,8 @@ static int tolua_set_GUILD_CONFIG_szBMainNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBMainNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBMainNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16592,7 +16612,8 @@ static int tolua_get_GUILD_CONFIG_szBBusinessNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBBusinessNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBBusinessNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBBusinessNameID, ClientFixedString::Length(self->szBBusinessNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16608,8 +16629,8 @@ static int tolua_set_GUILD_CONFIG_szBBusinessNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBBusinessNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBBusinessNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16622,7 +16643,8 @@ static int tolua_get_GUILD_CONFIG_szBDeityNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBDeityNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBDeityNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBDeityNameID, ClientFixedString::Length(self->szBDeityNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16638,8 +16660,8 @@ static int tolua_set_GUILD_CONFIG_szBDeityNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBDeityNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBDeityNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16652,7 +16674,8 @@ static int tolua_get_GUILD_CONFIG_szBWonderNameID(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szBWonderNameID'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szBWonderNameID);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szBWonderNameID, ClientFixedString::Length(self->szBWonderNameID));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16668,8 +16691,8 @@ static int tolua_set_GUILD_CONFIG_szBWonderNameID(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szBWonderNameID,(const char*)tolua_tostring(tolua_S,2,0),8-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szBWonderNameID, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -16750,7 +16773,7 @@ static int tolua_get_global_config_GUILD_CONFIG_arrWeatherCondition(lua_State* t
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->arrWeatherCondition, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -16776,7 +16799,7 @@ static int tolua_set_global_config_GUILD_CONFIG_arrWeatherCondition(lua_State* t
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->arrWeatherCondition, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=4)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -18296,7 +18319,7 @@ static int tolua_get_global_config_NEW_ROLE_CONFIG_MaleNewEquip(lua_State* tolua
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->MaleNewEquip, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=clsPlayerEnd)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -18322,7 +18345,7 @@ static int tolua_set_global_config_NEW_ROLE_CONFIG_MaleNewEquip(lua_State* tolua
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->MaleNewEquip, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=clsPlayerEnd)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -18348,7 +18371,7 @@ static int tolua_get_global_config_NEW_ROLE_CONFIG_FemaleNewEquip(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->FemaleNewEquip, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=clsPlayerEnd)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -18374,7 +18397,7 @@ static int tolua_set_global_config_NEW_ROLE_CONFIG_FemaleNewEquip(lua_State* tol
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->FemaleNewEquip, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=clsPlayerEnd)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -19190,7 +19213,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szAreaName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAreaName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAreaName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAreaName, ClientFixedString::Length(self->szAreaName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19206,8 +19230,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szAreaName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAreaName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAreaName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19400,7 +19424,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szIntranetAddr(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szIntranetAddr'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szIntranetAddr);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szIntranetAddr, ClientFixedString::Length(self->szIntranetAddr));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19416,8 +19441,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szIntranetAddr(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szIntranetAddr,(const char*)tolua_tostring(tolua_S,2,0),16-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szIntranetAddr, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19430,7 +19455,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szIntranetMask(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szIntranetMask'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szIntranetMask);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szIntranetMask, ClientFixedString::Length(self->szIntranetMask));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19446,8 +19472,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szIntranetMask(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szIntranetMask,(const char*)tolua_tostring(tolua_S,2,0),16-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szIntranetMask, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19460,7 +19486,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szPakFolder(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szPakFolder'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szPakFolder);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szPakFolder, ClientFixedString::Length(self->szPakFolder));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19476,8 +19503,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szPakFolder(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szPakFolder,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szPakFolder, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19490,7 +19517,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szCertServerAddr(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szCertServerAddr'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szCertServerAddr);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szCertServerAddr, ClientFixedString::Length(self->szCertServerAddr));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19506,8 +19534,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szCertServerAddr(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szCertServerAddr,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szCertServerAddr, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19550,7 +19578,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szGuardAddr(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szGuardAddr'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szGuardAddr);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szGuardAddr, ClientFixedString::Length(self->szGuardAddr));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19566,8 +19595,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szGuardAddr(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szGuardAddr,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szGuardAddr, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19670,7 +19699,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szReportAbsolutePath(lua_State* tolua
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szReportAbsolutePath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szReportAbsolutePath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szReportAbsolutePath, ClientFixedString::Length(self->szReportAbsolutePath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19686,8 +19716,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szReportAbsolutePath(lua_State* tolua
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szReportAbsolutePath,(const char*)tolua_tostring(tolua_S,2,0),PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szReportAbsolutePath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19700,7 +19730,8 @@ static int tolua_get_SERVER_CONFIG__COMMON__IP_ADDR_szIP(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szIP'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szIP);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szIP, ClientFixedString::Length(self->szIP));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19716,8 +19747,8 @@ static int tolua_set_SERVER_CONFIG__COMMON__IP_ADDR_szIP(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szIP,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szIP, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19730,7 +19761,8 @@ static int tolua_get_SERVER_CONFIG__COMMON__IP_ADDR_szMask(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szMask'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szMask);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szMask, ClientFixedString::Length(self->szMask));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19746,8 +19778,8 @@ static int tolua_set_SERVER_CONFIG__COMMON__IP_ADDR_szMask(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szMask,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szMask, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19768,7 +19800,7 @@ static int tolua_get_global_config_SERVER_CONFIG_COMMON_IpWhiteList(lua_State* t
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->IpWhiteList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=256)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -19794,7 +19826,7 @@ static int tolua_set_global_config_SERVER_CONFIG_COMMON_IpWhiteList(lua_State* t
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->IpWhiteList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=256)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -19812,7 +19844,8 @@ static int tolua_get_SERVER_CONFIG__COMMON_szSuperGMUserName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSuperGMUserName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSuperGMUserName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSuperGMUserName, ClientFixedString::Length(self->szSuperGMUserName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19828,8 +19861,8 @@ static int tolua_set_SERVER_CONFIG__COMMON_szSuperGMUserName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSuperGMUserName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSuperGMUserName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19842,7 +19875,8 @@ static int tolua_get_SERVER_CONFIG__COMMON__USER_NAME_szUserName(lua_State* tolu
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szUserName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szUserName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szUserName, ClientFixedString::Length(self->szUserName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19858,8 +19892,8 @@ static int tolua_set_SERVER_CONFIG__COMMON__USER_NAME_szUserName(lua_State* tolu
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szUserName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szUserName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -19880,7 +19914,7 @@ static int tolua_get_global_config_SERVER_CONFIG_COMMON_UserWhiteList(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->UserWhiteList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=256)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -19906,7 +19940,7 @@ static int tolua_set_global_config_SERVER_CONFIG_COMMON_UserWhiteList(lua_State*
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->UserWhiteList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=256)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -20194,7 +20228,8 @@ static int tolua_get_SERVER_CONFIG__MS_CONFIG_szAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -20210,8 +20245,8 @@ static int tolua_set_SERVER_CONFIG__MS_CONFIG_szAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -20584,7 +20619,8 @@ static int tolua_get_SERVER_CONFIG__MS_CONFIG_szRemoteGMAddress(lua_State* tolua
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szRemoteGMAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szRemoteGMAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szRemoteGMAddress, ClientFixedString::Length(self->szRemoteGMAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -20600,8 +20636,8 @@ static int tolua_set_SERVER_CONFIG__MS_CONFIG_szRemoteGMAddress(lua_State* tolua
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szRemoteGMAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szRemoteGMAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21154,7 +21190,8 @@ static int tolua_get_SERVER_CONFIG__MS_CONFIG_szConfigFile(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szConfigFile'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szConfigFile);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szConfigFile, ClientFixedString::Length(self->szConfigFile));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21170,8 +21207,8 @@ static int tolua_set_SERVER_CONFIG__MS_CONFIG_szConfigFile(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szConfigFile,(const char*)tolua_tostring(tolua_S,2,0),256-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szConfigFile, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21394,7 +21431,8 @@ static int tolua_get_SERVER_CONFIG__MS_CONFIG_szLaunchServerAddress(lua_State* t
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szLaunchServerAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szLaunchServerAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szLaunchServerAddress, ClientFixedString::Length(self->szLaunchServerAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21410,8 +21448,8 @@ static int tolua_set_SERVER_CONFIG__MS_CONFIG_szLaunchServerAddress(lua_State* t
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szLaunchServerAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szLaunchServerAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21604,7 +21642,8 @@ static int tolua_get_SERVER_CONFIG__SERVER_GROUP_CONFIG_szStartDate(lua_State* t
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szStartDate'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szStartDate);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szStartDate, ClientFixedString::Length(self->szStartDate));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21620,8 +21659,8 @@ static int tolua_set_SERVER_CONFIG__SERVER_GROUP_CONFIG_szStartDate(lua_State* t
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szStartDate,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szStartDate, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -21822,7 +21861,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GroupConfig(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->GroupConfig, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_SERVER_GROUP_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -21848,7 +21887,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GroupConfig(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->GroupConfig, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_SERVER_GROUP_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -22136,7 +22175,8 @@ static int tolua_get_SERVER_CONFIG__MM_CONFIG_szAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22152,8 +22192,8 @@ static int tolua_set_SERVER_CONFIG__MM_CONFIG_szAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22376,7 +22416,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szDBIPAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBIPAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBIPAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBIPAddress, ClientFixedString::Length(self->szDBIPAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22392,8 +22433,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szDBIPAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBIPAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBIPAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22436,7 +22477,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szDBAccount(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBAccount'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBAccount);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBAccount, ClientFixedString::Length(self->szDBAccount));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22452,8 +22494,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szDBAccount(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBAccount,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBAccount, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22466,7 +22508,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szDBPassword(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBPassword'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBPassword);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBPassword, ClientFixedString::Length(self->szDBPassword));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22482,8 +22525,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szDBPassword(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBPassword,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBPassword, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22496,7 +22539,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szDBName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBName, ClientFixedString::Length(self->szDBName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22512,8 +22556,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szDBName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22526,7 +22570,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szDBCharset(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBCharset'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBCharset);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBCharset, ClientFixedString::Length(self->szDBCharset));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22542,8 +22587,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szDBCharset(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBCharset,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBCharset, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22556,7 +22601,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szLogDBIPAddress(lua_State* tolua_
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szLogDBIPAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szLogDBIPAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szLogDBIPAddress, ClientFixedString::Length(self->szLogDBIPAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22572,8 +22618,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szLogDBIPAddress(lua_State* tolua_
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szLogDBIPAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szLogDBIPAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22616,7 +22662,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szLogDBAccount(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szLogDBAccount'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szLogDBAccount);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szLogDBAccount, ClientFixedString::Length(self->szLogDBAccount));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22632,8 +22679,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szLogDBAccount(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szLogDBAccount,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szLogDBAccount, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22646,7 +22693,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szLogDBPassword(lua_State* tolua_S
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szLogDBPassword'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szLogDBPassword);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szLogDBPassword, ClientFixedString::Length(self->szLogDBPassword));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22662,8 +22710,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szLogDBPassword(lua_State* tolua_S
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szLogDBPassword,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szLogDBPassword, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22676,7 +22724,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szLogDBName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szLogDBName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szLogDBName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szLogDBName, ClientFixedString::Length(self->szLogDBName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22692,8 +22741,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szLogDBName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szLogDBName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szLogDBName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22706,7 +22755,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szLogDBCharset(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szLogDBCharset'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szLogDBCharset);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szLogDBCharset, ClientFixedString::Length(self->szLogDBCharset));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22722,8 +22772,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szLogDBCharset(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szLogDBCharset,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szLogDBCharset, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22736,7 +22786,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverDBIPAddress(lua_State* tol
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverDBIPAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverDBIPAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverDBIPAddress, ClientFixedString::Length(self->szSlaverDBIPAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22752,8 +22803,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverDBIPAddress(lua_State* tol
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverDBIPAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverDBIPAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22796,7 +22847,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverDBAccount(lua_State* tolua
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverDBAccount'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverDBAccount);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverDBAccount, ClientFixedString::Length(self->szSlaverDBAccount));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22812,8 +22864,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverDBAccount(lua_State* tolua
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverDBAccount,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverDBAccount, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22826,7 +22878,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverDBPassword(lua_State* tolu
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverDBPassword'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverDBPassword);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverDBPassword, ClientFixedString::Length(self->szSlaverDBPassword));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22842,8 +22895,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverDBPassword(lua_State* tolu
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverDBPassword,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverDBPassword, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22856,7 +22909,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverDBName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverDBName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverDBName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverDBName, ClientFixedString::Length(self->szSlaverDBName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22872,8 +22926,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverDBName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverDBName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverDBName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22886,7 +22940,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverDBCharset(lua_State* tolua
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverDBCharset'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverDBCharset);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverDBCharset, ClientFixedString::Length(self->szSlaverDBCharset));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22902,8 +22957,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverDBCharset(lua_State* tolua
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverDBCharset,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverDBCharset, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22916,7 +22971,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBIPAddress(lua_State* 
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverLogDBIPAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverLogDBIPAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverLogDBIPAddress, ClientFixedString::Length(self->szSlaverLogDBIPAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22932,8 +22988,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBIPAddress(lua_State* 
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverLogDBIPAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverLogDBIPAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22976,7 +23032,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBAccount(lua_State* to
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverLogDBAccount'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverLogDBAccount);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverLogDBAccount, ClientFixedString::Length(self->szSlaverLogDBAccount));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -22992,8 +23049,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBAccount(lua_State* to
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverLogDBAccount,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverLogDBAccount, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23006,7 +23063,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBPassword(lua_State* t
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverLogDBPassword'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverLogDBPassword);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverLogDBPassword, ClientFixedString::Length(self->szSlaverLogDBPassword));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23022,8 +23080,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBPassword(lua_State* t
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverLogDBPassword,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverLogDBPassword, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23036,7 +23094,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBName(lua_State* tolua
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverLogDBName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverLogDBName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverLogDBName, ClientFixedString::Length(self->szSlaverLogDBName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23052,8 +23111,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBName(lua_State* tolua
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverLogDBName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverLogDBName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23066,7 +23125,8 @@ static int tolua_get_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBCharset(lua_State* to
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szSlaverLogDBCharset'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szSlaverLogDBCharset);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szSlaverLogDBCharset, ClientFixedString::Length(self->szSlaverLogDBCharset));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23082,8 +23142,8 @@ static int tolua_set_SERVER_CONFIG__DB_CONFIG_szSlaverLogDBCharset(lua_State* to
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szSlaverLogDBCharset,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szSlaverLogDBCharset, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23426,7 +23486,8 @@ static int tolua_get_SERVER_CONFIG__LS_CONFIG_szConfigFile(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szConfigFile'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szConfigFile);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szConfigFile, ClientFixedString::Length(self->szConfigFile));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -23442,8 +23503,8 @@ static int tolua_set_SERVER_CONFIG__LS_CONFIG_szConfigFile(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szConfigFile,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szConfigFile, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24386,7 +24447,8 @@ static int tolua_get_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_ip(lua_State* to
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'ip'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->ip);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->ip, ClientFixedString::Length(self->ip));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24402,8 +24464,8 @@ static int tolua_set_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_ip(lua_State* to
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->ip,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->ip, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24446,7 +24508,8 @@ static int tolua_get_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_account(lua_Stat
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'account'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->account);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->account, ClientFixedString::Length(self->account));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24462,8 +24525,8 @@ static int tolua_set_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_account(lua_Stat
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->account,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->account, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24476,7 +24539,8 @@ static int tolua_get_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_password(lua_Sta
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'password'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->password);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->password, ClientFixedString::Length(self->password));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24492,8 +24556,8 @@ static int tolua_set_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_password(lua_Sta
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->password,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->password, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24506,7 +24570,8 @@ static int tolua_get_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_db_name(lua_Stat
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'db_name'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->db_name);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->db_name, ClientFixedString::Length(self->db_name));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24522,8 +24587,8 @@ static int tolua_set_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_db_name(lua_Stat
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->db_name,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->db_name, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24536,7 +24601,8 @@ static int tolua_get_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_charset(lua_Stat
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'charset'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->charset);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->charset, ClientFixedString::Length(self->charset));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24552,8 +24618,8 @@ static int tolua_set_SERVER_CONFIG__DL_CONFIG__RENAME_DB_CONFIG_charset(lua_Stat
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->charset,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->charset, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24604,7 +24670,7 @@ static int tolua_get_global_config_SERVER_CONFIG_DL_CONFIG_RENAME_CONFIG_RoleDB(
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->RoleDB, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=6)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -24630,7 +24696,7 @@ static int tolua_set_global_config_SERVER_CONFIG_DL_CONFIG_RENAME_CONFIG_RoleDB(
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->RoleDB, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=6)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -24768,7 +24834,8 @@ static int tolua_get_SERVER_CONFIG__NS_CONFIG_szAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24784,8 +24851,8 @@ static int tolua_set_SERVER_CONFIG__NS_CONFIG_szAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24828,7 +24895,8 @@ static int tolua_get_SERVER_CONFIG__NS_CONFIG_szDBIPAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBIPAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBIPAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBIPAddress, ClientFixedString::Length(self->szDBIPAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24844,8 +24912,8 @@ static int tolua_set_SERVER_CONFIG__NS_CONFIG_szDBIPAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBIPAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBIPAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24888,7 +24956,8 @@ static int tolua_get_SERVER_CONFIG__NS_CONFIG_szDBAccount(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBAccount'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBAccount);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBAccount, ClientFixedString::Length(self->szDBAccount));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24904,8 +24973,8 @@ static int tolua_set_SERVER_CONFIG__NS_CONFIG_szDBAccount(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBAccount,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBAccount, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24918,7 +24987,8 @@ static int tolua_get_SERVER_CONFIG__NS_CONFIG_szDBPassword(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBPassword'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBPassword);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBPassword, ClientFixedString::Length(self->szDBPassword));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24934,8 +25004,8 @@ static int tolua_set_SERVER_CONFIG__NS_CONFIG_szDBPassword(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBPassword,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBPassword, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24948,7 +25018,8 @@ static int tolua_get_SERVER_CONFIG__NS_CONFIG_szDBName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBName, ClientFixedString::Length(self->szDBName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24964,8 +25035,8 @@ static int tolua_set_SERVER_CONFIG__NS_CONFIG_szDBName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24978,7 +25049,8 @@ static int tolua_get_SERVER_CONFIG__NS_CONFIG_szDBCharset(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDBCharset'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDBCharset);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDBCharset, ClientFixedString::Length(self->szDBCharset));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -24994,8 +25066,8 @@ static int tolua_set_SERVER_CONFIG__NS_CONFIG_szDBCharset(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDBCharset,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDBCharset, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25488,7 +25560,8 @@ static int tolua_get_SERVER_CONFIG__GM_CONFIG_szAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25504,8 +25577,8 @@ static int tolua_set_SERVER_CONFIG__GM_CONFIG_szAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),256-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25608,7 +25681,8 @@ static int tolua_get_SERVER_CONFIG__MAC_DATA_szMac(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szMac'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szMac);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szMac, ClientFixedString::Length(self->szMac));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25624,8 +25698,8 @@ static int tolua_set_SERVER_CONFIG__MAC_DATA_szMac(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szMac,(const char*)tolua_tostring(tolua_S,2,0),128-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szMac, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25668,7 +25742,8 @@ static int tolua_get_SERVER_CONFIG__GM_SECURITY__GM_USER_szName(lua_State* tolua
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szName, ClientFixedString::Length(self->szName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25684,8 +25759,8 @@ static int tolua_set_SERVER_CONFIG__GM_SECURITY__GM_USER_szName(lua_State* tolua
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szName,(const char*)tolua_tostring(tolua_S,2,0),USER_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25698,7 +25773,8 @@ static int tolua_get_SERVER_CONFIG__GM_SECURITY__GM_USER_szPwd(lua_State* tolua_
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szPwd'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szPwd);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szPwd, ClientFixedString::Length(self->szPwd));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25714,8 +25790,8 @@ static int tolua_set_SERVER_CONFIG__GM_SECURITY__GM_USER_szPwd(lua_State* tolua_
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szPwd,(const char*)tolua_tostring(tolua_S,2,0),GM_TOOL_PASSWORD_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szPwd, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25766,7 +25842,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GM_SECURITY_GM_USER_MacList(lua
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->MacList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=8)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -25792,7 +25868,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GM_SECURITY_GM_USER_MacList(lua
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->MacList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=8)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -25810,7 +25886,8 @@ static int tolua_get_SERVER_CONFIG__GM_SECURITY__GM_CMD_DATA_szDescript(lua_Stat
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szDescript'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szDescript);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szDescript, ClientFixedString::Length(self->szDescript));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25826,8 +25903,8 @@ static int tolua_set_SERVER_CONFIG__GM_SECURITY__GM_CMD_DATA_szDescript(lua_Stat
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szDescript,(const char*)tolua_tostring(tolua_S,2,0),GM_CMD_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szDescript, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25870,7 +25947,8 @@ static int tolua_get_SERVER_CONFIG__GM_SECURITY__CRM_IP_ADDR_szIP(lua_State* tol
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szIP'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szIP);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szIP, ClientFixedString::Length(self->szIP));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25886,8 +25964,8 @@ static int tolua_set_SERVER_CONFIG__GM_SECURITY__CRM_IP_ADDR_szIP(lua_State* tol
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szIP,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szIP, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25900,7 +25978,8 @@ static int tolua_get_SERVER_CONFIG__GM_SECURITY__CRM_IP_ADDR_szMask(lua_State* t
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szMask'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szMask);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szMask, ClientFixedString::Length(self->szMask));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25916,8 +25995,8 @@ static int tolua_set_SERVER_CONFIG__GM_SECURITY__CRM_IP_ADDR_szMask(lua_State* t
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szMask,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szMask, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -25968,7 +26047,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GM_SECURITY_gmUserList(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->gmUserList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GM_USER)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -25994,7 +26073,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GM_SECURITY_gmUserList(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->gmUserList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GM_USER)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26050,7 +26129,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GM_SECURITY_LDUserList(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->LDUserList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GM_USER)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26076,7 +26155,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GM_SECURITY_LDUserList(lua_Stat
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->LDUserList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GM_USER)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26132,7 +26211,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GM_SECURITY_CRMList(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->CRMList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GM_USER)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26158,7 +26237,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GM_SECURITY_CRMList(lua_State* 
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->CRMList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GM_USER)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26184,7 +26263,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GM_SECURITY_IpWhiteList(lua_Sta
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->IpWhiteList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=256)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26210,7 +26289,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GM_SECURITY_IpWhiteList(lua_Sta
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->IpWhiteList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=256)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26236,7 +26315,7 @@ static int tolua_get_global_config_SERVER_CONFIG_GM_SECURITY_gmCmdList(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->gmCmdList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GM_CMD_NUM)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26262,7 +26341,7 @@ static int tolua_set_global_config_SERVER_CONFIG_GM_SECURITY_gmCmdList(lua_State
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->gmCmdList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=GM_CMD_NUM)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26438,7 +26517,7 @@ static int tolua_get_global_config_SERVER_CONFIG_CUSTOM_CONFIG_nCustomGameTimeCa
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nCustomGameTimeCardTemplateID, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=10)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26464,7 +26543,7 @@ static int tolua_set_global_config_SERVER_CONFIG_CUSTOM_CONFIG_nCustomGameTimeCa
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nCustomGameTimeCardTemplateID, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=10)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26490,7 +26569,7 @@ static int tolua_get_global_config_SERVER_CONFIG_CUSTOM_CONFIG_nLuck2NecklaceIte
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLuck2NecklaceItemID, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26516,7 +26595,7 @@ static int tolua_set_global_config_SERVER_CONFIG_CUSTOM_CONFIG_nLuck2NecklaceIte
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->nLuck2NecklaceItemID, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=5)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -26704,7 +26783,7 @@ static int tolua_set_g_ServerConfig(lua_State* tolua_S)
 #ifndef TOLUA_DISABLE_tolua_get_g_GmRoleName
 static int tolua_get_g_GmRoleName(lua_State* tolua_S)
 {
- tolua_pushstring(tolua_S,(const char*)g_GmRoleName);
+ lua_pushlstring(tolua_S, g_GmRoleName, ClientFixedString::Length(g_GmRoleName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -26718,8 +26797,7 @@ static int tolua_set_g_GmRoleName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-g_GmRoleName,(const char*)tolua_tostring(tolua_S,2,0),10-1);
+ ClientFixedString::Assign(g_GmRoleName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27242,7 +27320,8 @@ static int tolua_get_MAINTAIN_CONFIG_szVersionPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szVersionPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szVersionPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szVersionPath, ClientFixedString::Length(self->szVersionPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27258,8 +27337,8 @@ static int tolua_set_MAINTAIN_CONFIG_szVersionPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szVersionPath,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szVersionPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27272,7 +27351,8 @@ static int tolua_get_MAINTAIN_CONFIG_szPatchPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szPatchPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szPatchPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szPatchPath, ClientFixedString::Length(self->szPatchPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27288,8 +27368,8 @@ static int tolua_set_MAINTAIN_CONFIG_szPatchPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szPatchPath,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szPatchPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27302,7 +27382,8 @@ static int tolua_get_MAINTAIN_CONFIG_szAreaConfigPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAreaConfigPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAreaConfigPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAreaConfigPath, ClientFixedString::Length(self->szAreaConfigPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27318,8 +27399,8 @@ static int tolua_set_MAINTAIN_CONFIG_szAreaConfigPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAreaConfigPath,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAreaConfigPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27392,7 +27473,8 @@ static int tolua_get_MAINTAIN_CONFIG__SAreaConfig_szVersion(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szVersion'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szVersion);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szVersion, ClientFixedString::Length(self->szVersion));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27408,8 +27490,8 @@ static int tolua_set_MAINTAIN_CONFIG__SAreaConfig_szVersion(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szVersion,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szVersion, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27422,7 +27504,8 @@ static int tolua_get_MAINTAIN_CONFIG__SAreaConfig_szAreaName(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAreaName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAreaName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAreaName, ClientFixedString::Length(self->szAreaName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27438,8 +27521,8 @@ static int tolua_set_MAINTAIN_CONFIG__SAreaConfig_szAreaName(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAreaName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAreaName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27452,7 +27535,8 @@ static int tolua_get_MAINTAIN_CONFIG__SAreaConfig_szAreaFolderName(lua_State* to
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAreaFolderName'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAreaFolderName);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAreaFolderName, ClientFixedString::Length(self->szAreaFolderName));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27468,8 +27552,8 @@ static int tolua_set_MAINTAIN_CONFIG__SAreaConfig_szAreaFolderName(lua_State* to
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAreaFolderName,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAreaFolderName, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27482,7 +27566,8 @@ static int tolua_get_MAINTAIN_CONFIG__SAreaConfig__SRemoteGuard_szAddress(lua_St
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27498,8 +27583,8 @@ static int tolua_set_MAINTAIN_CONFIG__SAreaConfig__SRemoteGuard_szAddress(lua_St
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27542,7 +27627,8 @@ static int tolua_get_MAINTAIN_CONFIG__SAreaConfig__SRemoteGuard_szGuardVersion(l
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szGuardVersion'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szGuardVersion);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szGuardVersion, ClientFixedString::Length(self->szGuardVersion));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27558,8 +27644,8 @@ static int tolua_set_MAINTAIN_CONFIG__SAreaConfig__SRemoteGuard_szGuardVersion(l
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szGuardVersion,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szGuardVersion, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -27580,7 +27666,7 @@ static int tolua_get_global_config_MAINTAIN_CONFIG_SAreaConfig_guardList(lua_Sta
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->guardList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GUARD_COUNT_PER_AREA)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -27606,7 +27692,7 @@ static int tolua_set_global_config_MAINTAIN_CONFIG_SAreaConfig_guardList(lua_Sta
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->guardList, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_GUARD_COUNT_PER_AREA)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -27632,7 +27718,7 @@ static int tolua_get_global_config_MAINTAIN_CONFIG_AreaConfig(lua_State* tolua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->AreaConfig, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_AREA_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -27658,7 +27744,7 @@ static int tolua_set_global_config_MAINTAIN_CONFIG_AreaConfig(lua_State* tolua_S
  tolua_error(tolua_S,"#vinvalid type in array indexing.",&tolua_err);
  }
 #endif
- tolua_index = (int)tolua_tonumber(tolua_S,2,0);
+ if (!self || !ClientLuaArray::Index(tolua_tonumber(tolua_S,2,0), self->AreaConfig, tolua_index)) return 0;
 #ifndef TOLUA_RELEASE
  if (tolua_index<0 || tolua_index>=MAX_AREA_COUNT)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
@@ -28216,7 +28302,8 @@ static int tolua_get_GUARD_CONFIG_szAddress(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szAddress'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szAddress);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szAddress, ClientFixedString::Length(self->szAddress));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28232,8 +28319,8 @@ static int tolua_set_GUARD_CONFIG_szAddress(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szAddress,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szAddress, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28726,7 +28813,8 @@ static int tolua_get_GUARD_CONFIG_szMTUser(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szMTUser'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szMTUser);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szMTUser, ClientFixedString::Length(self->szMTUser));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28742,8 +28830,8 @@ static int tolua_set_GUARD_CONFIG_szMTUser(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szMTUser,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szMTUser, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28756,7 +28844,8 @@ static int tolua_get_GUARD_CONFIG_szMTPwd(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szMTPwd'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szMTPwd);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szMTPwd, ClientFixedString::Length(self->szMTPwd));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28772,8 +28861,8 @@ static int tolua_set_GUARD_CONFIG_szMTPwd(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szMTPwd,(const char*)tolua_tostring(tolua_S,2,0),COMMON_NAME_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szMTPwd, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28786,7 +28875,8 @@ static int tolua_get_GUARD_CONFIG_szReportAbsolutePath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szReportAbsolutePath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szReportAbsolutePath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szReportAbsolutePath, ClientFixedString::Length(self->szReportAbsolutePath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28802,8 +28892,8 @@ static int tolua_set_GUARD_CONFIG_szReportAbsolutePath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szReportAbsolutePath,(const char*)tolua_tostring(tolua_S,2,0),PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szReportAbsolutePath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28816,7 +28906,8 @@ static int tolua_get_GUARD_CONFIG_szServerVersionPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szServerVersionPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szServerVersionPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szServerVersionPath, ClientFixedString::Length(self->szServerVersionPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28832,8 +28923,8 @@ static int tolua_set_GUARD_CONFIG_szServerVersionPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szServerVersionPath,(const char*)tolua_tostring(tolua_S,2,0),PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szServerVersionPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28846,7 +28937,8 @@ static int tolua_get_GUARD_CONFIG_szServerPatchPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szServerPatchPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szServerPatchPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szServerPatchPath, ClientFixedString::Length(self->szServerPatchPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28862,8 +28954,8 @@ static int tolua_set_GUARD_CONFIG_szServerPatchPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szServerPatchPath,(const char*)tolua_tostring(tolua_S,2,0),PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szServerPatchPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28876,7 +28968,8 @@ static int tolua_get_GUARD_CONFIG_szServerRunPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szServerRunPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szServerRunPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szServerRunPath, ClientFixedString::Length(self->szServerRunPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28892,8 +28985,8 @@ static int tolua_set_GUARD_CONFIG_szServerRunPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szServerRunPath,(const char*)tolua_tostring(tolua_S,2,0),PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szServerRunPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28906,7 +28999,8 @@ static int tolua_get_GUARD_CONFIG_szGuardPath(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'szGuardPath'",NULL);
 #endif
- tolua_pushstring(tolua_S,(const char*)self->szGuardPath);
+ if (!self) return 0;
+ lua_pushlstring(tolua_S, self->szGuardPath, ClientFixedString::Length(self->szGuardPath));
  return 1;
 }
 #endif //#ifndef TOLUA_DISABLE
@@ -28922,8 +29016,8 @@ static int tolua_set_GUARD_CONFIG_szGuardPath(lua_State* tolua_S)
  if (!tolua_isstring(tolua_S,2,0,&tolua_err))
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
- strncpy((char*)
-self->szGuardPath,(const char*)tolua_tostring(tolua_S,2,0),PATH_LEN-1);
+ if (!self) return 0;
+ ClientFixedString::Assign(self->szGuardPath, tolua_tostring(tolua_S,2,0));
  return 0;
 }
 #endif //#ifndef TOLUA_DISABLE
