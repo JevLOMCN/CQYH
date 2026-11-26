@@ -4,6 +4,8 @@
 	Specification :  
 ====================================================================*/
 #include "stdafx.h"
+#include "../ReadFileBuffer.h"
+#include "../PatchPath.h"
 #include "FixClient.h"
 #include "FixClientdlg.h"
 #include "Controls.h"
@@ -14,6 +16,7 @@
 #include "Task.h"
 #include "ThreadPool.h"
 #include <assert.h>
+#include <sstream>
 #include <algorithm>
 #include "FixClientUtil.h"
 #include <DbgHelp.h>
@@ -168,6 +171,8 @@ CFixClientDlg::CFixClientDlg(CWnd* pParent /*=NULL*/)
 	, _httpConnectionPtr(0)
 	, _internetSession(0)
 	, _curUpdate(0)
+	, _totalUpdate(0)
+	, _progressCount(0)
 {
 	_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -220,11 +225,23 @@ CRect GetControlRect(const CString& name)
 	// 	CurrentProg=l,t,w,h
 	
 	CString str = cfg.GetStringValue(_T("UI"), name, _T("0,0,50,50"));
-	CRect rc;
-	_stscanf_s((LPCTSTR)str, _T("%d,%d,%d,%d"), &rc.left, &rc.top, &rc.right, &rc.bottom);
+	CRect rc(0, 0, 50, 50);
+	TCHAR comma1 = 0, comma2 = 0, comma3 = 0;
+	std::basic_istringstream<TCHAR> input((LPCTSTR)str);
+	if (!(input >> rc.left >> comma1 >> rc.top >> comma2 >> rc.right >> comma3 >> rc.bottom) ||
+		comma1 != _T(',') || comma2 != _T(',') || comma3 != _T(','))
+	{
+		return CRect(0, 0, 50, 50);
+	}
 
-	rc.right += rc.left;
-	rc.bottom += rc.top;
+	const LONGLONG right = (LONGLONG)rc.left + rc.right;
+	const LONGLONG bottom = (LONGLONG)rc.top + rc.bottom;
+	if (right < -MAXLONG - 1 || right > MAXLONG || bottom < -MAXLONG - 1 || bottom > MAXLONG)
+	{
+		return CRect(0, 0, 50, 50);
+	}
+	rc.right = (LONG)right;
+	rc.bottom = (LONG)bottom;
 
 	return rc;
 }
@@ -296,7 +313,8 @@ BOOL CFixClientDlg::OnInitDialog(){
 	//MoveControlToRect(_htmlADBar, _T("HtmlAD"));
 
 	TCHAR strBuffer[MAX_PATH];
-	::GetModuleFileName(NULL, strBuffer, MAX_PATH);
+	if (!ClientPatch::ReadModulePath(strBuffer))
+		return FALSE;
 	CString strTmp = strBuffer;
 	_strPatchConfigFile = strTmp.Left( strTmp.ReverseFind('\\') + 1 );
 	_strVersionLocalConfigFile = _strPatchConfigFile;
@@ -341,7 +359,8 @@ BOOL CFixClientDlg::OnInitDialog(){
 	_strTmpDir = strBuffer;
 
 	// Install Dir
-	::GetModuleFileName(NULL, strBuffer, MAX_PATH);
+	if (!ClientPatch::ReadModulePath(strBuffer))
+		return FALSE;
 	strTmp = strBuffer;
 	_strInstallDir = strTmp.Left( strTmp.ReverseFind('\\') + 1 );
 
@@ -537,12 +556,18 @@ LRESULT CFixClientDlg::OnBeginPatch(WPARAM wParam, LPARAM lParam)
 		}
 		
 		char szClientVersion[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, _curClientVer.GetBuffer(), (DWORD)(wcslen(_curClientVer.GetBuffer())) + 1,
-			szClientVersion, sizeof(szClientVersion), NULL, NULL);
+		if (!ClientPatch::ToAnsi(_curClientVer, szClientVersion))
+		{
+			_isPatchSuccess = FALSE;
+			return 0;
+		}
 
 		char szCurVersion[MAX_PATH];
-		WideCharToMultiByte(CP_ACP, 0, g_versionName.GetBuffer(), (DWORD)(wcslen(g_versionName.GetBuffer())) + 1,
-			szCurVersion, sizeof(szCurVersion), NULL, NULL);
+		if (!ClientPatch::ToAnsi(g_versionName, szCurVersion))
+		{
+			_isPatchSuccess = FALSE;
+			return 0;
+		}
 
 		if (strcmp(szClientVersion, szCurVersion) != 0)
 		{
@@ -1078,14 +1103,18 @@ void CFixClientDlg::DoPatch()
 	deltaDir.Replace('/', '\\');
 
 	char szClientPath[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, clientDir.GetBuffer(), (DWORD)(wcslen(clientDir.GetBuffer())) + 1,
-		szClientPath, sizeof(szClientPath), NULL, NULL);
-	clientDir.ReleaseBuffer();
+	if (!ClientPatch::ToAnsi(clientDir, szClientPath))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 
 	char szDeltaPath[MAX_PATH];
-	WideCharToMultiByte(CP_ACP, 0, deltaDir.GetBuffer(), (DWORD)(wcslen(deltaDir.GetBuffer())) + 1,
-		szDeltaPath, sizeof(szDeltaPath), NULL, NULL);
-	deltaDir.ReleaseBuffer();
+	if (!ClientPatch::ToAnsi(deltaDir, szDeltaPath))
+	{
+		_isPatchSuccess = FALSE;
+		return;
+	}
 
 	_progressCurrent.SetRange(0, 100);
 	_progressCurrent.SetPos(100);
@@ -1290,15 +1319,8 @@ void CFixClientDlg::StartFix()
 			return;
 		}
 
-		bool bUnicode = false;
-		byte head[2];
 		verFile.SeekToBegin();
-		verFile.Read(&head, 2);
-		if ((head[0] == 0xfe && head[1] == 0xff) ||
-			(head[0] == 0xff && head[1] == 0xfe))
-		{
-			bUnicode = true;
-		}
+		const bool bUnicode = ClientPatch::HasUnicodeBom(verFile);
 
 		verFile.Close();
 
@@ -1883,10 +1905,11 @@ bool HttpsDownload(const CString& strURL, const CString& targetFilePath, CIntern
 {
 	DWORD dwStatus = 0;
 
-	DWORD dwServiceType;
-	INTERNET_PORT serverPort;
+	DWORD dwServiceType = 0;
+	INTERNET_PORT serverPort = INTERNET_INVALID_PORT_NUMBER;
 	CString serverIP, objectURI;
-	AfxParseURL(strURL, dwServiceType, serverIP, objectURI, serverPort);
+	if (!AfxParseURL(strURL, dwServiceType, serverIP, objectURI, serverPort))
+		return false;
 
 	CInternetSession* internetSession = sess ? sess : new CInternetSession();
 	CHttpConnection* httpConn = NULL;
@@ -2059,11 +2082,10 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 
 	CreateDirectoryHierarchy(strSrcTempDir.c_str(), true);
 
-	WCHAR szCurDir[1024];
-	::GetCurrentDirectory(sizeof(szCurDir), szCurDir);
+	ClientPatch::ScopedCurrentDirectory<WCHAR> currentDirectory;
 	WCHAR szSrcDirTemp[MAX_PATH];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcTempDir.c_str(), -1, szSrcDirTemp, MAX_PATH);
-	::SetCurrentDirectory(szSrcDirTemp);
+	if (!ClientPatch::ToWide(strSrcTempDir.c_str(), szSrcDirTemp) || !currentDirectory.Change(szSrcDirTemp))
+		return false;
 
 	for (unsigned int i = 0; i < vecDeltaFiles.size(); ++i)
 	{
@@ -2078,19 +2100,24 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 		}
 
 		WCHAR szSrcPath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcDir.c_str(), -1, szSrcPath, MAX_PATH);
+		if (!ClientPatch::ToWide(strSrcDir.c_str(), szSrcPath))
+			return false;
 
 		WCHAR szTempPath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strSrcTempDir.c_str(), -1, szTempPath, MAX_PATH);
+		if (!ClientPatch::ToWide(strSrcTempDir.c_str(), szTempPath))
+			return false;
 
 		WCHAR szDeltaFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strDeltaFilePath.c_str(), -1, szDeltaFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strDeltaFilePath.c_str(), szDeltaFilePath))
+			return false;
 
 		WCHAR szFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strFilePath.c_str(), -1, szFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strFilePath.c_str(), szFilePath))
+			return false;
 
 		WCHAR szTempFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strTempFilePath.c_str(), -1, szTempFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strTempFilePath.c_str(), szTempFilePath))
+			return false;
 
 		int iPakIndex = -1;
 		bool bSucc = (*g_pfExtractPackFile)(szSrcPath, szTempPath, szFilePath, iPakIndex);
@@ -2149,7 +2176,8 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 		std::string strPackPath;
 		WCHAR szPackPath[MAX_PATH];
 		WCHAR szFilePath[MAX_PATH];
-		MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strFilePath.c_str(), -1, szFilePath, MAX_PATH);
+		if (!ClientPatch::ToWide(strFilePath.c_str(), szFilePath))
+			return false;
 
 		PathString strPakDir = strSrcDir + PathString("\\");
 
@@ -2170,7 +2198,8 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 					vecPackFiles.push_back(strPakDir);
 
 					strPackPath = strPakDir;
-					MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+					if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+						return false;
 
 					bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, true, dwNewFileCount);
 
@@ -2178,7 +2207,8 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 				else
 				{
 					strPackPath = vecPackFiles.back();
-					MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+					if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+						return false;
 
 					bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, false, dwNewFileCount);
 				}
@@ -2192,7 +2222,8 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 				vecPackFiles.push_back(strPakDir);
 
 				strPackPath = strPakDir;
-				MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+				if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+					return false;
 
 				bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, true, dwNewFileCount);
 			}
@@ -2200,7 +2231,8 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 		else
 		{
 			strPackPath = vecPackFiles[iPakIndex];
-			MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, (LPCSTR)strPackPath.c_str(), -1, szPackPath, MAX_PATH);
+			if (!ClientPatch::ToWide(strPackPath.c_str(), szPackPath))
+				return false;
 
 			bSucc = (*g_pfAddPackFile)(szPackPath, szFilePath, false, 0);
 		}
@@ -2225,7 +2257,7 @@ bool CFixClientDlg::PatchPack(const char* pSrcDir, const char* pDeltaDir, const 
 	//DeleteFileTree(strSrcDirTemp);
 	DeleteFilesInDirectory(strSrcTempDir.c_str(), true);
 
-	::SetCurrentDirectory(szCurDir);
+	currentDirectory.Restore();
 
 	return true;
 }
@@ -2243,10 +2275,12 @@ bool CFixClientDlg::PatchFile(const char* pSrcFile, const char* pDeltaFile)
 
 	// merge common file
 	WCHAR szDeltaDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strDeltaFile.c_str(), -1, szDeltaDir, sizeof(szDeltaDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strDeltaFile.c_str(), -1, szDeltaDir, (int)(sizeof(szDeltaDir) / sizeof(szDeltaDir[0]))))
+		return false;
 
 	WCHAR szSrcDir[1024];
-	MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, sizeof(szSrcDir));
+	if (!MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, strSrcFile.c_str(), -1, szSrcDir, (int)(sizeof(szSrcDir) / sizeof(szSrcDir[0]))))
+		return false;
 
 	if (IsFileExist(strSrcFile))
 	{// 去除文件的只读属性， 否则会拷贝失败

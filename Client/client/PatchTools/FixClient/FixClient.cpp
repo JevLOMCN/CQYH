@@ -88,8 +88,15 @@ BOOL CFixClientApp::InitInstance()
 	{
 		g_pfGetPackFileCount = (pfGetPackFileCount)(::GetProcAddress(g_hXDelta3, "GetPackFileCount"));
 		g_pfGetPackFileList = (pfGetPackFileList)(::GetProcAddress(g_hXDelta3, "GetPackFileList"));
-		g_pfGetPackFileBuffer = (pfGetPackFileBuffer)(::GetProcAddress(g_hXDelta3, "GetPackFileBuffer"));
+		g_pfGetPackFileBufferSized = (pfGetPackFileBufferSized)(::GetProcAddress(g_hXDelta3, "GetPackFileBufferSized"));
 		g_pfGetPackFileSize = (pfGetPackFileSize)(::GetProcAddress(g_hXDelta3, "GetPackFileSize"));
+		if (!g_pfGetPackFileBufferSized || !g_pfGetPackFileSize)
+		{
+			AfxMessageBox(_T("The patch library must be updated before checking archive files."), MB_OK | MB_ICONHAND);
+			FreeLibrary(g_hXDelta3);
+			g_hXDelta3 = NULL;
+			return FALSE;
+		}
 		g_pfDeletePackFile = (pfDeletePackFile)(::GetProcAddress(g_hXDelta3, "DeletePackFile"));
 		g_pfExtractPackFile = (pfExtractPackFile)(::GetProcAddress(g_hXDelta3, "ExtractPackFile"));
 		g_pfAddPackFile = (pfAddPackFile)(::GetProcAddress(g_hXDelta3, "AddPackFile"));

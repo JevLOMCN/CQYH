@@ -47,7 +47,7 @@ extern volatile LONG g_writeFileTaskCompletedCount;
 // >>
 typedef int(*pfGetPackFileCount)(LPCWSTR lpszSrcFilePath);
 typedef bool(*pfGetPackFileList)(LPCWSTR lpszArchivePath, char pFilePath[][MAX_PATH], unsigned int nMaxCount, unsigned int nCount);
-typedef bool(*pfGetPackFileBuffer)(LPCWSTR lpszArchivePath, LPCWSTR lpszFilePath, unsigned char* pBuffer);
+typedef bool(*pfGetPackFileBufferSized)(LPCWSTR lpszArchivePath, LPCWSTR lpszFilePath, unsigned char* pBuffer, DWORD bufferSize);
 typedef DWORD(*pfGetPackFileSize)(LPCWSTR lpszArchivePath, LPCWSTR lpszFilePath);
 typedef bool(*pfDeletePackFile)(LPCWSTR lpszArchivePath, LPCWSTR lpszFilePath);
 typedef bool(*pfExtractPackFile)(LPCWSTR lpszSrcPath, LPCWSTR lpszTempPath, LPCWSTR lpszFilePath, int& iPackIndex);
@@ -56,7 +56,7 @@ typedef bool(*pfAddPackFile)(LPCWSTR lpszArchivePath, LPCWSTR lpszFilePath, bool
 extern HMODULE g_hXDelta3;
 extern pfGetPackFileCount g_pfGetPackFileCount;
 extern pfGetPackFileList g_pfGetPackFileList;
-extern pfGetPackFileBuffer g_pfGetPackFileBuffer;
+extern pfGetPackFileBufferSized g_pfGetPackFileBufferSized;
 extern pfGetPackFileSize g_pfGetPackFileSize;
 extern pfDeletePackFile g_pfDeletePackFile;
 extern pfExtractPackFile g_pfExtractPackFile;

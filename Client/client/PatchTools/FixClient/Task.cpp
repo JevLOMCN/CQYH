@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../DownloadBuffer.h"
 #include "Task.h"
 #include "MD5.h"
 #include "ThreadPool.h"
@@ -38,7 +39,7 @@ extern CString g_downloadObjectURI;
 HMODULE g_hXDelta3 = NULL;
 pfGetPackFileCount g_pfGetPackFileCount = NULL;
 pfGetPackFileList g_pfGetPackFileList = NULL;
-pfGetPackFileBuffer g_pfGetPackFileBuffer = NULL;
+pfGetPackFileBufferSized g_pfGetPackFileBufferSized = NULL;
 pfGetPackFileSize g_pfGetPackFileSize = NULL;
 pfDeletePackFile g_pfDeletePackFile = NULL;
 pfExtractPackFile g_pfExtractPackFile = NULL;
@@ -67,6 +68,7 @@ void GenerateMD5Task::Run()
 
 	if (_isMPQ)
 	{
+		_targetMD5 = _T("Fail");
 		EnterCriticalSection(&g_csGenMD5);
 		DWORD dwSize = ((*g_pfGetPackFileSize)(_srcFile.GetBuffer(_srcFile.GetLength()), _srcSubFile.GetBuffer(_srcSubFile.GetLength())));
 		_srcFile.ReleaseBuffer();
@@ -84,7 +86,7 @@ void GenerateMD5Task::Run()
 		if (fileBuffer)
 		{
 			EnterCriticalSection(&g_csGenMD5);
-			bool success = ((*g_pfGetPackFileBuffer)(_srcFile.GetBuffer(_srcFile.GetLength()), _srcSubFile.GetBuffer(_srcSubFile.GetLength()), fileBuffer));
+			bool success = ((*g_pfGetPackFileBufferSized)(_srcFile.GetBuffer(_srcFile.GetLength()), _srcSubFile.GetBuffer(_srcSubFile.GetLength()), fileBuffer, dwSize));
 			_srcFile.ReleaseBuffer();
 			_srcSubFile.ReleaseBuffer();
 			LeaveCriticalSection(&g_csGenMD5);
@@ -92,7 +94,9 @@ void GenerateMD5Task::Run()
 			if (success)
 			{
 				MD5 md5(fileBuffer, dwSize);
-				_targetMD5 = md5.hex_digest();
+				char* digest = md5.hex_digest();
+				_targetMD5 = digest;
+				delete[] digest;
 			}
 			else
 			{
@@ -110,8 +114,9 @@ void GenerateMD5Task::Run()
 		if (pFile != NULL)
 		{
 			MD5 md5(pFile);
-			_targetMD5 = md5.hex_digest();
-			fclose(pFile);
+			char* digest = md5.hex_digest();
+			_targetMD5 = digest;
+			delete[] digest;
 		}
 		else
 		{
@@ -300,9 +305,14 @@ void DownloadTask::Run()
 // 	}
 
 	UINT dwFileLength = 0;
+	BOOL hasContentLength = FALSE;
 	CString strLength;
-	pFile->QueryInfo(HTTP_QUERY_CONTENT_LENGTH, strLength);
-	dwFileLength = (UINT)_ttoi((LPCTSTR)strLength);
+	hasContentLength = pFile->QueryInfo(HTTP_QUERY_CONTENT_LENGTH, strLength);
+	TCHAR* lengthEnd = NULL;
+	ULONGLONG declaredLength = _tcstoui64((LPCTSTR)strLength, &lengthEnd, 10);
+		BOOL validContentLength = !hasContentLength ||
+			(lengthEnd != (LPCTSTR)strLength && *lengthEnd == 0 && declaredLength <= (UINT)-1);
+		dwFileLength = validContentLength && hasContentLength ? (UINT)declaredLength : 0;
 	//int iTotalPercent	= dwFileLength / 4096;
 
 	//CStdioFile csf;
@@ -325,20 +335,22 @@ void DownloadTask::Run()
 	//	// m_ProgressCurrent.SetRange(0, (short)iTotalPercent);
 	//}
 
-	BYTE* fileBuf = new BYTE[dwFileLength];// [4096];
-	int curPos = 0;
-	BYTE buf[4096] = {0};
-	int n;
-	while( (n = pFile->Read(buf,4096) ) > 0 )
+	std::vector<BYTE> downloaded;
+	if (!validContentLength || !ClientPatch::ReadDownload(*pFile, downloaded, hasContentLength ? dwFileLength : (UINT)-1) ||
+		(hasContentLength && downloaded.size() != dwFileLength))
 	{
-		//csf.Write(buf,n);
-		memcpy(&fileBuf[curPos], buf, n);
-		curPos += n;
-
-		// m_ProgressCurrent.StepIt();
-		// M_Update_Msg(FALSE);
+		pFile->Close();
+		delete pFile;
+		LogMsgToUI(_T("Invalid download length."));
+		InterlockedIncrement(&g_downloadTaskCompletedCount);
+		InterlockedIncrement(&g_writeFileTaskCompletedCount);
+		return;
 	}
-	//csf.Close();
+	dwFileLength = (UINT)downloaded.size();
+	BYTE* fileBuf = new BYTE[dwFileLength];
+	if (dwFileLength > 0)
+		memcpy(fileBuf, &downloaded[0], dwFileLength);
+	std::vector<BYTE>().swap(downloaded);
 
 	pFile->Close();
 	delete pFile;

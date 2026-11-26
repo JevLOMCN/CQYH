@@ -203,7 +203,7 @@ void MD5::finalize (){
   encode (digest, state, 16);
 
   // Zeroize sensitive information
-  memset (buffer, 0, sizeof(*buffer));
+  memset (buffer, 0, sizeof(buffer));
 
   finalized=1;
 
@@ -253,12 +253,12 @@ MD5::MD5(ifstream& stream){
 
 unsigned char *MD5::raw_digest(){
 
-  uint1 *s = new uint1[16];
+  uint1 *s = new uint1[16]();
 
   if (!finalized){
     cerr << "MD5::raw_digest:  Can't get digest if you haven't "<<
       "finalized the digest!" <<endl;
-    return ( (unsigned char*) "");
+    return s;
   }
 
   memcpy(s, digest, 16);
@@ -270,12 +270,12 @@ unsigned char *MD5::raw_digest(){
 char *MD5::hex_digest(){
 
   int i;
-  char *s= new char[33];
+  char *s= new char[33]();
 
   if (!finalized){
     cerr << "MD5::hex_digest:  Can't get digest if you haven't "<<
       "finalized the digest!" <<endl;
-    return "";
+    return s;
   }
 
   for (i=0; i<16; i++)
@@ -292,7 +292,9 @@ char *MD5::hex_digest(){
 
 ostream& operator<<(ostream &stream, MD5 context){
 
-  stream << context.hex_digest();
+  char* digest = context.hex_digest();
+  stream << digest;
+  delete[] digest;
   return stream;
 }
 
@@ -309,6 +311,8 @@ void MD5::init(){
   // Nothing counted, so count=0
   count[0] = 0;
   count[1] = 0;
+  memset(buffer, 0, sizeof(buffer));
+  memset(digest, 0, sizeof(digest));
 
   // Load magic initialization constants.
   state[0] = 0x67452301;
